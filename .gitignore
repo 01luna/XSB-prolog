@@ -165,8 +165,10 @@ xsbtests/sem_tests/*.so
 xsbtests/sem_tests/*~
 xsbtests/sem_tests/,*
 xsbtests/sem_tests/.#a
+xsbtests/sem_tests/CVS
 xsbtests/sem_tests/_*
 xsbtests/sem_tests/core
+xsbtests/sem_tests/sem_parse.O.sv
 xsbtests/table_tests/#*
 xsbtests/table_tests/*$
 xsbtests/table_tests/*.BAK
