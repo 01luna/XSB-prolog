@@ -4,6 +4,7 @@ XSB/cmplib/asm_opt.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/asmpass2.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/auxlry.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/builtin.O svn_mime_002dtype=application%2Foctet-stream
+XSB/cmplib/ciao_directives.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/compile.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/config.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/cp_opt.O svn_mime_002dtype=application%2Foctet-stream
