@@ -10,6 +10,7 @@ XSB/docs/userman/auto/*.el
 XSB/docs/userman/odbc_man/auto/*.el
 XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
+XSB/emu/orastuff.c
 XSB/etc/config.msg
 XSB/packages/flip/demos/*.O
 XSB/packages/flip/demos/*.P
