@@ -420,6 +420,7 @@ xsbtests/cdf_tests/#*
 xsbtests/cdf_tests/*.stackdump
 xsbtests/cdf_tests/*.xwam
 xsbtests/cdf_tests/*outdir*
+xsbtests/cdf_tests/temp_testdir
 xsbtests/compiler_tests/#*
 xsbtests/compiler_tests/*$
 xsbtests/compiler_tests/*.BAK
