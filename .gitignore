@@ -117,6 +117,7 @@ XSB/packages/CDF/doc/*.vr
 XSB/packages/CDF/doc/*.vrs
 XSB/packages/CDF/doc/*XXXXXX
 XSB/packages/CDF/oms_xj.P
+XSB/packages/altCDF/*.xwam
 XSB/packages/clpqr/*.xwam
 XSB/packages/clpqr/cmd...
 XSB/packages/flora2.P
