@@ -139,6 +139,7 @@ xsbtests/float_tests/CVS
 xsbtests/float_tests/_*
 xsbtests/float_tests/core
 xsbtests/float_tests/temp
+xsbtests/lock.*
 xsbtests/neg_tests/#*
 xsbtests/neg_tests/*$
 xsbtests/neg_tests/*.BAK
@@ -266,7 +267,6 @@ xsbtests/table_tests/_*
 xsbtests/table_tests/core
 xsbtests/table_tests/temp
 xsbtests/temp
-xsbtests/uniq_lock
 xsbtests/wfs_tests/#*
 xsbtests/wfs_tests/*$
 xsbtests/wfs_tests/*.BAK
