@@ -416,6 +416,8 @@ xsbtests/benches/synth_benches/CVS
 xsbtests/benches/xmc/*.xwam
 xsbtests/benches/xmc/*_new*
 xsbtests/benches/xmc/CVS
+xsbtests/cdf_tests/#*
+xsbtests/cdf_tests/*.xwam
 xsbtests/compiler_tests/#*
 xsbtests/compiler_tests/*$
 xsbtests/compiler_tests/*.BAK
