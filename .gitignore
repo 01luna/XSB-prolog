@@ -74,6 +74,8 @@ XSB/examples/xmc/Tests/*.O
 XSB/examples/xmc/Tests/*.err
 XSB/examples/xmc/Tests/*.o
 XSB/examples/xmc/Tests/*.xlo
+XSB/examples/xmc/log1
+XSB/examples/xmc/log2
 XSB/gpp/*.pch
 XSB/gpp/Makefile
 XSB/lib/*.O
