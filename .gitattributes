@@ -39,6 +39,7 @@ XSB/cmplib/useinfer.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/varproc.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/writeasm.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/assert.O svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/atts.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/basics.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/consult.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/curr_sym.O svn_mime_002dtype=application%2Foctet-stream
