@@ -3,6 +3,7 @@ XSB/bin
 XSB/build/*.cache
 XSB/build/*.log
 XSB/build/*.status
+XSB/build/*.xwam
 XSB/build/.*.tmp
 XSB/build/Installation*
 XSB/build/MS_VC_Mfile.mak
