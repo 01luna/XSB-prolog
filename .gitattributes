@@ -92,6 +92,7 @@ XSB/syslib/dbclause.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/dcg.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/debugger.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/domain.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/error_handler.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/eval.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/file_io.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/file_op.xwam svn_mime_002dtype=application%2Foctet-stream
