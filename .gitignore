@@ -27,13 +27,16 @@ XSB/lib/*.O
 XSB/lib/cmd...
 XSB/packages/*.O
 XSB/packages/flip/*.O
+XSB/packages/flip/cmd...
 XSB/packages/flip/demos/*.O
 XSB/packages/flip/demos/*.P
 XSB/packages/flip/lib/*.O
 XSB/packages/perlmatch/*.O
 XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/perlmatch/cc/xsbpattern.O
+XSB/packages/perlmatch/cmd...
 XSB/packages/slx/*.O
+XSB/packages/slx/cmd...
 XSB/site
 XSB/syslib/ChangeLog
 XSB/syslib/cmd...
