@@ -22,6 +22,7 @@ XSB/docs/userman/odbc_man/auto
 XSB/emu/ChangeLog
 XSB/emu/MS_VC_Mfile.mak
 XSB/emu/Makefile
+XSB/emu/a.out
 XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
 XSB/emu/ms_vc_mfile.mak
