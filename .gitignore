@@ -11,6 +11,7 @@ XSB/build/xsb_wrap_smodels.c
 XSB/cmplib/ChangeLog
 XSB/cmplib/cmd...
 XSB/cmplib/o.diff
+XSB/cmplib/objfiles.saved
 XSB/config
 XSB/docs/techman/auto
 XSB/docs/userman/auto
@@ -85,6 +86,7 @@ XSB/syslib/ChangeLog
 XSB/syslib/cmd...
 XSB/syslib/domain.O
 XSB/syslib/o.diff
+XSB/syslib/objfiles.saved
 XSB/syslib/sysinitrc.O
 XSB/tests
 xsbtests/#*
