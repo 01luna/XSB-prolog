@@ -84,6 +84,7 @@ XSB/lib/ChangeLog
 XSB/lib/cmd...
 XSB/lib/o.diff
 XSB/obj.*
+XSB/packages/*.lnk
 XSB/packages/*.xwam
 XSB/packages/clpqr/*.xwam
 XSB/packages/clpqr/cmd...
@@ -163,10 +164,12 @@ XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/perlmatch/cc/xsbpattern.xwam
 XSB/packages/perlmatch/cmd...
 XSB/packages/regmatch/*.xwam
+XSB/packages/regmatch/cc/*.xwam
 XSB/packages/regmatch/cc/xsb_re_match.H
 XSB/packages/regmatch/cc/xsb_re_match.O
 XSB/packages/regmatch/cmd...
 XSB/packages/sModels/*.h
+XSB/packages/sModels/*.lnk
 XSB/packages/sModels/*.o
 XSB/packages/sModels/*.so
 XSB/packages/sModels/*.xwam
@@ -175,6 +178,7 @@ XSB/packages/sModels/xsb_wrap_smodels.c
 XSB/packages/slx/*.xwam
 XSB/packages/slx/cmd...
 XSB/packages/wildmatch/*.xwam
+XSB/packages/wildmatch/cc/*.xwam
 XSB/packages/wildmatch/cc/xsb_wildmatch.H
 XSB/packages/wildmatch/cc/xsb_wildmatch.O
 XSB/packages/wildmatch/cmd...
