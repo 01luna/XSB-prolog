@@ -37,6 +37,8 @@ XSB/examples/XSB_calling_c/*.o
 XSB/examples/c_calling_XSB/*.O
 XSB/examples/c_calling_XSB/*.o
 XSB/examples/c_calling_XSB/*mytest*
+XSB/examples/libwww/*.O
+XSB/examples/libwww/*.o
 XSB/examples/socket/*.O
 XSB/examples/subprocess/*.O
 XSB/gpp/*.pch
