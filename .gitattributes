@@ -311,6 +311,7 @@ xsbtests/table_tests/empty_answer.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/table_tests/exec.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/table_tests/expand.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/table_tests/float.O svn_mime_002dtype=application%2Foctet-stream
+xsbtests/table_tests/float1.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/table_tests/grammarlrk3.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/table_tests/ins.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/table_tests/internt.O svn_mime_002dtype=application%2Foctet-stream
