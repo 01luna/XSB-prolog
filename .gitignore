@@ -41,6 +41,8 @@ XSB/examples/c_calling_XSB/*mytest*
 XSB/examples/libwww/*.o
 XSB/examples/libwww/*.out
 XSB/examples/libwww/*.xwam
+XSB/examples/sgml/*.xwam
+XSB/examples/sgml/actualoutput*
 XSB/examples/socket/*.xwam
 XSB/examples/socket/select/*.xwam
 XSB/examples/subprocess/*.xwam
@@ -78,6 +80,8 @@ XSB/examples/xmc/Tests/*.o
 XSB/examples/xmc/Tests/*.xlo
 XSB/examples/xmc/log1
 XSB/examples/xmc/log2
+XSB/examples/xpath/*.xwam
+XSB/examples/xpath/actualoutput*
 XSB/gpp/*.pch
 XSB/gpp/Makefile
 XSB/lib/*.xwam
