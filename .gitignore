@@ -243,6 +243,13 @@ XSB/packages/wildmatch/cc/*.xwam
 XSB/packages/wildmatch/cc/xsb_wildmatch.H
 XSB/packages/wildmatch/cc/xsb_wildmatch.O
 XSB/packages/wildmatch/cmd...
+XSB/packages/xasp/*.h
+XSB/packages/xasp/*.lnk
+XSB/packages/xasp/*.o
+XSB/packages/xasp/*.so
+XSB/packages/xasp/*.xwam
+XSB/packages/xasp/Makefile
+XSB/packages/xasp/xsb_wrap_smodels.c
 XSB/packages/xmc/*.o
 XSB/packages/xmc/*.xwam
 XSB/packages/xmc/a.out
