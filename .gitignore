@@ -42,6 +42,7 @@ xsbtests/*_new*
 xsbtests/*~
 xsbtests/,*
 xsbtests/.#a
+xsbtests/CVS
 xsbtests/_*
 xsbtests/ai_tests/#*
 xsbtests/ai_tests/*$
@@ -57,6 +58,7 @@ xsbtests/ai_tests/*_new*
 xsbtests/ai_tests/*~
 xsbtests/ai_tests/,*
 xsbtests/ai_tests/.#a
+xsbtests/ai_tests/CVS
 xsbtests/ai_tests/_*
 xsbtests/ai_tests/core
 xsbtests/ai_tests/temp
@@ -74,6 +76,7 @@ xsbtests/basic_tests/*_new*
 xsbtests/basic_tests/*~
 xsbtests/basic_tests/,*
 xsbtests/basic_tests/.#a
+xsbtests/basic_tests/CVS
 xsbtests/basic_tests/_*
 xsbtests/basic_tests/core
 xsbtests/basic_tests/temp
@@ -91,6 +94,7 @@ xsbtests/compiler_tests/*_new*
 xsbtests/compiler_tests/*~
 xsbtests/compiler_tests/,*
 xsbtests/compiler_tests/.#a
+xsbtests/compiler_tests/CVS
 xsbtests/compiler_tests/_*
 xsbtests/compiler_tests/core
 xsbtests/compiler_tests/temp
@@ -109,6 +113,7 @@ xsbtests/delay_tests/*_new*
 xsbtests/delay_tests/*~
 xsbtests/delay_tests/,*
 xsbtests/delay_tests/.#a
+xsbtests/delay_tests/CVS
 xsbtests/delay_tests/_*
 xsbtests/delay_tests/core
 xsbtests/delay_tests/temp
@@ -126,6 +131,7 @@ xsbtests/float_tests/*_new*
 xsbtests/float_tests/*~
 xsbtests/float_tests/,*
 xsbtests/float_tests/.#a
+xsbtests/float_tests/CVS
 xsbtests/float_tests/_*
 xsbtests/float_tests/core
 xsbtests/float_tests/temp
@@ -143,8 +149,10 @@ xsbtests/neg_tests/*_new*
 xsbtests/neg_tests/*~
 xsbtests/neg_tests/,*
 xsbtests/neg_tests/.#a
+xsbtests/neg_tests/CVS
 xsbtests/neg_tests/_*
 xsbtests/neg_tests/core
+xsbtests/neg_tests/temp
 xsbtests/prolog_tests/#*
 xsbtests/prolog_tests/*$
 xsbtests/prolog_tests/*.BAK
@@ -159,8 +167,10 @@ xsbtests/prolog_tests/*_new*
 xsbtests/prolog_tests/*~
 xsbtests/prolog_tests/,*
 xsbtests/prolog_tests/.#a
+xsbtests/prolog_tests/CVS
 xsbtests/prolog_tests/_*
 xsbtests/prolog_tests/core
+xsbtests/prolog_tests/temp
 xsbtests/ptq/#*
 xsbtests/ptq/*$
 xsbtests/ptq/*.BAK
@@ -175,8 +185,10 @@ xsbtests/ptq/*_new*
 xsbtests/ptq/*~
 xsbtests/ptq/,*
 xsbtests/ptq/.#a
+xsbtests/ptq/CVS
 xsbtests/ptq/_*
 xsbtests/ptq/core
+xsbtests/ptq/temp
 xsbtests/retract_tests/#*
 xsbtests/retract_tests/*$
 xsbtests/retract_tests/*.BAK
@@ -191,8 +203,10 @@ xsbtests/retract_tests/*_new*
 xsbtests/retract_tests/*~
 xsbtests/retract_tests/,*
 xsbtests/retract_tests/.#a
+xsbtests/retract_tests/CVS
 xsbtests/retract_tests/_*
 xsbtests/retract_tests/core
+xsbtests/retract_tests/temp
 xsbtests/sem_tests/#*
 xsbtests/sem_tests/*$
 xsbtests/sem_tests/*.BAK
@@ -207,8 +221,10 @@ xsbtests/sem_tests/*_new*
 xsbtests/sem_tests/*~
 xsbtests/sem_tests/,*
 xsbtests/sem_tests/.#a
+xsbtests/sem_tests/CVS
 xsbtests/sem_tests/_*
 xsbtests/sem_tests/core
+xsbtests/sem_tests/temp
 xsbtests/table_tests/#*
 xsbtests/table_tests/*$
 xsbtests/table_tests/*.BAK
@@ -223,9 +239,11 @@ xsbtests/table_tests/*_new*
 xsbtests/table_tests/*~
 xsbtests/table_tests/,*
 xsbtests/table_tests/.#a
+xsbtests/table_tests/CVS
 xsbtests/table_tests/_*
 xsbtests/table_tests/core
 xsbtests/table_tests/temp
+xsbtests/temp
 xsbtests/uniq_lock
 xsbtests/wfs_tests/#*
 xsbtests/wfs_tests/*$
@@ -241,6 +259,7 @@ xsbtests/wfs_tests/*_new*
 xsbtests/wfs_tests/*~
 xsbtests/wfs_tests/,*
 xsbtests/wfs_tests/.#a
+xsbtests/wfs_tests/CVS
 xsbtests/wfs_tests/_*
 xsbtests/wfs_tests/core
 xsbtests/wfs_tests/temp
