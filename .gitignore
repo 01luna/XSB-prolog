@@ -38,9 +38,9 @@ XSB/examples/XSB_calling_c/*.xwam
 XSB/examples/c_calling_XSB/*.o
 XSB/examples/c_calling_XSB/*.xwam
 XSB/examples/c_calling_XSB/*mytest*
-XSB/examples/libwww/*.O
 XSB/examples/libwww/*.o
 XSB/examples/libwww/*.out
+XSB/examples/libwww/*.xwam
 XSB/examples/socket/*.xwam
 XSB/examples/socket/select/*.xwam
 XSB/examples/subprocess/*.xwam
