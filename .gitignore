@@ -157,8 +157,13 @@ XSB/packages/flora2/*.gz
 XSB/packages/flora2/*.tar
 XSB/packages/flora2/*.tmp
 XSB/packages/flora2/*.xwam
-XSB/packages/flora2/.flora_path
-XSB/packages/flora2/.prolog_path
+XSB/packages/flora2/.flora_path*
+XSB/packages/flora2/.prolog_path*
+XSB/packages/flora2/admin/*.Z
+XSB/packages/flora2/admin/*.gz
+XSB/packages/flora2/admin/*.tar
+XSB/packages/flora2/admin/*.tmp
+XSB/packages/flora2/admin/.excludedFiles
 XSB/packages/flora2/closure/*.flh
 XSB/packages/flora2/closure/*.old
 XSB/packages/flora2/closure/*.sv
