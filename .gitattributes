@@ -49,6 +49,7 @@ XSB/syslib/dcg.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/debugger.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/domain.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/eval.O svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/file_io.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/file_op.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/hilogsym.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/loader.O svn_mime_002dtype=application%2Foctet-stream
