@@ -75,6 +75,7 @@ XSB/packages/flora2/cmd...
 XSB/packages/flora2/demos/*.O
 XSB/packages/flora2/demos/*.P
 XSB/packages/flora2/demos/*.fdb
+XSB/packages/flora2/demos/*.flh
 XSB/packages/flora2/demos/cmd...
 XSB/packages/flora2/docs/auto
 XSB/packages/flora2/emacs/*.elc
