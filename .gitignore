@@ -264,6 +264,7 @@ xsbtests/prolog_tests/*.BAK
 xsbtests/prolog_tests/*.O
 xsbtests/prolog_tests/*.Z
 xsbtests/prolog_tests/*.bak
+xsbtests/prolog_tests/*.exe
 xsbtests/prolog_tests/*.gz
 xsbtests/prolog_tests/*.o
 xsbtests/prolog_tests/*.rej
