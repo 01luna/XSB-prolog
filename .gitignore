@@ -147,7 +147,7 @@ XSB/packages/altCDF/doc/*.tps
 XSB/packages/altCDF/doc/*.vr
 XSB/packages/altCDF/doc/*.vrs
 XSB/packages/altCDF/doc/*XXXXXX
-XSB/packages/altCDF/mytest/comptest1
+XSB/packages/altCDF/mytest/cdfcomp1
 XSB/packages/clpqr/*.xwam
 XSB/packages/clpqr/cmd...
 XSB/packages/flora2.P
