@@ -22,6 +22,7 @@ XSB/packages/perlmatch/*.O
 XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/slx/*.O
 XSB/site
+XSB/syslib/sysinitrc.O
 xsbtests/#*
 xsbtests/*$
 xsbtests/*.BAK
