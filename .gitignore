@@ -120,6 +120,8 @@ XSB/packages/wildmatch/*.O
 XSB/packages/wildmatch/cc/xsb_wildmatch.H
 XSB/packages/wildmatch/cc/xsb_wildmatch.O
 XSB/packages/wildmatch/cmd...
+XSB/packages/xsbdoc/*.O
+XSB/packages/xsbdoc/*.pl
 XSB/site
 XSB/syslib/ChangeLog
 XSB/syslib/cmd...
