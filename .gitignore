@@ -74,6 +74,8 @@ XSB/packages/flora2/closure/*.flh
 XSB/packages/flora2/cmd...
 XSB/packages/flora2/demos/*.O
 XSB/packages/flora2/demos/*.P
+XSB/packages/flora2/demos/*.fdb
+XSB/packages/flora2/demos/*.flh
 XSB/packages/flora2/demos/cmd...
 XSB/packages/flora2/syslib/*.O
 XSB/packages/flora2/trailer/*.O
