@@ -54,6 +54,7 @@ XSB/syslib/hilogsym.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/loader.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/machine.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/num_vars.O svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/setof.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/shell.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/standard.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/std_xsb.O svn_mime_002dtype=application%2Foctet-stream
