@@ -4,6 +4,7 @@ XSB/build/*.log
 XSB/build/*.status
 XSB/build/Installation*
 XSB/build/makexsb
+XSB/cmplib/ChangeLog
 XSB/cmplib/cmd...
 XSB/config
 XSB/docs/techman/auto
@@ -33,6 +34,7 @@ XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/perlmatch/cc/xsbpattern.O
 XSB/packages/slx/*.O
 XSB/site
+XSB/syslib/ChangeLog
 XSB/syslib/cmd...
 xsbtests/#*
 xsbtests/*$
