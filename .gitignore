@@ -3,7 +3,6 @@ XSB/build/*.cache
 XSB/build/*.log
 XSB/build/*.status
 XSB/build/Installation*
-XSB/build/configure
 XSB/build/makexsb
 XSB/docs/techman/auto/*.el
 XSB/docs/userman/auto/*.el
