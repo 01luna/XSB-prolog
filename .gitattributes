@@ -297,6 +297,7 @@ xsbtests/sem_tests/sem_incl.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/sem_tests/sem_lex.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/sem_tests/sem_parse.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/sem_tests/sem_pe.O svn_mime_002dtype=application%2Foctet-stream
+xsbtests/sem_tests/sem_pe1.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/sem_tests/sem_pretty.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/sem_tests/semantica.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/table_tests/aggregs_test.O svn_mime_002dtype=application%2Foctet-stream
