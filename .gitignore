@@ -29,6 +29,7 @@ XSB/examples/*.O
 XSB/examples/c_calling_XSB/*.O
 XSB/examples/c_calling_XSB/*.o
 XSB/examples/socket/*.O
+XSB/examples/subprocess/*.O
 XSB/lib/*.O
 XSB/lib/ChangeLog
 XSB/lib/cmd...
