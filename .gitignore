@@ -53,8 +53,8 @@ XSB/packages/regmatch/cmd...
 XSB/packages/slx/*.O
 XSB/packages/slx/cmd...
 XSB/packages/wildmatch/*.O
-XSB/packages/wildmatch/cc/xsb_re_match.H
-XSB/packages/wildmatch/cc/xsb_re_match.O
+XSB/packages/wildmatch/cc/xsb_wildmatch.H
+XSB/packages/wildmatch/cc/xsb_wildmatch.O
 XSB/packages/wildmatch/cmd...
 XSB/site
 XSB/syslib/ChangeLog
