@@ -12,6 +12,8 @@ XSB/config
 XSB/docs/techman/auto
 XSB/docs/userman/auto
 XSB/docs/userman/auto/*.el
+XSB/docs/userman/manual1
+XSB/docs/userman/manual2
 XSB/docs/userman/odbc_man/auto
 XSB/emu/ChangeLog
 XSB/emu/MS_VC_Mfile.mak
