@@ -34,6 +34,7 @@ XSB/examples/c_calling_XSB/*.o
 XSB/examples/socket/*.O
 XSB/examples/subprocess/*.O
 XSB/gpp/*.pch
+XSB/gpp/Makefile
 XSB/lib/*.O
 XSB/lib/ChangeLog
 XSB/lib/cmd...
