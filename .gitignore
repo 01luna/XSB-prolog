@@ -83,6 +83,8 @@ XSB/packages/flora2/lib/*.O
 XSB/packages/flora2/lib/*.P
 XSB/packages/flora2/lib/*.fdb
 XSB/packages/flora2/lib/*.flh
+XSB/packages/flora2/p2h/*.O
+XSB/packages/flora2/p2h/*.so
 XSB/packages/flora2/pkgs/*.O
 XSB/packages/flora2/pkgs/*.P
 XSB/packages/flora2/pkgs/*.fdb
