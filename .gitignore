@@ -4,6 +4,7 @@ XSB/build/*.log
 XSB/build/*.status
 XSB/build/Installation*
 XSB/build/makexsb
+XSB/config
 XSB/docs/techman/auto/*.el
 XSB/docs/userman/auto/*.el
 XSB/docs/userman/odbc_man/auto/*.el
