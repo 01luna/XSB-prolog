@@ -29,6 +29,8 @@ XSB/emu/orastuff.c
 XSB/emu/private_builtin.*
 XSB/etc/config.msg
 XSB/examples/*.O
+XSB/examples/XSB_calling_c/*.O
+XSB/examples/XSB_calling_c/*.o
 XSB/examples/c_calling_XSB/*.O
 XSB/examples/c_calling_XSB/*.o
 XSB/examples/socket/*.O
