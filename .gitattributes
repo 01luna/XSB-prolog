@@ -85,6 +85,7 @@ XSB/packages/xmc/GUI/false.gif svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/xmc/GUI/true.gif svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/assert.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/atts.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/banner.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/basics.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/consult.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/curr_sym.xwam svn_mime_002dtype=application%2Foctet-stream
