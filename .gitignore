@@ -193,6 +193,7 @@ XSB/packages/xmc/xl.tab.h
 XSB/packages/xmc/xmc-gui
 XSB/packages/xsbdoc/*.pl
 XSB/packages/xsbdoc/*.xwam
+XSB/packages/xsbdoc/doc/*.ascii
 XSB/packages/xsbdoc/doc/*.aux
 XSB/packages/xsbdoc/doc/*.blg
 XSB/packages/xsbdoc/doc/*.cp
@@ -205,6 +206,7 @@ XSB/packages/xsbdoc/doc/*.ky
 XSB/packages/xsbdoc/doc/*.kys
 XSB/packages/xsbdoc/doc/*.log
 XSB/packages/xsbdoc/doc/*.pd
+XSB/packages/xsbdoc/doc/*.pdf
 XSB/packages/xsbdoc/doc/*.pds
 XSB/packages/xsbdoc/doc/*.pg
 XSB/packages/xsbdoc/doc/*.pgs
