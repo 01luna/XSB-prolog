@@ -42,6 +42,10 @@ XSB/packages/flora/demos/*.O
 XSB/packages/flora/demos/*.P
 XSB/packages/flora/demos/cmd...
 XSB/packages/flora/docs/auto
+XSB/packages/flora/lib/*.O
+XSB/packages/flora/lib/*.P
+XSB/packages/flora/pkgs/*.O
+XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
 XSB/packages/gap/*.O
 XSB/packages/perlmatch/*.O
