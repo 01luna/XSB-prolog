@@ -145,6 +145,7 @@ xsbtests/delay_tests/abol_susp2.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/delay_tests/asl_dupl.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/delay_tests/avoid_flounder.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/delay_tests/cond_uncond.O svn_mime_002dtype=application%2Foctet-stream
+xsbtests/delay_tests/delay_var.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/delay_tests/dl_dupl.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/delay_tests/dynstrat1.O svn_mime_002dtype=application%2Foctet-stream
 xsbtests/delay_tests/dynstrat2.O svn_mime_002dtype=application%2Foctet-stream
