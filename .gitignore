@@ -165,6 +165,12 @@ xsbtests/basic_tests/CVS
 xsbtests/basic_tests/_*
 xsbtests/basic_tests/core
 xsbtests/basic_tests/temp
+xsbtests/benches/synth_benches/*.O
+xsbtests/benches/synth_benches/*_new*
+xsbtests/benches/synth_benches/CVS
+xsbtests/benches/xmc/*.O
+xsbtests/benches/xmc/*_new*
+xsbtests/benches/xmc/CVS
 xsbtests/compiler_tests/#*
 xsbtests/compiler_tests/*$
 xsbtests/compiler_tests/*.BAK
