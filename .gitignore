@@ -105,6 +105,8 @@ XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
 XSB/packages/flora2/*.O
 XSB/packages/flora2/closure/*.flh
+XSB/packages/flora2/closure/*.old
+XSB/packages/flora2/closure/*.sv
 XSB/packages/flora2/cmd...
 XSB/packages/flora2/debugger/*.O
 XSB/packages/flora2/debugger/*.dat
