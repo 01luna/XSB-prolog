@@ -38,11 +38,6 @@ XSB/lib/cmd...
 XSB/lib/o.diff
 XSB/obj.*
 XSB/packages/*.O
-XSB/packages/flip/*.O
-XSB/packages/flip/cmd...
-XSB/packages/flip/demos/*.O
-XSB/packages/flip/demos/*.P
-XSB/packages/flip/lib/*.O
 XSB/packages/flora/*.O
 XSB/packages/flora/closure/*.O
 XSB/packages/flora/cmd...
