@@ -84,7 +84,6 @@ XSB/syslib/standard.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/std_sbp.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/string.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/subsumes.O svn_mime_002dtype=application%2Foctet-stream
-XSB/syslib/sysinitrc.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/tables.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/term_exp.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/x_interp.O svn_mime_002dtype=application%2Foctet-stream
