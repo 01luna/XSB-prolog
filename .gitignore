@@ -172,7 +172,10 @@ XSB/packages/xmc/*.O
 XSB/packages/xmc/*.o
 XSB/packages/xmc/a.out
 XSB/packages/xmc/cmd...
+XSB/packages/xmc/lex.yy.c
 XSB/packages/xmc/parse
+XSB/packages/xmc/xl.tab.c
+XSB/packages/xmc/xl.tab.h
 XSB/packages/xmc/xmc-gui
 XSB/packages/xsbdoc/*.O
 XSB/packages/xsbdoc/*.pl
