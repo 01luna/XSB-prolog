@@ -177,6 +177,11 @@ xsbtests/float_tests/CVS
 xsbtests/float_tests/_*
 xsbtests/float_tests/core
 xsbtests/float_tests/temp
+xsbtests/flora_tests/*.O
+xsbtests/flora_tests/*.P
+xsbtests/flora_tests/*_new
+xsbtests/flora_tests/auxiliary/*.O
+xsbtests/flora_tests/auxiliary/*.P
 xsbtests/lock.*
 xsbtests/neg_tests/#*
 xsbtests/neg_tests/*$
