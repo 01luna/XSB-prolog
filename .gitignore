@@ -76,6 +76,9 @@ XSB/packages/flora2/demos/*.O
 XSB/packages/flora2/demos/*.P
 XSB/packages/flora2/demos/cmd...
 XSB/packages/flora2/syslib/*.O
+XSB/packages/flora2/trailer/*.O
+XSB/packages/flora2/trailer/*.P
+XSB/packages/flora2/trailer/*.flh
 XSB/packages/gap/*.O
 XSB/packages/libwww/*.O
 XSB/packages/libwww/cc/*.H
