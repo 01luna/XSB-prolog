@@ -70,6 +70,7 @@ XSB/packages/flora/pkgs/*.O
 XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
 XSB/packages/flora2/*.O
+XSB/packages/flora2/closure/*.flh
 XSB/packages/flora2/cmd...
 XSB/packages/flora2/demos/*.O
 XSB/packages/flora2/demos/*.P
