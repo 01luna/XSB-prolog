@@ -17,6 +17,7 @@ XSB/emu/Makefile
 XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
 XSB/emu/orastuff.c
+XSB/emu/private_builtin.*
 XSB/etc/config.msg
 XSB/examples/*.O
 XSB/examples/c_calling_XSB/*.O
