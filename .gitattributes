@@ -63,5 +63,6 @@ XSB/syslib/term_exp.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/unix.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/x_interp.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/xcallxsb.O svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/xsb_hook.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/xsb_read.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/xsb_writ.O svn_mime_002dtype=application%2Foctet-stream
