@@ -284,6 +284,7 @@ XSB/packages/sgml/cc/*.o
 XSB/packages/sgml/cc/*.obj
 XSB/packages/sgml/cc/*.so
 XSB/packages/sgml/cc/*.xwam
+XSB/packages/sgml/cc/sgml2pl.H
 XSB/packages/sgml/cmd...
 XSB/packages/slx/*.xwam
 XSB/packages/slx/cmd...
