@@ -13,6 +13,8 @@ XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
 XSB/emu/orastuff.c
 XSB/etc/config.msg
+XSB/examples/c_calling_XSB/*.O
+XSB/examples/c_calling_XSB/*.o
 XSB/lib/*.O
 XSB/packages/*.O
 XSB/packages/flip/*.O
