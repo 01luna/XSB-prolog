@@ -6,6 +6,7 @@ XSB/build/Installation*
 XSB/build/makexsb
 XSB/cmplib/ChangeLog
 XSB/cmplib/cmd...
+XSB/cmplib/o.diff
 XSB/config
 XSB/docs/techman/auto
 XSB/docs/userman/auto
@@ -25,6 +26,8 @@ XSB/examples/c_calling_XSB/*.o
 XSB/examples/socket/*.O
 XSB/lib/*.O
 XSB/lib/cmd...
+XSB/lib/o.diff
+XSB/obj.*
 XSB/packages/*.O
 XSB/packages/flip/*.O
 XSB/packages/flip/cmd...
@@ -41,6 +44,7 @@ XSB/site
 XSB/syslib/ChangeLog
 XSB/syslib/cmd...
 XSB/syslib/domain.O
+XSB/syslib/o.diff
 XSB/syslib/sysinitrc.O
 XSB/tests
 xsbtests/#*
