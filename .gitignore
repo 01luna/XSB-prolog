@@ -15,6 +15,7 @@ XSB/cmplib/o.diff
 XSB/cmplib/objfiles.saved
 XSB/config
 XSB/docs/techman/auto
+XSB/docs/userman/*.out
 XSB/docs/userman/auto
 XSB/docs/userman/auto/*.el
 XSB/docs/userman/manual1
@@ -151,6 +152,14 @@ XSB/packages/altCDF/doc/*XXXXXX
 XSB/packages/altCDF/mytest/cdfcomp1
 XSB/packages/clpqr/*.xwam
 XSB/packages/clpqr/cmd...
+XSB/packages/dbdrivers/*.xwam
+XSB/packages/dbdrivers/Installation_summary
+XSB/packages/dbdrivers/cc/*.xwam
+XSB/packages/dbdrivers/odbc/*.xwam
+XSB/packages/dbdrivers/odbc/Installation_summary
+XSB/packages/dbdrivers/odbc/cc/*.xwam
+XSB/packages/dbdrivers/odbc/config.*
+XSB/packages/dbdrivers/odbc/odbc_init.P
 XSB/packages/flora2.P
 XSB/packages/flora2/*.O
 XSB/packages/flora2/*.Z
