@@ -86,6 +86,7 @@ XSB/lib/o.diff
 XSB/obj.*
 XSB/packages/*.lnk
 XSB/packages/*.xwam
+XSB/packages/CDF/*.xwam
 XSB/packages/clpqr/*.xwam
 XSB/packages/clpqr/cmd...
 XSB/packages/flora2.P
