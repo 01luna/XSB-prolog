@@ -36,11 +36,6 @@ XSB/lib/cmd...
 XSB/lib/o.diff
 XSB/obj.*
 XSB/packages/*.O
-XSB/packages/SModels/*.O
-XSB/packages/SModels/*.h
-XSB/packages/SModels/*.o
-XSB/packages/SModels/*.so
-XSB/packages/SModels/xsb_wrap_smodels.c
 XSB/packages/flip/*.O
 XSB/packages/flip/cmd...
 XSB/packages/flip/demos/*.O
