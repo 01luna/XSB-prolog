@@ -154,6 +154,7 @@ XSB/packages/clpqr/*.xwam
 XSB/packages/dbdrivers/*.xwam
 XSB/packages/dbdrivers/Installation_summary
 XSB/packages/dbdrivers/cc/*.xwam
+XSB/packages/dbdrivers/mysql/*.xwam
 XSB/packages/dbdrivers/mysql/Installation_summary
 XSB/packages/dbdrivers/mysql/config.status
 XSB/packages/dbdrivers/mysql/mysql_init.P
