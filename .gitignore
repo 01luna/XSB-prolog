@@ -103,6 +103,7 @@ XSB/packages/flora/p2h/*.so
 XSB/packages/flora/pkgs/*.O
 XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
+XSB/packages/flora2.P
 XSB/packages/flora2/*.O
 XSB/packages/flora2/*.tmp
 XSB/packages/flora2/*.xwam
