@@ -237,7 +237,6 @@ XSB/packages/flora2/runflora.bat
 XSB/packages/flora2/syslib/*.O
 XSB/packages/flora2/syslib/*.xwam
 XSB/packages/gap/*.xwam
-XSB/packages/iprolog/*.jar
 XSB/packages/iprolog/com/declarativa/interprolog/*.xwam
 XSB/packages/iprolog/com/declarativa/interprolog/gui/*.xwam
 XSB/packages/libwww/*.cache
