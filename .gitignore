@@ -141,7 +141,6 @@ XSB/packages/flora2/pkgs/*.P
 XSB/packages/flora2/pkgs/*.fdb
 XSB/packages/flora2/pkgs/*.fld
 XSB/packages/flora2/pkgs/*.flh
-XSB/packages/flora2/runflora
 XSB/packages/flora2/syslib/*.O
 XSB/packages/flora2/syslib/*.xwam
 XSB/packages/flora2/trailer/*.O
