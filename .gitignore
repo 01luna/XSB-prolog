@@ -154,6 +154,9 @@ XSB/packages/clpqr/*.xwam
 XSB/packages/dbdrivers/*.xwam
 XSB/packages/dbdrivers/Installation_summary
 XSB/packages/dbdrivers/cc/*.xwam
+XSB/packages/dbdrivers/cc/driver_manager.def
+XSB/packages/dbdrivers/cc/driver_manager.exp
+XSB/packages/dbdrivers/cc/driver_manager.lib
 XSB/packages/dbdrivers/mysql/*.xwam
 XSB/packages/dbdrivers/mysql/Installation_summary
 XSB/packages/dbdrivers/mysql/config.status
