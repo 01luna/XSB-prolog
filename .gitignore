@@ -203,6 +203,7 @@ XSB/packages/sModels/doc/*.tp
 XSB/packages/sModels/doc/*.tps
 XSB/packages/sModels/doc/*.vr
 XSB/packages/sModels/doc/*.vrs
+XSB/packages/sModels/intf_examples/*.xwam
 XSB/packages/sModels/xsb_wrap_smodels.c
 XSB/packages/slx/*.xwam
 XSB/packages/slx/cmd...
