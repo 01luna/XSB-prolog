@@ -5,8 +5,11 @@ XSB/build/*.status
 XSB/build/Installation*
 XSB/build/makexsb
 XSB/config
+XSB/docs/techman/auto
 XSB/docs/techman/auto/*.el
+XSB/docs/userman/auto
 XSB/docs/userman/auto/*.el
+XSB/docs/userman/odbc_man/auto
 XSB/docs/userman/odbc_man/auto/*.el
 XSB/emu/Makefile
 XSB/emu/configs/config.h
@@ -21,6 +24,7 @@ XSB/packages/flip/demos/*.P
 XSB/packages/flip/lib/*.O
 XSB/packages/perlmatch/*.O
 XSB/packages/perlmatch/cc/xsbpattern.H
+XSB/packages/perlmatch/cc/xsbpattern.O
 XSB/packages/slx/*.O
 XSB/site
 XSB/syslib/sysinitrc.O
