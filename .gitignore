@@ -229,6 +229,9 @@ xsbtests/flora_tests/*.P
 xsbtests/flora_tests/*_new
 xsbtests/flora_tests/auxiliary/*.O
 xsbtests/flora_tests/auxiliary/*.P
+xsbtests/flora_tests/pending_bugs/*.O
+xsbtests/flora_tests/pending_bugs/temp
+xsbtests/flora_tests/pending_bugs/temp1
 xsbtests/flora_tests/temp
 xsbtests/io_tests/#*
 xsbtests/io_tests/*$
