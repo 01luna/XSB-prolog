@@ -40,6 +40,7 @@ XSB/examples/libwww/*.O
 XSB/examples/libwww/*.o
 XSB/examples/libwww/*.out
 XSB/examples/socket/*.O
+XSB/examples/socket/select/*.O
 XSB/examples/subprocess/*.O
 XSB/gpp/*.pch
 XSB/gpp/Makefile
