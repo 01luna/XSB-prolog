@@ -42,6 +42,9 @@ XSB/examples/libwww/*.out
 XSB/examples/socket/*.O
 XSB/examples/socket/select/*.O
 XSB/examples/subprocess/*.O
+XSB/examples/xmc/*.O
+XSB/examples/xmc/*.o
+XSB/examples/xmc/*.xlo
 XSB/gpp/*.pch
 XSB/gpp/Makefile
 XSB/lib/*.O
