@@ -8,6 +8,7 @@ XSB/cmplib/cmd...
 XSB/config
 XSB/docs/techman/auto
 XSB/docs/userman/auto
+XSB/docs/userman/auto/*.el
 XSB/docs/userman/odbc_man/auto
 XSB/emu/MS_VC_Mfile.mak
 XSB/emu/Makefile
