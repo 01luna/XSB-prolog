@@ -103,13 +103,16 @@ XSB/packages/flora/p2h/*.so
 XSB/packages/flora/pkgs/*.O
 XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
+XSB/packages/flora2/*.O
 XSB/packages/flora2/*.xwam
 XSB/packages/flora2/closure/*.flh
 XSB/packages/flora2/closure/*.old
 XSB/packages/flora2/closure/*.sv
 XSB/packages/flora2/cmd...
+XSB/packages/flora2/debugger/*.O
 XSB/packages/flora2/debugger/*.dat
 XSB/packages/flora2/debugger/*.xwam
+XSB/packages/flora2/demos/*.O
 XSB/packages/flora2/demos/*.P
 XSB/packages/flora2/demos/*.fdb
 XSB/packages/flora2/demos/*.fld
@@ -133,7 +136,9 @@ XSB/packages/flora2/pkgs/*.P
 XSB/packages/flora2/pkgs/*.fdb
 XSB/packages/flora2/pkgs/*.fld
 XSB/packages/flora2/pkgs/*.flh
+XSB/packages/flora2/syslib/*.O
 XSB/packages/flora2/syslib/*.xwam
+XSB/packages/flora2/trailer/*.O
 XSB/packages/flora2/trailer/*.P
 XSB/packages/flora2/trailer/*.flh
 XSB/packages/flora2/trailer/*.xwam
