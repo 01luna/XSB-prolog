@@ -10,6 +10,8 @@ XSB/docs/userman/auto/*.el
 XSB/docs/userman/odbc_man/auto/*.el
 XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
+XSB/etc/config.msg
+XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/site
 xsbtests/#*
 xsbtests/*$
