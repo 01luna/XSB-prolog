@@ -15,7 +15,9 @@ XSB/etc/config.msg
 XSB/packages/flip/*.O
 XSB/packages/flip/demos/*.O
 XSB/packages/flip/demos/*.P
+XSB/packages/perlmatch/*.O
 XSB/packages/perlmatch/cc/xsbpattern.H
+XSB/packages/slx/*.O
 XSB/site
 xsbtests/#*
 xsbtests/*$
