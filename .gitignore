@@ -33,7 +33,6 @@ XSB/lib/*.O
 XSB/lib/ChangeLog
 XSB/lib/cmd...
 XSB/lib/o.diff
-XSB/mswarnings
 XSB/obj.*
 XSB/packages/*.O
 XSB/packages/flip/*.O
