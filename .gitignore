@@ -132,10 +132,15 @@ XSB/packages/flora2/trailer/*.P
 XSB/packages/flora2/trailer/*.flh
 XSB/packages/gap/*.O
 XSB/packages/libwww/*.O
+XSB/packages/libwww/*.cache
+XSB/packages/libwww/*.log
+XSB/packages/libwww/*.status
+XSB/packages/libwww/Installation*
 XSB/packages/libwww/cc/*.H
 XSB/packages/libwww/cc/*.O
 XSB/packages/libwww/cc/*.so
 XSB/packages/libwww/cmd...
+XSB/packages/libwww/libwww_init.P
 XSB/packages/perlmatch/*.O
 XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/perlmatch/cc/xsbpattern.O
