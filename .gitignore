@@ -61,6 +61,8 @@ XSB/packages/flora/docs/auto
 XSB/packages/flora/emacs/*.elc
 XSB/packages/flora/lib/*.O
 XSB/packages/flora/lib/*.P
+XSB/packages/flora/p2h/*.O
+XSB/packages/flora/p2h/*.so
 XSB/packages/flora/pkgs/*.O
 XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
