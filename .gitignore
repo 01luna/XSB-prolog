@@ -145,7 +145,7 @@ XSB/packages/libwww/cmd...
 XSB/packages/libwww/libwww_init.P
 XSB/packages/perlmatch/*.xwam
 XSB/packages/perlmatch/cc/xsbpattern.H
-XSB/packages/perlmatch/cc/xsbpattern.O
+XSB/packages/perlmatch/cc/xsbpattern.xwam
 XSB/packages/perlmatch/cmd...
 XSB/packages/regmatch/*.xwam
 XSB/packages/regmatch/cc/xsb_re_match.H
