@@ -150,8 +150,6 @@ XSB/packages/altCDF/doc/*.vr
 XSB/packages/altCDF/doc/*.vrs
 XSB/packages/altCDF/doc/*XXXXXX
 XSB/packages/altCDF/mytest/cdfcomp1
-XSB/packages/clpqr/*.xwam
-XSB/packages/clpqr/cmd...
 XSB/packages/dbdrivers/*.xwam
 XSB/packages/dbdrivers/Installation_summary
 XSB/packages/dbdrivers/cc/*.xwam
