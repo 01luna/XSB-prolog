@@ -6,6 +6,7 @@ XSB/build/*.status
 XSB/build/Installation*
 XSB/build/MS_VC_Mfile.mak
 XSB/build/makexsb
+XSB/build/xsb_wrap_smodels.c
 XSB/cmplib/ChangeLog
 XSB/cmplib/cmd...
 XSB/cmplib/o.diff
