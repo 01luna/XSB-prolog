@@ -95,7 +95,6 @@ XSB/syslib/ChangeLog
 XSB/syslib/cmd...
 XSB/syslib/o.diff
 XSB/syslib/objfiles.saved
-XSB/syslib/sysinitrc.O
 XSB/tests
 xsbtests/#*
 xsbtests/*$
