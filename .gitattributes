@@ -39,7 +39,6 @@ XSB/cmplib/useinfer.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/varproc.O svn_mime_002dtype=application%2Foctet-stream
 XSB/cmplib/writeasm.O svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/flip/docs/flogic.ps.gz svn_mime_002dtype=application%2Foctet-stream
-XSB/packages/gap/gapmeta.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/assert.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/basics.O svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/consult.O svn_mime_002dtype=application%2Foctet-stream
