@@ -206,6 +206,8 @@ XSB/packages/xsbdoc/doc/*.kys
 XSB/packages/xsbdoc/doc/*.log
 XSB/packages/xsbdoc/doc/*.pd
 XSB/packages/xsbdoc/doc/*.pds
+XSB/packages/xsbdoc/doc/*.pg
+XSB/packages/xsbdoc/doc/*.pgs
 XSB/packages/xsbdoc/doc/*.pl
 XSB/packages/xsbdoc/doc/*.ps
 XSB/packages/xsbdoc/doc/*.refs
