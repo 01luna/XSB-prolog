@@ -12,6 +12,7 @@ XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
 XSB/emu/orastuff.c
 XSB/etc/config.msg
+XSB/packages/flip/*.O
 XSB/packages/flip/demos/*.O
 XSB/packages/flip/demos/*.P
 XSB/packages/perlmatch/cc/xsbpattern.H
