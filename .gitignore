@@ -37,6 +37,8 @@ XSB/packages/slx/*.O
 XSB/site
 XSB/syslib/ChangeLog
 XSB/syslib/cmd...
+XSB/syslib/domain.O
+XSB/syslib/sysinitrc.O
 xsbtests/#*
 xsbtests/*$
 xsbtests/*.BAK
