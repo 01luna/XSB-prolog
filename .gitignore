@@ -36,6 +36,7 @@ XSB/packages/flip/demos/*.O
 XSB/packages/flip/demos/*.P
 XSB/packages/flip/lib/*.O
 XSB/packages/flora/*.O
+XSB/packages/flora/closure/*.O
 XSB/packages/flora/cmd...
 XSB/packages/flora/demos/*.O
 XSB/packages/flora/demos/*.P
