@@ -256,6 +256,7 @@ XSB/packages/xsbdoc/*.xwam
 XSB/packages/xsbdoc/doc/*.ascii
 XSB/packages/xsbdoc/doc/*.aux
 XSB/packages/xsbdoc/doc/*.blg
+XSB/packages/xsbdoc/doc/*.co
 XSB/packages/xsbdoc/doc/*.cp
 XSB/packages/xsbdoc/doc/*.cps
 XSB/packages/xsbdoc/doc/*.fn
@@ -265,6 +266,7 @@ XSB/packages/xsbdoc/doc/*.gls
 XSB/packages/xsbdoc/doc/*.ky
 XSB/packages/xsbdoc/doc/*.kys
 XSB/packages/xsbdoc/doc/*.log
+XSB/packages/xsbdoc/doc/*.op
 XSB/packages/xsbdoc/doc/*.pd
 XSB/packages/xsbdoc/doc/*.pdf
 XSB/packages/xsbdoc/doc/*.pds
@@ -279,6 +281,7 @@ XSB/packages/xsbdoc/doc/*.tp
 XSB/packages/xsbdoc/doc/*.tps
 XSB/packages/xsbdoc/doc/*.vr
 XSB/packages/xsbdoc/doc/*.vrs
+XSB/packages/xsbdoc/doc/*XXXXXX
 XSB/site
 XSB/syslib/ChangeLog
 XSB/syslib/cmd...
