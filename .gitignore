@@ -167,6 +167,7 @@ xsbtests/basic_tests/CVS
 xsbtests/basic_tests/_*
 xsbtests/basic_tests/core
 xsbtests/basic_tests/temp
+xsbtests/benches/prolog_benches/*.O
 xsbtests/benches/synth_benches/*.O
 xsbtests/benches/synth_benches/*_new*
 xsbtests/benches/synth_benches/CVS
