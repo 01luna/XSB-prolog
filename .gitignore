@@ -129,6 +129,7 @@ XSB/packages/flora2/lib/*.fdb
 XSB/packages/flora2/lib/*.fld
 XSB/packages/flora2/lib/*.flh
 XSB/packages/flora2/lib/*.xwam
+XSB/packages/flora2/p2h/*.O
 XSB/packages/flora2/p2h/*.so
 XSB/packages/flora2/p2h/*.xwam
 XSB/packages/flora2/pkgs/*.O
