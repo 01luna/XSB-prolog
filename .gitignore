@@ -346,6 +346,16 @@ XSB/syslib/cmd...
 XSB/syslib/o.diff
 XSB/syslib/objfiles.saved
 XSB/tests
+mttests/assert_tests/*.O
+mttests/assert_tests/*temp*
+mttests/io_tests/*.O
+mttests/io_tests/temp*
+mttests/prolog_tests/*.O
+mttests/prolog_tests/*_temp.*
+mttests/prolog_tests/temp_*
+mttests/symbol_tests/*.O
+mttests/symbol_tests/*_temp.*
+mttests/symbol_tests/temp_*
 xsbtests/#*
 xsbtests/*$
 xsbtests/*.BAK
