@@ -69,6 +69,12 @@ XSB/packages/flora/p2h/*.so
 XSB/packages/flora/pkgs/*.O
 XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
+XSB/packages/flora2/*.O
+XSB/packages/flora2/cmd...
+XSB/packages/flora2/demos/*.O
+XSB/packages/flora2/demos/*.P
+XSB/packages/flora2/demos/cmd...
+XSB/packages/flora2/syslib/*.O
 XSB/packages/gap/*.O
 XSB/packages/libwww/*.O
 XSB/packages/libwww/cc/*.H
