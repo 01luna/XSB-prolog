@@ -31,6 +31,7 @@ XSB/syslib/sysinitrc.O
 xsbtests/#*
 xsbtests/*$
 xsbtests/*.BAK
+xsbtests/*.O
 xsbtests/*.Z
 xsbtests/*.bak
 xsbtests/*.gz
@@ -198,6 +199,7 @@ xsbtests/table_tests/,*
 xsbtests/table_tests/.#a
 xsbtests/table_tests/_*
 xsbtests/table_tests/core
+xsbtests/uniq_lock
 xsbtests/wfs_tests/#*
 xsbtests/wfs_tests/*$
 xsbtests/wfs_tests/*.BAK
