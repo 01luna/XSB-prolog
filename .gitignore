@@ -4,6 +4,7 @@ XSB/build/*.log
 XSB/build/*.status
 XSB/build/Installation*
 XSB/build/makexsb
+XSB/cmplib/cmd...
 XSB/config
 XSB/docs/techman/auto
 XSB/docs/userman/auto
@@ -17,6 +18,7 @@ XSB/etc/config.msg
 XSB/examples/c_calling_XSB/*.O
 XSB/examples/c_calling_XSB/*.o
 XSB/lib/*.O
+XSB/lib/cmd...
 XSB/packages/*.O
 XSB/packages/flip/*.O
 XSB/packages/flip/demos/*.O
@@ -27,7 +29,7 @@ XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/perlmatch/cc/xsbpattern.O
 XSB/packages/slx/*.O
 XSB/site
-XSB/syslib/sysinitrc.O
+XSB/syslib/cmd...
 xsbtests/#*
 xsbtests/*$
 xsbtests/*.BAK
