@@ -41,6 +41,8 @@ XSB/packages/flora/cmd...
 XSB/packages/flora/demos/*.O
 XSB/packages/flora/demos/*.P
 XSB/packages/flora/demos/cmd...
+XSB/packages/flora/docs/*.pdf
+XSB/packages/flora/docs/*.ps
 XSB/packages/flora/docs/auto
 XSB/packages/flora/emacs/*.elc
 XSB/packages/flora/lib/*.O
