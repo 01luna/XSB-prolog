@@ -69,6 +69,7 @@ XSB/packages/sModels/*.O
 XSB/packages/sModels/*.h
 XSB/packages/sModels/*.o
 XSB/packages/sModels/*.so
+XSB/packages/sModels/Makefile
 XSB/packages/sModels/xsb_wrap_smodels.c
 XSB/packages/slx/*.O
 XSB/packages/slx/cmd...
