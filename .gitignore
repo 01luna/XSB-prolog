@@ -243,3 +243,4 @@ xsbtests/wfs_tests/,*
 xsbtests/wfs_tests/.#a
 xsbtests/wfs_tests/_*
 xsbtests/wfs_tests/core
+xsbtests/wfs_tests/temp
