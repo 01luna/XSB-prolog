@@ -356,6 +356,7 @@ XSB/packages/xpath/cc/*.o
 XSB/packages/xpath/cc/*.obj
 XSB/packages/xpath/cc/*.so
 XSB/packages/xpath/cc/*.xwam
+XSB/packages/xpath/cc/xpathparser.H
 XSB/packages/xpath/cmd...
 XSB/packages/xpath/xpath_init.P
 XSB/packages/xsbdoc/*.pl
