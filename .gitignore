@@ -152,10 +152,13 @@ XSB/packages/wildmatch/*.O
 XSB/packages/wildmatch/cc/xsb_wildmatch.H
 XSB/packages/wildmatch/cc/xsb_wildmatch.O
 XSB/packages/wildmatch/cmd...
+XSB/packages/xmc.P
 XSB/packages/xmc/*.O
 XSB/packages/xmc/*.o
 XSB/packages/xmc/a.out
 XSB/packages/xmc/cmd...
+XSB/packages/xmc/parse
+XSB/packages/xmc/xmc-gui
 XSB/packages/xsbdoc/*.O
 XSB/packages/xsbdoc/*.pl
 XSB/site
