@@ -25,6 +25,7 @@ XSB/emu/Makefile
 XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
 XSB/emu/ms_vc_mfile.mak
+XSB/emu/msvc_makefile.mak
 XSB/emu/orastuff.c
 XSB/emu/private_builtin.*
 XSB/etc/config.msg
