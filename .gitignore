@@ -59,6 +59,7 @@ xsbtests/ai_tests/,*
 xsbtests/ai_tests/.#a
 xsbtests/ai_tests/_*
 xsbtests/ai_tests/core
+xsbtests/ai_tests/temp
 xsbtests/basic_tests/#*
 xsbtests/basic_tests/*$
 xsbtests/basic_tests/*.BAK
@@ -75,6 +76,7 @@ xsbtests/basic_tests/,*
 xsbtests/basic_tests/.#a
 xsbtests/basic_tests/_*
 xsbtests/basic_tests/core
+xsbtests/basic_tests/temp
 xsbtests/compiler_tests/#*
 xsbtests/compiler_tests/*$
 xsbtests/compiler_tests/*.BAK
@@ -91,6 +93,7 @@ xsbtests/compiler_tests/,*
 xsbtests/compiler_tests/.#a
 xsbtests/compiler_tests/_*
 xsbtests/compiler_tests/core
+xsbtests/compiler_tests/temp
 xsbtests/core
 xsbtests/delay_tests/#*
 xsbtests/delay_tests/*$
@@ -108,6 +111,7 @@ xsbtests/delay_tests/,*
 xsbtests/delay_tests/.#a
 xsbtests/delay_tests/_*
 xsbtests/delay_tests/core
+xsbtests/delay_tests/temp
 xsbtests/float_tests/#*
 xsbtests/float_tests/*$
 xsbtests/float_tests/*.BAK
@@ -124,6 +128,7 @@ xsbtests/float_tests/,*
 xsbtests/float_tests/.#a
 xsbtests/float_tests/_*
 xsbtests/float_tests/core
+xsbtests/float_tests/temp
 xsbtests/neg_tests/#*
 xsbtests/neg_tests/*$
 xsbtests/neg_tests/*.BAK
@@ -220,6 +225,7 @@ xsbtests/table_tests/,*
 xsbtests/table_tests/.#a
 xsbtests/table_tests/_*
 xsbtests/table_tests/core
+xsbtests/table_tests/temp
 xsbtests/uniq_lock
 xsbtests/wfs_tests/#*
 xsbtests/wfs_tests/*$
