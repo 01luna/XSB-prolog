@@ -55,6 +55,10 @@ XSB/packages/flora/pkgs/*.O
 XSB/packages/flora/pkgs/*.P
 XSB/packages/flora/syslib/*.O
 XSB/packages/gap/*.O
+XSB/packages/libwww/*.O
+XSB/packages/libwww/cc/xsb_re_match.H
+XSB/packages/libwww/cc/xsb_re_match.O
+XSB/packages/libwww/cmd...
 XSB/packages/perlmatch/*.O
 XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/perlmatch/cc/xsbpattern.O
