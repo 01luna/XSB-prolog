@@ -8,6 +8,7 @@ XSB/config
 XSB/docs/techman/auto/*.el
 XSB/docs/userman/auto/*.el
 XSB/docs/userman/odbc_man/auto/*.el
+XSB/emu/Makefile
 XSB/emu/configs/config.h
 XSB/emu/debugs/debug.h
 XSB/emu/orastuff.c
