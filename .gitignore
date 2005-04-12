@@ -124,6 +124,11 @@ XSB/packages/CDF/doc/*XXXXXX
 XSB/packages/CDF/oms_xj.P
 XSB/packages/altCDF/*.xwam
 XSB/packages/altCDF/cdftp/*.xwam
+XSB/packages/altCDF/doc/*.dvi
+XSB/packages/altCDF/doc/*.idx
+XSB/packages/altCDF/doc/*.log
+XSB/packages/altCDF/doc/*.pdx
+XSB/packages/altCDF/doc/*.toc
 XSB/packages/altCDF/mytest/cdfcomp1
 XSB/packages/clpqr/*.xwam
 XSB/packages/dbdrivers/*.xwam
