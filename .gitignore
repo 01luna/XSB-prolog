@@ -132,6 +132,7 @@ XSB/packages/altCDF/doc/*.toc
 XSB/packages/altCDF/doc/Figures/*.fig
 XSB/packages/altCDF/mytest/*.xwam
 XSB/packages/altCDF/mytest/cdfcomp1
+XSB/packages/altCDF/tests/ce_tests/*.xwam
 XSB/packages/clpqr/*.xwam
 XSB/packages/dbdrivers/*.xwam
 XSB/packages/dbdrivers/Installation_summary
