@@ -21,6 +21,7 @@ XSB/docs/userman/auto/*.el
 XSB/docs/userman/manual1
 XSB/docs/userman/manual2
 XSB/docs/userman/odbc_man/auto
+XSB/emu/*.lnk
 XSB/emu/ChangeLog
 XSB/emu/MS_VC_Mfile.mak
 XSB/emu/Makefile
@@ -43,6 +44,7 @@ XSB/examples/libwww/*.out
 XSB/examples/libwww/*.xwam
 XSB/examples/sgml/*.xwam
 XSB/examples/sgml/actualoutput*
+XSB/examples/sgml/out.pnm
 XSB/examples/socket/*.xwam
 XSB/examples/socket/select/*.xwam
 XSB/examples/subprocess/*.xwam
@@ -84,6 +86,7 @@ XSB/examples/xpath/*.xwam
 XSB/examples/xpath/actualoutput*
 XSB/gpp/*.pch
 XSB/gpp/Makefile
+XSB/gpp/Makefile.lnk
 XSB/lib/*.xwam
 XSB/lib/ChangeLog
 XSB/lib/cmd...
@@ -188,6 +191,7 @@ XSB/packages/regmatch/cc/xsb_re_match.H
 XSB/packages/regmatch/cc/xsb_re_match.O
 XSB/packages/regmatch/cmd...
 XSB/packages/sgml/*.xwam
+XSB/packages/sgml/auto
 XSB/packages/sgml/cc/*.O
 XSB/packages/sgml/cc/*.def
 XSB/packages/sgml/cc/*.dll
