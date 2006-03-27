@@ -323,6 +323,8 @@ mttests/prolog_tests/temp_*
 mttests/symbol_tests/*.O
 mttests/symbol_tests/*_temp.*
 mttests/symbol_tests/temp_*
+mttests/table_tests/*.xwam
+mttests/table_tests/*_new
 xsbtests/#*
 xsbtests/*$
 xsbtests/*.BAK
