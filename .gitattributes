@@ -109,6 +109,7 @@ XSB/syslib/file_io.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/file_op.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/gensym.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/hilogsym.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/increval.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/loader.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/machine.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/num_vars.xwam svn_mime_002dtype=application%2Foctet-stream
