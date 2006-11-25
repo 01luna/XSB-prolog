@@ -429,6 +429,7 @@ xsbtests/compiler_tests/CVS
 xsbtests/compiler_tests/_*
 xsbtests/compiler_tests/core
 xsbtests/compiler_tests/temp
+xsbtests/constraint_tests/*.xwam
 xsbtests/core
 xsbtests/delay_tests/#*
 xsbtests/delay_tests/*$
