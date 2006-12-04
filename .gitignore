@@ -149,6 +149,11 @@ XSB/packages/dbdrivers/cc/driver_manager.exp
 XSB/packages/dbdrivers/cc/driver_manager.lib
 XSB/packages/dbdrivers/mysql/*.xwam
 XSB/packages/dbdrivers/mysql/Installation_summary
+XSB/packages/dbdrivers/mysql/cc/*.xwam
+XSB/packages/dbdrivers/mysql/cc/mysql_driver.H
+XSB/packages/dbdrivers/mysql/cc/mysql_driver.def
+XSB/packages/dbdrivers/mysql/cc/mysql_driver.exp
+XSB/packages/dbdrivers/mysql/cc/mysql_driver.lib
 XSB/packages/dbdrivers/mysql/config.status
 XSB/packages/dbdrivers/mysql/mysql_init.P
 XSB/packages/dbdrivers/odbc/*.xwam
