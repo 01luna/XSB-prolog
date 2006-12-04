@@ -168,6 +168,7 @@ XSB/packages/dbdrivers/odbc/odbc_init.P
 XSB/packages/gap/*.xwam
 XSB/packages/iprolog/com/declarativa/interprolog/*.xwam
 XSB/packages/iprolog/com/declarativa/interprolog/gui/*.xwam
+XSB/packages/justify/jxm.xwam
 XSB/packages/libwww/*.cache
 XSB/packages/libwww/*.log
 XSB/packages/libwww/*.status
