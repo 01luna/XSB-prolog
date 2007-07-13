@@ -7,6 +7,7 @@ XSB/build/*.xwam
 XSB/build/.*.tmp
 XSB/build/Installation*
 XSB/build/MS_VC_Mfile.mak
+XSB/build/config.status.lineno
 XSB/build/makexsb
 XSB/build/xsb_wrap_smodels.c
 XSB/cmplib/ChangeLog
