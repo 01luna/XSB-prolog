@@ -28,6 +28,7 @@ XSB/emu/MS_VC_Mfile.mak
 XSB/emu/Makefile
 XSB/emu/a.out
 XSB/emu/debugs/xsb_debug.h
+XSB/emu/extensions_xsb.h
 XSB/emu/ms_vc_mfile.mak
 XSB/emu/msvc_makefile.mak
 XSB/emu/orastuff.c
