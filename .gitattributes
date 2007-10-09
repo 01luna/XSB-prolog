@@ -74,6 +74,7 @@ XSB/syslib/assert.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/atts.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/banner.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/basics.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/ccallxsb.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/consult.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/curr_sym.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/dbclause.xwam svn_mime_002dtype=application%2Foctet-stream
