@@ -97,6 +97,7 @@ XSB/syslib/shell.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/standard.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/std_xsb.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/string.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/sub_atom.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/subsumes.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/sysinitrc.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/tables.xwam svn_mime_002dtype=application%2Foctet-stream
