@@ -151,15 +151,19 @@ XSB/packages/dbdrivers/cc/driver_manager.exp
 XSB/packages/dbdrivers/cc/driver_manager.lib
 XSB/packages/dbdrivers/mysql/*.xwam
 XSB/packages/dbdrivers/mysql/Installation_summary
+XSB/packages/dbdrivers/mysql/autom4te.cache
 XSB/packages/dbdrivers/mysql/cc/*.xwam
 XSB/packages/dbdrivers/mysql/cc/mysql_driver.H
 XSB/packages/dbdrivers/mysql/cc/mysql_driver.def
 XSB/packages/dbdrivers/mysql/cc/mysql_driver.exp
 XSB/packages/dbdrivers/mysql/cc/mysql_driver.lib
 XSB/packages/dbdrivers/mysql/config.status
+XSB/packages/dbdrivers/mysql/config.status.lineno
+XSB/packages/dbdrivers/mysql/configure.lineno
 XSB/packages/dbdrivers/mysql/mysql_init.P
 XSB/packages/dbdrivers/mysqlembedded/*.xwam
 XSB/packages/dbdrivers/mysqlembedded/Installation_summary
+XSB/packages/dbdrivers/mysqlembedded/autom4te.cache
 XSB/packages/dbdrivers/mysqlembedded/cc/*.xwam
 XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.H
 XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.def
@@ -167,6 +171,7 @@ XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.exp
 XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.lib
 XSB/packages/dbdrivers/mysqlembedded/config.status
 XSB/packages/dbdrivers/mysqlembedded/config.status.lineno
+XSB/packages/dbdrivers/mysqlembedded/configure.lineno
 XSB/packages/dbdrivers/mysqlembedded/mysql_init.P
 XSB/packages/dbdrivers/mysqlembedded/mysqlembedded_init.P
 XSB/packages/dbdrivers/odbc/*.xwam
@@ -178,6 +183,7 @@ XSB/packages/dbdrivers/odbc/cc/odbc_driver.def
 XSB/packages/dbdrivers/odbc/cc/odbc_driver.exp
 XSB/packages/dbdrivers/odbc/cc/odbc_driver.lib
 XSB/packages/dbdrivers/odbc/config.*
+XSB/packages/dbdrivers/odbc/configure.lineno
 XSB/packages/dbdrivers/odbc/odbc_init.P
 XSB/packages/gap/*.xwam
 XSB/packages/justify/jxm.xwam
