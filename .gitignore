@@ -480,6 +480,7 @@ xsbtests/compiler_tests/_*
 xsbtests/compiler_tests/core
 xsbtests/compiler_tests/temp
 xsbtests/constraint_tests/*.xwam
+xsbtests/constraint_tests/*_new
 xsbtests/core
 xsbtests/delay_tests/#*
 xsbtests/delay_tests/*$
@@ -605,6 +606,8 @@ xsbtests/prolog_tests/*$
 xsbtests/prolog_tests/*.BAK
 xsbtests/prolog_tests/*.Z
 xsbtests/prolog_tests/*.bak
+xsbtests/prolog_tests/*.def
+xsbtests/prolog_tests/*.dll
 xsbtests/prolog_tests/*.exe
 xsbtests/prolog_tests/*.gz
 xsbtests/prolog_tests/*.o
@@ -619,6 +622,7 @@ xsbtests/prolog_tests/CVS
 xsbtests/prolog_tests/_*
 xsbtests/prolog_tests/core
 xsbtests/prolog_tests/temp
+xsbtests/prolog_tests/xsb_wrap_*
 xsbtests/ptq/#*
 xsbtests/ptq/*$
 xsbtests/ptq/*.BAK
