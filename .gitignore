@@ -608,6 +608,7 @@ xsbtests/prolog_tests/*.Z
 xsbtests/prolog_tests/*.bak
 xsbtests/prolog_tests/*.def
 xsbtests/prolog_tests/*.dll
+xsbtests/prolog_tests/*.dylib
 xsbtests/prolog_tests/*.exe
 xsbtests/prolog_tests/*.gz
 xsbtests/prolog_tests/*.o
