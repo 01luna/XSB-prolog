@@ -16,7 +16,10 @@ XSB/cmplib/o.diff
 XSB/cmplib/objfiles.saved
 XSB/config
 XSB/docs/techman/auto
+XSB/docs/userman/*.bst
+XSB/docs/userman/*.def
 XSB/docs/userman/*.out
+XSB/docs/userman/*.sty
 XSB/docs/userman/auto
 XSB/docs/userman/auto/*.el
 XSB/docs/userman/manual1
