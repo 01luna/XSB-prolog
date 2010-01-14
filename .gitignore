@@ -19,6 +19,8 @@ XSB/docs/techman/auto
 XSB/docs/userman/*.bst
 XSB/docs/userman/*.def
 XSB/docs/userman/*.out
+XSB/docs/userman/*.pdf
+XSB/docs/userman/*.prdx
 XSB/docs/userman/*.sty
 XSB/docs/userman/auto
 XSB/docs/userman/auto/*.el
@@ -141,6 +143,7 @@ XSB/packages/altCDF/doc/Figures/*.fig
 XSB/packages/altCDF/mytest/*.xwam
 XSB/packages/altCDF/mytest/cdfcomp1
 XSB/packages/altCDF/tests/ce_tests/*.xwam
+XSB/packages/bounds/*.xwam
 XSB/packages/chr/*.xwam
 XSB/packages/chr/ChangeLog
 XSB/packages/chr/cmd...
