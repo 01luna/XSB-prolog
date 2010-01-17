@@ -46,6 +46,9 @@ XSB/examples/XSB_calling_c/*.xwam
 XSB/examples/c_calling_XSB/*.o
 XSB/examples/c_calling_XSB/*.xwam
 XSB/examples/c_calling_XSB/*mytest*
+XSB/examples/curl/*.xwam
+XSB/examples/curl/actualoutput*
+XSB/examples/curl/out.pnm
 XSB/examples/libwww/*.o
 XSB/examples/libwww/*.out
 XSB/examples/libwww/*.xwam
