@@ -324,6 +324,7 @@ XSB/packages/xpath/cc/*.so
 XSB/packages/xpath/cc/*.xwam
 XSB/packages/xpath/cc/xpathparser.H
 XSB/packages/xpath/cmd...
+XSB/packages/xpath/configure.lineno
 XSB/packages/xpath/xpath_init.P
 XSB/packages/xsbdoc/*.pl
 XSB/packages/xsbdoc/*.xwam
