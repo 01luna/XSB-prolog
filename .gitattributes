@@ -60,6 +60,7 @@ XSB/docs/newpages/xsb-logo-orig.png svn_mime_002dtype=application%2Foctet-stream
 XSB/docs/newpages/xsb-logo-trans.png svn_mime_002dtype=application%2Foctet-stream
 XSB/docs/newpages/xsb-logo.png svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/bounds.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/packages/clpqr/project.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/NMakefile.mak svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/cc/NMakefile.mak svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/cc/bin/libcurl.dll svn_mime_002dtype=application%2Foctet-stream
