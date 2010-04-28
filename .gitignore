@@ -190,6 +190,7 @@ XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.H
 XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.def
 XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.exp
 XSB/packages/dbdrivers/mysqlembedded/cc/mysql_driver.lib
+XSB/packages/dbdrivers/mysqlembedded/cc/mysqlembedded_driver.H
 XSB/packages/dbdrivers/mysqlembedded/config.status
 XSB/packages/dbdrivers/mysqlembedded/config.status.lineno
 XSB/packages/dbdrivers/mysqlembedded/configure.lineno
