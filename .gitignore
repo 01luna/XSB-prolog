@@ -223,6 +223,15 @@ XSB/packages/libwww/cc/*.obj
 XSB/packages/libwww/cc/*.so
 XSB/packages/libwww/cmd...
 XSB/packages/libwww/libwww_init.P
+XSB/packages/pcre/Installation_summary
+XSB/packages/pcre/autom4te.cache
+XSB/packages/pcre/cc/pcre4pl.H
+XSB/packages/pcre/config.status
+XSB/packages/pcre/config.status.lineno
+XSB/packages/pcre/configure.lineno
+XSB/packages/pcre/pcre_info.P
+XSB/packages/pcre/pcre_info.xwam
+XSB/packages/pcre/pcreconfig.xwam
 XSB/packages/perlmatch/*.xwam
 XSB/packages/perlmatch/cc/*.def
 XSB/packages/perlmatch/cc/*.lib
