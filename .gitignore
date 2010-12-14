@@ -208,7 +208,7 @@ XSB/packages/dbdrivers/odbc/config.*
 XSB/packages/dbdrivers/odbc/configure.lineno
 XSB/packages/dbdrivers/odbc/odbc_init.P
 XSB/packages/gap/*.xwam
-XSB/packages/justify/jxm.xwam
+XSB/packages/justify/*.xwam
 XSB/packages/libwww/*.cache
 XSB/packages/libwww/*.log
 XSB/packages/libwww/*.status
