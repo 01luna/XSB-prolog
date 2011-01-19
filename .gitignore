@@ -52,6 +52,8 @@ XSB/examples/curl/out.pnm
 XSB/examples/libwww/*.o
 XSB/examples/libwww/*.out
 XSB/examples/libwww/*.xwam
+XSB/examples/rdf/*.xwam
+XSB/examples/rdf/actualoutput
 XSB/examples/sgml/*.xwam
 XSB/examples/sgml/actualoutput*
 XSB/examples/sgml/out.pnm
