@@ -242,6 +242,7 @@ XSB/packages/perlmatch/cc/*.obj
 XSB/packages/perlmatch/cc/xsbpattern.H
 XSB/packages/perlmatch/cc/xsbpattern.xwam
 XSB/packages/perlmatch/cmd...
+XSB/packages/rdf/*.xwam
 XSB/packages/regmatch/*.xwam
 XSB/packages/regmatch/cc/*.def
 XSB/packages/regmatch/cc/*.lib
