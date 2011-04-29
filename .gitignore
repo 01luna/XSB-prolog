@@ -9,6 +9,8 @@ XSB/build/Installation*
 XSB/build/MS_VC_Mfile.mak
 XSB/build/config.status.lineno
 XSB/build/makexsb
+XSB/build/windows/custom_directories.mak
+XSB/build/windows64/custom_directories.mak
 XSB/build/xsb_wrap_smodels.c
 XSB/cmplib/ChangeLog
 XSB/cmplib/cmd...
