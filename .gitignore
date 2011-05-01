@@ -41,8 +41,8 @@ XSB/emu/msvc_makefile.mak
 XSB/emu/orastuff.c
 XSB/emu/private_builtin.*
 XSB/etc/config.msg
-XSB/examples/*.O
 XSB/examples/*.o
+XSB/examples/*.xwam
 XSB/examples/XSB_calling_c/*.o
 XSB/examples/XSB_calling_c/*.xwam
 XSB/examples/c_calling_XSB/*.o
