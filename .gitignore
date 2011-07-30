@@ -44,6 +44,13 @@ XSB/examples/*.o
 XSB/examples/*.xwam
 XSB/examples/XSB_calling_c/*.o
 XSB/examples/XSB_calling_c/*.xwam
+XSB/examples/XSB_calling_c/simple_foreign.dll
+XSB/examples/XSB_calling_c/simple_foreign.exp
+XSB/examples/XSB_calling_c/simple_foreign.ilk
+XSB/examples/XSB_calling_c/simple_foreign.lib
+XSB/examples/XSB_calling_c/simple_foreign.pdb
+XSB/examples/XSB_calling_c/vc90.idb
+XSB/examples/XSB_calling_c/vc90.pdb
 XSB/examples/c_calling_XSB/*.o
 XSB/examples/c_calling_XSB/*.xwam
 XSB/examples/c_calling_XSB/*mytest*
