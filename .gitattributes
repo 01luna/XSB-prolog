@@ -87,7 +87,6 @@ XSB/packages/curl/cc/bin64/libeay32.dll svn_mime_002dtype=application%2Foctet-st
 XSB/packages/curl/cc/bin64/libeay32.lib svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/cc/bin64/ssleay32.dll svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/cc/bin64/ssleay32.lib svn_mime_002dtype=application%2Foctet-stream
-XSB/packages/curl/cc/bin64/zdll.exp svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/cc/bin64/zlib.lib svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/cc/bin64/zlib1.dll svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/dbdrivers/NMakefile64.mak svn_mime_002dtype=application%2Foctet-stream
