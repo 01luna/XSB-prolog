@@ -1,4 +1,8 @@
 XSB/.xsb
+XSB/bin/chr_pp
+XSB/bin/chr_pp-*
+XSB/bin/xsb
+XSB/bin/xsb-*
 XSB/build/*.cache
 XSB/build/*.log
 XSB/build/*.status
