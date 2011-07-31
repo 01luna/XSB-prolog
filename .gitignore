@@ -1,5 +1,4 @@
 XSB/.xsb
-XSB/bin
 XSB/build/*.cache
 XSB/build/*.log
 XSB/build/*.status
