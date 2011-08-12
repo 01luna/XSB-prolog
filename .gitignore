@@ -670,8 +670,14 @@ xsbtests/prolog_tests/.#a
 xsbtests/prolog_tests/CVS
 xsbtests/prolog_tests/_*
 xsbtests/prolog_tests/core
+xsbtests/prolog_tests/second_foreign.exp
+xsbtests/prolog_tests/second_foreign.lib
 xsbtests/prolog_tests/temp
+xsbtests/prolog_tests/xeddis.exp
+xsbtests/prolog_tests/xeddis.lib
 xsbtests/prolog_tests/xsb_wrap_*
+xsbtests/prolog_tests/zero.exp
+xsbtests/prolog_tests/zero.lib
 xsbtests/ptq/#*
 xsbtests/ptq/*$
 xsbtests/ptq/*.BAK
