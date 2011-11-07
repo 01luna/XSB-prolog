@@ -612,6 +612,7 @@ xsbtests/flora_tests/pending_bugs/*.xwam
 xsbtests/flora_tests/pending_bugs/temp
 xsbtests/flora_tests/pending_bugs/temp1
 xsbtests/flora_tests/temp
+xsbtests/incremental_tests/*.xwam
 xsbtests/io_tests/#*
 xsbtests/io_tests/*$
 xsbtests/io_tests/*.BAK
