@@ -383,6 +383,7 @@ XSB/packages/xsbdoc/doc/*.tps
 XSB/packages/xsbdoc/doc/*.vr
 XSB/packages/xsbdoc/doc/*.vrs
 XSB/packages/xsbdoc/doc/*XXXXXX
+XSB/prolog-commons/*.xwam
 XSB/site
 XSB/syslib/ChangeLog
 XSB/syslib/cmd...
