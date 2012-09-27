@@ -58,6 +58,9 @@ XSB/examples/XSB_calling_c/*.xwam
 XSB/examples/c_calling_XSB/*.o
 XSB/examples/c_calling_XSB/*.xwam
 XSB/examples/c_calling_XSB/*mytest*
+XSB/examples/c_calling_XSB/cfstest
+XSB/examples/c_calling_XSB/cretest
+XSB/examples/c_calling_XSB/cvstest
 XSB/examples/curl/*.xwam
 XSB/examples/curl/actualoutput*
 XSB/examples/curl/out.pnm
@@ -239,11 +242,14 @@ XSB/packages/libwww/cc/*.so
 XSB/packages/libwww/cmd...
 XSB/packages/libwww/libwww_init.P
 XSB/packages/pcre/Installation_summary
+XSB/packages/pcre/a.out
 XSB/packages/pcre/autom4te.cache
 XSB/packages/pcre/cc/pcre4pl.H
+XSB/packages/pcre/confdefs.h
 XSB/packages/pcre/config.status
 XSB/packages/pcre/config.status.lineno
 XSB/packages/pcre/configure.lineno
+XSB/packages/pcre/conftest.c
 XSB/packages/pcre/pcre_info.P
 XSB/packages/pcre/pcre_info.xwam
 XSB/packages/pcre/pcreconfig.xwam
