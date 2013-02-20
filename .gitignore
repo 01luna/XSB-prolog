@@ -161,6 +161,8 @@ XSB/packages/altCDF/doc/*.log
 XSB/packages/altCDF/doc/*.pdx
 XSB/packages/altCDF/doc/*.toc
 XSB/packages/altCDF/doc/Figures/*.fig
+XSB/packages/altCDF/doc/manual.out
+XSB/packages/altCDF/doc/manual.pdf
 XSB/packages/altCDF/mytest/*.xwam
 XSB/packages/altCDF/mytest/cdfcomp1
 XSB/packages/altCDF/tests/ce_tests/*.xwam
