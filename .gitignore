@@ -1,8 +1,10 @@
+XSB/*.tmp
 XSB/.xsb
 XSB/bin/chr_pp
 XSB/bin/chr_pp-*
 XSB/bin/xsb
 XSB/bin/xsb-*
+XSB/build/*.bak
 XSB/build/*.cache
 XSB/build/*.log
 XSB/build/*.status
@@ -21,12 +23,19 @@ XSB/cmplib/o.diff
 XSB/cmplib/objfiles.saved
 XSB/config
 XSB/docs/techman/auto
+XSB/docs/userman/*.aux
+XSB/docs/userman/*.bbl
+XSB/docs/userman/*.blg
 XSB/docs/userman/*.bst
 XSB/docs/userman/*.def
+XSB/docs/userman/*.idx
+XSB/docs/userman/*.log
 XSB/docs/userman/*.out
 XSB/docs/userman/*.pdf
+XSB/docs/userman/*.pdx
 XSB/docs/userman/*.prdx
 XSB/docs/userman/*.sty
+XSB/docs/userman/*.toc
 XSB/docs/userman/auto
 XSB/docs/userman/auto/*.el
 XSB/docs/userman/manual1
@@ -173,6 +182,7 @@ XSB/packages/chr/cmd...
 XSB/packages/chr/o.diff
 XSB/packages/clpqr/*.xwam
 XSB/packages/curl/*.lineno
+XSB/packages/curl/*.log
 XSB/packages/curl/*.xwam
 XSB/packages/curl/Installation_summary
 XSB/packages/curl/autom4te.cache
@@ -243,6 +253,7 @@ XSB/packages/libwww/cc/*.obj
 XSB/packages/libwww/cc/*.so
 XSB/packages/libwww/cmd...
 XSB/packages/libwww/libwww_init.P
+XSB/packages/pcre/*.log
 XSB/packages/pcre/Installation_summary
 XSB/packages/pcre/a.out
 XSB/packages/pcre/autom4te.cache
