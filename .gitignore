@@ -1,5 +1,6 @@
 XSB/*.tmp
 XSB/.xsb
+XSB/admin/windows/*.exe
 XSB/bin/chr_pp
 XSB/bin/chr_pp-*
 XSB/bin/xsb
