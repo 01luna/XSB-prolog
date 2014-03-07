@@ -353,6 +353,8 @@ path_sysop(X,_) :- abort(('[PATH_SYSOP]: Invalid request for path_sysop/2, ', X)
 
 get_ancestor(CurrDir,BaseName,AncDir) :-
 	CurrDir \== '',
+	CurrDir \== '/',
+	CurrDir \== '\\',
 	CurrDir1 = [CurrDir,'/.'],
 	path_sysop(basename,CurrDir1,CurrDirName),
 	(CurrDirName = BaseName
