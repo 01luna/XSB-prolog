@@ -895,6 +895,9 @@ xsb_flag(character_set,Mode):-
 	stat_flag(CHARACTER_SET, Flag),
 	( Flag =:= ASCII -> Mode = ascii
           ; Mode = utf_8).
+xsb_flag(errors_with_position,Mode):- 
+	stat_flag(ERRORS_WITH_POSITION, Flag),
+	( Flag =:= 0 -> Mode = off ; Mode = on ).
 
 set_xsb_flag(Type,Val):- 
 	check_nonvar(Type,set_xsb_flag/2,1),
@@ -1095,10 +1098,13 @@ set_xsb_flag_1(character_set,Mode):- !,
 (	Mode = ascii -> 
 	    stat_set_flag(CHARACTER_SET, ASCII)
 	 ;  stat_set_flag(CHARACTER_SET, UTF_8)).
+set_xsb_flag_1(errors_with_position,Mode):- !,
+	( Mode = on -> 
+	    stat_set_flag(ERRORS_WITH_POSITION, 1)
+	 ;  (Mode = off, stat_set_flag(ERRORS_WITH_POSITION, 0))).
 set_xsb_flag_1(Type, _) :-  
 	domain_error(prolog_flag,Type,set_prolog_flag/2,1).
 
-:- import writeln/1 from standard.
 /* ==================================================================== */
 
 garbage_collection(GC) :- var(GC), !,
