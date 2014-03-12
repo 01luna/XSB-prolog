@@ -623,7 +623,9 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 #else
   flags[CHARACTER_SET] = UTF_8;
 #endif
-  
+
+	flags[ERRORS_WITH_POSITION] = 0;
+
   /* Modify Parameters Using Command Line Options
      -------------------------------------------- */
   for (i=1; i<argc; i++) {
