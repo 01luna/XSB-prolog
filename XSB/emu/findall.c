@@ -818,9 +818,9 @@ Integer term_size(CTXTdeclc Cell term)
 	XSB_Deref(term) ;
 	size += term_size( CTXTc term ) ;
       }
-    }
-    term = *++pfirstel ; XSB_Deref(term) ;
-    goto recur;
+      term = *++pfirstel ; XSB_Deref(term) ;
+      goto recur;
+    } else return size;
   }
   case XSB_ATTV: {
     CPtr pfirstel;
