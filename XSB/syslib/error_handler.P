@@ -247,6 +247,7 @@ psc_modname_filename(Psc,ModName,FileName) :-
 			FileName = unknown
 		 ;	psc_name(ModPscOrFile,ModName),
 			psc_ep(ModPscOrFile,FileName)
+			%,standard:writeln(userout,mf(ModPscOrFile,FileName))
 		)
 	 ;	ModName = usermod,
 		FileName = ModPscOrFile
@@ -275,6 +276,7 @@ backward is [] if xsb not started with -p option */
 print_backtrace(BT) :- print_backtrace(BT,STDERR).
 
 print_backtrace([[]],_Stream) :- !.  % if empty, don't print anything
+print_backtrace([],_Stream) :- !.  % if empty, don't print anything
 print_backtrace([For|Back],Stream) :-
 	messageln('Forward Continuation...',Stream),
 	print_mod_pred_arity_list(For,Stream),
@@ -288,7 +290,8 @@ print_mod_pred_arity_list([],_Stream).
 print_mod_pred_arity_list([Psc|Pscs],Stream) :-
 	(Psc =:= 0
 	 ->	messageln(['... unknown/?','  From  unknown'],Stream)
-	 ;	psc_data(Psc,ModPscOrFile),
+	 ;
+/*	 psc_data(Psc,ModPscOrFile),
 		(integer(ModPscOrFile)
 		 ->	(ModPscOrFile =\= 0
 			 ->	psc_name(ModPscOrFile,ModName),
@@ -298,7 +301,8 @@ print_mod_pred_arity_list([Psc|Pscs],Stream) :-
 			)
 		 ;	ModName = usermod,
 		 	FileName = ModPscOrFile
-		),
+		), **/
+		psc_modname_filename(Psc,ModName,FileName),
 		psc_name(Psc,Name),
 		psc_arity(Psc,Arity),
 		(ModName \== usermod

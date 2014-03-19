@@ -893,8 +893,12 @@ xsb_flag(ctrace,Mode):-
              ; Mode = full) ).
 xsb_flag(character_set,Mode):- 
 	stat_flag(CHARACTER_SET, Flag),
-	( Flag =:= ASCII -> Mode = ascii
-          ; Mode = utf_8).
+	(Flag =:= LATIN_1
+	 ->	Mode = latin_1
+	 ; Flag =:= CP1252
+	 ->	Mode = cp1252
+	 ;	Mode = utf_8
+	).
 xsb_flag(errors_with_position,Mode):- 
 	stat_flag(ERRORS_WITH_POSITION, Flag),
 	( Flag =:= 0 -> Mode = off ; Mode = on ).
@@ -1095,9 +1099,12 @@ set_xsb_flag_1(max_tab_usage, OnOff) :-!,
 	    stat_set_flag(MAX_USAGE, 1)
 	 ;  stat_set_flag(MAX_USAGE, 0)).
 set_xsb_flag_1(character_set,Mode):- !,
-(	Mode = ascii -> 
-	    stat_set_flag(CHARACTER_SET, ASCII)
-	 ;  stat_set_flag(CHARACTER_SET, UTF_8)).
+	(Mode = latin_1
+	 ->	stat_set_flag(CHARACTER_SET, LATIN_1)
+	 ; Mode = cp1252
+	 ->	stat_set_flag(CHARACTER_SET, CP1252)
+	 ;	stat_set_flag(CHARACTER_SET, UTF_8)
+	).
 set_xsb_flag_1(errors_with_position,Mode):- !,
 	( Mode = on -> 
 	    stat_set_flag(ERRORS_WITH_POSITION, 1)

@@ -435,6 +435,7 @@ assert_status_ball(error(Error,Msg,BT)) :-
 assert_status_ball(Ball) :-
 %	writeln(thread_other_reached(Ball)),
 	thread_request( XSB_SET_EXIT_STATUS, THREAD_EXCEPTION, _, _, _, _, _, _ ,_),
+	thread_self(Id),
 	asserta('_$thread_exit_ball'(Id,exception(Ball))).
 
 retract_status_ball :-
