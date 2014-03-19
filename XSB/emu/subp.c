@@ -885,25 +885,34 @@ int key_compare(CTXTdeclc const void * t1, const void * t2)
 /* no idea why we keep them here.                                       */
 /*======================================================================*/
 
-void print_aqatom(FILE *file, char *string) {
+void print_aqatom(FILE *file, int charset, char *string) {
   int loc = 0;
 
-  fprintf(file,"'");
-  while (string[loc] != '\0') {
-    if (string[loc] == '\'') fprintf(file,"'");
-    fprintf(file,"%c",string[loc++]);
+  if (charset == UTF_8) {
+    fprintf(file,"'");
+    while (string[loc] != '\0') {
+      if (string[loc] == '\'') fprintf(file,"'");
+      fprintf(file,"%c",string[loc++]);
+    }
+    fprintf(file,"'");
+  } else {
+    write_string_code(file,charset,"'");
+    while (*string != '\0') {
+      if (*string == '\'') write_string_code(file,charset,"'");
+      PutCode(utf8_char_to_codepoint(&string),charset,file);
+    }
+    write_string_code(file,charset,"'");
   }
-  fprintf(file,"'");
 }
 
 /*======================================================================*/
 /* print an atom, quote it if necessary.				*/
 /*======================================================================*/
 
-void print_qatom(FILE *file, char *string)
+void print_qatom(FILE *file, int charset, char *string)
 {
-  if (quotes_are_needed(string)) print_aqatom(file, string);
-  else fprintf(file, "%s", string);
+  if (quotes_are_needed(string)) print_aqatom(file, charset, string);
+  else write_string_code(file,charset,string);
 }
 
 /*======================================================================*/
@@ -911,23 +920,30 @@ void print_qatom(FILE *file, char *string)
 /* if necessary.							*/
 /*======================================================================*/
 
-void print_dqatom(FILE *file, char *string)
-{
-  int loc = 0;
-
-  fprintf(file,"\"");
-  while (string[loc] != '\0') {
-    if (string[loc] == '"') fprintf(file,"\"");
-    fprintf(file,"%c",string[loc++]);
+void print_dqatom(FILE *file, int charset, char *string) {
+  if (charset == UTF_8) {
+    int loc = 0;
+    fprintf(file,"\"");
+    while (string[loc] != '\0') {
+      if (string[loc] == '"') fprintf(file,"\"");
+      fprintf(file,"%c",string[loc++]);
+    }
+    fprintf(file,"\"");
+  } else {
+    write_string_code(file,charset,"\"");
+    while (*string != '\0') {
+      if (*string == '"') write_string_code(file,charset,"\"");
+      PutCode(utf8_char_to_codepoint(&string),charset,file);
+    }
+    write_string_code(file,charset,"\"");
   }
-  fprintf(file,"\"");
 }
 
 /*======================================================================*/
 /* print an operator.							*/
 /*======================================================================*/
 
-void print_op(FILE *file, char *string, int pos)
+void print_op(FILE *file, int charset, char *string, int pos)
 {
   char *s;
   int need_blank = 0;
@@ -939,12 +955,12 @@ void print_op(FILE *file, char *string, int pos)
   }
   if (need_blank) {
     switch (pos) {
-      case 1: print_qatom(file, string); putc(' ', file); break;
-      case 2: putc(' ', file);
-	      print_qatom(file, string); putc(' ', file); break;
-      case 3: putc(' ', file); print_qatom(file, string); break;
+    case 1: print_qatom(file, charset, string); putc(' ', file); break;
+    case 2: putc(' ', file);
+      print_qatom(file, charset, string); putc(' ', file); break;
+    case 3: putc(' ', file); print_qatom(file, charset, string); break;
     }
-  } else fprintf(file, "%s", string);
+  } else write_string_code(file,CURRENT_CHARSET,string);
 }
 
 /* ----- The following is also called from the Prolog level ----------- */

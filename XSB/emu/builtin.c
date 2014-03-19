@@ -138,7 +138,7 @@
 int mem_flag;
 
 /*======================================================================*/
-extern struct xsb_token_t *GetToken(CTXTdeclc FILE *, STRFILE *, int);
+extern struct xsb_token_t *GetToken(CTXTdeclc int, int);
 
 extern int  sys_syscall(CTXTdeclc int);
 extern xsbBool sys_system(CTXTdeclc int);
@@ -2013,14 +2013,7 @@ int builtin_call(CTXTdeclc byte number)
   case FILE_GETTOKEN: {    /* R1: +File, R2: +PrevCh, R3: -Type; */
                                 /* R4: -Value, R5: -NextCh */
 
-    int tmpval = (int)ptoc_int(CTXTc 1);
-    if ((tmpval < 0) && (tmpval >= -MAXIOSTRS))
-      token = GetToken(CTXTc NULL,strfileptr(tmpval), (int)ptoc_int(CTXTc 2));
-    else {
-      FILE* fptr;
-      SET_FILEPTR(fptr, tmpval);
-      token = GetToken(CTXTc fptr, NULL, (int)ptoc_int(CTXTc 2));
-    }
+    token = GetToken(CTXTc (int)ptoc_int(CTXTc 1),(int)ptoc_int(CTXTc 2));
     if (token->type == TK_ERROR) {
       //      pcreg = (pb)&fail_inst;
       return FALSE;
@@ -2055,9 +2048,10 @@ int builtin_call(CTXTdeclc byte number)
 
   case FILE_PUTTOKEN: {	/* R1: +File, R2: +Type, R3: +Value; */
     FILE* fptr;
-    int tmpval = (int)ptoc_int(CTXTc 1);
+    int io_port = (int)ptoc_int(CTXTc 1);
+    int charset;
     //    SYS_MUTEX_LOCK(MUTEX_IO);
-    SET_FILEPTR(fptr,tmpval);
+    SET_FILEPTR_CHARSET(fptr,charset,io_port);
     switch (ptoc_int(CTXTc 2)) {
     case XSB_FREE   : {
       CPtr var = (CPtr)ptoc_tag(CTXTc 3);
@@ -2072,7 +2066,9 @@ int builtin_call(CTXTdeclc byte number)
     case XSB_INT    : 
 
       fprintf(fptr, "%" Intfmt, (Integer)ptoc_int(CTXTc 3)); break;
-    case XSB_STRING : fprintf(fptr, "%s", ptoc_string(CTXTc 3)); break;
+    case XSB_STRING : 
+      write_string_code(fptr,charset,ptoc_string(CTXTc 3));
+      break;
     case XSB_FLOAT  : fprintf(fptr, "%2.4f", ptoc_float(CTXTc 3)); break;
     case TK_INT_0  : {
       int tmp = (int) ptoc_int(CTXTc 3);
@@ -2092,14 +2088,14 @@ int builtin_call(CTXTdeclc byte number)
       fwrite(&ftmp, 8, 1, fptr);
       break;
     }
-    case TK_PREOP  : print_op(fptr, ptoc_string(CTXTc 3), 1); break;
-    case TK_INOP   : print_op(fptr, ptoc_string(CTXTc 3), 2); break;
-    case TK_POSTOP : print_op(fptr, ptoc_string(CTXTc 3), 3); break;
-    case TK_QATOM  : print_qatom(fptr, ptoc_string(CTXTc 3)); break;
-    case TK_AQATOM : print_aqatom(fptr, ptoc_string(CTXTc 3)); break;
-    case TK_QSTR   : print_dqatom(fptr, ptoc_string(CTXTc 3)); break;
-    case TK_TERML  : print_term_canonical(CTXTc fptr, ptoc_tag(CTXTc 3), 1); break;
-    case TK_TERM   : print_term_canonical(CTXTc fptr, ptoc_tag(CTXTc 3), 0); break;
+    case TK_PREOP  : print_op(fptr, charset, ptoc_string(CTXTc 3), 1); break;
+    case TK_INOP   : print_op(fptr, charset, ptoc_string(CTXTc 3), 2); break;
+    case TK_POSTOP : print_op(fptr, charset, ptoc_string(CTXTc 3), 3); break;
+    case TK_QATOM  : print_qatom(fptr, charset, ptoc_string(CTXTc 3)); break;
+    case TK_AQATOM : print_aqatom(fptr, charset, ptoc_string(CTXTc 3)); break;
+    case TK_QSTR   : print_dqatom(fptr, charset, ptoc_string(CTXTc 3)); break;
+    case TK_TERML  : print_term_canonical(CTXTc fptr, charset, ptoc_tag(CTXTc 3), 1); break;
+    case TK_TERM   : print_term_canonical(CTXTc fptr, charset, ptoc_tag(CTXTc 3), 0); break;
     default : //printf("flg: %ld\n",(long)ptoc_int(CTXTc 2));
       xsb_abort("[FILE_PUTTOKEN] Unknown token type %ld",(long)ptoc_int(CTXTc 2));
     }
@@ -2240,10 +2236,11 @@ int builtin_call(CTXTdeclc byte number)
     /* TLS: file_writequoted is intended for use within l_write.  Do
        not use it directly -- as it should have its streams locked. */
   case FILE_WRITEQUOTED: {
-    FILE* fptr;
-    int   tmpval = (int)ptoc_int(CTXTc 1);
-    SET_FILEPTR(fptr, tmpval);
-    write_quotedname(fptr ,ptoc_string(CTXTc 2));
+    FILE *fptr;
+    int   io_port = (int)ptoc_int(CTXTc 1);
+    int   charset;
+    SET_FILEPTR_CHARSET(fptr,charset,io_port);
+    write_quotedname(fptr,charset,ptoc_string(CTXTc 2));
     break;
   }
   case GROUND:

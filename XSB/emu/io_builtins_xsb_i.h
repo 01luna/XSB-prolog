@@ -42,7 +42,7 @@
 STRFILE *iostrs[MAXIOSTRS] = {NULL,NULL,NULL,NULL,NULL};
 
 extern char   *expand_filename(char *filename);
-extern int xsb_intern_fileptr(FILE *, char *, char *, char *);
+extern int xsb_intern_fileptr(FILE *, char *, char *, char *, int);
 
 static FILE *stropen(CTXTdeclc char *str)
 {
@@ -51,7 +51,7 @@ static FILE *stropen(CTXTdeclc char *str)
   STRFILE *tmp;
   char *stringbuff;
 
-  for (i=0; i<MAXIOSTRS; i++) {
+  for (i=1; i<MAXIOSTRS; i++) { /* 0 reserved for static use from C */
     if (iostrs[i] == NULL) break;
   }
   if (i>=MAXIOSTRS) return FALSE;
@@ -102,7 +102,7 @@ Best to put locks AFTER SET_FILEPTR to avoid problems with mutexes
 inline static xsbBool file_function(CTXTdecl)
 {
   FILE *fptr;
-  int io_port, mode;
+  int io_port, mode, charset;
   size_t size, value, offset, length;
   STRFILE *sfptr;
   XSB_StrDefine(VarBuf);
@@ -316,6 +316,7 @@ inline static xsbBool file_function(CTXTdecl)
 	open_files[io_port].file_name = NULL;
 	open_files[io_port].io_mode = '\0';
 	open_files[io_port].stream_type = 0;
+	open_files[io_port].charset = CURRENT_CHARSET;
 	if (pflags[CURRENT_INPUT] == (Cell) io_port) 
 	  { pflags[CURRENT_INPUT] = STDIN;}
 	if (pflags[CURRENT_OUTPUT] == (Cell) io_port) 
@@ -324,17 +325,11 @@ inline static xsbBool file_function(CTXTdecl)
       }
       break;
     }
-  case FILE_GET_BYTE:	/* file_function(6, +IOport, -IntVal) */
+  case FILE_GET_BYTE:  /* file_function(6, +IOport, -IntVal) */
     io_port = (int)ptoc_int(CTXTc 2);
-    if ((io_port < 0) && (io_port >= -MAXIOSTRS)) {
-      XSB_STREAM_LOCK(io_port);
-      sfptr = strfileptr(io_port);
-      ctop_int(CTXTc 3, strgetc(sfptr));
-    } else {
-      SET_FILEPTR(fptr, io_port);
-      XSB_STREAM_LOCK(io_port);
-      ctop_int(CTXTc 3, getc(fptr));
-    }
+    io_port_to_fptrs(io_port,fptr,sfptr,charset);
+    XSB_STREAM_LOCK(io_port);
+    ctop_int(CTXTc 3, GetC(fptr,sfptr));
     XSB_STREAM_UNLOCK(io_port);
     break;
   case FILE_PUT_BYTE:   /* file_function(7, +IOport, +IntVal) */
@@ -454,7 +449,7 @@ inline static xsbBool file_function(CTXTdecl)
 	  xsb_exit("No space for line buffer");
 //	printf("frll: expand buffer line_buff(%p,%d)\n",line_buff,line_buff_len);
       }
-      *(line_buff+line_buff_disp) = c = getc(fptr);
+      *(line_buff+line_buff_disp) = c = getc(fptr);  // fix for charset!!
       if (c == EOF) break;
       line_buff_disp++;
     } while (c != '\n');
@@ -665,7 +660,8 @@ inline static xsbBool file_function(CTXTdecl)
 	  dest_xsb_fileno = 
 	    xsb_intern_fileptr(dest_fptr,"FILE_CLONE",
 			       open_files[src_xsb_fileno].file_name,
-			       &open_files[src_xsb_fileno].io_mode);
+			       &open_files[src_xsb_fileno].io_mode,
+			       open_files[src_xsb_fileno].charset);
 	  c2p_int(CTXTc dest_xsb_fileno, dest_fptr_term);
 	} else {
 	  /* error */
@@ -735,7 +731,7 @@ inline static xsbBool file_function(CTXTdecl)
 
     SYS_MUTEX_LOCK( MUTEX_IO );
     /* xsb_intern_file will return -1, if fdopen fails */
-    i = xsb_intern_fileptr(fptr, "FD2IOPORT","created from fd",mode);
+    i = xsb_intern_fileptr(fptr, "FD2IOPORT","created from fd",mode,CURRENT_CHARSET);
     ctop_int(CTXTc 3, i);
     open_files[i].stream_type = PIPE_STREAM;
     SYS_MUTEX_UNLOCK( MUTEX_IO );
@@ -762,7 +758,7 @@ inline static xsbBool file_function(CTXTdecl)
     SYS_MUTEX_LOCK( MUTEX_IO );
     if ((fptr = tmpfile())) 
       ctop_int(CTXTc 2, xsb_intern_fileptr(fptr, "TMPFILE_OPEN",
-					 "TMPFILE","wb+"));
+					   "TMPFILE","wb+",CURRENT_CHARSET));
     else
       ctop_int(CTXTc 2, -1);
     SYS_MUTEX_UNLOCK( MUTEX_IO );
@@ -938,208 +934,103 @@ inline static xsbBool file_function(CTXTdecl)
 #endif
     break;
 
-  case FILE_GET_CODE:	/* file_function(6, +IOport, -IntVal) */
+  case FILE_GET_CODE: {	/* file_function(6, +IOport, -IntVal) */
+    int code;
     io_port = (int)ptoc_int(CTXTc 2);
-    if ((io_port < 0) && (io_port >= -MAXIOSTRS)) {
-      XSB_STREAM_LOCK(io_port);
-      sfptr = strfileptr(io_port);
-      //      printf("get start %d\n",sfptr->strcnt);
-      ctop_int(CTXTc 3, utf8_strgetc(sfptr,strgetc(sfptr)));
-      //      printf("get end %d\n",sfptr->strcnt);
-    } else {
-      SET_FILEPTR(fptr, io_port);
-      XSB_STREAM_LOCK(io_port);
-      ctop_int(CTXTc 3, utf8_getc(fptr,getc(fptr)));
-    }
+    XSB_STREAM_LOCK(io_port);
+    code = GetCodeP(io_port);
+    ctop_int(CTXTc 3, code);
     XSB_STREAM_UNLOCK(io_port);
     break;
+  }
   case FILE_PUT_CODE:   /* file_function(7, +IOport, +IntVal) */
     io_port = (int)ptoc_int(CTXTc 2);
     XSB_STREAM_LOCK(io_port);
-    SET_FILEPTR(fptr, io_port);
-    /* ptoc_int(CTXTc 3) is char to write */
+    SET_FILEPTR_CHARSET(fptr, charset,io_port);
     value = ptoc_int(CTXTc 3);
-    //    printf("val %d value cs %d\n",value,CURRENT_CHARSET);
-    if (value <= 127 || CURRENT_CHARSET == ASCII){
-      putc((int) value,fptr);
-    } else { /* unicode, write in utf8 format */
-    char s[5],*ch_ptr,*ch_ptr0;
-    ch_ptr = utf8_codepoint_to_str((int) value, s);
-    ch_ptr0 = s;
-    while (ch_ptr0 < ch_ptr){
-      putc(*ch_ptr0++,fptr);
-    }
-  }
+    PutCode((int)value,charset,fptr);
 #ifdef WIN_NT
     if (io_port==2 && value=='\n') fflush(fptr); /* hack for Java interface */
 #endif
     XSB_STREAM_UNLOCK(io_port);
     break;
   case FILE_GET_CHAR:	{
-    int read_char;
+    int read_codepoint;
     io_port = (int)ptoc_int(CTXTc 2);
-    if ((io_port < 0) && (io_port >= -MAXIOSTRS)) {
-      XSB_STREAM_LOCK(io_port);
-      sfptr = strfileptr(io_port);
-      read_char = strgetc(sfptr);
-      if (read_char == EOF) 
-	ctop_string(CTXTc 3, "end_of_file");
-      else if ((read_char & 0x80) && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
-	char s[5],*ch_ptr;
-	read_char = utf8_strgetc(sfptr,read_char);
-	ch_ptr = utf8_codepoint_to_str(read_char, s);
-	*ch_ptr = '\0';
-	ctop_string(CTXTc 3,s);
-      } else {
-	char s[2];
-	s[0] = (char)read_char; s[1] = '\0';
-	ctop_string(CTXTc 3,s);
-      }
-    } else {
-      SET_FILEPTR(fptr, io_port);
-      XSB_STREAM_LOCK(io_port);
-      read_char = getc(fptr);
-      if (read_char == EOF) 
-	ctop_string(CTXTc 3, "end_of_file");
-      else if ((read_char & 0x80) && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
+    XSB_STREAM_LOCK(io_port);
+    read_codepoint = GetCodeP(io_port);
+    if (read_codepoint == EOF) 
+      ctop_string(CTXTc 3, "end_of_file");
+    else {
       char s[5],*ch_ptr;
-      read_char = utf8_getc(fptr,read_char);
-      ch_ptr = utf8_codepoint_to_str(read_char, s);
+      ch_ptr = utf8_codepoint_to_str(read_codepoint, s); /* internal is always utf8 */
       *ch_ptr = '\0';
       ctop_string(CTXTc 3,s);
-    } else {
-      char s[2];
-      s[0] = (char)read_char; s[1] = '\0';
-      ctop_string(CTXTc 3,s);
-      }
-    XSB_STREAM_UNLOCK(io_port);
     }
+    XSB_STREAM_UNLOCK(io_port);
     break;
   }
   case FILE_PUT_CHAR: {
-    size_t len;
-    char *ch_ptr;
+    byte *ch_ptr;
 
     io_port = (int)ptoc_int(CTXTc 2);
     XSB_STREAM_LOCK(io_port);
-    SET_FILEPTR(fptr, io_port);
+    SET_FILEPTR_CHARSET(fptr, charset, io_port);
     ch_ptr = iso_ptoc_string(CTXTc 3,"put_char/[1,2]");
-    len = strlen(ch_ptr);
-    if (len==1){
-      putc(*ch_ptr,fptr);
-    } else if ((len<=4) && (utf8_nchars(ch_ptr)==1)){
-      int c;
-      c = *ch_ptr++;
-      while (c != '\0'){
-	putc(c,fptr);
-	c = *ch_ptr++;
-      }
-    } else {
-      xsb_domain_error(CTXTc "character",reg[3],"put_char",2);
-    }
+    PutCode(utf8_char_to_codepoint(&ch_ptr),charset,fptr);
     break; 
   }
 
   case FILE_PEEK_CODE: {
     int bufcode;
     io_port = (int)ptoc_int(CTXTc 2);
+    io_port_to_fptrs(io_port,fptr,sfptr,charset);
     XSB_STREAM_LOCK(io_port);
-    if ((io_port < 0) && (io_port >= -MAXIOSTRS)) {
-      sfptr = strfileptr(io_port);
-      //      printf("peek start %d   ",sfptr->strcnt);
-      bufcode = strgetc(sfptr);
-      if (bufcode == EOF) 
-	bufcode = -1;
-      else {
-        if ((bufcode & 0x80) && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
-          char s[5],*ch_ptr;                                                                                                     
-          bufcode = utf8_strgetc(sfptr,bufcode);
-          ch_ptr = utf8_codepoint_to_str(bufcode, s);
-          while (ch_ptr>s){
-            ch_ptr--;                                                                                   
-            strungetc(sfptr); 
-          }
-        }  
-        else {
-          strungetc(sfptr);
-        }
-      }
-      //      printf("peekend %d\n",sfptr->strcnt);
-    }
+    bufcode = GetCodeP(io_port);
+    if (bufcode == EOF) 
+      bufcode = -1;
     else {
-      SET_FILEPTR(fptr, io_port);
-      bufcode = getc(fptr);
-      if (bufcode == EOF) 
-        bufcode = -1;
-      else {
-        if ((bufcode & 0x80) && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
-          char s[5],*ch_ptr;                                                                                                     
-          bufcode = utf8_getc(fptr,bufcode);
-          ch_ptr = utf8_codepoint_to_str(bufcode, s);
-          while (ch_ptr>s){
-            ch_ptr--;                                                                                      
-            ungetc(*ch_ptr,fptr); 
-          }
-        }  
-        else {
-          ungetc((char)bufcode,fptr);
-        }
+      byte s[5],*ch_ptr;
+      ch_ptr = codepoint_to_str(bufcode, charset, s);
+      while (ch_ptr>s){
+	ch_ptr--;
+	unGetC(*ch_ptr,fptr,sfptr); 
       }
     }
     ctop_int(CTXTc 3, bufcode);
     XSB_STREAM_UNLOCK(io_port);
     break;
   }
-  case FILE_PEEK_CHAR:	{
-    int read_char;
+
+ case FILE_PEEK_CHAR:	{  // these 2 cases can be consolidated! (and sim above)
+    int read_codepoint;
     io_port = (int)ptoc_int(CTXTc 2);
     XSB_STREAM_LOCK(io_port);
-    if ((io_port < 0) && (io_port >= -MAXIOSTRS)) {
-      sfptr = strfileptr(io_port);
-      read_char = strgetc(sfptr);
-      if (read_char == EOF) 
-	ctop_string(CTXTc 3, "end_of_file");
-      else if (read_char & 0x80 && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
-      char s[5],*ch_ptr;
-      read_char = utf8_strgetc(sfptr,read_char);
-      ch_ptr = utf8_codepoint_to_str(read_char, s);
+    read_codepoint = GetCodeP(io_port);
+    if (read_codepoint == EOF) 
+      ctop_string(CTXTc 3, "end_of_file");
+    else {
+      char s[5],*ch_ptr,ss[5];
+      ch_ptr = utf8_codepoint_to_str(read_codepoint, s); /* internal char always utf8 */
       *ch_ptr = '\0';
-      while (ch_ptr>s){
-	ch_ptr--;                   
-	strungetc(sfptr); 
+      io_port_to_fptrs(io_port,fptr,sfptr,charset);
+      if (charset == UTF_8) {
+	while (ch_ptr>s){
+	  ch_ptr--;                   
+	  unGetC(*ch_ptr,fptr,sfptr); 
+	}
+      } else {
+	ch_ptr = codepoint_to_str(read_codepoint, charset, ss);
+	while (ch_ptr>ss) {
+	  ch_ptr--;
+	  unGetC(*ch_ptr,fptr,sfptr);
+	}
       }
       ctop_string(CTXTc 3,s);
-    } else {
-      char s[2];
-      s[0] = (char)read_char; s[1] = '\0';
-      strungetc(sfptr);
-      ctop_string(CTXTc 3,s);
-      }
-    } else {
-      SET_FILEPTR(fptr, io_port);
-      read_char = getc(fptr);
-      if (read_char == EOF) 
-	ctop_string(CTXTc 3, "end_of_file");
-      else if (read_char & 0x80 && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
-      char s[5],*ch_ptr;
-      read_char = utf8_getc(fptr,read_char);
-      ch_ptr = utf8_codepoint_to_str(read_char, s);
-      *ch_ptr = '\0';
-      while (ch_ptr>s){
-	ch_ptr--;                                                                                                                
-	ungetc(*ch_ptr,fptr); 
-      }
-      ctop_string(CTXTc 3,s);
-    } else {
-      char s[2];
-      s[0] = (char)read_char; s[1] = '\0';
-      ungetc((char)read_char,fptr);
-      ctop_string(CTXTc 3,s);
-      }
     }
     XSB_STREAM_UNLOCK(io_port);
     break;
-  }
+ }
 
   case ATOM_LENGTH: {
     Cell term = ptoc_tag(CTXTc 2);

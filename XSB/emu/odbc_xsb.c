@@ -1713,11 +1713,13 @@ Cell build_codes_list(CTXTdeclc byte *charptr) {
     CPtr this_term;
     check_glstack_overflow(4,pcreg,2*sizeof(Cell)*len);
     this_term = hreg;
-    cell(hreg) = makeint((int)*charptr); charptr++;
+    //    cell(hreg) = makeint((int)*charptr); charptr++;
+    cell(hreg) = makeint(char_to_codepoint(CURRENT_CHARSET,&charptr));
     hreg += 2;
     while (*charptr != 0) {
       cell(hreg-1) = makelist(hreg);
-      cell(hreg) = makeint((int)*charptr); charptr++;
+      //      cell(hreg) = makeint((int)*charptr); charptr++;
+      cell(hreg) = makeint(char_to_codepoint(CURRENT_CHARSET,&charptr));
       hreg += 2;
     }
     cell(hreg-1) = makenil;
@@ -1785,7 +1787,8 @@ int GetColumn(CTXTdecl)
 	if (strfile.strcnt >= MAXVARSTRLEN-1)
 	  xsb_warn("[ODBC] Likely overflow of data in column of PROLOG_TERM type\n");
 	strfile.strptr = strfile.strbase = cur->Data[ColCurNum];
-	read_canonical_term(CTXTc NULL,&strfile,2); /* terminating '.'? */
+	iostrs[0] = &strfile;
+	read_canonical_term(CTXTc iostrdecode(0),2); /* terminating '.'? */
 	return TRUE;
       } else if (!strcmp(get_name(get_str_psc(op)),"NULL")) {
 	return FALSE;
@@ -1816,7 +1819,8 @@ int GetColumn(CTXTdecl)
 	
 	strfile.strcnt = strlen(cur->Data[ColCurNum]);
 	strfile.strptr = strfile.strbase = cur->Data[ColCurNum];
-	read_canonical_term(CTXTc NULL,&strfile,2); /* terminating '.'? */
+	iostrs[0] = &strfile;
+	read_canonical_term(CTXTc iostrdecode(0),2); /* terminating '.'? */
 	return TRUE;
       }
     }

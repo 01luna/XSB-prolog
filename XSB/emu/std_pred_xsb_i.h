@@ -29,10 +29,6 @@
 #include "cut_xsb.h"
 /*----------------------------------------*/
 
-extern int utf8_char_to_codepoint(char **s_ptr);             /* nfz */
-extern char *utf8_codepoint_to_str(int c, char *atomname);   /* nfz */
-extern int utf8_nchars(char *s);                             /* nfz */
-
 static xsbBool atom_to_list(CTXTdeclc int call_type);
 static xsbBool number_to_list(CTXTdeclc int call_type);
 
@@ -362,31 +358,26 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	}
 
 	//	if (c < 0) {   /*  || c > 255 nfz */
-	if (c < 0 || (c > 255 && CURRENT_CHARSET == ASCII)) {
-	  //	  err_handle(CTXTc RANGE, 2, call_name, 2, "ASCII code", heap_addr);
+	if (c < 0 || (c > 255 && CURRENT_CHARSET == LATIN_1)) {
 	  mem_dealloc(atomnameaddr,atomnamelen,LEAK_SPACE);
-	  //	  xsb_representation_error(CTXTc "character code",c,call_name,2);
 	  xsb_representation_error(CTXTc "character code",
-				   makestring(string_find("(Non-ASCII Character)",1)),
+				   makestring(string_find("(Non-LATIN_1 Character)",1)),
 				   call_name,2);
 	  return FALSE;	/* keep compiler happy */
 	}
-	//	printf("atomname %p last %p diff %d\n",
-	//	       atomname,atomnamelast,atomnamelast-atomname);
 	if (atomname+3 >= atomnamelast) { /* nfz */
+	  Integer diff;
 	  if (is_cyclic(CTXTc term2)) {
 	    mem_dealloc(atomnameaddr,atomnamelen,LEAK_SPACE);
 	    xsb_type_error(CTXTc "list",makestring("infinite list(?)"),call_name,2);
 	  }
+	  diff = atomname - atomnameaddr;
 	  atomnameaddr = (char *)mem_realloc(atomnameaddr,atomnamelen,(atomnamelen << 1),LEAK_SPACE);
-	  atomname = atomnameaddr + (atomnamelen - 4);
+	  atomname = atomnameaddr + diff;
 	  atomnamelen = atomnamelen << 1;
 	  atomnamelast = atomnameaddr + (atomnamelen - 1);
-	  //	  printf("Allocated namebuf: %p, %d\n",atomnameaddr,atomnamelen);
 	}
-	//	if (CURRENT_CHARSET == UTF_8) 
 	atomname = utf8_codepoint_to_str((int)c, atomname); /* nfz */
-	//	else *atomname++ = (char)c;  
 	term2 = get_list_tail(term2);
       } else {
 	mem_dealloc(atomnameaddr,atomnamelen,LEAK_SPACE);
@@ -420,7 +411,8 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	//	for (i = 0; i < len; i++) {              /* nfz */
 	while (*atomname != '\0'){                       /* nfz */
  	  if (call_type==ATOM_CODES){
-	    int code = utf8_char_to_codepoint(&atomname); /* nfz */
+	    int code;
+	    code = utf8_char_to_codepoint(&atomname); /* nfz */
 	    follow(hreg++) = makeint(code);               /* nfz */ 
 	  }
 	  else {
@@ -508,7 +500,7 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
 	if (c < 0 || c > 255) {
 	  //	  xsb_representation_error(CTXTc "character code",heap_addr,call_name,2);
 	  xsb_representation_error(CTXTc "character code",
-				   makestring(string_find("(Non-ASCII Character)",1)),
+				   makestring(string_find("(Non-LATIN_1 Character)",1)),
 				   call_name,2);
 	}
 	if (StringLoc > 200) xsb_type_error(CTXTc "list",makestring("infinite list(?)"),call_name,2);

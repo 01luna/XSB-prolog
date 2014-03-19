@@ -406,18 +406,18 @@ xsbBool sys_system(CTXTdeclc int callno)
 
     if (toproc_needed) {
       toprocess_fptr = fdopen(pipe_to_proc[1], "w");
-      toproc_stream =  xsb_intern_fileptr(toprocess_fptr,callname,"pipe","w"); 
+      toproc_stream =  xsb_intern_fileptr(toprocess_fptr,callname,"pipe","w",CURRENT_CHARSET); 
       ctop_int(CTXTc 3, toproc_stream);
     }
     if (fromproc_needed) {
       fromprocess_fptr = fdopen(pipe_from_proc[0], "r");
-      fromproc_stream =  xsb_intern_fileptr(fromprocess_fptr,callname,"pipe","r"); 
+      fromproc_stream =  xsb_intern_fileptr(fromprocess_fptr,callname,"pipe","r",CURRENT_CHARSET); 
       ctop_int(CTXTc 4, fromproc_stream);
     }
     if (fromstderr_needed) {
       fromproc_stderr_fptr = fdopen(pipe_from_stderr[0], "r");
       fromproc_stderr_stream
-	= xsb_intern_fileptr(fromproc_stderr_fptr,callname,"pipe","r"); 
+	= xsb_intern_fileptr(fromproc_stderr_fptr,callname,"pipe","r",CURRENT_CHARSET); 
       ctop_int(CTXTc 5, fromproc_stderr_stream);
     }
     ctop_int(CTXTc 6, pid_or_status);

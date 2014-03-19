@@ -60,6 +60,7 @@ extern Exec_Mode xsb_mode;
 //extern int max_threads_glc;
 
 #define fileptr(xsb_filedes)  open_files[xsb_filedes].file_ptr
+#define charset(xsb_filedes)  open_files[xsb_filedes].charset
 
 /* This would yield a meaningful message in case of segfault */
 #define SET_FILEPTR(stream, xsb_filedes) \
@@ -69,6 +70,16 @@ extern Exec_Mode xsb_mode;
     stream = fileptr(xsb_filedes); \
     if ((stream==NULL) && (xsb_filedes != 0)) \
 	xsb_abort("No stream associated with file descriptor %d in an I/O predicate", xsb_filedes);
+
+#define SET_FILEPTR_CHARSET(stream, charset, xsb_filedes)	\
+  if (xsb_filedes < 0 || xsb_filedes >= MAX_OPEN_FILES)			\
+    xsb_abort("Invalid file descriptor %d in an I/O predicate",		\
+	      xsb_filedes);						\
+  stream = fileptr(xsb_filedes);					\
+  if ((stream==NULL) && (xsb_filedes != 0))				\
+    xsb_abort("No stream associated with file descriptor %d in an I/O predicate", xsb_filedes);	\
+  charset = charset(xsb_filedes);
+
 
 extern void gdb_dummy(void);
 

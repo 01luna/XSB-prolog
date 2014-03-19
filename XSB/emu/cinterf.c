@@ -1497,7 +1497,7 @@ DllExport int call_conv pipe_xsb_stdin() {
 DllExport int call_conv writeln_to_xsb_stdin(char * input){
     extern FILE * input_write_stream;
     fprintf(stdout, "\n");
-    fprintf(input_write_stream, "%s\n", input);
+    fprintf(input_write_stream, "%s\n", input);  /* write in current coding??*/
     fflush(input_write_stream);
     return 0;
 }

@@ -1075,7 +1075,7 @@ static void print_term_of_subgoal(CTXTdeclc FILE *fp, byte car, int *i)
       break;
     }
     args = get_arity((Psc)cs_val(term));
-    write_quotedname(fp,     get_name((Psc)cs_val(term)));
+    write_quotedname(fp, CURRENT_CHARSET, get_name((Psc)cs_val(term)));
     /*    fprintf(fp, "%s", get_name((Psc)cs_val(term))); */
     if (args > 0) fprintf(fp, "(");
     for (j = args; j > 0; j--) {
@@ -1118,7 +1118,7 @@ static void print_term_of_subgoal(CTXTdeclc FILE *fp, byte car, int *i)
   }
   break;
   case XSB_STRING:
-    write_quotedname(fp,string_val(term));
+    write_quotedname(fp,CURRENT_CHARSET,string_val(term));
   /*    fprintf(fp, "%s", string_val(term));*/
     break;
   case XSB_INT:
@@ -1238,7 +1238,7 @@ void print_subgoal_callnode_leaf(CTXTdeclc FILE *fp, callnodeptr cn)
   for (leaf = callnode_leaf_ptr(cn); leaf != NULL; leaf = Parent(leaf)) {
     cell_array[i++] = BTN_Symbol(leaf);
   }
-  write_quotedname(fp,     get_name(psc));
+  write_quotedname(fp,CURRENT_CHARSET,get_name(psc));
   /*  fprintf(fp, "%s", get_name(psc)); */
   if (get_arity(psc) > 0) {
     fprintf(fp, "(");
@@ -1264,7 +1264,7 @@ void print_subgoal(CTXTdeclc FILE *fp, VariantSF subg)
   for (leaf = subg_leaf_ptr(subg); leaf != NULL; leaf = Parent(leaf)) {
     cell_array[i++] = BTN_Symbol(leaf);
   }
-  write_quotedname(fp,     get_name(psc));
+  write_quotedname(fp,CURRENT_CHARSET,get_name(psc));
   /*  fprintf(fp, "%s", get_name(psc)); */
   if (get_arity(psc) > 0) {
     fprintf(fp, "(");

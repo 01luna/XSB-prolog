@@ -302,16 +302,19 @@ static int init_open_files(void)
   open_files[0].io_mode = 'r';
   open_files[0].stream_type = CONSOLE_STREAM;
   open_files[0].file_name = standard_input_glc;
+  open_files[0].charset = (int)flags[CHARACTER_SET];
 
   open_files[1].file_ptr = stdout;
   open_files[1].io_mode = 'w';
   open_files[1].stream_type = CONSOLE_STREAM;
   open_files[1].file_name = standard_output_glc;
+  open_files[1].charset = (int)flags[CHARACTER_SET];
 
   open_files[2].file_ptr = stderr;
   open_files[2].io_mode = 'w';
   open_files[2].stream_type = CONSOLE_STREAM;
   open_files[2].file_name = standard_error_glc;
+  open_files[2].charset = (int)flags[CHARACTER_SET];
 
   /* stream for xsb warning msgs */
   if ((warn_fd = dup(fileno(stderr))) < 0)
@@ -321,6 +324,7 @@ static int init_open_files(void)
   open_files[3].io_mode = 'w';
   open_files[3].stream_type = CONSOLE_STREAM;
   open_files[3].file_name = standard_warning_glc;
+  open_files[3].charset = (int)flags[CHARACTER_SET];
 
   /* stream for xsb normal msgs */
   if ((msg_fd = dup(fileno(stderr))) < 0)
@@ -330,6 +334,7 @@ static int init_open_files(void)
   open_files[4].io_mode = 'w';
   open_files[4].stream_type = CONSOLE_STREAM;
   open_files[4].file_name = standard_message_glc;
+  open_files[4].charset = (int)flags[CHARACTER_SET];
 
   /* stream for xsb debugging msgs */
   if ((dbg_fd = dup(fileno(stderr))) < 0)
@@ -339,6 +344,7 @@ static int init_open_files(void)
   open_files[5].io_mode = 'w';
   open_files[5].stream_type = CONSOLE_STREAM;
   open_files[5].file_name = standard_debug_glc;
+  open_files[5].charset = (int)flags[CHARACTER_SET];
 
   /* stream for xsb feedback msgs */
   if ((fdbk_fd = dup(fileno(stdout))) < 0)
@@ -348,6 +354,7 @@ static int init_open_files(void)
   open_files[6].io_mode = 'w';
   open_files[6].stream_type = CONSOLE_STREAM;
   open_files[6].file_name = standard_feedback_glc;
+  open_files[6].charset = (int)flags[CHARACTER_SET];
 
   /* NT doesn't seem to think that dup should preserve the buffering mode of
      the original file. So we make all new descriptors unbuffered -- dunno if
@@ -570,6 +577,13 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
   num_deadlocks = 0;
 #endif
 
+  /* init_open_files needs this flag set. */
+#ifdef WIN_NT
+  flags[CHARACTER_SET] = CP1252;  //LATIN_1;
+#else
+  flags[CHARACTER_SET] = UTF_8;
+#endif
+  
   init_open_files();
 
   /* init statistics. structures */
@@ -618,13 +632,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 
   pflags[TABLING_METHOD] = VARIANT_EVAL_METHOD;
 
-#ifdef WIN_NT
-  flags[CHARACTER_SET] = ASCII;
-#else
-  flags[CHARACTER_SET] = UTF_8;
-#endif
-
-	flags[ERRORS_WITH_POSITION] = 0;
+  flags[ERRORS_WITH_POSITION] = 0;
 
   /* Modify Parameters Using Command Line Options
      -------------------------------------------- */

@@ -263,28 +263,150 @@ void unGetC(int d, FILE *card, STRFILE *instr)
   else ungetc(d, card);
 }
 
-/* nfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfz */
-/* convert a code point to char array s, which has n remaining slots */
-#define UTF8_CODEPOINT_TO_STR(code,s,n){	 \
-    if (code <= 127 || CURRENT_CHARSET == ASCII){	\
-    n--;					 \
-    if (n < 0) {				 \
-      realloc_strbuff(CTXTc &strbuff, &s, &n);	 \
-    }						 \
-    *s++ = (char)code;				 \
-  } else {					 \
-    char *s1;					 \
-    if (n < 4){					 \
-      realloc_strbuff(CTXTc &strbuff, &s, &n);	 \
-    }						 \
-    s1 = utf8_codepoint_to_str(code,s);		 \
-    n -= (int)(s1-s);				 \
-    s = s1;					 \
-  }						 \
+/* code_page_1252[code_1252] = codepoint. */
+
+int code_page_1252[256] =
+   {
+ /*	NUL	SOH	STX	ETX	EOT	ENQ	ACK	BEL    */
+	0x0000, 0x0001,	0x0002,	0x0003,	0x0004, 0x0005,	0x0006,	0x0007,
+ /*	BS	HT	LF	VT	FF	CR	SO	SI     */
+	0x0008, 0x0009, 0x000A, 0x000B,	0x000C, 0x000D, 0x000E, 0x000F,
+ /*	DLE	DC1	DC2	DC3	DC4	NAK	SYN	ETB    */
+	0x0010,	0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
+ /*	CAN	EM	SUB	ESC	FS	GS	RS	US      */
+	0x0018, 0x0019,	0x001A, 0x001B, 0x001C, 0x001D, 0x001E, 0x001F,
+ /*	SP	!	"	#	$	%	&	'       */
+ 	0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
+ /*	(	)	*	+	,	-	.	/       */
+	0x0028, 0x0029, 0x002A, 0x002B, 0x002C, 0x002D, 0x002E, 0x002F,
+ /* 	0	1	2	3	4	5	6	7	*/
+	0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
+ /*	8	9	:	;	<	=	>	?	*/
+	0x0038, 0x0039, 0x003A, 0x003B, 0x003C, 0x003D, 0x003E, 0x003F,
+ /* 	@	A	B	C	D	E	F	G	*/
+	0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
+ /*	H	I	J	K	L	M	N	O	*/
+	0x0048, 0x0049, 0x004A, 0x004B, 0x004C, 0x004D, 0x004E, 0x004F,
+ /* 	P	Q	R	S	T	U	V	W	*/
+	0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
+ /*	X	Y	Z	[	\	]	^	_	*/
+	0x0058, 0x0059, 0x005A, 0x005B, 0x005C, 0x005D, 0x005E, 0x005F,
+ /* 	`	a	b	c	d	e	f	g	*/
+	0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067,
+ /*	h	i	j	k	l	m	n	o	*/
+	0x0068, 0x0069, 0x006A, 0x006B, 0x006C, 0x006D, 0x006E, 0x006F,
+ /* 	p	q	r	s	t	u	v	w	*/
+	0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
+ /*	x	y	z	{	|	}	~	DEL	*/
+	0x0078, 0x0079, 0x007A, 0x007B, 0x007C, 0x007D, 0x007E, 0x007F,
+ /* 	euro	??	qut	Å£	Å§	Å•	Å¶	Åß	*/
+	0x20AC, 0x0081, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 
+ /*	è®	Å©	Å™	Å´	Å¨	??	ÅÆ	??	*/
+	0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008D, 0x017D, 0x008F,
+ /*	?? 	Å±	Å≤	Å≥	Å¥	Åµ	Å∂	Å∑	*/
+	0x0090, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+ /*	è∏	Åπ	Å∫	Åª	Åº	??	 Åæ	Åø	*/
+	0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0x009D, 0x017E, 0x0178,
+ /* 	NBSP	Å°	Å¢	Å£	Å§	Å•	Å¶	Åß	*/
+	0x00A0, 0x00A1, 0x00A2, 0x00A3, 0x00A4, 0x00A5, 0x00A6, 0x00A7,
+ /*	Å®	Å©	Å™	Å´	Å¨	SHY	ÅÆ	ÅØ	*/
+	0x00A8, 0x00A9, 0x00AA, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x00AF,
+ /* 	Å∞	Å±	Å≤	Å≥	Å¥	Åµ	Å∂	Å∑	*/
+	0x00B0, 0x00B1, 0x00B2, 0x00B3, 0x00B4, 0x00B5, 0x00B6, 0x00B7,
+ /*	Å∏	Åπ	Å∫	Åª	Åº	ÅΩ	Åæ	Åø 	*/
+	0x00B8, 0x00B9, 0x00BA, 0x00BB, 0x00BC, 0x00BD, 0x00BE, 0x00BF,
+ /* 	Å¿	Å¡	Å¬	Å√	Åƒ	Å≈	Å∆	Å«	*/
+	0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C4, 0x00C5, 0x00C6, 0x00C7,
+ /*	Å»	Å…	Å 	ÅÀ	ÅÃ	ÅÕ	ÅŒ	Åœ	*/
+	0x00C8, 0x00C9, 0x00CA, 0x00CB, 0x00CC, 0x00CD, 0x00CE, 0x00CF,
+ /* 	Å–	Å—	Å“	Å”	Å‘	Å’	Å÷	Å◊	*/
+	0x00D0, 0x00D1, 0x00D2, 0x00D3, 0x00D4, 0x00D5, 0x00D6, 0x00D7,
+ /*	Åÿ	ÅŸ	Å⁄	Å€	Å‹	Å›	Åﬁ	Åﬂ	*/
+	0x00D8, 0x00D9, 0x00DA, 0x00DB, 0x00DC, 0x00DD, 0x00DE, 0x00DF, 
+ /* 	Å‡	Å·	Å‚	Å„	Å‰	ÅÂ	è°	ÅÁ	*/
+	0x00E0, 0x00E1, 0x00E2, 0x00E3, 0x00E4, 0x00E5, 0x00E6, 0x00E7,
+ /*	ÅË	ÅÈ	ÅÍ	ÅÎ	ÅÏ	ÅÌ	ÅÓ	ÅÔ	*/
+	0x00E8, 0x00E9, 0x00EA, 0x00EB, 0x00EC, 0x00ED, 0x00EE, 0x00EF,
+ /* 	Å	ÅÒ	ÅÚ	ÅÛ	ÅÙ	Åı	Åˆ	Å˜ */
+	0x00F0, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x00F7,
+ /*	Å¯	Å˘	Å˙	Å˚	Å¸	Å˝	Å˛	Åˇ 	*/
+	0x00F8, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x00FE, 0x00FF
+   };
+
+/* hash table to invert encoding */
+int code_page_1252_hash[256] = {0};
+
+int w1252_char_to_codepoint(byte **s) {
+  return code_page_1252[**s];
 }
 
-char *utf8_codepoint_to_str(int code, char *s){
-  if (code<0x80 || CURRENT_CHARSET == ASCII){
+/* many are self-inversions in w1252, i.e., 00-7F and A0-FF; For
+   others see if they are already in hash-invert table. if not find
+   and add to hash-invert table.  Hash collisions would overwrite
+   previous and be inefficient */
+
+byte *w1252_codepoint_to_str(int codepoint, byte *s) {
+  int hc, hind, i;
+  if (codepoint <= 0xFF && code_page_1252[codepoint] == codepoint) {
+    *s++ = codepoint;
+    return s;
+  } else {
+    hc = codepoint % 255;
+    hind = code_page_1252_hash[hc];
+    if (code_page_1252[hind] == codepoint) {
+      *s++ = hind;
+      return s;
+    }
+    for (i=0x80; i < 0xA0; i++) { /* assuming 00-7F,A0-FF are self-inverts */
+      if (code_page_1252[i] == codepoint) {
+	code_page_1252_hash[hc] = i;
+	*s++ = i;
+	return s;
+      }
+    }
+    *s++ = 255; // ERROR  (or maybe just delete and return s?)
+    return s;  // error, not found!
+  }
+}
+
+extern byte *utf8_codepoint_to_str(int, byte *);
+/* nfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfz */
+/* convert a code point to char array s, which has n remaining slots */
+#define CODEPOINT_TO_UTF8_STR(code,s,n) {		 \
+    if (code <= 127) {					 \
+      n--;						 \
+      if (n < 0) {					 \
+        realloc_strbuff(CTXTc &strbuff, &s, &n);	 \
+      }							 \
+      *s++ = (char)code;				 \
+    } else {						 \
+      byte *s1;						 \
+      if (n < 4){					 \
+	realloc_strbuff(CTXTc &strbuff, &s, &n);	 \
+      }							 \
+      s1 = utf8_codepoint_to_str(code,s);		 \
+      n -= (int)(s1-s);					 \
+      s = s1;						 \
+    }							 \
+  }
+
+byte *codepoint_to_str(int code, int charset, byte *s) {
+  switch (charset) {
+  case LATIN_1: 
+    *s++ = code;
+    return s;
+  case UTF_8:
+    return utf8_codepoint_to_str(code,s);
+  case CP1252:
+    return w1252_codepoint_to_str(code,s);
+  default:
+    printf("bad charset type in codepoint_to_str: %d\n",charset);
+    return s;
+  }
+}
+
+byte *utf8_codepoint_to_str(int code, byte *s){
+  if (code<0x80) {
     *s++ = code;
   } else if (code<0x800){
     *s++ = 192+code/64;
@@ -302,14 +424,28 @@ char *utf8_codepoint_to_str(int code, char *s){
   return s;
 }
 
+int char_to_codepoint(int charset, byte **s_ptr) {
+  switch (charset) {
+  case LATIN_1: 
+    return *(*s_ptr++);
+  case UTF_8:
+    return utf8_char_to_codepoint(s_ptr);
+  case CP1252:
+    return w1252_char_to_codepoint(s_ptr);
+  default:
+    printf("bad charset type in char_to_codepoint: %d\n",charset);
+    return 0;
+  }
+}
+
 /* return the codepoint of the current utf-8 char, setting s_ptr to the beginning of the next char */
-int utf8_char_to_codepoint(char **s_ptr){
-  unsigned char *s;
+int utf8_char_to_codepoint(byte **s_ptr){
+  byte *s;
   int c, b2, b3, b4;
   s = *s_ptr;
   c = *s++;
   
-  if (c & 0x80 && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
+  if (c & 0x80){                      /* leading byte of a utf8 char? */
     if ((c & 0xe0) == 0xc0){          /* 110xxxxx */
       b2 = *s++;
       if ((b2 & 0xc0) == 0x80){       /* 110xxxxx 10xxxxxx */
@@ -356,51 +492,104 @@ int utf8_char_to_codepoint(char **s_ptr){
   return c;
 }
 
+extern int utf8_GetCode(FILE *, STRFILE *, int);
+
+int GetCode(int charset, FILE *curr_in, STRFILE *instr) {
+  int c;
+  c = GetC(curr_in,instr);
+  if (instr) { /* encoding in strings is always utf8 */
+    return utf8_GetCode(curr_in, instr, c);
+  }
+  switch (charset) {
+  case LATIN_1:
+    return c;
+  case UTF_8:   
+    return utf8_GetCode(curr_in, instr, c);
+  case CP1252:
+    return code_page_1252[c];
+  default: printf("ERROR: bad current_charset in GetCode: %d\n",charset);
+    return 0;
+  }
+}
+
+int GetCodeP(int io_port) {
+  int c, charset;
+  FILE *fptr; STRFILE *sfptr;
+  io_port_to_fptrs(io_port,fptr,sfptr,charset);
+  c = GetC(fptr,sfptr);
+  if (sfptr) { /* encoding in strings is always utf8 */
+    return utf8_GetCode(fptr, sfptr, c);
+  }
+  switch (charset) {
+  case LATIN_1:
+    return c;
+  case UTF_8:   
+    return utf8_GetCode(fptr, sfptr, c);
+  case CP1252:
+    return code_page_1252[c];
+  default: printf("ERROR: bad current_charset in GetCode: %d\n",charset);
+    return 0;
+  }
+}
+
+
+
 /* read a utf8 char whose leading byte is c */
-int utf8_getc(FILE *curr_in, int c){
+int utf8_GetCode(FILE *curr_in, STRFILE *instr, int c){
   int b2,b3,b4;
-  if ((c & 0xe0) == 0xc0 && CURRENT_CHARSET == UTF_8){          /* 110xxxxx */
-    b2 = getc(curr_in);
+  if (c < 0x80) return c;           /* ascii */
+  if ((c & 0xe0) == 0xc0){          /* 110xxxxx */
+    b2 = GetC(curr_in,instr);
     if ((b2 & 0xc0) == 0x80){       /* 110xxxxx 10xxxxxx */
       return (((c & 0x1f) << 6) | (b2 & 0x3f));
     } else {                        /* not utf8 char */
-      if (b2>0) {ungetc((char)b2,curr_in);}/* don't unget EOF */
+      if (b2>0) {unGetC((char)b2,curr_in,instr);}/* don't unget EOF */
     }
-  } else if ((c & 0xf0) == 0xe0 && CURRENT_CHARSET == UTF_8){    /* 1110xxxx */
-    b2 = getc(curr_in);	
+  } else if ((c & 0xf0) == 0xe0){    /* 1110xxxx */
+    b2 = GetC(curr_in,instr);	
     if ((b2 & 0xc0) == 0x80){        /* 1110xxxx 10xxxxxx */
-      b3 = getc(curr_in);	
+      b3 = GetC(curr_in,instr);	
       if ((b3 & 0xc0) == 0x80){      /* 1110xxxx 10xxxxxx 10xxxxxx */
 	return (((c & 0xf) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f));
       } else {
-	if (b3>0) {ungetc((char)b3,curr_in);}
-	ungetc((char)b2,curr_in);
+	if (b3>0) {unGetC((char)b3,curr_in,instr);}
+	unGetC((char)b2,curr_in,instr);
       }
     } else {
-      if (b2>0) {ungetc((char)b2,curr_in);}
+      if (b2>0) {unGetC((char)b2,curr_in,instr);}
     }
-  } else if ((c & 0xf8) == 0xf0 && CURRENT_CHARSET == UTF_8){    /* 11110xxx */
-    b2 = getc(curr_in);	
+  } else if ((c & 0xf8) == 0xf0){    /* 11110xxx */
+    b2 = GetC(curr_in,instr);	
     if ((b2 & 0xc0) == 0x80){        /* 11110xxx 10xxxxxx */
-      b3 = getc(curr_in);	
+      b3 = GetC(curr_in,instr);	
       if ((b3 & 0xc0) == 0x80){      /* 11110xxx 10xxxxxx 10xxxxxx */
-	b4 = getc(curr_in);	
+	b4 = GetC(curr_in,instr);	
 	if ((b4 & 0xc0) == 0x80){    /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
 	  return (((c & 0xf) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f));
 	} else {
-	  if (b2>0) {ungetc((char)b4,curr_in);}
-	  ungetc((char)b3,curr_in);
-	  ungetc((char)b2,curr_in);
+	  if (b2>0) {unGetC((char)b4,curr_in,instr);}
+	  unGetC((char)b3,curr_in,instr);
+	  unGetC((char)b2,curr_in,instr);
 	}
       } else {
-	if (b3>0) {ungetc((char)b3,curr_in);}
-	ungetc((char)b2,curr_in);
+	if (b3>0) {unGetC((char)b3,curr_in,instr);}
+	unGetC((char)b2,curr_in,instr);
       }
     } else {
-      if (b2>0) {ungetc((char)b2,curr_in);}
+      if (b2>0) {unGetC((char)b2,curr_in,instr);}
     }
   }
-  return c;                             /* an ASCII char or a char in a different encoding */
+  return c;
+}
+
+void write_string_code(FILE *fptr, int charset, byte *string) {
+  if (charset == UTF_8) { /* internal, just print it */
+    fprintf(fptr, "%s", string); 
+  } else {
+    while (*string != '\0') {
+      PutCode(utf8_char_to_codepoint(&string),charset,fptr);
+    }
+  }
 }
 
 //#define strungetc(p) (((p)->strptr>(p)->strbase)? ((int)*(p)->strptr--,(int)*(p)->strcnt++): -1)
@@ -412,62 +601,28 @@ int strungetc(STRFILE * p) {
   else return -1;
 }
 
-/* read a utf8 char whose leading byte is c */
-int utf8_strgetc(  STRFILE *sfptr, int c){
-  int b2,b3,b4;
+extern int utf8_nchars(byte *);
 
-  if ((c & 0xe0) == 0xc0 && CURRENT_CHARSET == UTF_8){          /* 110xxxxx */
-    b2 = strgetc(sfptr);
-    if ((b2 & 0xc0) == 0x80){       /* 110xxxxx 10xxxxxx */
-      return (((c & 0x1f) << 6) | (b2 & 0x3f));
-    } else {                        /* not utf8 char */
-      if (b2>0) {strungetc(sfptr);}/* don't unget EOF */
-    }
-  } else if ((c & 0xf0) == 0xe0 && CURRENT_CHARSET == UTF_8){    /* 1110xxxx */
-    b2 = strgetc(sfptr);	
-    if ((b2 & 0xc0) == 0x80){        /* 1110xxxx 10xxxxxx */
-      b3 = strgetc(sfptr);	
-      if ((b3 & 0xc0) == 0x80){      /* 1110xxxx 10xxxxxx 10xxxxxx */
-	return (((c & 0xf) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f));
-      } else {
-	if (b3>0) {strungetc(sfptr);}
-	strungetc(sfptr);
-      }
-    } else {
-      if (b2>0) {strungetc(sfptr);}
-    }
-  } else if ((c & 0xf8) == 0xf0 && CURRENT_CHARSET == UTF_8){    /* 11110xxx */
-    b2 = strgetc(sfptr);	
-    if ((b2 & 0xc0) == 0x80){        /* 11110xxx 10xxxxxx */
-      b3 = strgetc(sfptr);	
-      if ((b3 & 0xc0) == 0x80){      /* 11110xxx 10xxxxxx 10xxxxxx */
-	b4 = strgetc(sfptr);	
-	if ((b4 & 0xc0) == 0x80){    /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
-	  return (((c & 0xf) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f));
-	} else {
-	  if (b2>0) {strungetc(sfptr);}
-	  strungetc(sfptr);
-	  strungetc(sfptr);
-	}
-      } else {
-	if (b3>0) {strungetc(sfptr);}
-	strungetc(sfptr);
-      }
-    } else {
-      if (b2>0) {strungetc(sfptr);}
-    }
+int coding_nchars(int charset, byte *s) {
+  switch (charset) {
+  case LATIN_1:
+  case CP1252:
+    return (int)strlen(s);
+  case UTF_8:   
+    return utf8_nchars(s);
+  default: printf("ERROR: bad current_charset in coding_nchars: %d\n",charset);
+    return 0;
   }
-  return c;                             /* an ASCII char or a char in a different encoding */
 }
 
 /* return the number of utf-8 chars in s. */
-int utf8_nchars(char *s){
+int utf8_nchars(byte *s){
   unsigned int c;
   int count = 0;
   c = *s++;
   while (c != '\0'){
     count++;
-    if (c & 0x80 && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
+    if (c & 0x80){                      /* leading byte of a utf8 char? */
       if ((c & 0xe0) == 0xc0){          /* 110xxxxx */
 	c = *s++;
 	if ((c & 0xc0) == 0x80){        /* 110xxxxx 10xxxxxx */
@@ -516,7 +671,7 @@ int utf8_nchars(char *s){
 }
 
 /* nfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfz */
-
+#define UNICODE_ESCAPE_OFF FALSE
  
  
 /*  GetToken() reads a single token from the input stream and returns
@@ -600,13 +755,13 @@ char    badradix[]      = "radix not 0 or 2..36";
 */
  
 static int read_character(CTXTdeclc register FILE *card,
-			  register STRFILE *instr,
+			  register STRFILE *instr, int charset,
 			  register int q)
 {
         register int c;
 	char message[200];
  
-        c = GetC(card,instr);
+        c = GetCode(charset,card,instr);
 BACK:   if (c < 0) {
           if (c == EOF) { /* to mostly handle cygwin stdio.h bug ... */
 	    char *filename;
@@ -634,62 +789,16 @@ READ_ERROR:
           else c = c & 0xff;  /* in which getc returns "signed" char? */
         }
         if (c == q) {
-            c = GetC(card,instr);
+	    c = GetCode(charset,card,instr);
             if (c == q) return c;
             lastc = c;
             return -1;
         } else
         if (c != intab.escape) {
-	  /* nfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfz */
-	  int b2,b3,b4;  
-	  if (c & 0x80 && CURRENT_CHARSET == UTF_8){                      /* leading byte of a utf8 char? */
-	    if ((c & 0xe0) == 0xc0){          /* 110xxxxx */
-	      b2 = GetC(card,instr);
-	      if ((b2 & 0xc0) == 0x80){       /* 110xxxxx 10xxxxxx */
-		return (((c & 0x1f) << 6) | (b2 & 0x3f));
-	      } else {                        /* not utf8 char */
-		if (b2>0) {unGetC(b2,card,instr);}/* don't unget EOF */
-	      }
-	    } else if ((c & 0xf0) == 0xe0){    /* 1110xxxx */
-	      b2 = GetC(card,instr);
-	      if ((b2 & 0xc0) == 0x80){        /* 1110xxxx 10xxxxxx */
-		b3 = GetC(card,instr);
-		if ((b3 & 0xc0) == 0x80){      /* 1110xxxx 10xxxxxx 10xxxxxx */
-		  return (((c & 0xf) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f));
-		} else {
-		  if (b3>0) {unGetC(b3,card,instr);}
-		  unGetC(b2,card,instr);
-		}
-	      } else {
-		if (b2>0) {unGetC(b2,card,instr);}
-	      }
-	    } else if ((c & 0xf8) == 0xf0){    /* 11110xxx */
-	      b2 = GetC(card,instr);
-	      if ((b2 & 0xc0) == 0x80){        /* 11110xxx 10xxxxxx */
-		b3 = GetC(card,instr);
-		if ((b3 & 0xc0) == 0x80){      /* 11110xxx 10xxxxxx 10xxxxxx */
-		  b4 = GetC(card,instr);
-		  if ((b4 & 0xc0) == 0x80){    /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
-		    return (((c & 0xf) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f));
-		  } else {
-		    if (b4>0) {unGetC(b4,card,instr);}
-		    unGetC(b3,card,instr);
-		    unGetC(b2,card,instr);
-		  }
-		} else {
-		  if (b3>0) {unGetC(b3,card,instr);}
-		  unGetC(b2,card,instr);
-		}
-	      } else {
-		if (b2>0) {unGetC(b2,card,instr);}
-	      }
-	    }
-	  }
-	  /* nfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfz */
-	  return c;                             /* an ASCII char or a char in a different encoding */
+	  return c;
         }
         /*  If we get here, we have read the "\" of an escape sequence  */
-        c = GetC(card,instr);
+        c = GetCode(charset,card,instr);
         switch (c) {
             case EOF:
 	        if (!instr && ferror(card)) 
@@ -703,7 +812,7 @@ READ_ERROR:
             case 'f':		        /* formfeed */
                 return '\f';
             case '\n':		      /* seeing a newline */
-                while (IsLayout(c = GetC(card,instr)));
+	      while (IsLayout(c = GetCode(charset,card,instr)));
                 goto BACK;
             case 'n':		        /* newline */
 	        return '\n';
@@ -718,9 +827,9 @@ READ_ERROR:
             case 'x':		        /* hexadecimal */
                 {   int i, n;
                     for (n = 0, i = 2; --i >= 0; n = (n<<4) + DigVal(c))
-                        if (DigVal(c = GetC(card,instr)) >= 16) {
+		      if (DigVal(c = GetCode(charset,card,instr)) >= 16) {
                             if (c < 0) goto READ_ERROR;
-                            (void)unGetC(c, card, instr);
+                            (void)unGetC(c, card, instr); /* may not recover */
                             break;
                         }
                     return n & 255;
@@ -729,33 +838,36 @@ READ_ERROR:
    	    /* nfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfz */
 	    case 'u':  case 'U':                     /* unicode escape */
 	      {int n,i;
-		  if (CURRENT_CHARSET == UTF_8) {
-		  n = 0;
-		  for (i=1; i<=4; i++){                /* \uxxxx */ 
-		    c = GetC(card,instr);
-		    if (DigVal(c) <= 15 && c != '_'){
-		      n = (n<<4) + DigVal(c);
-		    } else {
-		      goto READ_ERROR;
-		    }
-		  }
-		  c = GetC(card,instr);
-		  if (DigVal(c) <= 15 && c != '_'){      /* \uxxxxxxxx */
-		    n = (n<<4) + DigVal(c);	
-		    for (i=1; i<=3; i++){
-		      c = GetC(card,instr);
+		  if (!UNICODE_ESCAPE_OFF) {
+		    n = 0;
+		    for (i=1; i<=4; i++){                /* \uxxxx */ 
+		      c = GetCode(charset,card,instr);
 		      if (DigVal(c) <= 15 && c != '_'){
 			n = (n<<4) + DigVal(c);
 		      } else {
-			goto READ_ERROR;
+			unGetC(c,card,instr);
+			xsb_warn("[TOKENIZER] Ill-formed \\u unicode escape");
+			return n;
 		      }
 		    }
-		  } else {
-		    if (c>0) {unGetC(c,card,instr);}	
-		  }
-		  return n;
-		  }
-		  else {   // ASCII character set
+		    c = GetCode(charset,card,instr);
+		    if (DigVal(c) <= 15 && c != '_'){      /* \uxxxxxxxx */
+		      n = (n<<4) + DigVal(c);	
+		      for (i=1; i<=3; i++){
+			c = GetCode(charset,card,instr);
+			if (DigVal(c) <= 15 && c != '_'){
+			  n = (n<<4) + DigVal(c);
+			} else {
+			  unGetC(c,card,instr);
+			  xsb_warn("[TOKENIZER] Ill-formed \\u unicode escape");
+			  return n;
+			}
+		      }
+		    } else {
+		      if (c>0) {unGetC(c,card,instr);}	
+		    }
+		    return n;
+		  } else {   // not UTF_8
 		    (void) unGetC(c, card, instr);
 		    return('\\');
 		  }
@@ -766,7 +878,7 @@ READ_ERROR:
             case '4': case '5': case '6': case '7':
                 {   int i, n;
                     for (n = c-'0', i = 2; --i >= 0; n = (n<<3) + DigVal(c))
-                        if (DigVal(c = GetC(card,instr)) >= 8) {
+		      if (DigVal(c = GetCode(charset,card,instr)) >= 8) {
 			  // if (c < 0) goto READ_ERROR;
 			  // (void) unGetC(c, card, instr);
 			  if (c != '\\') (void) unGetC(c,card,instr); // more standardish
@@ -894,12 +1006,15 @@ void realloc_strbuff(CTXTdeclc char **pstrbuff, char **ps, int *pn)
   return;
 }
 
-struct xsb_token_t *GetToken(CTXTdeclc FILE *card, STRFILE *instr, int prevch)
+struct xsb_token_t *GetToken(CTXTdeclc int io_port, int prevch)
 {
         char *s;
         register int c, d = 0;
         Integer oldv = 0, newv = 0; 
         int n;
+	int charset;
+	FILE *card;
+	STRFILE *instr;
 
 	//	printf("==> GetTOken \n");
 	if (strbuff == NULL)
@@ -911,6 +1026,14 @@ struct xsb_token_t *GetToken(CTXTdeclc FILE *card, STRFILE *instr, int prevch)
 	n = strbuff_len;
 
         c = prevch; 
+	if ((io_port < 0) && (io_port >= -MAXIOSTRS)) {
+	  instr = strfileptr(io_port);
+	  charset = UTF_8;
+	} else {
+	  instr = NULL;
+	  SET_FILEPTR_CHARSET(card,charset,io_port);
+	}
+
 START:
         switch (InType(c)) {
  
@@ -924,7 +1047,7 @@ START:
                 */
                 do {
                     if (c != '_') *s++ = c;
-                    c = GetC(card,instr);
+                    c = GetCode(charset,card,instr);
                 } while (InType(c) <= BREAK);
                 if (c == intab.radix) {  
                     *s = 0;
@@ -938,29 +1061,30 @@ START:
 		    }
                     if (d == 0) {
 		      /*  0'c['] is a character code  */
-		      d = read_character(CTXTc card, instr, -1);
+		      d = read_character(CTXTc card, instr, charset, -1);
 		      //		      sprintf(strbuff, "%d", d);
 		      rad_int = d;
-		      d = GetC(card,instr);
+		      d = GetCode(charset,card,instr);
 		      //		      rad_int = atoi(strbuff);
-		      token->nextch = d == intab.radix ? GetC(card,instr):d;
+		      token->nextch = d == 
+			intab.radix ? GetCode(charset,card,instr):d;
 		      token->value = (char *)(&rad_int);
 		      token->type = TK_INT;
 		      return token;
 		    }
 		    /* handle non-0 radix */
-NONZERO_RADIX:      while (c = GetC(card,instr), DigVal(c) < d)
+		NONZERO_RADIX:      while (c = GetCode(charset,card,instr), DigVal(c) < d)
                         if (c != '_') {
 			    oldv = newv;
 			    newv = newv*d + DigVal(c);
 			    if (newv < oldv || newv > MY_MAXINT) {
 				xsb_error("Overflow in radix notation, returning float");
 			        double_v = oldv*1.0*d + DigVal(c);
-				while (c = GetC(card,instr), DigVal(c) < 99)
+				while (c = GetCode(charset,card,instr), DigVal(c) < 99)
                         	    if (c != '_') 
 					double_v = double_v*d + DigVal(c);
                     		if (c == intab.radix) 
-					c = GetC(card,instr);
+				  c = GetCode(charset,card,instr);
                     		token->nextch = c;
 				token->value = (char *)(&double_v);
 				if (c == '(')	/* Modified for HiLog */	
@@ -972,7 +1096,7 @@ NONZERO_RADIX:      while (c = GetC(card,instr), DigVal(c) < d)
 			}
 		    rad_int = newv;
                     if (c == intab.radix) 
-			c = GetC(card,instr);
+		      c = GetCode(charset,card,instr);
                     token->nextch = c;
 		    token->value = (char *)(&rad_int);
                     if (c == '(')	/* Modified for HiLog */
@@ -982,18 +1106,18 @@ NONZERO_RADIX:      while (c = GetC(card,instr), DigVal(c) < d)
                     return token;
                 }
 		else if (c == intab.dpoint) {
-                    d = GetC(card,instr);
+		  d = GetCode(charset,card,instr);
                     if (InType(d) == DIGIT) {
 LAB_DECIMAL:                *s++ = '.';
                         do {
                             if (d != '_') *s++ = d;
-                            d = GetC(card,instr);
+                            d = GetCode(charset,card,instr);
                         } while (InType(d) <= BREAK);
                         if ((d | 32) == 'e') {
                             *s++ = 'E';
-                            d = GetC(card,instr);
-                            if (d == '-') *s++ = d, d = GetC(card,instr);
-                            else if (d == '+') d = GetC(card,instr);
+                            d = GetCode(charset,card,instr);
+                            if (d == '-') *s++ = d, d = GetCode(charset,card,instr);
+                            else if (d == '+') d = GetCode(charset,card,instr);
                             if (InType(d) > BREAK) {
 				SyntaxError(CTXTc badexpt);
 				//				token->type = TK_ERROR;
@@ -1001,7 +1125,7 @@ LAB_DECIMAL:                *s++ = '.';
 			    }
                             do {
                                 if (d != '_') *s++ = d;
-                                d = GetC(card,instr);
+                                d = GetCode(charset,card,instr);
                             } while (InType(d) <= BREAK);
                         }
                         c = d;
@@ -1069,7 +1193,7 @@ LAB_DECIMAL:                *s++ = '.';
                     if (--n < 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n); 
 		      }
-                    *s++ = c, c = GetC(card,instr);
+                    *s++ = c, c = GetCode(charset,card,instr);
                 } while (InType(c) <= LOWER);
                 *s = 0;
                 if (c == '(') {
@@ -1089,7 +1213,7 @@ LAB_DECIMAL:                *s++ = '.';
                     if (--n < 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n);
 		    }
-                    *s++ = c, c = GetC(card,instr);
+                    *s++ = c, c = GetCode(charset,card,instr);
                 } while (InType(c) <= LOWER);
                 *s = 0;
                 if (c == '(') {
@@ -1109,7 +1233,7 @@ LAB_DECIMAL:                *s++ = '.';
                     if (--n < 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n);
 		    }
-                    *s++ = c, c = GetC(card,instr);
+                    *s++ = c, c = GetCode(charset,card,instr);
                 } while (InType(c) <= LOWER);
                 *s = 0;
 SYMBOL:         if (c == '(') {
@@ -1125,14 +1249,14 @@ SYMBOL:         if (c == '(') {
                 }
  
             case SIGN:
-                *s = c, d = GetC(card,instr);
+	        *s = c, d = GetCode(charset,card,instr);
                 if (c == intab.begcom && d == intab.astcom) {
 ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 			SyntaxError(CTXTc eofinrem);
 			//			token->type = TK_ERROR;
 			//			return token;
 		    }
-                    c = GetC(card,instr);
+		    c = GetCode(charset,card,instr);
                     goto START;
                 } else
                 if (c == intab.dpoint && InType(d) == DIGIT) {
@@ -1143,7 +1267,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                     if (--n == 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n);
 		    }
-                    *++s = d, d = GetC(card,instr);
+                    *++s = d, d = GetCode(charset,card,instr);
                 }
                 *++s = 0;
                 if (InType(d)>=SPACE && c==intab.termin && strbuff[1]==0) {
@@ -1168,7 +1292,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                     goto START;
                 }
                 *s++ = c, *s = 0;
-                c = GetC(card,instr);
+                c = GetCode(charset,card,instr);
                 goto SYMBOL;
  
             case PUNCT:
@@ -1183,7 +1307,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                     c = com0plain(card, instr, intab.endeol);
                     goto START;
                 }
-                d = GetC(card,instr);
+                d = GetCode(charset,card,instr);
                 if (c == intab.begcom && d == intab.astcom) goto ASTCOM;
  
               /*  If we arrive here, c is an ordinary punctuation mark  */
@@ -1218,18 +1342,18 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                     or string quote is the radix character, we should
                     generate 0'x notation, otherwise `x`.
                 */
-                d = read_character(CTXTc card, instr, -1);
+	        d = read_character(CTXTc card, instr, charset, -1);
                 sprintf(strbuff, "%d", d);
-                d = GetC(card,instr);
+                d = GetCode(charset,card,instr);
 		rad_int = atoi(strbuff);
-		token->nextch = d == c ? GetC(card,instr) : d;
+                token->nextch = d == c ? GetCode(charset,card,instr) : d;
 		token->value = (char *)(&rad_int);
 		token->type = TK_INT;
                 return token;
  
             case ATMQT:
-                while ((d = read_character(CTXTc card, instr, c)) >= 0) {
-		  UTF8_CODEPOINT_TO_STR(d,s,n); /* nfz */
+	        while ((d = read_character(CTXTc card, instr, charset, c)) >= 0) {
+		  CODEPOINT_TO_UTF8_STR(d,s,n); /* nfz */
 		}
                 *s = 0;
                 c = lastc;
@@ -1237,7 +1361,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 
 /**** this case deleted, messed up treatment of $, which was STRQT
             case STRQT:
-                while ((d = read_character(CTXTc card, instr, c)) >= 0) {
+                while ((d = read_character(CTXTc card, instr, charset, c)) >= 0) {
                     if (--n < 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n);
 		    }
@@ -1251,8 +1375,8 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 case deleted ****/
 
 	    case LISQT: 
-                while ((d = read_character(CTXTc card, instr, c)) >= 0) {
-		  UTF8_CODEPOINT_TO_STR(d,s,n);  /* nfz */
+	        while ((d = read_character(CTXTc card, instr, charset, c)) >= 0) {
+		  CODEPOINT_TO_UTF8_STR(d,s,n);  /* nfz */
 		}
 		*s = 0;
 		token->nextch = lastc;
@@ -1262,7 +1386,7 @@ case deleted ****/
 
             case EOLN:
             case SPACE:
-                c = GetC(card,instr);
+	      c = GetC(card,instr); // more efficient than GetCode
                 goto START;
  
             case EOFCH:
@@ -1294,7 +1418,7 @@ case deleted ****/
 |   if (!card) exit(1);
 |   token->nextch = ' ';
 |   do {
-|     res = GetToken(CTXTc card, NULL, token->nextch);
+|     res = GetToken(CTXTc card, NULL, token->nextch); // need to fix if used
 |     print_token(res->type, res->value);
 |   } while (res->type != TK_EOF);
 | } */
