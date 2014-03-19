@@ -1,6 +1,7 @@
-:- set_prolog_flag(character_set,ascii).
+:- set_prolog_flag(character_set,latin_1).
 
 test_sub:- 
+       compile(unicode_facts),
        ['unicode_facts'],
        a(X,Y),writeln(a(X,Y)),fail.
 test_sub:- a(X,Y),writeq(a(X,Y)),nl,fail.

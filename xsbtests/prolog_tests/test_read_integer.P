@@ -42,6 +42,5 @@ test:- X = 36'110,writeln(number_base(110,36,X)),fail.
 test:- X = 16'1FA4, writeln(number_base('1FA4',16,X)),fail.
 test:- X = -12'A0, writeln(number_base('-12''A0',12,X)),fail.
 %
-test:- X = 0'に,writeln(character_code('に',X)),fail. 
 
 test.
