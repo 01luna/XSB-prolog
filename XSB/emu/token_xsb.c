@@ -722,7 +722,7 @@ struct xsb_token_t res_str;
 struct xsb_token_t *token = &res_str;
 
 int     lastc = ' ';    /* previous character */
-char*   strbuff = NULL;             /* Pointer to token buffer; Will be
+byte*   strbuff = NULL;             /* Pointer to token buffer; Will be
 				       allocated on first call to GetToken */
 int     strbuff_len = InitStrLen;   /* length of first allocation will be
 				       InitStrLen; will be doubled on
@@ -979,7 +979,7 @@ static int com2plain(register FILE *card,	/* source file */
 int token_too_long_warning = 1;
 #endif
 
-void realloc_strbuff(CTXTdeclc char **pstrbuff, char **ps, int *pn)
+void realloc_strbuff(CTXTdeclc byte **pstrbuff, byte **ps, int *pn)
      /* Expand token buffer when needed.
       * pstrbuff: base address of current buffer
       * ps: tail of current buffer
@@ -987,7 +987,7 @@ void realloc_strbuff(CTXTdeclc char **pstrbuff, char **ps, int *pn)
       * --  C.R., 7/27/97
      */
 { 
-  char *newbuff;
+  byte *newbuff;
 
   newbuff = (char *)mem_realloc(*pstrbuff, strbuff_len, strbuff_len * 2,OTHER_SPACE);
   exit_if_null(newbuff);
@@ -1008,7 +1008,7 @@ void realloc_strbuff(CTXTdeclc char **pstrbuff, char **ps, int *pn)
 
 struct xsb_token_t *GetToken(CTXTdeclc int io_port, int prevch)
 {
-        char *s;
+        byte *s;
         register int c, d = 0;
         Integer oldv = 0, newv = 0; 
         int n;
@@ -1029,6 +1029,7 @@ struct xsb_token_t *GetToken(CTXTdeclc int io_port, int prevch)
 	if ((io_port < 0) && (io_port >= -MAXIOSTRS)) {
 	  instr = strfileptr(io_port);
 	  charset = UTF_8;
+	  card = NULL;
 	} else {
 	  instr = NULL;
 	  SET_FILEPTR_CHARSET(card,charset,io_port);

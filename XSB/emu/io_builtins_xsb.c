@@ -1193,7 +1193,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 	} else {
 	  int code; /* utf-8 code nfz */
 	  CPtr this_term, prev_tail;
-	  char *charptr = token->value;
+	  byte *charptr = token->value;
 	  ensure_term_space(h,2);
 	  this_term = h;
 	  code = char_to_codepoint(charset,&charptr);  /* nfz */

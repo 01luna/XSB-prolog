@@ -312,8 +312,8 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
   //  size_t i; unused?
   size_t len;
   Integer c;
-  char *atomname, *atomnamelast;
-  char *atomnameaddr = NULL;
+  byte *atomname, *atomnamelast;
+  byte *atomnameaddr = NULL;
   int atomnamelen;
   char tmpstr[5], *tmpstr_interned;  /* 2 -> 5, nfz */
   Cell heap_addr, term, term2;
@@ -352,7 +352,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	if (isointeger(heap_addr))
 	  c = (int)oint_val(heap_addr);
 	else { /* ATOM CHARS */
-	  char *chptr;                           /* nfz */
+	  byte *chptr;                           /* nfz */
 	  chptr = string_val(heap_addr);         /* nfz */
 	  c = utf8_char_to_codepoint(&chptr);    /* nfz */
 	}
@@ -417,7 +417,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	  }
 	  else {
 	    int k;
-	    char *atomname0 = atomname;                   /* nfz */ 
+	    byte *atomname0 = atomname;                   /* nfz */ 
 	    utf8_char_to_codepoint(&atomname);            /* nfz */	    
 	    k = 0;               
 	    while (atomname0<atomname){

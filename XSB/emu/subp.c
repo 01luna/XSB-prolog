@@ -899,7 +899,7 @@ void print_aqatom(FILE *file, int charset, char *string) {
     write_string_code(file,charset,"'");
     while (*string != '\0') {
       if (*string == '\'') write_string_code(file,charset,"'");
-      PutCode(utf8_char_to_codepoint(&string),charset,file);
+      PutCode(utf8_char_to_codepoint((byte **)&string),charset,file);
     }
     write_string_code(file,charset,"'");
   }
@@ -933,7 +933,7 @@ void print_dqatom(FILE *file, int charset, char *string) {
     write_string_code(file,charset,"\"");
     while (*string != '\0') {
       if (*string == '"') write_string_code(file,charset,"\"");
-      PutCode(utf8_char_to_codepoint(&string),charset,file);
+      PutCode(utf8_char_to_codepoint((byte **)&string),charset,file);
     }
     write_string_code(file,charset,"\"");
   }
