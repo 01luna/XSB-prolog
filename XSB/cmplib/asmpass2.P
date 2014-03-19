@@ -34,10 +34,12 @@
 /*======================================================================*/
 
 asm_gendata(OStr,SymList) :- 
-	member(Sym, SymList),	% Non-deterministically get a symbol
-	asm_putsym(OStr,Sym),
-	fail.		% reclaim space (remove all choice points left)
-asm_gendata(_,_).
+	(member(Sym, SymList),	% Non-deterministically get a symbol
+	 asm_putsym(OStr,Sym),
+	 fail			% reclaim space (remove all choice points left)
+	 ;
+	 true
+	).
 
 asm_putsym(OStr,Sym) :-
 	sym_name(Sym, Name, Arity), str_len(Name, L),

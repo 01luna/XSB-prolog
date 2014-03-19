@@ -31,7 +31,7 @@
 
 :- import spec/2 from spec.
 :- import cp_opt/2, perform_tabling_transforms/2 from cp_opt.
-:- import str_cat/3, stat_flag/2 from machine.
+:- import str_cat/3, stat_flag/2, stat_set_flag/2 from machine.
 :- import useinfer/3 from useinfer.
 %%:- import db_optimize/4 from db_opt.
 %%:- import build_graph/1 from cutcheck.

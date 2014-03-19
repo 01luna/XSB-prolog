@@ -215,7 +215,10 @@ compile1(Modname, Module, SymTab, AFile, OFile, TIFile, IsModule) :-
 	  compile0(Module, 1, AStr, OStr, TIFile, IsModule),
 	  close(AStr),
 	  close(OStr)
-      ; open(OFile,write,OStr),
+      ; stat_flag(101,OldCS), % old charset
+	stat_set_flag(101,2), % set utf-8
+        open(OFile,write,OStr),
+	stat_set_flag(101,OldCS), % reset old charset
 	asm_genheader(OStr, Modname, SymTab, IsModule), % generate OBJ header
 	compile0(Module, 0, dummy, OStr, TIFile, IsModule),
 	close(OStr)
