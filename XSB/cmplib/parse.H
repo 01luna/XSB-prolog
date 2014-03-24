@@ -58,6 +58,7 @@
    from auxlry.
 
 :- import append/3, memberchk/2, log_ith/3, member/2, copy_term/2 from basics.
+:- import ith/3 from basics.
 
 :- import inline_predicate/2 from builtin.
 
@@ -90,6 +91,7 @@
 
 :- import stat_flag/2, stat_set_flag/2, slash/1 from machine.
 :- import file_read_canonical/3 from machine.
+:- import conpsc/2, term_new/2 from machine.
 
 :- import findall/3 from setof.
 
@@ -106,10 +108,12 @@
 	  call/1, compound/1,
 	  is_most_general_term/1, number/1, atom_codes/2
      from standard.
+:- import throw/1 from standard.
 
 :- import file_read/3 from xsb_read.
 
 :- import standard_symbol/3 from std_xsb.
+:- import standard_metapredicate/3 from std_xsb.
 
 :- import concat_atom/2 from string.
 

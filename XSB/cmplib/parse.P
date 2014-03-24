@@ -651,6 +651,8 @@ transform_slash_to_skel(Spec,ModName,SymTab,Skel) :-
 	(sym_prop((multifile),Sym)
 	 ->	get_p_mod(Pred,ModName,P_Mod),
 		functor(Skel,P_Mod,Arity)
+	 ; Arity =:= 0
+	 ->	conpsc(Skel0,PSC),term_new(PSC,Skel)
 	 ;	Skel = Skel0
 	).
 
@@ -1302,13 +1304,31 @@ trans_goal(Term, Goal, SymTab, VidIn, VidOut) :-
 		 ->	Goal = inlinegoal(P, A, ArgList)
 		 ;	Goal = goal(Sym, ArgList), sym_insert(P, A, _Prop, SymTab, Sym)
 		),
-		Term =.. [P|RawArgs]
+		Term =.. [P|RawArgs0],
+		fix_for_0_ary_preds(P,A,RawArgs0,RawArgs)
 	),
 	trans_args(RawArgs, ArgList, SymTab, VidIn, VidOut).
 	 
 trans_head(Term, goal(_Sym, ArgList), SymTab, VidIn, VidOut) :-
 	Term =.. [_|RawArgs],
         trans_args(RawArgs, ArgList, SymTab, VidIn, VidOut).
+
+% fix for 0-ary preds.
+fix_for_0_ary_preds(Pred,Arity,Args,FixedArgs) :-
+	standard_metapredicate(Pred,Arity,ArgNo),
+	ith(ArgNo,Args,String),
+	atom(String),
+	!,
+	conpsc(String,PSC),term_new(PSC,PString),
+	replace_ith(Args,ArgNo,PString,FixedArgs).
+fix_for_0_ary_preds(_,_,Args,Args).
+
+replace_ith([],_,_,[]) :- !, throw(error(parser,'Bad Metapredicate')).
+replace_ith([_|Args],1,Repl,[Repl|Args]) :- !.
+replace_ith([A|Args],N,Repl,[A|RArgs]) :-
+	N1 is N-1,
+	replace_ith(Args,N1,Repl,RArgs).
+
 
 /*======================================================================*/
 /* trans_args(+RawArgList, -ArgList, #SymTab, +VidIn, -VidOut)		*/
