@@ -27,6 +27,7 @@ It creates a set of predicates that record all predicates defined and
 used in every XSB source file encountered.  It then writes this
 information out to a file named xsb_xref.P, which can be later
 dynamically loaded to find where predicates are defined and used.
+Very large (>20 Mb) files are assumed to be in canonical term format.
 ").
 
 :- comment(dump_xref/0, "@pred(dump_xref/0} writes out information
@@ -157,8 +158,8 @@ build_xref(Dir) :-
 	(retractall(xsb_defined(_,_,_)),
 	 retractall(xsb_used(_,_,_,_,_)),
 	 gen_p_files(Dir,FileName),
-	 file_size(FileName,FSize),
-	 (FSize > 10000000 -> write('Skipped huge file '), writeln(FileName), fail; true),
+	 % file_size(FileName,FSize),
+	 % (FSize > 10000000 -> write('Skipped huge file '), writeln(FileName), fail; true),
 	 read_in_prolog_file(FileName),
 	 fail
 	 ;
@@ -276,7 +277,7 @@ read_p_file(FileName,BFileName) :-
 read_p_file_s(IStr,FSize,BFileName,Result) :-
 	conset('_$lineCnt',0),
 	conset('_$errorCnt',0),
-	(FSize > 500000
+	(FSize > 20971520 % no apparent need to use this lower bound: 500000
 	 ->	repeat,
 		file_read_canonical(IStr,Term0,_),
 		(Term0 == read_canonical_error
@@ -314,13 +315,14 @@ read_p_file_s(IStr,FSize,BFileName,Result) :-
 			Body = true
 		),
 		functor(Head,Pred,Arity),
-		assert(xsb_defined(Pred,Arity,BFileName)),
+		may_assert_xsb_defined(Pred,Arity,BFileName),
 		(Body == true
 		 ->	true
 		 ;	process_uses(Body,BFileName,Pred,Arity)
 		),
 		fail
 	).
+
 
 :- dynamic files_with_errors/1.
 /***do_read_error(error(syntax_error,String,_BT),_BFileName) :-
@@ -378,7 +380,7 @@ process_specs_defined(Spec,BFileName) :-
 	 ->	true
 	 ;	functor(Spec,Pred,Arity)
 	),
-	assert(xsb_defined(Pred,Arity,BFileName)).
+	may_assert_xsb_defined(Pred,Arity,BFileName).
 
 process_specs_used((Spec1,Spec2),BFileName) :- !,
 	process_specs_used(Spec1,BFileName),
@@ -452,11 +454,15 @@ process_assert(Term,BFileName,Pred,Arity) :-
 	),
 	(nonvar(Head)
 	 ->	functor(Head,NPred,NArity),
-		assert(xsb_defined(NPred,NArity,BFileName)),
+		may_assert_xsb_defined(NPred,NArity,BFileName),
 		(Body == true
 		 ->	true
 		 ;	process_uses(Body,BFileName,Pred,Arity)
 		)
 	 ;      true
 	).
+
+% to go easier on our memory usage:
+may_assert_xsb_defined(Pred,Arity,BFileName) :- xsb_defined(Pred,Arity,BFileName), !.
+may_assert_xsb_defined(Pred,Arity,BFileName) :- assert(xsb_defined(Pred,Arity,BFileName)).
 
