@@ -517,6 +517,7 @@ int GetCodeP(int io_port) {
   FILE *fptr; STRFILE *sfptr;
   io_port_to_fptrs(io_port,fptr,sfptr,charset);
   c = GetC(fptr,sfptr);
+  if (c < 0) return c; /* eof */
   if (sfptr) { /* encoding in strings is always utf8 */
     return utf8_GetCode(fptr, sfptr, c);
   }
