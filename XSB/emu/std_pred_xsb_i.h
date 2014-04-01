@@ -439,6 +439,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
   return TRUE;
 }
 
+#define MAXNUMCHARLEN 256
 
 char *cvt_float_to_str(CTXTdeclc Float);
 
@@ -447,7 +448,7 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
   int i, tmpval;
   Integer c;
   char tmpstr[2], *tmpstr_interned;
-  char str[256];	
+  char str[MAXNUMCHARLEN];	
   int StringLoc = 0;
   Cell heap_addr, term, term2;
   Cell list;
@@ -545,7 +546,7 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
     } else if (isointeger(term)) {
       sprintf(str, "%" Intfmt, oint_val(term));
     } else if (isofloat(term)) {
-      strncpy(str,cvt_float_to_str(CTXTc ofloat_val(term)),256);
+      strncpy(str,cvt_float_to_str(CTXTc ofloat_val(term)),MAXNUMCHARLEN);
     } else xsb_type_error(CTXTc "number",term,call_name,1);
     new_list = hreg;
     for (i=0; str[i] != '\0'; i++) {

@@ -402,7 +402,7 @@ inline static xsbBool file_function(CTXTdecl)
     SET_FILEPTR(fptr, io_port);
     XSB_StrSet(&VarBuf,"");
 
-    do {
+    do {   /* fix for char-set! */
       if (fgets(buf, MAX_IO_BUFSIZE, fptr) == NULL && feof(fptr)) {
 	eof=TRUE;
 	break;
