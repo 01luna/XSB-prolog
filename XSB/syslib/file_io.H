@@ -25,7 +25,7 @@
 :- import (dynamic)/1,asserta/1, retractall/1 from assert.
 
 :- import stat_flag/2, file_function/7, file_function/3,
-	url_encode_decode/3,
+	url_encode_decode/3, slash/1,
 	parse_filename/4, is_absolute_filename/1,
 	expand_filename/2, getenv/2,
 	sys_system/7, formatted_io/5 
@@ -49,6 +49,8 @@
 
 :- import check_integer/3, domain_error/4,existence_error/4,instantiation_error/2,
 		  permission_error/4 from error_handler.
+
+:- import concat_atom/2 from string.
 
 :- export fmt_write_string/3, fmt_write/2, fmt_read/3,
 	  fmt_write/3, fmt_read/4,

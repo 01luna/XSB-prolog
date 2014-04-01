@@ -339,7 +339,9 @@ path_sysop(isabsolute,Filename) :- !,
 path_sysop(expand,Filename,ExpandedName) :- !,
 	expand_filename(Filename,ExpandedName).
 path_sysop(cwd_ancestordir,BaseName,ExpandedName) :- !,
-	cwd(CurrDir),
+	cwd(CurrDir0),		% cwd returns name without trailing slash
+	slash(Slash),
+	concat_atom([CurrDir0,Slash],CurrDir),
 	(get_ancestor(CurrDir,BaseName,ExpandedName)
 	 ->	true
 	 ;	(getenv([BaseName,'_HOME'],FileName)
