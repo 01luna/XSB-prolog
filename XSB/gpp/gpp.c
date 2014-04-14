@@ -1292,7 +1292,11 @@ int findCommentEnd(char *endseq,char quote,char warn,int pos,int flags)
     c=getChar(pos);
     i=pos;
     if (matchEndSequence(endseq,&i)) return pos;
-    if (c==0) bug("Input ended while scanning a comment/string");
+    if (c==0) bug("input ended while scanning a comment/string");
+    /*
+    if (c=='\n' && (*endseq == '\'' || *endseq == '"'))
+      warning("string spans multiple lines");
+    */
     if (c==warn) {
       warn=0;
       if (WarningLevel > 2)

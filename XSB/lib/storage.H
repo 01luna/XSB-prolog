@@ -28,6 +28,7 @@
 	storage_reclaim_space/1,
 	incr_storage_update/1,
 	storage_find_fact/2,
+	storage_find_fact/3,
 	storage_find_keypair/3,
 	storage_handle/4,
 	%% this is for debugging/profiling
