@@ -973,9 +973,18 @@ parse_preddef(H, B, List, SymTab) :-
 
 parse_preddef_sym(H, B, List, PredSym, SymTab) :- 
 	trans_head(H, goal(_, ArgList), SymTab, 0, VidMed),
-	trans_goals(B, Body, SymTab, VidMed, _VidOut),
+	trans_goals(B, Body, SymTab, VidMed, VidOut),
+	ensure_gensym_num_larger(VidOut),
 	add_new_clause(clause(PredSym,K,ArgList, Body), List,K),
 	sym_propin(pred, PredSym).
+
+ensure_gensym_num_larger(Num) :-
+	gennum(VNum),
+	(VNum > Num
+	 ->	true
+	 ;	prepare(Num)
+	).
+
 
 /*======================================================================*/
 /* process queries --- same as process regular clauses, but adding	*/

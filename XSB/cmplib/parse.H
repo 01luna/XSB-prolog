@@ -83,7 +83,7 @@
 
 :- import mpa_to_skel/2 from file_op.
 
-:- import conset/2, conget/2 from gensym.
+:- import conset/2, conget/2, gennum/1, prepare/1 from gensym.
 
 :- import add_hilog_symbol/1 from hilogsym.
 

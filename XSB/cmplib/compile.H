@@ -67,7 +67,7 @@
 :- import force_peephole_loaded/0, compile_peephole_opt/2 from peephole.
    :- import message/1, warning/1, time_message/2, setoptions/1, option/1
      from auxlry.
-:- import prepare/0, gennum/1, conget/2, conset/2 from gensym.
+:- import gennum/1, conget/2, conset/2 from gensym.
 :- import sys_unlink/2 from shell.
 :- import member/2 from basics.
 %%:- import force_ti_mod_loaded/0, ti_pred_block/3 from ti_mod.
