@@ -60,7 +60,7 @@
 #include "struct_intern.h"
 #include "term_psc_xsb_i.h"
 #include "ptoc_tag_xsb_i.h"
-
+#include "cell_xsb_i.h"
 
 /* --- routines used from other files ---------------------------------	*/
 
@@ -4041,7 +4041,8 @@ CPtr trie_asserted_clref(CPtr prref)
 
 /*---------------------------------------------------------------*/
 /* used for debugging trie_assert */
-
+/* TLS: added DEBUG_VERBOSE statement to quiet clang */
+#ifdef DEBUG_VERBOSE
 static inline void print_bytes(CPtr x, int lo, int hi)
 {
   int i;
@@ -4054,6 +4055,7 @@ static inline void print_bytes(CPtr x, int lo, int hi)
 	     (char *)inst_table[try_type_instr_fld(x)][0],
 	     (char *)inst_table[code_to_run(x)][0] ));
 }
+#endif
 
 /*----------------------------------------------------------------*/
 
