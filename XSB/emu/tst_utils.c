@@ -42,6 +42,7 @@
 #include "choice.h"
 #include "inst_xsb.h"
 #include "error_xsb.h"
+#include "cell_xsb_i.h"
 
 /* ======================================================================= */
 

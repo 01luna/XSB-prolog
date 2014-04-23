@@ -82,6 +82,8 @@
 #include "system_defs_xsb.h"
 #include "builtin.h"
 #include "struct_intern.h"
+#include "cell_xsb_i.h"
+
 /*======================================================================*/
 extern xsbBool quotes_are_needed(char *string);
 
@@ -694,21 +696,6 @@ void intercept(CTXTdeclc Psc psc) {
 #else
 #define FLOAT_MASK 0xfffffff8
 #endif
-
-
-inline float getfloatval(Cell w)
-{
-    FloatConv converter;
-    converter.i = w & FLOAT_MASK;
-    return converter.f;
-}
-
-inline Cell makefloat(float f)
-{
-    FloatConv converter;
-    converter.f = f;
-    return (Cell)(( converter.i & FLOAT_MASK ) | XSB_FLOAT);
-}
 
 inline int sign(Float num)
 {

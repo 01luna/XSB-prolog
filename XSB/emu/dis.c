@@ -42,6 +42,7 @@
 #include "flags_xsb.h"
 #include "tries.h"
 #include "tab_structs.h"
+#include "cell_xsb_i.h"
 
 extern void print_term(FILE *, Cell, byte, long);
 

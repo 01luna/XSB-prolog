@@ -165,6 +165,7 @@ unmarking marked strings.
 #include "struct_manager.h"
 #include "hash_xsb.h"
 #include "struct_intern.h"
+#include "cell_xsb_i.h"
 /*=========================================================================*/
 
 /* this might belong somewhere else (or should be accessible to init.c),

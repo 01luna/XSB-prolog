@@ -54,6 +54,7 @@
 #include "thread_xsb.h"
 #include "tr_utils.h"
 #include "tst_utils.h"
+#include "cell_xsb_i.h"
 
 #if (defined(DEBUG_VERBOSE) || defined(DEBUG_VM))
 #include "subp.h"

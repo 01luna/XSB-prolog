@@ -39,6 +39,7 @@
 #include "binding.h"
 #include "error_xsb.h"
 #include "function.h"
+#include "cell_xsb_i.h"
 
 #define FUN_PLUS   1
 #define FUN_MINUS  2

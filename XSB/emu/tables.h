@@ -46,7 +46,7 @@ void	release_all_tabling_resources(CTXTdecl);
 VariantSF NewProducerSF(CTXTdeclc BTNptr,TIFptr);
 VariantSF tnotNewSubConsSF(CTXTdeclc BTNptr ,TIFptr,VariantSF);
 
-extern void inline perform_early_completion(CTXTdeclc VariantSF ,CPtr );
+//extern void inline perform_early_completion(CTXTdeclc VariantSF ,CPtr );
 
 /*
  * The next answer to consume is obtained from the old answer continuation.

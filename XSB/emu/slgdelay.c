@@ -56,6 +56,7 @@
 #include "tables.h"
 #include "flags_xsb.h"
 #include "tst_utils.h"
+#include "tables_i.h"
 
 static void simplify_neg_succeeds(CTXTdeclc VariantSF);
 extern void simplify_pos_unsupported(CTXTdeclc NODEptr);
