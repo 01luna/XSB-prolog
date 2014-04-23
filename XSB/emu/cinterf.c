@@ -54,6 +54,7 @@
 #include "orient_xsb.h"
 #include "loader_xsb.h"
 #include "thread_xsb.h"
+#include "cell_xsb_i.h"
 
 #ifdef WIN_NT
 #ifndef fileno
@@ -1229,15 +1230,15 @@ int xsb_answer_string(CTXTdeclc VarString *ans, char *sep)
   return 0;
 }
 
+static long lastWarningStart = 0L;
 
 /* Should be obsolete now that parser is returning proper error
    messages */
-static long lastWarningStart = 0L;
-static inline void updateWarningStart(void)
-{
-  if(flags[STDERR_BUFFERED])
-  	lastWarningStart = ftell(stderr);
-}
+// static inline void updateWarningStart(void)
+// {
+//   if(flags[STDERR_BUFFERED])
+//   	lastWarningStart = ftell(stderr);
+// }
 
 /*********************************************************************************************/
 

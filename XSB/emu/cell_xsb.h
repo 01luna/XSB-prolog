@@ -99,8 +99,8 @@
 #else
 #define FLOAT_MASK 0xfffffff8
 #endif
-extern inline float getfloatval(Cell);
-extern inline Cell makefloat(float);
+//extern inline float getfloatval(Cell);
+//extern inline Cell makefloat(float);
 extern inline int sign(Float);
 
 #define isref(cell)  (!((word)(cell)&0x3))
@@ -300,7 +300,7 @@ extern unsigned long enc[], dec[];
 //    Float variable, and returns this Float.
 
 #ifdef BITS64
-extern inline Float make_float_from_ints(UInteger);
+//extern inline Float make_float_from_ints(UInteger);
 
 // EXTRACT_FLOAT_FROM_16_24_24 works by first merging the three ints together into 
 //    two Integers (assuming high-order 16 bits are in the first, middle-24 bits in the 
@@ -313,7 +313,7 @@ extern inline Float make_float_from_ints(UInteger);
 
 #else
 
-extern inline Float make_float_from_ints(UInteger, UInteger);
+//extern inline Float make_float_from_ints(UInteger, UInteger);
 
 #define EXTRACT_FLOAT_FROM_16_24_24(highInt, middleInt, lowInt)	\
       (make_float_from_ints(  (((((UInteger) highInt) & LOW_16_BITS_MASK) <<16) | (((UInteger) middleInt) >> 8)), \
@@ -391,7 +391,7 @@ extern inline Float make_float_from_ints(UInteger, UInteger);
 #ifndef FAST_FLOATS
 //Note: anything that includes cell_xsb.h in the multithreaded must includes
 //context.h as well, since bld_boxedfloat references hreg.
-extern inline void bld_boxedfloat(CTXTdeclc CPtr, Float);
+//extern inline void bld_boxedfloat(CTXTdeclc CPtr, Float);
 #endif /*FAST_FLOATS*/
    
 #endif /* __CELL_XSB_H__ */

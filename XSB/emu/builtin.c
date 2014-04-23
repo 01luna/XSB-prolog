@@ -134,6 +134,7 @@
 
 #include "unify_xsb.h"
 #include "token_xsb.h"
+#include "cell_xsb_i.h"
 
 int mem_flag;
 
