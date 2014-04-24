@@ -221,7 +221,7 @@ executing cleanup.
 
 \index{tabling!and exceptions}
 \index{strongly connected components (SCCs)}
-\subsection{Exception Handling in Tabled Evaluation}
+\subsection{Exception Handling in Tabled Evaluation} \label{sec:exceptions-w-tables}
 %
 The exception handling as previously described requires extensions in
 order to work well with tabled predicates.  First, if an {\em
@@ -611,18 +611,19 @@ predicates described below.
 Calls {\tt Goal}, and sets up information so that future throws will
 be able to access {\tt CatchTerm} under the mechanism mentioned
 above. {\tt catch/3} does not attempt to clean up system level
-resources.  Thus, it is left up to the handler to close open tables
-(via {\tt close\_open\_tables/0}, close any open files, reset current
-input and output, and so on \footnote{cf. the default system error
-  handler, which performs these functions, if needed.}.
+resources with the exception of incomplete tables, which are abolished
+as discussed in Section~\ref{sec:exceptions-w-tables}.  However, it is
+left up to the handler to close any open files, reset current input
+and output, and so on \footnote{cf. the default system error handler,
+  which performs these functions, if needed.}.
 %
 \standarditem{default\_user\_error\_handler(?CatchTerm)}{default\_user\_error\_handler/1}
 %
 Handles any error terms that unify with {\tt CatchTerm} that are not
-caught by invocations of {\tt catch/3}.  This predicate {\em does}
-close open tables and release mutexes held by the calling thread, but
-does not attempt to clean up other system level resources, which is
-left to the handler.
+caught by invocations of {\tt catch/3}.  This predicate closes open
+tables and release mutexes held by the calling thread, but does not
+attempt to clean up other system level resources, which is left to the
+handler.
 %
 
 \index{streams!STDERR}
@@ -636,13 +637,13 @@ In addition, if {\tt Message} is a comma list, the elements in the
 comma list are output as if they were concatenated together.  Each of
 these predicates must be implicitly from the module {\tt standard}.
 
-\ourmoditem{close\_open\_tables}{close\_open\_tables/0}{machine}
+%\ourmoditem{close\_open\_tables}{close\_open\_tables/0}{machine}
 %
-Removes table data structures for all incomplete tables, but does not
-affect any complete tables.  In \version{} this predicate should only
-be used to handle exceptions in {\tt default\_user\_error\_handler/1}.
-In addition, for the multi-threaded engine, this predicate unlocks any
-system mutexes held by the thread calling this predicate.
+%Removes table data structures for all incomplete tables, but does not
+%affect any complete tables.  In \version{} this predicate should only
+%be used to handle exceptions in {\tt default\_user\_error\_handler/1}.
+%In addition, for the multi-threaded engine, this predicate unlocks any
+%system mutexes held by the thread calling this predicate.
 
 \end{description}
 
