@@ -63,6 +63,7 @@
 #include "deref.h"
 #include "findall.h"
 #include "heap_defs_xsb.h"
+#include "cell_xsb_i.h"
 
 //extern FILE *logfile;
 

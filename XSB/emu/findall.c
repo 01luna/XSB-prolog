@@ -50,6 +50,7 @@
 #include "debug_xsb.h"
 #include "flag_defs_xsb.h"
 #include "struct_intern.h"
+#include "cell_xsb_i.h"
 
 #ifndef MULTI_THREAD
 findall_solution_list *findall_solutions = NULL;
