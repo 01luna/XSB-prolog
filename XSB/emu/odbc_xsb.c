@@ -26,6 +26,7 @@
 #include "auxlry.h"
 #include "context.h"
 #include "cell_xsb.h"
+#include "cell_xsb_i.h"
 
 #ifdef CYGWIN
 #define FAR
@@ -473,6 +474,23 @@ void SetCursorClose(struct ODBC_Cursor *cur)
     cur->NumBindVars = 0;
 }
 
+/* taken from easysoft, web  */
+void extract_error(char *fn, SQLHANDLE handle, SQLSMALLINT type) {
+    SQLSMALLINT i = 0;
+    SQLINTEGER native;
+    SQLCHAR state[ 7 ];
+    SQLCHAR text[256];
+    SQLSMALLINT len;
+    SQLRETURN ret;
+    fprintf(stderr, "\nThe driver reported the following diagnostics: %s\n\n", fn);
+    do {
+      ret = SQLGetDiagRec(type, handle, ++i, state, &native, text,
+			  sizeof(text), &len );
+      if (SQL_SUCCEEDED(ret))
+	printf("%s:%ld:%ld:%s\n", state, i, native, text);
+    } while( ret == SQL_SUCCESS );
+  }
+
 /*-----------------------------------------------------------------------------*/
 /*  FUNCTION NAME:*/
 /*     ODBCConnect()*/
@@ -556,6 +574,8 @@ void ODBCConnect(CTXTdecl)
     connectIn = (UCHAR *)ptoc_longstring(CTXTc 3);
     rc = SQLDriverConnect(hdbc, NULL, connectIn, SQL_NTS, NULL, 0, NULL,SQL_DRIVER_NOPROMPT);
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
+      printf("SQLDriverConnect returned ERROR = %d\n",rc);
+      extract_error("SQLDriverConnect",hdbc,SQL_HANDLE_DBC);
       SQLFreeConnect(hdbc);
       snprintf(errmsg,200,"Connection to driver failed: %s", connectIn);
       ctop_int(CTXTc 6, 0);
