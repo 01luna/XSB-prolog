@@ -2,7 +2,7 @@
 %%% mode: latex
 %%% TeX-master: "manual2"
 %%% End: 
-\chapter{ PITA: Probabilistic  Inference with Tabling and Answer subsumption }
+\chapter{ PITA: Probabilistic  Inference}
 \label{package:pita} 
 
   \begin{center}
@@ -131,7 +131,7 @@ If you want to compute the Viterbi path and probability of a query (the Viterbi 
 
 The package \texttt{pitacount.P} can be used to count the explanations for a query, provided that the independence assumption holds. To count the number of explanations for a query use
 \begin{verbatim}
-:- oount(heads(coin),C).
+:- count(heads(coin),C).
 \end{verbatim}
 \texttt{pitacount.P} does not need CUDD and GLib.
 
