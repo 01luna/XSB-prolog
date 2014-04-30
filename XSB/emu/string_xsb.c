@@ -212,7 +212,7 @@ xsbBool substring(CTXTdecl)
     xsb_abort("[SUBSTRING] Arg 1 (the input string) must be an atom or a character list");
 
   //  input_len = strlen(input_string);
-  input_len = utf8_nchars(input_string);
+  input_len = utf8_nchars((byte *)input_string);
 
   /* arg 2: beginning offset */
   beg_offset_term = reg_term(CTXTc 2);

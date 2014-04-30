@@ -883,12 +883,12 @@ void print_aqatom(FILE *file, int charset, char *string) {
     }
     fprintf(file,"'");
   } else {
-    write_string_code(file,charset,"'");
+    write_string_code(file,charset,(byte *)"'");
     while (*string != '\0') {
-      if (*string == '\'') write_string_code(file,charset,"'");
+      if (*string == '\'') write_string_code(file,charset,(byte *)"'");
       PutCode(utf8_char_to_codepoint((byte **)&string),charset,file);
     }
-    write_string_code(file,charset,"'");
+    write_string_code(file,charset,(byte *)"'");
   }
 }
 
@@ -899,7 +899,7 @@ void print_aqatom(FILE *file, int charset, char *string) {
 void print_qatom(FILE *file, int charset, char *string)
 {
   if (quotes_are_needed(string)) print_aqatom(file, charset, string);
-  else write_string_code(file,charset,string);
+  else write_string_code(file,charset,(byte *)string);
 }
 
 /*======================================================================*/
@@ -917,12 +917,12 @@ void print_dqatom(FILE *file, int charset, char *string) {
     }
     fprintf(file,"\"");
   } else {
-    write_string_code(file,charset,"\"");
+    write_string_code(file,charset,(byte *)"\"");
     while (*string != '\0') {
-      if (*string == '"') write_string_code(file,charset,"\"");
+      if (*string == '"') write_string_code(file,charset,(byte *)"\"");
       PutCode(utf8_char_to_codepoint((byte **)&string),charset,file);
     }
-    write_string_code(file,charset,"\"");
+    write_string_code(file,charset,(byte *)"\"");
   }
 }
 
@@ -947,7 +947,7 @@ void print_op(FILE *file, int charset, char *string, int pos)
       print_qatom(file, charset, string); putc(' ', file); break;
     case 3: putc(' ', file); print_qatom(file, charset, string); break;
     }
-  } else write_string_code(file,CURRENT_CHARSET,string);
+  } else write_string_code(file,CURRENT_CHARSET,(byte *)string);
 }
 
 /* ----- The following is also called from the Prolog level ----------- */

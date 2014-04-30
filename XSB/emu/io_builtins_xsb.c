@@ -1194,7 +1194,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 	} else {
 	  int code; /* utf-8 code nfz */
 	  CPtr this_term, prev_tail;
-	  byte *charptr = token->value;
+	  byte *charptr = (byte *)token->value;
 	  ensure_term_space(h,2);
 	  this_term = h;
 	  code = char_to_codepoint(charset,&charptr);  /* nfz */
@@ -1738,26 +1738,26 @@ void write_quotedname(FILE *file, int charset, char *string)
 {
   if (*string == '\0') 
     //    fprintf(file,"''");
-    write_string_code(file,charset,"''");
+    write_string_code(file,charset,(byte *)"''");
   else {
     if (!quotes_are_needed(string)) {
-      write_string_code(file,charset,string);
+      write_string_code(file,charset,(byte *)string);
     }
     else {
       size_t neededlen = 2*strlen(string)+1;
       if (neededlen < 1000) {
 	char lnew_string[1000];
       	double_quotes(string,lnew_string);
-	write_string_code(file,charset,"\'");
-	write_string_code(file,charset,lnew_string);
-	write_string_code(file,charset,"\'");
+	write_string_code(file,charset,(byte *)"\'");
+	write_string_code(file,charset,(byte *)lnew_string);
+	write_string_code(file,charset,(byte *)"\'");
       } else {
 	char* new_string;
 	new_string  = (char *)mem_alloc(neededlen,LEAK_SPACE);
 	double_quotes(string,new_string);
-	write_string_code(file,charset,"\'");
-	write_string_code(file,charset,new_string);
-	write_string_code(file,charset,"\'");
+	write_string_code(file,charset,(byte *)"\'");
+	write_string_code(file,charset,(byte *)new_string);
+	write_string_code(file,charset,(byte *)"\'");
 	mem_dealloc(new_string,neededlen,LEAK_SPACE);
       }
     }
@@ -1968,7 +1968,7 @@ char *canonical_term(CTXTdeclc Cell prologterm, int letter_flag) {
 void print_term_canonical(CTXTdeclc FILE *fptr, int charset, Cell prologterm, int letterflag)
 {
   write_canonical_term(CTXTc prologterm, letterflag);
-  write_string_code(fptr,charset,wcan_string->string);
+  write_string_code(fptr,charset,(byte *)wcan_string->string);
 }
 
 #undef wcan_string

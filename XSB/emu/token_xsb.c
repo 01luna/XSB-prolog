@@ -608,7 +608,7 @@ int coding_nchars(int charset, byte *s) {
   switch (charset) {
   case LATIN_1:
   case CP1252:
-    return (int)strlen(s);
+    return (int)strlen((char *)s);
   case UTF_8:   
     return utf8_nchars(s);
   default: printf("ERROR: bad current_charset in coding_nchars: %d\n",charset);
@@ -990,7 +990,7 @@ void realloc_strbuff(CTXTdeclc byte **pstrbuff, byte **ps, int *pn)
 { 
   byte *newbuff;
 
-  newbuff = (char *)mem_realloc(*pstrbuff, strbuff_len, strbuff_len * 2,OTHER_SPACE);
+  newbuff = (byte *)mem_realloc(*pstrbuff, strbuff_len, strbuff_len * 2,OTHER_SPACE);
   exit_if_null(newbuff);
   if (token_too_long_warning) {
     xsb_warn("Extra-long token. Runaway string?");
@@ -1021,7 +1021,7 @@ struct xsb_token_t *GetToken(CTXTdeclc int io_port, int prevch)
 	if (strbuff == NULL)
 	  {
 	    /* First call for GetToken, so allocate a buffer */
-	    strbuff = (char *)mem_alloc(strbuff_len,OTHER_SPACE);
+	    strbuff = (byte *)mem_alloc(strbuff_len,OTHER_SPACE);
 	  }
 	s = strbuff;
 	n = strbuff_len;
@@ -1132,7 +1132,7 @@ LAB_DECIMAL:                *s++ = '.';
                         }
                         c = d;
                         *s = 0;
-			sscanf(strbuff, "%lf", &double_v);
+			sscanf((char *)strbuff, "%lf", &double_v);
 			token->nextch = c;
 			token->value = (char *)(&double_v);
 			if (c == '(')	/* Modified for HiLog */	
@@ -1200,12 +1200,12 @@ LAB_DECIMAL:                *s++ = '.';
                 *s = 0;
                 if (c == '(') {
                     token->nextch = c;
-                    token->value = strbuff;
+                    token->value = (char *)strbuff;
                     token->type = TK_VVARFUNC;
                     return token;
                 } else {
 		    token->nextch = c;
-		    token->value = strbuff;
+		    token->value = (char *)strbuff;
                     token->type = TK_VVAR;
                     return token;
                 }
@@ -1220,12 +1220,12 @@ LAB_DECIMAL:                *s++ = '.';
                 *s = 0;
                 if (c == '(') {
                     token->nextch = c;
-                    token->value = strbuff;
+                    token->value = (char *)strbuff;
                     token->type = TK_VARFUNC; 
                     return token;
                 } else {
 	            token->nextch = c;
-		    token->value = strbuff;
+		    token->value = (char *)strbuff;
                     token->type = TK_VAR;
                     return token;
                 }
@@ -1240,12 +1240,12 @@ LAB_DECIMAL:                *s++ = '.';
                 *s = 0;
 SYMBOL:         if (c == '(') {
 		    token->nextch = c;
-		    token->value = strbuff;
+		    token->value = (char *)strbuff;
 		    token->type = TK_FUNC;
 		    return token;
                 } else {
 		    token->nextch = c;
-		    token->value = strbuff;
+		    token->value = (char *)strbuff;
 		    token->type = TK_ATOM;
 		    return token;
                 }
@@ -1321,7 +1321,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 		    /* HiLog.                                             */
                 *s++ = c, *s = 0;
 		token->nextch = d;
-		token->value = strbuff;
+		token->value = (char *)strbuff;
 	   /*  In HiLog we need the following distinction so that we do not */
 	   /*  recognize terms of the form f(p) (c,d) which are not HiLog   */
 	   /*  terms as the same HiLog term as f(p)(c,d) which is a legal   */
@@ -1345,9 +1345,9 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                     generate 0'x notation, otherwise `x`.
                 */
 	        d = read_character(CTXTc card, instr, charset, -1);
-                sprintf(strbuff, "%d", d);
+                sprintf((char *)strbuff, "%d", d);
                 d = GetCode(charset,card,instr);
-		rad_int = atoi(strbuff);
+		rad_int = atoi((char *)strbuff);
                 token->nextch = d == c ? GetCode(charset,card,instr) : d;
 		token->value = (char *)(&rad_int);
 		token->type = TK_INT;
@@ -1382,7 +1382,7 @@ case deleted ****/
 		}
 		*s = 0;
 		token->nextch = lastc;
-		token->value = strbuff;
+		token->value = (char *)strbuff;
 		token->type = TK_LIST;
                 return token;
 

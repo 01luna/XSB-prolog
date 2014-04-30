@@ -2068,7 +2068,7 @@ int builtin_call(CTXTdeclc byte number)
 
       fprintf(fptr, "%" Intfmt, (Integer)ptoc_int(CTXTc 3)); break;
     case XSB_STRING : 
-      write_string_code(fptr,charset,ptoc_string(CTXTc 3));
+      write_string_code(fptr,charset,(byte *)ptoc_string(CTXTc 3));
       break;
     case XSB_FLOAT  : fprintf(fptr, "%2.4f", ptoc_float(CTXTc 3)); break;
     case TK_INT_0  : {

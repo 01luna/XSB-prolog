@@ -353,7 +353,7 @@ struct vartype *_rc_vars;
   /********** Global variables for tokenizing **********/
 struct xsb_token_t *_token;
 int     _lastc; // = ' ';    /* previous character */
-char*   _strbuff; // = NULL;  /* Pointer to token buffer; Will be allocated on first call to GetToken */
+byte*   _strbuff; // = NULL;  /* Pointer to token buffer; Will be allocated on first call to GetToken */
 int     _strbuff_len; // = InitStrLen;  /* first allocation size, doubled on subsequent overflows */
 double  _double_v;
 Integer	_rad_int;

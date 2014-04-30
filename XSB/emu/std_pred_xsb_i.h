@@ -326,7 +326,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
   XSB_Deref(term);
   list = ptoc_tag(CTXTc 2);
   if (!isnonvar(term)) {	/* use is: CODES/CHARS --> ATOM */
-    atomnameaddr = (char *)mem_alloc(INITIAL_NAMELEN,LEAK_SPACE);
+    atomnameaddr = (byte *)mem_alloc(INITIAL_NAMELEN,LEAK_SPACE);
     atomnamelen = INITIAL_NAMELEN;
     //    printf("Allocated namebuf: %p, %d\n",atomnameaddr,atomnamelen);
     atomname = atomnameaddr;
@@ -353,7 +353,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	  c = (int)oint_val(heap_addr);
 	else { /* ATOM CHARS */
 	  byte *chptr;                           /* nfz */
-	  chptr = string_val(heap_addr);         /* nfz */
+	  chptr = (byte *) string_val(heap_addr);         /* nfz */
 	  c = utf8_char_to_codepoint(&chptr);    /* nfz */
 	}
 
@@ -372,7 +372,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	    xsb_type_error(CTXTc "list",makestring("infinite list(?)"),call_name,2);
 	  }
 	  diff = atomname - atomnameaddr;
-	  atomnameaddr = (char *)mem_realloc(atomnameaddr,atomnamelen,(atomnamelen << 1),LEAK_SPACE);
+	  atomnameaddr = (byte *)mem_realloc(atomnameaddr,atomnamelen,(atomnamelen << 1),LEAK_SPACE);
 	  atomname = atomnameaddr + diff;
 	  atomnamelen = atomnamelen << 1;
 	  atomnamelast = atomnameaddr + (atomnamelen - 1);
@@ -392,8 +392,8 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
     return TRUE;
   } else {	/* use is: ATOM --> CODES/CHARS */
     if (isatom(term)) {
-      atomname = string_val(term);
-      len = strlen(atomname);
+      atomname = (byte *)string_val(term);
+      len = strlen((char *)atomname);
       if (len == 0) {
 	if (!isnonvar(list)) {
 	  bind_nil((CPtr)(list)); 
