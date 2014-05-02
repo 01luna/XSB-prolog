@@ -18,6 +18,56 @@
 
 <h1>ChangeLog</h1>
 
+<h2> Version 3.5 (Maotai)</h2> 
+
+<h3> Version 3.5</h3> 
+<ul>
+<li><b> Enhancements </b></li>
+<ul>
+<li> XSB's character-level I/O has been significantly rewritten and
+expanded.  It now supports as encodings UTF-8, CP-1252, and LATIN-1;
+with UTF-8 as the default encoding on UNIX-style systems, and CP-1252
+as the default encoding on Windows sytems.  Various ISO predicates
+regarding encodings are also supported such
+as <tt>character_set/1</tt>.  Finally, other character-based I/O
+predicates such as <tt>get_XXX</tt>, <tt>peek_XXX</tt>,
+and <tt>put_XXX</tt> have been thoroughly rewritten and should be both
+ISO-compliant and more efficient.
+<li> XSB now has an alternative means of tabling ground structures
+called "hash-consing" or "interning".  This feature can greatly
+improve performance when tabling is used for structural
+recursion.</li>
+<li> XSB now cleanly compiles under the latest version of Mac OSX
+which uses LLVM's clang compiler.</li>
+<li> XSB's incremental tabling now fully supports view consistency for
+tables that have been updated.  Incremental tabling has also been
+extended to allow abstraction of dynamic predicates in the call graph.
+Finally, a number of bugs in incremental tabling have been fixed.</li>
+<li>XSB's compiler has been extended so that XSB can be used as a
+preprocessor extending GPP</li>
+<li>Various predicates have been added: a platform-independant
+built-in predicate <tt>epoch_seconds/1</tt>,
+and <tt>module_of_term/2.</tt>  XSB's <tt>concat_atom/2</tt>, a
+generalization of the ISO <tt>atom_concat/2</tt> now also can be used
+to split atoms.</li>
+<li> Radial restraint is now available when XSB is embedded into a process.</li>
+</ul>
+<li><b> Bug fixes </b></li>
+<ul>
+<li> XSB now handles file paths that include spaces on Unix.</li>
+<li> Various fixes have made answer subsumption more robust.</li>
+<li> <tt>thread_sleep/1</tt> now accepts seconds as per draft
+standardization proposal.  The <tt>at_exit/1</tt> thread handler has
+been changed so that its success, failure, or error doesn't affect the
+thread exit status. Finally, a bug in handling exceptions resulting from
+thread cancellation using a <tt>throw/1</tt> signal has been fixed.</li>
+<li> Made XSB's use of gpp safe for cyclic <tt>#include</tt> statements.</li>
+<li> Various fixes for Prolog-based conditional compilation.</li>
+<li> Better indexing when loading forest logs.</li>
+<li> <tt>format/[2,3]</tt> changed to better handle escaped characters.</li>
+</ul>
+</ul>
+
 <h2> Version 3.4 (Soy mILK)</h2> 
 
 <h3> Version 3.4</h3> 
