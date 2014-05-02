@@ -14,7 +14,6 @@
 		and Programming"}
 @string{ICLP = "International Conference on Logic Programming"}
 @string{ILPS = "International Logic Programming Symposium"}
-@string{ILPS = "ILPS"}
 @string{IJCAI = "IJCAI"}
 @string{IJCAI = "International Joint Conference on Artificial Intelligence"}
 
@@ -71,11 +70,10 @@ BOOKTITLE = "Proc. of the 19th International Conference on
 ORGANIZATION = "VLDB End.",
 YEAR = 1993 }
 
-@techreport{ AitK90,
+@book{ AitK90,
 AUTHOR = "H. Ait-Kaci",
 TITLE = "The {WAM}: a (Real) Tutorial",
-INSTITUTION = "DEC Paris Research Report",
-NUMBER = "5",
+Note = "Available at http://wambook.sourceforge.net",
 YEAR = 1990 }
 
 @inproceedings{ AK90,
@@ -165,7 +163,7 @@ YEAR = 1992}
 AUTHOR = "J. Alferes and C. Damasio and L. Pereira",
 TITLE = "{SLX}: a top-down derivation procedure for programs with
 		  explicit negation", 
-BOOKTITLE = "International Logic Programming Symp",
+BOOKTITLE = ILPS,
 EDITOR = "M. Bruynooghe",
 PAGES = "424-439",
 YEAR = 1994}
@@ -174,6 +172,8 @@ YEAR = 1994}
 AUTHOR = "J. Alferes and C. Damasio and L. Pereira",
 TITLE = "A Logic Programming System for Non-monotonic Reasoning",
 JOURNAL = "Journal of Automated Reasoning",
+Volume = 14,
+Pages = "93-147",
 YEAR = 1995}
 
 @book{AlPe95,
@@ -247,7 +247,7 @@ year = 1999
 AUTHOR = "Y. S. Ramakrishna and C. R.  Ramakrishnan and I. V. Ramakrishnan
      and  S. Smolka and T. Swift and D. S. Warren", 
 TITLE = "Efficient Model Checking using Tabled Resolution", 
-BOOKTITLE = "Proceedings of CAV 97",
+BOOKTITLE = CAV,
 YEAR = 1997}
 
 @inproceedings{ BaNe93,
@@ -259,7 +259,7 @@ YEAR =  1993 }
 @inproceedings{ BMSU86,
 AUTHOR = "F. Banchilhon and D. Maier and Y. Sagiv and J. Ullman",
 TITLE = "Magic Sets and Other Strange Ways to Implement Logic Programs",
-BOOKTITLE = "PODS",
+BOOKTITLE = PODS,
 ORGANIZATION = "ACM",
 YEAR =  1986 }
 
@@ -272,7 +272,7 @@ YEAR =  1995 }
 @article{ BNST91,
 AUTHOR = "C. Beeri and S. Naqvi and O. Shmueli and S. Tsur",
 TITLE = "Set Constructors in a Logic Database Language",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = 10,
 NUMBER = 3,
 PAGES = "181-232",
@@ -281,7 +281,7 @@ YEAR = 1991}
 @article{ BeRa91,
 AUTHOR = "C. Beeri and R. Ramakrishnan",
 TITLE = "On the power of magic",
-JOURNAL = "J. Logic Programming",
+ JOURNAL = JLP,
 VOLUME = 10,
 NUMBER = 3,
 PAGES = "255-299",
@@ -465,7 +465,7 @@ Year = 2001}
 
 @InProceedings{CaSC01,
   author =       {L.F. Castro and V. Santos Costa},
-  title =        {Understanding Memory Management in Prolog Systems},
+  title =        {Understanding Memory Management in {P}rolog Systems},
   booktitle =    ICLP,
   pages =        {11--26},
   year =         2001,
@@ -475,16 +475,16 @@ Year = 2001}
 }
 
 @unpublished{ CaSW02a,
-Author = "L.F. Castro and T. Swift and D.S. Warren",
+Author = "L.F. Castro and T. Swift and D. S. Warren",
 Title = "{XASP}: {A}nswer {S}et {P}rogramming in {XSB}",
 Note = "Manual to Open-source software availible at xsb.sourceforge.net",
 YEAR = 2002 }
 
-@inproceedings{ CaSW02,
-Author = "L.F. Castro and T. Swift and D.S. Warren",
+@inproceedings{CaSW02,
+Author = "L.F. Castro and T. Swift and D. S. Warren",
 Title = "Suspending and Resuming Computations in Engines for {SLG} Evaluation",
-BOOKTITLE = "Practical Applications of Declarative Languages",
-Note = "To appear",
+BOOKTITLE = PADL,
+pages = "332--346",
 YEAR = 2002 }
 
 @inproceedings{ Carl87,
@@ -553,7 +553,7 @@ Journal = "ACM TODS",
 YEAR = 1996 }
 
 @article{hilog-jlp,
-author = "W. Chen and M. Kifer and D.S. Warren",
+author = "W. Chen and M. Kifer and D. S. Warren",
 title = "{HiLog}: {A} Foundation for Higher-Order Logic Programming",
 journal = JLP,
 year = 1993,
@@ -566,7 +566,7 @@ pages = {187--230}
 @article{ChKW93,
 AUTHOR = "W. Chen and M. Kifer and D. S. Warren",
 TITLE = "{HiLog}: A Foundation for Higher-Order Logic Programming",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = 15,
 NUMBER = "3",
 PAGES =  "187-230",
@@ -601,12 +601,12 @@ Year={1993}	}.
 AUTHOR = "W. Chen and T. Swift and D. S. Warren",
 TITLE =  "Efficient top-down computation of queries 
 		under the well-founded semantics",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 Volume = "24",
 Number = 3,
-Month = "September",
 Pages = "161-199",
 YEAR = 1995 }
+%Month = "September",
 
 @article{CW93a,
 AUTHOR = "W. Chen and D. S. Warren",
@@ -635,7 +635,7 @@ YEAR = 1995}
 @article{ CHH89,
 AUTHOR = "A. Ciepielwski and S. Haridi and B. Hausman",
 TITLE = "Or-parallel {P}rolog on shared memory multiprocessors",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = 7,
 PAGES = "125-147",
 YEAR = 1989 }
@@ -781,13 +781,14 @@ ORGANIZATION = "ACM",
 PAGES = "247-258",
 year = 1995}
 
-@article{DRSS96,
-author = "S. Dawson and C. R. Ramakrishnan 
-          and S. Skiena and T. Swift",
-title = "Principles and Practice of Unification Factoring",
-Journal = "ACM Transactions on Programming Languages and Systems",
-MONTH = "September",
-YEAR = 1996}
+@article{ DRSS96,
+    author = "Steven Dawson and C. R. Ramakrishnan and Steven Skiena and Terrance Swift",
+    title = "Principles and practice of unification factoring",
+    journal = "ACM Transactions on Programming Languages and Systems",
+    volume = "18",
+    number = "5",
+    pages = "528--563",
+    year = "1996"}
 
 @inproceedings{DRRS95,
 Author={S. Dawson and C. R.  Ramakrishnan and I. V. Ramakrishnan and T. Swift},
@@ -831,7 +832,7 @@ YEAR = 1993 }
 @article{ DEBR1,
 AUTHOR = "S. Debray and P. Mishra",
 TITLE = "Denotational and Operational Semantics for {P}rolog",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = 5,
 PAGES = "61-91",
 YEAR = 1988 }
@@ -899,7 +900,7 @@ YEAR = 1993 }
 @article{ DeDe1,
 AUTHOR = "D. De Schreye  and S. Decorte",
 TITLE = "Termination of Logic Programs: The Never-Ending Story",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = 19,
 PAGES = "199-260",
 YEAR = 1994 }
@@ -1075,10 +1076,13 @@ PUBLISHER = "Springer-Verlag",
 YEAR = 1996}
 
 @article{JFLP-Scheduling, 
-AUTHOR = {J. Freire and T. Swift and D. Warren},
+AUTHOR = {J. Freire and T. Swift and D. S. Warren},
 Title = {Beyond Depth-First: Improving Tabled Logic Programs through
-   Alternative Scheduling Strategies},
-Journal = {Journal of Functional and Logic Programming}, 
+Alternative Scheduling Strategies}, 
+Journal = JFLP, 
+volume = 1998,
+number = 3,
+pages = "243-268",
 Year = 1998 }
 
 @inproceedings{FrSW97,
@@ -1187,7 +1191,7 @@ YEAR = 1993 }
 @inproceedings{ GuMu92,
 AUTHOR = "A. Gupta and I. Mumick",
 TITLE = "Magic Sets Transformations in Non-Recursive Systems",
-BOOKTITLE = "PODS",
+BOOKTITLE = PODS,
 PAGES = "354-367",
 YEAR = 1992 }
 
@@ -1281,7 +1285,7 @@ YEAR = 1991}
 
 @techreport{ISO-Prolog,
 Author = "{ISO working group JTC1/SC22}",
-TITLE = "Prolog International Standard ISO-IEC 13211-1",
+TITLE = "Prolog International Standard {ISO-IEC} 13211-1",
 Institution = "International Standards Organization",
 YEAR = 1995}
 
@@ -1360,7 +1364,7 @@ YEAR = 1991 }
 
 @article{KaKa93,
 AUTHOR = "T. Kanamori and T. Kawamura",
-TITLE = "Abstract Interpretation based on OLDT Resolution",
+TITLE = "Abstract Interpretation based on {OLDT} Resolution",
 JOURNAL = "Journal of Logic Programming", 
 VOLUME = 15,
 PAGES = "1--30", 
@@ -1423,7 +1427,7 @@ YEAR = "1992" }
 @article{ KiSu92,
 AUTHOR = "M. Kifer and V. S. Subrahmanian",
 TITLE = "Theory of Generalized Annotated Logic Programming and its Applications",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = 12,
 NUMBER = 4,
 PAGES = "335-368",
@@ -1547,7 +1551,7 @@ YEAR = "1995"}
 @inproceedings{LiOk87,
 AUTHOR = "T. Lindholm  and R.A. O'Keefe",
 TITLE = "Efficient Implementation of a Defensible Semantics for
-		Dynamic {PROLOG} Code",
+		Dynamic {P}ROLOG Code",
 BOOKTITLE = "Proceedings of the International Conference 
 	  on Logic Programming",
 PAGES = "21-39", 
@@ -1562,7 +1566,7 @@ YEAR = 1984 }
 @article{ LlSh91,
 AUTHOR = "J. W. Lloyd and J.C. Sheperdson",
 TITLE = "Partial Evaluation in Logic Programming",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = 11,
 PAGES = "217-242",
 YEAR = 1991 }
@@ -1737,7 +1741,7 @@ YEAR = 1987}
 @inproceedings{ MFRP90,
 AUTHOR = "I. Mumick and S. Finklestein and R. Ramakrishnan and H. Pirahesh",
 TITLE = "Magic Conditions",
-BOOKTITLE = "PODS",
+BOOKTITLE = PODS,
 YEAR = 1990}
 
 @inproceedings{ MPR90,
@@ -1978,7 +1982,7 @@ YEAR = "1989"}
 @inproceedings{Przy89d,
 AUTHOR = "T.C. Przymusinski",
 TITLE = "Every Logic Program has a Natural Stratification and an Iterated Least Fixed Point Model",
-BOOKTITLE = "PODS",
+BOOKTITLE = PODS,
 PAGES = "11-21",
 YEAR = "1989"}
 
@@ -2005,7 +2009,7 @@ YEAR = 1996
 @article{ Rama88,
 AUTHOR = "R.~Ramakrishnan.",
 TITLE = "Magic templates: A spellbinding approach to logic programs.",
-JOURNAL = "J. Logic Programming",
+JOURNAL = JLP,
 VOLUME = "11",
 PAGES = "189-216",
 YEAR = 1991 }
@@ -2104,7 +2108,7 @@ JOURNAL = "Journal of Logic Programming",
 }
 
 @inproceedings{ FSW98,
-Author = "J. Freire and T. Swift and D. Warren",
+Author = "J. Freire and T. Swift and D. S. Warren",
 Title = "A Formal Framework for Scheduling in {SLG}",
 Booktitle = "International Workshop on Tabling in Parsing and Deduction",
 YEAR = 1998 }
@@ -2219,7 +2223,7 @@ YEAR = 1991}
 @article{Ross92,
 AUTHOR = "K.A. Ross.",
 TITLE = "A procedural semantics for well-founded negation in logic programs.",
-JOURNAL = "J. Logic Programming", 
+JOURNAL = JLP, 
 VOLUME = 13,
 NUMBER = 1,
 PAGES = "1-22", 
@@ -2376,10 +2380,10 @@ YEAR = 1988}
 @inproceedings{ Seki89,
 AUTHOR = "H. Seki",
 TITLE = "On the Power of {Alexandrer} Templates",
-BOOKTITLE = "Proc. of 8th PODS",
-ORGANIZATION = "ACM",
+BOOKTITLE = PODS,
 PAGES = "150-159",
 YEAR = 1989 }
+%ORGANIZATION = "ACM",
 
 @inproceedings{Seki89a,
 AUTHOR = "H. Seki",
@@ -2567,10 +2571,10 @@ YEAR = 1996 }
 AUTHOR = "T. Swift", 
 TITLE = "A New Formulation of Tabled Resolution with Delay", 
 Booktitle = "Recent Advances in Artifiial Intelligence",
-Note = {Available at http://www.cs.sunysb.edu/$\tilde{\ }$tswift},
 Year = 1999,
 Publisher = SPRINGER,
  }
+%Note = {Available at http://www.cs.sunysb.edu/$\tilde{\ }$tswift},
 
 @unpublished{SwiW03b,
 AUTHOR = "T. Swift and D. S. Warren",
@@ -2860,8 +2864,8 @@ JOURNAL = "J. Automated Reasoning",
 VOLUME = 11,
 NUMBER = 1,
 PAGES = "1-23",
-YEAR = 1993,
-Note = "Originally formulated in New York University TR 34, 1981" }
+YEAR = 1993}
+%Note = "Originally formulated in New York University TR 34, 1981" 
 
 @techreport{ DHWa83,
 AUTHOR = "D. H. D. Warren",
@@ -3331,7 +3335,7 @@ School = "SUNY Stony Brook",
 Year = 2006}
 
 @inproceedings{SwiW10a,
-Author = "T. Swift and D.S. Warren",
+Author = "T. Swift and D. S. Warren",
 Title = "Tabling with Answer Subsumption: Implementation, Applications and Performance",
 booktitle = "JELIA",
 Note = "Available at {\tt http://www.cs.sunysb.edu/$\tilde{\ }$tswift}",
@@ -3372,7 +3376,7 @@ Year = 2004}
 %Booktitle = "International Symposium on Functional and Logic Programming",
 
 @inproceedings{WGKFL09,
-Author = "H. Wan and B. Grossof and M. Kifer and P. Fodor and S. Liang",
+Author = "H. Wan and B. Grosof and M. Kifer and P. Fodor and S. Liang",
 Title = "Logic Programming with Defaults and Argumentation Theories",
 booktitle = ICLP,
 pages = "432-448",
@@ -3387,7 +3391,7 @@ pages = "",
 Year = 2012}
 
 @article{SwiW12,
-author = "T. Swift and D.S. Warren",
+author = "T. Swift and D. S. Warren",
 title = "{XSB}: Extending the Power of {P}rolog using Tabling",
 journal = TPLP,
 Volume = 12,
@@ -3395,22 +3399,51 @@ Number = "1-2",
 Pages = "157-187",
 Year = 2012}
 
-@article{RigS11b,
+@article{RigS13,
 Author = "F. Riguzzi and T. Swift",
 Title = "Well\--Definedness and Efficient Inference for Probabilistic Logic
 Programming under the Distribution Semantics",
 journal = TPLP,
-note = "To appear.  Available at {\tt www.cs.sunysb.edu/\~{}tswift/papers}",
-Year = 2012}
+Volume = 13,
+number = 2,
+pages = "279-302",
+Year = 2013}
 
-@unpublished{GroS13,
+@inproceedings{GroS13,
 author = "B. Grosof and T. Swift",
 title = "Radial Restraint: A Semantically Clean Approach to Bounded
                   Rationality for Logic Programs",
+booktitle = AAAI,
 year = 2013}
 
-@manuscript{RigS13,
+@article{RigS11a,
+Author = "F. Riguzzi and T. Swift",
+Title = "The {PITA} System: Tabling and Answer Subsumption for Reasoning under Uncertainty",
+Journal = TPLP,
+Volume = 11,
+Number = "4-5",
+pages = "433-449",
+Year = 2011}
+
+@manuscript{RigS14,
 Author = "F. Riguzzi and T. Swift",
 Title = "Termination of Strongly Bounded Term-Size Programs",
 Year = 2013}
 
+@article{ZhoH12,
+author = "N.F. Zhou and C.T. Have",
+title = "Efficient tabling of structured data with enhanced
+                  hash-consing",
+journal = TPLP,
+volume =  12,
+number = "4-5",
+pages = "547-563",
+year = 2012}
+
+@article{Swif14,
+Author = "T. Swift",
+Title = "Incremental Tabling in Support of Knowledge Representation and Reasoning",
+Journal = TPLP,
+Volume = 14,
+Number = "4-5",
+Year = 2014}

@@ -1510,8 +1510,9 @@ Lattice answer subsumption has a variety of applications.
 \cite{SwiW10a} shows how it is used for social-network analysis and
 Section~\ref{sec:mv} shows its use for an application of multi-valued
 logics, \cite{Swif99a} describes how a similar formalism can implement
-a quantitative logic, and \cite{RigS10} describes how XSB's {\tt PITA}
-package is based on answer subsumption (see Volume 2 of this manual).
+a quantitative logic, and \cite{RigS11a,RigS13} describes how XSB's
+{\tt PITA} package is based on answer subsumption (see Volume 2 of
+this manual).
 
 \subsubsection{Partial Order Answer Subsumption with Abstraction.}
 \index{tabling!answer subsumption}
@@ -1981,7 +1982,7 @@ to this goal have a binding for {\tt X} that allows it to unify with
 {\tt f(1)}.  Using this intuition, it can be shown that if a program
 has a well-founded model with a finite number of true or undefined
 answers it will terminate using tabling with subgoal
-abstraction~\cite{RigS11b,RigS13}.
+abstraction~\cite{RigS13,RigS14}.
 
 Despite its theoretical power, subgoal abstraction can also cause
 problems if used indiscriminately.  if the second argument of the
@@ -2186,7 +2187,7 @@ greater than {\tt max\_table\_subgoal\_depth}.  %
 \index{tabling!answer subsumption}
 \index{tabling!incremental}
 
-\section{Compatability of Tabling Modes and Predicate Attributes}
+\section{Compatability of Tabling Modes and Predicate Attributes} \label{sec:tabling-compatability}
 %
 As discussed in this chapter, there are several choices for how to
 table a predicate. Either call subsumption or call variance may be
