@@ -249,6 +249,8 @@ a file using {\tt consult} and such.)
 %
 \index{Unicode!UTF-8}
 \index{character sets}
+\index{CP1252}
+\index{LATIN-1}
 Beginning in Version 3.5 of XSB, alternate character sets are supported.  
 %
 \begin{itemize}
@@ -261,20 +263,20 @@ points to UTF-8 byte sequences.
 (i.e. treats each byte directly as a unicode code point.)
 %
 \item {\em CP1252} which implements Windows code page 1252 encoding, the 
-default formost Windows systems.
+default for most Windows systems.
 \end{itemize}
 
 Other character sets, in particular, UTF-16, may be supported in the
 future.
 
-In the current version of XSB, UTF-8 is the default character set
-when XSB is configured on UNIX-style systems such as Linux and Mac
-OSX.  CP1252 is the the default character set on Windows-style
-systems.  The character set may be changed at any time via the Prolog
-flag {\tt character\_set}, whose value must be one of utf\_8,
-cp1252, or latin\_1.  The character set in effect at the time of
-opening a stream is the character set that will be used to read (or
-write) the stream. 
+In the current version of XSB, UTF-8 is the default character set when
+XSB is configured on UNIX-style systems such as Linux and Mac OSX.
+CP1252 is the the default character set on Windows-style systems.  The
+character set may be changed at any time via the Prolog flag {\tt
+  character\_set}, whose value must be one of {\tt utf\_8}, {\tt
+  cp1252}, or {\tt latin\_1}.  The character set in effect at the time
+of opening a stream is the character set that will be used to read (or
+write) the stream.
 
 \subsection{Predicates for ISO Streams}
 
