@@ -3008,6 +3008,85 @@ programs that define their own meta-predicates.
 currently equivalent to {\tt checkImpExps([],FileNameList)}.
 \end{description}
 
+\section{``Pure'' Meta-programming in XSB with prolog\_db.P}
+\index{Code authors!Warren, David S.}
+
+The {\tt prolog\_db} library provides predicates that support a form of
+``pure'' meta-programming in XSB.  A programmer can create a term data
+structure that represents a Prolog database (i.e., a set of rules, and
+herein called a {\em Prolog DB}), and then ask for a goal to be proved
+in such a Prolog DB.  
+
+A Prolog DB is kept as a trie, which is a ground Prolog term.  Each
+level in the trie is implemented by a hash table, and hash tables are
+expanded and contracted as necessary.  A set of clauses is canonically
+represented, i.e., no matter what sequence of {\tt assert\_in\_db}'s
+and {\tt retractall\_in\_db}'s one uses to construct a particular set
+of clauses, the resulting Prolog DBs (i.e. Prolog terms) are identical.
+
+A Prolog DB represents an unordered set of clauses.  The order in
+which clauses are returned from {\tt clause\_in\_db} (and thus for
+{\tt call\_in\_db}) is indeterminate, and may change from one call to
+the next (due to possible expansion or contraction of a hash table in
+the representation of a Prolog DB.)
+
+A Prolog DB that is obtained from another Prolog DB by adding or
+deleting a single clause differs from it in only log subterms (unless
+a hash table has been resized).  This means that it is efficient to
+intern these DB's, and to table them (as intern).
+
+The predicates provided by the Prolog DB interface are as follows:
+\begin{description}
+\ouritem{empty\_db(-EmptyPrologDB)}
+{\tt empty\_db/1} returns an empty Prolog DB.  It is used to create an
+initial Prolog DB to pass to the other in\_db predicates.
+
+\ouritem{assert\_in\_db(+Clause,+DB0,-DB)}
+{\tt assert\_in\_db/3} adds the clause, {\tt Clause}, to the Prolog
+DB, {\tt DB0}, and returns a new Prolog DB, {\tt DB}.  A Prolog DB is
+a {\em set} of clauses, so asserting a clause that is already in {\tt
+DB0} just returns that same database.  No ordering of clauses is
+preserved, so cuts do not make sense and cannot be used in clauses.
+(The if-then else ('->'/3) should be used instead.)
+
+\ouritem{retractall\_in\_db(+ClauseHead,+DB0,-DB)}
+{\tt retractall\_in\_db/3} removes all clauses whose heads unify with
+{\tt ClauseHead} from {\tt DB0} returning {\tt DB}.  If no clauses in
+{\tt DB0} unify, then {\tt DB0} is returned unchanged.
+
+\ouritem{clause\_in\_db(?ClauseHead,?ClauseBody,+DB)}
+{\tt clause\_in\_db/3} returns all clauses in {\tt DB} whose heads and
+bodies unify with {\tt ClauseHead} and {\tt ClauseBody}, respectively.
+(Note that, unlike {\tt clause/2} in Prolog, {\tt clause\_in\_db} can
+be called with {\tt ClauseHead} as a variable.)  Note also that the
+order of clauses is not preserved and is indeterminate.
+
+\ouritem{call\_in\_db(?Goal,+DB)}
+{\tt call\_in\_db/2} calls {\tt Goal} in {\tt DB} and returns all
+instances of {\tt Goal} provable by rules in {\tt DB}.  Clauses must
+not contain cuts (!).  They can contain most Prolog constructs,
+including and, or, if-then-else, \textbackslash+, calls to standard predicates, and
+calls explicitly modified by a module name. Such calls will be
+satisfied by calling the goal in the indicated module. So in this case
+one can think of a Prolog DB as being extended by the code in any
+module.
+
+\ouritem{load\_in\_db(+FileName,+DB0,-DB)}
+{\tt load\_in\_db/3} reads the clauses from the file named {\tt
+FileName} and asserts them into database {\tt DB0} returning {\tt DB}.
+
+\ouritem{load\_in\_db(+FileName,-DB)}
+{\tt load\_in\_db/2} reads the clauses from the file named {\tt
+FileName} and asserts them into an empty database returning {\tt DB}.
+
+\ouritem{union\_db(+DB1,+DB2,-DB3)}
+{\tt union\_db/3} returns in {\tt DB3} the union of the sets of
+clauses in {\tt DB1} and {\tt DB2}.
+
+\end{description}
+
+
+
 %=======================================================================
 \section{Miscellaneous Predicates}
 
@@ -3186,6 +3265,9 @@ $100$ and $N$ say $10^4$ this means a factor of two.
 \comment{ The cost of the free list is slight.  The storage cost of a
   heap in a copying Prolog (which Dec-10 Prolog is not) is 2K+3M
   words.}
+
+
+
 
 %%% Local Variables:
 %%% mode: latex
