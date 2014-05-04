@@ -202,7 +202,7 @@ Prolog program.
 
 \begin{exercise} \label{ex:samegen}
 If you are {\em still} curious, load in the file {\tt cyl.P} in the
-\verb|$XSB_DIR/examples| directory using the command.
+\verb|$XSB_DIR/examples| directory using the command.  %$
 \begin{verbatim}
          ?- load_dync(cyl.P).
 \end{verbatim}
@@ -486,8 +486,62 @@ described in \refsec{sec:TablePred:Decl&Mod}, ensures that a tabled
 predicate is evaluated using the desired strategy regardless of the
 default tabling strategy.
 \index{declarations!\texttt{table\ as}}
+%----------------------------------------------------------------------
+
+\subsection{Tabling with Interned Terms} \label{section:interntabling}
+\index{tabling!Interned Terms}
+
+XSB supports, on request, a special representation of {\em ground}
+terms, known as interned terms (see {\tt intern\_term/2}.)  This
+representation is also sometimes known as a ``hash-consing''
+representation.  All interned terms are stored in a global area and
+each such term is stored only once, with all instances of a given
+interned (sub-)term pointing to that one stored representation.  This
+can allow for a much more succinct representation of sets of ground
+terms that share subterms.  Importantly interned ground terms, in
+principle, do not need to be copied into and out of tables.
+
+To take advantage of this possibility, a table must be declared as
+{\tt intern}.  As an example of a possible use of this mechanism,
+consider a simple DCG that recognizes all strings of a's starting with
+a single b:
+\begin{verbatim}
+:- table bas/2 as intern.
+
+bas --> [b].
+bas --> bas, [a].
+\end{verbatim}
+This predicate must be tabled in order to terminate, since the grammar
+is left-recursive.  If we use the usual list representation of an
+input string and use variant tabling, every call to {\tt bas/2} and
+every return will copy the remaining list into the table, and
+recognition will be quadratic.  (For example on my laptop, recognizing
+a list of one b followed by 10,000 a's takes about 1.84 seconds, and
+20,000 a's about 7.285 seconds.)  If we table {\tt bas/2 as intern},
+the initial ground input list will be interned (copied to intern
+space) on the first call, and after that every subsequent call of {\tt
+bas/2} will be given an interned term, which need not be copied into
+(or out of) the table.  In this case the complexity will be linear.
+(For example on my laptop, recognizing a list of one b and 1,000,000
+a's takes less than a second.)
+
+When a table is declared {\tt as intern}, at the time of a call, all
+arguments are automatically interned (with {\tt intern\_term/2})
+before the call is looked up in the table, and on return, every answer
+is interned before being added to the table.  Copying an interned
+subterm into or out of a table requires just a pointer copy, which takes,
+of course, constant time.
+
+Because an interned term is treated just like a atom (with no indexing
+done on its structure), tabling as intern always uses variant tabling,
+and thus cannot be combined with subsumptive tabling.  Also it cannot
+be combined with answer subsumption tabling.
+
+For more information on tabling as intern, see
+\cite{ciclops-2013-interning}.
 
 %----------------------------------------------------------------------
+
 
 \subsection{Table Scheduling Strategies} \label{section:scheduling}
 \index{tabling!scheduling strategies}

@@ -3806,6 +3806,18 @@ follows:
 %of 1, regardless of the size of their attribute.  
 {\tt term\_size/2} does not check for cyclic structures, so it must be
 ensured that {\tt Term} is acyclic.
+
+\ourmoditem{intern\_term(+Term,-InternedTerm)}{intern\_term/2}{machine}
+\index{interned terms} 
+{\tt intern\_term} makes an ``interned'' version of its first argument
+and returns that term in its second argument.  The terms are equal
+terms (i.e., {\tt Term == InternedTerm} would succeed.)  The interned
+term has all its ground subterms represented (uniquely) in a global
+space.  Subterms that contain variables are not copied but remain on
+the heap.  The interned representation of ground terms can save space
+and/or time in some situations.  Note that already interned subterms
+or {\tt Term} do not need to be traversed in this operation.
+
 \end{description}
 
 %-----------------------------------------------------------------------------------------------
