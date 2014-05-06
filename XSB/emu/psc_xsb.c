@@ -305,6 +305,12 @@ static Pair search(int arity, char *name, Pair *search_ptr)
     return NULL;
 } /* search */
 
+Pair search_in_usermod(int arity, char *name) {
+  Pair *search_ptr;
+  search_ptr = (Pair *)(symbol_table.table +
+			hash(name, arity, symbol_table.size));
+  return search(arity,name,search_ptr);
+}
 
 /* === insert0: search/insert to a given chain ========================	*/
 

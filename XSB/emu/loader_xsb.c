@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef WIN_NT
 #include <direct.h>
@@ -708,7 +709,7 @@ static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
   static XSB_StrDefine(str);
   int  is_new, def_is_new;
   byte t_arity, t_type, t_env, t_defined, t_definedas;
-  Pair temp_pair, defas_pair = NULL;
+  Pair temp_pair, usermod_pair, defas_pair = NULL;
   Psc  mod;
   Integer dummy; /* used to squash warnings */
 
@@ -807,6 +808,10 @@ static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
       /* xsb_dbgmsg(("exporting: %s from: %s",name,cur_mod->nameptr)); */
       if (is_new) 
 	set_data(temp_pair->psc_ptr, mod);
+      if (usermod_pair = search_in_usermod(get_arity(temp_pair->psc_ptr),get_name(temp_pair->psc_ptr))) {
+	/* if existing usermod rec, set its ep to that of new one */
+	set_psc_ep_to_psc(usermod_pair->psc_ptr,temp_pair->psc_ptr);
+      }
       link_sym(temp_pair->psc_ptr, (Psc)flags[CURRENT_MODULE]);
     }
   }
@@ -1141,6 +1146,10 @@ byte *loader(CTXTdeclc char *file, int exp)
   fd = fopen(file, "rb"); /* "b" needed for DOS. -smd */
   //  fprintf(logfile,"opening: %s (%s)\n",file,"rb");
   if (!fd) return NULL;
+  /*  {
+    printf("Error opening file: %s, errno=%d\n",file,errno);
+    return NULL;
+    } */
   if (flags[LOG_ALL_FILES_USED]) {
     char *dummy; /* to squash a warning */
     char current_dir[MAX_CMD_LEN];
