@@ -808,7 +808,7 @@ static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
       /* xsb_dbgmsg(("exporting: %s from: %s",name,cur_mod->nameptr)); */
       if (is_new) 
 	set_data(temp_pair->psc_ptr, mod);
-      if (usermod_pair = search_in_usermod(get_arity(temp_pair->psc_ptr),get_name(temp_pair->psc_ptr))) {
+      if ((usermod_pair = search_in_usermod(get_arity(temp_pair->psc_ptr),get_name(temp_pair->psc_ptr)))) {
 	/* if existing usermod rec without ep, set its ep to that of new one */
 	if (get_ep(usermod_pair->psc_ptr) == (byte *)&((usermod_pair->psc_ptr)->load_inst)) {
 	  set_psc_ep_to_psc(usermod_pair->psc_ptr,temp_pair->psc_ptr);
