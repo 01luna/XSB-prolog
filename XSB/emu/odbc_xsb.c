@@ -474,21 +474,31 @@ void SetCursorClose(struct ODBC_Cursor *cur)
     cur->NumBindVars = 0;
 }
 
+XSB_StrDefine(odbc_err_msg);
+
 /* taken from easysoft, web  */
-void extract_error(char *fn, SQLHANDLE handle, SQLSMALLINT type) {
+char *detailed_error(char *msg1, char *msg2, SQLHANDLE handle, SQLSMALLINT type) {
     SQLSMALLINT i = 0;
     SQLINTEGER native;
     SQLCHAR state[ 7 ];
     SQLCHAR text[256];
     SQLSMALLINT len;
     SQLRETURN ret;
-    fprintf(stderr, "\nThe driver reported the following diagnostics: %s\n\n", fn);
+    char msg_segment[250];
+
+    XSB_StrSet(&odbc_err_msg,msg1);
+    XSB_StrAppend(&odbc_err_msg,msg2);
+    XSB_StrAppend(&odbc_err_msg,": Diagnostics:");
+    XSB_StrAppend(&odbc_err_msg,msg_segment);
     do {
       ret = SQLGetDiagRec(type, handle, ++i, state, &native, text,
 			  sizeof(text), &len );
-      if (SQL_SUCCEEDED(ret))
-	printf("%s:%ld:%ld:%s\n", state, i, native, text);
+      if (SQL_SUCCEEDED(ret)) {
+	snprintf(msg_segment,2510,"::%s:%ld:%ld:%s", state, i, native, text);
+        XSB_StrAppend(&odbc_err_msg,msg_segment);
+      }
     } while( ret == SQL_SUCCESS );
+    return odbc_err_msg.string;
   }
 
 /*-----------------------------------------------------------------------------*/
@@ -521,8 +531,7 @@ void ODBCConnect(CTXTdecl)
   UCHAR *connectIn;
   HDBC hdbc = NULL;
   RETCODE rc;
-  int new;
-  char errmsg[200];
+  int new
 
   /* if we don't yet have an environment, allocate one.*/
   //locked to prevent two threads from fighting over who creates the env.
@@ -563,10 +572,11 @@ void ODBCConnect(CTXTdecl)
     /* connect to database*/
     rc = SQLConnect(hdbc, server, SQL_NTS, uid, SQL_NTS, pwd, SQL_NTS);
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
+      char *temp_msg;
+      temp_msg = detailed_error("Connection to server failed: ",server,hdbc,SQL_HANDLE_DBC);
       SQLFreeConnect(hdbc);
-      snprintf(errmsg,200, "Connection to server %s failed", server);
       ctop_int(CTXTc 6, 0);
-      unify(CTXTc reg_term(CTXTc 7), makestring(string_find(errmsg,1)));
+      unify(CTXTc reg_term(CTXTc 7), makestring(string_find(temp_msg,1)));
       return;
     }
   } else {
@@ -574,12 +584,11 @@ void ODBCConnect(CTXTdecl)
     connectIn = (UCHAR *)ptoc_longstring(CTXTc 3);
     rc = SQLDriverConnect(hdbc, NULL, connectIn, SQL_NTS, NULL, 0, NULL,SQL_DRIVER_NOPROMPT);
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
-      printf("SQLDriverConnect returned ERROR = %d\n",rc);
-      extract_error("SQLDriverConnect",hdbc,SQL_HANDLE_DBC);
+      char *temp_msg;
+      temp_msg = detailed_error("Connection to driver failed: ",connectIn,hdbc,SQL_HANDLE_DBC);
       SQLFreeConnect(hdbc);
-      snprintf(errmsg,200,"Connection to driver failed: %s", connectIn);
       ctop_int(CTXTc 6, 0);
-      unify(CTXTc reg_term(CTXTc 7), makestring(string_find(errmsg,1)));
+      unify(CTXTc reg_term(CTXTc 7), makestring(string_find(temp_msg,1)));
       return;
     }
   }
@@ -613,7 +622,9 @@ void ODBCDisconnect(CTXTdecl)
 
   rc = SQLTransact(henv,hdbc,SQL_COMMIT);
   if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
-    unify(CTXTc reg_term(CTXTc 3), GenErrorMsgBall("Error committing transactions"));
+    char *err_msg;
+    err_msg = detailed_error("Error committing transaction","",hdbc,SQL_HANDLE_DBC);
+    unify(CTXTc reg_term(CTXTc 3), GenErrorMsgBall(err_msg));
     return;
   }
 
@@ -761,7 +772,8 @@ void FindFreeCursor(CTXTdecl)
       mem_dealloc(curi,sizeof(struct ODBC_Cursor),ODBC_SPACE);
       /*      numberOfCursors--; */
       ctop_int(CTXTc 4, 0);
-      unify(CTXTc reg_term(CTXTc 5), GenErrorMsgBall("ERROR while trying to allocate ODBC statement"));
+      unify(CTXTc reg_term(CTXTc 5), 
+	    GenErrorMsgBall(detailed_error("ERROR while trying to allocate ODBC statement","",hdbc,SQL_HANDLE_DBC)));
       return;
     }
 
@@ -1277,7 +1289,7 @@ void ODBCUserTables(CTXTdecl)
   SQLGetFunctions(cur->hdbc,SQL_API_SQLTABLEPRIVILEGES,&TablePrivilegeExists);
   if (!TablePrivilegeExists) {
     unify(CTXTc reg_term(CTXTc 3), 
-	  GenErrorMsgBall("Privilege concept does not exist in this DVMS: you probably can access any of the existing tables"));
+	  GenErrorMsgBall("Privilege concept does not exist in this DBMS: you probably can access any of the existing tables"));
     return;
   }
   if (((rc=SQLTablePrivileges(cur->hstmt,
@@ -1353,7 +1365,8 @@ void ODBCDataSources(CTXTdecl)
     /* allocate environment handler*/
     rc = SQLAllocEnv(&henv);
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
-      unify(CTXTc reg_term(CTXTc 5), GenErrorMsgBall("Environment allocation failed"));
+      unify(CTXTc reg_term(CTXTc 5), 
+	    GenErrorMsgBall(detailed_error("Environment allocation failed","",henv,SQL_HANDLE_ENV)));
       return;
     }
     LCursor = FCursor = NULL;
@@ -1374,7 +1387,8 @@ void ODBCDataSources(CTXTdecl)
       return;
     }
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
-      unify(CTXTc reg_term(CTXTc 5),GenErrorMsgBall("Call to SQLDataSources failed"));
+      unify(CTXTc reg_term(CTXTc 5),
+	    GenErrorMsgBall(detailed_error("Call to SQLDataSources failed","",henv,SQL_HANDLE_ENV)));
       return;
     }
   } else {
@@ -1387,7 +1401,8 @@ void ODBCDataSources(CTXTdecl)
       return;
     }
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
-      unify(CTXTc reg_term(CTXTc 5),GenErrorMsgBall("Call to SQLDataSources failed"));
+      unify(CTXTc reg_term(CTXTc 5),
+	    GenErrorMsgBall(detailed_error("Call to SQLDataSources failed","",henv, SQL_HANDLE_ENV)));
       return;
     }
   }
@@ -1735,11 +1750,13 @@ Cell build_codes_list(CTXTdeclc byte *charptr) {
     this_term = hreg;
     //    cell(hreg) = makeint((int)*charptr); charptr++;
     cell(hreg) = makeint(char_to_codepoint(CURRENT_CHARSET,&charptr));
+    charptr++;
     hreg += 2;
     while (*charptr != 0) {
       cell(hreg-1) = makelist(hreg);
       //      cell(hreg) = makeint((int)*charptr); charptr++;
       cell(hreg) = makeint(char_to_codepoint(CURRENT_CHARSET,&charptr));
+      charptr++;
       hreg += 2;
     }
     cell(hreg-1) = makenil;
@@ -1794,8 +1811,9 @@ int GetColumn(CTXTdecl)
 
     /* compare strings here, so don't intern strings unnecessarily*/
     XSB_Deref(op);
-    if (isref(op))
+    if (isref(op)) {
       return unify(CTXTc op, makestring(string_find(cur->Data[ColCurNum],1)));
+    }
     if (isconstr(op) && get_arity(get_str_psc(op)) == 1) {
       if (!strcmp(get_name(get_str_psc(op)),"string")) {
 	return unify(CTXTc get_str_arg(ptoc_tag(CTXTc 4),1),  /* op might have moved! */
