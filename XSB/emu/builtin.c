@@ -1056,7 +1056,8 @@ inline static void xsb_fprint_variable(CTXTdeclc FILE *fptr, CPtr var)
   }
 }
 
-void xsb_sprint_variable(CTXTdeclc char *sptr, CPtr var)
+//void xsb_sprint_variable(CTXTdeclc char *sptr, CPtr var)
+DllExport void call_conv  xsb_sprint_variable(CTXTdeclc char *sptr, CPtr var)
 {
   if (var >= (CPtr)glstack.low && var <= top_of_heap)
     sprintf(sptr, "_h%" Cellfmt, ((Cell)var-(Cell)glstack.low+1)/sizeof(CPtr));
