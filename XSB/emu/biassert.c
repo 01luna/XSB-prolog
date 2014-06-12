@@ -489,13 +489,14 @@ static void assertcmp_printerror(CTXTdeclc int num)
 {
     switch (num) {
     case ERR_FUNCTOR:
-	xsb_abort("[Assert] functor expected");
-	break;
+      xsb_throw_error(CTXTc "Functor expected","[Assert]");
+      break;
     case ERR_REGISTER:
-	xsb_abort("[Assert] need too many registers");
-	break;
+      xsb_throw_error(CTXTc "Too many registers required; see assert/3 for large terms",
+		      "[Assert]");
+      break;
     default: 
-	xsb_abort("[Assert] error occured in assert_cmp");
+      xsb_throw_error(CTXTc "Error occured in assert_cmp","[Assert]");
     }
 }
 
@@ -531,7 +532,7 @@ static void inst_queue_push(struct instruction_q *inst_queue,
     inst_queue->inst_queue[inst_queue->inst_queue_top].arg2 = arg2;
     inst_queue->inst_queue_top = (inst_queue->inst_queue_top+1) % INST_QUEUE_SIZE;
     if (inst_queue->inst_queue_top == inst_queue->inst_queue_bottom)
-      xsb_abort("instruction queue overflow in assert");
+      xsb_throw_error(CTXTc "instruction queue overflow in assert","[Assert]");
 }
 
 static void inst_queue_pop(struct instruction_q *inst_queue,
@@ -559,7 +560,7 @@ static void inst_queue_add(struct instruction_q *inst_queue,
     if (inst_queue->inst_queue_bottom == 0) inst_queue->inst_queue_bottom = INST_QUEUE_SIZE;
     inst_queue->inst_queue_bottom--;
     if (inst_queue->inst_queue_top == inst_queue->inst_queue_bottom)
-      xsb_abort("instruction queue overflow in assert");
+      xsb_throw_error(CTXTc "instruction queue overflow in assert","[Assert]");
     inst_queue->inst_queue[inst_queue->inst_queue_bottom].opcode = opcodep;
     inst_queue->inst_queue[inst_queue->inst_queue_bottom].arg1 = arg1p;
     inst_queue->inst_queue[inst_queue->inst_queue_bottom].arg2 = arg2p;
@@ -3735,7 +3736,7 @@ xsbBool db_abolish0(CTXTdecl/* R1: +PredEP , R2: +PSC */)
   if (!prref) return TRUE;
 
   if (flags[NUM_THREADS] != 1) {
-    xsb_abort("Cannot abolish a predicate when more than 1 thread is active");
+    xsb_throw_error(CTXTc "Cannot abolish a predicate when more than 1 thread is active","[Abolish]");
   }
 
   if (get_tabled(psc)) {
@@ -3759,7 +3760,7 @@ xsbBool db_abolish0(CTXTdecl/* R1: +PredEP , R2: +PSC */)
     SYS_MUTEX_UNLOCK( MUTEX_DYNAMIC );
   }
   else {
-    xsb_abort("Cannot abolish a predicate with active backtrack points: use retractall");
+    xsb_throw_error(CTXTc "Cannot abolish a predicate with active backtrack points: use retractall","[Abolish]");
   }
   return TRUE;
 }

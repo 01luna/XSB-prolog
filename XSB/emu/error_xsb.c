@@ -227,6 +227,7 @@ DllExport void call_conv xsb_throw_memory_error(int type)
   th = find_context(tid);
 #endif
 
+  printf("throwing out-of-memory error\n");
   if (flags[CTRACE_CALLS])  { 
     if (ptcpreg) 
       sprint_subgoal(CTXTc forest_log_buffer_1,0, (VariantSF)ptcpreg); 
@@ -240,6 +241,34 @@ DllExport void call_conv xsb_throw_memory_error(int type)
   /* Resume main emulator instruction loop */
   pcreg = (pb)&fail_inst;
   longjmp(xsb_abort_fallback_environment, XSB_ERROR);
+}
+
+DllExport void call_conv xsb_throw_error(CTXTdeclc char *message, char *error_type) {
+  prolog_term ball_to_throw;
+  int isnew;
+  Cell *error_rec;
+  size_t ball_len = 10*sizeof(Cell);
+#ifdef MULTI_THREAD
+  char mtmessage[MAXBUFSIZE];
+  int tid = xsb_thread_self();
+  th_context *th;
+  th = find_context(tid);
+#endif
+
+  ball_to_throw = makecs(hreg);
+  error_rec = hreg;
+  bld_functor(hreg, pair_psc(insert("error",3,(Psc)flags[CURRENT_MODULE],&isnew)));
+  hreg += 4;
+
+  bld_string(error_rec+1,string_find(error_type,1));
+#ifdef MULTI_THREAD
+  snprintf(mtmessage,MAXBUFSIZE,"[th %d] %s",tid,message);
+  bld_string(error_rec+2,string_find(mtmessage,1));
+#else  
+  bld_string(error_rec+2,string_find(message,1));
+#endif
+  bld_copy(error_rec+3,build_xsb_backtrace(CTXT));
+  xsb_throw_internal(CTXTc ball_to_throw,ball_len);
 }
 
 /* this function seems never used??*/

@@ -158,6 +158,7 @@ DllExport extern void call_conv xsb_type_error(CTXTdeclc char *,Cell , const cha
 extern void call_conv xsb_memory_error(char *, char *);
 DllExport void call_conv xsb_throw_memory_error(int);
 
+DllExport void call_conv xsb_throw_error(CTXTdeclc char *, char *);
 DllExport void call_conv xsb_throw(CTXTdeclc prolog_term);
 
 extern prolog_term build_xsb_backtrace(CTXTdecl);
