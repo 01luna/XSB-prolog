@@ -1103,7 +1103,10 @@ set_xsb_flag_1(character_set,Mode):- !,
 	 ->	stat_set_flag(CHARACTER_SET, LATIN_1)
 	 ; Mode = cp1252
 	 ->	stat_set_flag(CHARACTER_SET, CP1252)
-	 ;	stat_set_flag(CHARACTER_SET, UTF_8)
+	 ; Mode == utf_8
+	 ->	stat_set_flag(CHARACTER_SET, UTF_8)
+	 ;	domain_error([iso,undefined_character_set],
+			     Mode,set_prolog_flag/2,2,'exception_action clause')
 	).
 set_xsb_flag_1(errors_with_position,Mode):- !,
 	( Mode = on -> 
