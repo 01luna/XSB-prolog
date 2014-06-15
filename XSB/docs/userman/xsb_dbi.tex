@@ -466,6 +466,17 @@ statement.
 \section{Notes on specific drivers}
 %============================
 
+Note: in most distributions of Linux,
+with all of these drivers you need to install both the runtime
+version of the corresponding packages as well as the development version.
+For instance, for the \texttt{unixodbc} driver, these packages will
+typically have the names \texttt{unixodbc} and \texttt{unixodbc-dev}.
+For the MySQL driver, the packages would typically be named
+\texttt{libmysqlclient} and \texttt{libmysqlclient-dev}.  
+For the embedded MySQL driver, the relevant package would be
+\texttt{libmysqld-pic} and 
+\texttt{libmysqld-dev}. 
+
 \subsubsection{ODBC Driver}
 
 The ODBC driver has been tested in Linux using the {\tt unixodbc} driver

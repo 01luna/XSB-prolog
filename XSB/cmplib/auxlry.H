@@ -45,7 +45,10 @@
         from machine.
 :- import misc_error/1 from error_handler.
 
-:- import enqueue_preprocessor/1 from parse.
+:- import
+	unset_preprocessing_done/0,
+	enqueue_preprocessor/1
+   from parse.
 
 /* ------------------------ end of file auxlry.H ---------------------- */
 

@@ -70,3 +70,5 @@ options=$2
 ../agentest.sh "$XEMU $options" longname "test."
 #------------------------------------
 ../agentest.sh "$XEMU $options" gctest "test."
+
+../agentest.sh "$XEMU $options" xpp_on_test "test."

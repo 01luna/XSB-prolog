@@ -27,6 +27,7 @@
 :- export
 	register_xsb_preprocessor/2,
 	unregister_xsb_preprocessor/1,
+	unset_preprocessing_done/0,
 	xppdump_is_on/0,
 	xpp_is_off/0,
 	set_xpp_off/0,

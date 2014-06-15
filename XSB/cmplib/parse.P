@@ -67,7 +67,7 @@ parse(Modname, PFile, HFile, Module) :-
 		),
 %%%	        standard:writeln(parsing_pfile),
 		parse1(Modname,PFile,Module0)
-%%%             standard:writeln(parse(Module0))
+%%%             ,standard:writeln(parse(Module0))
 	;   existence_error('file/module',PFile,compile/1,1)
 %%%	; 	error(('Cannot find the file ', PFile)), fail, Module0=Module0
 	),
@@ -430,7 +430,7 @@ preprocessor_name(XPP_Call,_) :-
 %% maintain preprocessor queue
 %% If preprocessor is on the queue, ignore.
 enqueue_preprocessor(_Preprocessor) :-
-	%% If immediately after preprocessing, don't enqueue. A what may happen
+	%% If immediately after preprocessing, don't enqueue. What may happen
 	%% is that we may encounter compiler_options([xpp_on(foobar)]) after
 	%% preprocessing, and this would enque 'foobar' again (in the
 	%% post-processed program). But this then will be applied to the next
