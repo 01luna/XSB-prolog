@@ -439,6 +439,9 @@ get_calls_for_table(PredSpec,Call) :-
  *   There is some complication with the inlining of builtins which
  *   perform trie-code-directed traversals.  Hence trie_get_return/2
  *   is not inlined and we explicitly invoke the builtin call.
+ * 
+ *   Note that trie_get_return will not affect the delay list (a C
+ *   variable, delay_it, is set to ensure this).
  */
 
 get_returns(TableEntry, ReturnTemplate) :-
