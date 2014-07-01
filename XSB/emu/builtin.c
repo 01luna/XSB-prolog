@@ -1056,18 +1056,6 @@ inline static void xsb_fprint_variable(CTXTdeclc FILE *fptr, CPtr var)
   }
 }
 
-//void xsb_sprint_variable(CTXTdeclc char *sptr, CPtr var)
-DllExport void call_conv  xsb_sprint_variable(CTXTdeclc char *sptr, CPtr var)
-{
-  if (var >= (CPtr)glstack.low && var <= top_of_heap)
-    sprintf(sptr, "_h%" Cellfmt, ((Cell)var-(Cell)glstack.low+1)/sizeof(CPtr));
-  else {
-    if (var >= top_of_localstk && var <= (CPtr)glstack.high)
-      sprintf(sptr, "_l%" Cellfmt, ((Cell)glstack.high-(Cell)var+1)/sizeof(CPtr));
-    else sprintf(sptr, "_%p", var);   /* Should never happen */
-  }
-}
-
 /* --------------------------------------------------------------------	*/
 
 Cell builtin_table[BUILTIN_TBL_SZ][2];
