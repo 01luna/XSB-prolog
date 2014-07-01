@@ -324,7 +324,7 @@ where {\tt FileDescriptor} is an integer, then a pipe stream is opened
 in the mode for {\tt FileDescriptor}.
 \ei
 
-\compatability This predicate extends the ISO definition of {\tt
+\compatibility This predicate extends the ISO definition of {\tt
 open/3} to include strings and pipes as well as the file modes {\tt
 write\_binary} and {\tt append\_binary}.
 
@@ -380,7 +380,7 @@ the addition:
 \ei
 \ei
 %
-\compatability 
+\compatibility 
 %
 The ISO option {\tt reposition(Boolean)} currently has no effect on
 streams, because whether or not the stream is repositionable or not
@@ -888,7 +888,7 @@ character I/O predicates, rather than older predicates such as {\tt
   get/1}, {\tt get0/1}, {\tt put/1} and so on.  As the use of these
 older predicates may sometines give unexpected answers when used with
 non-ASCII characters, they are deprecated, athough they are still
-available for backward compatability.
+available for backward compatibility.
 
 \begin{description}
 %-----------------------------
@@ -1535,7 +1535,7 @@ nor a write option.
 \ei
 \ei
 
-\compatability In \version{}, {\tt write\_term/[2,3]} do not properly
+\compatibility In \version{}, {\tt write\_term/[2,3]} do not properly
 handle operators.
 
 \isoitem{write\_term(+Stream\_or\_alias,?Term,+Options)}{write\_term/3}
@@ -1681,7 +1681,7 @@ Finally, {\tt write canonical/2} writes attributed variables as simple
 variables.
 \index{attributed variables}
 
-\compatability
+\compatibility
 %
 In XSB, list notation and infix comma-list notation are considered
 canonical both for reading and writing.  We find that this improves
@@ -2000,7 +2000,7 @@ yes
 %
 XSB also offers an alternate version of formatted output in the {\tt
   format} library described in volume 2.  While not as efficient as
-{\tt fmt\_write/[2,3]}, the {\tt format} library is more compatable
+{\tt fmt\_write/[2,3]}, the {\tt format} library is more compatible
 with the formatted output found in other Prologs.
 
 {\bf Error Cases}
@@ -2022,7 +2022,7 @@ with the formatted output found in other Prologs.
 \item   {\tt type\_error('character string or atom',Fmt)}
 \ei
 \item A format specifier in {\tt Fmt} and its corresponding argument
-  in {\tt Term} are of incompatable types.
+  in {\tt Term} are of incompatible types.
 \bi
 \item   {\tt misc\_error}
 \ei
@@ -2509,7 +2509,7 @@ error if one of their evaluated inputs is a variable, and an {\tt
 instantiated but non-numeric.  With this in mind, we describe below
 only their behavior on correctly typed input.
 
-\compatability
+\compatibility
 In addition, evaluation of arithmetic expressions through {\tt is/2}
 does not check for overflow or underflow.  As a result, XSB's floating
 point operations do not conform to IEEE floating point standards, and
@@ -2751,10 +2751,10 @@ equal to 0, and {\tt -1} if {\tt Number} is less than 0.
 % 
 Evaluates to $\pi$ within an arithmetic expression.
 
-\ourstandarditem{e}{e/0}{Evaluable Functor (ISO)}
+\ourstandarditem{e}{e/0}{Evaluable Functor}
 % 
 Evaluates to $e$, the base of the natural logarithm, within an
-arithmetic expression.
+arithmetic expression.  (Use exp(1) for ISO compatibility.)
 
 \ourstandarditem{epsilon}{epsilon/0}{Evaluable Functor}
 % 
@@ -2771,9 +2771,9 @@ the first larger floating point number.
 
 XSB also allows as evaluable functors, many of the functions from the
 C library {\tt math.h}.  Functions included in XSB \version{} are {\tt
-  cos/1}, {\tt sin/1}, {\tt tan/1}, {\tt acos/1}, {\tt asin/1}, {\tt
-  atan/1}, {\tt log/1} (natural logarithm), {\tt log10/1}, and 
-  {\tt atan/2} (also available as {\tt atan2/2}).  For
+  cos/1} (ISO), {\tt sin/1} (ISO), {\tt tan/1} (ISO), {\tt acos/1} (ISO), {\tt asin/1} (ISO), {\tt
+  atan/1} (ISO), {\tt log/1} (natural logarithm) (ISO), {\tt log10/1}, and 
+  {\tt atan/2} (ISO) (also available as {\tt atan2/2}).  For
   their semantics, see documentation to {\tt math.h}.
 
 \section{Convenience} \label{Convenience}
@@ -2792,7 +2792,7 @@ described only briefly.
 %\predindex{fail/0~(I)}
     Always fails.
 
-\standarditem{false}{false/0}
+\isoitem{false}{false/0}
 %\predindex{false/0~(B)}
     Same as {\tt fail/0}.
 
@@ -3246,7 +3246,7 @@ as arguments, or if {\tt X} is an atom. (It fails if X is a cons node.)
      \end{verbatim}}
     will succeed.
 
-\standarditem{callable(?X)}{callable/1}
+\isoitem{callable(?X)}{callable/1}
     Succeeds if {\tt X} is currently instantiated to a term that standard
     predicate {\tt call/1} could take as an argument and not give an 
     instantiation or type error.  Note that it only checks for errors of
@@ -3758,6 +3758,11 @@ rr                   | ?- copy_term(f(a,X), Y).
                    Y = f(a,_599112)
      \end{verbatim}}
 
+\isoitem{term\_variables(+Term, -VariableList)}{term\_variables/2}
+    Collects the variables in {\tt Term} into the list {\tt
+    VariableList}.  The variables are in the order of their first
+    occurrences in a depth-first traversal of {\tt Term}.
+
 \index{term depth!definition}
 \index{terms!cyclic}
 \index{attributed variables}
@@ -3851,12 +3856,12 @@ or {\tt Term} do not need to be traversed in this operation.
 \item The default unification algorithm, when it unifies a variable
   {\em V} with a term {\em T}, does not check for the occurrence of
   {\em V} in {\tt T}, in other words it does not perform an {\em
-    occurs check}.  Unification without an occurs check is linear in
-  the sizes of the terms to be unified, while unification with an
-  occurs check is exponential in the sizes of the terms.  This
-  complexity is not just theoretical: it can slow down programs that
-  perform unification of large non-ground terms -- sometimes
-  drastically.
+  occurs check}.  Unification without an occurs check is linear in the
+  size of the smaller of the terms to be unified.  Unification with
+  occurs check is (essentially) linear in the size of the larger term.
+  Since unification is often used to assign a value to a variable, it
+  is important in a programming language that assignment be constant
+  time, and not linear in the size of the term being assigned.
 %
 \item Some programs purposefully construct cyclic terms: this occurs
   with various constraint libraries such as CHR.  These libraries do
@@ -5259,7 +5264,7 @@ error checking, the predicate shall behave as being defined by
     over'' the subcomputation started by the subgoal {\tt Pred},
     thereby ensuring the correct evaluation of tabled subgoals.
 
-\isoitem{call\_cleanup(\#Goal,\#Handler)}{call\_cleanup/2}
+\standarditem{call\_cleanup(\#Goal,\#Handler)}{call\_cleanup/2}
 %
 {\tt call\_cleanup(Goal, Cleanup)} calls {\tt Goal} just as if it were
 called via {\tt call/1}, but it is ensures that {\tt Handler} will be

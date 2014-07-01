@@ -197,7 +197,7 @@ where this can be done only for predicate symbols~\footnote{Operator
   symbols can be exported as any other symbols, but their precedence
   must be redeclared in the importing module.}.  As we will discuss,
 this leads to certain differences of XSB's module system from those of
-some other Prologs, and to certain incompatabilities with the ISO
+some other Prologs, and to certain incompatibilities with the ISO
 standard for modules (which is not supported by most Prologs).  At the
 same time, XSB's module system has enough commonalities with those of
 other Prologs to be able to support Prolog commons libraries.
@@ -221,7 +221,7 @@ in the source or header files and have the following forms:
 
 \index{modules!XSB syntax} \index{declarations!\texttt{export/1}}
 \index{declarations!\texttt{import/2}} \index{declarations!\texttt{local/1}} 
-\index{modules!compatability syntax}
+\index{modules!compatibility syntax}
 \index{declarations!\texttt{module/2}}  \index{declarations!\texttt{use\_module/2}}    
 
 \demo{:- export $sym_1$, \ldots, $sym_l$. }
@@ -1048,10 +1048,10 @@ So that XSB can be used to write reasonable scripts.
 %   needed.)
 %
 %\item[{\tt -i}] Brings up the XSB interpreter.  This is the normal
-%  use, and the option is kept only for backward compatability.
+%  use, and the option is kept only for backward compatibility.
 %
 %\item[{\tt -n}] Formerly used in conjunction when XSB was called from
-%  C.  This option is used only for backward compatability.
+%  C.  This option is used only for backward compatibility.
 \end{description}
 \end{description}
 
@@ -1545,7 +1545,7 @@ The following options are currently recognized by the compiler:
   However, additional directories can be added to this search path by
   asserting into the predicate \verb|gpp_include_dir/1|, {\bf which
     must be imported from module} {\tt parse}~\footnote{For
-    compatability, XSB also supports the ISO predicate {\tt include/1}
+    compatibility, XSB also supports the ISO predicate {\tt include/1}
     which also allows extra files to be included during compilation.}.
 %  
   For example if you want additional directories to be searched, then
@@ -2577,7 +2577,7 @@ be particularly severe for predicates like {\tt '\_\$builtin'/1} that
 are treated specially by the XSB compiler.
 
 \section{A Note on ISO Compatibility} \label{sec:iso}
-\index{ISO Compatability}
+\index{ISO Compatibility}
 
 In \version, an effort has been made to ensure compatibility with the
 core Prolog ISO standard~\cite{ISO-Prolog}.  In this section, we

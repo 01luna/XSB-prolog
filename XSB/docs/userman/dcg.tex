@@ -12,7 +12,7 @@ Prolog.  A Definite Clause Grammar rule is executable because it is
 just a notational variant of a logic rule that has the following
 general form:
 \begin{center}
-                {\em Head} {\tt -->} {\em Body.}
+                {\em Head} {\tt \verb|-->|} {\em Body.}
 \end{center}
 with the declarative interpretation that ``a possible form for {\em
 Head} is {\em Body}''. The procedural interpretation of a grammar rule
@@ -54,14 +54,14 @@ or not.  An overview of DCG syntax
       {\tt '$\}$'}.
       For example, one can write:
       \begin{center}
-                {\tt positive\_integer(N) --> [N], $\{$integer(N), N > 0$\}$.}
+                {\tt positive\_integer(N) \verb|-->| [N], $\{$integer(N), N > 0$\}$.}
                 \footnote{A term like {\tt $\{$foo$\}$} is just a
 			  syntactic-sugar for the term {\tt '$\{\}$'(foo)}.}
       \end{center}
 \item The left hand side of a DCG rule must consist of a single non-terminal,
       possibly followed by a sequence of terminals (which must be written as
       a {\em unique} Prolog list). Thus in XSB, unlike SB-Prolog 
-      version 3.1, ``push-back lists'' are supported.
+      version 3.1, Semicontext (formerly called push-back lists) is supported.
 \item The right hand side of a DCG rule may contain alternatives (written 
       using the usual Prolog's disjunction operator {\tt ';'} or 
       using the usual BNF disjunction operator {\tt '|'}. 
@@ -95,7 +95,7 @@ follows:
 A DCG rule such as:
 
 \stuff{
-\> \> p(X) --> q(X).
+\> \> p(X) \dashdashgreater q(X).
 }
 
 \noindent
@@ -108,7 +108,7 @@ will be translated (expanded) into:
 
 If there is more than one non-terminal on the right-hand side, as in
 
-\stuff{\> \> p(X, Y) --> q(X), r(X, Y), s(Y).}
+\stuff{\> \> p(X, Y) \dashdashgreater q(X), r(X, Y), s(Y).}
 
 \noindent
 the corresponding input and output arguments are identified, 
@@ -124,7 +124,7 @@ translating into:
 Terminals are translated using the predicate {\tt 'C'/3} (See 
 section~\ref{DCG_builtins} for its description).  For instance:
 
-\stuff{\> \> p(X) --> [go, to], q(X), [stop].}
+\stuff{\> \> p(X) \dashdashgreater [go, to], q(X), [stop].}
 
 \noindent
 is translated into:
@@ -141,7 +141,7 @@ Extra conditions expressed as explicit procedure calls naturally translate
 into themselves. For example,
 
 \stuff{
-\> \> positive\_number(X) --> \\
+\> \> positive\_number(X) \dashdashgreater \\
 \> \> \> [N], $\{$integer(N), N > 0$\}$, \\
 \> \> \> fraction(F), $\{$form\_number(N, F, X)$\}$.}
 
@@ -161,12 +161,12 @@ translates to:
 
 Similarly, a cut is translated literally.
 
-{\em Push-back lists} (a proper list of terminals on the left-hand side of 
-a DCG rule) translate into a sequence of {\tt 'C'/3} goals with the first 
-and third arguments reversed.
-For example,
+{\em Semicontext} (or a push-back list, which is a proper list of
+terminals on the left-hand side of a DCG rule) translate into a
+sequence of {\tt 'C'/3} goals with the first and third arguments
+reversed.  For example,
 
-\stuff{\> \> it\_is(X), [is, not] --> [aint].}
+\stuff{\> \> it\_is(X), [is, not] \dashdashgreater [aint].}
 
 \noindent
 becomes
@@ -181,7 +181,7 @@ becomes
 Disjunction has a fairly obvious translation.  For example, the DCG clause:
 
 \stuff{
-\> \> expr(E) --> \\
+\> \> expr(E) \dashdashgreater \\
 \> \> \> \ \ expr(X), "+", term(Y), $\{$E is X+Y$\}$ \\
 \> \> \>   | term(E).
 }
@@ -334,7 +334,7 @@ The library predicates of XSB that support DCGs are the following:
     {\tt Phrase}; otherwise if {\tt List} is unbound, then the grammar
     is being used for generation.
 
-\standarditem{tphrase(+Phrase)}{tphrase/1} This predicate is
+\standarditem{tphrase(+Phrase)}{tphrase/1} This predicate
     succeeds if the current database of {\tt word/3} facts can be
     parsed via a call to the term expansion of {\tt +Phrase} whose
     input argument is set to {\tt 0} and whose output argument is set
@@ -383,7 +383,10 @@ the predicate {\tt term\_expansion/2}\stdrefindex{term\_expansion/2}
 to {\tt usermod}.  After {\tt term\_expansion(Term\_a,Term\_b)} is
 asserted, then if a consulted file contains a clause that unifies with
 {\tt Term\_a} the clause will be transformed to {\tt Term\_b} before
-further compilation.  {\tt expand\_term/2} calls user clauses for {\tt
+further compilation.  ({\tt Term\_b} can be a list of clauses, so 
+{\tt term\_expansion} can transform a single clause into a sequence of 
+clauses.)
+{\tt expand\_term/2} calls user clauses for {\tt
   term\_expansion/2} first; if the expansion succeeds, the transformed
 term so obtained is used and the standard grammar rule expansion is
 not tried; otherwise, if {\tt Term1} is a grammar rule, then it is
@@ -490,7 +493,7 @@ abolished.
 \ourmoditem{dcg(+DCG\_Rule, ?Prolog\_Clause)}{dcg/2}{dcg}
     Succeeds iff the DCG rule {\tt DCG\_Rule} translates to the Prolog
     clause {\tt Prolog\_Clause}.  At the time of call, {\tt DCG\_Rule}
-    must be bound to a term whose principal functor is {\tt '-->'/2}
+    must be bound to a term whose principal functor is {\tt '\verb|-->|'/2}
     or else the predicate fails.  {\tt dcg/2} must be explicitly
     imported from the module {\sf dcg}.
 
@@ -510,7 +513,7 @@ SICStus Prolog and C-Prolog). The most important of these differences are:
       That is, the DCG clause:
 
       \stuff{
-      \> \> a --> b, ! ; c.
+      \> \> a \dashdashgreater b, ! ; c.
       }
 
       \noindent
@@ -565,7 +568,7 @@ SICStus Prolog and C-Prolog). The most important of these differences are:
       clause:
 
       \stuff{
-      \> \> a --> ! ; c.
+      \> \> a \dashdashgreater ! ; c.
       }
 
       \noindent
@@ -589,7 +592,7 @@ SICStus Prolog and C-Prolog). The most important of these differences are:
       encountered in a DCG clause.  That is, the DCG clause:
 
       \stuff{
-      \> \> a --> (true -> X = f(a) ; not(p)).
+      \> \> a \dashdashgreater (true -> X = f(a) ; not(p)).
       }
 
       \noindent

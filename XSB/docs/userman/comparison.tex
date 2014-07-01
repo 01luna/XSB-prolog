@@ -73,7 +73,7 @@ For example, here is a list of terms sorted in increasing standard order:
 The basic predicates for unification and comparison of arbitrary terms are:
 \begin{description}
 
-\standarditem{X = Y}{=/2}
+\isoitem{X = Y}{=/2}
     Unifies {\tt X} and {\tt Y} without occur check.
 
 \standarditem{unify\_with\_occurs\_check(One,Two)}{unify\_with\_occurs\_check/2}
@@ -101,7 +101,7 @@ subterm of {\tt One}.
                 yes
   \end{verbatim}}
 
-\standarditem{T1 == T2}{==/2}
+\isoitem{T1 == T2}{==/2}
 %
     Tests if the terms currently instantiating {\tt T1} and {\tt T2}
     are literally identical (in particular, variables in equivalent positions
@@ -134,8 +134,8 @@ subterm of {\tt One}.
 %
 Succeeds if the equality of {\tt Term1} and {\tt Term2} can be
 compared safely, i.e. whether the result of {\tt Term1 = Term2} can
-change due to further instantiation of either term. It is defined as
-by {\tt ?=(A,B) :- (A==B ; A \= B), !.} 
+change due to further instantiation of either term. It is specified as
+by {\tt ?=(A,B) :- (A==B ; A \= B).} 
 
 \ourmoditem{unifiable(X, Y, -Unifier)}{unifiable/3}{constraintLib}
 %
@@ -147,23 +147,23 @@ variables. Associated hooks are not executed~\footnote{In \version ,
   {\tt unifiable/3} is written as a Prolog predicate and so is slower
   than many of the predicates in this section.}.
 
-\standarditem{T1 @$<$ T2}{"@$<$/2}
+\isoitem{T1 @$<$ T2}{"@$<$/2}
     Succeeds if term {\tt T1} is before term {\tt T2} in the standard order.
 
-\standarditem{T1 @$>$ T2}{"@$>$/2}
+\isoitem{T1 @$>$ T2}{"@$>$/2}
     Succeeds if term {\tt T1} is after term {\tt T2} in the standard order.
 
-\standarditem{T1 @$=<$ T2}{"@$=</2$}
+\isoitem{T1 @$=<$ T2}{"@$=</2$}
     Succeeds if term {\tt T1} is not after term {\tt T2} in the standard order.
 
-\standarditem{T1 @$>=$ T2}{"@$>=/2$}
+\isoitem{T1 @$>=$ T2}{"@$>=/2$}
     Succeeds if term {\tt T1} is not before term {\tt T2} in the standard order.
 
 \standarditem{T1 @$=$ T2}{"@$=/2$}
     Succeeds if {\tt T1} and {\tt T2} are identical variables, or if
     the main structure symbols of {\tt T1} and {\tt T2} are identical.
 
-\standarditem{compare(?Op, +T1, +T2)}{compare/3}
+\isoitem{compare(?Op, +T1, +T2)}{compare/3}
     Succeeds if the result of comparing terms {\tt T1} and {\tt T2} 
     is {\tt Op}, where the possible values for {\tt Op} are:
     \begin{description}
@@ -175,7 +175,7 @@ variables. Associated hooks are not executed~\footnote{In \version ,
     Predicate {\tt compare/3} has no associated error conditions.
 
 \index{terms!cyclic}
-\standarditem{ground(+X)}{ground/1}
+\isoitem{ground(+X)}{ground/1}
 %
 Succeeds if {\tt X} is currently instantiated to a term that is
 completely bound (has no uninstantiated variables in it); otherwise it
@@ -321,7 +321,7 @@ the course of program evaluation due to variable aliasing, garbage
 collection, or other reasons.
 
 \begin{description}
-\standarditem{sort(+L1, ?L2)}{sort/2}
+\isoitem{sort(+L1, ?L2)}{sort/2}
     The elements of the list {\tt L1} are sorted into the standard order,
     and any identical (i.e.\ `==') elements are merged, yielding the 
     list~{\tt L2}.  The time to perform the sorting is $O(n log n)$ where 
@@ -340,9 +340,11 @@ collection, or other reasons.
     \begin{description}
     \item[{\tt instantiation\_error}]
 	Argument 1 of {\tt sort/2} is a variable or is not a proper list.
+    \item[{\tt type\_error}]
+	Argument 1 of {\tt sort/2} is a non-variable, non-list term.
     \end{description}
 
-\standarditem{keysort(+L1, ?L2)}{keysort/2} 
+\isoitem{keysort(+L1, ?L2)}{keysort/2} 
 %
 The list {\tt L1} must consist of elements of the form
 \verb'Key-Value'.  These elements are sorted into order according to
@@ -367,8 +369,10 @@ guaranteed to be stable in the presence of uninstantiated variables..
 {\bf Error Cases:}
 \begin{description} 
 \item[{\tt instantiation\_error}]
-     {\tt L1} {\tt keysort/2} is a variable or is not a proper
+     {\tt L1} is a variable or is not a proper
      list.  
+\item[{\tt type\_error}]
+     {\tt L1} is a non-variable, non-list term.
 \item[{\tt domain\_error(key\_value\_pair,Element)}] {\tt
      L1} contains an element {\tt Element} that is not of the
      form \verb'Key-Value'.  

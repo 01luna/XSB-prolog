@@ -3,7 +3,7 @@
 
 We define the term {\em exceptions} as errors in program execution
 that are handled by a non-local change in execution state.  Exception
-handling in XSB is ISO-compatable, and has been extended to handle
+handling in XSB is ISO-compatible, and has been extended to handle
 tabled evaluations.  
 
 \section{The Mechanics of Exception Handling}
@@ -16,7 +16,7 @@ extensions for tabling.
 The preferred mechanism for dealing with exceptions in XSB is to use
 the predicates {\tt catch/3}, {\tt throw/1}, and {\tt
   default\_user\_error\_handler/1} together.  These predicates are
-ISO-compatable, and their use can give a great deal of control to
+ISO-compatible, and their use can give a great deal of control to
 exception handling.  At a high level, when an exception is encountered
 an error term $T$ is {\em thrown}.  In a Prolog program, throwing an
 error term $T$ causes XSB to examine its choice point stack until it
@@ -394,16 +394,16 @@ backtrace~\footnote{If a program catches errors itself, error/3 may
 \item[error(instantiation\_error,Msg))] is the format of an ISO
   instantiation error.
 %
-\item [error(permission\_error(Op,Obj\_type,Culprit).Msg)] is the format of
+\item [error(permission\_error(Op,Obj\_type,Culprit),Msg)] is the format of
   an ISO permission error, for an operation {\tt Op} applied to an
   object of type {\tt Obj\_type}, where {\tt Culprit} was observed.
 %
-\item[error(representation\_error(Flag).Msg)] is the format of an ISO
+\item[error(representation\_error(Flag),Msg)] is the format of an ISO
   representation error (e.g., the maximum arity of a predicate has
   been exceeded), and {\tt Flag} is the type of representation error
   encountered.
 %
-\item[error(resource\_error(Flag).Msg)] is the format of an ISO
+\item[error(resource\_error(Flag),Msg)] is the format of an ISO
   resource error (e.g. allowed memory has been used, or too many files
   have been opened), and {\tt Flag} is the type of resource error
   encountered.

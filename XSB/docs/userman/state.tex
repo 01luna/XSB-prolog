@@ -56,7 +56,7 @@ mean the following:
 \ei
 \ei
 %
-%\compatability 
+%\compatibility 
 %
 %In XSB {\tt current\_input/1} does not throw an error if {\tt Stream}
 %is not a current input stream, but quietly fails instead.
@@ -74,7 +74,7 @@ mean the following:
 \ei
 \ei
 %
-\compatability 
+\compatibility 
 %
 In XSB {\tt current\_input/1} does not throw an error if {\tt Stream}
 is not a current input stream, but quietly fails instead.
@@ -137,7 +137,7 @@ ISO and Prolog-commons flags are as follows:
   Prolog.  The value is {\tt xsb}.
 \end{itemize}
 
-\compatability The ISO flags {\tt char\_conversion} is not available
+\compatibility The ISO flags {\tt char\_conversion} is not available
 -- XSB does not use character conversion.  XSB reads double quoted
 strings as lists of character codes, so that the value of the flag
 {\tt double\_quotes} is always {\tt codes}, and this flag is not
@@ -360,7 +360,7 @@ l([a|X]):- l(X).          l([a]).
   will produce a cyclic term {\tt X = f(f(f(f(...))))}; with the
   occurs check this unification will fail.  Setting the flag to {\tt
     on} may slow down programs, perhaps drastically, and may be
-  incompatable with some constraint libraries such as CHR.  An
+  incompatible with some constraint libraries such as CHR.  An
   alternate to this flag is the ISO predicate {\tt
     unify\_with\_occurs\_check/2}: see Section~\ref{sec:cyclic} for
     further discussion.  The default for this flag is {\tt off}.
@@ -603,7 +603,7 @@ user defined module, use:
 \ei
 \ei
 %
-\compatability
+\compatibility
 %
 In XSB, {\tt current\_predicate} will backtrack through system
 predicates as well as user predicates.

@@ -128,7 +128,7 @@ containing this operator requires an extra set of parentheses: {\tt
   assert((Head :- Body))}.
 
 \index{indexing}
-\isoitem{assert(+Clause)}{assert/1}
+\standarditem{assert(+Clause)}{assert/1}
 %
 If the index specification for the predicate is not {\tt trie}, this
 predicate adds a dynamic clause, {\tt Clause}, to the database {\em
@@ -220,7 +220,7 @@ later be reclaimed through garbage collection.  (See {\tt
 %
 \ei
 
-\standarditem{retractall(+Head)}{retractall/1} removes every
+\isoitem{retractall(+Head)}{retractall/1} removes every
 clause in the database whose head matches with {\tt Head}.  The
 predicate whose clauses have been retracted retains the {\tt dynamic}
 property (contrast this behavior with that of predicates {\tt
@@ -250,7 +250,7 @@ an error in such a case to prevent such a semantic inconsistency.
 Similarly, if there is a non-completed table for {\tt PredInd}, an
 error is thrown to prevent incompleteness in the tabled computation.
 
-\compatability \version{} of XSB allows static predicates to be
+\compatibility \version{} of XSB allows static predicates to be
 abolished and their space reclaimed.  Such space is reclaimed
 immediately, and unlike the case for abolished static code,  no check
 is made to ensure that XSB's choice point stack is free of choice
