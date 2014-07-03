@@ -290,8 +290,8 @@ enum Types_of_Trie_Nodes {
 #define IsEscapeNode(pTSC)	(TSC_Instr(pTSC) == trie_proceed)
 
 /* We could also have defined these this way...
-#define IsTrieRoot(pTSC)	(TSC_Instr(pTSC) == trie_root)
-#define IsHashHeader(pTSC)	(TSC_Instr(pTSC) == hash_opcode)
+-- #define IsTrieRoot(pTSC)	(TSC_Instr(pTSC) == trie_root)
+-- #define IsHashHeader(pTSC)	(TSC_Instr(pTSC) == hash_opcode)
 */
 
 /*

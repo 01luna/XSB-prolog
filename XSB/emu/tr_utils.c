@@ -102,6 +102,13 @@ double total_table_gc_time = 0;
 
 #endif
 
+//#define DEBUG_ABOLISH 1
+#ifdef DEBUG_ABOLISH
+#define abolish_print(X) printf X
+#else
+#define abolish_print(X) 
+#endif
+
 /*----------------------------------------------------------------------*/
 /* various utility predicates and macros */
 /*----------------------------------------------------------------------*/
@@ -2289,8 +2296,7 @@ Psc get_psc_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf)
 {
   TIFptr tif_ptr;
 
-  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf))) { 
-    //&& ((int) TN_Instr(pLeaf) != trie_fail_unlock) ) {
+  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) & ((int) TN_Instr(pLeaf) != trie_fail) ) {
     pLeaf = BTN_Parent(pLeaf);
   }
 
@@ -2311,8 +2317,7 @@ Psc get_psc_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf)
 VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf) 
 {
 
-  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) ) {
-    // &&  ((int) TN_Instr(pLeaf) != trie_fail_unlock) ) {
+  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) && ((int) TN_Instr(pLeaf) != trie_fail) ) {
     pLeaf = BTN_Parent(pLeaf);
   }
 
@@ -2642,7 +2647,6 @@ int abolish_table_call_cps_check(CTXTdeclc VariantSF subgoal) {
       // Below we want basic_answer_trie_tt, ts_answer_trie_tt
       trieNode = TrieNodeFromCP(cp_top1);
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
-	//      if (IsInAnswerTrie(trieNode)) {
 	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode)) 
 	  return CANT_RECLAIM;
       }
@@ -3060,7 +3064,6 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
     Psc psc;
     int action;
 
-    //    printf("in abolish_table_call_single\n");
     tif = subg_tif_ptr(subgoal);
     psc = TIF_PSC(tif);
 
@@ -3168,17 +3171,20 @@ void abolish_table_call(CTXTdeclc VariantSF subgoal, int invocation_flag) {
 
   start_table_gc_time(timer);
 
-  //  printf("in abolish_table_call\n");
+#ifdef DEBUG_ABOLISH
+  printf("abolish_table_call called: "); print_subgoal(stddbg, subgoal); printf("\n");
+#endif
+
   if (IsVariantSF(subgoal) 
       &&  (varsf_has_conditional_answer(subgoal) 
              && (invocation_flag == ABOLISH_TABLES_TRANSITIVELY 
    	          || !(invocation_flag == ABOLISH_TABLES_DEFAULT 
 		       && flags[TABLE_GC_ACTION] == ABOLISH_TABLES_SINGLY)))) {
-    //    printf("calling atc\n");
+    abolish_print(("calling atc_t\n"));
     abolish_table_call_transitive(CTXTc subgoal);
     }
   else {
-    //    printf("calling ats\n");
+    abolish_print(("calling atc_s\n"));
     abolish_table_call_single(CTXTc subgoal);
   }
 
@@ -3475,7 +3481,8 @@ static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_c
 inline void abolish_table_predicate_switch(CTXTdeclc TIFptr tif, Psc psc, int invocation_flag, 
 					  int cps_check_flag) {
 
-  //  printf("atps %s/%d\n",get_name(psc),get_arity(psc));
+  abolish_print(("abolish_table_pred called: %s/%d\n",get_name(psc),get_arity(psc)));
+
   if (get_variant_tabled(psc)
       && (invocation_flag == ABOLISH_TABLES_TRANSITIVELY 
 	  || (invocation_flag == ABOLISH_TABLES_DEFAULT 
@@ -4166,6 +4173,8 @@ void abolish_all_tables_cps_check(CTXTdecl)
       trieNode = TrieNodeFromCP(cp_top1);
       /* Here, we want call_trie_tt,basic_answer_trie_tt,ts_answer_trie_tt"*/
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	abolish_print(("[abolish_all_tables/0] Illegal table operation"
+		       "\n\t Backtracking through tables to be abolished.\n"));
 	xsb_abort("[abolish_all_tables/0] Illegal table operation"
 		  "\n\t Backtracking through tables to be abolished.");
       }
@@ -4191,6 +4200,8 @@ inline
 void abolish_all_tables(CTXTdeclc int action) {
   declare_timer
   TIFptr pTIF;
+
+  abolish_print(("abolish all tables called\n"));
 
   start_table_gc_time(timer);
 
