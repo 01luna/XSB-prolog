@@ -172,7 +172,7 @@ extern int table_status(CTXTdeclc Cell, TableStatusFrame*);
 
 #define is_trie_instruction(cp_inst) \
  ((int) cp_inst >= 0x5c && (int) cp_inst < 0x80) \
-	   || ((int) cp_inst >= 0x90 && (int) cp_inst < 0x94) 
+	   || ((int) cp_inst >= 0x90 && (int) cp_inst < 0x95) 
 
 
 #endif /* __TR_UTILS_H__ */

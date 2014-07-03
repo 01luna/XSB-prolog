@@ -2562,6 +2562,7 @@ static inline void unmark_delaylist_tabled_preds(CTXTdeclc CPtr dlist) {
   }
 }
 
+/* Used for predicate-level abolishes */
 void mark_cp_tabled_preds(CTXTdecl)
 {
   CPtr cp_top1,cp_bot1 ;
@@ -2578,7 +2579,8 @@ void mark_cp_tabled_preds(CTXTdecl)
     // asserted and interned tries
     if ( is_trie_instruction(cp_inst) ) {
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
        gc_mark_tif(tif);
       }
@@ -2604,7 +2606,8 @@ void unmark_cp_tabled_preds(CTXTdecl)
     // asserted and interned tries
     if ( is_trie_instruction(cp_inst) ) {
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
 	gc_unmark_tif(tif);
       }
@@ -2638,7 +2641,8 @@ int abolish_table_call_cps_check(CTXTdeclc VariantSF subgoal) {
     if ( is_trie_instruction(cp_inst) ) {
       // Below we want basic_answer_trie_tt, ts_answer_trie_tt
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode)) 
 	  return CANT_RECLAIM;
       }
@@ -2708,7 +2712,8 @@ void mark_cp_tabled_subgoals(CTXTdecl) {
       //  printf("found trie instruction %x %d\n",cp_inst,
       //                 TSC_TrieType(((BTNptr)string_val(*(cp_top1+CP_SIZE+1)))));
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	//	printf("is in answer trie\n");
 	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
 	//	printf("Marking ");print_subgoal(CTXTc stddbg, subgoal);printf("\n");
@@ -2736,7 +2741,8 @@ void unmark_cp_tabled_subgoals(CTXTdecl)
     // asserted and interned tries
     if ( is_trie_instruction(cp_inst) ) {
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
 	GC_UNMARK_SUBGOAL(subgoal);
       }
@@ -3334,7 +3340,8 @@ int abolish_table_pred_cps_check(CTXTdeclc Psc psc)
     if ( is_trie_instruction(cp_inst) ) {
       // Below we want basic_answer_trie_tt, ts_answer_trie_tt
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	if (psc == get_psc_for_answer_trie_cp(CTXTc trieNode)) {
 	  return CANT_RECLAIM;
 	}
@@ -3574,8 +3581,8 @@ void mark_tabled_preds(CTXTdecl) {
     // Want trie insts, but need to distinguish asserted and interned tries
     if ( is_trie_instruction(cp_inst) ) {
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
-
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	/* Check for predicate DelTFs */
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
 	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
@@ -3608,8 +3615,8 @@ void mark_private_tabled_preds(CTXTdecl) {
     // Want trie insts, but need to distinguish asserted and interned tries
     if ( is_trie_instruction(cp_inst) ) {
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode)) {
-
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	/* Check for predicate DelTFs */
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
 	if (!get_shared(TIF_PSC(tif))) {
@@ -3891,7 +3898,8 @@ int abolish_mt_tables_cps_check(CTXTdecl,xsbBool isPrivate)
     if ( is_trie_instruction(cp_inst) ) {
       trieNode = TrieNodeFromCP(cp_top1);
       // Below we want basic_answer_trie_tt, ts_answer_trie_tt
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
+	//      if (IsInAnswerTrie(trieNode)) {
 	if (get_private(get_psc_for_answer_trie_cp(CTXTc trieNode)) == isPrivate) {
 	  return CANT_RECLAIM;
 	}
@@ -4157,7 +4165,7 @@ void abolish_all_tables_cps_check(CTXTdecl)
     if ( is_trie_instruction(cp_inst)) {
       trieNode = TrieNodeFromCP(cp_top1);
       /* Here, we want call_trie_tt,basic_answer_trie_tt,ts_answer_trie_tt"*/
-      if (IsInAnswerTrie(trieNode)) {
+      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	xsb_abort("[abolish_all_tables/0] Illegal table operation"
 		  "\n\t Backtracking through tables to be abolished.");
       }
