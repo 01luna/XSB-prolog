@@ -251,7 +251,7 @@ DllExport void call_conv xsb_throw_error(CTXTdeclc char *message, char *error_ty
 #ifdef MULTI_THREAD
   char mtmessage[MAXBUFSIZE];
   int tid = xsb_thread_self();
-  th_context *th;
+  //  th_context *th;
   th = find_context(tid);
 #endif
 
