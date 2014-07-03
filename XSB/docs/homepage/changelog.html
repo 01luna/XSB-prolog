@@ -50,6 +50,7 @@ built-in predicate <tt>epoch_seconds/1</tt>,
 and <tt>module_of_term/2.</tt>  XSB's <tt>concat_atom/2</tt>, a
 generalization of the ISO <tt>atom_concat/2</tt> now also can be used
 to split atoms.</li>
+<li>A new library, <tt>prolog_db</tt> supports efficient meta-programming.</li>
 <li> Radial restraint is now available when XSB is embedded into a process.</li>
 </ul>
 <li><b> Bug fixes </b></li>
@@ -63,7 +64,8 @@ thread exit status. Finally, a bug in handling exceptions resulting from
 thread cancellation using a <tt>throw/1</tt> signal has been fixed.</li>
 <li> Made XSB's use of gpp safe for cyclic <tt>#include</tt> statements.</li>
 <li> Various fixes for Prolog-based conditional compilation.</li>
-<li> Better indexing when loading forest logs.</li>
+<li> Better indexing when loading forest logs.  A new
+option, <i>partial logging</i> is now also supported.</li>
 <li> <tt>format/[2,3]</tt> changed to better handle escaped characters.</li>
 </ul>
 </ul>
