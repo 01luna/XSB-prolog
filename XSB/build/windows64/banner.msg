@@ -1,3 +1,3 @@
-XSB Version 3.4.0 (Soy mILK) of May 1, 2013
+XSB Version 3.5.0 (Maotai) of July 6, 2013
 [x64-pc-windows; mode: optimal; engine: slg-wam; scheduling: local]
-[Patch date: 2013-12-14 22:31:35 -0500 (Sat, 14 Dec 2013)]
+[Patch date: 2014-07-03 17:24:44 -0400 (Thu, 03 Jul 2014)]
