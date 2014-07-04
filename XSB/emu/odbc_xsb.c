@@ -531,7 +531,7 @@ void ODBCConnect(CTXTdecl)
   UCHAR *connectIn;
   HDBC hdbc = NULL;
   RETCODE rc;
-  int new
+  int new;
 
   /* if we don't yet have an environment, allocate one.*/
   //locked to prevent two threads from fighting over who creates the env.
