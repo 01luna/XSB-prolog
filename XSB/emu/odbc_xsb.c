@@ -1062,6 +1062,7 @@ void SetBindVal(CTXTdecl)
 /*-----------------------------------------------------------------------------*/
 void Parse(CTXTdecl)
 {
+int xret;
 int j;
 struct ODBC_Cursor *cur = (struct ODBC_Cursor *)ptoc_int(CTXTc 2);
 RETCODE rc;
@@ -1130,7 +1131,8 @@ RETCODE rc;
     }
   }
   /* submit it for execution*/
-  if (SQLExecute(cur->hstmt) != SQL_SUCCESS) {
+  xret = SQLExecute(cur->hstmt);
+  if (xret != SQL_SUCCESS && xret != SQL_SUCCESS_WITH_INFO) {
     unify(CTXTc reg_term(CTXTc 3),PrintErrorMsg(CTXTc cur));
     SetCursorClose(cur);
     return;
