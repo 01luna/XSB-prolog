@@ -25,7 +25,7 @@ Usage:	xsb [flags] [-l]
                     -D : Sets top-level command loop driver to replace the default
                     -t : trace execution at the SLG-WAM instruction level
                          (for this to work, build XSB with the --debug option)
-                    -d : disassemble the module and exit
+                    -d : disassemble the module specified by the -B flag to stdout and exit
          -v, --version : print the version and configuration information about XSB
             -h, --help : print this help message
 
