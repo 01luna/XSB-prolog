@@ -58,13 +58,10 @@ static void dis_data_sub(FILE *, Pair *, char *);
 
 void dis(xsbBool distext)
 {  
-  FILE *filedes ;
-
-   filedes = fopen("stdout","w"); 
-   dis_data(filedes);
-   if (distext) dis_text(filedes);
-   fflush(filedes);
-   fclose(filedes); 
+   dis_data(stdout);
+   if (distext) dis_text(stdout);
+   fflush(stdout);
+   fclose(stdout); 
 }
 
 void dis_data(FILE *filedes)
