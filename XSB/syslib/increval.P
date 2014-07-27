@@ -123,14 +123,14 @@ incr_trans_depends(X,Y):-
 	 ;	instantiation_error(incr_trans_depends/2,'1 and 2','at least one nonvar')
 	).
 
-:- table trans_affects/2 as variant, incremental.
+:- table trans_affects/2 as variant, opaque.
 trans_affects(Call1,Call2):-
 	immed_affects(Call1,Call2).
 trans_affects(Call1,Call2):-
 	trans_affects(Call1,Call3),
 	immed_affects(Call3,Call2).
 
-:- table trans_depends/2 as variant, incremental.
+:- table trans_depends/2 as variant, opaque.
 trans_depends(Call1,Call2):-
 	immed_depends(Call1,Call2).
 trans_depends(Call1,Call2):-
