@@ -104,9 +104,9 @@ double total_table_gc_time = 0;
 
 //#define DEBUG_ABOLISH 1
 #ifdef DEBUG_ABOLISH
-#define abolish_print(X) printf X
+#define abolish_dbg(X) printf X
 #else
-#define abolish_print(X) 
+#define abolish_dbg(X) 
 #endif
 
 /*----------------------------------------------------------------------*/
@@ -2761,6 +2761,10 @@ void unmark_cp_tabled_subgoals(CTXTdecl)
 int abolish_table_call_incr(CTXTdeclc VariantSF subgoal) {
   declare_timer
 
+#ifdef DEBUG_ABOLISH
+  printf("abolish_table_call_incr: "); print_subgoal(stddbg, subgoal); printf("\n");
+#endif
+
   start_table_gc_time(timer);
   
   if(IsIncrSF(subgoal))
@@ -3180,11 +3184,11 @@ void abolish_table_call(CTXTdeclc VariantSF subgoal, int invocation_flag) {
              && (invocation_flag == ABOLISH_TABLES_TRANSITIVELY 
    	          || !(invocation_flag == ABOLISH_TABLES_DEFAULT 
 		       && flags[TABLE_GC_ACTION] == ABOLISH_TABLES_SINGLY)))) {
-    abolish_print(("calling atc_t\n"));
+    abolish_dbg(("calling atc_t\n"));
     abolish_table_call_transitive(CTXTc subgoal);
     }
   else {
-    abolish_print(("calling atc_s\n"));
+    abolish_dbg(("calling atc_s\n"));
     abolish_table_call_single(CTXTc subgoal);
   }
 
@@ -3481,7 +3485,7 @@ static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_c
 inline void abolish_table_predicate_switch(CTXTdeclc TIFptr tif, Psc psc, int invocation_flag, 
 					  int cps_check_flag) {
 
-  abolish_print(("abolish_table_pred called: %s/%d\n",get_name(psc),get_arity(psc)));
+  abolish_dbg(("abolish_table_pred called: %s/%d\n",get_name(psc),get_arity(psc)));
 
   if (get_variant_tabled(psc)
       && (invocation_flag == ABOLISH_TABLES_TRANSITIVELY 
@@ -4173,7 +4177,7 @@ void abolish_all_tables_cps_check(CTXTdecl)
       trieNode = TrieNodeFromCP(cp_top1);
       /* Here, we want call_trie_tt,basic_answer_trie_tt,ts_answer_trie_tt"*/
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
-	abolish_print(("[abolish_all_tables/0] Illegal table operation"
+	abolish_dbg(("[abolish_all_tables/0] Illegal table operation"
 		       "\n\t Backtracking through tables to be abolished.\n"));
 	xsb_abort("[abolish_all_tables/0] Illegal table operation"
 		  "\n\t Backtracking through tables to be abolished.");
@@ -4201,7 +4205,7 @@ void abolish_all_tables(CTXTdeclc int action) {
   declare_timer
   TIFptr pTIF;
 
-  abolish_print(("abolish all tables called\n"));
+  abolish_dbg(("abolish all tables called\n"));
 
   start_table_gc_time(timer);
 

@@ -23,6 +23,8 @@
 ** 
 */
 
+//#define mem_dbg(M) printf M
+#define mem_dbg(M) 
 
 /*======================================================================*/
 /* This module provides abstractions of memory management functions	*/
@@ -232,7 +234,7 @@ void *mem_calloc(size_t size, size_t occs, int category)
 
     ptr = (byte *) calloc(size,occs);
 #if defined(GENERAL_TAGGING)
-    extend_enc_dec_as_nec(ptr,ptr+length);
+    //    extend_enc_dec_as_nec(ptr,ptr+length);
 #endif
 #ifdef NON_OPT_COMPILE
     SYS_MUTEX_UNLOCK_NOERROR(MUTEX_MEM);
@@ -246,7 +248,8 @@ void *mem_calloc(size_t size, size_t occs, int category)
       pspace_tot_gl += length;
     }
 
-    //    printf("mem_calloced %d for tot %d (%s)\n",length,pspace_tot_gl,pspace_cat[category]);
+    //    mem_dbg(("mem_calloced %d for tot %ld (%s)\n",length,pspace_tot_gl,pspace_cat[category]));
+    mem_dbg(("mem_calloced %p to %p (%d; %s)\n",ptr,ptr+length,length,pspace_cat[category]));
 
     return ptr;
 }
@@ -355,7 +358,7 @@ void mem_dealloc(void *addr, size_t size, int category)
     //    if (size > 0) for (i=0; i<size/4-1; i++) *((CPtr *)addr + i) = (CPtr)0xefefefef;
 #endif
     pspacesize[category] -= size;
-    //    fbprintf(logfile,"alloc(mem_dealloc,%ld,'%p',%ld,%d).\n",alloc_cnt++,addr,size,category);
+    mem_dbg(("dealloc %p,%d\n",addr,size));
     pspace_tot_gl -= size;
 
     free(addr);

@@ -112,7 +112,7 @@ extern inline int sign(Float);
 /*======================================================================*/
 
 #ifndef GENERAL_TAGGING
-#if (defined(HP700) || defined(IBM) || defined(MIPS_BASED) || defined(SOLARIS_x86) || defined(LINUX))
+#if ((defined(HP700) || defined(IBM) || defined(MIPS_BASED) || defined(SOLARIS_x86) || defined(LINUX)) && !defined(BITS64))
 #define GENERAL_TAGGING
 #endif
 #endif
