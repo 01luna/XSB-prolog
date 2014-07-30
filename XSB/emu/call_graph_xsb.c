@@ -113,10 +113,15 @@ int unchanged_call_gl=0;
 // Maximum arity 
 static Cell cell_array1[500];
 
+/* These seem to be safely within the bounds of regular (non-small) structures) */
 Structure_Manager smCallNode  =  SM_InitDecl(CALL_NODE,CALLNODE_PER_BLOCK,"CallNode");
 Structure_Manager smCallList  =  SM_InitDecl(CALLLIST,CALLLIST_PER_BLOCK,"CallList");
 Structure_Manager smCall2List =  SM_InitDecl(CALL2LIST,CALL2LIST_PER_BLOCK,"Call2List");
+
+/* smKey is small -- need to to use SM_DeallocateSmallStruct */
 Structure_Manager smKey	      =  SM_InitDecl(KEY,KEY_PER_BLOCK,"HashKey");
+
+/* appears to be minimal size for regular (non-small) structure */
 Structure_Manager smOutEdge   =  SM_InitDecl(OUTEDGE,OUTEDGE_PER_BLOCK,"Outedge");
 
 
@@ -206,7 +211,7 @@ void deleteinedges(callnodeptr callnode){
     SM_DeallocateStruct(smCallList, in);      
     in = tmpin;
   }
-  SM_DeallocateStruct(smKey, ownkey);      
+  SM_DeallocateSmallStruct(smKey, ownkey);      
   return;
 }
 
@@ -261,7 +266,7 @@ void deallocate_previous_call(callnodeptr callnode){
   }
   
   SM_DeallocateStruct(smCallNode, callnode);      
-  SM_DeallocateStruct(smKey, ownkey);      
+  SM_DeallocateSmallStruct(smKey, ownkey);      
 }
 
 void initoutedges(callnodeptr cn){

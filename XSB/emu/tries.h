@@ -671,7 +671,7 @@ typedef struct callnodetag{
 #define is_fact_in_callgraph(Ptr)  (callnode_sf(Ptr) == 0)
 
 typedef struct key{
-	int goal;
+	prolog_int goal;
 } KEY;
 
 
