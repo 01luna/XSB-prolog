@@ -656,9 +656,16 @@ abolish_table_call_internal(Call,Action) :-
 	fail.
 abolish_table_call_internal(_Call,_Action).
 
-
 abolish_table_call_bi(_Handle,_Action) :-
 	'_$builtin'(ABOLISH_TABLE_CALL).
+
+abolish_nonincremental_tables(Option):- 
+     ((Option = on_incomplete(X) ; Option = [on_incomplete(X)]) -> 
+       (X = skip -> C_action = SKIP_ON_INCOMPLETE
+        ; (X = error -> C_action = ERROR_ON_INCOMPLETE
+           ; domain_error([skip,' error'],Option,abolish_nonincremental_tables,1,'') ) )
+           ; domain_error([on_incomplete/1],Option,abolish_nonincremental_tables,1,'') ),
+       table_inspection_function(ABOLISH_NONINCREMENTAL_TABLES,C_action,_Two,_Three,_Four).
 
 /*
  * delete_return(+TableEntryHandle,+ReturnHandle)

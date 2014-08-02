@@ -28,6 +28,7 @@
    abolish_table_call/1,       abolish_table_call/2, 
    abolish_table_pred/1,      abolish_table_pred/2,
    abolish_module_tables/1,
+   abolish_nonincremental_tables/1,
    add_incr_table/2, add_table/1,
    analyze_an_scc/2, analyze_an_scc/3,
    check_variant/1,  check_variant/2,
