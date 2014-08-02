@@ -2587,7 +2587,7 @@ void mark_cp_tabled_preds(CTXTdecl)
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
-       gc_mark_tif(tif);
+      gc_mark_tif(tif);
       }
     }
     mark_delaylist_tabled_preds(CTXTc cp_pdreg(cp_top1));
@@ -3381,8 +3381,7 @@ int abolish_table_pred_cps_check(CTXTdeclc Psc psc)
 
   Don't need a warning flag for this predicate -- it must always warn
 */
-static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check_flag) {
-  //void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check_flag) {
+static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check_flag,int incomplete_action_flag) {
   int action;
 
   if(get_incr(TIF_PSC(tif))) {  /* incremental */
@@ -3396,9 +3395,12 @@ static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check
     return ;
   }
 
-  if ( ! is_completed_table(tif) ) {
+  if ( !is_completed_table(tif) ) {
+    if (incomplete_action_flag == ERROR_ON_INCOMPLETE)
       xsb_abort("[abolish_table_pred] Cannot abolish incomplete table"
 		" of predicate %s/%d\n", get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
+    else 
+      return;
   }
 
  if (flags[CTRACE_CALLS])  { 
@@ -3483,7 +3485,7 @@ static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_c
 }  
 
 inline void abolish_table_predicate_switch(CTXTdeclc TIFptr tif, Psc psc, int invocation_flag, 
-					  int cps_check_flag) {
+					   int cps_check_flag, int incomplete_action_flag) {
 
   abolish_dbg(("abolish_table_pred called: %s/%d\n",get_name(psc),get_arity(psc)));
 
@@ -3493,7 +3495,7 @@ inline void abolish_table_predicate_switch(CTXTdeclc TIFptr tif, Psc psc, int in
 	      && flags[TABLE_GC_ACTION] == ABOLISH_TABLES_TRANSITIVELY))) {
     abolish_table_pred_transitive(CTXTc tif, cps_check_flag);
   }
-    else abolish_table_pred_single(CTXTc tif, cps_check_flag);
+  else abolish_table_pred_single(CTXTc tif, cps_check_flag,incomplete_action_flag);
 }
 
 /* When calling a_t_p_switch, cps_check_flag is set to true, to ensure a check. 
@@ -3513,7 +3515,8 @@ inline void abolish_table_predicate(CTXTdeclc Psc psc, int invocation_flag) {
 	      get_name(psc), get_arity(psc));
   }
 
-  abolish_table_predicate_switch(CTXTc tif, psc, invocation_flag, TRUE);
+  /* Check CPS stack = TRUE, ERROR if table is incomplete */
+  abolish_table_predicate_switch(CTXTc tif, psc, invocation_flag, TRUE,ERROR_ON_INCOMPLETE);
 
   end_table_gc_time(timer);
 
@@ -3759,8 +3762,6 @@ int gc_tabled_preds(CTXTdecl)
 /* abolish_module_tables() and supporting code */
 /*------------------------------------------------------------------*/
 
-/* - - - - - - - - - - */
-
 int abolish_usermod_tables(CTXTdecl)
 {
   size_t i;
@@ -3785,7 +3786,8 @@ int abolish_usermod_tables(CTXTdecl)
 	    !strcmp(get_name(get_data(psc)),"global")) 
 	  if (get_tabled(psc)) {
 	    tif = get_tip(CTXTc psc);
-	    abolish_table_predicate_switch(CTXTc tif, psc, ABOLISH_TABLES_SINGLY, FALSE);
+	    /* Check CPS stack = TRUE */
+	    abolish_table_predicate_switch(CTXTc tif, psc, ABOLISH_TABLES_SINGLY, FALSE,ERROR_ON_INCOMPLETE);
 	  }
     }
   }
@@ -3831,10 +3833,76 @@ int abolish_module_tables(CTXTdeclc const char *module_name)
     if (type == T_DYNA || type == T_PRED) 
       if (get_tabled(psc)) {
 	tif = get_tip(CTXTc psc);
-	abolish_table_predicate_switch(CTXTc tif, psc, ABOLISH_TABLES_SINGLY, FALSE);
+	abolish_table_predicate_switch(CTXTc tif, psc, ABOLISH_TABLES_SINGLY, FALSE,ERROR_ON_INCOMPLETE);
       }
     pair = pair_next(pair);
   }
+  unmark_cp_tabled_preds(CTXT);
+
+  end_table_gc_time(timer);
+  return TRUE;
+}
+
+/*----------------------------------------------------------------------*/
+/* abolish_nonincremental_tables() */
+/*------------------------------------------------------------------*/
+
+int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
+{
+  size_t i;
+  Pair modpair, pair;
+  byte type;
+  Psc psc, module;
+  TIFptr tif;
+  declare_timer
+
+  start_table_gc_time(timer);
+  
+  mark_cp_tabled_preds(CTXT);
+
+  abolish_dbg(("abolishing non-incremental tables\n"));
+
+  /********  first abolish tables in usermod *********/
+  
+  for (i=0; i<symbol_table.size; i++) {
+    if ((pair = (Pair) *(symbol_table.table + i))) {
+      byte type;
+      
+      psc = pair_psc(pair);
+      type = get_type(psc);
+      if (type == T_DYNA || type == T_PRED) 
+	if (!get_data(psc) || isstring(get_data(psc)) ||
+	    !strcmp(get_name(get_data(psc)),"usermod") ||
+	    !strcmp(get_name(get_data(psc)),"global")) 
+	  if (get_tabled(psc) && !get_incr(psc)) {
+	    tif = get_tip(CTXTc psc);
+	    //	    printf("abolishing %s\n",get_name(psc));
+	    abolish_table_pred_single(CTXTc tif, NO_CPS_CHECK,incomplete_action);
+	  }
+    }
+  }
+  /********  next, abolish tables not in usermod *********/
+  modpair = (Pair) flags[MOD_LIST];
+  
+  while (modpair && strcmp("usermod",get_name(pair_psc(modpair))) && strcmp("global",get_name(pair_psc(modpair)))) {
+    //    printf("abolishing %s\n",get_name(pair_psc(modpair)));
+    module = pair_psc(modpair);
+    pair = (Pair) get_data(module);
+
+    while (pair) {
+      psc = pair_psc(pair);
+      type = get_type(psc);
+      if (type == T_DYNA || type == T_PRED) 
+	/* Its ok to abolish brat_undefined and floundered_undefined -- just avoiding a warning. */
+	if (get_tabled(psc) && !get_incr(psc) && strcmp("brat_undefined",get_name(psc)) && strcmp("floundered_undefined",get_name(psc))) {
+	  tif = get_tip(CTXTc psc);
+	  abolish_table_pred_single(CTXTc tif, NO_CPS_CHECK,incomplete_action);
+	}
+      pair = pair_next(pair);
+    }
+    modpair = pair_next(modpair);
+  }
+
   unmark_cp_tabled_preds(CTXT);
 
   end_table_gc_time(timer);
@@ -3941,7 +4009,7 @@ void abolish_shared_tables(CTXTdecl) {
 
   for (abol_tif = tif_list.first ; abol_tif != NULL
 	 ; abol_tif = TIF_NextTIF(abol_tif) ) {
-	abolish_table_predicate_switch(CTXTc abol_tif, TIF_PSC(abol_tif), ABOLISH_TABLES_SINGLY, FALSE);
+    abolish_table_predicate_switch(CTXTc abol_tif, TIF_PSC(abol_tif), ABOLISH_TABLES_SINGLY, FALSE,ERROR_ON_INCOMPLETE);
   }
 
   unmark_cp_tabled_preds(CTXT);
@@ -3998,7 +4066,7 @@ void abolish_private_tables(CTXTdecl) {
   for (abol_tif = private_tif_list.first ; abol_tif != NULL
 	 ; abol_tif = TIF_NextTIF(abol_tif) ) {
     //    printf("calling %s\n",get_name(TIF_PSC(abol_tif)));
-    abolish_table_predicate_switch(CTXTc abol_tif, TIF_PSC(abol_tif), ABOLISH_TABLES_SINGLY, FALSE);
+    abolish_table_predicate_switch(CTXTc abol_tif, TIF_PSC(abol_tif), ABOLISH_TABLES_SINGLY, FALSE,ERROR_ON_INCOMPLETE);
   }
 
   unmark_cp_tabled_preds(CTXT);
@@ -4937,7 +5005,7 @@ extern int insert_some(struct hashtable*, void *, void *);
 void xsb_compute_ans_depends_scc(SCCNode * nodes,int * dfn_stack,int node_from, 
 				 int * dfn_top,struct hashtable* hasht,int * dfn,
 				 int * component ) {
-  int node_to; int j;
+  prolog_int node_to; int j;
   ASI asi; BTNptr ansLeaf;
   DL current_dl;     DE current_de;
 
@@ -4967,7 +5035,7 @@ void xsb_compute_ans_depends_scc(SCCNode * nodes,int * dfn_stack,int node_from,
 	//     (long) Child(subg_ans_root_ptr(de_subgoal(current_de))));
 	ansLeaf = Child(subg_ans_root_ptr(de_subgoal(current_de)));
       }
-      node_to = (int) search_some(hasht, (void *)ansLeaf);
+      node_to = (prolog_int) search_some(hasht, (void *)ansLeaf);
       //      printf("edge from %p to %p (%d)\n",(void *)nodes[node_from].node,sf,node_to);
       if (nodes[node_to].dfn == 0) {
 	xsb_compute_ans_depends_scc(nodes,dfn_stack,node_to, dfn_top,hasht,dfn,component );
@@ -5089,7 +5157,7 @@ forestLogBuffer forest_log_buffer_3;
 #endif
 
 Cell list_of_answers_from_answer_list(CTXTdeclc VariantSF sf,int as_length,int attv_length,ALNptr ALNlist) {
-  BTNptr leaf;
+  //  BTNptr leaf;
   Cell listHead;   CPtr argvec1,oldhreg=NULL;
   int i, isNew;   Psc ans_desig;
   ALNptr ansPtr;
@@ -5098,7 +5166,7 @@ Cell list_of_answers_from_answer_list(CTXTdeclc VariantSF sf,int as_length,int a
 
   //  print_subgoal(stdout, sf); printf("\n"); 
 
-  leaf = subg_leaf_ptr(sf);
+    //  leaf = subg_leaf_ptr(sf);
   ans_desig = get_ret_psc(2);
   ansPtr = ALNlist;
   undefPair = insert("brat_undefined", 0, pair_psc(insert_module(0,"xsbbrat")), &isNew); 
@@ -5595,6 +5663,11 @@ case CALL_SUBS_SLG_NOT: {
   case GET_RESIDUAL_SCCS: {
 
     return get_residual_sccs(CTXTc ptoc_tag(CTXTc 2));
+  }
+
+  case ABOLISH_NONINCREMENTAL_TABLES: {
+
+    return abolish_nonincremental_tables(CTXT ptoc_int(CTXTc 2));
   }
 
     //  case TEMP_FUNCTION: {

@@ -109,7 +109,7 @@ extern int interned_trie_cps_check(CTXTdeclc BTNptr);
 // extern xsbBool check_table_cut;
 
 extern void abolish_table_predicate(CTXTdeclc Psc, int);
-extern void abolish_table_predicate_switch(CTXTdeclc TIFptr, Psc, int, int);
+extern void abolish_table_predicate_switch(CTXTdeclc TIFptr, Psc, int, int,int);
 extern void abolish_table_call(CTXTdeclc VariantSF, int);
 extern void abolish_private_tables(CTXTdecl);
 extern void abolish_shared_tables(CTXTdecl);

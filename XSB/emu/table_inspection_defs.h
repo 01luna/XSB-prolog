@@ -47,7 +47,8 @@
 #define IMMED_ANS_DEPENDS_PTRLIST                23
 #define GET_RESIDUAL_SCCS                        24
 #define TEMP_FUNCTION                            25
-#define TEMP_FUNCTION_2                            26
+#define TEMP_FUNCTION_2                          26
+#define ABOLISH_NONINCREMENTAL_TABLES            27
 
 // For delete return
 #define ANSWER_SUBSUMPTION   0
@@ -60,3 +61,7 @@
 
 #define IS_SUBGOAL_FRAME 0
 #define IS_ASI           1
+
+#define ERROR_ON_INCOMPLETE 0
+#define SKIP_ON_INCOMPLETE  1
+

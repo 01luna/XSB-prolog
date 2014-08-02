@@ -61,6 +61,7 @@
 #include "term_psc_xsb_i.h"
 #include "ptoc_tag_xsb_i.h"
 #include "cell_xsb_i.h"
+#include "table_inspection_defs.h"
 
 /* --- routines used from other files ---------------------------------	*/
 
@@ -3745,7 +3746,7 @@ xsbBool db_abolish0(CTXTdecl/* R1: +PredEP , R2: +PSC */)
 		    "Cannot abolish tabled predicate when table is incomplete");
     } else {
       tif = get_tip(CTXTc psc);
-      abolish_table_predicate_switch(CTXTc tif, psc, (int)(flags[TABLE_GC_ACTION]), FALSE);
+      abolish_table_predicate_switch(CTXTc tif, psc, (int)(flags[TABLE_GC_ACTION]), FALSE,ERROR_ON_INCOMPLETE);
     }
   }
 
