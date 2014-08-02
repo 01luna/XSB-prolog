@@ -1955,7 +1955,7 @@ $A$ is thread-private or thread-shared.
 \ourstandarditem{abolish\_nonincremental\_tables(+Option)}{abolish\_nonincremental\_tables/1}{Tabling}
 %
 Abolishes all tables that are {\em not} declared to be incremental.
-Such a predicagte allows XSB to function in a manner similar to that
+Such a predicate allows XSB to function in a manner similar to that
 of a deductive database: incremental tables will be automatically
 updated when the data they depends on changes; while non-incremental
 tables, which may have become invalid, can be abolished.
@@ -1970,12 +1970,12 @@ The {\em Option} argument currently allows control of a single parameter:
   will be taken for any incomplete non-incremental table.  
 \ei 
 %
-The argument may be specified either as a list ({\tt
-  [on\_incomplete(...)]}) or as ({\tt on\_incomplete(...)}).
+The argument may be specified either as a list, i.e., {\tt
+  [on\_incomplete(...)]} or as {\tt on\_incomplete(...)}.
 
 Note that as currently implemented, {\tt
   abolish\_nonincremental\_tables/1} traverses through each tabled
-predicate, $Pred$, and if the $Pred$ has any incomplete subgoals, no
+predicate, $Pred$, and if  $Pred$ has any incomplete subgoals, no
 subgoals for $Pred$ will be abolished; rather {\tt
   abolish\_nonincremental\_tables/1} will skip over such subgoals,
 even if they are completed.
