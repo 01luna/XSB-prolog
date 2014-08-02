@@ -3388,7 +3388,7 @@ static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check
       xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
 		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
 	       get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
-    free_incr_hashtables(tif);
+      //    free_incr_hashtables(tif);  TLS: took out 201408 - this makes no sense to me.
   }
 
   if (IsVariantPredicate(tif) && IsNULL(TIF_CallTrie(tif))) {
