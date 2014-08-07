@@ -36,8 +36,6 @@ options=$2
 #------------------------------------------------- testing executable incremental decls.
 ../gentest.sh "$XEMU $options" test_declarations "test".
 #------------------------------------------------- testing executable incremental decls.
-../gentest.sh "$XEMU $options" test_tc "test".
-#--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_visitors "test."
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_lazy "test."
@@ -59,4 +57,10 @@ options=$2
 ../gentest.sh "$XEMU -l $options" test_iso_undef "test."
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_iso_attr "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU $options" test_tc "test".
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_abolish_nonincremental "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_abolish_incremental_call_single "test."
 #--------------------------------------------------

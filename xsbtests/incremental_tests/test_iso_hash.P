@@ -50,6 +50,7 @@ test_hash3:-
        retractall(answer(_)),
        th3(X,Y,Z),register(first(th3(X,Y,Z))),
        (dh3(_,9,_) -> true ; incr_assert(dh3(f(2),9,f(2)))),
+%       writeln(asserted),
        th3(X1,Y1,Z1),register(second(th3(X1,Y1,Z1))),
        fail.
 test_hash3:- validate(test_hash3(_)).

@@ -142,8 +142,6 @@ EOF
 ../gentest.sh "$XEMU -l $options" test_answer_sccs "test."
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_euv "test."
-#--------------------------------------------------
-../gentest.sh "$XEMU -l $options" test_abolish_nonincremental "test."
 
 #VALGRIND
 if test "$valgrind" = "true"; then
