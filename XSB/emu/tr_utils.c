@@ -78,6 +78,7 @@
 counter abol_subg_ctr,abol_pred_ctr,abol_all_ctr; /* statistics */
 
 /*----------------------------------------------------------------------*/
+extern int abolish_incremental_call_single(CTXTdeclc VariantSF,int);
 
 #include "ptoc_tag_xsb_i.h"
 #include "term_psc_xsb_i.h"
@@ -3448,7 +3449,7 @@ static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_c
       xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
 		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
 	       get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
-      free_incr_hashtables(tif);
+      //      free_incr_hashtables(tif);
     }
 
     if ( ! is_completed_table(tif) ) 
@@ -4384,7 +4385,8 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
       }
       //     printf("---- ");print_subgoal(CTXTc stdout, CallStrPtr) ; printf("\n");
      if(IsIncrSF(CallStrPtr)){
-      	abolish_incr_call(CTXTc subg_callnode_ptr(CallStrPtr));
+       abolish_incremental_call_single(CTXTc CallStrPtr,DONT_INVALIDATE);
+       //abolish_incr_call(CTXTc subg_callnode_ptr(CallStrPtr));
      }
      else if (IsVariantSF(CallStrPtr)) {
        SET_TRIE_ALLOCATION_TYPE_SF(CallStrPtr); // set smBTN to private/shared
@@ -5667,7 +5669,12 @@ case CALL_SUBS_SLG_NOT: {
 
   case ABOLISH_NONINCREMENTAL_TABLES: {
 
-    return abolish_nonincremental_tables(CTXT ptoc_int(CTXTc 2));
+    return abolish_nonincremental_tables(CTXTc ptoc_int(CTXTc 2));
+  }
+
+  case ABOLISH_INCREMENTAL_CALL_SINGLE: {
+
+    return abolish_incremental_call_single(CTXTc (VariantSF) ptoc_int(CTXTc 2),DO_INVALIDATE);
   }
 
     //  case TEMP_FUNCTION: {

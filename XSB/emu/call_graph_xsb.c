@@ -66,7 +66,9 @@
 //#include "tr_utils.h"
 #include "debug_xsb.h"
 
-#define INCR_DEBUG2
+//#define INCR_DEBUG
+//#define INCR_DEBUG1
+//#define INCR_DEBUG2
 
 extern int prolog_call0(CTXTdeclc Cell);
 extern int prolog_code_call(CTXTdeclc Cell, int);
@@ -151,16 +153,16 @@ static int equalkeys(void *k1, void *k2)
 
 
 /*****************************************************************************/
-
-void printcall(callnodeptr c){
-  //  printf("%d",c->id);
-  if(IsNonNULL(c->goal))
-    sfPrintGoal(stdout,c->goal,NO);
-  else
-    printf("fact");
-  return;
-}
-
+/* Obsolete: use print_callnode() in debug_xsb, which also prints leaves 
+ * void print_callnode_subgoal(callnodeptr c){
+ *   //  printf("%d",c->id);
+ *   if(IsNonNULL(c->goal))
+ *     sfPrintGoal(stdout,c->goal,NO);
+ *   else
+ *     printf("fact");
+ *   return;
+ * }
+*/
 /******************** GENERATION OF CALLED_BY GRAPH ********************/
 
 /* Creates a call node */
@@ -182,13 +184,14 @@ callnodeptr makecallnode(VariantSF sf){
   cn->id=call_count_gl++; 
   cn->outcount=0;
 
-  //    printcall(cn);printf("\n");
+  //    print_callnode(stddbg,cn);printf("\n");
 
   call_node_count_gl++;
   //  printf("makecallnode %p sf %p\n",cn,sf);
   return cn;
 }
 
+//---------------------------------------------------------------------------
 
 void deleteinedges(callnodeptr callnode){
   calllistptr tmpin,in;
@@ -203,6 +206,10 @@ void deleteinedges(callnodeptr callnode){
   while(IsNonNULL(in)){
     tmpin = in->next;
     hasht = in->inedge_node->hasht;
+#ifdef INCR_DEBUG1
+        printf("removing affects ptr from "); print_callnode(stddbg,in->inedge_node->callnode);
+        printf(" to "),print_callnode(stddbg,callnode);printf("\n");
+#endif
     //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
     if (remove_some(hasht,ownkey) == NULL) {
       xsb_abort("BUG: key not found for removal\n");
@@ -214,6 +221,74 @@ void deleteinedges(callnodeptr callnode){
   SM_DeallocateSmallStruct(smKey, ownkey);      
   return;
 }
+
+//---------------------------------------------------------------------------
+
+void deleteoutedges(callnodeptr callnode){
+  struct hashtable *h;                                                                                                     struct hashtable_itr *itr;                                                                                             
+  callnodeptr cn;
+  calllistptr in;
+  //  calllistptr * last;
+  calllistptr last;
+
+  h=callnode->outedges->hasht;
+  itr = hashtable1_iterator(h);
+  #ifdef INCR_DEBUG1
+  printf("before hashtable count %d\n",hashtable1_count(h));
+  #endif
+
+  if (hashtable1_count(h) > 0){
+    do {                                                                                                                 
+      cn = hashtable1_iterator_value(itr);        
+      #ifdef INCR_DEBUG1
+      printf("iterating ");print_callnode(stddbg,cn); printf("\n");
+      #endif
+      last = (cn->inedges);
+      in = cn->inedges;
+      while(IsNonNULL(in)){
+	if (in->inedge_node->callnode == callnode) {
+	  #ifdef INCR_DEBUG1
+	  printf("     found backpointer ");print_callnode(stddbg,in->inedge_node->callnode);printf("\n");
+	  #endif
+	  last->next =  in->next;  // need to deallcoate
+	  SM_DeallocateStruct(smCallList, in);      
+	  break;
+	}
+	in = in->next;
+      }
+    } while (hashtable1_iterator_advance(itr)); 
+    callnode->outcount = 0;  // hashtable will be deallocated in delete callnode
+  }
+}
+  
+
+  //  calllistptr tmpin,in;
+  
+  //  KEY *ownkey;
+  //  struct hashtable* hasht;
+  //  SM_AllocateStruct(smKey, ownkey);
+  //  ownkey->goal=callnode->id;	
+	
+  //  in = callnode->inedges;
+  
+  //  while(IsNonNULL(in)){
+  //    tmpin = in->next;
+  //    hasht = in->inedge_node->hasht;
+  //    Printf("removing affects ptr from "); print_callnode(stddbg,in->inedge_node->callnode);
+  //    printf(" to "),print_callnode(stddbg,callnode);printf("\n");
+  //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
+  //    if (remove_some(hasht,ownkey) == NULL) {
+  //      xsb_abort("BUG: key not found for removal\n");
+  //    }
+  //    call_edge_count_gl--;
+  //   SM_DeallocateStruct(smCallList, in);      
+  //    in = tmpin;
+  //  }
+  //  SM_DeallocateSmallStruct(smKey, ownkey);      
+  //  return;
+  //}
+
+//---------------------------------------------------------------------------
 
 /* used for abolishes -- its known that outcount is 0 */
 void deletecallnode(callnodeptr callnode){
@@ -273,7 +348,10 @@ void initoutedges(callnodeptr cn){
   outedgeptr out;
 
 #ifdef INCR_DEBUG
-	printf("Initoutedges %d\n",cn->id);
+  printf("Initoutedges for ");
+  print_callnode(CTXTc stddbg, cn);
+  printf(" (%d) \n",cn->id);
+  printf("affected_gl %p %p\n",affected_gl,*affected_gl);
 #endif
 
   SM_AllocateStruct(smOutEdge,out);
@@ -352,7 +430,10 @@ static void inline ecall3(calllistptr *list, call2listptr item){
 }
 
 void addcalledge(callnodeptr fromcn, callnodeptr tocn){
-  
+#ifdef INCR_DEBUG  
+  calllistptr temp; 
+#endif
+
   KEY *k1;
   SM_AllocateStruct(smKey, k1);
   k1->goal = tocn->id;
@@ -366,10 +447,11 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
     insert_some(fromcn->outedges->hasht,k1,tocn);
 
 #ifdef INCR_DEBUG	
+    printf("--------------------------------- addcalledge \n");
     printf("Inedges of %d = ",tocn->id);
     temp=tocn->inedges;
     while(temp!=NULL){
-      printf("\t%d",temp->inedge_node->callnode->id);
+      printf("   %d",temp->inedge_node->callnode->id);
       temp=temp->next;
     }
     printf("\n");
@@ -383,7 +465,7 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
     if(IsNonNULL(fromcn->goal)){
       sfPrintGoal(stdout,(VariantSF)fromcn->goal,NO);printf("(%d)",fromcn->id);
     }else
-      printf("(%d)",fromcn->id);
+      printf("  (%d)",fromcn->id);
     
     if(IsNonNULL(tocn->goal)){
       printf("-->");	
@@ -429,9 +511,15 @@ callnodeptr delete_calllist_elt(calllistptr *cl){
   calllistptr tmp;
   callnodeptr c;
 
+  #ifdef INCR_DEBUG1
+    printf(" in deallocate call list elt %p *%p\n",cl,*cl);
+  #endif
   c = (*cl)->item;
   tmp = *cl;
   *cl = (*cl)->next;
+  #ifdef INCR_DEBUG1
+  if (c) {printf("deleting from call list: "); print_callnode(stddbg, c); printf("\n");}
+  #endif
   //  printf("calllist %p item %p next %p\n",tmp,c,*cl);
   SM_DeallocateStruct(smCallList, tmp);      
   
@@ -439,11 +527,11 @@ callnodeptr delete_calllist_elt(calllistptr *cl){
 }
 
 /* Used to deallocate dfs-created call lists when encountering
-   visitors or incomlete tables. */
+   visitors or incomplete tables. */
 void deallocate_call_list(calllistptr cl)  {
     callnodeptr tmp_call;
 
-    //    fprintf(stddbg," in deallocate call list \n");
+    //    printf(" in deallocate call list %p *%p\n",cl,*cl);
     while ((tmp_call = delete_calllist_elt(&cl)) != EMPTY){
       ;
     }
@@ -454,11 +542,12 @@ void dfs_outedges_check_non_completed(CTXTdeclc callnodeptr call1) {
   char bufferb[MAXTERMBUFSIZE]; 
 
   if(IsNonNULL(call1->goal) && !subg_is_completed((VariantSF)call1->goal)){
-  deallocate_call_list(affected_gl);
-  sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
-  sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
-	  forest_log_buffer_1->fl_buffer);
-  xsb_new_table_error(CTXTc "incremental_tabling",bufferb,
+    if (affected_gl->item) deallocate_call_list(affected_gl);
+    //    printf("outedges affected_gl %p %p\n",affected_gl,*affected_gl);
+    sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
+    sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
+	    forest_log_buffer_1->fl_buffer);
+    xsb_new_table_error(CTXTc "incremental_tabling",bufferb,
 		      get_name(TIF_PSC(subg_tif_ptr(call1->goal))),
 		      get_arity(TIF_PSC(subg_tif_ptr(call1->goal))));
   }
@@ -573,7 +662,7 @@ void dfs_outedges(CTXTdeclc callnodeptr call1){
   h=call1->outedges->hasht;
   
   itr = hashtable1_iterator(h);       
-  if (hashtable1_count(h) > -1){
+  if (hashtable1_count(h) > 0){
     do {
       cn = hashtable1_iterator_value(itr);
       cn->falsecount++;
@@ -602,7 +691,10 @@ extern Cell list_of_answers_from_answer_list(VariantSF,int,int,ALNptr);
 extern CPtr hreg_pos;
 
 void find_the_visitors(CTXTdeclc VariantSF subgoal) {
-  CPtr cp_top1,cp_bot1 ; CPtr cp_root; CPtr cp_first;
+  CPtr cp_top1,cp_bot1 ; CPtr cp_root; 
+  #ifdef INCR_DEBUG1
+  CPtr cp_first;
+  #endif
   byte cp_inst; Cell listHead;
   int ans_subst_num, i, attv_num;
   BTNptr trieNode;
@@ -629,9 +721,14 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
 	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode))  {
 	  //	  printf("found top of run %p \n",cp_top1);
 	  //	  print_subgoal(CTXTc stdout, subgoal); printf("\n");
-	  cp_root = cp_top1; cp_first = cp_top1;
+	  cp_root = cp_top1; 
+	  #ifdef INCR_DEBUG1
+	  cp_first = cp_top1;
+	  #endif
 	  while (*cp_pcreg(cp_root) != trie_fail) {
+	  #ifdef INCR_DEBUG1
 	    cp_first = cp_root;
+	  #endif
 	    cp_root = cp_prevbreg(cp_root);
 	    if (*cp_pcreg(cp_root) != trie_fail && subgoal != get_subgoal_frame_for_answer_trie_cp(CTXTc TrieNodeFromCP(cp_root)))
 	      printf(" couldn't find incr trie root -- whoa, whu? (%p\n",cp_root);
@@ -639,7 +736,9 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
 	  ALNlist = traverse_variant_answer_trie(subgoal, cp_root,cp_top1);
 	  ans_subst_num = (int)int_val(cell(cp_root + CP_SIZE + 1)) ;  // account for sf ptr of trie root cp
 	  attv_num = (int)int_val(cell(breg+CP_SIZE+1+ans_subst_num)) + 1;;
-	  // printf("found root %p first %p top %p ans_subst_num %d & %p attv_num %d\n",cp_root,cp_first,cp_top1,ans_subst_num,breg+CP_SIZE, attv_num); 
+	  #ifdef INCR_DEBUG1
+	  printf("found root %p first %p top %p ans_subst_num %d & %p attv_num %d\n",cp_root,cp_first,cp_top1,ans_subst_num,breg+CP_SIZE, attv_num); 
+	  #endif
 	  listHead = list_of_answers_from_answer_list(subgoal,ans_subst_num,attv_num,ALNlist);
 	  // Free ALNlist;
 	  cp_pcreg(cp_top1) = (byte *) &completed_trie_member_inst;
@@ -1022,6 +1121,7 @@ int immediate_outedges_list(CTXTdeclc callnodeptr call1){
     if (hashtable1_count(h) > 0){
       do {
 	cn = hashtable1_iterator_value(itr);
+	//	printf("found outedge ");print_callnode(stddbg,cn);printf("\n");
 	if(IsNonNULL(cn->goal)){
 	  count++;
 	  subgoal = (VariantSF) cn->goal;      
@@ -1282,7 +1382,7 @@ call2listptr insert_cdbllist(call2listptr cl,callnodeptr n){
   return l;
 }
 
-void delete_callnode(call2listptr n){
+void remove_callnode_from_list(call2listptr n){
   n->next->prev=n->prev;
   n->prev->next=n->next;
 
@@ -1303,10 +1403,9 @@ void mark_for_incr_abol(callnodeptr c){
   callnodeptr c1;
 
 #ifdef INCR_DEBUG1 
-      printf("marking ");printcall(c);printf("\n");
+  printf("marking ");print_callnode(stddbg, c);printf("\n");
 #endif
 
-  
   c->deleted=1;
   markedlistptr=insert_cdbllist(marked_list_gl,c);
   if(c->outcount)
@@ -1324,6 +1423,9 @@ void mark_for_incr_abol(callnodeptr c){
 }
 
 
+//--------------------------------------------------------------------------------------------
+
+/* This is part of a "transitive abolish" to support eager recomputation */
 void delete_calls(CTXTdecl){
 
   call2listptr  n=marked_list_gl->next,temp;
@@ -1376,7 +1478,7 @@ void unmark(callnodeptr c){
   calllistptr in=c->inedges;
 
 #ifdef INCR_DEBUG1
-      printf("unmarking ");printcall(c);printf("\n");
+  printf("unmarking ");print_callnode(stddbg,c);printf("\n");
 #endif
   
   c->deleted=0;
@@ -1403,12 +1505,15 @@ void check_assumption_list(void){
     tempin=in->next;
     marked_ptr=in->item2;
     c=marked_ptr->item;
+#ifdef INCR_DEBUG1
+      printf("in check assumption ");print_callnode(stddbg,c);printf("\n");
+#endif
     if(c->outcount>0){
-      delete_callnode(marked_ptr);
+      remove_callnode_from_list(marked_ptr);
       SM_DeallocateStruct(smCall2List,marked_ptr);
 
 #ifdef INCR_DEBUG1
-      printf("in check assumption ");printcall(c);printf("\n");
+      printf("deleting ");print_callnode(stddbg,c);printf("\n");
 #endif
       
       if(c->deleted)   
@@ -1599,3 +1704,24 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
 }
 
+//--------------------------------------------------------------------------------------------
+
+int abolish_incremental_call_single(CTXTdeclc VariantSF goal, int invalidate_flag) {
+  TIFptr tif;
+  callnodeptr callnode = subg_callnode_ptr(goal);
+  //  printf("1affected_gl %p %p\n",affected_gl,*affected_gl);
+  //  printf("aics--------------\n");
+  if (invalidate_flag) {
+    invalidate_call(CTXTc callnode);
+  }
+  deleteoutedges(callnode);
+  deleteinedges(callnode);
+  deletecallnode(callnode);
+  SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
+  tif = subg_tif_ptr(goal);
+  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+  delete_variant_sf_and_answers(CTXTc goal,FALSE); // delete answers + subgoal
+	//  abolish_table_call(CTXTc goal,ABOLISH_TABLES_SINGLY);
+  //  printf("end aics\n");
+  return TRUE;
+}

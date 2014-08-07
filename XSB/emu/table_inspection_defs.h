@@ -49,6 +49,7 @@
 #define TEMP_FUNCTION                            25
 #define TEMP_FUNCTION_2                          26
 #define ABOLISH_NONINCREMENTAL_TABLES            27
+#define ABOLISH_INCREMENTAL_CALL_SINGLE          28
 
 // For delete return
 #define ANSWER_SUBSUMPTION   0
@@ -64,4 +65,8 @@
 
 #define ERROR_ON_INCOMPLETE 0
 #define SKIP_ON_INCOMPLETE  1
+
+// Used in abolish_table_call_single
+#define DONT_INVALIDATE   0
+#define DO_INVALIDATE     1
 
