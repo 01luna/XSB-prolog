@@ -4,7 +4,7 @@ Test of ISO incremental updating when traversal of hash structures is needed.
 
 :- compiler_options([spec_off,xpp_on]).
 #include "table_inspection_defs.h"
-:- import incr_assert_inval/1,incr_assert/1 from increval.
+:- import incr_assert_inval/1,incr_assert_immed/1 from increval.
 :- import variant/2 from subsumes.
 :- import numbervars/1 from num_vars.
 :- dynamic answer/1.
@@ -31,7 +31,7 @@ dh3(f(2),1,f(2)). dh3(f(2),2,f(2)). dh3(f(2),3,f(2)). dh3(f(2),4,f(2)). dh3(f(2)
 test_hash1:- 
        retractall(answer(_)),
        th1(X),register(first(t1(X))),
-       (dh1(10) -> true ; incr_assert(dh1(10))),
+       (dh1(10) -> true ; incr_assert_immed(dh1(10))),
        th1(Y),register(second(t1(Y))),
        fail.
 test_hash1:- validate(test_hash1(_)).
@@ -40,7 +40,7 @@ test_hash1([first(t1(1)),first(t1(2)),first(t1(3)),first(t1(4)),first(t1(5)),fir
 test_hash2:- 
        retractall(answer(_)),
        th2(X,Y,Z),register(first(th2(X,Y,Z))),
-       (dh2(_,10,_) -> true ; incr_assert(dh2(f(2),10,f(2)))),
+       (dh2(_,10,_) -> true ; incr_assert_immed(dh2(f(2),10,f(2)))),
        th2(X1,Y1,Z1),register(second(th2(X1,Y1,Z1))),
        fail.
 test_hash2:- validate(test_hash2(_)).
@@ -49,7 +49,7 @@ test_hash2([first(th2(f(2),1,f(2))),first(th2(f(2),2,f(2))),first(th2(f(2),3,f(2
 test_hash3:- 
        retractall(answer(_)),
        th3(X,Y,Z),register(first(th3(X,Y,Z))),
-       (dh3(_,9,_) -> true ; incr_assert(dh3(f(2),9,f(2)))),
+       (dh3(_,9,_) -> true ; incr_assert_immed(dh3(f(2),9,f(2)))),
 %       writeln(asserted),
        th3(X1,Y1,Z1),register(second(th3(X1,Y1,Z1))),
        fail.
@@ -120,7 +120,7 @@ test_heap:-
        retractall(answer(_)),
        th1(X),register(first(t1(X))),
        two_sols(_M),
-       (dh1(3) -> create_big_heap_structure(100,_H) ; incr_assert(dh1(3))),
+       (dh1(3) -> create_big_heap_structure(100,_H) ; incr_assert_immed(dh1(3))),
        th1(Y),register(second(t1(Y))),
        fail.
 test_heap:- validate(test1(_)).

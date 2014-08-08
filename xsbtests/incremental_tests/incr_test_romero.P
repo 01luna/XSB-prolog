@@ -2,7 +2,7 @@
 
 % Bug submitted by Javier Romero (and now fixed).
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-:- import incr_assert/1,incr_retractall/1,incr_assert_inval/1,
+:- import incr_assert_immed/1,incr_retractall/1,incr_assert_inval/1,
 incr_table_update/0,incr_retract_inval/1 from increval.
 % general declarations
 :- table legal/1 as incremental.
@@ -10,8 +10,8 @@ incr_table_update/0,incr_retract_inval/1 from increval.
 :- dynamic true/1 as incremental.
 :- dynamic does/1 as incremental.
 :- dynamic ffnext/1, ttnext/1 as incremental.
-?- incr_assert(true(cell(3,2,b))).
-?- incr_assert(true(cell(3,3,b))).
+?- incr_assert_immed(true(cell(3,2,b))).
+?- incr_assert_immed(true(cell(3,3,b))).
 tnext(cell(Vm,Vn,x)) :- does(mark(Vm,Vn)), true(cell(Vm,Vn,b)).
 tnext(cell(Vm,Vn,o)) :- does(mark(Vm,Vn)), true(cell(Vm,Vn,b)).
 fnext(cell(Vm,Vn,b)) :- does(mark(Vm,Vn)).

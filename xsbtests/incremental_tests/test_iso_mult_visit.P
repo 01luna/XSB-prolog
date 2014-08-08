@@ -4,7 +4,7 @@ Test of basic ISO updating with multiple visitors (multiple old subgoals).
 
 :- compiler_options([spec_off,xpp_on]).
 #include "table_inspection_defs.h"
-:- import incr_assert_inval/1,incr_assert/1 from increval.
+:- import incr_assert_inval/1,incr_assert_immed/1 from increval.
 :- import variant/2 from subsumes.
 :- import numbervars/1 from num_vars.
 %:- ensure_loaded(xsbbrat).
@@ -43,7 +43,7 @@ test101:-
        retractall(answer(_)),
        t1(X),register(first(t1(X))),
        t1(X1),register(second(t1(X,X1))),
-       (d1(3) -> true ; incr_assert(d1(3))),
+       (d1(3) -> true ; incr_assert_immed(d1(3))),
        t1(Y),register(third(t1(Y))),
        fail.
 test101:- validate(test101(_)).
@@ -53,7 +53,7 @@ test102:-
        retractall(answer(_)),
        t2(X),register(first(t2(X))),
        t2(X1),register(second(t2(X,X1))),
-       (d2(3) -> true ; incr_assert(d2(3))),
+       (d2(3) -> true ; incr_assert_immed(d2(3))),
        t2(Y),register(third(t2(Y))),
        fail.
 test102:- validate(test102(_)).
@@ -63,7 +63,7 @@ test103:-
        retractall(answer(_)),
        t3(X,Y),register(first(t3(X,Y))),
        t3(X2,Y2),register(first(t3(X,Y,X2,Y2))),
-       (d3(3) -> true ; incr_assert(d3(3))),
+       (d3(3) -> true ; incr_assert_immed(d3(3))),
        t3(X1,Y1),register(second(t3(X1,Y1))),
        fail.
 test103:- validate(test103(_)).
@@ -72,7 +72,7 @@ test103([first(t3(1,11)),first(t3(2,12)),first(t3(1,11,1,11)),first(t3(1,11,2,12
 test104:- retractall(answer(_)),
        t4(X,Y),register(first(t4(X,Y))),
        t4(X2,Y2),register(second(t4(X,Y,X2,Y2))),
-       (d4(4) -> true ; incr_assert(d4(4))),
+       (d4(4) -> true ; incr_assert_immed(d4(4))),
        t4(X1,Y1),register(third(t4(X1,Y1))),
        fail.
 test104:- validate(test104(_)).
@@ -81,7 +81,7 @@ test104([first(t4(1,11)),first(t4(2,12)),first(t4(3,13)),second(t4(1,11,1,11)),s
 test105:- retractall(answer(_)),
         t5(X),register(first(t5(X))),
         t5(X2),register(second(t5(X,X2))),
-        (d5(3) -> true ; incr_assert(d5(3))),
+        (d5(3) -> true ; incr_assert_immed(d5(3))),
         t5(Y),register(third(t5(Y))),
         fail.
 test105:- validate(test105(_)).
@@ -90,7 +90,7 @@ test105([first(t5(f(g(1)))),first(t5(f(g(2)))),second(t5(f(g(1)),f(g(1)))),secon
 test106:- retractall(answer(_)),
        t6(X,Y),register(first(t6(X,Y))),
        t6(X1,Y1),register(second(t6(X,Y,X1,Y1))),
-       (d6(3) -> true ; incr_assert(d6(3))),
+       (d6(3) -> true ; incr_assert_immed(d6(3))),
        t6(X2,Y2),register(third(t6(X2,Y2))),
        fail.
 test106:- validate(test106(_)).
@@ -99,7 +99,7 @@ test106([first(t6(1,1)),first(t6(2,2)),second(t6(1,1,1,1)),second(t6(1,1,2,2)),s
 test107:- retractall(answer(_)),
        t7(X,Y),register(first(t7(X,Y))),
        t7(X1,Y1),register(second(t7(X,Y,X1,Y1))),
-       (d7(3) -> true ; incr_assert(d7(3))),
+       (d7(3) -> true ; incr_assert_immed(d7(3))),
        t7(X2,Y2),register(third(t7(X2,Y2))),
        fail.
 test107:- validate(test107(_)).
@@ -115,7 +115,7 @@ test107([first(t7(1,_h333)),first(t7(2,_h400)),
 test108:- retractall(answer(_)),
        t8(X,X),register(first(t8(X,X))),
        t8(X1,X1),register(second(t8(X,X,X1,X1))),
-       (d8(3) -> true ; incr_assert(d8(3))),
+       (d8(3) -> true ; incr_assert_immed(d8(3))),
        t8(X2,X2),register(third(t8(X2,X2))),
        fail.
 test108:- validate(test108(_)).
@@ -124,7 +124,7 @@ test108([first(t8(1,1)),first(t8(2,2)),second(t8(1,1,1,1)),second(t8(1,1,2,2)),s
 test109:- retractall(answer(_)),
        t9(X,Y),register(first(t9(X,Y))),
        t9(X2,Y2),register(second(t9(X,Y,X2,Y2))),
-       (d9(3) -> true ; incr_assert(d9(3))),
+       (d9(3) -> true ; incr_assert_immed(d9(3))),
        t9(X1,Y1),register(third(t9(X1,Y1))),
        fail.
 test109:- validate(test109(_)).
@@ -144,7 +144,7 @@ test109([first(t9(1,1)),first(t9(f(2),f(2))),first(t9([h(_h694,_h694)],[h(_h694,
 test110:- retractall(answer(_)),
        t10(X),register(first(t10(X))),
        t10(X2),register(second(t10(X,X2))),
-       (d10(g(2)) -> true ; incr_assert(d10(g(2)))),
+       (d10(g(2)) -> true ; incr_assert_immed(d10(g(2)))),
        t10(X1),register(third(t10(X1))),
        fail.
 test110:- validate(test110(_)).
@@ -157,7 +157,7 @@ test110([first(t10(f(1))),first(t10(f(2))),first(t10(g(1))),
 test111:- retractall(answer(_)),
        t11(X,f([1]),Y),register(first(t11(X,Y))),
        t11(X1,f([1]),Y1),register(second(t11(X,Y,X1,Y1))),
-       (d11(g(2),_,g(2)) -> true ; incr_assert(d11(g(2),_,g(2)))),
+       (d11(g(2),_,g(2)) -> true ; incr_assert_immed(d11(g(2),_,g(2)))),
        t11(X2,f([1]),Y2),register(third(t11(X2,Y2))),
        fail.
 test111:- validate(test111(_)).
@@ -276,7 +276,7 @@ test_heap:-
        retractall(answer(_)),
        th1(X),register(first(t1(X))),
        two_sols(_M),
-       (dh1(3) -> create_big_heap_structure(100,_H) ; incr_assert(dh1(3))),
+       (dh1(3) -> create_big_heap_structure(100,_H) ; incr_assert_immed(dh1(3))),
        th1(Y),register(second(t1(Y))),
        fail.
 test_heap:- validate(test1(_)).

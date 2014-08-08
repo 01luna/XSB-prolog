@@ -1,7 +1,7 @@
 ------
 ------
 ------
-caught_misc_error
+caught_permission_error
 phase1(incr(1))
 phase1(incr(2))
 phase1(non_incr(1))

@@ -1,4 +1,4 @@
-:- import incr_assert/1,incr_retractall/1,incr_assert_inval/1,
+:- import incr_assert_immed/1,incr_retractall_immed/1,incr_assert_inval/1,
 	  incr_table_update/0,incr_retract_inval/1 from increval.
 
 
@@ -16,9 +16,9 @@ test_seq:- test2.
 % direct dependency
 test1:- assert(qat(a,1)),assert(qat(b,2)),assert(qat(c,5)),assert(qat(d,7)),fail.
 test1:- pat(X,Y),incr_writeln(first_pat(X,Y)),fail.
-test1:- incr_assert(qat(d,4)),fail.
+test1:- incr_assert_immed(qat(d,4)),fail.
 test1:- pat(X,Y),incr_writeln(second_pat(X,Y)),fail.
-test1:- incr_retractall(qat(a,_X)),fail.
+test1:- incr_retractall_immed(qat(a,_X)),fail.
 test1:- pat(X,Y),incr_writeln(third_pat(X,Y)),fail.
 test1:- incr_retract_inval(qat(b,_X)),fail.
 test1:- get_residual(pat(X,Y),_),incr_writeln(fourth_pat(X,Y)),fail.
@@ -30,9 +30,9 @@ test1.
 
 % transitive dependency
 test2:- nat(X,Y),incr_writeln(first_n(X,Y)),fail.
-test2:- incr_assert(qat(f,4)),fail.
+test2:- incr_assert_immed(qat(f,4)),fail.
 test2:- nat(X,Y),incr_writeln(second_n(X,Y)),fail.
-test2:- incr_retractall(qat(d,_X)),fail.
+test2:- incr_retractall_immed(qat(d,_X)),fail.
 test2:- nat(X,Y),incr_writeln(third_n(X,Y)),fail.
 test2:- incr_retract_inval(qat(e,_X)),fail.
 test2:- get_residual(nat(X,Y),_),incr_writeln(fourth_n(X,Y)),fail.

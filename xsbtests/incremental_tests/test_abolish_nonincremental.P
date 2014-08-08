@@ -19,7 +19,7 @@ test:- incomp_table(3),fail.
 test:- get_residual(incr(X),_),writeln(phase4(incr(X))),fail.
 test:- get_residual(non_incr(X),_),writeln(phase4(non_incr(X))),fail.
 test:- get_residual(incomp_table(X),_),writeln(phase4(incomp_table(X))),fail.
-test:- catch(incomp_table_err(_),E,(arg(1,E,misc_error),writeln(caught_misc_error))),fail.
+test:- catch(incomp_table_err(_),E,(arg(1,E,Term),functor(Term,permission_error,_A),writeln(caught_permission_error))),fail.
 test.
 
 reset:- non_incr(_),fail.

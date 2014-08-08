@@ -1,7 +1,7 @@
 
 :- table t_inc_1/1 as incremental.
 :- dynamic p/1 as incremental.
-:- import incr_invalidate_call/1, incr_table_update/0, incr_assert/1, incr_retract/1 from increval.
+:- import incr_invalidate_call/1, incr_table_update/0, incr_assert/1, incr_retract_immed/1 from increval.
 :- import get_visitors_number/2 from tables.
 
 test:- test_1.
@@ -43,7 +43,7 @@ get_term_visitors(Term,N):-
 
 
 q(X):- t_inc_1(X),
-       incr_retract(p(2)).
+       incr_retract_immed(p(2)).
 %       retractall_p.
 
 bad_2:- t_inc_4(_X),fail.
@@ -55,7 +55,7 @@ bad_3:- writeln(first_clause_done),t_inc_5(X),writeln(t_inc_5(X)),fail.
 
 retractall_p:-
 	writeln(here),
-	p(X),incr_retract(p(X)),fail.
+	p(X),incr_retract_immed(p(X)),fail.
 retractall_p.
 
 t_inc_1(X):- p(X).
@@ -77,6 +77,6 @@ inc_7(X):- t_inc_1(X),t_inc_1(X).
 
 test_deps(X):- 
 	    t_inc_5(X),
-	    incr_retract(p(2)).
+	    incr_retract_immed(p(2)).
 	    
 

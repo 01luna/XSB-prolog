@@ -1,7 +1,7 @@
 
 :- dynamic p/1 as incremental.
 :- dynamic q/1 as incremental.
-:- import incr_invalidate_call/1, incr_table_update/0, incr_assert/1, incr_retract/1 from increval.
+:- import incr_invalidate_call/1, incr_table_update/0, incr_assert/1, incr_retract_immed/1 from increval.
 :- import incr_assert_inval/1 from increval.
 :- import incr_retract_inval/1 from increval.
 :- import lazy_reeval/1 from increval.
@@ -81,7 +81,7 @@ inc_7(X):- t_inc_1(X),t_inc_1(X).
 
 test_deps(X):- 
 	    t_inc_5(X),
-	    incr_retract(p(2)).
+	    incr_retract_immed(p(2)).
 	    
 
 :- table dag_1/1, dag_2/1, dag_3/1 as incremental.
@@ -120,6 +120,6 @@ test_recompute:- t_inc_5(X),writeln(two(X)),fail.
 
 retractall_p:-
 	writeln(here),
-	p(X),incr_retract(p(X)),fail.
+	p(X),incr_retract_immed(p(X)),fail.
 retractall_p.
 

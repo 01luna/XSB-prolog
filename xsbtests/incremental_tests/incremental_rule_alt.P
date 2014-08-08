@@ -1,7 +1,5 @@
 
-:- import incr_assert/1,incr_retractall/1,incr_retract/1,
-	  incr_assert_inval/1,incr_retract_inval/1,
-	  incr_table_update/0 from increval.
+:- import incr_assert_immed/1,incr_retract_immed/1 from increval.
 
 /* This prevents a spurious error for executing incremental under the
     mt engine, which does not yet support incremental tabling. */
@@ -12,13 +10,13 @@ test:-
 	 ;  test_seq).
 
 test_seq:- t(X),write(incr(first_t(X))),writeln('.'),fail.
-test_seq:- incr_assert((p(X):- f(1,X))),fail.
+test_seq:- incr_assert_immed((p(X):- f(1,X))),fail.
 test_seq:- t(X),write(incr(second_t(X))),writeln('.'),fail.
-test_seq:- incr_retract((p(X):- f(1,X))),fail.
+test_seq:- incr_retract_immed((p(X):- f(1,X))),fail.
 test_seq:- t(X),write(incr(third_t(X))),writeln('.'),fail.
-test_seq:- incr_retract(p(1)),fail.
+test_seq:- incr_retract_immed(p(1)),fail.
 test_seq:- t(X),write(incr(fourth_t(X))),writeln('.'),fail.
-test_seq:- incr_assert((p(X):- f(1,X))),fail.
+test_seq:- incr_assert_immed((p(X):- f(1,X))),fail.
 test_seq:- t(X),write(incr(fifth_t(X))),writeln('.'),fail.
 test_seq.
 

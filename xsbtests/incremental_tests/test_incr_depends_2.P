@@ -59,8 +59,8 @@ test_recompute:- t_inc_5(X),writeln(one(X)),fail.
 test_recompute:- incr_assert_inval(p(3)),fail.
 test_recompute:- t_inc_5(X),writeln(two(X)),fail.
 
-retractall_p:-
-	writeln(here),
-	p(X),incr_retract(p(X)),fail.
-retractall_p.
+%retractall_p:-
+%	writeln(here),
+%	p(X),incr_retract_immed(p(X)),fail.
+%retractall_p.
 

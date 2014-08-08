@@ -1,4 +1,4 @@
-:- import incr_assert/1,incr_retractall/1,incr_assert_inval/1,
+:- import incr_assert_immed/1,incr_retractall_immed/1,incr_assert_inval/1,
 	  incr_table_update/0,incr_retract_inval/1 from increval.
 
 test_seq:- test1,fail.
@@ -6,9 +6,9 @@ test_seq:- test2.
 
 % direct dependency
 test1:- p(X,Y),incr_writeln(first_p(X,Y)),fail.
-test1:- incr_assert(q(d,4)),fail.
+test1:- incr_assert_immed(q(d,4)),fail.
 test1:- p(X,Y),incr_writeln(second_p(X,Y)),fail.
-test1:- incr_retractall(q(a,_X)),fail.
+test1:- incr_retractall_immed(q(a,_X)),fail.
 test1:- p(X,Y),incr_writeln(third_p(X,Y)),fail.
 test1:- incr_retract_inval(q(b,_X)),fail.
 test1:- get_residual(p(X,Y),_),incr_writeln(fourth_p(X,Y)),fail.
@@ -20,9 +20,9 @@ test1.
 
 % transitive dependency
 test2:- n(X,Y),incr_writeln(first_n(X,Y)),fail.
-test2:- incr_assert(q(f,4)),fail.
+test2:- incr_assert_immed(q(f,4)),fail.
 test2:- n(X,Y),incr_writeln(second_n(X,Y)),fail.
-test2:- incr_retractall(q(d,_X)),fail.
+test2:- incr_retractall_immed(q(d,_X)),fail.
 test2:- n(X,Y),incr_writeln(third_n(X,Y)),fail.
 test2:- incr_retract_inval(q(e,_X)),fail.
 test2:- get_residual(n(X,Y),_),incr_writeln(fourth_n(X,Y)),fail.
