@@ -313,8 +313,8 @@ not be accessed before further updates are made.
 
 \subsubsection{An Immediate Approach}
 %
-A final approach is to use the predicates {\tt incr\_assert\_update/1}
-and {\tt incr\_retract(all)\_update/1}, which force immedidate updates
+A final approach is to use the predicates {\tt incr\_assert\_immed/1}
+and {\tt incr\_retract(all)\_immed/1}, which force immedidate updates
 of invalidated tables.  While simple, this approach should only be
 used in special circumstances, as calling {\tt incr\_assert\_update/1}
 twice could cause tables to be updated twice rather than once.
@@ -347,12 +347,12 @@ in~
 %
 In XSB, tables can have numerous properties: such as {\em subsumptive,
   variant, incremental, opaque, dynamic, private}, and {\em shared},
-and can use answer subsumption or call abstraction.  XSB also has
-variations in forms of dynamic predicates: {\em tabled, incremental,
-  private}, and {\em shared}.  XSB extends the {\tt table} and {\tt
-  dynamic} compiler and executable directives with modifiers that
-allow users to indicate the kind of tabled or dynamic predicate they
-want.  For example,
+and can use answer subsumption, answer abstraction or call
+abstraction.  XSB also has variations in forms of dynamic predicates:
+{\em tabled, incremental, private}, and {\em shared}.  XSB extends the
+{\tt table} and {\tt dynamic} compiler and executable directives with
+modifiers that allow users to indicate the kind of tabled or dynamic
+predicate they want.  For example,
 %
 \begin{verbatim}
 :- table p/3,s/1 as subsumptive,private.
@@ -374,8 +374,9 @@ abstraction, answer abstraction, and well-founded negation.  However
 several combinations involving incremental tabling are not supported
 and will throw an error (cf. page \pageref{table-declaration} and page
 \pageref{dynamic-declaration}, respectively). Incremental tabling has
-not yet been ported to the multi-threaded engine and and it currently
-works only for predicates that use both call and answer variance.
+not yet been ported to the multi-threaded engine and it currently does
+{\em not} works for predicates that use call subsumption or answer
+subsumption.
 
 \index{tries!and incremental tabling}
 \subsection{Incremental Tabling using Interned Tries} \label{sec:incr-update-tries}
@@ -391,7 +392,6 @@ table is declared as such:
 %
 \begin{verbatim}
 :- table p/2 as incremental.
-p(X,Y) :- trie_interned(q(X,Y),inctrie),Y =< 5.
 \end{verbatim}
 %
 However, the declaration for dynamic data changes: rather than using
@@ -417,6 +417,8 @@ may then be initially loaded:
 At this stage a query to {\tt p/2} acts as before:
 %
 \begin{verbatim}
+p(X,Y) :- trie_interned(q(X,Y),inctrie),Y =< 5.
+
 | ?- p(X,Y),writeln([X,Y]),fail.
 [c,5]
 [b,3]
@@ -543,7 +545,7 @@ cannot be.  Also, currently only depth 0 abstraction is supported.
 
 \subsection{Summary and Implementation Status}
 %
-When using incremental tabling an application will most commonly need
+When using incremental tabling, an application will most commonly need
 only the default transparent approach, although in special
 circumstances eager updating may be desired.  The main design choices
 are as usual what to table, and also what dynamic predicates or tries
@@ -552,7 +554,7 @@ may be made through a mixture of subgoal abstraction and dynamic
 predicate abstraction.  This optimization can be informed by use of
 {\tt statistics/0} which includes summary information about the IDG,
 or using the IDG inspection predicates of
-Section~\ref{sec:incr-preds1} if more details is needed.
+Section~\ref{sec:incr-preds1} if more details are needed.
 
 %Thus the user has four choices: tables may be
 %updated as soon as the database is changed (e.g., via {\tt
@@ -677,18 +679,18 @@ and {\tt retractall/1} with the additional error condition:
 \ei
 \end{itemize}
 
-\ourrepeatmoditem{incr\_assert\_update(+Clause)}{incr\_assert\_update/1}{increval}
-\ourrepeatmoditem{incr\_assertz\_update(+Clause)}{incr\_assertz\_update/1}{increval}
-\ourrepeatmoditem{incr\_asserta\_update(+Clause)}{incr\_asserta\_update/1}{increval}\
-\ourrepeatmoditem{incr\_retractall\_update(+Clause)}{incr\_retractall\_update/1}{increval}
-\ourmoditem{incr\_retract\_update(+Term)}{incr\_retract\_update/1}{increval}
+\ourrepeatmoditem{incr\_assert\_immed(+Clause)}{incr\_assert\_immed/1}{increval}
+\ourrepeatmoditem{incr\_assertz\_immed(+Clause)}{incr\_assertz\_immed/1}{increval}
+\ourrepeatmoditem{incr\_asserta\_immed(+Clause)}{incr\_asserta\_immed/1}{increval}\
+\ourrepeatmoditem{incr\_retractall\_immed(+Clause)}{incr\_retractall\_immed/1}{increval}
+\ourmoditem{incr\_retract\_immed(+Term)}{incr\_retract\_immed/1}{increval}
 %
 are versions of {\tt assert/1} and other standard Prolog predicates.
 They modify dymamic code just as their Prolog counterparts, mark any
 incrementally maintained tables that depend on the modification as
 invalid, then immediately update these tables.
 %  The tables may be updated by an
-%explicit call to {\tt incr\_table\_update/[0,1,2]}, or the table will
+%explicit call to {\tt incr\_table\_immed/[0,1,2]}, or the table will
 %be dynamically recomputed when a query is made to it.
 
 \ourmoditem{incr\_table\_update}{incr\_table\_update/0}{increval} may
@@ -781,15 +783,15 @@ incremental.  A call to this predicate removes all terms unifying with
 {\tt Term} in {\tt TrieIdOrAlias} and then invalidates all
 incrementally maintained tables that depend on this trie.
 
-\ourmoditem{incr\_trie\_intern\_update(+TrieIdOrAlias,+Term)}
-           {incr\_trie\_intern\_update/2}{intern}
+\ourmoditem{incr\_trie\_intern\_immed(+TrieIdOrAlias,+Term)}
+           {incr\_trie\_intern\_immed/2}{intern}
 %
 works for tries declared as incremental in a similar manner as {\tt
   incr\_trie\_intern/2} except that it also immediatesly updates any
 affected tables.
 
-\ourmoditem{incr\_trie\_uninternall\_inval(+TrieIdOrAlias,+Term)}
-{incr\_trie\_uninternall\_inval/2}{intern}
+\ourmoditem{incr\_trie\_uninternall\_immed(+TrieIdOrAlias,+Term)}
+{incr\_trie\_uninternall\_immed/2}{intern}
 %
 works for tries declared as incremental in a similar manner as {\tt
   incr\_trie\_uninternall/2} except that it also immediately updates
