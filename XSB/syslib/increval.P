@@ -152,27 +152,13 @@ incr_invalidate_call(Call) :-
 	fail.
 incr_invalidate_call(_Call).
 
-incr_assert(Term) :-
-	incr_assert_inval(Term,1,1),
-	incr_table_update.
+%--------
 
-incr_asserta(Term) :-
-	incr_assert_inval(Term,0,1),
-	incr_table_update.
+incr_assert(Term) :- incr_assert(Term,1,1).
+incr_asserta(Term) :- incr_assert(Term,0,1).
+incr_assertz(Term) :- incr_assert(Term,1,1).
 
-incr_assertz(Term) :-
-	incr_assert_inval(Term,1,1),
-	incr_table_update.
-
-incr_assert_inval(Term) :- incr_assert_inval(Term,1,1).
-incr_asserta_inval(Term) :- incr_assert_inval(Term,0,1).
-incr_assertz_inval(Term) :- incr_assert_inval(Term,1,1).
-
-incr_assert(Term,AZL,Index) :-
-	incr_assert_inval(Term,AZL,Index),
-	incr_table_update.
-
-incr_assert_inval(Term,AZL,Index):-
+incr_assert(Term,AZL,Index):-
 	(Term = (:-(H,_)) -> Head = H ; Head = Term),
 	check_incremental(Head,dynamic_incremental_predicate,incr_assert,1),
 	assert(Term,AZL,Index),
@@ -183,11 +169,34 @@ incr_assert_inval(Term,AZL,Index):-
 	 true
 	).
 
-incr_retractall(Term) :-
-	incr_retractall_inval(Term),
+incr_assert_immed(Term) :-
+	incr_assert(Term,1,1),
 	incr_table_update.
 
-incr_retractall_inval(Term):-
+incr_asserta_immed(Term) :-
+	incr_assert(Term,0,1),
+	incr_table_update.
+
+incr_assertz_immed(Term) :-
+	incr_assert(Term,1,1),
+	incr_table_update.
+
+%Obsolete or unneded 
+
+incr_assert_inval(Term) :- incr_assert(Term,1,1).
+incr_asserta_inval(Term) :- incr_assert(Term,0,1).
+incr_assertz_inval(Term) :- incr_assert(Term,1,1).
+
+incr_assert_inval(Term,AZL,Index):-
+	incr_assert(Term,AZL,Index).
+
+%incr_assert_immed(Term,AZL,Index) :-
+%	incr_assert(Term,AZL,Index),
+%	incr_table_update.
+
+%------------------------------------------------------------
+
+incr_retractall(Term):-
 	check_incremental(Term,dynamic_incremental_predicate,incr_retractall,1),
 	retractall(Term),
 	(get_calls_incr(Term,A),
@@ -197,11 +206,16 @@ incr_retractall_inval(Term):-
 	 true
 	).
 
-incr_retract(Term) :-
-	incr_retract_inval(Term),
+incr_retractall_immed(Term) :-
+	incr_retractall(Term),
 	incr_table_update.
 
-incr_retract_inval(Term):-
+incr_retractall_inval(Term):-
+	incr_retractall(Term).
+
+%------------------------------------------------------------
+
+incr_retract(Term):-
 	(Term = (:-(H,_)) -> Head = H ; Head = Term),
 	check_incremental(Head,dynamic_incremental_predicate,incr_retract,1),
 	retract(Term),
@@ -211,6 +225,13 @@ incr_retract_inval(Term):-
 	 ;	
 	 true
 	).
+
+incr_retract_immed(Term) :-
+	incr_retract(Term),
+	incr_table_update.
+
+incr_retract_inval(Term):-
+	incr_retract(Term).
 
 %--------
 
