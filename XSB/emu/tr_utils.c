@@ -5045,7 +5045,7 @@ void xsb_compute_ans_depends_scc(SCCNode * nodes,int * dfn_stack,int node_from,
       node_to = (prolog_int) search_some(hasht, (void *)ansLeaf);
       //      printf("edge from %p to %p (%d)\n",(void *)nodes[node_from].node,sf,node_to);
       if (nodes[node_to].dfn == 0) {
-	xsb_compute_ans_depends_scc(nodes,dfn_stack,node_to, dfn_top,hasht,dfn,component );
+	xsb_compute_ans_depends_scc(nodes,dfn_stack,(int)node_to, dfn_top,hasht,dfn,component );
 	if (nodes[node_to].low < nodes[node_from].low) 
 	  nodes[node_from].low = nodes[node_to].low;
 	}	  
@@ -5674,7 +5674,7 @@ case CALL_SUBS_SLG_NOT: {
 
   case ABOLISH_NONINCREMENTAL_TABLES: {
 
-    return abolish_nonincremental_tables(CTXTc ptoc_int(CTXTc 2));
+    return abolish_nonincremental_tables(CTXTc (int)ptoc_int(CTXTc 2));
   }
 
   case ABOLISH_INCREMENTAL_CALL_SINGLE: {
