@@ -3397,9 +3397,14 @@ static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check
   }
 
   if ( !is_completed_table(tif) ) {
-    if (incomplete_action_flag == ERROR_ON_INCOMPLETE)
-      xsb_abort("[abolish_table_pred] Cannot abolish incomplete table"
-		" of predicate %s/%d\n", get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
+    if (incomplete_action_flag == ERROR_ON_INCOMPLETE) {
+      char message[ERRMSGLEN/2];
+      snprintf(message,ERRMSGLEN/2,"incomplete tabled predicate %s/%d",get_name(TIF_PSC(tif)),
+	       get_arity(TIF_PSC(tif)));
+      xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+    }
+    //      xsb_abort("[abolish_table_pred] Cannot abolish incomplete table"
+    //	" of predicate %s/%d\n", get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
     else 
       return;
   }
