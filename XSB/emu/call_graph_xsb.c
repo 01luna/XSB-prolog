@@ -192,6 +192,18 @@ callnodeptr makecallnode(VariantSF sf){
 }
 
 //---------------------------------------------------------------------------
+void print_inedges(callnodeptr cn) {
+  calllistptr temp; 
+
+  printf("Inedges of %d = ",cn->id);
+  temp=cn->inedges;
+  while(temp!=NULL){
+    printf("   %d",temp->inedge_node->callnode->id);      
+    temp=temp->next;
+  }
+  printf("\n");
+}
+
 
 void deleteinedges(callnodeptr callnode){
   calllistptr tmpin,in;
@@ -203,12 +215,18 @@ void deleteinedges(callnodeptr callnode){
 	
   in = callnode->inedges;
   
+#ifdef INCR_DEBUG	
+  printf("--------------------------------- deleteinedges (id %d)before \n",callnode->id);
+  print_inedges(callnode);
+#endif
+
   while(IsNonNULL(in)){
     tmpin = in->next;
     hasht = in->inedge_node->hasht;
 #ifdef INCR_DEBUG1
-        printf("removing affects ptr from "); print_callnode(stddbg,in->inedge_node->callnode);
+        printf("  removing affects ptr from "); print_callnode(stddbg,in->inedge_node->callnode);
         printf(" to "),print_callnode(stddbg,callnode);printf("\n");
+        printf("  removing affects ptr from %d to %d\n",in->inedge_node->callnode->id,callnode->id); printf("\n");
 #endif
     //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
     if (remove_some(hasht,ownkey) == NULL) {
@@ -219,6 +237,12 @@ void deleteinedges(callnodeptr callnode){
     in = tmpin;
   }
   SM_DeallocateSmallStruct(smKey, ownkey);      
+
+#ifdef INCR_DEBUG	
+  printf("--------------------------------- deleteinedges after \n");
+  //  print_inedges(callnode);
+#endif
+
   return;
 }
 
@@ -230,35 +254,44 @@ void deleteoutedges(callnodeptr callnode){
   calllistptr in;
   //  calllistptr * last;
   calllistptr last;
+  int i = 0;
 
   h=callnode->outedges->hasht;
   itr = hashtable1_iterator(h);
   #ifdef INCR_DEBUG1
-  printf("before hashtable count %d\n",hashtable1_count(h));
+  printf("deleteoutedges (id %d) before hashtable count %d\n",callnode->id,hashtable1_count(h));
   #endif
 
   if (hashtable1_count(h) > 0){
     do {                                                                                                                 
       cn = hashtable1_iterator_value(itr);        
-      #ifdef INCR_DEBUG1
-      printf("iterating ");print_callnode(stddbg,cn); printf("\n");
-      #endif
-      last = (cn->inedges);
+#ifdef INCR_DEBUG1
+      printf("iterating (id %d)",cn->id);print_callnode(stddbg,cn); printf("\n");
+      print_inedges(cn);
+#endif
       in = cn->inedges;
       while(IsNonNULL(in)){
 	if (in->inedge_node->callnode == callnode) {
-	  #ifdef INCR_DEBUG1
-	  printf("     found backpointer ");print_callnode(stddbg,in->inedge_node->callnode);printf("\n");
-	  #endif
-	  last->next =  in->next;  // need to deallcoate
+#ifdef INCR_DEBUG1
+	  printf("     found back depends from (id %d) ",cn->id);
+	  print_callnode(stddbg,in->inedge_node->callnode);printf("\n");
+#endif
+	  if (i == 0)  cn->inedges = NULL; 
+	  else last->next =  in->next;  // need to deallcoate
 	  SM_DeallocateStruct(smCallList, in);      
+	  //	  printf("again! ");print_inedges(cn);
 	  break;
 	}
-	in = in->next;
+	//printf("skipping\n");
+	  last = in; in = in->next; i++;
       }
     } while (hashtable1_iterator_advance(itr)); 
     callnode->outcount = 0;  // hashtable will be deallocated in delete callnode
   }
+  #ifdef INCR_DEBUG1
+  printf("deleteoutedges (id %d) after  hashtable count %d\n",callnode->id,hashtable1_count(h));
+  #endif
+
 }
   
 
@@ -348,9 +381,7 @@ void initoutedges(callnodeptr cn){
   outedgeptr out;
 
 #ifdef INCR_DEBUG
-  printf("Initoutedges for ");
-  print_callnode(CTXTc stddbg, cn);
-  printf(" (%d) \n",cn->id);
+  printf("Initoutedges for ");  print_callnode(CTXTc stddbg, cn);  printf(" (id %d) \n",cn->id);
   printf("affected_gl %p %p\n",affected_gl,*affected_gl);
 #endif
 
@@ -430,10 +461,6 @@ static void inline ecall3(calllistptr *list, call2listptr item){
 }
 
 void addcalledge(callnodeptr fromcn, callnodeptr tocn){
-#ifdef INCR_DEBUG  
-  calllistptr temp; 
-#endif
-
   KEY *k1;
   SM_AllocateStruct(smKey, k1);
   k1->goal = tocn->id;
@@ -442,19 +469,12 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
   //  printf("%d-->%d",fromcn->id,tocn->id);	
   // #endif
   
-  
   if (NULL == search_some(fromcn->outedges->hasht,k1)) {
     insert_some(fromcn->outedges->hasht,k1,tocn);
 
 #ifdef INCR_DEBUG	
-    printf("--------------------------------- addcalledge \n");
-    printf("Inedges of %d = ",tocn->id);
-    temp=tocn->inedges;
-    while(temp!=NULL){
-      printf("   %d",temp->inedge_node->callnode->id);
-      temp=temp->next;
-    }
-    printf("\n");
+    printf("--------------------------------- addcalledge before \n");
+    print_inedges(tocn);
 #endif
     
     add_calledge(&(tocn->inedges),fromcn->outedges);      
@@ -477,14 +497,9 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
     
   }
 
-#ifdef INCR_DEBUG
-	printf("Inedges of %d = ",tocn->id);
-	temp=tocn->inedges;
-	while(temp!=NULL){
-		printf("\t%d",temp->inedge_node->callnode->id);
-		temp=temp->next;
-	}
-	printf("\n---------------------------------\n");
+#ifdef INCR_DEBUG	
+    printf("--------------------------------- addcalledge after \n");
+    print_inedges(tocn);
 #endif
 }
 
@@ -1702,26 +1717,4 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
   } while (cur_node  < num_nodes);
   follow(oldhreg) = makenil;                // cdr points to next car
   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
-}
-
-//--------------------------------------------------------------------------------------------
-
-int abolish_incremental_call_single(CTXTdeclc VariantSF goal, int invalidate_flag) {
-  TIFptr tif;
-  callnodeptr callnode = subg_callnode_ptr(goal);
-  //  printf("1affected_gl %p %p\n",affected_gl,*affected_gl);
-  //  printf("aics--------------\n");
-  if (invalidate_flag) {
-    invalidate_call(CTXTc callnode);
-  }
-  deleteoutedges(callnode);
-  deleteinedges(callnode);
-  deletecallnode(callnode);
-  SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
-  tif = subg_tif_ptr(goal);
-  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-  delete_variant_sf_and_answers(CTXTc goal,FALSE); // delete answers + subgoal
-	//  abolish_table_call(CTXTc goal,ABOLISH_TABLES_SINGLY);
-  //  printf("end aics\n");
-  return TRUE;
 }

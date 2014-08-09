@@ -1253,7 +1253,8 @@ void print_subgoal_callnode_leaf(CTXTdeclc FILE *fp, callnodeptr cn)
 
 void print_callnode(CTXTdeclc FILE *fp, callnodeptr cn) {
   if (cn -> goal)  print_subgoal(CTXTc stddbg,cn->goal);
-  else print_subgoal_callnode_leaf(CTXTc stddbg, cn); 
+  else if (!cn->is_incremental_trie) print_subgoal_callnode_leaf(CTXTc stddbg, cn); 
+  else fprintf(stddbg,"incremental trie");
 }
 
 void print_subgoal(CTXTdeclc FILE *fp, VariantSF subg)

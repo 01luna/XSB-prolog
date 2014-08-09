@@ -78,7 +78,6 @@
 counter abol_subg_ctr,abol_pred_ctr,abol_all_ctr; /* statistics */
 
 /*----------------------------------------------------------------------*/
-extern int abolish_incremental_call_single(CTXTdeclc VariantSF,int);
 
 #include "ptoc_tag_xsb_i.h"
 #include "term_psc_xsb_i.h"
@@ -1566,6 +1565,8 @@ Integer new_private_trie(CTXTdeclc int props) {
 
     if IS_INCREMENTAL_TRIE(props) {
 	itrie_array[index].callnode = makecallnode(NULL);
+	(itrie_array[index].callnode)->is_incremental_trie = 1;
+	printf("callnode %p\n",itrie_array[index].callnode);
 	initoutedges((callnodeptr)itrie_array[index].callnode);
 	itrie_array[index].incremental = 1;
 	//	printf("incremental\n");
@@ -4320,6 +4321,32 @@ void abolish_all_tables(CTXTdeclc int action) {
   abolish_wfs_space(CTXT); 
 
   end_table_gc_time(timer);
+}
+
+
+//--------------------------------------------------------------------------------------------
+
+int abolish_incremental_call_single(CTXTdeclc VariantSF goal, int invalidate_flag) {
+  TIFptr tif;
+  callnodeptr callnode = subg_callnode_ptr(goal);
+  //  printf("1affected_gl %p %p\n",affected_gl,*affected_gl);
+  #ifdef DEBUG_ABOLISH
+  abolish_dbg(("abolish incr call single: ")); print_subgoal(stddbg,goal); 
+  printf("(id %d flag %d)\n",callnode->id,invalidate_flag);
+  #endif
+  if (invalidate_flag) {
+    invalidate_call(CTXTc callnode);
+  }
+  deleteoutedges(callnode);
+  deleteinedges(callnode);
+  deletecallnode(callnode);
+  SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
+  tif = subg_tif_ptr(goal);
+  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+  delete_variant_sf_and_answers(CTXTc goal,FALSE); // delete answers + subgoal
+	//  abolish_table_call(CTXTc goal,ABOLISH_TABLES_SINGLY);
+  //  printf("end aics\n");
+  return TRUE;
 }
 
 /*
