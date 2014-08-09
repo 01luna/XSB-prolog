@@ -43,11 +43,11 @@ put_in_trie(Fact,Handle,Leaf,Flag) :-
 delete_from_trie(Handle,Leaf) :-
 	intern:trie_unintern_nr(Handle,Leaf).
 incr_put_in_trie(Fact,Handle,Leaf,Flag) :- 
-	intern:incr_trie_intern_inval(Handle,Fact,Leaf,Flag).
+	intern:incr_trie_intern(Handle,Fact,Leaf,Flag).
 incr_delete_from_trie(Handle,Leaf) :-
-	intern:incr_trie_unintern_nr_inval(Handle,Leaf).
+	intern:incr_trie_unintern_nr(Handle,Leaf).
 incr_unmark_uninterned_from_trie(H, Leaf) :-
-	intern:incr_unmark_uninterned_nr_inval(H,Leaf).
+	intern:incr_unmark_uninterned_nr(H,Leaf).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Insertion %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
