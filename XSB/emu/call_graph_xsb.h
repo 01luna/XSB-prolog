@@ -66,5 +66,8 @@ extern int  get_outedges_num(CTXTdeclc  callnodeptr);
 extern int immediate_affects_ptrlist(CTXTdeclc callnodeptr);
 extern int immediate_depends_ptrlist(CTXTdeclc callnodeptr);
 extern int  get_incr_sccs(CTXTdeclc Cell);
+extern void deleteoutedges(callnodeptr);
+extern void deleteinedges(callnodeptr);
+extern void deletecallnode(callnodeptr);
 
 #endif

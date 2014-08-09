@@ -650,7 +650,7 @@ typedef struct callnodetag{
   calllistptr inedges; 
   void* goal;  
   unsigned int no_of_answers;
-  unsigned int deleted:1, changed:1,recomputable:1,falsecount:14,outcount:15;
+  unsigned int deleted:1, changed:1,recomputable:1,is_incremental_trie:1,falsecount:14,outcount:14;
   union{
     callnodeptr prev_call;  
     void* tif_ptr;	  /* Table of which this call is a part */
