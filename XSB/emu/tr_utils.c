@@ -4179,8 +4179,9 @@ int index =  itrie_array_first_trie;
 
  if (index >= 0) {
    do {
-     if (itrie_array[index].callnode != NULL) {
-       //       printf("incremental trie %d\n",index);
+     if (itrie_array[index].incremental == 1) {
+       itrie_array[index].callnode = makecallnode(NULL);
+       //       printf("reinitizlizing incremental trie %d %p\n",index,itrie_array[index].callnode);
        initoutedges((callnodeptr)itrie_array[index].callnode);
      }
      //     printf("next %d\n",itrie_array[index].next_entry);
@@ -4324,12 +4325,12 @@ void abolish_all_tables(CTXTdeclc int action) {
   reset_freeze_registers;
   openreg = COMPLSTACKBOTTOM;
   hashtable1_destroy_all(0);             /* free all incr hashtables in use */
-  affected_gl = empty_calllist();
-  changed_gl = empty_calllist();
-  reinitialize_incremental_tries(CTXT);  
   release_all_tabling_resources(CTXT);
   current_call_node_count_gl = 0; current_call_edge_count_gl = 0;
   abolish_wfs_space(CTXT);               // free wfs stuff that does not use structure managers
+  reinitialize_incremental_tries(CTXT);  
+  affected_gl = empty_calllist();
+  changed_gl = empty_calllist();
 
   end_table_gc_time(timer);
 }

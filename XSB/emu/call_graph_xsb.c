@@ -151,19 +151,6 @@ static int equalkeys(void *k1, void *k2)
 
 
 
-/*****************************************************************************/
-/* Obsolete: use print_callnode() in debug_xsb, which also prints leaves 
- * void print_callnode_subgoal(callnodeptr c){
- *   //  printf("%d",c->id);
- *   if(IsNonNULL(c->goal))
- *     sfPrintGoal(stdout,c->goal,NO);
- *   else
- *     printf("fact");
- *   return;
- * }
-*/
-/******************** GENERATION OF CALLED_BY GRAPH ********************/
-
 /* Creates a call node */
 callnodeptr makecallnode(VariantSF sf){
   
@@ -382,7 +369,10 @@ void initoutedges(callnodeptr cn){
 
 #ifdef INCR_DEBUG
   printf("Initoutedges for ");  print_callnode(CTXTc stddbg, cn);  printf(" (id %d) \n",cn->id);
-  printf("affected_gl %p %p\n",affected_gl,*affected_gl);
+  printf("------- affected_gl\n");
+  print_call_list(affected_gl);
+  printf("--------\n");
+    //  printf("affected_gl %p %p\n",affected_gl,*affected_gl);
 #endif
 
   SM_AllocateStruct(smOutEdge,out);
@@ -557,7 +547,10 @@ void dfs_outedges_check_non_completed(CTXTdeclc callnodeptr call1) {
   char bufferb[MAXTERMBUFSIZE]; 
 
   if(IsNonNULL(call1->goal) && !subg_is_completed((VariantSF)call1->goal)){
-    if (affected_gl->item) deallocate_call_list(affected_gl);
+    if (calllist_next(affected_gl) != NULL) {
+      //      print_call_list(affected_gl);
+      deallocate_call_list(affected_gl);
+    }
     //    printf("outedges affected_gl %p %p\n",affected_gl,*affected_gl);
     sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
     sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
@@ -852,7 +845,7 @@ void invalidate_call(CTXTdeclc callnodeptr cn){
 
 void print_call_list(CTXTdeclc calllistptr affected_ptr) {
 
-  do {
+  while ( calllist_next(affected_ptr) != NULL) {
     printf("item %p sf %p ",calllist_item(affected_ptr),callnode_sf(calllist_item(affected_ptr)));
     printf("next %p ",calllist_next(affected_ptr));  
     if (callnode_sf(calllist_item(affected_ptr)) != NULL) {
@@ -860,7 +853,7 @@ void print_call_list(CTXTdeclc calllistptr affected_ptr) {
       }
     printf("\n");
     affected_ptr = (calllistptr) calllist_next(affected_ptr);
-  } while ( calllist_next(affected_ptr) != NULL) ;
+  } ;
 
 }
 
@@ -1718,3 +1711,17 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
   follow(oldhreg) = makenil;                // cdr points to next car
   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
 }
+
+/*****************************************************************************/
+/* Obsolete: use print_callnode() in debug_xsb, which also prints leaves 
+ * void print_callnode_subgoal(callnodeptr c){
+ *   //  printf("%d",c->id);
+ *   if(IsNonNULL(c->goal))
+ *     sfPrintGoal(stdout,c->goal,NO);
+ *   else
+ *     printf("fact");
+ *   return;
+ * }
+*/
+/******************** GENERATION OF CALLED_BY GRAPH ********************/
+
