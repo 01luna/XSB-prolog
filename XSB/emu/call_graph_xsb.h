@@ -39,9 +39,9 @@
 //extern int callqptr;
 
 extern calllistptr affected_gl,changed_gl, lazy_affected;
-extern int call_node_count_gl,call_edge_count_gl;
+extern int current_call_node_count_gl,current_call_edge_count_gl;
 extern BTNptr old_answer_table_gl;
-extern int unchanged_call_gl, call_count_gl;
+extern int unchanged_call_gl, total_call_node_count_gl;
 extern callnodeptr old_call_gl;
 
 extern void initoutedges(callnodeptr cn);
@@ -69,5 +69,11 @@ extern int  get_incr_sccs(CTXTdeclc Cell);
 extern void deleteoutedges(callnodeptr);
 extern void deleteinedges(callnodeptr);
 extern void deletecallnode(callnodeptr);
+
+extern Structure_Manager smCallNode;
+extern Structure_Manager smCallList;
+extern Structure_Manager smCall2List;
+extern Structure_Manager smOutEdge;
+extern Structure_Manager smKey;
 
 #endif

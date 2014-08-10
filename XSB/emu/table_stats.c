@@ -365,10 +365,10 @@ void print_detailed_tablespace_stats(CTXTdecl) {
       print_NodeStats(asi,"Answer Substitution Frames");
   }
 
-  if (call_count_gl) {
-    printf("\nTotal number of incremental subgoals created: %d\n",call_count_gl);
-    printf("   Current number of incremental call nodesd: %d\n",call_node_count_gl);
-    printf("   Total number of incremental call edges created: %d\n",call_edge_count_gl);
+  if (total_call_node_count_gl) {
+    printf("\nTotal number of incremental subgoals created: %d\n",total_call_node_count_gl);
+    printf("   Current number of incremental call nodesd: %d\n",current_call_node_count_gl);
+    printf("   Total number of incremental call edges created: %d\n",current_call_edge_count_gl);
   }
 
   // Private trie assert space

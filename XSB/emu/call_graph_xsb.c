@@ -1,5 +1,5 @@
 /* File:      call_graph_xsb.c
-** Author(s): Diptikalyan Saha, C. R. Ramakrishnan
+** Author(s): Diptikalyan Saha, C. R. Ramakrishnan, Swift
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 1986, 1993-1998
@@ -106,9 +106,9 @@ call2listptr marked_list_gl=NULL; /* required for abolishing incremental calls *
 calllistptr assumption_list_gl=NULL;  /* required for abolishing incremental calls */ 
 
 // current number of incremental subgoals / edges
-int call_node_count_gl=0,call_edge_count_gl=0;
+int current_call_node_count_gl=0,current_call_edge_count_gl=0;
 // total number of incremental subgoals in session.
-int  call_count_gl=0;  
+int  total_call_node_count_gl=0;  
 // not used much -- for statistics
 int unchanged_call_gl=0;
 
@@ -125,7 +125,6 @@ Structure_Manager smKey	      =  SM_InitDecl(KEY,KEY_PER_BLOCK,"HashKey");
 
 /* appears to be minimal size for regular (non-small) structure */
 Structure_Manager smOutEdge   =  SM_InitDecl(OUTEDGE,OUTEDGE_PER_BLOCK,"Outedge");
-
 
 DEFINE_HASHTABLE_INSERT(insert_some, KEY, CALL_NODE);
 DEFINE_HASHTABLE_SEARCH(search_some, KEY, callnodeptr);
@@ -181,12 +180,12 @@ callnodeptr makecallnode(VariantSF sf){
   cn->inedges = NULL;
   cn->goal = sf;
   cn->outedges=NULL;
-  cn->id=call_count_gl++; 
+  cn->id=total_call_node_count_gl++; 
   cn->outcount=0;
 
   //    print_callnode(stddbg,cn);printf("\n");
 
-  call_node_count_gl++;
+  current_call_node_count_gl++;
   //  printf("makecallnode %p sf %p\n",cn,sf);
   return cn;
 }
@@ -232,7 +231,7 @@ void deleteinedges(callnodeptr callnode){
     if (remove_some(hasht,ownkey) == NULL) {
       xsb_abort("BUG: key not found for removal\n");
     }
-    call_edge_count_gl--;
+    current_call_edge_count_gl--;
     SM_DeallocateStruct(smCallList, in);      
     in = tmpin;
   }
@@ -285,6 +284,7 @@ void deleteoutedges(callnodeptr callnode){
 	//printf("skipping\n");
 	  last = in; in = in->next; i++;
       }
+      current_call_edge_count_gl--;
     } while (hashtable1_iterator_advance(itr)); 
     callnode->outcount = 0;  // hashtable will be deallocated in delete callnode
   }
@@ -313,7 +313,7 @@ void deleteoutedges(callnodeptr callnode){
   //    if (remove_some(hasht,ownkey) == NULL) {
   //      xsb_abort("BUG: key not found for removal\n");
   //    }
-  //    call_edge_count_gl--;
+  //    current_call_edge_count_gl--;
   //   SM_DeallocateStruct(smCallList, in);      
   //    in = tmpin;
   //  }
@@ -326,7 +326,7 @@ void deleteoutedges(callnodeptr callnode){
 /* used for abolishes -- its known that outcount is 0 */
 void deletecallnode(callnodeptr callnode){
 
-  call_node_count_gl--;
+  current_call_node_count_gl--;
    
   if(callnode->outcount==0){
     hashtable1_destroy(callnode->outedges->hasht,0);
@@ -350,7 +350,7 @@ void deallocate_previous_call(callnodeptr callnode){
   ownkey->goal=callnode->id;	
 	
   in = callnode->inedges;
-  call_node_count_gl--;
+  current_call_node_count_gl--;
   
   while(IsNonNULL(in)){
     tmpin = in->next;
@@ -368,7 +368,7 @@ void deallocate_previous_call(callnodeptr callnode){
       xsb_abort("BUG: key not found for removal\n");
     }
     in->inedge_node->callnode->outcount--;
-    call_edge_count_gl--;
+    current_call_edge_count_gl--;
     SM_DeallocateStruct(smCallList, in);      
     in = tmpin;
   }
@@ -478,7 +478,7 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
 #endif
     
     add_calledge(&(tocn->inedges),fromcn->outedges);      
-    call_edge_count_gl++;
+    current_call_edge_count_gl++;
     fromcn->outcount++;
     
 #ifdef INCR_DEBUG		
@@ -662,32 +662,32 @@ void dfs_outedges(CTXTdeclc callnodeptr call1){
 }
 
 /*  
-void dfs_outedges(CTXTdeclc callnodeptr call1){
-  callnodeptr cn;
-  struct hashtable *h;	
-  struct hashtable_itr *itr;
-
-  //    if (call1->goal) {
-  //      printf("dfs outedges "); print_subgoal(stddbg,call1->goal);printf("\n");
-  //    }
-  if(IsNonNULL(call1->goal) && !subg_is_completed((VariantSF)call1->goal)){
-    dfs_outedges_new_table_error(CTXTc call1);
-  }
-  call1->deleted = 1;
-  h=call1->outedges->hasht;
-  
-  itr = hashtable1_iterator(h);       
-  if (hashtable1_count(h) > 0){
-    do {
-      cn = hashtable1_iterator_value(itr);
-      cn->falsecount++;
-      if(cn->deleted==0)
-	dfs_outedges(CTXTc cn);
-    } while (hashtable1_iterator_advance(itr));
-  }
-  add_callnode(&affected_gl,call1);		
-}
-*/
+ * void dfs_outedges(CTXTdeclc callnodeptr call1){
+ *   callnodeptr cn;
+ *   struct hashtable *h;	
+ *   struct hashtable_itr *itr;
+ * 
+ *   //    if (call1->goal) {
+ *   //      printf("dfs outedges "); print_subgoal(stddbg,call1->goal);printf("\n");
+ *   //    }
+ *   if(IsNonNULL(call1->goal) && !subg_is_completed((VariantSF)call1->goal)){
+ *     dfs_outedges_new_table_error(CTXTc call1);
+ *   }
+ *   call1->deleted = 1;
+ *   h=call1->outedges->hasht;
+ *   
+ *   itr = hashtable1_iterator(h);       
+ *   if (hashtable1_count(h) > -1){
+ *     do {
+ *       cn = hashtable1_iterator_value(itr);
+ *       cn->falsecount++;
+ *       if(cn->deleted==0)
+ * 	dfs_outedges(CTXTc cn);
+ *     } while (hashtable1_iterator_advance(itr));
+ *   } 
+ *  add_callnode(&affected_gl,call1);		
+ * }
+ * */
 // TLS: factored out this warning because dfs_inedges is recursive and
 // this makes the stack frames too big. 
 void dfs_inedges_warning(CTXTdeclc callnodeptr call1,calllistptr *lazy_affected) {

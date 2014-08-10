@@ -458,11 +458,11 @@ void total_stat(CTXTdeclc double elapstime) {
     printf("\n");
   }
 
-  if (call_count_gl) {
-    printf("Total number of incremental subgoals created: %d\n",call_count_gl);
-    if (call_node_count_gl) {
+  if (total_call_node_count_gl) {
+    printf("Total number of incremental subgoals created: %d\n",total_call_node_count_gl);
+    if (current_call_node_count_gl) {
       printf("Currently %d incremental subgoals, %d dependency edges\n",
-	     call_node_count_gl,call_edge_count_gl);
+	     current_call_node_count_gl,current_call_edge_count_gl);
 	}
   }
 

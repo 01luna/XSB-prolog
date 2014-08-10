@@ -4212,6 +4212,15 @@ void release_all_tabling_resources(CTXTdecl) {
   SM_ReleaseResources(smConsSF);
   SM_ReleaseResources(smASI);
 
+  /* Release incremental structure managers */
+#ifndef MULTI_THREAD
+  SM_ReleaseResources(smCallNode);
+  SM_ReleaseResources(smCallList);
+  SM_ReleaseResources(smCall2List);
+  SM_ReleaseResources(smOutEdge);
+  SM_ReleaseResources(smKey);
+#endif
+
   /* In mt engine, also release private resources */
 #ifdef MULTI_THREAD
     thread_free_private_deltfs(CTXT);
@@ -4319,7 +4328,8 @@ void abolish_all_tables(CTXTdeclc int action) {
   changed_gl = empty_calllist();
   reinitialize_incremental_tries(CTXT);  
   release_all_tabling_resources(CTXT);
-  abolish_wfs_space(CTXT); 
+  current_call_node_count_gl = 0; current_call_edge_count_gl = 0;
+  abolish_wfs_space(CTXT);               // free wfs stuff that does not use structure managers
 
   end_table_gc_time(timer);
 }
