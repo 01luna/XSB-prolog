@@ -1566,7 +1566,7 @@ Integer new_private_trie(CTXTdeclc int props) {
     if IS_INCREMENTAL_TRIE(props) {
 	itrie_array[index].callnode = makecallnode(NULL);
 	(itrie_array[index].callnode)->is_incremental_trie = 1;
-	printf("callnode %p\n",itrie_array[index].callnode);
+	//	printf("callnode %p\n",itrie_array[index].callnode);
 	initoutedges((callnodeptr)itrie_array[index].callnode);
 	itrie_array[index].incremental = 1;
 	//	printf("incremental\n");
@@ -4284,6 +4284,7 @@ void abolish_all_tables(CTXTdeclc int action) {
 
   start_table_gc_time(timer);
 
+  /* a_a_t() may be called with ABOLISH_INCOMPLETES for memory errors; otherwsie called with ERROR_ON_INCOMPLETES */
   if (action == ERROR_ON_INCOMPLETES) {
     check_for_incomplete_tables("abolish_all_shared_tables/0");
 
