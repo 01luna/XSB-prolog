@@ -116,6 +116,7 @@ yes
 no
 \end{verbatim}
 \noindent
+\index{Incremental Dependency Graph (IDG)}
 The transparent approach to incremental updating works as follows.
 When {\tt incr\_assert/1} is called, it sparks an invalidation
 phase in which tables that depend on {\tt q(d,4)} are marked as {\em
@@ -799,7 +800,7 @@ any affected tables.
 \end{description}
 
 \index{residual dependency graph}
-\index{incremental dependency graph}
+\index{Incremental Dependency Graph (IDG)}
 \paragraph{Inspecting Dependencies among Incremental Subgoals}
 %
 % These relations form a labelled directed graph for which the

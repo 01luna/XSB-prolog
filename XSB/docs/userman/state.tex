@@ -1603,14 +1603,21 @@ with
  multi-threaded engine, the number refers only to the choice point
  stack of the calling thread.
 %
-\item {\tt open\_tables} which instantiates {\tt Result} to the number
- of uncompleted tables in XSB's completion stack.  In the
+\index{tabled subgoals!incomplete}
+\item {\tt incomplete\_tables} which instantiates {\tt Result} to the
+ number of incomplet tables in XSB's completion stack.  In the
  multi-threaded engine, this number refers to the completion stack of
  the calling thread, which may contain both thread-private and
  thread-shared tables.
 %
 \item {\tt atoms} which instantiates {\tt Result} to the number of
  bytes taken by atoms in the atom table.
+%
+\index{Incremental Dependency Graph (IDG)}
+\item {\tt idg} which instantiates {\tt Result} to a structure {\tt
+ idg(+Nodes,+Edges)} where {\tt Nodes} is the number of nodes
+ currently in the incremental dependency graph (IDG) and {\tt Edges}
+ the number of edges.
 %
 \ei
 
