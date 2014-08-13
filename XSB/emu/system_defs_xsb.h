@@ -54,7 +54,8 @@
 #define LOCALMEM 10
 #define OPENTABLECOUNT 11
 #define SHARED_TABLESPACE 12
-#define ATOMMEM 13
+#define ATOMMEM           13
+#define IDG_COUNTS        14
 
 // For statistics/1
 #define STAT_RESET 0
