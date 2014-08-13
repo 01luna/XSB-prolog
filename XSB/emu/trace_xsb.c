@@ -1039,6 +1039,11 @@ void  get_statistics(CTXTdecl) {
 #endif 
 	break;
       }
+  case IDG_COUNTS: {
+    ctop_int(CTXTc 4,current_call_node_count_gl);
+    ctop_int(CTXTc 5,current_call_edge_count_gl);
+    break;
+  }
   default: {
       statistics_inusememory(CTXTc type);
       break;

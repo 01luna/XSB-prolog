@@ -118,11 +118,12 @@ extern int abolish_usermod_tables(CTXTdecl);
 extern int abolish_module_tables(CTXTdeclc const char *module_name);
 extern int abolish_table_call_incr(CTXTdeclc VariantSF); /* incremental evaluation */
 extern int gc_tabled_preds(CTXTdecl);
-extern void delete_variant_sf_and_answers(CTXTdeclc VariantSF pSF, xsbBool warn);
 extern int abolish_table_call_cps_check(CTXTdeclc VariantSF);
 extern void check_insert_global_deltf_subgoal(CTXTdeclc VariantSF,xsbBool);
 extern double total_table_gc_time;
 
+//TLS: should probably be static
+//extern void delete_variant_sf_and_answers(CTXTdeclc VariantSF pSF, xsbBool warn);
 
 extern void release_any_pndes(CTXTdeclc PNDE firstPNDE);
 extern void delete_delay_trie(CTXTdeclc BTNptr root);
