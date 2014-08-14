@@ -239,7 +239,7 @@ void deleteoutedges(callnodeptr callnode){
   callnodeptr cn;
   calllistptr in;
   //  calllistptr * last;
-  calllistptr last;
+  calllistptr last = NULL;
   int i = 0;
 
   h=callnode->outedges->hasht;
