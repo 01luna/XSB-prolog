@@ -1601,26 +1601,32 @@ First, an incomplete tabled subgoal $S$ may not be abolished by the
 user except under special circumstances described below.  This
 restriction is made since if $S$ is incomplete there may be pointers
 to $S$ from various elements of the current execution environment, and
-removing all of these pointers may be difficult to do.  If one of the
-deletion predicates is called when the current execution environment
-contains a reference to a {\em completed} table that is being
-abolished, space for the abolished information is not immediately
-reclaimed.  More precisely, if the current global tabling envonment
-(including suspended states) has either
-\begin{itemize}
-\item a choice point that points to an answer $A$; 
-\item or a (heap) delay list that points to a subgoal $S$
-\end{itemize}
-we say that $A$ or $S$ is {\em active}.  Also, since tables can be
-abolished and rederived during the course of an evaluation, the table
-deletion system marks the tables with versions.  Accordingly, if a
-tabled predicate $P_{version}$ or subgoal $S_{version}$ to be
-abolished has an answer that is active in the current environment,
-reclamation of space for that version of $P$ or $S$ will be delayed
-until no answers for $P_{version}$ or $S_{version}$ are active.  New
-calls to $P$ or $S$, however, will derive a new table versions, rather
-than using the abolished information.
+removing all of these pointers may be difficult to do.  
 
+If one of the deletion predicates is called when the current execution
+environment contains a reference to a {\em completed} table that is
+being abolished, space for the abolished information is not
+immediately reclaimed.  More precisely, if the current global tabling
+envonment (including suspended states) has either
+\begin{itemize}
+\item a choice point that points to an answer $A$ in $T$; 
+\item or a (heap) delay list that points to a subgoal $S$ in $T$
+\end{itemize}
+we say that $T$ is {\em active}.  Also, since tables can be abolished
+and rederived during the course of an evaluation, the table deletion
+system marks the tables with versions.  Accordingly, if a tabled
+predicate $P_{version}$ or subgoal $S_{version}$ to be abolished is
+active in the current environment, reclamation of space for that
+version of $P$ or $S$ will be delayed until no answers for
+$P_{version}$ or $S_{version}$ are active.  Meanwhile the older
+version of table will be available for backtracking, ensuring view
+consistency for the choice points.  New calls to $P$ or $S$, however,
+will force rederivation of a new table version, rather than using the
+abolished information.
+\index{view consistency}
+
+\index{tabling!conditional answers}
+\index{\texttt{get\_residual/2}}
 When conditional answers are present, abolishing a specific table or
 call may lead to semantic or implementational complications.  Consider
 the conditional answer {\tt r(a,b):- undef|} from
@@ -1633,7 +1639,7 @@ has changed).  From an implementation perspective, if space for {\tt
 may core dump, even if there are no choice points for completed tables
 anywhere in the choice point stack.  To address this problem, by
 default abolishing a subgoal $S$ (predicate $P$) will abolish all
-`vsubgoals (predicates) that (transtively) depend on $S$
+subgoals (predicates) that (transtively) depend on $S$
 ($P$)~\footnote{Dao Tran Minh contributed to implementing this
   functionality.}.  In this case the goal {\tt
   abolish\_table\_call(r(a,X))} would cause the deletion of {\tt
@@ -1644,18 +1650,7 @@ answers to the answers that are conditional on them are taken into
 account for table deletion: thus the deletion {\tt r(a,X)} deletes
 {\tt p(a,X)}, but not {\tt undef}.
 
-\index{Prolog flags!{\tt table\_gc\_action}}
-Users with programs that give rise to conditional answers in completed
-tables are encouraged to maintain this default behavior.  However the
-default behavior may be changed either by setting a Prolog flag:
-%
-\begin{verbatim}
-?- set_prolog_flag(table_gc_action,abolish_tables_singly).
-\end{verbatim}
-%
-or by calling a 2-ary abolish command with {\tt abolish\_tables\_singly}
-in the options list.
-
+%--------------------------------------------------------------------------------------------
 \begin{figure}[htb]
 \begin{center}
 \begin{tabular}{cc}\hline \hline
@@ -1700,8 +1695,21 @@ undef :- tnot(undef).
 \end{center}
 \caption{Example for Deleting Tables (Call-Variance)} \label{ex:deletion}
 \end{figure}
+%--------------------------------------------------------------------------------------------
 
+\index{Prolog flags!{\tt table\_gc\_action}}
+Users with programs that give rise to conditional answers in completed
+tables are encouraged to maintain this default behavior.  However the
+default behavior may be changed either by setting a Prolog flag:
+%
+\begin{verbatim}
+?- set_prolog_flag(table_gc_action,abolish_tables_singly).
+\end{verbatim}
+%
+or by calling a 2-ary abolish command with {\tt abolish\_tables\_singly}
+in the options list.
 
+\index{tabling!multi-threaded}
 In the multi-threaded engine abolishing tables private to a thread
 behaves exactly as in the sequential engine, regardless of whether the
 tables are complete or incomplete, or contain conditional answers.  In
@@ -1734,6 +1742,7 @@ enviornment, {\tt Pred} space reclamation for the {\tt Pred} tables
 will be delayed until $A$ is no longer active; otherwise the space for
 the {\tt Pred} tables will be reclaimed immediately.  
 
+\index{tabling!conditional answers}
 \index{Prolog flags!{\tt table\_gc\_action}}
 If {\tt Pred} has a subgoal that contains a conditional answer, the
 default behavior will be to transitively abolish any tabled predicates
@@ -1753,19 +1762,23 @@ contains a conditional answer, the warning
 
 will be issued.  
 
+\index{tabling!multi-threaded}
 In the multi-threaded engine, if {\tt Pred} is shared, reclamation for
 {\tt Pred} will be delayed until there is a single active thread and
 no answer in {\tt Pred} is active in the current execution
 environment.  Otherwise, the behavior of {\tt abolish\_table\_pred/1}
 is the same as in the sequential engine.
 
+\index{tabling!incremental}
 Finally, {\tt abolish\_table\_pred/1} will throw an error if the
-predicate to be abolished is incremental.  This is because abolishing
-some incremental tables but not others will leave dangling pointers in
-the data structures used for uncremental updates.  Until {\tt
-  abolish\_table\_pred/[1,2]} is extended to support incremental
-tables, use {\tt abolish\_table\_call/[1,2]} or {\tt
-  abolish\_all\_tables/0}.
+predicate to be abolished is incremental.  
+%
+%This is because abolishing some incremental tables but not others
+%will leave dangling pointers in the data structures used for uncremental updates.  
+%
+Until {\tt abolish\_table\_pred/[1,2]} is extended to support
+incremental tables, use {\tt abolish\_table\_call/[1,2]} or {\tt
+  abolish\_all\_tables/0}~\
 
 {\bf Error Cases}
 \bi
@@ -1780,16 +1793,19 @@ tables, use {\tt abolish\_table\_call/[1,2]} or {\tt
  \item 	{\tt domain\_error(predicate\_or\_term\_indicator,Pred)}
  \ei
 %
-\item {\tt PredSpec} does not indicate a tabled predicate or indicates
-  an incrementally tabled predicate.
+\item {\tt PredSpec} does not indicate a tabled predicate
   \bi
  \item 	{\tt table\_error}
  \ei
 %
+\item {\tt PredSpec} indicates an incrementally tabled predicate.  
+\bi
+ \item 	{\tt permission\_error}
+ \ei
 \item There is currently an incomplete table for an atomic subgoal of
-  {\tt Pred}
- \bi
- \item 	{\tt table\_error}
+  {\tt Pred}.
+\bi
+ \item 	{\tt permission\_error}
  \ei
 %
 \ei
@@ -1797,7 +1813,7 @@ tables, use {\tt abolish\_table\_call/[1,2]} or {\tt
 \index{Prolog flags!{\tt table\_gc\_action}}
 \ourstandarditem{abolish\_table\_pred(+CallTerm,+Options)}{abolish\_table\_pred/2}{Tabling}
 %
-Behaves as {abolish\_table\_pred/1}, but allows the default {\tt
+Behaves as {\tt abolish\_table\_pred/1}, but allows the default {\tt
   table\_gc\_action} to be over-ridden with a flag, which can be either 
 {\tt abolish\_tables\_transitively} or {\tt abolish\_tables\_singly}.
 
@@ -1854,10 +1870,19 @@ environment.  Otherwise, the behavior of {\tt abolish\_table\_call/1}
 is the same as in the sequential engine on tabled predicates that are
 thread-private.
 
-{\tt abolish\_table\_call/[1,2]} also cascades abolishes for
-incremental tables.  If a call $G$ is abolished, all calls that $G$
-depends on will also be abolished, so that the dependency structures
-that support incremental tabling will remain in a consistent state.
+\index{Incremental Dependency Graph (IDG)} 
+%
+For incremental tables, {\tt abolish\_table\_call/[1,2]} not only
+deletes the table structures for {\tt CallTerm}, but pointers to {\tt
+  CallTerm} in the Incremental Dependency Graph (IDG).  The node and
+edges for {\tt CallTerm} will be reinserted into the IDG when {\tt
+  CallTerm} is re-evaluated, either lazily or by an explicit update
+command.
+
+%  incremental tables.
+%If a call $G$ is abolished, all calls that $G$ depends on will also be
+%abolished, so that the dependency structures that support incremental
+%tabling will remain in a consistent state.
 
 {\bf Error Cases}
 \bi
@@ -1867,7 +1892,7 @@ that support incremental tabling will remain in a consistent state.
 \ei
 \item The term spec {\tt CallTerm} unifies with a tabled subgoal that is incomplete:
 \bi
-\item 	{\tt table\_error}
+\item 	{\tt permission\_error}
 \ei
 \item The term spec {\tt CallTerm} is a cyclic term::
 \bi
@@ -1918,17 +1943,19 @@ Predicates that have been declared tabled remain so, but information
 in their table is deleted.  {\tt abolish\_all\_tables/0} works
 directly on the memory structures allocated for table space.  This
 makes it very fast for abolishing a large amount of tables, and to
-maintain its speed it throws an error if any completed answer $A$ is
-active in the current execution environment.  {\tt
-  abolish\_all\_tables/0} can be used regardless of whether there are
-incremental tables, or tables that use call or answer subsumption.
+maintain its speed it throws an error if the current execution
+enviornment contains any incomplete tables, or any active completed
+tables.  {\tt abolish\_all\_tables/0} can be used regardless of
+whether there are incremental tables, or tables that use call or
+answer subsumption.
 
-In the multi-threaded engine {\tt abolish\_all\_tables/0} raises an
-error unless it is called when there is a single active thread.  In
-that case, all shared tables are abolished as well as all private
-tables for the main thread.  An error will be thrown if any completed
-answer $A$ is active in the current environment, regardless of whether
-$A$ is thread-private or thread-shared.  
+In the multi-threaded engine {\tt abolish\_all\_tables/0} additionally
+raises an error unless it is called when there is a single active
+thread.  In that case, all shared tables are abolished as well as all
+private tables for the main thread.
+%An error will be thrown if any completed
+%answer $A$ is active in the current environment, regardless of whether
+%$A$ is thread-private or thread-shared.  
 
 
 
@@ -1936,11 +1963,11 @@ $A$ is thread-private or thread-shared.
 \bi
 \item There are incomplete tables at the time of the predicate's call;
 \bi
-\item 	{\tt table\_error}
+\item 	{\tt permission\_error}
 \ei
-\item The current execution environment has an active answer $A$
+\item The current execution environment has an active completed table $T$
 \bi
-\item 	{\tt table\_error}
+\item 	{\tt permission\_error}
 \ei
 \item (Multi-threaded engine only) More than one thread is active:
 \bi
@@ -2000,12 +2027,15 @@ tables are described above; additionally:
 In the multi-threaded engine, removes all tables private to the thread
 and frees all the memory held by XSB for these structures, including
 space for conditional answers.  Predicates that have been declared
-tabled remain so, but information in their table is deleted.  {\tt
-  abolish\_all\_private\_tables/0} works directly on the memory
-structures allocated for table space.  This makes it very fast for
-abolishing a large amount of tables, and to maintain its speed it
-throws an error if any completed answer $A$ for a private table is
-active in the current execution environment.
+tabled remain so, but information in their table is deleted.  Like
+{\tt abolish\_all\_tables/0}, {\tt abolish\_all\_private\_tables/0}
+works directly on the memory structures allocated for table space.
+This makes it very fast for abolishing a large amount of tables, and
+to maintain its speed it throws an error if the current execution
+enviornment contains any incomplete tables, or any active completed
+tables.  {\tt abolish\_all\_private\_tables/0} can be used regardless of
+whether there are incremental tables, or tables that use call or
+answer subsumption.
 
 %In the single-threaded engine, {\tt abolish\_all\_private\_tables/0}
 %is defined as {\tt abolish\_all\_tables/0}.
@@ -2014,10 +2044,10 @@ active in the current execution environment.
 \bi
 \item There are incomplete tables at the time of the predicate's call;
 \bi
-\item 	{\tt table\_error}
+\item 	{\tt permission\_error}
 \ei
 \item The current execution environment for the thread has an active
-  answer $A$ for a private table.  
+  private table $T$ for the current thread
 \bi
 \item 	{\tt table\_error}
 \ei
@@ -2035,21 +2065,25 @@ tabled remain so, but information in their table is deleted.  {\tt
   abolish\_all\_private\_tables/0} works directly on the memory
 structures allocated for table space.  This makes it very fast for
 abolishing a large amount of tables, and to maintain its speed it
-throws an error if any completed answer $A$ for a private table is
-active in the current execution environment.  {\tt
-  abolish\_all\_shared\_tables/0} raises an error unless it is called
-when there is a single active thread.  In that case, all shared tables
-are abolished, but private tables for the main thread are unaffected.
+throws an error if the current execution enviornment contains any
+incomplete tables, or any active completed tables.  {\tt
+  abolish\_all\_private\_tables/0} can be used regardless of whether
+there are incremental tables, or tables that use call or answer
+subsumption.  In addition, {\tt abolish\_all\_shared\_tables/0} raises
+an error unless it is called when there is a single active thread.  If
+called with a single active thread, all shared tables are abolished,
+but private tables for the main thread are unaffected.
+
 
 {\bf Error Cases}
 \bi
 \item There are incomplete tables at the time of the predicate's call;
 \bi
-\item 	{\tt table\_error}
+\item 	{\tt permission\_error}
 \ei
-\item The current execution environment has an active answer $A$
+\item The current execution environment has an active table $T$
 \bi
-\item 	{\tt table\_error}
+\item 	{\tt permission\_error}
 \ei
 \item More than one thread is active:
 \bi

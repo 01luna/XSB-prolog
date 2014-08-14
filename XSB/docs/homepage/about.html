@@ -24,17 +24,19 @@ programs to terminate correctly in many cases where Prolog does
 not. Users interested in Parsing, Program Analysis, Model-checking,
 Data Mining, Diagnosis and Temporal Reasoning may benefit from XSB.
 </p>
-<p>XSB's Tabling implementation:</p>
+<ul>
+<li>XSB's <i>Basic Tabling</i> implementation:</li>
 <ul>
   <li>
-  Evaluates at the engine level programs with stratified and non-stratified
-  negation, and programs with stratified aggregation.
+  Evaluates at the engine level programs with stratified and
+  non-stratified negation, and programs with stratified aggregation.
   </li>
   
   <li>
-  Allows full Prolog functionality in tabled code including cuts, (subject
-  to weak semantic restrictions), in meta-logical predicates, in second-order
-  predicates, etc.  Dynamic code may also be tabled.
+  Allows the full functionality of Prolog plus constraints tabled code
+  including cuts, (subject to weak semantic restrictions), in
+  meta-logical predicates, in second-order predicates, when using
+  attributed variables, etc.  Dynamic code may also be tabled.
   </li>
 
   <li>
@@ -45,15 +47,8 @@ Data Mining, Diagnosis and Temporal Reasoning may benefit from XSB.
 
   <li>
   Provides standard tabling predicates which can be used to program a number
-  of applications in Non-Monotonic reasoning and Knowledge
+  of applications in non-monotonic reasoning and knowledge
   representation.
-  </li>
-
-  <li> <i>Incremental tabling</i> can be used for programs that use
-  tabling with call-variance on program fragments that do not require
-  tabled negation.  If a table depends on dynamic code (perhaps
-  indirectly) asserts or retracts to the code will automatically
-  propagate incremental changes to the various depending tables.  
   </li>
 
   <li>
@@ -70,10 +65,36 @@ Data Mining, Diagnosis and Temporal Reasoning may benefit from XSB.
   efficiently returns the first answer to a query.
   </li>
 
-  <li> Has a heap garbage collector that works for tabled (and Prolog)
-  evaluation.  After a table is abolished, a table garbage collector
-  ensures that its space is properly reclaimed.
+  <li> <!--Has a heap garbage collector that works for tabled (and Prolog)
+  evaluation. -->  After a table is abolished, a table garbage collector
+  ensures that its space is safely reclaimed.
   </li>
+</ul>
+<li> XSB's <i>Tabling Extensions</i> fully support the basic
+functionality described above, but may not be fully integraed with one
+another (yet).</li>
+<ul>
+<li> <i> Call Subsumption</i> can be used to make programs more
+declarative and efficient by a more robust reuse of tables among
+calls.
+</li>
+
+<li> <i>Incremental tabling</i> can be used for programs that use
+tabling with call-variance on program fragments that do not require
+tabled negation.  If a table depends on dynamic code (perhaps
+indirectly) asserts or retracts to the code will automatically
+propagate incremental changes to the various depending tables.
+</li>
+
+<li> <i>Answer Subsumption</i> can be used to extend tabling to
+support multi-valued logics as well as adding fuzzy or probabilistic
+reasoning to programs.
+</li>
+<li> <i>Tabling Declarations for Termination</i> When using subgoal
+abstraction, tabling ensures termination for all programs with a
+finite model; when also tabling with radial restraint, tabling ensures
+sound termination for <i>all</i> programs.
+</ul>
 </ul>
 
 <h3>
@@ -249,6 +270,10 @@ on top of XSB, inlcuding
     XJ: a system that allows XSB programs to create graphical user
     interfaces based on Java's Swing package.
   </li>
+<li>
+  PITA: is a library that supports probabilistics and fuzzy reasoning
+  with tabling.
+</li>
   <li>XMC: a temporal-logic model checker for verifying properties of
            concurrent programs. and containing a graphical user
            interface.
