@@ -112,7 +112,7 @@ int  total_call_node_count_gl=0;
 // not used much -- for statistics
 int unchanged_call_gl=0;
 
-// Maximum arity 
+// This array does not need to be resized -- just needs to be > max_arity
 static Cell cell_array1[500];
 
 /* These seem to be safely within the bounds of regular (non-small) structures) */
@@ -912,7 +912,7 @@ int create_call_list(CTXTdecl){
 	new_heap_free(sreg);
 	cell_array1[arity-j] = cell(sreg-1);
       }
-      build_subgoal_args(subgoal);		
+      build_subgoal_args(arity,cell_array1,subgoal);		
     }else{
       follow(oldhreg++) = makestring(get_name(psc));
     }
@@ -997,7 +997,7 @@ int create_lazy_call_list(CTXTdeclc  callnodeptr call1){
 	new_heap_free(sreg);
 	cell_array1[arity-j] = cell(sreg-1);
       }
-      build_subgoal_args(subgoal);		
+      build_subgoal_args(arity,cell_array1,subgoal);		
     } else {
       follow(oldhreg++) = makestring(get_name(psc));
     }
@@ -1077,7 +1077,7 @@ int create_changed_call_list(CTXTdecl){
 	  new_heap_free(sreg);
 	  cell_array1[arity-j] = cell(sreg-1);
 	}
-	build_subgoal_args(subgoal);		
+	build_subgoal_args(arity,cell_array1,subgoal);		
       }else{
 	follow(oldhreg++) = makestring(get_name(psc));
       }
@@ -1147,7 +1147,7 @@ int immediate_outedges_list(CTXTdeclc callnodeptr call1){
 	      new_heap_free(sreg);
 	      cell_array1[arity-j] = cell(sreg-1);
 	    }
-	    build_subgoal_args(subgoal);		
+	    build_subgoal_args(arity,cell_array1,subgoal);		
 	  }else{
 	    follow(oldhreg++) = makestring(get_name(psc));
 	  }
@@ -1293,7 +1293,7 @@ int immediate_inedges_list(CTXTdeclc callnodeptr call1){
 	    new_heap_free(sreg);
 	    cell_array1[arity-j] = cell(sreg-1);
 	  }		
-	  build_subgoal_args(subgoal);		
+	  build_subgoal_args(arity,cell_array1,subgoal);		
 	}else{
 	  follow(oldhreg++) = makestring(get_name(psc));
 	}
@@ -1700,7 +1700,7 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 	new_heap_free(sreg);
 	cell_array1[arity-j] = cell(sreg-1);
       }
-      build_subgoal_args(subgoal);		
+      build_subgoal_args(arity,cell_array1,subgoal);		
     } else{
       follow(oldhreg++) = makestring(get_name(psc));
     }

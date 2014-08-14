@@ -3746,6 +3746,7 @@ xsbBool db_abolish0(CTXTdecl/* R1: +PredEP , R2: +PSC */)
 		    "Cannot abolish tabled predicate when table is incomplete");
     } else {
       tif = get_tip(CTXTc psc);
+      // cps check done in following predicate...
       abolish_table_predicate_switch(CTXTc tif, psc, (int)(flags[TABLE_GC_ACTION]), FALSE,ERROR_ON_INCOMPLETE);
     }
   }

@@ -868,8 +868,9 @@ static void delete_variant_table(CTXTdeclc BTNptr x, int incr, xsbBool should_wa
 
 }
 
-/* called when it is now known whether a predicate is variant or subsumptive 
-   (by abolish_table_pred) */
+/* Low-level abolish, called by abolish_table_predwhen it is now known
+   whether a predicate is variant or subsumptive.  Assumes incremental
+   check has already been made.*/
   void delete_predicate_table(CTXTdeclc TIFptr tif, xsbBool warn) {
   if ( TIF_CallTrie(tif) != NULL ) {
     SET_TRIE_ALLOCATION_TYPE_TIP(tif);
@@ -3375,9 +3376,12 @@ static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check
   int action;
 
   if(get_incr(TIF_PSC(tif))) {  /* incremental */
-      xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
-		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
-	       get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
+      char message[ERRMSGLEN/2];
+      snprintf(message,ERRMSGLEN/2,"incremental tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
+      xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+      //      xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
+      //		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
+      //  	          get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
       //    free_incr_hashtables(tif);  TLS: took out 201408 - this makes no sense to me.
   }
 
@@ -3440,16 +3444,23 @@ static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_c
     tif = done_tif_stack[done_tif_stack_top];
 
     if(get_incr(TIF_PSC(tif))) {     /* incremental */
-      xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
-		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
-	       get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
+      char message[ERRMSGLEN/2];
+      snprintf(message,ERRMSGLEN/2,"incremental tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
+      xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+      //      xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
+      //		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
+      //       get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
       //      free_incr_hashtables(tif);
     }
 
-    if ( ! is_completed_table(tif) ) 
-      xsb_abort("[abolish_table_pred] Cannot abolish incomplete table"
-		" of predicate %s/%d\n", get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
-
+    if ( ! is_completed_table(tif) ) {
+      char message[ERRMSGLEN/2];
+      snprintf(message,ERRMSGLEN/2,"incomplete tabled predicate %s/%d",get_name(TIF_PSC(tif)),
+	       get_arity(TIF_PSC(tif)));
+      xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+      //      xsb_abort("[abolish_table_pred] Cannot abolish incomplete table"
+      //		" of predicate %s/%d\n", get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
+    }
  if (flags[CTRACE_CALLS])  { 
     fprintf(fview_ptr,"ta(pred(%s/%d),%d).\n",get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)),ctrace_ctr++);
   }
@@ -4029,8 +4040,9 @@ void abolish_all_shared_tables(CTXTdecl) {
     
     check_for_incomplete_tables("abolish_all_shared_tables/0");
     if ( abolish_mt_tables_cps_check(CTXTc FALSE) ) 
-      xsb_abort("[abolish_all_shared_tables/0] Illegal table operation"
-		"\n\t Backtracking through tables to be abolished.");
+      xsb_permission_error(CTXTc "abolish","backtracking through tables to be abolished",0,"abolish_all_shared_tables",0);
+    //      xsb_abort("[abolish_all_shared_tables/0] Illegal table operation"
+    //		"\n\t Backtracking through tables to be abolished.");
     else {
       for ( pTIF = tif_list.first; IsNonNULL(pTIF) ; pTIF = TIF_NextTIF(pTIF) ) {
 	  TIF_CallTrie(pTIF) = NULL;
@@ -4081,8 +4093,9 @@ void abolish_all_private_tables(CTXTdecl) {
 
   // TRUE means we found a private table
   if ( abolish_mt_tables_cps_check(CTXTc TRUE) ) 
-    xsb_abort("[abolish_all_private_tables/0] Illegal table operation"
-		  "\n\t Backtracking through tables to be abolished.");
+    xsb_permission_error(CTXTc "abolish","backtracking through tables to be abolished",0,"abolish_all_private_tables",0);
+  //    xsb_abort("[abolish_all_private_tables/0] Illegal table operation"
+  //		  "\n\t Backtracking through tables to be abolished.");
   else {
     for ( pTIF = private_tif_list.first; IsNonNULL(pTIF)
 	  			       ; pTIF = TIF_NextTIF(pTIF) ) {
@@ -4254,8 +4267,9 @@ void abolish_all_tables_cps_check(CTXTdecl)
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	abolish_dbg(("[abolish_all_tables/0] Illegal table operation"
 		       "\n\t Backtracking through tables to be abolished.\n"));
-	xsb_abort("[abolish_all_tables/0] Illegal table operation"
-		  "\n\t Backtracking through tables to be abolished.");
+	xsb_permission_error(CTXTc "abolish","backtracking through tables to be abolished",0,"abolish_all_tables",0);
+	//	xsb_abort("[abolish_all_tables/0] Illegal table operation"
+	//		  "\n\t Backtracking through tables to be abolished.");
       }
     }
     /* Now check delaylist */
@@ -5020,7 +5034,7 @@ int return_ans_depends_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 	new_heap_free(sreg);
 	cell_array1[arity-j] = cell(sreg-1);
       }
-      build_subgoal_args(subgoal);		
+      build_subgoal_args(arity,cell_array1,subgoal);		
     }
     else {
       follow(hreg-3) = makestring(get_name(psc));
