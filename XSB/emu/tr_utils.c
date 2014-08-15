@@ -3075,7 +3075,7 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
     else {
       //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
       if (!get_shared(psc)) {
-	if (!IsIncrSF(subgoal)) invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	if (IsIncrSF(subgoal)) invalidate_call(CTXTc subg_callnode_ptr(subgoal));
 	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 	check_insert_private_deltf_subgoal(CTXTc subgoal,FALSE);
       }
@@ -3143,7 +3143,7 @@ void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
       else {
 	//	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
 	if (!get_shared(psc)) {
-	  if (!IsIncrSF(subgoal)) invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	  if (IsIncrSF(subgoal)) invalidate_call(CTXTc subg_callnode_ptr(subgoal));
 	  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 	  check_insert_private_deltf_subgoal(CTXTc subgoal,FALSE);
 	}
