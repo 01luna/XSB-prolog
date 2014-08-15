@@ -25,6 +25,8 @@ options=$2
 ../gentest.sh "$XEMU $options" inc_abol "test".
 #------------------------------------------------- inc tests with abolish_table_call
 ../gentest.sh "$XEMU $options" inc_atc "test".
+#------------------------------------------------- inc tests with abolish_table_call + gc
+../gentest.sh "$XEMU $options" inc_atc_gc "test".
 #------------------------------------------------- inc trans depends (cyclic)
 ../gentest.sh "$XEMU $options" test_incr_depends "test".
 #------------------------------------------------- inc trans depends (non cyclic)
