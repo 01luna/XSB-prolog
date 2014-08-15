@@ -1,6 +1,6 @@
 
 :- import numbervars/1 from num_vars.
-:- import incr_assert/1 from increval.
+:- import incr_assert_immed/1 from increval.
 :- import abolish_incremental_call_single/1 from tables.
 :- import incr_directly_depends/2 from increval.
 
@@ -23,6 +23,13 @@ t_3(X):- d_1(X).
 
 d_1(1).
 
+test1:- abolish_all_tables,fail.
+test1:- t_1a(_),fail.
+test1:- t_1b(_),fail.
+test1:- abolish_incremental_call_single(t_2b(_)),fail.
+test1:- incr_assert_immed(d_1(2)),fail.
+test1:- writeln('-----------------'),print_results('after eager update '),fail.
+
 test:- t_1a(_),fail.
 test:- t_1b(_),fail.
 test:-writeln('-----------------'),print_results('before_abolish '),fail.
@@ -31,7 +38,8 @@ test:- incr_directly_depends(t_1a(X),Y),numbervars(incr_directly_depends(t_1a(X)
 test:- incr_directly_depends(Y,t_3(X)),numbervars(incr_directly_depends(Y,t_3(X))),
         writeln(before_abolish(incr_directly_depends(Y,t_3(X)))),fail.
 test:- t_1a(_),fail.
-test:- abolish_incremental_call_single(t_2b(_)),fail.
+%test:- abolish_incremental_call_single(t_2b(_)),fail.
+test:- abolish_table_call(t_2b(_),[abolish_tables_singly]),fail.
 test:-writeln('-----------------'),print_results('after_abolish '),fail.
 test:- incr_directly_depends(t_1a(X),Y),numbervars(incr_directly_depends(t_1a(X),Y)),
         writeln(after_abolish(incr_directly_depends(t_1a(X),Y))),fail.
@@ -43,6 +51,7 @@ test:- incr_directly_depends(t_1a(X),Y),numbervars(incr_directly_depends(t_1a(X)
         writeln(after_recall(incr_directly_depends(t_1a(X),Y))),fail.
 test:- incr_directly_depends(Y,t_3(X)),numbervars(incr_directly_depends(Y,t_3(X))),
         writeln(after_recall(incr_directly_depends(Y,t_3(X)))),fail.
+test:- test1.
 test.
 
 print_results(Atom):- get_residual(t_1a(X),_),write(Atom),writeln(t_1a(X)),fail.
