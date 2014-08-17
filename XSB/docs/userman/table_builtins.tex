@@ -1874,10 +1874,10 @@ thread-private.
 %
 For incremental tables, {\tt abolish\_table\_call/[1,2]} not only
 deletes the table structures for {\tt CallTerm}, but pointers to {\tt
-  CallTerm} in the Incremental Dependency Graph (IDG).  The node and
-edges for {\tt CallTerm} will be reinserted into the IDG when {\tt
-  CallTerm} is re-evaluated, either lazily or by an explicit update
-command.
+  CallTerm} in the Incremental Dependency Graph (IDG), and invalidates
+all subgoals that depend on {\tt CallTerm}. The node and edges for
+{\tt CallTerm} will be reinserted into the IDG when {\tt CallTerm} is
+re-evaluated, either lazily or by an explicit update command.
 
 %  incremental tables.
 %If a call $G$ is abolished, all calls that $G$ depends on will also be

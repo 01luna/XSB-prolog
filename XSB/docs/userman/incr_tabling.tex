@@ -117,6 +117,7 @@ no
 \end{verbatim}
 \noindent
 \index{Incremental Dependency Graph (IDG)}
+\index{tabling!incremental!invalid subgoals}
 The transparent approach to incremental updating works as follows.
 When {\tt incr\_assert/1} is called, it sparks an invalidation
 phase in which tables that depend on {\tt q(d,4)} are marked as {\em
@@ -312,6 +313,18 @@ updating incremental tables to be immediately incurred, and ensures
 that table inspection primitives show correct results.  However,
 tables are updated and their views preserved even if the tables may
 not be accessed before further updates are made.
+
+\paragraph{Issues with Eager Updating}
+%
+In the current version of XSB, eager updating is taken to be something
+of a special use case.  In order to perform eager updating, a global
+update list is maintained whenever changes are made to incremental
+dynamic predicates or tries.  In particular, the list is not updated
+when incremental tables are abolished, so that if an incremental table
+has been abolished making the global update list possibly invalid,
+eager updating will be disabled for the rest of the session (unless
+{\tt abolish\_all\_tables/0} is called.  In this state, a call to {\tt
+  incr\_table\_update} will throw a permission error.
 
 \subsubsection{An Immediate Approach}
 %
@@ -667,11 +680,13 @@ maintained tables:
 % 
 are versions of {\tt assert/1} and other standard Prolog predicates.
 They modify dymamic code just as their Prolog counterparts, but they
-then invalidate all incrementally maintained tables that depend on
+first invalidate all incrementally maintained tables that depend on
 {\tt Clause}.
 
 {\bf Error Cases} are the same as {\tt assert<a/z>/1}, {\tt retract/1}
-and {\tt retractall/1} with the additional error condition:
+and {\tt retractall/1} with the additional error conditions that
+relate to the semantics of incremental tabling.  Note that if these
+error conditions arise, the update will {\tt not} occur.
 
 \begin{itemize}
 \item The head of the clause {\tt Clause} or the {\tt Term} refers to
@@ -679,6 +694,12 @@ and {\tt retractall/1} with the additional error condition:
 \bi
 \item  {\tt type error(dynamic\_incremental, Term)}
 \ei
+%
+\item {\tt Clause} affects an incremental table that is incomplete
+  (and so is in the course of being computed).
+\bi
+\item  {\tt permission\_error}
+\ei 
 \end{itemize}
 
 \ourrepeatmoditem{incr\_assert\_immed(+Clause)}{incr\_assert\_immed/1}{increval}
@@ -719,7 +740,12 @@ Explicit update calls only need to be used in special circumstances
 \bi
 \item 	{\tt permission\_error(update, incomplete\_table Goal)}
 \ei
-\ei
+\item An abolish of some incremental table has made the global update
+  list potentially corrupted.
+\bi
+\item {\tt permission\_error}
+\ei 
+  \ei
 
 \ourmoditem{incr\_table\_update(-GoalList)}{incr\_table\_update/1}{increval}
 acts as {\tt incr\_table\_update/0} in its action to update the
@@ -802,7 +828,7 @@ any affected tables.
 
 \index{residual dependency graph}
 \index{Incremental Dependency Graph (IDG)}
-\paragraph{Inspecting Dependencies among Incremental Subgoals}
+\paragraph{Inspecting the State of the Incremental Dependency Graph}
 %
 % These relations form a labelled directed graph for which the
 %nodes are incrementally tabled subgoals present in XSB; a given
@@ -816,13 +842,18 @@ IDG that can be useful in debugging, profiling or optimizing a
 computation~\footnote{The predicates for traversing the incremental
   dependency graph are somewhat analogous to those for traversing the
   residual dependency graph (Section~\ref{sec:table-inspection}).}.
+In addition they provide information about which subgoals in the IDG
+are invalid -- i.e., which subgoals depend on a dynamic code that has
+changed, but have not been updated.
 
 As explained below, IDG nodes can be accessed via the predicate {\tt
   is\_incremental\_subgoal/1}, while IDG edges can be accessed via
 {\tt incr\_directly\_depends/2}.  The predicates {\tt
   get\_incr\_scc/[1,2]} and {\tt get\_incr\_scc\_with\_deps/[3,4]} can
 be used to efficiently materialize the dependency graph in Prolog,
-including SCC information.
+including SCC information.  Similarly, the predicates {\tt
+  incr\_invalid\_subgoals/1} and {\tt incr\_is\_invalid/1} can be
+used to determine which subgoals are invalid.
 
 \begin{description}
 
@@ -929,5 +960,16 @@ number of edges in the dependency graph.  As a result, {\tt
 \item 	{\tt permission\_error}
 \ei
 \ei
+
+\ourmoditem{incr\_invalid\_subgoals(-List)}{incr\_invalid\_subgoals/1}{increval}
+%
+This predicate unifies {\tt List} with a sorted list of the
+incremental subgoals that are currently invalid.
+
+\ourmoditem{incr\_is\_invalid(+Subgoal)}{incr\_is\_invalid/1}{increval}
+%
+Succeeds if {\tt Subgoal} is an incrementally tabled subgoal that is
+invalid, and fails otherwise.
+
 \end{description}
 
