@@ -75,7 +75,17 @@ xsbBool incr_eval_builtin(CTXTdecl)
   case GET_AFFECTED_CALLS: {
     /* This builtin creates a (prolog) list which contains all the
       affected calls in postorder.     */
-    int rc = create_call_list(CTXT);
+    int rc = call_list_to_prolog(CTXTc affected_gl);
+  printterm(stddbg,reg[4],25); printf(" -4i-\n");
+  printterm(stddbg,reg[3],25); printf(" -3i- \n");
+    return rc;
+    break;
+  }
+
+  case CONSUME_AFFECTED_CALLS: {
+    /* This builtin creates a (prolog) list which contains all the
+      affected calls in postorder.     */
+    int rc = return_affected_list_for_update(CTXT);
     affected_gl=empty_calllist();
     changed_gl=empty_calllist();
     return rc;
@@ -86,7 +96,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
     /* This builtin creates a (prolog) list which contains all the
       changed calls.          */
 
-    return create_changed_call_list(CTXT);    
+    return return_changed_call_list(CTXT);    
     break;
   }
     
@@ -194,16 +204,20 @@ xsbBool incr_eval_builtin(CTXTdecl)
   }
 
   case IS_AFFECTED: {
-    const int sfreg=2;
-    VariantSF sf=ptoc_addr(sfreg);
-    if(IsNonNULL(sf)){
-      callnodeptr c=sf->callnode;
-      if(IsNonNULL(c)&&(c->falsecount!=0))
-	return TRUE;
-      else
+    
+    Psc psc = term_psc((Cell)(ptoc_tag(CTXTc 2)));
+    if (get_type(psc) != T_DYNA && get_incr(psc)) {    /* make sure its incremental, but  isn't a leaf node of the IDG */
+      VariantSF sf  = get_call(CTXTc ptoc_tag(CTXTc 2), NULL);
+      if(IsNonNULL(sf)){
+	callnodeptr c=sf->callnode;
+	if(IsNonNULL(c) &&  (c->falsecount!=0))
+	  return TRUE;
+	else
+	  return FALSE;
+      } else
 	return FALSE;
-    } else
-      return FALSE;
+    }
+    else return FALSE;
     
     break;
   }
@@ -218,7 +232,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
 
   /*  This builtin creates a (prolog) list which contains all the 
       affected calls that the input call depends on, in postorder.         */
-  case CREATE_LAZY_CALL_LIST: {
+  case RETURN_LAZY_CALL_LIST: {
     VariantSF sf;
     int rc = 0, flag, dfs_ret;
 
@@ -228,7 +242,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
     if (IsNonNULL(sf))  {
       flag = (int)ptoc_int(CTXTc 3);
       if (flag == CALL_LIST_EVAL) {
-	rc = create_lazy_call_list(CTXTc sf->callnode);
+	rc = return_lazy_call_list(CTXTc sf->callnode);
 	return rc;
       }
       else if (flag == CALL_LIST_CREATE_EVAL) {
@@ -236,7 +250,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
 	dfs_ret = dfs_inedges(CTXTc subg_callnode_ptr(sf),  &lazy_affected, CALL_LIST_EVAL);
 	//	fprintf(stddbg,"dfs returned %d flag = %d\n",dfs_ret,flag);
 	if (!dfs_ret ) 
-	  rc = create_lazy_call_list(CTXTc sf->callnode);
+	  rc = return_lazy_call_list(CTXTc sf->callnode);
 	else rc = FALSE;
 	return rc;
       }
@@ -244,7 +258,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
 	lazy_affected = empty_calllist();
 	dfs_ret = dfs_inedges(CTXTc subg_callnode_ptr(sf),  &lazy_affected, CALL_LIST_INSPECT);
 	//	fprintf(stddbg,"dfs returned %d flag = %d\n",dfs_ret,flag);
-	rc = create_lazy_call_list(CTXTc sf->callnode);
+	rc = return_lazy_call_list(CTXTc sf->callnode);
 	return rc;
       }
     }

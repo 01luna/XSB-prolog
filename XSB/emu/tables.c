@@ -402,7 +402,7 @@ int table_call_search_incr(CTXTdeclc TabledCallInfo *call_info,
       BTN_Child(leaf) = (BTNptr)cn;
       callnode_tif_ptr(cn) = tif;
       callnode_leaf_ptr(cn) = leaf;
-      initoutedges((callnodeptr)BTN_Child(leaf));
+      initoutedges(CTXTc (callnodeptr)BTN_Child(leaf));
     }
   }
   else

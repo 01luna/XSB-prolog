@@ -94,7 +94,9 @@ Terminology: outedge -- pointer to calls that depend on call
 calllistptr affected_gl=NULL;
 calllistptr lazy_affected= NULL;
 
-// derives create_changed_call_list which reports those calls changed in last update
+int incr_table_update_safe_gl = TRUE;
+
+// derives return_changed_call_list which reports those calls changed in last update
 calllistptr changed_gl=NULL;
 
 // used to compare new to previous tables.
@@ -131,6 +133,23 @@ DEFINE_HASHTABLE_SEARCH(search_some, KEY, callnodeptr);
 DEFINE_HASHTABLE_REMOVE(remove_some, KEY, callnodeptr);
 DEFINE_HASHTABLE_ITERATOR_SEARCH(search_itr_some, KEY);
 
+/*****************************************************************************/
+/* Debugging */
+
+void print_call_list(CTXTdeclc calllistptr affected_ptr,char * string) {
+
+  printf("%s",string);
+  while ( calllist_next(affected_ptr) != NULL) {
+    printf("item %p sf %p ",calllist_item(affected_ptr),callnode_sf(calllist_item(affected_ptr)));
+    printf("next %p ",calllist_next(affected_ptr));  
+    if (callnode_sf(calllist_item(affected_ptr)) != NULL) {
+      print_subgoal(CTXTc stddbg, callnode_sf(calllist_item(affected_ptr)));
+      }
+    printf("\n");
+    affected_ptr = (calllistptr) calllist_next(affected_ptr);
+  } ;
+
+}
 
 /*****************************************************************************/
 static unsigned int hashid(void *ky)
@@ -364,13 +383,13 @@ void deallocate_previous_call(callnodeptr callnode){
   SM_DeallocateSmallStruct(smKey, ownkey);      
 }
 
-void initoutedges(callnodeptr cn){
+void initoutedges(CTXTdeclc callnodeptr cn){
   outedgeptr out;
 
 #ifdef INCR_DEBUG
   printf("Initoutedges for ");  print_callnode(CTXTc stddbg, cn);  printf(" (id %d) \n",cn->id);
   printf("------- affected_gl\n");
-  print_call_list(affected_gl);
+  print_call_list(CTXTc affected_gl,"affected_gl ");
   printf("--------\n");
     //  printf("affected_gl %p %p\n",affected_gl,*affected_gl);
 #endif
@@ -843,23 +862,10 @@ void invalidate_call(CTXTdeclc callnodeptr cn){
   }
 }
 
-void print_call_list(CTXTdeclc calllistptr affected_ptr) {
-
-  while ( calllist_next(affected_ptr) != NULL) {
-    printf("item %p sf %p ",calllist_item(affected_ptr),callnode_sf(calllist_item(affected_ptr)));
-    printf("next %p ",calllist_next(affected_ptr));  
-    if (callnode_sf(calllist_item(affected_ptr)) != NULL) {
-      print_subgoal(CTXTc stddbg, callnode_sf(calllist_item(affected_ptr)));
-      }
-    printf("\n");
-    affected_ptr = (calllistptr) calllist_next(affected_ptr);
-  } ;
-
-}
-
 #define WARN_ON_UNSAFE_UPDATE 1
 
-int create_call_list(CTXTdecl){
+/* Creates list for eager update, and empties affected_gl list */
+int return_affected_list_for_update(CTXTdecl){
   callnodeptr call1;
   VariantSF subgoal;
   TIFptr tif;
@@ -868,7 +874,10 @@ int create_call_list(CTXTdecl){
   CPtr oldhreg=NULL;
 
   //  print_call_list(affected_gl);
-
+  if (!incr_table_update_safe_gl) {
+    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
+    return FALSE;
+  }
   reg[4] = reg[3] = makelist(hreg);  // reg 3 first not-used, use regs in case of stack expanson
   new_heap_free(hreg);   // make heap consistent
   new_heap_free(hreg);
@@ -943,8 +952,9 @@ int create_call_list(CTXTdecl){
 }
 
 //---------------------------------------------------------------------------
+// destroys
 
-int create_lazy_call_list(CTXTdeclc  callnodeptr call1){
+int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
   VariantSF subgoal;
   TIFptr tif;
   int j,count=0,arity; 
@@ -1023,6 +1033,8 @@ int create_lazy_call_list(CTXTdeclc  callnodeptr call1){
   printf("-----------------------------\n");   */
 }
 
+//---------------------------------------------------------------------------
+// Utility for next two functions
 
 int in_reg2_list(CTXTdeclc Psc psc) {
   Cell list,term;
@@ -1048,7 +1060,7 @@ int in_reg2_list(CTXTdeclc Psc psc) {
    reg 3: returned list of changed goals
    reg 4: used as temp (in case of heap expansion)
  */
-int create_changed_call_list(CTXTdecl){
+int return_changed_call_list(CTXTdecl){
   callnodeptr call1;
   VariantSF subgoal;
   TIFptr tif;
@@ -1091,21 +1103,75 @@ int create_changed_call_list(CTXTdecl){
   else
     reg[4] = makenil;
     
- 
   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
-
-  /*
-    int i;
-    for(i=0; i<callqptr; i++){
-      if(IsNonNULL(callq[i]) && (callq[i]->deleted==1)){
-    sfPrintGoal(stdout,(VariantSF)callq[i]->goal,NO);
-    printf(" %d %d\n",callq[i]->falsecount,callq[i]->deleted);
-    }
-    }
-  printf("-----------------------------\n");
-  */
 }
 
+//---------------------------------------------------------------------------
+// does not destroy list
+
+int call_list_to_prolog(CTXTdeclc calllistptr list_head){
+  calllistptr listptr = list_head;
+  callnodeptr call1 = list_head->item;
+  VariantSF subgoal;
+  TIFptr tif;
+  int j, count = 0,arity;
+  Psc psc;
+  CPtr oldhreg = NULL;
+  //  print_call_list(affected_gl);
+  if (!incr_table_update_safe_gl) {
+    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
+    return FALSE;
+  }
+  //  printf("cltp %p %p\n",listptr,call1);
+  //  printterm(stddbg,reg[3],25); printf(" -3.1- \n");
+  reg[4] = reg[3] = makelist(hreg);  // reg 3 first not-used, use regs in case of stack expanson
+  new_heap_free(hreg);   // make heap consistent
+  new_heap_free(hreg);
+
+  while (call1  != EMPTY){
+    if (call1->goal) {
+      subgoal = (VariantSF) call1->goal;      
+    count++;
+    tif = (TIFptr) subgoal->tif_ptr;
+    //    if (!(psc = TIF_PSC(tif)))
+    //	xsb_table_error(CTXTc "Cannot access dynamic incremental table\n");	
+    psc = TIF_PSC(tif);
+    arity = get_arity(psc);
+    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
+    oldhreg = clref_val(reg[4]);  // maybe updated by re-alloc
+    if(arity>0){
+      sreg = hreg;
+      follow(oldhreg++) = makecs(sreg);
+      hreg += arity + 1;  // had 10, why 10?  why not 3? 2 for list, 1 for functor (dsw)
+      new_heap_functor(sreg, psc);
+      for (j = 1; j <= arity; j++) {
+	new_heap_free(sreg);
+	cell_array1[arity-j] = cell(sreg-1);
+      }
+      build_subgoal_args(arity,cell_array1,subgoal);		
+    }else{
+      follow(oldhreg++) = makestring(get_name(psc));
+    }
+    reg[4] = follow(oldhreg) = makelist(hreg);
+    new_heap_free(hreg);
+    new_heap_free(hreg);
+    }
+    listptr = listptr->next;
+    call1 = listptr->item;
+  }
+
+  if(count > 0) {
+    follow(oldhreg) = makenil;
+    hreg -= 2;  /* take back the extra words allocated... */
+  } else
+    reg[3] = makenil;
+    
+  //  printterm(stdout,call_list,100);
+
+  return unify(CTXTc reg_term(CTXTc 2),reg_term(CTXTc 3));
+}
+
+//---------------------------------------------------------------------------
 
 int immediate_outedges_list(CTXTdeclc callnodeptr call1){
  

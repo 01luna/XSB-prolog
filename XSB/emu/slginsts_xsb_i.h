@@ -331,7 +331,7 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
     } 
     else {
       if(IsIncrSF(producer_sf))
-	initoutedges(producer_sf->callnode);
+	initoutedges(CTXTc producer_sf->callnode);
     }
 
     if(parent_table_is_incr){  

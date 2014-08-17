@@ -2549,7 +2549,6 @@ case WRITE_OUT_PROFILE:
   }
 
   case ABOLISH_TABLE_CALL: {
-    /* incremental evaluation */
     VariantSF subg=(VariantSF) ptoc_int(CTXTc 1);
     abolish_table_call(CTXTc subg, (int)ptoc_int(CTXTc 2));
     return TRUE;

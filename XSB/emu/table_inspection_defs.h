@@ -49,7 +49,6 @@
 #define TEMP_FUNCTION                            25
 #define TEMP_FUNCTION_2                          26
 #define ABOLISH_NONINCREMENTAL_TABLES            27
-#define ABOLISH_INCREMENTAL_CALL_SINGLE          28
 
 // For delete return
 #define ANSWER_SUBSUMPTION   0

@@ -84,6 +84,7 @@ counter abol_subg_ctr,abol_pred_ctr,abol_all_ctr; /* statistics */
 
 extern void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int);
 extern int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF subgoal, int);
+extern int incr_table_update_safe_gl;
 
 #if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
 double total_table_gc_time = 0;
@@ -1571,7 +1572,7 @@ Integer new_private_trie(CTXTdeclc int props) {
 	itrie_array[index].callnode = makecallnode(NULL);
 	(itrie_array[index].callnode)->is_incremental_trie = 1;
 	//	printf("callnode %p\n",itrie_array[index].callnode);
-	initoutedges((callnodeptr)itrie_array[index].callnode);
+	initoutedges(CTXTc (callnodeptr)itrie_array[index].callnode);
 	itrie_array[index].incremental = 1;
 	//	printf("incremental\n");
       }
@@ -3432,7 +3433,6 @@ static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check
 }  
 
 static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_check_flag) {
-  //void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_check_flag) {
   int action;
 
   find_pred_backward_dependencies(CTXTc tif);
@@ -4188,7 +4188,7 @@ int index =  itrie_array_first_trie;
      if (itrie_array[index].incremental == 1) {
        itrie_array[index].callnode = makecallnode(NULL);
        //       printf("reinitizlizing incremental trie %d %p\n",index,itrie_array[index].callnode);
-       initoutedges((callnodeptr)itrie_array[index].callnode);
+       initoutedges(CTXTc (callnodeptr)itrie_array[index].callnode);
      }
      //     printf("next %d\n",itrie_array[index].next_entry);
      index = itrie_array[index].next_entry;
@@ -4338,6 +4338,7 @@ void abolish_all_tables(CTXTdeclc int action) {
   reinitialize_incremental_tries(CTXT);  
   affected_gl = empty_calllist();
   changed_gl = empty_calllist();
+  incr_table_update_safe_gl = TRUE;
 
   end_table_gc_time(timer);
 }
@@ -4354,6 +4355,7 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   #ifdef DEBUG_ABOLISH
   abolish_dbg(("abolish incr call single: ")); print_subgoal(stddbg,goal); 
   printf("(id %d flag %d)\n",callnode->id,invalidate_flag);
+  print_call_list(affected_gl," affected_gl ");
   #endif
   if (invalidate_flag) {
     invalidate_call(CTXTc callnode);
@@ -4366,6 +4368,7 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   //  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
   delete_variant_sf_and_answers(CTXTc goal,FALSE); // delete answers + subgoal
   //  printf("end aics\n");
+  if (affected_gl->item != NULL) incr_table_update_safe_gl = FALSE;
   return TRUE;
 }
 
@@ -5721,11 +5724,6 @@ case CALL_SUBS_SLG_NOT: {
 
     return abolish_nonincremental_tables(CTXTc (int)ptoc_int(CTXTc 2));
   }
-
-    //  case ABOLISH_INCREMENTAL_CALL_SINGLE: {
-    //
-    //    return abolish_incremental_call_single(CTXTc (VariantSF) ptoc_int(CTXTc 2),DO_INVALIDATE);
-    //  }
 
     //  case TEMP_FUNCTION: {
     //    /* Input : Incall ; Output : Outcall */

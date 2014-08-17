@@ -22,7 +22,7 @@
 ** 
 */
 #define GET_AFFECTED_CALLS         1
-
+#define CONSUME_AFFECTED_CALLS     2
 //#define GET_CALL_GRAPH           3
 #define INVALIDATE_CALLNODE        4
 //#define PRINT_CALL               5
@@ -35,7 +35,7 @@
 #define IS_AFFECTED               12
 #define PSC_GET_INCR              13
 #define INVALIDATE_CALLNODE_TRIE  14
-#define CREATE_LAZY_CALL_LIST     15
+#define RETURN_LAZY_CALL_LIST     15
 #define CALL_IF_AFFECTED          16
 #define CHECK_INCREMENTAL         17
 #define IMMED_AFFECTS_PTRLIST     18
