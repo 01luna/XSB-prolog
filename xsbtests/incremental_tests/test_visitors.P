@@ -13,7 +13,7 @@ test.
 test_1:- t_inc_1(_X),get_term_visitors(t_inc_1(_),N),
 	 writeln(test_1_1(N)),
 	 fail.
-test_1:- get_term_visitors(t_inc_1_2(_),N),
+test_1:- get_term_visitors(t_inc_1(_),N),
 	 writeln(test_1(N)),
 	 fail.
 

@@ -66,3 +66,5 @@ options=$2
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_abolish_incremental_call_single "test."
 #--------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_introspection "test."
+#--------------------------------------------------

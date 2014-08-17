@@ -18,14 +18,14 @@ test_1:- t_inc_5(_X),
 	 %writeln(t_inc_5(X)),
 	 fail.
 %test_un:- incr_assert_inval(q(a)),fail.
-test_1:- t_inc_5(_X),incr_assert_inval(p(a)),increval:get_affected_calls(Y),
+test_1:- t_inc_5(_X),incr_assert_inval(p(a)),increval:consume_affected_calls(Y),
 	 numbervars(test_1_affected(Y)),writeln(test_1_affected(Y)),!.
 
 test_2:- t_inc_5(_X),
 	 %writeln(t_inc_5(X)),
 	 fail.
 %test_un:- incr_assert_inval(q(a)),fail.
-test_2:- t_inc_4(_X),incr_assert_inval(p(a)),increval:get_affected_calls(Y),
+test_2:- t_inc_4(_X),incr_assert_inval(p(a)),increval:consume_affected_calls(Y),
 	 numbervars(test_2_affected(Y)),writeln(test_2_affected(Y)),!.
 
 p(1). p(2).
