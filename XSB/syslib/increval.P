@@ -29,19 +29,32 @@
 %--------
 
 incr_table_update :-
-	get_affected_calls(Affected),
+	consume_affected_calls(Affected),
 	reeval(Affected).
 
 incr_table_update(Y) :-
 	incr_table_update([],Y).
 
 incr_table_update(FiltList,Changed):- 
- 	get_affected_calls(Affected),
+ 	consume_affected_calls(Affected),
 	reeval(Affected),
 	get_changed_calls(FiltList,Changed).
 
-get_affected_calls(X) :-
-	incr_eval_builtin(GET_AFFECTED_CALLS, X).
+:- export incr_is_invalid/1.
+incr_is_invalid(Term):- 
+	incr_eval_builtin(IS_AFFECTED,Term).
+
+/* Does not use affected_gl which is not always updated by lazy or by abolishes */
+:- export incr_invalid_subgoals/1.
+incr_invalid_subgoals(List):- 
+	(setof(Term,(predicate_property(Term,incremental),
+	            predicate_property(Term,tabled),
+	  	    incr_is_invalid(Term)),List) -> true ; List = []).
+
+% Return list of affected calls *and makes list empty*.  For internal use only.
+:- export consume_affected_calls/1.
+consume_affected_calls(X) :-
+	incr_eval_builtin(CONSUME_AFFECTED_CALLS, X).
 
 reeval(Calls) :-
 	(member(Call,Calls),
@@ -61,8 +74,10 @@ get_changed_calls(Filt,X) :-
 
 :- import call_c/1 from standard.
 :- import reverse/2 from basics.
-lazy_reeval(Call):- 
-	create_lazy_call_list(Call,CALL_LIST_CREATE_EVAL,List),
+
+/* this is what is called for lazy reevaluation */
+lazy_reeval_trap(Call):- 
+	create_lazy_call_list(Call,CALL_LIST_EVAL,List),
 	reverse(List,ListR),
 	lazy_reeval_1(ListR),
 	call_c(Call).
@@ -72,14 +87,15 @@ lazy_reeval_1([Call|Rest]):-
 	(call_if_affected(Call),fail ; true),
 	lazy_reeval_1(Rest).	
 
-lazy_reeval_trap(Call):- 
-	create_lazy_call_list(Call,CALL_LIST_EVAL,List),
+create_lazy_call_list(Call,Flag,List) :-
+	incr_eval_builtin(RETURN_LAZY_CALL_LIST,Call,Flag,List).
+
+/* probably not useful (but in test suite) */
+ lazy_reeval(Call):- 
+	create_lazy_call_list(Call,CALL_LIST_CREATE_EVAL,List),
 	reverse(List,ListR),
 	lazy_reeval_1(ListR),
 	call_c(Call).
-
-create_lazy_call_list(Call,Flag,List) :-
-	incr_eval_builtin(CREATE_LAZY_CALL_LIST,Call,Flag,List).
 
 %--------
 
@@ -161,13 +177,13 @@ incr_assertz(Term) :- incr_assert(Term,1,1).
 incr_assert(Term,AZL,Index):-
 	(Term = (:-(H,_)) -> Head = H ; Head = Term),
 	check_incremental(Head,dynamic_incremental_predicate,incr_assert,1),
-	assert(Term,AZL,Index),
 	(get_calls_incr(Head,A),
 	 invalidate_callnode(A),
 	 fail
 	 ;	
 	 true
-	).
+	),
+	assert(Term,AZL,Index).
 
 incr_assert_immed(Term) :-
 	incr_assert(Term,1,1),
@@ -198,13 +214,13 @@ incr_assert_inval(Term,AZL,Index):-
 
 incr_retractall(Term):-
 	check_incremental(Term,dynamic_incremental_predicate,incr_retractall,1),
-	retractall(Term),
 	(get_calls_incr(Term,A),
 	 invalidate_callnode(A),
 	 fail
 	 ;	
 	 true
-	).
+	),
+	retractall(Term).
 
 incr_retractall_immed(Term) :-
 	incr_retractall(Term),
@@ -218,13 +234,13 @@ incr_retractall_inval(Term):-
 incr_retract(Term):-
 	(Term = (:-(H,_)) -> Head = H ; Head = Term),
 	check_incremental(Head,dynamic_incremental_predicate,incr_retract,1),
-	retract(Term),
 	(get_calls_incr(Head,A),
 	 invalidate_callnode(A),
 	 fail
 	 ;	
 	 true
-	).
+	),
+	retract(Term).
 
 incr_retract_immed(Term) :-
 	incr_retract(Term),
@@ -460,24 +476,23 @@ incr_eval_builtin(_BuiltinNo, _A, _B, _C, _D, _E) :-
 	'_$builtin'(INCR_EVAL_BUILTIN).
 */
 
-/***print_call(SF):-
-	incr_eval_builtin(PRINT_CALL, SF).***/
-
-The following were rewritten in C.
-/*
-call_if_affected(C) :-
-	get_call(C,SF,_),
-	(incr_eval_builtin(IS_AFFECTED,SF)
-	 ->	(call_c(C), fail
-		 ;	
-		 true
-		)
-	 ;	
-	 true
-	).
-call_if_affected(C) :- call_if_affected_internal(C),fail.
+/*print_call(SF):-
+ *	incr_eval_builtin(PRINT_CALL, SF).
+ *
+ * The following was rewritten in C.
+ *
+ * call_if_affected(C) :-
+ *	get_call(C,SF,_),
+ *	(incr_eval_builtin(IS_AFFECTED,SF)
+ *	 ->	(call_c(C), fail
+ *		 ;	
+ *		 true
+ *		)
+ *	 ;	
+ *	 true
+ *	).
+ *call_if_affected(C) :- call_if_affected_internal(C),fail.
 */
-
 
 /*
 check_incremental(Term,Msg) :-

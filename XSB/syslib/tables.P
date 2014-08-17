@@ -667,10 +667,10 @@ abolish_nonincremental_tables(Option):-
            ; domain_error([on_incomplete/1],Option,abolish_nonincremental_tables,1,'') ),
        table_inspection_function(ABOLISH_NONINCREMENTAL_TABLES,C_action,_Two,_Three,_Four).
 
-:- export abolish_incremental_call_single/1.
-abolish_incremental_call_single(CallTerm):- 
-    get_call(CallTerm, Handle, _ReturnTemplate),
-    table_inspection_function(ABOLISH_INCREMENTAL_CALL_SINGLE,Handle,_Two,_Three,_Four).
+%:- export abolish_incremental_call_single/1.
+%abolish_incremental_call_single(CallTerm):- 
+%    get_call(CallTerm, Handle, _ReturnTemplate),
+%    table_inspection_function(ABOLISH_INCREMENTAL_CALL_SINGLE,Handle,_Two,_Three,_Four).
     
 /*
  * delete_return(+TableEntryHandle,+ReturnHandle)
