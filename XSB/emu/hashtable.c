@@ -46,9 +46,9 @@ create_hashtable1(unsigned int minsize,
                  unsigned int (*hashf) (void*),
                  int (*eqf) (void*,void*))
 {
-  hashtable_debug(("create_hashtable1 hashtable_chain %p\n",hashtable_chain));
     struct hashtable *h;
     unsigned int pindex, size = primes[0];
+  hashtable_debug(("create_hashtable1 hashtable_chain %p\n",hashtable_chain));
     /* Check requested hashtable isn't too large */
     if (minsize > (1u << 30)) return NULL;
     /* Enforce size as prime */
@@ -238,10 +238,10 @@ hashtable1_remove(struct hashtable *h, void *k)
 void
 hashtable1_destroy(struct hashtable *h, int free_values)
 {
-  hashtable_debug(("hashtable destroy %p %p\n",h,h->table));
     unsigned int i;
     struct entry *e, *f;
     struct entry **table = h->table;
+  hashtable_debug(("hashtable destroy %p %p\n",h,h->table));
     if (free_values) /* not used in incr... */
     {
         for (i = 0; i < h->tablelength; i++)
