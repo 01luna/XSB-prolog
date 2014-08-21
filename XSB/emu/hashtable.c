@@ -14,6 +14,12 @@
 #include "auxlry.h"
 #include "memory_xsb.h"
 
+//#define HASHTABLE_DEBUG
+#ifdef HASHTABLE_DEBUG
+#define hashtable_debug(X) printf X
+#else 
+#define hashtable_debug(X) 
+#endif
 /*
 Credit for primes table: Aaron Krowne
  http://br.endernet.org/~akrowne/
@@ -40,6 +46,7 @@ create_hashtable1(unsigned int minsize,
                  unsigned int (*hashf) (void*),
                  int (*eqf) (void*,void*))
 {
+  hashtable_debug(("create_hashtable1 hashtable_chain %p\n",hashtable_chain));
     struct hashtable *h;
     unsigned int pindex, size = primes[0];
     /* Check requested hashtable isn't too large */
@@ -62,6 +69,8 @@ create_hashtable1(unsigned int minsize,
     h->prev         = NULL;
     h->next         = hashtable_chain;
     hashtable_chain = h;
+    if (h->next) (h->next)->prev = h;
+    hashtable_debug(("create_hashtable2 h %p hashtable_chain %p next %p\n",h,hashtable_chain,h->next));
     return h;
 }
 
@@ -229,6 +238,7 @@ hashtable1_remove(struct hashtable *h, void *k)
 void
 hashtable1_destroy(struct hashtable *h, int free_values)
 {
+  hashtable_debug(("hashtable destroy %p %p\n",h,h->table));
     unsigned int i;
     struct entry *e, *f;
     struct entry **table = h->table;
@@ -257,8 +267,11 @@ hashtable1_destroy(struct hashtable *h, int free_values)
 	      }
         }
     }
+    hashtable_debug(("here0 prev %p\n",h->prev));
     if (h->prev != NULL) (h->prev)->next = h->next; else hashtable_chain = h->next;
+    hashtable_debug(("here1 %p\n",(h->next)));
     if (h->next != NULL) (h->next)->prev = h->prev;
+    hashtable_debug(("here2 %p %p\n",h->table,h->table +h->tablelength*sizeof(struct entry *)));
     mem_dealloc(h->table,h->tablelength*sizeof(struct entry *),INCR_TABLE_SPACE);
     mem_dealloc(h,sizeof(struct hashtable),INCR_TABLE_SPACE);
 }

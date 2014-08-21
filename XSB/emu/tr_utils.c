@@ -852,8 +852,8 @@ static void delete_variant_table(CTXTdeclc BTNptr x, int incr, xsbBool should_wa
 	      }
 	    }
 	  } /* free answer trie */
-	  /* this following is unsafe, if there are pointers to it... */
-	  if (incr) hashtable1_destroy(pSF->callnode->outedges->hasht,0);
+	  /* Dont destroy hashtable -- done elsewhere.... */
+	  //	  if (incr) hashtable1_destroy(pSF->callnode->outedges->hasht,0);
 	  free_answer_list(pSF);
 	  FreeProducerSF(pSF);
 	} /* callTrie node is leaf */
@@ -2339,14 +2339,21 @@ VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf)
 
 /* - - - - - */
 
+/* TLS: this routine is called from mark_cp_tabled_preds() and similar
+   functions, which traverse the CP stack.  They were core-dumping if
+   they found a trie_fail on the CP stack -- hence the special case.
+ */
+
 TIFptr get_tif_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf)
 {
-
-  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) ) {
+  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) && ((int) TN_Instr(pLeaf) != trie_fail) )  {
     // &&      ((int) TN_Instr(pLeaf) != trie_fail_unlock) ) {
     pLeaf = BTN_Parent(pLeaf);
   }
-  return subg_tif_ptr(TN_Parent(pLeaf));
+  if (TN_Instr(pLeaf) == trie_fail) 
+    return NULL;
+  else return subg_tif_ptr(TN_Parent(pLeaf));
+  
 }
 
 /* - - - - - */
@@ -2594,7 +2601,7 @@ void mark_cp_tabled_preds(CTXTdecl)
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
-      gc_mark_tif(tif);
+	if (tif) gc_mark_tif(tif);
       }
     }
     mark_delaylist_tabled_preds(CTXTc cp_pdreg(cp_top1));
@@ -2621,7 +2628,7 @@ void unmark_cp_tabled_preds(CTXTdecl)
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
-	gc_unmark_tif(tif);
+	if (tif) gc_unmark_tif(tif);
       }
     }
     unmark_delaylist_tabled_preds(CTXTc cp_pdreg(cp_top1));
@@ -2643,6 +2650,13 @@ int abolish_table_call_cps_check(CTXTdeclc VariantSF subgoal) {
   CPtr dlist;
   Cell tmp_cell;
 
+  //  printf("atccps %p\n",subgoal);
+
+  if (IsIncrSF(subgoal)) {
+    //    printf("visitors %d\n",subg_visitors(subgoal));
+    if (subg_visitors(subgoal)) return CANT_RECLAIM;
+    else return CAN_RECLAIM;
+  }
   cp_bot1 = (CPtr)(tcpstack.high) - CP_SIZE;
 
   cp_top1 = breg ;				 
@@ -3068,15 +3082,23 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
     }
 
     SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
-    delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+    //    delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
     if (action == CAN_RECLAIM) {
-      delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+      if (IsIncrSF(subgoal)) {
+	invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+	//	safe_delete_branch(subgoal->leaf_ptr); 
+      }
+      else  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
       abolish_table_call_single_nocheck(CTXTc subgoal,DO_INVALIDATE);
     }
-    else {
+    else {  /* CANT_RECLAIM */
       //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
       if (!get_shared(psc)) {
-	if (IsIncrSF(subgoal)) invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	if (IsIncrSF(subgoal)) {
+	  invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	  //	  safe_delete_branch(subgoal->leaf_ptr); 
+	}
 	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 	check_insert_private_deltf_subgoal(CTXTc subgoal,FALSE);
       }
@@ -3171,7 +3193,7 @@ void abolish_table_call(CTXTdeclc VariantSF subgoal, int invocation_flag) {
   start_table_gc_time(timer);
 
 #ifdef DEBUG_ABOLISH
-  printf("abolish_table_call called: "); print_subgoal(stddbg, subgoal); printf("\n");
+  printf("abolish_table_call called (%p): ",subgoal); print_subgoal(stddbg, subgoal); printf("\n");
 #endif
 
   if (IsVariantSF(subgoal) 
@@ -3186,7 +3208,7 @@ void abolish_table_call(CTXTdeclc VariantSF subgoal, int invocation_flag) {
     abolish_dbg(("calling atc_s\n"));
     abolish_table_call_single(CTXTc subgoal);
   }
-
+  //  printf("atc done\n");
   end_table_gc_time(timer);
 
 }
@@ -3379,16 +3401,6 @@ int abolish_table_pred_cps_check(CTXTdeclc Psc psc)
 static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check_flag,int incomplete_action_flag) {
   int action;
 
-  if(get_incr(TIF_PSC(tif))) {  /* incremental */
-      char message[ERRMSGLEN/2];
-      snprintf(message,ERRMSGLEN/2,"incremental tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
-      xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
-      //      xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
-      //		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
-      //  	          get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
-      //    free_incr_hashtables(tif);  TLS: took out 201408 - this makes no sense to me.
-  }
-
   if (IsVariantPredicate(tif) && IsNULL(TIF_CallTrie(tif))) {
     return ;
   }
@@ -3514,9 +3526,19 @@ inline void abolish_table_predicate(CTXTdeclc Psc psc, int invocation_flag) {
   TIFptr tif;
   declare_timer
 
-  start_table_gc_time(timer);
-
   tif = get_tip(CTXTc psc);
+
+  if(get_incr(TIF_PSC(tif))) {  /* incremental */
+      char message[ERRMSGLEN/2];
+      snprintf(message,ERRMSGLEN/2,"incremental tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
+      xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+      //      xsb_abort("[abolish_table_predicate] Cannot abolish incremental tables for "
+      //		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
+      //  	          get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
+      //    free_incr_hashtables(tif);  TLS: took out 201408 - this makes no sense to me.
+  }
+
+  start_table_gc_time(timer);
 
   gc_tabled_preds(CTXT);
   if ( IsNULL(tif) ) {
@@ -3609,7 +3631,7 @@ void mark_tabled_preds(CTXTdecl) {
 	/* Check for predicate DelTFs */
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
 	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
-	mark_deltfs(CTXTc tif, subgoal);
+	if (tif) mark_deltfs(CTXTc tif, subgoal);
       }
     }
 
@@ -3642,7 +3664,7 @@ void mark_private_tabled_preds(CTXTdecl) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	/* Check for predicate DelTFs */
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
-	if (!get_shared(TIF_PSC(tif))) {
+	if (tif && !get_shared(TIF_PSC(tif))) {
 	  subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
 	  mark_deltfs(CTXTc tif, subgoal);
 	}
