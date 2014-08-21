@@ -21,12 +21,6 @@ options=$2
 ../gentest.sh "$XEMU $options" incremental_rule "test".
 #------------------------------------------------- inc_rule with initial empty dyn predicate
 ../gentest.sh "$XEMU $options" incremental_rule_alt "test".
-#------------------------------------------------- inc tests with abolish_all_tables
-../gentest.sh "$XEMU $options" inc_abol "test".
-#------------------------------------------------- inc tests with abolish_table_call
-../gentest.sh "$XEMU $options" inc_atc "test".
-#------------------------------------------------- inc tests with abolish_table_call + gc
-../gentest.sh "$XEMU $options" inc_atc_gc "test".
 #------------------------------------------------- inc trans depends (cyclic)
 ../gentest.sh "$XEMU $options" test_incr_depends "test".
 #------------------------------------------------- inc trans depends (non cyclic)
@@ -65,6 +59,16 @@ options=$2
 ../gentest.sh "$XEMU -l $options" test_abolish_nonincremental "test."
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_abolish_incremental_call_single "test."
+#------------------------------------------------- inc tests with abolish_all_tables
+../gentest.sh "$XEMU $options" inc_abol "test".
+#------------------------------------------------- inc tests with abolish_table_call
+../gentest.sh "$XEMU $options" inc_atc "test".
+#------------------------------------------------- inc tests with abolish_table_call + gc
+../gentest.sh "$XEMU $options" inc_atc_gc "test".
+#------------------------------------------------- more inc tests with abolish_table_call + gc
+../gentest.sh "$XEMU $options" inc_atc_gc_tricky "test".
+#-------------------------------------------------- yet more inc tests with abolish_table_call_single + gc
+../gentest.sh "$XEMU $options" inc_atc_single_gc_deps "test".
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_introspection "test."
 #--------------------------------------------------
