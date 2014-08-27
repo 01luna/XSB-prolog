@@ -621,16 +621,16 @@ void release_conditional_answer_info(CTXTdeclc BTNptr node) {
 }
 
 /* 
- * delete_variant_sf_and_answers deletes and reclaims space for
+ * delete_variant_call deletes and reclaims space for
  *  answers and their subgoal frame in a variant table, and is used by
  *  abolish_table_call (which does not work on subsumptive table).  It
- *  copies code from delete_variant_table, but uses its own stack.
+ *  copies code from delete_variant_tablex, but uses its own stack.
  *  (Not easy to integrate due to macro usage.) 
  * 
  * TLS: since this deallocates from SMs, make sure
  * trie_allocation_type is set before using.
  */
-void delete_variant_sf_and_answers(CTXTdeclc VariantSF pSF, xsbBool should_warn) {
+void delete_variant_call(CTXTdeclc VariantSF pSF, xsbBool should_warn) {
   int node_stk_top = 0;
   BTNptr rnod, *Bkp; 
   BTHTptr ht;
@@ -761,10 +761,9 @@ ALNptr traverse_variant_answer_trie(CTXTdeclc VariantSF subgoal, CPtr rootptr, C
 //---------------------------------------------------------------------------
 
 /* Code to abolish tables for a variant predicate */
-/* Incremental recomputation seems to be implemented only for
-   abolishing predicates, but not subgoals */
+/* Incremental tabling is not yet implemented for predicates */
 
-static void delete_variant_table(CTXTdeclc BTNptr x, int incr, xsbBool should_warn) {
+static void delete_variant_table(CTXTdeclc BTNptr x, xsbBool should_warn) {
 
    //   printf("in delete variant table\n");
 
@@ -876,7 +875,7 @@ static void delete_variant_table(CTXTdeclc BTNptr x, int incr, xsbBool should_wa
   if ( TIF_CallTrie(tif) != NULL ) {
     SET_TRIE_ALLOCATION_TYPE_TIP(tif);
     if ( IsVariantPredicate(tif) ) {
-      delete_variant_table(CTXTc TIF_CallTrie(tif),get_incr(TIF_PSC(tif)),warn);
+      delete_variant_table(CTXTc TIF_CallTrie(tif),warn);
     }
     else
       delete_subsumptive_table(CTXTc tif);
@@ -888,7 +887,7 @@ static void delete_variant_table(CTXTdeclc BTNptr x, int incr, xsbBool should_wa
 void transitive_delete_predicate_table(CTXTdeclc TIFptr tif, xsbBool should_warn) {
 
   SET_TRIE_ALLOCATION_TYPE_TIP(tif);
-  delete_variant_table(CTXTc TIF_CallTrie(tif),get_incr(TIF_PSC(tif)),should_warn);
+  delete_variant_table(CTXTc TIF_CallTrie(tif),should_warn);
   TIF_CallTrie(tif) = NULL;
   TIF_Subgoals(tif) = NULL;
 }
@@ -902,7 +901,7 @@ void reclaim_deleted_predicate_table(CTXTdeclc DelTFptr deltf_ptr) {
 
   SET_TRIE_ALLOCATION_TYPE_TIP(tif);
   if ( IsVariantPredicate(tif) ) {
-    delete_variant_table(CTXTc DTF_CallTrie(deltf_ptr), get_incr(TIF_PSC(tif)),DTF_Warn(deltf_ptr));
+    delete_variant_table(CTXTc DTF_CallTrie(deltf_ptr), DTF_Warn(deltf_ptr));
   } else reclaim_deleted_subsumptive_table(CTXTc deltf_ptr);
 }
 
@@ -2650,13 +2649,11 @@ int abolish_table_call_cps_check(CTXTdeclc VariantSF subgoal) {
   CPtr dlist;
   Cell tmp_cell;
 
-  //  printf("atccps %p\n",subgoal);
-
   if (IsIncrSF(subgoal)) {
-    //    printf("visitors %d\n",subg_visitors(subgoal));
     if (subg_visitors(subgoal)) return CANT_RECLAIM;
     else return CAN_RECLAIM;
   }
+				  
   cp_bot1 = (CPtr)(tcpstack.high) - CP_SIZE;
 
   cp_top1 = breg ;				 
@@ -3119,7 +3116,7 @@ void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int invalidat
   //  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
   if (!IsIncrSF(subgoal)){
     if (IsVariantSF(subgoal)) {
-      delete_variant_sf_and_answers(CTXTc subgoal, TRUE); // (warn if cond)
+      delete_variant_call(CTXTc subgoal, TRUE); // (warn if cond)
     }
     else {
       delete_subsumptive_call(CTXTc (SubProdSF) subgoal);
@@ -3705,7 +3702,7 @@ int sweep_private_tabled_preds(CTXTdecl) {
 	  tif_ptr = subg_tif_ptr(DTF_Subgoal(deltf_ptr));
 	  //	 	  fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
 	  //			  get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
-	  //	  delete_variant_sf_and_answers(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
+	  //	  delete_variant_call(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
 	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE);
 	  Free_Private_DelTF_Subgoal(deltf_ptr,tif_ptr);
 	}
@@ -3750,7 +3747,7 @@ int sweep_tabled_preds(CTXTdecl) {
 	  tif_ptr = subg_tif_ptr(DTF_Subgoal(deltf_ptr));
 	  //	    fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
 	  //   get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
-	  //	    delete_variant_sf_and_answers(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
+	  //	    delete_variant_call(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
 	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE);
 	  Free_Global_DelTF_Subgoal(deltf_ptr,tif_ptr);
 	}
@@ -4388,7 +4385,7 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
   //  tif = subg_tif_ptr(goal);
   //  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-  delete_variant_sf_and_answers(CTXTc goal,FALSE); // delete answers + subgoal
+  delete_variant_call(CTXTc goal,FALSE); // delete answers + subgoal
   //  printf("end aics\n");
   if (affected_gl->item != NULL) incr_table_update_safe_gl = FALSE;
   return TRUE;
@@ -4466,9 +4463,9 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
        SET_TRIE_ALLOCATION_TYPE_SF(CallStrPtr); // set smBTN to private/shared
        tif = subg_tif_ptr(CallStrPtr);
        delete_branch(CTXTc CallStrPtr->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-       //       delete_variant_sf_and_answers(CTXTc CallStrPtr,FALSE); // delete answers + subgoal
+       //       delete_variant_call(CTXTc CallStrPtr,FALSE); // delete answers + subgoal
        abolish_table_call_single_nocheck(CTXTc CallStrPtr,DONT_INVALIDATE);
-      } else remove_calls_and_returns(CTXTc CallStrPtr);
+     } else remove_calls_and_returns(CTXTc CallStrPtr);  // not sure why this is used, and not delete_subsumptive_table
     }
     openreg += COMPLFRAMESIZE;
   }
