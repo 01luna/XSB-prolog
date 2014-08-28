@@ -1979,14 +1979,24 @@ private tables for the main thread.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\ourstandarditem{abolish\_nonincremental\_tables(+Option)}{abolish\_nonincremental\_tables/1}{Tabling}
+%\ourstandarditem{abolish\_nonincremental\_tables(+Option)}{abolish\_nonincremental\_tables/1}{Tabling}
+\ourstandarditem{abolish\_nonincremental\_tables}{abolish\_nonincremental\_tables/0}{Tabling}
 %
-Abolishes all tables that are {\em not} declared to be incremental.
-Such a predicate allows XSB to function in a manner similar to that
-of a deductive database: incremental tables will be automatically
-updated when the data they depends on changes; while non-incremental
-tables, which may have become invalid, can be abolished.
+Abolishes all tabled calls for predicates that are {\em not} declared
+to be incremental.  Such a predicate allows XSB to function in a
+manner similar to that of a deductive database: incremental tables
+will be automatically updated when the data they depends on changes;
+while non-incremental tables, which may have become invalid, can be
+abolished.  As currently implemented, {\tt
+  abolish\_nonincremental\_tables/1} traverses through each
+nonincremental tabled predicate, $Pred$, and if $Pred$ has any
+incomplete subgoals, a permission error will be thrown.  However,
+unlike with {\tt abolish\_all\_tables/0} no errors will be thrown if
+there are active completed tables: rather these tables will be marked
+for deletion and their space later garbage collected.  In addition, no
+error will be thrown if there are incomplete incremental subgoals.
 
+\comment{
 The {\em Option} argument currently allows control of a single parameter:
 
 \bi
@@ -1999,27 +2009,16 @@ The {\em Option} argument currently allows control of a single parameter:
 %
 The argument may be specified either as a list, i.e., {\tt
   [on\_incomplete(...)]} or as {\tt on\_incomplete(...)}.
+}
 
-Note that as currently implemented, {\tt
-  abolish\_nonincremental\_tables/1} traverses through each tabled
-predicate, $Pred$, and if  $Pred$ has any incomplete subgoals, no
-subgoals for $Pred$ will be abolished; rather {\tt
-  abolish\_nonincremental\_tables/1} will skip over such subgoals,
-even if they are completed.
+{\bf Error Cases}
+\bi
+\item There are incomplete nonincremental tables at the time of the predicate's call;
+\bi
+\item 	{\tt permission\_error}
+\ei
+\ei
 
-{\bf Error Cases} Error cases for incomplete
-tables are described above; additionally: 
-\bi
-\item {\tt Options} is a variable, or contains a variable as an element
-\bi
-\item {\tt instantiation\_error}
-\ei
-\item {\tt Options} contains an option that is not {\tt on\_incomplete(skip)} or {\tt on\_incomplete(error)}
-\bi
-\item {\tt domain\_error(abolish\_nonincremental\_tables/1,}
-{\tt [on\_incomplete(skip), on\_incomplete(error)])}
-\ei
-\ei
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \ourstandarditem{abolish\_all\_private\_tables}{abolish\_all\_private\_tables/0}{Tabling}
