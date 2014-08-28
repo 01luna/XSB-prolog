@@ -82,7 +82,7 @@ counter abol_subg_ctr,abol_pred_ctr,abol_all_ctr; /* statistics */
 #include "ptoc_tag_xsb_i.h"
 #include "term_psc_xsb_i.h"
 
-extern void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int);
+extern void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int,int);
 extern int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF subgoal, int);
 extern int incr_table_update_safe_gl;
 
@@ -723,20 +723,19 @@ ALNptr traverse_variant_answer_trie(CTXTdeclc VariantSF subgoal, CPtr rootptr, C
   while(tempstk_top > 0) {
     push_node(tempstk[--tempstk_top]);
   }
-
   while (node_stk_top != 0) {
       pop_node(rnod);
-      //      printf("rnod %p\n",rnod);
       if ( IsHashHeader(rnod)) {
 	pop_node(hash_bucket);
 	hash_offset = (Integer) hash_bucket;
-	//	printf("hash header %p offset %d\n",rnod,hash_bucket);
+	//	printf("hash header %p offset %p\n",rnod,hash_bucket);
 	hash_hdr = (BTHTptr) rnod;
 	hash_base = (BTHTptr *) BTHT_BucketArray(hash_hdr);
 	find_next_nonempty_bucket(hash_hdr,hash_base,hash_offset);
 	if (hash_offset != NO_MORE_IN_HASH) {
 	  push_node((BTNptr) hash_offset);
 	  push_node((BTNptr) hash_hdr);
+
 	  push_node(*(BTNptr *)(hash_base + hash_offset));
 	  //	  printf("pushed %p\n",hash_base + hash_offset);
 	}
@@ -746,7 +745,7 @@ ALNptr traverse_variant_answer_trie(CTXTdeclc VariantSF subgoal, CPtr rootptr, C
 	//	printf("not hash header\n");
 	if (BTN_Sibling(rnod) && IsNonNULL(BTN_Sibling(rnod)))
 	  { push_node(BTN_Sibling(rnod)); }
-	if ( !IsLeafNode(rnod) && IsNonNULL(BTN_Child(rnod))) {
+	if ( !IsLeafNode(rnod) && IsNonNULL(BTN_Child(rnod))) { 
 	  push_node(BTN_Child(rnod)) } 
 	else { /* leaf node */
 	  //	  printf("Trie traversal Leaf Node %p\n",rnod);
@@ -3087,7 +3086,7 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
 	//	safe_delete_branch(subgoal->leaf_ptr); 
       }
       else  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-      abolish_table_call_single_nocheck(CTXTc subgoal,DO_INVALIDATE);
+      abolish_table_call_single_nocheck(CTXTc subgoal,DO_INVALIDATE,SHOULD_COND_WARN);
     }
     else {  /* CANT_RECLAIM */
       //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
@@ -3110,13 +3109,13 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
 }
 
 
-void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int invalidate_flag) {
+void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int invalidate_flag,int cond_warn_flag) {
   //  TIFptr tif = subg_tif_ptr(subgoal);
 
   //  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
   if (!IsIncrSF(subgoal)){
     if (IsVariantSF(subgoal)) {
-      delete_variant_call(CTXTc subgoal, TRUE); // (warn if cond)
+      delete_variant_call(CTXTc subgoal, cond_warn_flag);
     }
     else {
       delete_subsumptive_call(CTXTc (SubProdSF) subgoal);
@@ -3158,7 +3157,7 @@ void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
 
       if (action == CAN_RECLAIM && !GC_MARKED_SUBGOAL(subgoal) ) {
 	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-	abolish_table_call_single_nocheck(CTXTc subgoal,DO_INVALIDATE);
+	abolish_table_call_single_nocheck(CTXTc subgoal,DO_INVALIDATE,SHOULDNT_COND_WARN);
       }
       else {
 	//	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
@@ -3703,7 +3702,7 @@ int sweep_private_tabled_preds(CTXTdecl) {
 	  //	 	  fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
 	  //			  get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
 	  //	  delete_variant_call(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
-	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE);
+	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE,SHOULDNT_COND_WARN);
 	  Free_Private_DelTF_Subgoal(deltf_ptr,tif_ptr);
 	}
     }
@@ -3748,7 +3747,7 @@ int sweep_tabled_preds(CTXTdecl) {
 	  //	    fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
 	  //   get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
 	  //	    delete_variant_call(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
-	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE);
+	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE,SHOULDNT_COND_WARN);
 	  Free_Global_DelTF_Subgoal(deltf_ptr,tif_ptr);
 	}
     }
@@ -3884,8 +3883,10 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
   byte type;
   Psc psc, module;
   TIFptr tif;
-  declare_timer
+  VariantSF sf, this_next; VariantSF * last_next;
 
+  declare_timer
+    
   start_table_gc_time(timer);
   
   mark_cp_tabled_preds(CTXT);
@@ -3900,15 +3901,35 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
       
       psc = pair_psc(pair);
       type = get_type(psc);
-      if (type == T_DYNA || type == T_PRED) 
-	if (!get_data(psc) || isstring(get_data(psc)) ||
-	    !strcmp(get_name(get_data(psc)),"usermod") ||
-	    !strcmp(get_name(get_data(psc)),"global")) 
+      if (type == T_DYNA || type == T_PRED) {
+	if (!get_data(psc) || isstring(get_data(psc)) ||!strcmp(get_name(get_data(psc)),"usermod") ||  !strcmp(get_name(get_data(psc)),"global"))
 	  if (get_tabled(psc) && !get_incr(psc)) {
-	    tif = get_tip(CTXTc psc);
-	    //	    printf("abolishing %s\n",get_name(psc));
-	    abolish_table_pred_single(CTXTc tif, NO_CPS_CHECK,incomplete_action);
+            tif = get_tip(CTXTc psc);
+	    if (IsVariantPredicate(tif)) {
+	      sf = TIF_Subgoals(tif);  last_next = &TIF_Subgoals(tif); 
+	      while (IsNonNULL(sf)) {
+		//	      printf("TIF_Subgoals %p\n",TIF_Subgoals(tif));
+		this_next = subg_next_subgoal(sf);
+		if ( is_completed(sf) ) {
+		  delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+		  *last_next = this_next;
+		  //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
+		  delete_variant_call(CTXTc sf, SHOULD_COND_WARN) ;
+		}
+		else {
+		  //		printf("skipping ");print_subgoal(stddbg,sf);printf("\n");
+		  if (incomplete_action == ERROR_ON_INCOMPLETE) {
+		    char message[ERRMSGLEN/2];
+		    snprintf(message,ERRMSGLEN/2,"incomplete tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
+		    xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+		  }
+		}
+		sf = this_next;
+	      }
+	    }
+	    else delete_predicate_table(CTXTc tif, TRUE);   // Delete whole subsumptive table (should delve into calls)
 	  }
+      }
     }
   }
   /********  next, abolish tables not in usermod *********/
@@ -3922,12 +3943,35 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
     while (pair) {
       psc = pair_psc(pair);
       type = get_type(psc);
-      if (type == T_DYNA || type == T_PRED) 
-	/* Its ok to abolish brat_undefined and floundered_undefined -- just avoiding a warning. */
-	if (get_tabled(psc) && !get_incr(psc) && strcmp("brat_undefined",get_name(psc)) && strcmp("floundered_undefined",get_name(psc))) {
-	  tif = get_tip(CTXTc psc);
-	  abolish_table_pred_single(CTXTc tif, NO_CPS_CHECK,incomplete_action);
-	}
+      if (type == T_DYNA || type == T_PRED) {
+	if (!get_data(psc) || isstring(get_data(psc)) ||!strcmp(get_name(get_data(psc)),"usermod") ||  !strcmp(get_name(get_data(psc)),"global"))
+	  if (get_tabled(psc) && !get_incr(psc)) {
+	    tif = get_tip(CTXTc psc);
+	    if (IsVariantPredicate(tif)) {
+	      sf = TIF_Subgoals(tif);  last_next = &TIF_Subgoals(tif); 
+	      while (IsNonNULL(sf)) {
+		//	      printf("TIF_Subgoals %p\n",TIF_Subgoals(tif));
+		this_next = subg_next_subgoal(sf);
+		if ( is_completed(sf) ) {
+		  delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+		  *last_next = this_next;
+		  //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
+		  delete_variant_call(CTXTc sf, SHOULD_COND_WARN) ;
+		}
+		else {
+		  //		printf("skipping ");print_subgoal(stddbg,sf);printf("\n");
+		  if (incomplete_action == ERROR_ON_INCOMPLETE) {
+		    char message[ERRMSGLEN/2];
+		    snprintf(message,ERRMSGLEN/2,"incomplete tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
+		    xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+		  }
+		}
+		sf = this_next;
+	      }
+	    }
+	    else delete_predicate_table(CTXTc tif, TRUE);   // Delete whole subsumptive table (should delve into calls)
+	  }
+      }
       pair = pair_next(pair);
     }
     modpair = pair_next(modpair);
@@ -4385,7 +4429,7 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
   //  tif = subg_tif_ptr(goal);
   //  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-  delete_variant_call(CTXTc goal,FALSE); // delete answers + subgoal
+  delete_variant_call(CTXTc goal,SHOULDNT_COND_WARN); // delete answers + subgoal
   //  printf("end aics\n");
   if (affected_gl->item != NULL) incr_table_update_safe_gl = FALSE;
   return TRUE;
@@ -4464,7 +4508,7 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
        tif = subg_tif_ptr(CallStrPtr);
        delete_branch(CTXTc CallStrPtr->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
        //       delete_variant_call(CTXTc CallStrPtr,FALSE); // delete answers + subgoal
-       abolish_table_call_single_nocheck(CTXTc CallStrPtr,DONT_INVALIDATE);
+       abolish_table_call_single_nocheck(CTXTc CallStrPtr,DONT_INVALIDATE,SHOULDNT_COND_WARN);
      } else remove_calls_and_returns(CTXTc CallStrPtr);  // not sure why this is used, and not delete_subsumptive_table
     }
     openreg += COMPLFRAMESIZE;
