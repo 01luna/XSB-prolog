@@ -69,3 +69,5 @@
 #define DONT_INVALIDATE   0
 #define DO_INVALIDATE     1
 
+#define SHOULDNT_COND_WARN     0
+#define SHOULD_COND_WARN       1
