@@ -71,4 +71,6 @@ options=$2
 ../gentest.sh "$XEMU $options" inc_atc_single_gc_deps "test".
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_introspection "test."
+#-------------------------------------------------- yet more tests of invalidation
+../gentest.sh "$XEMU -l $options" test_invalidate "test."
 #--------------------------------------------------
