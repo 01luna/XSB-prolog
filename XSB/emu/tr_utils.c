@@ -4503,7 +4503,8 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
       }
       //     printf("---- ");print_subgoal(CTXTc stdout, CallStrPtr) ; printf("\n");
       /* TLS: will need to change when incr combined with subsumptive */
-     else if (IsVariantSF(CallStrPtr)) {
+      //     else if (IsVariantSF(CallStrPtr)) {
+      if (IsVariantSF(CallStrPtr)) {
        SET_TRIE_ALLOCATION_TYPE_SF(CallStrPtr); // set smBTN to private/shared
        tif = subg_tif_ptr(CallStrPtr);
        delete_branch(CTXTc CallStrPtr->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
