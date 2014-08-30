@@ -3904,7 +3904,8 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
       if (type == T_DYNA || type == T_PRED) {
 	if (!get_data(psc) || isstring(get_data(psc)) ||!strcmp(get_name(get_data(psc)),"usermod") ||  !strcmp(get_name(get_data(psc)),"global"))
 	  if (get_tabled(psc) && !get_incr(psc)) {
-            tif = get_tip(CTXTc psc);
+	    tif = get_tip(CTXTc psc);
+	    if (tif) {
 	    if (IsVariantPredicate(tif)) {
 	      sf = TIF_Subgoals(tif);  last_next = &TIF_Subgoals(tif); 
 	      while (IsNonNULL(sf)) {
@@ -3928,6 +3929,7 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
 	      }
 	    }
 	    else delete_predicate_table(CTXTc tif, TRUE);   // Delete whole subsumptive table (should delve into calls)
+	    }
 	  }
       }
     }
