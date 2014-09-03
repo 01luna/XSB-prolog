@@ -3899,38 +3899,40 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
     if ((pair = (Pair) *(symbol_table.table + i))) {
       byte type;
       
-      psc = pair_psc(pair);
-      type = get_type(psc);
-      if (type == T_DYNA || type == T_PRED) {
-	if (!get_data(psc) || isstring(get_data(psc)) ||!strcmp(get_name(get_data(psc)),"usermod") ||  !strcmp(get_name(get_data(psc)),"global"))
-	  if (get_tabled(psc) && !get_incr(psc)) {
-	    tif = get_tip(CTXTc psc);
-	    if (tif) {
-	    if (IsVariantPredicate(tif)) {
-	      sf = TIF_Subgoals(tif);  last_next = &TIF_Subgoals(tif); 
-	      while (IsNonNULL(sf)) {
-		//	      printf("TIF_Subgoals %p\n",TIF_Subgoals(tif));
-		this_next = subg_next_subgoal(sf);
-		if ( is_completed(sf) ) {
-		  delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-		  *last_next = this_next;
-		  //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
-		  delete_variant_call(CTXTc sf, SHOULD_COND_WARN) ;
-		}
-		else {
-		  //		printf("skipping ");print_subgoal(stddbg,sf);printf("\n");
-		  if (incomplete_action == ERROR_ON_INCOMPLETE) {
-		    char message[ERRMSGLEN/2];
-		    snprintf(message,ERRMSGLEN/2,"incomplete tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
-		    xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+      while (pair) {
+	psc = pair_psc(pair);
+	type = get_type(psc);
+	if (type == T_DYNA || type == T_PRED) {
+	  if (!get_data(psc) || isstring(get_data(psc)) ||!strcmp(get_name(get_data(psc)),"usermod") ||  !strcmp(get_name(get_data(psc)),"global"))
+	    if (get_tabled(psc) && !get_incr(psc)) {
+	      tif = get_tip(CTXTc psc);
+	      if (tif) {
+		if (IsVariantPredicate(tif)) {
+		  sf = TIF_Subgoals(tif);  last_next = &TIF_Subgoals(tif); 
+		  while (IsNonNULL(sf)) {
+		    this_next = subg_next_subgoal(sf);
+		    if ( is_completed(sf) ) {
+		      delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+		      *last_next = this_next;
+		      //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
+		      delete_variant_call(CTXTc sf, SHOULD_COND_WARN) ;
+		    }
+		    else {
+		      //		printf("skipping ");print_subgoal(stddbg,sf);printf("\n");
+		      if (incomplete_action == ERROR_ON_INCOMPLETE) {
+			char message[ERRMSGLEN/2];
+			snprintf(message,ERRMSGLEN/2,"incomplete tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
+			xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+		      }
+		    }
+		    sf = this_next;
 		  }
 		}
-		sf = this_next;
+		else delete_predicate_table(CTXTc tif, TRUE);   // Delete whole subsumptive table (should delve into calls)
 	      }
 	    }
-	    else delete_predicate_table(CTXTc tif, TRUE);   // Delete whole subsumptive table (should delve into calls)
-	    }
-	  }
+	}
+      pair = pair_next(pair);
       }
     }
   }
