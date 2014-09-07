@@ -1732,7 +1732,7 @@ system error handler) when the interpreter level is resumed.
 \subsubsection{Table Deletion Predicates}
 
 \begin{description}
-\index{tabling!incremental}
+\index{tabling!abolishes}
 \ourstandarditem{abolish\_table\_pred(+Pred)}{abolish\_table\_pred/1}{Tabling}
 %
 Invalidates all tabled subgoals for the predicate denoted by the
@@ -1742,6 +1742,7 @@ enviornment, {\tt Pred} space reclamation for the {\tt Pred} tables
 will be delayed until $A$ is no longer active; otherwise the space for
 the {\tt Pred} tables will be reclaimed immediately.  
 
+\index{tabling!abolishes!transitive vs. single}
 \index{tabling!conditional answers}
 \index{Prolog flags!{\tt table\_gc\_action}}
 If {\tt Pred} has a subgoal that contains a conditional answer, the
@@ -1762,6 +1763,7 @@ contains a conditional answer, the warning
 
 will be issued.  
 
+\index{tabling!abolishes!multi-threading}
 \index{tabling!multi-threaded}
 In the multi-threaded engine, if {\tt Pred} is shared, reclamation for
 {\tt Pred} will be delayed until there is a single active thread and
@@ -1836,13 +1838,14 @@ Behaves as {\tt abolish\_table\_pred/1}, but allows the default {\tt
 \ei
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\index{tabling!abolishes!transitive vs. single}
 \ourstandarditem{abolish\_table\_call(+CallTerm)}{abolish\_table\_call/1}{Tabling}
 %
-Invalidates all entries from the table for any subgoals that unify
-with {\tt CallTerm}.  If a subgoal $S$ unifying with {\tt CallTerm}
-contains an answer $A$ that is active in the current enviornment, the
-table entry for $S$ will not be reclaimed until $A$ is no longer
-active; otherwise the space for $S$ will be reclaimed immediately.
+Invalidates the table for any subgoal that unifies with {\tt
+  CallTerm}.  If a subgoal $S$ unifying with {\tt CallTerm} contains
+an answer $A$ that is active in the current enviornment, the table
+entry for $S$ will not be reclaimed until $A$ is no longer active;
+otherwise the space for $S$ will be reclaimed immediately.
 
 \index{Prolog flags!{\tt table\_gc\_action}}
 If $S$ contains a conditional answer, the default behavior will be to
@@ -1863,6 +1866,7 @@ a conditional answer, the warning
 
 will be issued.  
 
+\index{tabling!abolishes!multi-threading}
 In the multi-threaded engine, if $S$ is a subgoal for a predicate that
 is shared, reclamation for $S$ will be delayed until there is a single
 active thread and no answer in $S$ is active in the current execution
@@ -1871,13 +1875,15 @@ is the same as in the sequential engine on tabled predicates that are
 thread-private.
 
 \index{Incremental Dependency Graph (IDG)} 
+\index{tabling!abolishes!incremental}
 %
 For incremental tables, {\tt abolish\_table\_call/[1,2]} not only
 deletes the table structures for {\tt CallTerm}, but pointers to {\tt
-  CallTerm} in the Incremental Dependency Graph (IDG), and invalidates
-all subgoals that depend on {\tt CallTerm}. The node and edges for
-{\tt CallTerm} will be reinserted into the IDG when {\tt CallTerm} is
-re-evaluated, either lazily or by an explicit update command.
+  CallTerm} in the Incremental Dependency Graph (IDG), after
+invalidating all subgoals that depend on {\tt CallTerm}. The node and
+edges for {\tt CallTerm} will be reinserted into the IDG when {\tt
+  CallTerm} is re-evaluated, either lazily or by an explicit update
+command.
 
 %  incremental tables.
 %If a call $G$ is abolished, all calls that $G$ depends on will also be
@@ -1935,6 +1941,8 @@ Behaves as {abolish\_table\_call/1}, but allows the default {\tt
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\index{tabling!abolishes!multi-threading}
+\index{tabling!abolishes}
 \ourstandarditem{abolish\_all\_tables}{abolish\_all\_tables/0}{Tabling}
 %
 In the single-threaded engine, removes all tables presently in the
@@ -1979,14 +1987,17 @@ private tables for the main thread.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\index{tabling!abolishes!incremental}
+\index{tabling!abolishes!}
 %\ourstandarditem{abolish\_nonincremental\_tables(+Option)}{abolish\_nonincremental\_tables/1}{Tabling}
 \ourstandarditem{abolish\_nonincremental\_tables}{abolish\_nonincremental\_tables/0}{Tabling}
 %
 Abolishes all tabled calls for predicates that are {\em not} declared
-to be incremental.  Such a predicate allows XSB to function in a
-manner similar to that of a deductive database: incremental tables
-will be automatically updated when the data they depends on changes;
-while non-incremental tables, which may have become invalid, can be
+to be incremental~\footnote{Calls for predicates that are declared as
+opaque are considered to be non-incremental.}.  Such a predicate allows XSB to function in a manner similar
+to that of a deductive database: incremental tables will be
+automatically updated when the data they depends on changes; while
+non-incremental tables, which may have become invalid, can be
 abolished.  As currently implemented, {\tt
   abolish\_nonincremental\_tables/1} traverses through each
 nonincremental tabled predicate, $Pred$, and if $Pred$ has any
@@ -2021,6 +2032,8 @@ The argument may be specified either as a list, i.e., {\tt
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\index{tabling!abolishes!multi-threading}
+\index{tabling!abolishes!}
 \ourstandarditem{abolish\_all\_private\_tables}{abolish\_all\_private\_tables/0}{Tabling}
 %
 In the multi-threaded engine, removes all tables private to the thread
@@ -2055,6 +2068,8 @@ answer subsumption.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\index{tabling!abolishes!multi-threading}
+\index{tabling!abolishes!}
 \ourstandarditem{abolish\_all\_shared\_tables}{abolish\_all\_shared\_tables/0}{Tabling}
 %
 In the multi-threaded engine, removes all tables private to the thread
@@ -2132,6 +2147,7 @@ but private tables for the main thread are unaffected.
 % {\em or} have been created by calls to the predicate {\tt f/2}.
 }
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\index{tabling!abolishes!}
 \ourstandarditem{abolish\_module\_tables(+Module)}{abolish\_module\_tables/1}{Tabling}
 %
 Given a module name (or the default module, {\tt usermod}), this
@@ -2190,6 +2206,9 @@ implementation and semantic perspective.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\comment{TLS: does not appear needed or used.
+  Cf. invaludate_table_call.
+
 \ourstandarditem{invalidate\_tables\_for(+DynamicPredGoal,+Mode)}{invalidate\_tables\_for/2}{Tabling}
 %
 This predicate supports invalidation of tables.  Tables may become
@@ -2231,6 +2250,8 @@ asserted to, or retracted from, {\tt qdyn/2}, the user could call
 The user could use the hook mechanisms in XSB (Chapter~\ref{hooks}) to
 automatically invoke \\ {\tt invalidate\_tables\_for} whenever {\tt
   assert} and/or {\tt retract} is called.
+
+}
 
 \end{description}
 

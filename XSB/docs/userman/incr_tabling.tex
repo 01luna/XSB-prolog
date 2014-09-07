@@ -764,21 +764,31 @@ and whose tables were changed in the update process.  In this way {\tt
 to those of interest.  If {\tt SkelList} is a variable, all affected
 goals are returned in {\tt GoalList}.
 
-\ourmoditem{incr\_invalidate\_call(+Goal)}{incr\_invalidate\_call/1}{increval}
-is used to directly invalidate a call to an incrementally maintained
-table, {\tt Goal}.  A subsequent call to {\tt Goal} will automatically
-perform incremental updating for {\tt Goal} along with any tables that
-{\tt Goal} depends on that are in need of updating; similarly an
-invocation of {\tt incr\_table\_update/[0,1,2]} will cause {\tt Goal}
-to be recomputed along with all incrementally maintained tables that
-{\tt Goal} affects.  This predicate can be used if a tabled predicate
-depends on some external data and not (only) on dynamic incremental
-predicates.  For example, if an incrementally maintained predicate
-depends on a relation stored in an external relational database
-(perhaps accessed through the ODBC interface), then this predicate can
-be used to invalidate the table when the external relation changes.
-The application programmer must know when the external relation
-changes and invoke this predicate as necessary.
+\ourmoditem{incr\_invalidate\_calls(+Goal)}{incr\_invalidate\_calls/1}{increval}
+Let $\cT$ be the least set of all incrementally maintained tables
+whose goals that unify with {\tt Goal}, or whose tables are
+(transitively) affected by a goal in $\cT$.  This predicate invalidats
+all tables in $\cT$.  Any subsequent call to a goal $G$ associated
+with $\cT$ will be automatically be incrementally updated if
+necessary.  (As will any goals that $G$ depends on that are in need of
+updating.)  In a similar manner, an invocation of {\tt
+  incr\_table\_update/[0,1,2]} will cause tables in $\cT$ to be
+updated.
+
+Note that this predicate is needed for exceptional cases only.  Calls
+to {\tt incr\_assert/1} and similar predicates mentioned above perform
+invalidation automatically, as does {\tt abolish\_table\_call/[1,2]}.
+However, {\tt incr\_invaldate\_calls/1} is useful if a tabled
+predicate depends on some external data and not (only) on dynamic
+incremental predicates.  For example, such a predicate might depend on
+a relation stored in an external relational database (perhaps accessed
+through the ODBC interface).
+% then this predicate can be used to invalidate the
+%table when the external relation changes.  
+Of course, in such a case, the application programmer must know when
+the external relation changes and invoke {\tt
+  incr\_invaludate\_calls/1} as necessary.
+
 
 {\bf Error Cases}
 \bi
