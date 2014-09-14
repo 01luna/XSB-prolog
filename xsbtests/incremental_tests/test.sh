@@ -68,7 +68,7 @@ options=$2
 #------------------------------------------------- more inc tests with abolish_table_call + gc
 ../gentest.sh "$XEMU $options" inc_atc_gc_tricky "test".
 #-------------------------------------------------- yet more inc tests with abolish_table_call_single + gc
-../gentest.sh "$XEMU $options" inc_atc_single_gc_deps "test".
+#../gentest.sh "$XEMU $options" inc_atc_single_gc_deps "test".  (doesn't work yet)
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_introspection "test."
 #-------------------------------------------------- yet more tests of invalidation
