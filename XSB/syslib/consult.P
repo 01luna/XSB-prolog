@@ -155,11 +155,11 @@ reconsult0(Path, Options, Ensure_loaded) :-
 			  i_want_compile(SExt, Base, Obj))
  		          ->    check_one_thread_w_override,
 			        compile_f(SExt,Base,Options,_ExList,Mod,Dir),
+				load_exec(Obj, Mod),
 				(consult_file_loaded(ExpObj)
 				 ->	true
 				 ;	assert(consult_file_loaded(ExpObj))
-				),
-				load_exec(Obj, Mod)
+				)
 			 ;     /* Compilation not required */
   			       (Ensure_loaded==true ->  
 			                (consult_file_loaded(ExpObj)
@@ -170,11 +170,11 @@ reconsult0(Path, Options, Ensure_loaded) :-
 					 )
 			         ;	/* Ensure_loaded == false */
 				       check_one_thread_w_override,
+				       load_exec(Obj, Mod),
 				       (consult_file_loaded(ExpObj)
 				        ->     true
 					;      assert(consult_file_loaded(ExpObj))
-				       ),
-				       load_exec(Obj, Mod)
+				       )
 				)
 			)
 		)
