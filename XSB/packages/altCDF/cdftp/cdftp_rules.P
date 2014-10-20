@@ -43,7 +43,7 @@ head_ce_to_formula(','(CE1,CE2),Var,ListIn,ListOut,Cmpt):- !,
 	head_ce_to_formula(CE2,Var,ListMid,ListOut,Cmpt).
 head_ce_to_formula(exists(R,Cid),Var,
 	                   [hasAttr_int(Var,R,Cid)|L],L,Cmpt):- !,
-	cdf_id_fields(Cid,cid,_,_),
+	cdf_id_fields(Cid,cid,_,_),  % dsw, does this work w/o this? seems not; I want to define an oid.
 	get_component_intensional(hasAttr_int(Var,R,Cid), _, Cmpt).
 head_ce_to_formula(all(R,Cid),Var,
 	                   [allAttr_int(Var,R,Cid)|L],L,Cmpt):- !,
@@ -58,8 +58,13 @@ head_ce_to_formula(atMost(N,R,Cid),Var,
 	cdf_id_fields(Cid,cid,_,_),
 	get_component_intensional(maxAttr_int(Var,R,Cid,N), _, Cmpt).
 head_ce_to_formula(component(Cmpt),_Var,L,L,Cmpt):- !.
-head_ce_to_formula(Cid,Var,[isa_int(Var,Cid)|L],L,_Cmpt):- 
-	cdf_id_fields(Cid,cid,_,_),!.
+head_ce_to_formula(Cid,Var,[isa_int(Var,Cid)|L],L,Cmpt):- 
+	cdf_id_fields(Cid,cid,_,_),!,
+	(arg(2,Cid,Cmpt),atom(Cmpt)
+	 ->	true
+	 ;	cdf_warning(rule,('Incorrectly formed Head Expression in DL Rule ',CE)),
+		fail
+	).
 head_ce_to_formula(CE,_,_,_,_Cmpt):- !,
 	cdf_warning(rule,('Incorrectly formed Head Expression in DL Rule ',
 	                           CE)),
