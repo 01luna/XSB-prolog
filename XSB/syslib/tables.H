@@ -89,6 +89,7 @@
 /***** Other ******/
 :- export start_forest_view/1, stop_forest_view/0.
 :- export '_$$get_returns'/3.
+:- export '_$$get_returns_and_tvs'/4.
 :- export predicate_has_tables/1.
 
 :- import

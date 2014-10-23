@@ -578,6 +578,12 @@ get_returns_and_tvs(TableEntry, ReturnTemplate,TV) :-
 	is_conditional_answer(Leaf,IsCond),
 	(IsCond = 1 -> TV = u ; TV = t).
 	
+'_$$get_returns_and_tvs'(CallStr,RetSkel,Leaf,TV) :-
+	trie_get_return(CallStr,RetSkel),
+	get_lastnode_cs_retskel(_,Leaf,_,_),
+	is_conditional_answer(Leaf,IsCond),
+	(IsCond = 1 -> TV = u ; TV = t).
+	
 is_conditional_answer(Leaf,IsCond):-
 	table_inspection_function(IS_CONDITIONAL_ANSWER,Leaf,IsCond,_,_).
 
