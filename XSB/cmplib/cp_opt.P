@@ -233,7 +233,7 @@ aggr_trans_pred(Sym,Pscs,Oth,ArgNo,ExistArgList,AggSpec,[pred(Sym1,Pscs,Oth)|ClL
 
 % only for debugging
 :- export mywriteln/1.
-%mywriteln(Term):- writeln(Term).
+%mywriteln(Term):- standard:writeln(Term).
 mywriteln(_Term).
 
 generate_agg_clauses(po(OpSpec),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClList2,SymTab) :- !,
@@ -315,6 +315,7 @@ generate_agg_clauses(lattice(OpSpec),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Va
 	globalize('/',2,SymTab),
 	globalize(var,0,SymTab),
 	ensure_imported(call/1,standard,SymTab),
+	ensure_imported(','/2,standard,SymTab),
 	ensure_imported(mywriteln/1,cp_opt,SymTab),                     % only for debugging
 	ensure_imported(call_join_op/6,cp_opt,SymTab),
 	ensure_imported('_$$get_returns_and_tvs'/4,tables,SymTab),
@@ -395,9 +396,9 @@ generate_agg_clauses(_OpSpec,_Sym,PredTerm,_Var1,_ExistVarList,_Pred1Term,_Var,_
 
 :- export get_return_w_tv/4.
 get_return_w_tv(Cs,OSkel,Leaf,TV):- 
-	xwam_state(2,DelayReg_start),writeln(start(DelayReg_start)),
+	xwam_state(2,DelayReg_start),mywriteln(start(DelayReg_start)),
 	'_$$get_returns'(Cs,OSkel,Leaf),
-	xwam_state(2,DelayReg), writeln(end(DelayReg)),
+	xwam_state(2,DelayReg), mywriteln(end(DelayReg)),
 	(DelayReg = DelayReg_start    ->     TV = true         ;      TV = undefined).
 
 /* if new answer is undefined it should succeed if it is the same as
