@@ -156,6 +156,15 @@ inline static xsbBool arg_builtin(CTXTdecl)
   return TRUE;
 }
 
+/* determine whether to give type or instantiation error */
+int not_univ_list_type(Cell list) {
+  Cell lhead;
+  if (isref(list)) return FALSE;
+  lhead = get_list_head(list);
+  XSB_Deref(lhead);
+  if (isatomic(lhead)) return FALSE;
+  return TRUE;
+}
 
 inline static xsbBool univ_builtin(CTXTdecl)
 {
@@ -169,8 +178,11 @@ inline static xsbBool univ_builtin(CTXTdecl)
   term = ptoc_tag(CTXTc 1);
   list = ptoc_tag(CTXTc 2);
   if (isnonvar(term)) {	/* Usage is deconstruction of terms */
-    if (!isref(list) && !islist(list))
-      xsb_type_error(CTXTc "list",list,"=../2",2);  /* f(a) =.. 3. */
+    if (!isref(list) && !islist(list)) {
+      if (not_univ_list_type(list)){
+	xsb_type_error(CTXTc "list",list,"=../2",2);  /* f(a) =.. 3. */
+      } else xsb_instantiation_error(CTXTc "=../2",2);
+    }
     new_list = makelist(hreg);
     if (isstring(term) || isointeger(term)) { follow(hreg) = term; hreg += 2; }
     else if (isconstr(term)) {
@@ -243,7 +255,7 @@ inline static xsbBool univ_builtin(CTXTdecl)
 		xsb_representation_error(CTXTc "less than MAX_ARITY",
 					 makestring(string_find("Length of list",1)),"=../2",2);
 	      else {
-		if (isnonvar(list)) 
+		if (not_univ_list_type(list)) 
 		  xsb_type_error(CTXTc "list",list,"=../2",2);  /* X =.. [foo|Y]. */
 		else xsb_instantiation_error(CTXTc "=../2",2);
 		return FALSE;
@@ -259,13 +271,13 @@ inline static xsbBool univ_builtin(CTXTdecl)
       }
       else
 	{
-	  if (isnonvar(chead)) 
+	  if (not_univ_list_type(list)) 
 	    xsb_type_error(CTXTc "atomic",chead,"=../2",2);  /* X =.. X =.. [2,a,b]. */
 	  else xsb_instantiation_error(CTXTc "=../2",2);
 	  return(FALSE);
 	}
     } /* List is a list */
-    if (isnonvar(list))
+    if (not_univ_list_type(list))
 	  xsb_type_error(CTXTc "list",list,"=../2",2);  /* X =.. a */
     else xsb_instantiation_error(CTXTc "=../2",2);
   } /* usage is construction; term is known to be a variable */
