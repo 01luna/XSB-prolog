@@ -929,6 +929,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
   prevchar = 10;
   while (1) {
     token = GetToken(CTXTc stream,prevchar); // dswdebug
+    /* print_token(token->type,token->value); */
 	prevchar = token->nextch;
 	if (postopreq) {  /* must be an operand follower: , or ) or | or ] */
 	    if (token->type == TK_PUNC) {
@@ -1056,8 +1057,8 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 			return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
 		  funstk[funtop-1].funtyp = FUNDTLIST;
 		} else return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
-      } else {  /* check for neg numbers and backpatch if so */
-		if (opstk[optop-1].typ == TK_ATOM && 
+	    } else {  /* check for neg numbers and backpatch if so */
+	        if (opstk[optop-1].typ == TK_ATOM && 
 				!strcmp("-",string_val(opstk[optop-1].op))) {
 		  if (token->type == TK_INT) {
 			opstk[optop-1].typ = TK_INT;
@@ -1075,8 +1076,8 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 #endif
 		  } else return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
 		} else return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
-      }
-    } else {  /* must be an operand */
+	    }
+	} else {  /* must be an operand */
       switch (token->type) {
       case TK_PUNC:
 		if (*token->value == '[') {
@@ -1230,14 +1231,15 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 	return 0;
       default: return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
       }
-    }
-    if (funtop == 0) {  /* term is finished */
+	}
+    if (token->type == TK_ATOM && !strcmp(token->value,"-")) {
+    } else if (funtop == 0) {  /* term is finished */
       token = GetToken(CTXTc stream,prevchar);
       /* print_token(token->type,token->value); */
       prevchar = token->nextch; /* accept EOF as end_of_clause */
-      if (token->type != TK_EOF && token->type != TK_EOC) 
+      if (token->type != TK_EOF && token->type != TK_EOC) {
 	return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
-
+      }
       if (opstk[0].typ != TK_VAR) {  /* if a variable, then a noop */
 	if (isnonvar(prologvar)) 
 	  xsb_abort("[READ_CANONICAL] Argument must be a variable");
@@ -1662,7 +1664,7 @@ xsbBool quotes_are_needed(char *string)
   }
 
   if (string[1] == '\0') {
-    if ((int) string[0] == 33 /*--- || (int) string[0] == 59 ---*/)
+    if ((int) string[0] == 33)
       return FALSE;
     if ((int) string[0] == 46) return TRUE;
   }
@@ -1771,8 +1773,7 @@ static Psc dollar_var_psc = NULL;
 #define wcan_buff tsgSBuff1
 
 char *cvt_float_to_str(CTXTdeclc Float floatval) {
-  //  sprintf(wcan_buff->string,"%1.18g",floatval);
-  sprintf(wcan_buff->string,"%g",floatval);
+  sprintf(wcan_buff->string,"%1.18g",floatval);
   wcan_buff->length = (int)strlen(wcan_buff->string);
   if (!strchr(wcan_buff->string,'.')) {
     char *eloc = strchr(wcan_buff->string,'e');
@@ -1788,6 +1789,7 @@ char *cvt_float_to_str(CTXTdeclc Float floatval) {
       XSB_StrAppend(wcan_buff,exp);
     }
   } 
+  printf("cvt-flt %s\n",wcan_buff->string);
   return wcan_buff->string;
 }
 
