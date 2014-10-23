@@ -170,6 +170,7 @@ DllExport void call_conv xsb_throw_internal(CTXTdeclc prolog_term Ball, size_t B
   int isnew;
   ClRef clause;
   Cell *hreg_start;
+  CPtr *start_trreg;
   prolog_term term_to_assert;
 
   size_t space_for_ball_assert_len = 3*sizeof(Cell);
@@ -207,7 +208,13 @@ DllExport void call_conv xsb_throw_internal(CTXTdeclc prolog_term Ball, size_t B
   bld_int(hreg+1, xsb_thread_self());
   cell(hreg+2) = Ball; hreg += 3;
 
+  /* if term has variables, they get bound here, and bug!!! */
+  start_trreg = trreg;  /* following binds vars, so must untrail */
   assert_code_to_buff_p(CTXTc term_to_assert);
+  while (start_trreg != trreg) {
+    untrail2(trreg, (Cell) trail_variable(trreg));
+    trreg = trail_parent(trreg);
+  }
   /* need arity of 3, for extra cut_to arg */
   Prref = get_prref(CTXTc exceptballpsc);
   assert_buff_to_clref_p(CTXTc term_to_assert,3,Prref,0,makeint(0),0,&clause);
@@ -216,6 +223,7 @@ DllExport void call_conv xsb_throw_internal(CTXTdeclc prolog_term Ball, size_t B
   if (unwind_stack(CTXT)) xsb_exit("Unwind_stack failed in xsb_throw_internal!");
   /* Resume main emulator instruction loop */
   pcreg = (pb)&fail_inst;
+
   longjmp(xsb_abort_fallback_environment, XSB_ERROR);
 }
 
@@ -1156,8 +1164,7 @@ DllExport void call_conv mesg_xsb(char *description)
   fprintf(stdmsg, "\n");
 }
 
-/***
-//#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE
 DllExport void call_conv xsb_dbgmsg1(int log_level, char *description, ...)
 {
   va_list args;
@@ -1169,15 +1176,7 @@ DllExport void call_conv xsb_dbgmsg1(int log_level, char *description, ...)
     //    fprintf(stddbg, "\n");
   }
 }
-
-DllExport void call_conv dbgmsg1_xsb(int log_level, char *description)
-{
-  if (log_level <= cur_log_level) {
-    fprintf(stddbg, description);
-  }
-}
-//#endif
-****/
+#endif
 
 /*----------------------------------------------------------------------*/
 
