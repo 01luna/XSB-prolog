@@ -1789,7 +1789,7 @@ char *cvt_float_to_str(CTXTdeclc Float floatval) {
       XSB_StrAppend(wcan_buff,exp);
     }
   } 
-  printf("cvt-flt %s\n",wcan_buff->string);
+  //printf("cvt-flt %s\n",wcan_buff->string);
   return wcan_buff->string;
 }
 
