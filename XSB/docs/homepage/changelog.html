@@ -20,6 +20,45 @@
 
 <h2> Version 3.5 (Maotai)</h2> 
 
+<h3> Version 3.5.1</h3> 
+<p>
+While Version 3.5.1 is primarily a bug fix release focused on tabling,
+an error in dynamic code reclamation was also fixed, so that heavy
+users of XSB should update their version even if they aren't using
+tabling.</p>
+<ul>
+<li><b> Enhancements </b></li>
+<ul>
+<li>A new predicate <tt>abolish_nonincremental_tables/0</tt> safely
+absolishes all nonincremental tables, even when incremental and
+nonincremental tables may depend on one another. </li>
+<li> Added <tt>incr_is_invalid/1</tt> to allow inspection of the state
+of an incremental tabling, and <tt>incr_invalid_subgoals/1</tt> to
+return a list of incrementally tabled subgoals that are currently
+invalid.  Added option to <tt>statistics/2</tt> to display the number
+of edges in the incremental dependency graph, used in incremental
+tabling.
+<li>The library <tt>storage.P</tt> is now based on lazy incremental
+tabling,</li>
+</ul>
+<li><b> Bug fixes and minor changes </b></li>
+<ul>
+<li>Numerous bugs were fixed for table abolishes, particularly aspects
+of table garbage collection, which sometimes core dumped when
+reclaiming space.  
+</li>
+<li>Numerous obscure bugs were fixed in incremental tabling,
+particularly when incremental tabling is used with table abolishes
+(and when exceptions are thrown over incremental tabling).
+Incremental tabling was also made more efficient in certain
+cases. <tt>abolish_all_tables/0</tt> now properly reclaims all
+incremental tabling data structures.  Table garbage collection also
+now properly reclaims incremental table space.</li>
+<li> Better handling for errors involved in consulting and multi-file
+declarations.</li>
+</ul>
+</ul>
+
 <h3> Version 3.5</h3> 
 <ul>
 <li><b> Enhancements </b></li>
