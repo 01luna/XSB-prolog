@@ -1773,7 +1773,7 @@ static Psc dollar_var_psc = NULL;
 #define wcan_buff tsgSBuff1
 
 char *cvt_float_to_str(CTXTdeclc Float floatval) {
-  sprintf(wcan_buff->string,"%1.18g",floatval);
+  sprintf(wcan_buff->string,"%1.17g",floatval);
   wcan_buff->length = (int)strlen(wcan_buff->string);
   if (!strchr(wcan_buff->string,'.')) {
     char *eloc = strchr(wcan_buff->string,'e');
@@ -1857,7 +1857,7 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
      }
      else if (isboxedfloat(prologterm))
      {
-       sprintf(wcan_buff->string,"%1.18g",boxedfloat_val(prologterm));
+       sprintf(wcan_buff->string,"%1.17g",boxedfloat_val(prologterm));
        wcan_buff->length = (int)strlen(wcan_buff->string);
        if (!strchr(wcan_buff->string,'.')) {
 	 char *eloc = strchr(wcan_buff->string,'e');
