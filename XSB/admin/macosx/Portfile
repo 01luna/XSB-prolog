@@ -4,7 +4,7 @@ PortSystem	1.0
 revision	0
 
 name		xsb
-version 3.1
+version 3.5.0
 categories	lang
 maintainers	pmoura@logtalk.org
 
@@ -16,96 +16,67 @@ long_description	\
 		University, in collaboration with Katholieke Universiteit Leuven, Universidade \
 		Nova de Lisboa, Uppsala Universitet and XSB, Inc.
 
-homepage		http://xsb.sourceforge.net/	
+homepage		http://xsb.sourceforge.net/
 master_sites	sourceforge
 
-checksums md5 3e56e787127b1559c488b8cfcadbac83
+checksums       \
+	sha256	8cb811c0a6e0c203b274e96edf74d8e56986bdef \
+	rmd160	bbf614c0450def4164b185b35d0f4b54c397dd0d
 
-configure.args	--prefix=${destroot}/${prefix}/share/${name}
+configure.args	--prefix=${destroot}${prefix}
+
+distname		xsb-${version}
 
 worksrcdir		xsb
 			
-configure.dir	${workpath}/${worksrcdir}/build
-
 build.dir		${workpath}/${worksrcdir}/build
 
-build.cmd		./makexsb
-build.target	
+use_configure	no
 
-destroot.cmd	./makexsb install
-destroot.target	
+build			{
+	system "cd ${workpath}/${worksrcdir}/build && ./configure --prefix ${destroot}${prefix}/share && ./makexsb"
+}
 
-default_variants +bits32st
+destroot {
+	system "cd ${workpath}/${worksrcdir}/build && ./makexsb install"
+}
 
-variant bits32st {
-	configure.args-delete --with-bits64
+
+default_variants +st
+
+variant st {
 	configure.args-delete --enable-mt
 	build.cmd-delete --config-tag=mt
 	post-destroot {
-		cd ${destroot}${prefix}/bin
-		system "ln -sf ../share/${name}/${version}/bin/xsb xsb"
+		system "cd ${destroot}${prefix}/bin && ln -sf ../share/${name}-${version}/bin/xsb xsb"
 	}
 }
 
-variant bits32mt {
-	configure.args-delete --with-bits64
+variant mt {
 	configure.args-append --enable-mt
 	build.cmd-append --config-tag=mt
 	destroot.cmd-append --config-tag=mt
 	post-destroot {
-		cd ${destroot}${prefix}/bin
-		system "ln -sf ../share/${name}/${version}/bin/xsb-mt xsb"
+		system "cd ${destroot}${prefix}/bin && ln -sf ../share/${name}-${version}/bin/xsb-mt xsb"
 	}
 }
 
-variant bits64st {
-	configure.args-append --with-bits64
-	configure.args-delete --with-bits32
-	build.cmd-append --config-tag=bits64
-	post-destroot {
-		cd ${destroot}${prefix}/bin
-		system "ln -sf ../share/${name}/${version}/bin/xsb xsb"
-	}
-}
-
-variant bits64mt {
-	configure.args-append --with-bits64 --enable-mt
-	configure.args-delete --with-bits32
-	build.cmd-append --config-tag=bits64-mt
-	post-destroot {
-		cd ${destroot}${prefix}/bin
-		system "ln -sf ../share/${name}/${version}/bin/xsb-mt xsb"
-	}
-}
-
-post-destroot {
-	cd ${destroot}${prefix}/bin
-	system "ln -sf ../share/${name}/${version}/bin/xsb xsb"
-}
-
-post-build {
-	file mkdir ${workpath}/macosx
-	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/License.html ${workpath}/macosx/
-	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/ReadMe.html ${workpath}/macosx/
-	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/Welcome.html ${workpath}/macosx/
-	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/postflight ${workpath}/macosx/
-}
+package.flat    no
 
 post-pkg {
 	set resources ${workpath}/${name}-${version}.pkg/Contents/Resources/
-	file copy -force -- ${workpath}/macosx/License.html ${resources}
-	file copy -force -- ${workpath}/macosx/ReadMe.html ${resources}
-	file copy -force -- ${workpath}/macosx/Welcome.html ${resources}
-	file copy -force -- ${workpath}/macosx/postflight ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/License.html ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/ReadMe.html ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/Welcome.html ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/postflight ${resources}
 	file delete -force -- ${resources}/Welcome.rtf
 }
 
 post-mpkg {
 	set resources ${workpath}/${name}-${version}.mpkg/Contents/Resources/
-	file copy -force -- ${workpath}/macosx/License.html ${resources}
-	file copy -force -- ${workpath}/macosx/ReadMe.html ${resources}
-	file copy -force -- ${workpath}/macosx/Welcome.html ${resources}
-	file copy -force -- ${workpath}/macosx/postflight ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/License.html ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/ReadMe.html ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/Welcome.html ${resources}
+	file copy -force -- ${workpath}/${worksrcdir}/admin/macosx/postflight ${resources}
 	file delete -force -- ${resources}/Welcome.rtf
 }
-
