@@ -257,7 +257,8 @@ do
 		--with-bits64 | --with-bits32 | --with-aout | \
 		--with-optimization* | --with-config-tag* | --with-site-prefix* | --with-includes* | \
 		--with-static-libraries* | --with-dynamic-libraries* | --with-xpath* | \
-		--with-dbdrivers | --with-oracle | --with-odbc | --with-iodbc | \
+		--with-curl* | --with-pcre* | --with-mysql* | \
+		--with-dbdrivers | --with-oracle | --with-odbc* | --with-iodbc* | \
 		--with-smodels* | --with-itkwish* | --with-pita* )
 		    ;;
 	    *)
