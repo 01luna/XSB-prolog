@@ -898,6 +898,7 @@ if test -n "$with_pita" && test -d "$topdir/packages/pita"; then
     cd "$topdir/packages/pita"
     echo "***Configuring pita"
     echo `pwd`
+    chmod 700 ./configure
     ./configure  --with-pita="$with_pita"  > /dev/null
     cd $build_dir
 fi
@@ -919,6 +920,7 @@ fi
 if test -d "$topdir/packages/curl"; then
     cd "$topdir/packages/curl"
     echo "***Configuring Curl (WWW protocol library)"
+    chmod 700 ./configure
     ./configure --with-curl-libdir="$with_curl_libdir" --with-curl-incdir="$with_curl_incdir" > /dev/null
     cd "$build_dir"
 fi
@@ -930,6 +932,7 @@ if test -d "$topdir/packages/xpath"; then
    if test -n "$with_xpath_dir" ; then
       xpath_prefix_option="--prefix=$with_xpath_dir"
    fi
+   chmod 700 ./configure
     ./configure $xpath_prefix_option > /dev/null
     cd "$build_dir"
 fi
@@ -939,6 +942,7 @@ fi
 if test -d "$topdir/packages/pcre"; then
     cd "$topdir/packages/pcre"
     echo "***Configuring PCRE (Perl pattern matching library)"
+    chmod 700 ./configure
     ./configure --with-pcre-libdir="$with_pcre_libdir" --with-pcre-incdir="$with_pcre_incdir" > /dev/null
     cd "$build_dir"
 fi
