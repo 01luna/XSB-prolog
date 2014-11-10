@@ -1884,13 +1884,13 @@ int builtin_call(CTXTdeclc byte number)
   }
   case GET_DATE: {
     int year=0, month=0, day=0, hour=0, minute=0, second=0;
-    get_date(&year,&month,&day,&hour,&minute,&second);
-    ctop_int(CTXTc 1,year);
-    ctop_int(CTXTc 2,month);
-    ctop_int(CTXTc 3,day);
-    ctop_int(CTXTc 4,hour);
-    ctop_int(CTXTc 5,minute);
-    ctop_int(CTXTc 6,second);
+    get_date((int)ptoc_int(CTXTc 1),&year,&month,&day,&hour,&minute,&second);
+    ctop_int(CTXTc 2,year);
+    ctop_int(CTXTc 3,month);
+    ctop_int(CTXTc 4,day);
+    ctop_int(CTXTc 5,hour);
+    ctop_int(CTXTc 6,minute);
+    ctop_int(CTXTc 7,second);
     break;
   }
   case STAT_WALLTIME: {

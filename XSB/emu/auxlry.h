@@ -30,8 +30,8 @@
 
 extern double cpu_time(void);
 extern double real_time(void);
-extern void get_date(int *year, int *month, int *day,
-		    int *hour, int *minute, int *second);
+extern void get_date(int local, int *year, int *month, int *day,
+		     int *hour, int *minute, int *second);
 
 #define ihash(val, size) ((UInteger)(val) % (size))
 

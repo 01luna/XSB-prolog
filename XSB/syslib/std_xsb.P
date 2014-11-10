@@ -252,6 +252,8 @@ standard_symbol(get_call, 3, tables).
 standard_symbol(get_calls, 3, tables).
 standard_symbol(get_calls_for_table, 2, tables).
 standard_symbol(get_date, 6, standard).
+standard_symbol(get_utcdate, 6, standard).
+standard_symbol(get_localdate, 6, standard).
 standard_symbol(get_producer_call, 3, tables).
 standard_symbol(get_residual, 2, tables).
 standard_symbol(variant_get_residual, 2, tables).

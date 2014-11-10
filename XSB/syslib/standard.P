@@ -1820,8 +1820,15 @@ time(Goal) :-
 	).
 
 
-get_date(_Year,_Month,_Day,_Hour,_Minute,_Second) :-
+get_date_internal(_Local,_Year,_Month,_Day,_Hour,_Minute,_Second) :-
 	'_$builtin'(GET_DATE).
+get_utcdate(Year,Month,Day,Hour,Minute,Second) :-
+	get_date_internal(0,Year,Month,Day,Hour,Minute,Second).
+get_localdate(Year,Month,Day,Hour,Minute,Second) :-
+	get_date_internal(1,Year,Month,Day,Hour,Minute,Second).
+get_date(Year,Month,Day,Hour,Minute,Second) :-
+	get_utcdate(Year,Month,Day,Hour,Minute,Second).
+
 
 now(When) :-
 	(   var(When)
