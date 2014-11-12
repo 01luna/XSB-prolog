@@ -2297,6 +2297,9 @@ xsbBool is_completed_table(TIFptr tif) {
 
 /* - - - - - */
 
+
+int trie_warning_message_array[9][6];
+
 /* below used for table gc; Need different access method if pointing
    to the trie_fail instruction (used in incremental tabling).  See
    tc_insts_xsb_i.h which tells how to access the tif from the related
@@ -2314,12 +2317,23 @@ Psc get_psc_for_trie_cp(CTXTdeclc CPtr cp_ptr, BTNptr trieNode) {
       //    get_arity(TIF_PSC(tif_ptr)));
       return TIF_PSC(tif_ptr);
     } 
+    else { 
+      if (trie_warning_message_array[TN_NodeType(trieNode)][TN_TrieType(trieNode)] == 0) {
+	fprintf(stderr,"Null parent ptr for TN Root Node type: %s Trie type %s\n",
+		trie_node_type_table[TN_NodeType(trieNode)], trie_trie_type_table[TN_TrieType(trieNode)]);
+	trie_warning_message_array[TN_NodeType(trieNode)][TN_TrieType(trieNode)] = 1;
+      }
+    return NULL;
+    }
   } else if ((int) TN_Instr(trieNode) == trie_fail) { 
     LocNodePtr    = (BTNptr) *(cp_ptr + CP_SIZE);
     return TIF_PSC(subg_tif_ptr(BTN_Parent(LocNodePtr)));
   } else {
-    fprintf(stderr,"Null parent ptr for TN Root Node type: %d Trie type %d\n",
-	    TN_TrieType(trieNode), TN_NodeType(trieNode));
+      if (trie_warning_message_array[TN_NodeType(trieNode)][TN_TrieType(trieNode)] == 0) {
+	fprintf(stderr,"Non-answer trie instr in cp stack: TN Root Node type: %s Trie type %s\n",
+		trie_node_type_table[TN_NodeType(trieNode)], trie_trie_type_table[TN_TrieType(trieNode)]);
+	trie_warning_message_array[TN_NodeType(trieNode)][TN_TrieType(trieNode)] = 1;
+      }
     return NULL;
   }
 }
