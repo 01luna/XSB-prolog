@@ -2297,22 +2297,29 @@ xsbBool is_completed_table(TIFptr tif) {
 
 /* - - - - - */
 
-Psc get_psc_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf) 
-{
-  TIFptr tif_ptr;
+/* below used for table gc; Need different access method if pointing
+   to the trie_fail instruction (used in incremental tabling).  See
+   tc_insts_xsb_i.h which tells how to access the tif from the related
+   cp.*/
 
-  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) & ((int) TN_Instr(pLeaf) != trie_fail) ) {
-    pLeaf = BTN_Parent(pLeaf);
-  }
-
-  if (TN_Parent(pLeaf)) { /* workaround till all roots pointing to subg's */
-    tif_ptr = subg_tif_ptr(TN_Parent(pLeaf));
-    //    printf("Predicate is %s/%d\n",get_name(TIF_PSC(tif_ptr)),
-    //    get_arity(TIF_PSC(tif_ptr)));
-    return TIF_PSC(tif_ptr);
+Psc get_psc_for_trie_cp(CTXTdeclc CPtr cp_ptr, BTNptr trieNode) {
+  BTNptr  LocNodePtr;   TIFptr tif_ptr;
+  if (IsInAnswerTrie((trieNode))) {
+    while ( IsNonNULL(trieNode) && (! IsTrieRoot(trieNode)) & ((int) TN_Instr(trieNode) != trie_fail) ) {
+      trieNode = BTN_Parent(trieNode);
+    }
+    if (TN_Parent(trieNode) && TN_Instr(trieNode) != trie_fail) { 
+      tif_ptr = subg_tif_ptr(TN_Parent(trieNode));
+      //    printf("Predicate is %s/%d\n",get_name(TIF_PSC(tif_ptr)),
+      //    get_arity(TIF_PSC(tif_ptr)));
+      return TIF_PSC(tif_ptr);
+    } 
+  } else if ((int) TN_Instr(trieNode) == trie_fail) { 
+    LocNodePtr    = (BTNptr) *(cp_ptr + CP_SIZE);
+    return TIF_PSC(subg_tif_ptr(BTN_Parent(LocNodePtr)));
   } else {
     fprintf(stderr,"Null parent ptr for TN Root Node type: %d Trie type %d\n",
-	    TN_TrieType(pLeaf), TN_NodeType(pLeaf));
+	    TN_TrieType(trieNode), TN_NodeType(trieNode));
     return NULL;
   }
 }
@@ -3363,11 +3370,8 @@ int abolish_table_pred_cps_check(CTXTdeclc Psc psc)
     if ( is_trie_instruction(cp_inst) ) {
       // Below we want basic_answer_trie_tt, ts_answer_trie_tt
       trieNode = TrieNodeFromCP(cp_top1);
-      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
-	//      if (IsInAnswerTrie(trieNode)) {
-	if (psc == get_psc_for_answer_trie_cp(CTXTc trieNode)) {
+      if (psc == get_psc_for_trie_cp(CTXTc cp_top1, trieNode)) {
 	  return CANT_RECLAIM;
-	}
       }
     }
     /* Now check delaylist */
@@ -4055,11 +4059,8 @@ int abolish_mt_tables_cps_check(CTXTdecl,xsbBool isPrivate)
     if ( is_trie_instruction(cp_inst) ) {
       trieNode = TrieNodeFromCP(cp_top1);
       // Below we want basic_answer_trie_tt, ts_answer_trie_tt
-      if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
-	//      if (IsInAnswerTrie(trieNode)) {
-	if (get_private(get_psc_for_answer_trie_cp(CTXTc trieNode)) == isPrivate) {
-	  return CANT_RECLAIM;
-	}
+      if (get_private(get_psc_for_trie_cp(CTXTc cp_top1, trieNode))  == isPrivate) {
+	return CANT_RECLAIM;
       }
     }
     /* Now check delaylist */
