@@ -542,7 +542,7 @@ get_dynamic_pred_ep(Head,CallingPred,PredEP,PSC) :-
 	psc_type(PSC,Type),
 	(Type =:= T_PRED		/* is compiled */
 	 ->	functor(Head,F,A),
-		permission_error(modify,static,F/A,CallingPred)
+		permission_error(access,private_procedure,F/A,CallingPred)
 	 ;	Type =:= T_DYNA, % is DYNA 
 		psc_ep(PSC, PredEP) % get PredEP
 	).

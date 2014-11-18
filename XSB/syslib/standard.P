@@ -387,7 +387,7 @@ get0(C) :- stat_flag(CURRENT_INPUT, Str),
 skip(C) :- get0(C0), (C0=C ; skip(C)).
 
 %ISO
-put_char(S_or_A,C):- 
+put_char(S_or_A,C) :-
 	check_open_stream_or_alias(S_or_A,put_char/2,1,output,Str),
 	file_put_char(Str,C).
 %	atom_codes(C,L),
@@ -397,7 +397,7 @@ put_char(S_or_A,C):-
 %	file_put(Str,L1).
 
 %ISO
-put_char(C):- 			
+put_char(C) :-
         stat_flag(CURRENT_OUTPUT, Str), 
 	file_put_char(Str,C).
 %	atom_codes(C,L),
@@ -407,18 +407,24 @@ put_char(C):-
 %	put(L1).
 
 %ISO
-put_code(S_or_A,C):- 
+put_code(S_or_A,C) :-
 	check_open_stream_or_alias(S_or_A,put_code/2,1,output,Str),
-	(integer(C) -> 
-	        file_put_code(Str,C)
-	 ;  domain_error(integer_or_variable,C,put_code/2,2) ).
+	(	integer(C) -> 
+		file_put_code(Str,C)
+	;	var(C) ->
+		instantiation_error(put_code/2,2,bound)
+	;	type_error(integer,C,put_code/2,2)
+	).
 
 %ISO
-put_code(C):- 
-	 stat_flag(CURRENT_OUTPUT, Str), 
-	(integer(C) -> 
-	        file_put_code(Str,C)
-	 ;  domain_error(integer_or_variable,C,put_code/1,1) ).
+put_code(C) :-
+	stat_flag(CURRENT_OUTPUT, Str),
+	(	integer(C) ->
+		file_put_code(Str,C)
+	;	var(C) ->
+		instantiation_error(put_code/1,1,bound)
+	;	type_error(integer,C,put_code/1,1)
+	).
 
 
 % TLS: changed definition of put so that stream-based version (w. mutexes) is used. 
