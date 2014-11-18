@@ -1606,7 +1606,13 @@ false :- fail.
 
 halt :- halt.
 
-halt(Code) :- sys_exit(Code).
+halt(Code) :-
+	(	integer(Code) ->
+		sys_exit(Code)
+	;	var(Code) ->
+		instantiation_error(halt/1,1)
+	;	type_error(integer,Code,halt/1,1)
+	).
 
 			/***********************/
 			/*   TERM COMPARISON   */
