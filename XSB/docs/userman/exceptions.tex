@@ -24,7 +24,9 @@ finds a {\em catcher} that unifies with $T$.  This catcher then calls
 a {\em handler}.  If no explicit catcher for $T$ exists, a default
 handler is invoked, which usually results in an abort, and returns
 execution to the top-level of the interpreter, or to the calling C
-function.
+function.\footnote{Starting in Version 3.5.1, XSB uses the ISO
+  compliant {\tt error/2} for error terms, rather than {\tt error/3}
+  as in previous versions.}
 
 A handler is set up when {\tt catch(Goal,Catcher,Handler)} is called.
 At this point a continuation is saved (i.e. a Prolog choice point),
