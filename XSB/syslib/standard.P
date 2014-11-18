@@ -2137,9 +2137,13 @@ catch(_Goal,Catcher,Handler) :-
         ).
 
 throw(Ball) :-
+	(	var(Ball) ->
+		Ball = error(instantiation_error, context('Error: non-instantiated exception term in call to throw/1', throw/1))
+	;	true
+	),
 	xsb_thread_self(T),
-        asserta('$$exception_ball'(T,Ball)),
-        '$$unwind_stack'. % unwind_stack xsb_exits if no catcher was found
+	asserta('$$exception_ball'(T,Ball)),
+	'$$unwind_stack'.	% unwind_stack xsb_exits if no catcher was found
 
 :- import return_memory_exception/2 from error_handler.
 get_exception_ball(T,Ball):- '$$exception_ball'(T,Ball),!.
