@@ -23,6 +23,11 @@ checksums       \
 	sha256	8cb811c0a6e0c203b274e96edf74d8e56986bdef \
 	rmd160	bbf614c0450def4164b185b35d0f4b54c397dd0d
 
+depends_build    \
+	port:pcre    \
+	port:libxml2 \
+	port:curl
+
 configure.args	--prefix=${destroot}${prefix}
 
 distname		xsb-${version}
@@ -33,8 +38,10 @@ build.dir		${workpath}/${worksrcdir}/build
 
 use_configure	no
 
+build.env		JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home
+
 build			{
-	system "cd ${workpath}/${worksrcdir}/build && ./configure --prefix ${destroot}${prefix}/share && ./makexsb"
+	system "cd ${workpath}/${worksrcdir}/build && ./configure --prefix ${destroot}${prefix}/share --with-xpath-dir=${prefix}/lib --with-curl-libdir=${prefix}/lib --with-curl-incdir=${prefix}/include --with-pcre-libdir=${prefix}/lib --with-pcre-incdir=${prefix}/include && ./makexsb"
 }
 
 destroot {

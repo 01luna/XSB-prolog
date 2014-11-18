@@ -230,7 +230,7 @@ examine_open_options([eof_action(Action)|T],Aliases,[eof_action(Action)|Eof]):- 
 examine_open_options([alias(A)|T],[A|Aliases],Eof):- !,
 	examine_open_options(T,Aliases,Eof).
 examine_open_options([Option|_],_,_):- 
-	domain_error(stream_options,Option,open/4,4).
+	domain_error(stream_option,Option,open/4,4).
 
 %------------------------------------------------
 close(Var):- var(Var),!,instantiation_error(close/1,1).
@@ -1890,11 +1890,15 @@ arity_integer(N) :-
 % 255 (representation).  But it seems pedantic to add unnecessary ISO
 % checks. 
 check_arity_integer(N,Pred,Arg) :-
-	(integer(N) -> 
-	    (N >= 0, N =< 255 -> 
-		true 
-	     ;  domain_error(arity_integer,N,Pred,Arg) )
-         ; type_error(integer,N,Pred,Arg) ).
+	(	integer(N) -> 
+		(	N >= 0, N =< 255 -> 
+			true 
+		;	N < 0 ->
+			domain_error(not_less_than_zero,N,Pred,Arg)
+		;	representation_error(max_arity,Pred,Arg)
+		)
+	;	type_error(integer,N,Pred,Arg)
+	).
 
 
 %  all_atoms(+List)

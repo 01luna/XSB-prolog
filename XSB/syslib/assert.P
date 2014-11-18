@@ -329,7 +329,7 @@ check_assert_fact(Head, Pred) :- 	% asserting a fact
 	    ( functor(Head, F, A),
 		standard_symbol(F, A, _Prop),
 		\+ standard_dynamic_symbol(F, A) ->
-		permission_error(modify,builtin,F/A,Pred)
+		permission_error(modify,static_procedure,F/A,Pred)
 	    ;	true
 	    )
 	; type_error(callable,Head,Pred,1)
@@ -736,7 +736,7 @@ abolish(Spec) :-
 	 ; Nspec = Spec, functor(Nspec,Pred,Arity)
 	),
 	(standard_symbol(Pred,Arity,_Prop)
-	 ->	permission_error(modify,builtin,Pred/Arity,abolish/1)
+	 ->	permission_error(modify,static_procedure,Pred/Arity,abolish/1)
 	 ;      call_xsb_hook(xsb_retract_hook(_),[Nspec,true],all),
 		abolish1(Nspec)
 	).
@@ -820,7 +820,7 @@ check_clause(Head) :-
 	    (	functor(Head, F, A),
 		standard_symbol(F, A, _Prop),
 		\+ standard_dynamic_symbol(F, A)
-	    ->	permission_error(access,builtin,F/A,clause/2)
+	    ->	permission_error(access,private_procedure,F/A,clause/2)
 	    ;	true
 	    )
 	  ; type_error(callable,Head,clause/2,1)

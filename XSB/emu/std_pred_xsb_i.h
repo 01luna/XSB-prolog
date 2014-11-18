@@ -332,7 +332,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
   Cell list, new_list;
   CPtr top = 0;
   char *call_name = (call_type == ATOM_CODES ? "atom_codes/2" : "atom_chars/2");
-  char *elt_type = (call_type == ATOM_CODES ? "character code" : "character");
+  char *elt_type = (call_type == ATOM_CODES ? "character_code" : "character");
 
   term = ptoc_tag(CTXTc 1);
   XSB_Deref(term);
@@ -372,7 +372,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	//	if (c < 0) {   /*  || c > 255 nfz */
 	if (c < 0 || (c > 255 && CURRENT_CHARSET == LATIN_1)) {
 	  mem_dealloc(atomnameaddr,atomnamelen,LEAK_SPACE);
-	  xsb_representation_error(CTXTc "character code",
+	  xsb_representation_error(CTXTc "character_code",
 				   makestring(string_find("(Non-LATIN_1 Character)",1)),
 				   call_name,2);
 	  return FALSE;	/* keep compiler happy */
@@ -511,8 +511,8 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
 	}
 
 	if (c < 0 || c > 255) {
-	  //	  xsb_representation_error(CTXTc "character code",heap_addr,call_name,2);
-	  xsb_representation_error(CTXTc "character code",
+	  //	  xsb_representation_error(CTXTc "character_code",heap_addr,call_name,2);
+	  xsb_representation_error(CTXTc "character_code",
 				   makestring(string_find("(Non-LATIN_1 Character)",1)),
 				   call_name,2);
 	}

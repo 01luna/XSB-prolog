@@ -304,7 +304,7 @@ current_predicate(Specifier) :-		% This takes care of global modules.
 	   current_predicate_module(Module,Functor,N)
 	;  (Specifier = Functor/N -> 
 	      current_predicate_global(Functor,N)
-	      ; type_error(term_indicator,Specifier,current_predicate/1,1) ) ).
+	      ; type_error(predicate_indicator,Specifier,current_predicate/1,1) ) ).
 
 /*
 current_predicate(Specifier) :-		% This takes care of global modules.
@@ -312,7 +312,7 @@ current_predicate(Specifier) :-		% This takes care of global modules.
 	    current_predicate_global(Functor,N)
 	  ; (Specifier = Module:Functor/N -> 
 	        current_predicate_module(Module,Functor,N)
-	      ; type_error(term_indicator,Specifier,current_predicate/1,1) ) ).
+	      ; type_error(predicate_indicator,Specifier,current_predicate/1,1) ) ).
 */
 current_predicate_global(Functor,N):- 
 	!,				% i.e. "usermod" and "global".
