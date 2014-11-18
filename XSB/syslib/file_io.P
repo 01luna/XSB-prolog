@@ -503,7 +503,7 @@ current_stream_or_alias(S_or_A,Stream):-
 print_openfiles:- file_function(PRINT_OPENFILES,_,_,_,_,_,_).
 
 peek_code(S_or_A,Code):- 
-	check_open_stream_or_alias(S_or_A,peek_code/1,1,_Mode,Str),
+	check_open_stream_or_alias(S_or_A,peek_code/2,1,_Mode,Str),
 	file_function(FILE_PEEK_CODE,Str,Ret,_Y,_Z, _,_),
 	Ret = Code.
 
@@ -513,7 +513,7 @@ peek_code(Code):-
 	Ret = Code.
 
 peek_byte(S_or_A,Code):- 
-	check_open_stream_or_alias(S_or_A,peek_code/1,1,_Mode,Str),
+	check_open_stream_or_alias(S_or_A,peek_byte/2,1,_Mode,Str),
 	file_function(FILE_PEEK_BYTE,Str,Ret,_Y,_Z, _,_),
 	Ret = Code.
 
@@ -524,7 +524,7 @@ peek_byte(Code):-
 
 % TLS: need char_conversion table.
 peek_char(S_or_A,Char):- 
-	check_open_stream_or_alias(S_or_A,peek_char/1,1,_Mode,Str),
+	check_open_stream_or_alias(S_or_A,peek_char/2,1,_Mode,Str),
 	file_function(FILE_PEEK_CHAR,Str,C,_Y,_Z, _,_),
 	Char = C.
 %	(Ret >= 0 -> 
