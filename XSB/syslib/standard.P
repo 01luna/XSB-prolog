@@ -176,13 +176,19 @@ open(File,Mode,Stream) :- 'open aux'(File,Mode,0,Stream).
 'open aux'(SrcSnk,_,_,_):- 
 	domain_error(source_sink,SrcSnk,open/3,1).
 
-file_translate(read,r):- !.
-file_translate(write,w):- !.
-file_translate(write_binary,wb):- !.
-file_translate(append,a):- !.
-file_translate(append_binary,ab):- !.
-file_translate(Mode,_):- 
-	domain_error(io_mode,Mode,open/3,2).
+file_translate(Mode,_) :-
+	var(Mode),
+	instantiation_error(open/3,2).
+file_translate(read,r) :- !.
+file_translate(write,w) :- !.
+file_translate(write_binary,wb) :- !.
+file_translate(append,a) :- !.
+file_translate(append_binary,ab) :- !.
+file_translate(Mode,_) :-
+	(	atom(Mode) ->
+		domain_error(io_mode,Mode,open/3,2)
+	;	type_error(atom,Mode,open/3,2)
+	).
 
 open_url(url(Atom),read,Stream,Options) :- 
 	!, 
