@@ -5,9 +5,9 @@
 :- import conset/2, conget/2 from machine.
 
 
-test:- catch(tc_1,error(E,M,_),writeln(caught(E,M))),fail.
-test:- catch(tc_2,error(E,M,_),writeln(caught(E,M))),fail.
-test:- catch(tc_nest,error(E,M,_),writeln(caught(E,M))),fail.
+test:- catch(tc_1,error(E,context(M,_)),writeln(caught(E,M))),fail.
+test:- catch(tc_2,error(E,context(M,_)),writeln(caught(E,M))),fail.
+test:- catch(tc_nest,error(E,context(M,_)),writeln(caught(E,M))),fail.
 test.
 
 tc_1:- 

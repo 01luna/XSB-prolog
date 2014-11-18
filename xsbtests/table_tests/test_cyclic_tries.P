@@ -18,11 +18,11 @@ create_trie:- new_trie(Trie),assert(cycle_trie(Trie)).
 
 test_term_error:- cycle_trie(Trie),
        X = f(X),
-       catch(trie_intern(X,Trie),error(misc_error,_Msg,_BT),writeln(caught_term_eror)).
+       catch(trie_intern(X,Trie),error(misc_error,context(_Msg,_BT)),writeln(caught_term_eror)).
 test_list_error:- 
        cycle_trie(Trie),
        X = [X],
-       catch(trie_intern(X,Trie),error(misc_error,_Msg,_BT),writeln(caught_list_eror)).
+       catch(trie_intern(X,Trie),error(misc_error,context(_Msg,_BT)),writeln(caught_list_eror)).
 
 test_term_failure:- cycle_trie(Trie),
        X = f(X),

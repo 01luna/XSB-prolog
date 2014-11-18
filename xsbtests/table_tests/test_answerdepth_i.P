@@ -3,7 +3,7 @@
 
 test:- test_failure,fail.
 test:-  p(7,Y),writeln(on_failure(p(7,Y))),fail.
-test:- catch(test_error,error(X,_,_),writeln(error_caught(X))),fail.
+test:- catch(test_error,error(X,_),writeln(error_caught(X))),fail.
 test:- close_open_tables(non_memory_error), fail.
 test.
 

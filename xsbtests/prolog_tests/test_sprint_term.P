@@ -10,15 +10,15 @@ test:- make_term(50,X),
        BigInt is 2 ** 50, 
        BigFloat is BigInt/3,
        Term =  r(a,[a,3.5,[1,BigInt,BigFloat],['3cpo'|'foo''''bar']],X),
-       catch(call(Term),error(_Type,E,_BT),writeq(E)),nl,fail.
+       catch(call(Term),error(_Type,context(E,_)),writeq(E)),nl,fail.
 test:- make_term(70,X),
        BigInt is 2 ** 50, 
        BigFloat is BigInt/3,
        Term =  r(a,[a,3.5,[1,BigInt,BigFloat],['3cpo'|'foo''''bar']],X),
-       catch(call(Term),error(_Type,E,_BT),writeq(E)),nl,fail.
+       catch(call(Term),error(_Type,context(E,_)),writeq(E)),nl,fail.
 
 test:- 
-	catch(call(p(_)),error(_Type,E,_BT),writeq(E)),fail.
+	catch(call(p(_)),error(_Type,context(E,_)),writeq(E)),fail.
 test.
 
 :- table p/1.

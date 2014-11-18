@@ -21,17 +21,17 @@ test:-
 	p4(1,X),writeln(p4(1,X)),fail.
 
 % test some error conditions.
-test:- 	catch((dynamic [a,b]),error(domain_error(_,_),_,_),writeln(caught_domain_error)),fail.
+test:- 	catch((dynamic [a,b]),error(domain_error(_,_),context(_,_)),writeln(caught_domain_error)),fail.
 test:- 	
-	catch((dynamic X),error(instantiation_error,_,_),
+	catch((dynamic X),error(instantiation_error,context(_,_)),
 	      writeln(caught_instantiation_error_1)),
 	fail.
 test:- 	
-	catch((dynamic X,Y),error(instantiation_error,_,_),
+	catch((dynamic X,Y),error(instantiation_error,context(_,_)),
 	      writeln(caught_instantiation_error_2)),
 	fail.
 test:- 	
-	catch((dynamic 1),error(type_error(_,_),_,_),
+	catch((dynamic 1),error(type_error(_,_),context(_,_)),
 	      writeln(caught_callable_error)),
 	fail.
 test.

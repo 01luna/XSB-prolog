@@ -10,7 +10,7 @@ test:- call(m1:exported(A,B)),writeln(found_call(m1:exported(A,B))),fail.
 % test call/2 and :/2
 test:- call(m1:exported(A),B),writeln(found_call(m1:exported(A),B)),fail.
 % test call without :/2 (throws error)
-test:- catch(exported(_A,_B),error(E,_,_),writeln(found(E))),fail.
+test:- catch(exported(_A,_B),error(E,_),writeln(found(E))),fail.
 % repeat tests w. dynamic code.
 test:- p1(a,b),p2(X,Y),writeln(found(p2(X,Y))),fail.
 test:- p3(a,b),p4(X,Y),writeln(found(p4(X,Y))),fail.

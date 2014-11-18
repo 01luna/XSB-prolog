@@ -7,7 +7,7 @@ test:- test_intern,test_assert,test_table.
 
 test_intern:- 
        test_intern_1(800),
-       catch(test_intern_2(1000),error(A,_B,_C),writeln(A)).
+       catch(test_intern_2(1000),error(A,context(_B,_C)),writeln(A)).
 
 test_intern_1(N):- 
        new_trie(Trie),

@@ -98,7 +98,7 @@ r(X):- put_attr(X,general2,splat).
 
 s1(_).
 
-test6:- catch(test6_1,error(table_error,_Msg,_Bt),writeln('test6 properly caught')).
+test6:- catch(test6_1,error(table_error,_Ctxt),writeln('test6 properly caught')).
 
 test6_1:- 
 	put_attr(X,general5,bug),

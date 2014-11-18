@@ -1,6 +1,6 @@
 % Checks mem_calloc for structure manager expansion
 
-first_test:- catch(test_1,error(resource_error(memory),E,_),writeln(E)).
+first_test:- catch(test_1,error(resource_error(memory),context(E,_)),writeln(E)).
 
 second_test:- catch(test_4,error(resource_error(memory),E,_),writeln(E)),fail.
 second_test:- catch(test_3,error(_,E,_),writeln(E)),fail.
