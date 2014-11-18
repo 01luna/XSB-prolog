@@ -174,7 +174,7 @@ open(File,Mode,Stream) :- 'open aux'(File,Mode,0,Stream).
 	    permission_error(open,file,File,open/3)
 	 ;  true).
 'open aux'(SrcSnk,_,_,_):- 
-	domain_error(source_or_sink,SrcSnk,open/3,1).
+	domain_error(source_sink,SrcSnk,open/3,1).
 
 file_translate(read,r):- !.
 file_translate(write,w):- !.
@@ -182,7 +182,7 @@ file_translate(write_binary,wb):- !.
 file_translate(append,a):- !.
 file_translate(append_binary,ab):- !.
 file_translate(Mode,_):- 
-	domain_error(file_io_mode,Mode,open/3,2).
+	domain_error(io_mode,Mode,open/3,2).
 
 open_url(url(Atom),read,Stream,Options) :- 
 	!, 
