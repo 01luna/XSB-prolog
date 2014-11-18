@@ -96,12 +96,13 @@ inline static xsbBool functor_builtin(CTXTdecl)
 		    int_unify(CTXTc makeint(0), arity));
 	  else {
 	    if (isnonvar(arity)) {
-	      if (isinteger(arity))
-		err_handle(CTXTc RANGE, 3, "functor", 3,
-		       "integer in the range 0..255", arity);
-	      else 
-		xsb_type_error(CTXTc "integer",arity,"functor/3",3); 
-
+	      if (isinteger(arity)) {
+			if (int_val(arity) >= 0)
+		  		xsb_representation_error(CTXTc "max_arity",
+		  					 makestring(string_find("Arity of term",1)),"functor/3",3);
+			else xsb_domain_error(CTXTc "not_less_than_zero",arity,"functor/3",3);
+	      }
+	      else xsb_type_error(CTXTc "integer",arity,"functor/3",3); 
 	    }
 	  else xsb_instantiation_error(CTXTc "functor/3", 3);
 	  }
@@ -109,7 +110,7 @@ inline static xsbBool functor_builtin(CTXTdecl)
     }
       else {
       if (isnonvar(functor))
-	xsb_type_error(CTXTc "atom",functor,"functor/3",2); 
+	xsb_type_error(CTXTc "atomic",functor,"functor/3",2); 
       else xsb_instantiation_error(CTXTc "functor/3",3);
       }
   }
