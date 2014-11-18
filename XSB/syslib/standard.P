@@ -1834,16 +1834,14 @@ now(When) :-
 	(   var(When)
 	->  get_date(Y,Mo,D,H,Mi,S),
 	    concat_atom([Y,'/',Mo,'/',D,' ',H,':',Mi,':',S],When)
-	;   throw(error(instantiation_error,
-			('Error: now(-When) called with bound var: ',When)))
+	;   throw(error(instantiation_error,context(('Error: now(-When) called with bound var: ',When))))
 	).
 
 datime(Datime) :-
 	(   var(When)
 	->  get_date(Y,Mo,D,H,Mi,S),
 	    Datime = datime(Y,Mo,D,H,Mi,S)
-	;   throw(error(instantiation_error,
-		('Error: datime(-Datime) called with bound var: ',When)))
+	;   throw(error(instantiation_error,context(('Error: datime(-Datime) called with bound var: ',When))))
 	).
 
 %-----------------------------------------------------------------------------%

@@ -78,6 +78,9 @@ ccall_error_handler(Error) :-
 :- thread_shared('_$thread_exit_ball'(_,_)).
 
 default_sys_error_handler(error(Error,Msg,Backtrace)) :-
+	default_sys_error_handler(error(Error,context(Msg,Backtrace))).
+
+default_sys_error_handler(error(Error,context(Msg,Backtrace))) :- !,
 	% here is where we may do something abt backtraces.
 	xsb_flag(backtrace_on_error,BT),
 	xsb_thread_self(Thread),
@@ -317,89 +320,78 @@ print_mod_pred_arity_list([Psc|Pscs],Stream) :-
 
 domain_error(Valid_type,Culprit,Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(domain_error(Valid_type,Culprit),
-	                             (' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(domain_error(Valid_type,Culprit),context((' in arg ',Arg,' of predicate ',Predicate),Bt))).
 domain_error(Valid_type,Culprit,Predicate,Arg,Msg):- 
 	xsb_backtrace(Bt),
-	throw(error(domain_error(Valid_type,Culprit),
-                           (' in arg ',Arg,' of predicate ',Predicate, ' (',Msg,')'),Bt)).
+	throw(error(domain_error(Valid_type,Culprit),context((' in arg ',Arg,' of predicate ',Predicate, ' (',Msg,')'),Bt))).
 %------
 evaluation_error(Flag,Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(evaluation_error(Flag),
-	                             (' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(evaluation_error(Flag),context((' in arg ',Arg,' of predicate ',Predicate),Bt))).
 %------
 existence_error(Object_type,Culprit,Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(existence_error(Object_type,Culprit),
-	                             (' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(existence_error(Object_type,Culprit),context((' in arg ',Arg,' of predicate ',Predicate),Bt))).
 %------
 % obsolete TLS
 instantiation_error(Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(instantiation_error,
-	                             (' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(instantiation_error,context((' in arg ',Arg,' of predicate ',Predicate),Bt))).
 instantiation_error(Predicate,Arg,State):- 
 	xsb_backtrace(Bt),
-	throw(error(instantiation_error,
-	      (' in arg ',Arg,' of predicate ',Predicate,': must be ',State),Bt)).
+	throw(error(instantiation_error,context((' in arg ',Arg,' of predicate ',Predicate,': must be ',State),Bt))).
 %------
 % Misc Errors (nee aborts)
 misc_error(Message):- 
 	xsb_backtrace(Bt),
-	throw(error(misc_error,Message,Bt)).
+	throw(error(misc_error,context(Message,Bt))).
 
 preprocessing_error(Message) :-
-	throw(error(preprocessing_error,Message,_)).
+	throw(error(preprocessing_error,context(Message,_))).
 
 %------
 permission_error(Op,Obj_type,Culprit,Predicate):- 
 	xsb_backtrace(Bt),
-	throw(error(permission_error(Op,Obj_type,Culprit),(' in ',Predicate),Bt)).
+	throw(error(permission_error(Op,Obj_type,Culprit),context((' in ',Predicate),Bt))).
 
 %------
 representation_error(Flag,Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(representation_error(Flag),
-	                             (' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(representation_error(Flag),context((' in arg ',Arg,' of predicate ',Predicate),Bt))).
 %------
 
 resource_error(Flag,Predicate):- 
 	xsb_backtrace(Bt),
-	throw(error(resource_error(Flag),
-	                             (' in predicate ',Predicate),Bt)).
+	throw(error(resource_error(Flag),context((' in predicate ',Predicate),Bt))).
 
 %------
 syntax_error(Message):- 
 	xsb_backtrace(Bt),
-	throw(error(syntax_error,Message,Bt)).
+	throw(error(syntax_error,context(Message,Bt))).
 %------
 system_error(Flag,Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(system_error(Flag),
-	                             (' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(system_error(Flag),context((' in arg ',Arg,' of predicate ',Predicate),Bt))).
 %------
 table_error(Message):- 
 	xsb_backtrace(Bt),
-	throw(error(table_error,Message,Bt)).
+	throw(error(table_error,context(Message,Bt))).
 
 %------
 
 table_error(Subtype,Message,Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(typed_table_error(Subtype),
-	                        (Message,' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(typed_table_error(Subtype),context((Message,' in arg ',Arg,' of predicate ',Predicate),Bt))).
 
 %------
 abort_on_thread_cancel:- 
 	xsb_thread_self(Id),
-	throw(error(thread_cancel,Id,[[]])).
+	throw(error(thread_cancel,context(Id,[[]]))).
 
 %------
 type_error(Valid_type,Culprit,Predicate,Arg):- 
 	xsb_backtrace(Bt),
-	throw(error(type_error(Valid_type,Culprit),
-	                             (' in arg ',Arg,' of predicate ',Predicate),Bt)).
+	throw(error(type_error(Valid_type,Culprit),context((' in arg ',Arg,' of predicate ',Predicate),Bt))).
 
 
 %--------------------------------
@@ -543,7 +535,7 @@ permission_warning(Op,Obj_type,Culprit,Msg,PredInd):-
 	            PredInd,' ',Msg)).
 
 :- export return_memory_exception/2.
-return_memory_exception(Flag,error(resource_error(memory),[Limit_Msg,Memory_Msg],[])):-
+return_memory_exception(Flag,error(resource_error(memory),context([Limit_Msg,Memory_Msg],[]))):-
 	Limit_Type is Flag /\ 3,
 	Memory_Type is Flag >> 2,
 	(Limit_Type = SYSTEM_MEMORY_LIMIT -> 
