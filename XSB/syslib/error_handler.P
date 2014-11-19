@@ -111,7 +111,7 @@ flush_all_open_streams.
 :- import stat_set_flag/2 from machine.
 %:- import writeln/1 from standard.
 default_sys_error_handler_main(resource_error(E),_BT,_Backtrace):- 
-	% !(*$&$n module system!
+	% (aargh! module system)
 	atom_codes(E,Elist),atom_codes(memory,Elist),!,
 	stat_set_flag(MEMORY_ERROR_FLAG,0),
 	close_open_tables(memory_error),fail.
@@ -197,9 +197,11 @@ get_sys_error_description(error(permission_error(Op,Obj_type,Culprit),Msg),
 		 ; 
 	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Permission (Operation) ',
 		     Op,' on ',Obj_type,': ',Culprit,'] ', Msg) ).
-get_sys_error_description(error(representation_error(RepType,Culprit),Msg), ExceptionDesc) :- 
-	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Representation (',Culprit,
-	                 ' is not ',RepType,')] ', Msg) .
+%get_sys_error_description(error(representation_error(RepType,Culprit),Msg), ExceptionDesc) :- 
+%	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Representation (',Culprit,
+%	                 ' is not ',RepType,')] ', Msg) .
+get_sys_error_description(error(representation_error(RepType),Msg), ExceptionDesc) :- 
+	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Representation (not ',RepType,')] ', Msg) .
 get_sys_error_description(error(resource_error(Flag),Msg), ExceptionDesc) :- 
 	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Resource (',Flag,')] ', Msg) .
 % TLS using syntax_error_1/1 to avoid module system confusion.

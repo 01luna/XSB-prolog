@@ -462,7 +462,7 @@ check_open_stream_or_alias(S_or_A,Predicate,Arg,Mode,Stream) :-
 	check_stream_or_alias(S_or_A,Predicate,Arg,Stream),
             (is_valid_stream(Stream,Mode) -> 
 	        true
-	      ; existence_error(Mode-stream,Stream,Predicate,Arg) ).
+	      ; permission_error(Mode,stream,Stream,Predicate) ).
 
 %-----
 check_enumerate_stream_or_alias(S_or_A,Predicate,Arg,Stream):- 
