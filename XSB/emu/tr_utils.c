@@ -3542,6 +3542,14 @@ inline void abolish_table_predicate(CTXTdeclc Psc psc, int invocation_flag) {
 
   tif = get_tip(CTXTc psc);
 
+  start_table_gc_time(timer);
+
+  gc_tabled_preds(CTXT);
+  if ( IsNULL(tif) ) {
+    xsb_abort("[abolish_table_pred] Attempt to delete non-tabled predicate (%s/%d)\n",
+	      get_name(psc), get_arity(psc));
+  }
+
   if(get_incr(TIF_PSC(tif))) {  /* incremental */
       char message[ERRMSGLEN/2];
       snprintf(message,ERRMSGLEN/2,"incremental tabled predicate %s/%d",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
@@ -3550,14 +3558,6 @@ inline void abolish_table_predicate(CTXTdeclc Psc psc, int invocation_flag) {
       //		  "predicate  %s/%d.  Either abolish table calls or abolish_all_tables.",
       //  	          get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
       //    free_incr_hashtables(tif);  TLS: took out 201408 - this makes no sense to me.
-  }
-
-  start_table_gc_time(timer);
-
-  gc_tabled_preds(CTXT);
-  if ( IsNULL(tif) ) {
-    xsb_abort("[abolish_table_pred] Attempt to delete non-tabled predicate (%s/%d)\n",
-	      get_name(psc), get_arity(psc));
   }
 
   /* Check CPS stack = TRUE, ERROR if table is incomplete */
