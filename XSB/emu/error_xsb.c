@@ -615,7 +615,7 @@ void call_conv xsb_representation_error(CTXTdeclc char *inmsg,Cell culprit,const
   bld_functor(error_rec, pair_psc(insert("error",2,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
   bld_cs((error_rec+1),(error_rec+3));
-  bld_cs((error_rec+2),(error_rec+6));
+  bld_cs((error_rec+2),(error_rec+5));
   bld_functor(error_rec+3, pair_psc(insert("representation_error",1,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
   bld_string(error_rec+4,string_find(inmsg,1));
