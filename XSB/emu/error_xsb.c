@@ -791,8 +791,8 @@ void call_conv xsb_syntax_error_non_compile(CTXTdeclc Cell culprit,
   ball_to_throw = makecs(hreg);
 
   error_rec = hreg;  
-  hreg += 8;  // error/2 + syntax_error_1/1 + context/2
-  bld_functor(error_rec, pair_psc(insert("error",2,
+  hreg += 8;  // error/2 + syntax_error/1 + context/2
+  bld_functor(error_rec, pair_psc(insert("syntax_error",1,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
   bld_cs((error_rec+1),(error_rec+3));
   bld_cs((error_rec+2),(error_rec+5));
