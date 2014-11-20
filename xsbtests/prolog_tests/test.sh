@@ -95,6 +95,11 @@ rm -f varcond.xwam
 ../gentest.sh "$XEMU $options" wttest "test."
 
 #------------------------------------
+# Test writeq, write_canonical, and read library
+#------------------------------------
+../gentest.sh "$XEMU $options" test_write_read "test."
+
+#------------------------------------
 # Rare specialization bug test
 #------------------------------------
 ../gentest.sh "$XEMU $options" spec_tbl_fold_bug "test."
