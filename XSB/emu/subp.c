@@ -932,22 +932,17 @@ void print_dqatom(FILE *file, int charset, char *string) {
 
 void print_op(FILE *file, int charset, char *string, int pos)
 {
-  char *s;
-  int need_blank = 0;
 
-  s = string;
-  while (*s) { 
-    if (intype(*s) != SIGN) { need_blank = 1; break;} 
-    s++;
-  }
-  if (need_blank) {
+  if (*(string+1) == '\0' && (*string == ',' || *string == ';')) {
+    write_string_code(file,CURRENT_CHARSET,(byte *)string);
+  } else {
     switch (pos) {
     case 1: print_qatom(file, charset, string); putc(' ', file); break;
     case 2: putc(' ', file);
       print_qatom(file, charset, string); putc(' ', file); break;
     case 3: putc(' ', file); print_qatom(file, charset, string); break;
     }
-  } else write_string_code(file,CURRENT_CHARSET,(byte *)string);
+  }
 }
 
 /* ----- The following is also called from the Prolog level ----------- */
