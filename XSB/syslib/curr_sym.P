@@ -223,9 +223,12 @@ decode_star_index(Ind,IndIn,IndOut):-
 % TLS: changed on 8/04 for new streams.
 
 current_input(Stream) :- 
-	((var(Stream) ; integer(Stream)) -> 
+	(	var(Stream) ->
+		true
+	;	integer(Stream) -> 
 	    true
-	 ;  domain_error(stream_or_variable,Stream,current_input/1,1) ),
+	;	domain_error(stream,Stream,current_input/1,1)
+	),
 	stat_flag(CURRENT_INPUT, S),
 	S = Stream.
 
@@ -275,9 +278,12 @@ check_operator_name(Name):-
 % TLS: changed on 8/04 for new streams.
 
 current_output(Stream) :- 
-	((var(Stream) ; integer(Stream)) -> 
+	(	var(Stream) ->
+		true
+	;	integer(Stream) -> 
 	    true
-	 ;  domain_error(variable_or_stream,Stream,current_output/1,1) ),
+	;	domain_error(stream,Stream,current_output/1,1)
+	),
 	stat_flag(CURRENT_OUTPUT, S),
 	S = Stream.
 
