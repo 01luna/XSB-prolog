@@ -254,9 +254,14 @@ check_precedence(Prec):-
 	  ; domain_error(operator_priority,Prec,current_op/3,1) ).
 
 check_operator_type(Type):-
-	((var(Type) ; is_operator_type(Type)) -> 
-	    true 
-	  ; domain_error(operator_specifier,Type,current_op/3,2) ).
+	(	var(Type) ->
+		true
+	;	is_operator_type(Type) -> 
+	    true
+	;	atom(Type) ->
+		domain_error(operator_specifier,Type,current_op/3,2)
+	;	type_error(atom,Type,current_op/3,2)
+	).
 
 is_operator_type(fx).
 is_operator_type(fy).
@@ -269,9 +274,12 @@ is_operator_type(xfy).
 is_operator_type(yfx).
 
 check_operator_name(Name):-
-	((var(Name) ; atom(Name)) -> 
+	(	var(Name) ->
+		true
+	;	atom(Name) -> 
 	    true 
-	  ; domain_error(atom_or_variable,Name,current_op/3,3) ).
+	;	type_error(atom,Name,current_op/3,3)
+	).
 
 
 /* ===== current_output/1 ===================================== */
