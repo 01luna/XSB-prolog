@@ -527,6 +527,8 @@ psc_properties(PSC, Property) :-
 	; Type =:= T_UDEF -> Property = unloaded
 	; Type =:= T_FORN -> Property = foreign
 	; Type =:= 14 -> Property = function ).
+psc_properties(PSC, static) :-
+	\+ (psc_type(PSC, Type), Type =:= T_DYNA).
 psc_properties(PSC, Property) :-
 	psc_env(PSC, Env),
 	( Env =:= T_EXPORTED -> Property = exported
