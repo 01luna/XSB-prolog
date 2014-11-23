@@ -227,6 +227,9 @@ examine_open_options(Options,_,_) :-
 	var(Options),
 	instantiation_error(open/4,4).
 examine_open_options([],[],[]).
+examine_open_options([Option|_],_,_) :-
+	var(Option),
+	instantiation_error(open/4,4).
 examine_open_options([reposition(_Bool)|T],Aliases,Eof):- !,
 	warning('Reposition option ignored -- see manual.'),
 	examine_open_options(T,Aliases,Eof).
