@@ -912,7 +912,7 @@ op(Priority, Specifier, OPs) :-
 			%--- From here on we deal only with lists (proper or improper) ---
 			( is_list(L) ->
 				( all_atoms(L) -> 
-					abort('Not permitted to change the meaning of the "," operator')
+					permission_error(modify,operator,(','),op/3)
 				; contains_var(L) ->
 				        instantiation_error(op/3,3,bound)
 				; domain_error(atom_or_atomList,Ops,op/3,3)
