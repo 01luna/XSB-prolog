@@ -460,9 +460,15 @@ remove_alias(Alias,Type,Stream):-
 %-----
 check_open_stream_or_alias(S_or_A,Predicate,Arg,Mode,Stream) :- 
 	check_stream_or_alias(S_or_A,Predicate,Arg,Stream),
-            (is_valid_stream(Stream,Mode) -> 
-	        true
-	      ; permission_error(Mode,stream,Stream,Predicate) ).
+	(	is_valid_stream(Stream,ActualMode) -> 
+		(	var(Mode) ->
+			true
+		;	Mode == ActualMode ->
+			true
+		;	permission_error(Mode,stream,Stream,Predicate)
+		)
+	;	existence_error(stream,Stream,Predicate,Arg)
+	).
 
 %-----
 check_enumerate_stream_or_alias(S_or_A,Predicate,Arg,Stream):- 
@@ -503,7 +509,7 @@ current_stream_or_alias(S_or_A,Stream):-
 print_openfiles:- file_function(PRINT_OPENFILES,_,_,_,_,_,_).
 
 peek_code(S_or_A,Code):- 
-	check_open_stream_or_alias(S_or_A,peek_code/2,1,_Mode,Str),
+	check_open_stream_or_alias(S_or_A,peek_code/2,1,input,Str),
 	file_function(FILE_PEEK_CODE,Str,Ret,_Y,_Z, _,_),
 	Ret = Code.
 
@@ -513,7 +519,7 @@ peek_code(Code):-
 	Ret = Code.
 
 peek_byte(S_or_A,Code):- 
-	check_open_stream_or_alias(S_or_A,peek_byte/2,1,_Mode,Str),
+	check_open_stream_or_alias(S_or_A,peek_byte/2,1,input,Str),
 	file_function(FILE_PEEK_BYTE,Str,Ret,_Y,_Z, _,_),
 	Ret = Code.
 
@@ -524,7 +530,7 @@ peek_byte(Code):-
 
 % TLS: need char_conversion table.
 peek_char(S_or_A,Char):- 
-	check_open_stream_or_alias(S_or_A,peek_char/2,1,_Mode,Str),
+	check_open_stream_or_alias(S_or_A,peek_char/2,1,input,Str),
 	file_function(FILE_PEEK_CHAR,Str,C,_Y,_Z, _,_),
 	Char = C.
 %	(Ret >= 0 -> 
