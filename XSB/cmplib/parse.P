@@ -1327,6 +1327,7 @@ fix_for_0_ary_preds(Pred,Arity,Args,FixedArgs) :-
 	standard_metapredicate(Pred,Arity,ArgNo),
 	ith(ArgNo,Args,String),
 	atom(String),
+	String \== !,  % ! is not a callable predicate
 	!,
 	conpsc(String,PSC),term_new(PSC,PString),
 	replace_ith(Args,ArgNo,PString,FixedArgs).
