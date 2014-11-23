@@ -1462,7 +1462,9 @@ call_goal_cut_trans(Goal,TGoal,Cutpoint) :-
 requires_call_cut_transforming(X) :-
 	(var(X)
 	 ->	true
-	 ;	requires_call_cut_transforming1(X)
+	 ; callable(X)
+	 ->	requires_call_cut_transforming1(X)
+	 ;	type_error(callable,X,call/1,1)
 	).
 
 requires_call_cut_transforming1([_|_]).
@@ -1488,8 +1490,11 @@ call_goal_cut_transform(Goal,TGoal,Cutpoint) :-
 	 ;	TGoal = Goal
 	).
 
+call_goal_cut_transform1(Goal,_,_) :-
+	\+callable(Goal),
+	type_error(callable,Goal,call/1,1).	 
 call_goal_cut_transform1([X|Y],Z,_) :- hack_consult([X|Y],Z).	% a HACK!
-call_goal_cut_transform1(!,'_$cutto'(Cutpoint),Cutpoint).
+call_goal_cut_transform1('!','_$cutto'(Cutpoint),Cutpoint).
 call_goal_cut_transform1('_$load_undef'(X),Y,_) :-
 	(atom(X) -> conname(X,Y1),Y=Y1 ; Y=X).
 call_goal_cut_transform1((A,B),(Na,Nb),Cutpoint) :-
