@@ -307,17 +307,27 @@ close(S_or_A,Options) :-
 	delete_curl_pair(_,_,S_or_A).
 
 examine_close_options(List,Action):-
-	(examine_close_options_1(List,Action) -> 
-	    true
-	  ; domain_error(close_option,List,close/2,2) ).
+	(	examine_close_options_1(List,Action) -> 
+		true
+	;	domain_error(close_option,List,close/2,2)
+	).
 
 /* Traverse list in all cases to determine contradictions */	
-examine_close_options_1([],_).
-examine_close_options_1([force(Bool)|T],Res):- !,
+examine_close_options_1(Options,_) :-
+	var(Options),
+	instantiation_error(close/2,2).
+examine_close_options_1([],_) :-
+	!.
+examine_close_options_1([Option|_],_) :-
+	var(Option),
+	instantiation_error(close/2,2).
+examine_close_options_1([force(Bool)|T],Res) :- !,
 	Res = Bool,
 	examine_close_options_1(T,Res).
-examine_close_options_1([Option|_],_):- 
-	domain_error(close_option,Option,open/4,4).
+examine_close_options_1([Option|_],_) :- 
+	domain_error(close_option,Option,close/2,2).
+examine_close_options_1(Options,_) :- 
+	type_error(list,Options,close/2,2).
 
 %-----------------------------------------------------------------------%
 % Character I/O Predicates %
