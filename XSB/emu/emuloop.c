@@ -1876,7 +1876,7 @@ argument positions.
 	  Float temp = fiflt_val(fiop1) + (Float)op2int;
 	  nunify_with_float_get(op3, temp);
 	}
-      } else { arithmetic_abort(CTXTc op1, "+", makeint(op2int)); }
+      } else { addintfastuni_abort(CTXTc op1, "+", makeint(op2int)); }
     }
   XSB_End_Instr() 
 

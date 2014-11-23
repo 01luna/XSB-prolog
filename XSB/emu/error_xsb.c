@@ -1093,6 +1093,34 @@ void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2)
 			 str_op1.string, OP, str_op2.string);
   }
 }
+
+void addintfastuni_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
+  XSB_StrSet(&str_op1,"");
+  XSB_StrSet(&str_op2,"");
+  print_pterm(CTXTc op1, TRUE, &str_op1);
+  if (!strcmp(get_name(get_str_psc(op1)),"+")) {
+      print_pterm(CTXTc op2, TRUE, &str_op2);
+      if (isref(op1) || isref(op2)) {
+	xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR,    "Uninstantiated argument of evaluable function %s/2\n%s %s %s %s%s", OP, "   Goal:",
+			 (isref(op1)? "_Var": str_op1.string),	 OP, (isref(op2)? "_Var": str_op2.string), ", probably as 2nd arg of is/2");
+      }
+      else {
+	xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR, "Wrong domain in evaluable function %s/2\n%s %s %s %s found",
+			 OP, "         Arithmetic expression expected, but",	 str_op1.string, OP, str_op2.string);
+      }
+    } else {
+      prolog_term term = (prolog_term) op1;
+      term = p2p_arg(term,1);
+      if (is_var(term)) {
+	xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR, "In evaluable function %s/1\n",get_name(get_str_psc(op1)));
+      }
+      else  
+	//if (is_string(term)) printf("atomic\n");
+      xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR, "Wrong domain in evaluable function %s/1\n %s %s found",
+			     get_name(get_str_psc(op1)), "         Arithmetic expression expected, but",	 str_op1.string);
+  }
+}
+    
 #undef str_op1
 #undef str_op2
 
