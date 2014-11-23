@@ -225,7 +225,8 @@ decode_star_index(Ind,IndIn,IndOut):-
 current_input(Stream) :- 
 	(	var(Stream) ->
 		true
-	;	integer(Stream) -> 
+	;	integer(Stream),
+		is_valid_stream(Stream,_) -> 
 	    true
 	;	domain_error(stream,Stream,current_input/1,1)
 	),
@@ -288,9 +289,10 @@ check_operator_name(Name):-
 current_output(Stream) :- 
 	(	var(Stream) ->
 		true
-	;	integer(Stream) -> 
-	    true
-	;	domain_error(stream,Stream,current_output/1,1)
+	;	integer(Stream),
+		is_valid_stream(Stream,_) ->
+		true
+	;	domain_error(stream,Stream,current_output/1,1)	
 	),
 	stat_flag(CURRENT_OUTPUT, S),
 	S = Stream.

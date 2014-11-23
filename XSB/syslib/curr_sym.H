@@ -50,7 +50,7 @@
 	  str_cat/3, intern_string/2, slash/1, psc_shared/2
      from machine.
 :- import xsb_configuration/2 from xsb_configuration.
-:- import fmt_write_string/3 from file_io.
+:- import fmt_write_string/3, is_valid_stream/2 from file_io.
 :- import check_nonvar/3, 
    %check_number/3,
           domain_error/5,type_error/4,
