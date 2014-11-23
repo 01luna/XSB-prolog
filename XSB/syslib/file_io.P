@@ -465,9 +465,9 @@ check_open_stream_or_alias(S_or_A,Predicate,Arg,Mode,Stream) :-
 			true
 		;	Mode == ActualMode ->
 			true
-		;	permission_error(Mode,stream,Stream,Predicate)
+		;	permission_error(Mode,stream,S_or_A,Predicate)
 		)
-	;	existence_error(stream,Stream,Predicate,Arg)
+	;	existence_error(stream,S_or_A,Predicate,Arg)
 	).
 
 %-----
