@@ -47,7 +47,7 @@
 
 :- import file_write/2 from xsb_writ.
 
-:- import check_integer/3, domain_error/4,existence_error/4,instantiation_error/2,
+:- import domain_error/4,existence_error/4,instantiation_error/2,
 		  permission_error/4 from error_handler.
 
 :- import concat_atom/2 from string.

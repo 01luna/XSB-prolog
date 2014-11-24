@@ -226,7 +226,7 @@ open(F,Mode,Stream,Options):-
 examine_open_options(Options,_,_) :-
 	var(Options),
 	instantiation_error(open/4,4).
-examine_open_options([],[],[]).
+examine_open_options([],[],[]) :- !.
 examine_open_options([Option|_],_,_) :-
 	var(Option),
 	instantiation_error(open/4,4).
@@ -243,6 +243,8 @@ examine_open_options([alias(A)|T],[A|Aliases],Eof):- !,
 	examine_open_options(T,Aliases,Eof).
 examine_open_options([Option|_],_,_):- 
 	domain_error(stream_option,Option,open/4,4).
+examine_open_options(Option,_,_):- 
+	type_error(list,Option,open/4,4).
 
 %------------------------------------------------
 close(Var):- var(Var),!,instantiation_error(close/1,1).

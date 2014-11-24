@@ -445,9 +445,10 @@ add_aliases([H|T],Type,Stream,Pred):-
 	add_aliases(T,Type,Stream,Pred).
 
 add_alias(Alias,Type,Stream,Predicate):- 
-	'_$alias_dynamic'(Alias,Type,_Stream) -> 
-  	   permission_error(create,alias,Alias,Predicate)
-	 ; asserta('_$alias_dynamic'(Alias,Type,Stream)).
+	(	'_$alias_dynamic'(Alias,Type,_Stream) -> 
+		permission_error(open,source_sink,alias(Alias),Predicate)
+	;	asserta('_$alias_dynamic'(Alias,Type,Stream))
+	).
 
 :- export '_$alias_dynamic'/3.
 get_alias(main,THREAD_ALIAS,0):- !.
