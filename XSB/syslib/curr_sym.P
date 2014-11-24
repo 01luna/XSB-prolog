@@ -650,29 +650,31 @@ settable_flag_value(unknown,warning).
 :- asserta(settable_prolog_flag(unknown,error)).
 
 set_prolog_flag(Flag,Value) :-
-	(atom(Flag)
-	 ->	true
-	 ;	instantiation_error(set_prolog_flag/2,1,bound)
+	(	var(Flag) ->
+		instantiation_error(set_prolog_flag/2,1,bound)
+	;	var(Value) ->
+		instantiation_error(set_prolog_flag/2,2,bound)
+	;	atom(Flag) ->
+		true
+	;	type_error(atom,Flag,set_prolog_flag/2,1)
 	),
-	(settable_flag(Flag)
-	 ->	(atomic(Value)
-		 ->	true
-		 ;	instantiation_error(set_prolog_flag/2,2,bound)
-		),
-		(settable_flag_value(Flag,Value)
-		 ->	retractall(settable_prolog_flag(Flag,_)),
+	(	settable_flag(Flag) ->
+		(	settable_flag_value(Flag,Value) ->
+			retractall(settable_prolog_flag(Flag,_)),
 			asserta(settable_prolog_flag(Flag,Value))
-		 ;	findall(Val,settable_flag_value(Flag,Val),Vals),
-			make_set_tail(Vals,SetVals),
-			domain_error(['{'|SetVals],Value,set_prolog_flag/2,2)
+% old code for non-compliant exception term commented out
+%		;	findall(Val,settable_flag_value(Flag,Val),Vals),
+%			make_set_tail(Vals,SetVals),
+%			domain_error(['{'|SetVals],Value,set_prolog_flag/2,2)
+		;	domain_error(flag_value,Value,set_prolog_flag/2,2)
 		)
-           ; set_xsb_flag(Flag,Value)
+	;	set_xsb_flag(Flag,Value)
 % error handled in xsb_flag
-%	 ;	domain_error(settable_flag,Flag,set_prolog_flag/2,1)
+%	 ;	permission_error(modify,flag,Flag,set_prolog_flag/2,1)
 	).
 
-make_set_tail([Val],[Val,'}']) :- !.
-make_set_tail([Val|Vals],[Val,','|SetTail]) :- make_set_tail(Vals,SetTail).
+%make_set_tail([Val],[Val,'}']) :- !.
+%make_set_tail([Val|Vals],[Val,','|SetTail]) :- make_set_tail(Vals,SetTail).
 
 %% fix for 64-bit compilation?
 iso_flag(bounded,true).

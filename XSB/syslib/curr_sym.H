@@ -41,7 +41,7 @@
 :- import '_$hilog_symbol'/1 from hilogsym.
 :- import libpath/1 from loader.
 :- import atom_codes/2, number_codes/2 from standard.
-:- import functor/3, warning/1, abort/1, number/1,integer/1,atom/1,atomic/1 from standard.
+:- import functor/3, warning/1, abort/1, number/1, integer/1, atom/1 from standard.
 :- import standard_symbol/3, standard_metapredicate_template/3 from std_xsb.
 :- import psc_name/2, psc_arity/2, psc_prop/2, psc_mod/2, psc_type/2, term_psc/2,
 	  term_type/2, stat_flag/2, stat_set_flag/2, machine_file_exists/1, 
@@ -56,7 +56,7 @@
           domain_error/5,type_error/4,
           instantiation_error/3, domain_error/4 from error_handler.
 :- import retractall/1, (dynamic)/1, asserta/1 from assert.
-:- import findall/3 from setof.
+%:- import findall/3 from setof.
 :- import psc_get_incr/2 from machine.
 :- import reinitialize_undefineds/0 from xsbbrat.
 %:- import ensure_loaded/1 from consult.
