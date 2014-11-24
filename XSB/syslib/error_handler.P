@@ -204,7 +204,8 @@ get_sys_error_description(error(representation_error(RepType),Msg), ExceptionDes
 	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Representation (not ',RepType,')] ', Msg) .
 get_sys_error_description(error(resource_error(Flag),Msg), ExceptionDesc) :- 
 	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Resource (',Flag,')] ', Msg) .
-get_sys_error_description(error(syntax_error(Culprit),Msg), ExceptionDesc) :- 
+get_sys_error_description(error(SyntaxError,Msg), ExceptionDesc) :-
+	SyntaxError =.. [syntax_error,Culprit],
 	ExceptionDesc =   ('++Error[XSB/Runtime/P]: [Syntax] (', Culprit1,') ',Msg),
 	(Culprit = [_H|_T] -> term_to_atom(Culprit,Culprit1) ; Culprit1 = Culprit).
 get_sys_error_description(error(syntax_error,Msg), ExceptionDesc) :- 
@@ -366,13 +367,11 @@ resource_error(Flag,Predicate):-
 	throw(error(resource_error(Flag),context((' in predicate ',Predicate),Bt))).
 
 %------
-syntax_error(Culprit, Message):- 
-	xsb_backtrace(Bt),
-	throw(error(syntax_error(Culprit),context(Message,Bt))).
-% PM: TODO - Replace usage of syntax_error/1 with syntax_error/2
+% PM: TODO - Replace usage of term syntax_error/1 with syntax_error/2
 syntax_error(Message):- 
 	xsb_backtrace(Bt),
-	throw(error(syntax_error(_),context(Message,Bt))).
+	SyntaxError =.. [syntax_error,_], % syntax_error/1 term in usermod
+	throw(error(SyntaxError,context(Message,Bt))).
 %------
 system_error(Flag,Predicate,Arg):- 
 	xsb_backtrace(Bt),
