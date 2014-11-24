@@ -890,7 +890,26 @@ atom_disassemble(Three,One,Two):-
 	atom_codes(One,OneL),
 	atom_codes(Two,TwoL).
 
-char_code(Char,Code):- atom_codes(Char,[Code]).
+% PM: If performance of this predicate become critical for some application,
+% implementing it in C might help by making error checking faster
+char_code(Char,Code) :-
+	(	atom(Char),
+		atom_length(Char, 1) ->
+		(	var(Code) ->
+			atom_codes(Char,[Code])
+		;	integer(Code) ->
+			atom_codes(Char,[Code])
+		;	type_error(integer,Code,char_code/2,2)
+		)
+	;	var(Char) ->
+		(	integer(Code) ->
+			atom_codes(Char,[Code])
+		;	var(Code) ->
+			instantiation_error(char_code/2,2)
+		;	type_error(integer,Code,char_code/2,2)
+		)
+	;	type_error(character,Char,char_code/2,1)
+	).
 
 			/********************/
 			/*   TERM READING   */
