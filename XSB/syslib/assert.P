@@ -166,7 +166,9 @@ Does result in double breakdown of Clause, which could be optimized by
 changing assert0/4 to take already separated Head and Body. */
 
 assert(Clause,AZL,Index1,ErrPred) :-
-	(Clause = (Head:-Body)
+	(var(Clause) ->
+	 instantiation_error(ErrPred,Index1,nonvar)
+	 ; Clause = (Head:-Body)
 	 ->	true
 	 ;	Head = Clause, Body = true
 	),
