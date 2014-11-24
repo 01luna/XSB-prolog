@@ -59,6 +59,7 @@
 :- import domain_error/5,domain_error/4,check_callable/3 from error_handler.
 :- import check_nonvar/3 from error_handler.
 :- import check_nonvar_comma_list/3 from error_handler.
+:- import check_atom/3 from error_handler.
 :- import table_error/1 from error_handler.
 
 :- import '_$index'/3, '_$trie_asserted'/1, retract_trie_index/1,

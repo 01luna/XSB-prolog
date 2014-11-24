@@ -733,20 +733,21 @@ check_retract(Head, Pred) :-
 /*	abolish an undefined predicate.					*/
 /*======================================================================*/
 abolish(Spec) :-
-	(var(Spec)
-	 ->     instantiation_error(abolish/1,1,nonvar)
-	 ; Spec = (Pred/Arity)
-	 ->	(var(Pred)
-                 -> instantiation_error(abolish/1,1,
-		                        'nonvar predicate indicator')
-		 ; check_arity_integer(Arity,abolish/1,1),
-		   functor(Nspec,Pred,Arity)
+	(	var(Spec) ->
+		instantiation_error(abolish/1,1,nonvar)
+	;	Spec = (Pred/Arity) ->
+		(	var(Pred) ->
+			instantiation_error(abolish/1,1,'nonvar predicate indicator')
+		;	check_atom(Pred,abolish/1,1),
+			check_arity_integer(Arity,abolish/1,1),
+			functor(Nspec,Pred,Arity)
 		)
-	 ; Nspec = Spec, functor(Nspec,Pred,Arity)
+	;	Nspec = Spec,
+		functor(Nspec,Pred,Arity)
 	),
-	(standard_symbol(Pred,Arity,_Prop)
-	 ->	permission_error(modify,static_procedure,Pred/Arity,abolish/1)
-	 ;      call_xsb_hook(xsb_retract_hook(_),[Nspec,true],all),
+	(	standard_symbol(Pred,Arity,_Prop) ->
+		permission_error(modify,static_procedure,Pred/Arity,abolish/1)
+	;	call_xsb_hook(xsb_retract_hook(_),[Nspec,true],all),
 		abolish1(Nspec)
 	).
 
