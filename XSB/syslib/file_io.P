@@ -458,6 +458,15 @@ remove_alias(Alias,Type,Stream):-
 	retractall('_$alias_dynamic'(Alias,Type,Stream)).
 
 %-----
+check_stream_position(Offset,Predicate,Arg) :-
+	(	integer(Offset) ->
+		true
+	;	var(Offset) ->
+		instantiation_error(Predicate,Arg)
+	;	domain_error(stream_position,Offset,Predicate,Arg)
+	).
+
+%-----
 check_open_stream_or_alias(S_or_A,Predicate,Arg,Mode,Stream) :- 
 	check_stream_or_alias(S_or_A,Predicate,Arg,Stream),
 	(	is_valid_stream(Stream,ActualMode) -> 
@@ -561,12 +570,16 @@ at_end_of_stream(S_or_A):-
 % TLS: ISO interface to file_seek/3.  For now, handling only files,.
 set_stream_position(S_or_A,Offset):- 
 	check_open_stream_or_alias(S_or_A,set_stream_position/2,1,_Mde,Str),
-	stream_property(Str,reposition(true)),
-	check_integer(Offset,set_stream_position/2,1),
+	check_stream_position(Offset,set_stream_position/2,2),
+	(	stream_property(Str,reposition(true)) ->
+		true
+	;	permission_error(reposition,stream,S_or_A,set_stream_position/2)
+	),
 	file_seek(Str, Offset, 0, Ret),
-	(Ret =:= 0 -> 
-	    true
-	  ; permission_error(set_position,stream,Str,set_stream_position/2) ).
+	(	Ret =:= 0 -> 
+		true
+	;	permission_error(set_position,stream,S_or_A,set_stream_position/2)
+	).
 
 %-----------
 % TLS: ISO interface to file_flush/2
