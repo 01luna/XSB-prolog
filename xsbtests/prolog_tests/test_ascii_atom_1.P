@@ -28,7 +28,8 @@ test_sub:- setof(p(X),p(X),L),writeln(setof(L)),fail.
 test_sub:- sub_atom(abracadabra,X,5,0,Y),writeln(sub_atom(abracadabra,X,5,0,Y)),fail.
 %test_sub:- sub_atom('1こんaにちは今今的z',X,5,0,Y),writeln(sub_atom('1こんaにちは今今的z',X,5,0)),fail.
 %test_sub:- char_code(F,12371),writeln(char_code_1(F)),fail.
-test_sub:- char_code('こ',F),writeln(char_code_2(F)),fail.
+%test_sub:- char_code('こ',F),writeln(char_code_2(F)),fail.
+test_sub:- catch(char_code('こ',_),error(type_error(T,_),_),writeln(type_error(T))),fail.
 test_sub:- atom_chars(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,_X), atom_chars(_Y,_X),atom_length(_Y,L),writeln(ascii_atom_length(L)),fail.
 %test_sub:- atom_chars('1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z1こんaにちは今今的z',_X), atom_chars(_Y,_X),atom_length(_Y,L),writeln(utf_atom_length(L)),fail.
 test_sub.
