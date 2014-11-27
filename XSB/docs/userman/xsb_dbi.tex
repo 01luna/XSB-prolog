@@ -294,12 +294,13 @@ QueryHandle is the name of the \emph{query handle} for this particular query.
 For prepared queries, the query handle is used both in order to execute the
 query and to close it and free up space. For direct querying,
 the query handle is used only for closing query statements (see below).
-%%However, in future versions, the query handle can be used in direct
-%%queries to retrieve arbitrary tuples from a result set using cursors.
-%%Also, it will be possible to combine arbitrary tuples from different 
-%%queries to the same database using the query handle.
-The SQLQueryList is a list of terms which is used to build the SQL query.
-The terms in this list are ground atoms. ReturnList is a list of 
+The \texttt{SQLQueryList}  is a list of terms which is used to build the SQL query.
+The terms in this list can have variables, which can be
+instantiated by the preceding queries. The query list is scanned for terms,
+which are encoded into Prolog atoms and the result is then concatenated;
+it must form a valid SQL query. (The treatment of terms is further discussed
+below.)
+\texttt{ReturnList}  is a list of 
 variables each of which correspond to a return value in the query.
 It is upto the user to specify the correct number of return variables 
 corresponding to the query. Also, as in the case of a connection handle, 
@@ -309,7 +310,7 @@ for a given advisor is accomplished by the call:
 
 \begin{verbatim}
 | ?- X = adv,
-     db_query(ha, qa, ['select T.name from student T where T.advisor = ', X], [P]),
+     db_query(ha, qa, ['select T.name from student T where T.advisor = ',X], [P]),
      fail.
 \end{verbatim}
 
@@ -321,7 +322,7 @@ Observe that the query list is composed of the SQL string and a ground value
 for the advisor. The return list is made of one variable corresponding to
 the student name. The failure drive loop retrieves all the tuples.
 
-Preparing a  query is done by the call to the predicate:
+Preparing a  query is done by calling the following predicate:
 
 \begin{verbatim}
 | ?- db_prepare(ConnectionHandle, QueryHandle, SQLQueryList).
@@ -360,8 +361,39 @@ the handle, a call is made to the predicate:
 \noindent
 where QueryHandle is the query handle for the statement to be closed.
 
+\paragraph{Storing and retrieving terms and NULL values.}
 The interface is also able to transparently handle Prolog terms. 
-Users can both save and retrieve terms without any special processing.
+Users can both save and retrieve terms in string fields of the tables
+by passing the term as a separate element in the query list and making sure
+that it is enclosed in quotes in the concatenated result. For instance,
+%% 
+\begin{verbatim}
+?- db_query(handle,qh,['insert into mytbl values(11,22,',p(a),');'],[]).
+\end{verbatim}
+%% 
+The above statement inserts \texttt{p(a)} \emph{as a term}
+into the third column
+of the table \texttt{mytbl}. Under the hood, it is inserted as a special
+string, but when retrieved, this term is decoded back into a Prolog
+term. For this to work,
+the third column of \texttt{mytbl} \emph{must} be declared as a
+character string (e.g., \texttt{CHAR(50)}).
+Important to note is that \texttt{p(a)} has to appear as a list
+element above and not be quoted so that Prolog will recognize it as a term.
+
+The \texttt{NULL}  value is represented using the special 0-ary term
+\texttt{'NULL'()} \emph{when retrieved}. When you need to \emph{store} a
+null value, you can use either the above special term or just place \texttt{NULL} in the appropriate place in the SQL
+INSERT statement. For instance,
+%% 
+\begin{verbatim}
+?- db_query(handle,qh1,['insert into mytbl values(11,22,NULL);'],[]).
+?- db_query(handle,qh2,['insert into mytbl values(111,222,','NULL'(),');'],[]).
+\end{verbatim}
+%% 
+However, when retrieved from a database, a \texttt{NULL} is always
+represented by the term \texttt{'NULL'()} (and not by the atom
+\texttt{'NULL'}).
 
 
 \section{Error Handling}

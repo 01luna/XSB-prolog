@@ -1,8 +1,7 @@
-				% File: dbdrivers.P
-				% Author: Saikat Mukherjee
-				% contact : saikat@cs.sunysb.edu
+%% File: dbdrivers.P
+%% Author: Saikat Mukherjee
 
-				% This module loads up the selected driver from the dbdrivers directory
+%% This module loads up the selected driver from the dbdrivers directory
 
 :- compiler_options([xpp_on]).
 #include "extensions_xsb.h"

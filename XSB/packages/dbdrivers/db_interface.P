@@ -27,7 +27,7 @@
 
 :- compiler_options([xpp_on]).
 
-#define DB_INTERFACE_TERM_SYMBOL   '\377'
+#define DB_INTERFACE_TERM_SYMBOL   '\177'
 
 :- import file_read_canonical/3 from machine.
 :- import length/2 from basics.
@@ -131,6 +131,7 @@ db_statement_close(QueryHandle) :-
 db_term([], []).
 
 db_term([X|ReturnListTail], [term(Y)|ListTail]):-
+	!,
 	open(atom(Y), read, IO), file_read_canonical(IO, X, _), 
 	close(IO),
 	db_term(ReturnListTail, ListTail).
@@ -141,8 +142,9 @@ db_term([X|ReturnListTail], [X|ListTail]) :-
 stringify_compound_terms([], []).
 
 stringify_compound_terms([X|List], [Z|CanonicalList]) :-
-        ((compound(X) ; X == [])
-	-> term_to_atom(X, Y, [ignore_ops(canonical),quoted(true)]),
+        (X == 'NULL'() -> Z = 'NULL' %% 'NULL'() is the database NULL
+	; (compound(X) ; X == []) ->
+	    term_to_atom(X, Y, [ignore_ops(canonical),quoted(true)]),
 	    atom_concat(DB_INTERFACE_TERM_SYMBOL,Y,Z)
 	; Z = X
 	),

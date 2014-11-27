@@ -567,9 +567,9 @@ static char* buildSQLQuery(prolog_term sqlQueryList)
     element = p2p_car(sqlQueryList);
     sqlQueryList = p2p_cdr(sqlQueryList);
     if (is_string(element)) {
-      if (p2c_string(element)[0] == DB_INTERFACE_TERM_SYMBOL) {
+      if ((unsigned char) p2c_string(element)[0] == (unsigned char) DB_INTERFACE_TERM_SYMBOL) {
 	cnt = 0;
-	temp = (char *)malloc(ELEMENT_SIZE * sizeof(char)+1);
+	temp = (char *)malloc(2*strlen(p2c_string(element))*sizeof(char)+1);
 	temp[cnt++] = '\'';
 	/* protect inner quotes in Prolog terms */
 	for (i = 0 ; i < strlen(p2c_string(element)) ; i++) {
@@ -623,7 +623,7 @@ static int bindReturnList(prolog_term returnList, struct xsb_data** result, stru
 {
   prolog_term element;
   char* temp;
-  char c;
+  unsigned char c;
   int i, j;
   int rFlag;
   
@@ -663,7 +663,7 @@ static int bindReturnList(prolog_term returnList, struct xsb_data** result, stru
 	  c2p_nil(CTXTc element);
 	else {
 	  c = result[i]->val->str_val[0];
-	  if (c == DB_INTERFACE_TERM_SYMBOL) {
+	  if (c == (unsigned char) DB_INTERFACE_TERM_SYMBOL) {
 	    temp = (char *)malloc(strlen(result[i]->val->str_val) * sizeof(char));
 	    for (j = 1 ; j < (int)strlen(result[i]->val->str_val) ; j++) {
 	      temp[j-1] = result[i]->val->str_val[j];
@@ -685,6 +685,9 @@ static int bindReturnList(prolog_term returnList, struct xsb_data** result, stru
 	c2p_int(CTXTc result[i]->val->i_val, element);
       else if (is_var(element) && result[i]->type == FLOAT_TYPE)
 	c2p_float(CTXTc result[i]->val->f_val, element);
+      else if (is_var(element) && result[i]->type == NULL_VALUE_TYPE) {
+	c2p_functor(CTXTc "NULL", 0, element);
+      }
       returnList = p2p_cdr(returnList);
       i++;
     }

@@ -215,14 +215,15 @@ static struct xsb_data** driverMySQL_getNextRow(struct driverMySQL_queryInfo* qu
 
   numFields = query->returnFields;
   result = (struct xsb_data **)malloc(numFields * sizeof(struct xsb_data *));
-  for (i = 0 ; i < numFields ; i++)
-    {
+  for (i = 0 ; i < numFields ; i++) {
       result[i] = (struct xsb_data *)malloc(sizeof(struct xsb_data));
       result[i]->val = (union xsb_value *)malloc(sizeof(union xsb_value));
       result[i]->type = driverMySQL_getXSBType(mysql_fetch_field_direct(query->resultSet, i));
 
-      switch (result[i]->type)
-	{
+      if (row[i] == NULL)
+	result[i]->type = NULL_VALUE_TYPE;
+
+      switch (result[i]->type) {
 	case INT_TYPE:
 	  result[i]->val->i_val = strtol(row[i],p_temp,10);
 	  break;
@@ -234,6 +235,9 @@ static struct xsb_data** driverMySQL_getNextRow(struct driverMySQL_queryInfo* qu
 	case STRING_TYPE:
 	  result[i]->val->str_val = (char *)malloc((strlen(row[i])+1) * sizeof(char));
 	  strcpy(result[i]->val->str_val, (char *)row[i]);
+	  break;
+
+	case NULL_VALUE_TYPE:
 	  break;
 	}
     }
