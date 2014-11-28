@@ -62,7 +62,8 @@ extern "C" {
 #define EVALUATION_DOMAIN_ERROR 0
 #define EVALUATION_INSTANTIATION_ERROR 1
 #define EVALUATION_UNDERFLOW_ERROR 2
-#define EVALUATION_OVERFLOW_ERROR 3b
+#define EVALUATION_OVERFLOW_ERROR 3
+#define EVALUATION_TYPE_ERROR 4
 
 #define pow_domain_error(op1,op2)	{			\
   XSB_StrSet(&(*tsgSBuff1),"");					\
@@ -110,6 +111,7 @@ DllExport extern void call_conv error_xsb(char *);
 DllExport extern void call_conv xsb_dbgmsg1(int, char *, ...);
 DllExport extern void call_conv dbgmsg1_xsb(int, char *);
 
+  extern void unifunc_abort(CTXTdeclc int, CPtr);
 extern void addintfastuni_abort(CTXTdeclc Cell , char *, Cell);
 extern void arithmetic_abort(CTXTdeclc Cell, char *, Cell);
 extern void arithmetic_abort1(CTXTdeclc char *, Cell);

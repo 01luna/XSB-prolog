@@ -2789,8 +2789,9 @@ argument positions.
     Op2(get_xxr);
     ADVANCE_PC(size_xxx);
     if (unifunc_call(CTXTc (int)(op1), (CPtr)op2) == 0) {
-      xsb_error("Error in unary function call");
-      Fail1;
+      unifunc_abort(CTXTc (int)(op1), (CPtr)op2);
+      //      xsb_error("Error in unary function call");
+      //      Fail1;
     }
   XSB_End_Instr()
 

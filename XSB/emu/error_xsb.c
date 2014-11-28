@@ -407,6 +407,22 @@ void call_conv xsb_basic_evaluation_error(char *message,int type)
 #endif
     bld_copy(error_rec+5,build_xsb_backtrace(CTXT));
   }
+  else if (type == EVALUATION_TYPE_ERROR) {
+    hreg += 9; // error/2 + type_error/1 + context/2
+    bld_cs((error_rec+1),(error_rec+3));
+    bld_cs((error_rec+2),(error_rec+5));
+    bld_functor(error_rec+3, pair_psc(insert("type_error",2,(Psc)flags[CURRENT_MODULE],&isnew)));
+    bld_string(error_rec+4,string_find("undefined",1));
+    bld_functor(error_rec+5, pair_psc(insert("context",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+#ifdef MULTI_THREAD
+    snprintf(mtmessage,MAXBUFSIZE,"[th %d] %s",tid,message);
+    bld_string(error_rec+6,string_find(mtmessage,1));
+#else  
+    bld_string(error_rec+6,string_find(message,1));
+#endif
+    bld_copy(error_rec+7,build_xsb_backtrace(CTXT)); // updates hreg
+  }
   else if (type == EVALUATION_DOMAIN_ERROR) {
     hreg += 8; // error/2 + evaluation_error/1 + context/2
     bld_cs((error_rec+1),(error_rec+3));
@@ -889,6 +905,47 @@ void call_conv xsb_new_table_error(CTXTdeclc char *subtype, char *usr_msg,
 
 /**************/
 
+DllExport void call_conv xsb_new_type_error(CTXTdeclc char *valid_type,Cell culprit, char *description, ...) {
+  char message[MAXBUFSIZE];
+  va_list args;
+  prolog_term ball_to_throw;
+  int isnew;
+  CPtr error_rec;
+  size_t ball_len = 10*sizeof(Cell);
+
+  va_start(args, description);
+  //  strcpy(message, "++Error[XSB]: [Runtime/C] ");
+  strcpy(message, " ");
+  vsnprintf(message+strlen(message), (MAXBUFSIZE-strlen(message)), description, args);
+  if (message[strlen(message)-1] == '\n') message[strlen(message)-1] = 0;
+  va_end(args);
+
+  if (heap_local_overflow(ball_len)) {
+    xsb_exit("no heap space in xsb_type_error");
+  }
+
+  ball_to_throw = makecs(hreg);
+  error_rec = hreg;
+  hreg += 9;  // error/2 + type_error/2 + context/2
+  bld_functor(error_rec, pair_psc(insert("error",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_cs((error_rec+1),(error_rec+3));
+  bld_cs((error_rec+2),(error_rec+6));
+
+  bld_functor(error_rec+3, pair_psc(insert("type_error",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+4,string_find(valid_type,1));
+  if (culprit == (Cell)NULL) bld_int(error_rec+5,0); 
+  else bld_ref(error_rec+5,culprit);
+  bld_functor(error_rec+6, pair_psc(insert("context",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+7,string_find(message,1));
+  bld_copy(error_rec+8,build_xsb_backtrace(CTXT));
+
+  xsb_throw_internal(CTXTc ball_to_throw, ball_len);
+
+}
+
 void call_conv xsb_type_error(CTXTdeclc char *valid_type,Cell culprit, 
 					const char *predicate,int arg) 
 {
@@ -1114,11 +1171,27 @@ void addintfastuni_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
       if (is_var(term)) {
 	xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR, "In evaluable function %s/1\n",get_name(get_str_psc(op1)));
       }
-      else  
-	//if (is_string(term)) printf("atomic\n");
-      xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR, "Wrong domain in evaluable function %s/1\n %s %s found",
-			     get_name(get_str_psc(op1)), "         Arithmetic expression expected, but",	 str_op1.string);
+      else  {
+	if (is_string(term)) printf("atomic\n");
+	xsb_new_type_error(CTXTc "evaluable",term, "Wrong domain in evaluable function %s/1\n %s %s found",
+			   get_name(get_str_psc(op1)), "         Arithmetic expression expected, but",	 str_op1.string);
+      }
   }
+}
+    
+void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
+  Cell value;
+  value = cell(regaddr);
+  XSB_Deref(value);
+      if (is_var(value)) {
+	xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR, "In evaluable function %s/1\n","SOME FUNCTION");
+      }
+      else  {
+	//	if (is_string(term)) printf("atomic\n");
+	XSB_StrSet(&str_op2,"");
+	print_pterm(CTXTc value, TRUE, &str_op2);
+	xsb_new_type_error(CTXTc "evaluable",value, "Wrong domain in evaluable function %s/1: %s found as argument",str_op2.string);
+      }
 }
     
 #undef str_op1
