@@ -497,6 +497,7 @@ extern int utf8_GetCode(FILE *, STRFILE *, int);
 int GetCode(int charset, FILE *curr_in, STRFILE *instr) {
   int c;
   c = GetC(curr_in,instr);
+  if (c < 0) return c;  /* if eof, return it */
   if (instr) { /* encoding in strings is always utf8 */
     return utf8_GetCode(curr_in, instr, c);
   }
@@ -806,15 +807,21 @@ READ_ERROR:
 		  xsb_warn("[TOKENIZER] I/O error: %s\n",strerror(errno));
 		clearerr(card);
                 goto READ_ERROR;
-	          case 'a':		        /* alarm */
+	    case 'a':		        /* alarm */
                 return  '\a';
             case 'b':		        /* backspace */
                 return  '\b';
             case 'f':		        /* formfeed */
                 return '\f';
             case '\n':		      /* seeing a newline */
-	      while (IsLayout(c = GetCode(charset,card,instr)));
+	      //	      while (IsLayout(c = GetCode(charset,card,instr)));
+	        c = GetCode(charset,card,instr); // ignore it
+		printf("next after back-nl: %d\n",c);
                 goto BACK;
+	case '\r':  // newline for windows eol?
+	        c = GetCode(charset,card,instr); // ignore it
+		if (c == '\n') c = GetCode(charset,card,instr);
+		goto BACK;
             case 'n':		        /* newline */
 	        return '\n';
             case 'r':		        /* return */
@@ -891,8 +898,8 @@ READ_ERROR:
 	        return '\\';
 // Don't include ISO's single quote escape; it breaks '/\', which is (commonly?) used in XSB
 // If this is changed, change double_quotes() in io_builtins_xsb.c
-//	    case '\'':			/* single quote */
-//	        return '\'';
+	    case '\'':			/* single quote */
+	        return '\'';
 	    case '"':			/* double quote */
 	        return '"';
 	    case '`':			/* back quote */
