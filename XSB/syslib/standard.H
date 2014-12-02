@@ -122,6 +122,7 @@
   check_stream_or_alias/4, check_open_stream_or_alias/5, add_aliases/4, remove_alias/3,
   fd2iostream/3      from file_io.
 :- import fmt_write/2 from file_io.
+:- import file_function/3, xsb_stream_lock/1,xsb_stream_unlock/1 from file_io.
 
 :- import add_ops/3, op_priority/1, op_specifier/1, add_index/3, '_$index'/3,
    add_trie_index/1  from file_op.
@@ -161,7 +162,7 @@
 :- import calculate_singleton/3 from singlton.
 :- import concat_atom/2  from string.
 :- import file_read/2, file_read/3 from xsb_read.
-:- import file_write0/2, file_write/2, file_write_prolog/2, 
+:- import file_write0/2, file_write/2, file_write_prolog/2, l_write/3,
 	  file_write_quoted/2, file_write_canonical/2, file_nl/1
      from xsb_writ.
 :- import xsb_thread_self/1 from thread.
