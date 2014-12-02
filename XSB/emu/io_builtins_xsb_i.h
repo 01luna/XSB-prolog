@@ -1033,9 +1033,19 @@ inline static xsbBool file_function(CTXTdecl)
  }
 
   case ATOM_LENGTH: {
+    Integer len;
     Cell term = ptoc_tag(CTXTc 2);
+    Cell lenpar = ptoc_tag(CTXTc 3);
     if (isstring(term)) {
-      ctop_int(CTXTc 3, utf8_nchars((byte *)string_val(term)));
+      len = utf8_nchars((byte *)string_val(term));
+      if (isref(lenpar)) ctop_int(CTXTc 3,len);
+      else if (isointeger(lenpar)) {
+	if (oint_val(lenpar) == len) return TRUE;
+	if (oint_val(lenpar) < 0) 
+	  xsb_domain_error(CTXTc "not_less_than_zero",lenpar,"atom_length/2",2);
+	else return FALSE;
+      }
+      else xsb_type_error(CTXTc "integer",lenpar,"atom_length/2",2);
     }
     else if (isref(term)) {
       xsb_instantiation_error(CTXTc "atom_length/2",1);
