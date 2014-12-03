@@ -468,8 +468,23 @@ file_exists(F) :-
 	expand_filename(F, EF),
 	machine_file_exists(EF).
 
-put_byte(C):- put(C).
-put_byte(S,C):- file_put(S,C).
+put_byte(C) :- 
+	stat_flag(CURRENT_OUTPUT, Str),
+	(	integer(C), C >= 0, C =< 255 ->
+		file_put(Str,C)
+	;	var(C) ->
+		instantiation_error(put_byte/1,1,bound)
+	;	type_error(byte,C,put_byte/1,1)
+	).
+
+put_byte(S_or_A,C) :-
+	check_open_stream_or_alias(S_or_A,put_byte/2,1,output,Str),
+	(	integer(C), C >= 0, C =< 255 ->
+		file_put(Str,C)
+	;	var(C) ->
+		instantiation_error(put_byte/2,2,bound)
+	;	type_error(byte,C,put_byte/2,2)
+	).
 
 %---------------------%
 % Term I/O Predicates %
