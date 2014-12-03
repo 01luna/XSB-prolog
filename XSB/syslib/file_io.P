@@ -528,15 +528,27 @@ peek_code(Code):-
 	file_function(FILE_PEEK_CODE,Str,Ret,_Y,_Z, _,_),
 	Ret = Code.
 
-peek_byte(S_or_A,Code):- 
+peek_byte(S_or_A,Byte):- 
 	check_open_stream_or_alias(S_or_A,peek_byte/2,1,input,Str),
+	(	var(Byte) ->
+		true
+	;	integer(Byte), Byte >= 0, Byte =< 255 ->
+		true
+	;	type_error(in_byte,Byte,peek_byte/2,2)
+	),
 	file_function(FILE_PEEK_BYTE,Str,Ret,_Y,_Z, _,_),
-	Ret = Code.
+	Ret = Byte.
 
-peek_byte(Code):- 
+peek_byte(Byte):- 
 	stat_flag(CURRENT_INPUT, Str),
+	(	var(Byte) ->
+		true
+	;	integer(Byte), Byte >= 0, Byte =< 255 ->
+		true
+	;	type_error(in_byte,Byte,peek_byte/1,1)
+	),
 	file_function(FILE_PEEK_BYTE,Str,Ret,_Y,_Z, _,_),
-	Ret = Code.
+	Ret = Byte.
 
 % TLS: need char_conversion table.
 peek_char(S_or_A,Char):- 
