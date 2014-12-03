@@ -383,20 +383,24 @@ get_code(C) :-
 %ISO
 get_byte(S_or_A,C) :- 
 	check_open_stream_or_alias(S_or_A,get_byte/2,1,input,Str),
-	(var(C) -> 
+	(	var(C) -> 
 	    file_get_byte(Str,C)
-	 ; (integer(C) -> 
-	        file_get_byte(Str,C1),C1 = C
-	     ;  domain_error(integer_or_variable,C,get_byte/2,2) ) ).
+	;	integer(C), C >= 0, C =< 255 -> 
+		file_get_byte(Str,C1),
+		C1 = C
+	;	type_error(in_byte,C,get_byte/2,2)
+	).
 
 %ISO
 get_byte(C) :- 
-	 stat_flag(CURRENT_INPUT, Str), 
-	 (var(C) -> 
-	    file_get_byte(Str,C)
-	 ; (integer(C) -> 
-        	file_get_byte(Str,C1),C1 = C
-	     ;  domain_error(integer_or_variable,C,get_byte/1,1) ) ).
+	stat_flag(CURRENT_INPUT, Str), 
+	(	var(C) -> 
+		file_get_byte(Str,C)
+	;	integer(C), C >= 0, C =< 255 -> 
+		file_get_byte(Str,C1),
+		C1 = C
+	;	type_error(in_byte,C,get_byte/1,1)
+	).
 
 get(C) :- get0(C0), ( char_blank(C0), !, get(C) ; C = C0 ).
 
