@@ -80,7 +80,8 @@ ccall_error_handler(Error) :-
 default_sys_error_handler(error(Error,Msg,Backtrace)) :-
 	default_sys_error_handler(error(Error,context(Msg,Backtrace))).
 
-default_sys_error_handler(error(Error,context(Msg,Backtrace))) :- !,
+default_sys_error_handler(error(Error,context(Msg_or_Ctxt,Backtrace))) :- !,
+	get_message(Msg_or_Ctxt,Msg),
 	% here is where we may do something abt backtraces.
 	xsb_flag(backtrace_on_error,BT),
 	xsb_thread_self(Thread),
@@ -220,10 +221,12 @@ get_sys_error_description(error(thread_cancel,Id), ExceptionDesc) :-
 	ExceptionDesc = 
              ('++Error[XSB/Runtime/P]: [XSB Thread Cancellation] Thread ',Id).
 get_sys_error_description(error(type_error(Valid_type,Culprit),Msg), ExceptionDesc) :-
-	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Type (',Culprit,' in place of ',
-	                          Valid_type,')] ', Msg).
+  	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Type (',Culprit,' in place of ',Valid_type,')] ', Msg).
 get_sys_error_description(error(unrecoverable_error,Msg), ExceptionDesc) :-
 	ExceptionDesc = ('++Error[XSB/Runtime/P]: [Unrecoverable!] ',Msg).
+
+get_message(context(Msg,_),Msg):- !.
+get_message(Msg,Msg).
 
 /*get_backtrace(+, -) gets backtrace as built by build_xsb_backtrace:
 list pair, with car=forward continuation, cdr=backward continuation.
