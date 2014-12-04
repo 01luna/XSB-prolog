@@ -891,6 +891,16 @@ static   bld_float(addr,value);
 }
 #endif
 
+static inline void bld_boxedint_here(CTXTdeclc CPtr *h, CPtr addr, Integer value) {
+  Integer temp_value = value;
+  new_heap_functor((*h),box_psc);
+  bld_int(*h,((ID_BOXED_INT << BOX_ID_OFFSET ) | 0 ));
+  bld_int((*h)+1,INT_LOW_24_BITS(temp_value));
+  bld_int((*h)+2,((temp_value) & LOW_24_BITS_MASK)); 
+  *(h) = (*h)+3;
+  cell(addr) = makecs((*h)-4);
+}
+
 /* read canonical term, and return prev psc pointer, if valid */
 Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 {
@@ -904,6 +914,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
   Integer retpscptr;
   Pair sym;
   Float float_temp;
+  Integer integer_temp;
   Psc headpsc, termpsc;
   char *cvar;
   int postopreq = FALSE, varfound = FALSE;
@@ -928,8 +939,8 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 
   prevchar = 10;
   while (1) {
-    token = GetToken(CTXTc stream,prevchar); // dswdebug
-    /* print_token(token->type,token->value); */
+    token = GetToken(CTXTc stream,prevchar);
+    //print_token(token->type,token->value);
 	prevchar = token->nextch;
 	if (postopreq) {  /* must be an operand follower: , or ) or | or ] */
 	    if (token->type == TK_PUNC) {
@@ -1061,8 +1072,16 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 	        if (opstk[optop-1].typ == TK_ATOM && 
 				!strcmp("-",string_val(opstk[optop-1].op))) {
 		  if (token->type == TK_INT) {
-			opstk[optop-1].typ = TK_INT;
-			opstk[optop-1].op = makeint(-(*(int *)token->value));
+		    integer_temp = -(*(Integer *)(token->value));
+		    if (int_overflow(integer_temp)) {
+		      ensure_term_space(h,4);
+		      size +=4; 
+		      opstk[optop-1].typ = TK_FUNC;
+		      bld_boxedint_here(CTXTc &h, &opstk[optop-1].op, integer_temp);
+		    } else {
+		      opstk[optop-1].typ = TK_INT;
+		      opstk[optop-1].op = makeint(integer_temp);
+		    }
 		  } else if (token->type == TK_REAL) {
 			float_temp = (Float) *(double *)(token->value);
 #ifdef FAST_FLOATS
@@ -1084,7 +1103,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 		  if(token->nextch == ']') {
 		        if (optop >= opstk_size) expand_opstk;
 			token = GetToken(CTXTc stream,prevchar);
-			/* print_token(token->type,token->value); */
+			//print_token(token->type,token->value);
 			prevchar = token->nextch;
 			opstk[optop].typ = TK_ATOM;
 			opstk[optop].op = makenil;
@@ -1115,7 +1134,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 		if (token->nextch != '(')
 			return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
 		token = GetToken(CTXTc stream,prevchar);
-		/* print_token(token->type,token->value); */
+		//print_token(token->type,token->value);
 		prevchar = token->nextch;
 		break;
       case TK_VVAR:
@@ -1172,8 +1191,15 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 		break;
       case TK_INT:
 	        if (optop >= opstk_size) expand_opstk;
-		opstk[optop].typ = TK_INT;
-		opstk[optop].op = makeint(*(Integer *)token->value);
+		integer_temp = *(Integer *)(token->value);
+		if (int_overflow(integer_temp)) {
+		  ensure_term_space(h,4);
+		  opstk[optop].typ = TK_FUNC;
+		  bld_boxedint_here(CTXTc &h, &opstk[optop].op, integer_temp);
+		} else {
+		  opstk[optop].typ = TK_INT;
+		  opstk[optop].op = makeint(integer_temp);
+		}
 		optop++;
 		postopreq = TRUE;
 		break;
@@ -1235,7 +1261,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
     if (token->type == TK_ATOM && !strcmp(token->value,"-")) {
     } else if (funtop == 0) {  /* term is finished */
       token = GetToken(CTXTc stream,prevchar);
-      /* print_token(token->type,token->value); */
+      //print_token(token->type,token->value);
       prevchar = token->nextch; /* accept EOF as end_of_clause */
       if (token->type != TK_EOF && token->type != TK_EOC) {
 	return read_can_error(CTXTc stream,prevchar,prologvar,findall_chunk_index);
