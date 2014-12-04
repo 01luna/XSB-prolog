@@ -112,7 +112,7 @@ DllExport extern void call_conv xsb_dbgmsg1(int, char *, ...);
 DllExport extern void call_conv dbgmsg1_xsb(int, char *);
 
   extern void unifunc_abort(CTXTdeclc int, CPtr);
-extern void addintfastuni_abort(CTXTdeclc Cell , char *, Cell);
+extern void addintfastuni_abort(CTXTdeclc Cell , Cell);
 extern void arithmetic_abort(CTXTdeclc Cell, char *, Cell);
 extern void arithmetic_abort1(CTXTdeclc char *, Cell);
 extern void arithmetic_comp_abort(CTXTdeclc Cell, char *, Cell);

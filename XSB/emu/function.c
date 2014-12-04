@@ -70,6 +70,10 @@
 #define FUN_erf  29
 //#define FUN_atan2  30
 
+char * function_names[30] = {"","+","-","*","/","/\\","\\/","","","sin",
+                             "cos","tan","","float","floor","exp","log","log10","sqrt","asin",
+                             "acos","atan","abs","truncate","round","ceiling","sign","min","lgamma","erf"};
+
 /* --- returns 1 when succeeds, and returns 0 when there is an error --	*/
 
 #define set_fvalue_from_value do {					\

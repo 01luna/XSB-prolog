@@ -1838,12 +1838,12 @@ argument positions.
   XSB_End_Instr() 
 
   XSB_Start_Instr(addintfastuni,_addintfastuni) /*RRA*/
-    /* takes 3 1-byte operands: 
+    /* takes 3 1-byte operands:
        byte 1 is register or local variable (reg if byte3&2 is 0),
-           indicates target where sum will be assigned.
+           indicates target where the result of the binop  will be assigned.
        byte 2 is register or local variable (reg if byte3&1 is 0)
-           indicates first argument of sum.
-       byte 3 >> 2 is signed integer that is second argument of sum.
+           indicates first argument of binop.
+       byte 3 >> 2 is signed integer that is second argument of binop
            (Lowest 2 bits indicate reg or local var of 1st 2 args.)
     */
     register Cell op1; register char op2int; register Cell op3;
@@ -1876,7 +1876,8 @@ argument positions.
 	  Float temp = fiflt_val(fiop1) + (Float)op2int;
 	  nunify_with_float_get(op3, temp);
 	}
-      } else { addintfastuni_abort(CTXTc op1, "+", makeint(op2int)); }
+      } else { 
+	addintfastuni_abort(CTXTc op1, makeint(op2int)); }
     }
   XSB_End_Instr() 
 

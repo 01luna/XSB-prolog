@@ -235,7 +235,7 @@ DllExport void call_conv xsb_throw_memory_error(int type)
   th = find_context(tid);
 #endif
 
-  printf("throwing out-of-memory error\n");
+  //  printf("throwing out-of-memory error\n");
   if (flags[CTRACE_CALLS])  { 
     if (ptcpreg) 
       sprint_subgoal(CTXTc forest_log_buffer_1,0, (VariantSF)ptcpreg); 
@@ -368,8 +368,46 @@ void call_conv xsb_domain_error(CTXTdeclc char *valid_domain,Cell culprit,
   bld_copy(error_rec+8,build_xsb_backtrace(CTXT)); // 3rd field updates hreg
 
   xsb_throw_internal(CTXTc ball_to_throw,ball_len);
-
 }
+
+void call_conv xsb_domain_error_vargs(CTXTdeclc char *valid_domain,Cell culprit, char *description, ...) {
+  char message[MAXBUFSIZE];
+  va_list args;
+  prolog_term ball_to_throw;
+  int isnew;
+  CPtr error_rec;
+  size_t ball_len = 24*sizeof(Cell);
+
+  va_start(args, description);
+  strcpy(message, " ");
+  vsnprintf(message+strlen(message), (MAXBUFSIZE-strlen(message)), description, args);
+  if (message[strlen(message)-1] == '\n') message[strlen(message)-1] = 0;
+  va_end(args);
+
+  if (heap_local_overflow(ball_len)) {
+    xsb_exit("no heap space in xsb_domain_error");
+  }
+
+  ball_to_throw = makecs(hreg);
+  error_rec = hreg;
+  hreg += 9;  // length of error/2 + domain_error/2 + context/2
+  bld_functor(error_rec, pair_psc(insert("error",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_cs(error_rec+1,error_rec+3);
+  bld_cs(error_rec+2,error_rec+6);
+  bld_functor(error_rec+3, pair_psc(insert("domain_error",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+4,string_find(valid_domain,1));
+  if (culprit == (Cell)NULL) bld_int(error_rec+5,0); 
+  else bld_ref(error_rec+5,culprit);
+  bld_functor(error_rec+6, pair_psc(insert("context",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+7,string_find(message,1)); // 2nd field
+  bld_copy(error_rec+8,build_xsb_backtrace(CTXT)); // 3rd field updates hreg
+
+  xsb_throw_internal(CTXTc ball_to_throw,ball_len);
+
+ }
 
 /*****************/
 /* Not using overflow or underflow yet */
@@ -527,6 +565,43 @@ void call_conv xsb_instantiation_error(CTXTdeclc const char *predicate,int arg) 
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
   bld_string(error_rec+4,string_find(message,1));
   bld_copy(error_rec+5,build_xsb_backtrace(CTXT));
+
+  xsb_throw_internal(CTXTc ball_to_throw,ball_len);
+
+}
+
+void call_conv xsb_instantiation_error_vargs(CTXTdeclc  char *goalstring, char *description, ...) {
+  char message[MAXBUFSIZE];
+  va_list args;
+  prolog_term ball_to_throw;
+  int isnew;
+  CPtr error_rec; 
+  size_t ball_len = 18*sizeof(Cell);
+
+  va_start(args, description);
+  strcpy(message, " ");
+  vsnprintf(message+strlen(message), (MAXBUFSIZE-strlen(message)), description, args);
+  if (message[strlen(message)-1] == '\n') message[strlen(message)-1] = 0;
+  va_end(args);
+
+  if (heap_local_overflow(ball_len)) {
+    xsb_exit("no heap space in xsb_instantiation_error");
+  }
+  ball_to_throw = makecs(hreg);
+  error_rec = hreg;  
+  hreg += 9; // error/2 + context/2 + context/2
+  bld_functor(error_rec, pair_psc(insert("error",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+1,string_find("instantiation_error",1));
+  bld_cs((error_rec+2),(error_rec+3));
+  bld_functor(error_rec+3, pair_psc(insert("context",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_cs((error_rec+4),(error_rec+6));
+  bld_copy(error_rec+5,build_xsb_backtrace(CTXT));
+  bld_functor(error_rec+6, pair_psc(insert("context",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+7,string_find(message,1));
+  bld_string(error_rec+8,string_find(goalstring,1));
 
   xsb_throw_internal(CTXTc ball_to_throw,ball_len);
 
@@ -905,13 +980,13 @@ void call_conv xsb_new_table_error(CTXTdeclc char *subtype, char *usr_msg,
 
 /**************/
 
-DllExport void call_conv xsb_new_type_error(CTXTdeclc char *valid_type,Cell culprit, char *description, ...) {
+DllExport void call_conv xsb_type_error_vargs(CTXTdeclc char *valid_type,Cell culprit, char * goalstring, char *description, ...) {
   char message[MAXBUFSIZE];
   va_list args;
   prolog_term ball_to_throw;
   int isnew;
   CPtr error_rec;
-  size_t ball_len = 10*sizeof(Cell);
+  size_t ball_len = 15*sizeof(Cell);;
 
   va_start(args, description);
   //  strcpy(message, "++Error[XSB]: [Runtime/C] ");
@@ -926,7 +1001,7 @@ DllExport void call_conv xsb_new_type_error(CTXTdeclc char *valid_type,Cell culp
 
   ball_to_throw = makecs(hreg);
   error_rec = hreg;
-  hreg += 9;  // error/2 + type_error/2 + context/2
+  hreg += 12;  // error/2 + type_error/2 + context/2 + context/2
   bld_functor(error_rec, pair_psc(insert("error",2,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
   bld_cs((error_rec+1),(error_rec+3));
@@ -939,8 +1014,12 @@ DllExport void call_conv xsb_new_type_error(CTXTdeclc char *valid_type,Cell culp
   else bld_ref(error_rec+5,culprit);
   bld_functor(error_rec+6, pair_psc(insert("context",2,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
-  bld_string(error_rec+7,string_find(message,1));
+  bld_cs((error_rec+7),(error_rec+9));
   bld_copy(error_rec+8,build_xsb_backtrace(CTXT));
+  bld_functor(error_rec+9, pair_psc(insert("context",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+10,string_find(message,1));
+  bld_string(error_rec+11,string_find(goalstring,1));
 
   xsb_throw_internal(CTXTc ball_to_throw, ball_len);
 
@@ -1125,77 +1204,119 @@ DllExport void call_conv bug_xsb(char *description)
 
 #define str_op1 (*tsgSBuff1)
 #define str_op2 (*tsgSBuff2)
-void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2)
-{
-  XSB_StrSet(&str_op1,"");
-  XSB_StrSet(&str_op2,"");
-  print_pterm(CTXTc op1, TRUE, &str_op1);
-  print_pterm(CTXTc op2, TRUE, &str_op2);
-  if (isref(op1) || isref(op2)) {
-    xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR,
-			 "Uninstantiated argument of evaluable function %s/2\n%s %s %s %s%s",
-			 OP, "   Goal:",
-			 (isref(op1)? "_Var": str_op1.string),
-			 OP,
-			 (isref(op2)? "_Var": str_op2.string),
-			 ", probably as 2nd arg of is/2");
+#define str_op3 (*tsgLBuff1)
+#define str_op4 (*tsgLBuff2)
+
+/* Not yet passing goals into error messages -- need to do snprinf to another buffer */
+void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
+  Pair undefPair;
+  struct Table_Info_Frame * Utip;		
+  int isNew;
+  XSB_StrSet(&str_op1,"");  XSB_StrSet(&str_op2,"");
+  XSB_StrSet(&str_op3,"");  XSB_StrSet(&str_op4,"");
+  //  printf("arithmetic abort: %s\n",OP);
+  if (! flags[EXCEPTION_ACTION]) {
+    print_pterm(CTXTc op1, TRUE, &str_op3);
+    print_pterm(CTXTc op2, TRUE, &str_op4);
+    /* The following sequence should be good for all 2-ary functions. */
+    if (isref(op1) || isref(op2)) {
+      xsb_instantiation_error_vargs("NULL","Uninstantiated argument of evaluable function %s/2 (Goal: %s(%s,%s))",
+				    OP,OP,str_op3.string,str_op4.string);
+    } else if (!isofloat(op1) && !isointeger(op1)) {
+      xsb_type_error_vargs(CTXTc "evaluable",op1,"NULL", "Wrong type in evaluable function %s/2: (Goal: %s(%s,%s))",
+			   OP,OP,str_op3.string,str_op4.string);
+    } else if (!isofloat(op2) && !isointeger(op2)) {
+      xsb_type_error_vargs(CTXTc "evaluable",op2, "NULL","Wrong type in evaluable function %s/2: (Goal: %s(%s,%s))",
+			   OP,OP,str_op3.string,str_op4.string);
+    } else if (!isointeger(op1)) {
+      xsb_type_error_vargs(CTXTc "evaluable",op1, "NULL", "Wrong type in evaluable function %s/2  (Goal: %s(%s,%s))",
+			   OP,OP,str_op3.string,str_op4.string);
+    } else if (!isointeger(op2)) {
+      xsb_type_error_vargs(CTXTc "evaluable",op2, "NULL", "Wrong type in evaluable function %s/2 (Goal: %s(%s,%s)",
+			   OP,OP,str_op3.string,str_op4.string);
+    }
   }
-  else {
-    //    xsb_abort("Wrong domain in evaluable function %s/2\n%s %s %s %s found",
-    //	      OP, "         Arithmetic expression expected, but",
-    //	      str_op1.string, OP, str_op2.string);
-    xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,
-			 "Wrong domain in evaluable function %s/2\n%s %s %s %s found",
-			 OP, "         Arithmetic expression expected, but",
-			 str_op1.string, OP, str_op2.string);
+  else { // Delay on Exception 
+    undefPair = insert("floundered_undefined",1,pair_psc(insert_module(0,"tables")),&isNew); 
+    //    printf("undefPair %p\n",undefPair);
+    Utip = get_tip(CTXTc pair_psc(undefPair));				
+    delay_negatively(TIF_Subgoals(Utip));					
+  } 
+}
+
+/* One size fits all: most arithmetic functions take float or integer,
+   though bit functions, mod, integer division take only integer.  So
+   for 2-ary check first that one is not a number.  If not, assume
+   that we have a float in place of an integer.  Note that this does
+   *not* work for float, round, and ceiling in the ISO semantics,
+   which throw an exception on integer input.  So we'll need to fix
+   this if we adopt the ISO semantics for this.
+*/
+void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
+  XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
+  //  printf("addintfastuni: %s\n",get_name(get_str_psc(op1)));
+  if (get_arity(get_str_psc(op1)) == 2) {
+    XSB_StrSet(&str_op4,"");
+    Cell arg1 = get_str_arg(op1,1);
+    Cell arg2 = get_str_arg(op1,2);
+    print_pterm(CTXTc op1, TRUE, &str_op3);
+    /* The following sequence should be good for all 2-ary functions. */
+    if (isref(arg1) || isref(arg2)) {
+      xsb_instantiation_error_vargs(str_op3.string,"Uninstantiated argument of evaluable function %s/2 (Goal: %s)",
+				    get_name(get_str_psc(op1)),str_op3.string);
+    } else if (!isofloat(arg1) && !isointeger(arg1)) {
+      xsb_type_error_vargs(CTXTc "evaluable",arg1, str_op3.string,"Wrong type in evaluable function %s/2 (Goal: %s)",
+			   get_name(get_str_psc(op1)),str_op3.string);
+    }
+    else if (!isofloat(arg2) && !isointeger(arg2)) {
+      xsb_type_error_vargs(CTXTc "evaluable",arg2, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
+			   get_name(get_str_psc(op1)),str_op3.string);
+    }
+    else if (!isointeger(arg1)) {
+      xsb_type_error_vargs(CTXTc "evaluable",arg1, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
+			   get_name(get_str_psc(op1)),str_op3.string);
+    }
+    else if (!isointeger(arg2)) {
+      xsb_type_error_vargs(CTXTc "evaluable",arg2, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
+			   get_name(get_str_psc(op1)),str_op3.string);
+    }
+} else {
+    /* The following sequence should be good for all 1-ary functions. */
+      prolog_term term = (prolog_term) op1;
+      term = p2p_arg(term,1);
+      print_pterm(CTXTc op1, TRUE, &str_op3);
+      if (is_var(term)) {
+	xsb_instantiation_error_vargs(CTXTc str_op3.string,"In evaluable function (Goal: %s)\n",str_op3.string);
+      } else  {
+	xsb_type_error_vargs(CTXTc "evaluable",term, str_op3.string, "In evaluable function (Goal: %s)",
+			   get_name(get_str_psc(op1)), str_op3.string);
+      }
+  }
+}
+    
+extern char * function_names[];
+
+void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
+  Cell value;
+  XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
+  //  printf("unifunc abort\n");
+  value = cell(regaddr);
+  XSB_Deref(value);
+  /* The following sequence should be good for all 1-ary functions. */
+  prolog_term term = (prolog_term) value;
+  print_pterm(CTXTc term, TRUE, &str_op3);
+  if (is_var(term)) {
+    xsb_instantiation_error_vargs(CTXTc "NULL","In evaluable function (Goal: %s(%s))\n",function_names[funcnum],str_op3.string);
+  } else  {
+    xsb_type_error_vargs(CTXTc "evaluable",term, "NULL", "In evaluable function (Goal: %s(%s))",function_names[funcnum],str_op3.string);
   }
 }
 
-void addintfastuni_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
-  XSB_StrSet(&str_op1,"");
-  XSB_StrSet(&str_op2,"");
-  print_pterm(CTXTc op1, TRUE, &str_op1);
-  if (!strcmp(get_name(get_str_psc(op1)),"+")) {
-      print_pterm(CTXTc op2, TRUE, &str_op2);
-      if (isref(op1) || isref(op2)) {
-	xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR,    "Uninstantiated argument of evaluable function %s/2\n%s %s %s %s%s", OP, "   Goal:",
-			 (isref(op1)? "_Var": str_op1.string),	 OP, (isref(op2)? "_Var": str_op2.string), ", probably as 2nd arg of is/2");
-      }
-      else {
-	xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR, "Wrong domain in evaluable function %s/2\n%s %s %s %s found",
-			 OP, "         Arithmetic expression expected, but",	 str_op1.string, OP, str_op2.string);
-      }
-    } else {
-      prolog_term term = (prolog_term) op1;
-      term = p2p_arg(term,1);
-      if (is_var(term)) {
-	xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR, "In evaluable function %s/1\n",get_name(get_str_psc(op1)));
-      }
-      else  {
-	if (is_string(term)) printf("atomic\n");
-	xsb_new_type_error(CTXTc "evaluable",term, "Wrong domain in evaluable function %s/1\n %s %s found",
-			   get_name(get_str_psc(op1)), "         Arithmetic expression expected, but",	 str_op1.string);
-      }
-  }
-}
-    
-void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
-  Cell value;
-  value = cell(regaddr);
-  XSB_Deref(value);
-      if (is_var(value)) {
-	xsb_evaluation_error(CTXTc EVALUATION_INSTANTIATION_ERROR, "In evaluable function %s/1\n","SOME FUNCTION");
-      }
-      else  {
-	//	if (is_string(term)) printf("atomic\n");
-	XSB_StrSet(&str_op2,"");
-	print_pterm(CTXTc value, TRUE, &str_op2);
-	xsb_new_type_error(CTXTc "evaluable",value, "Wrong domain in evaluable function %s/1: %s found as argument",str_op2.string);
-      }
-}
-    
+   
 #undef str_op1
 #undef str_op2
+#undef str_op3
+#undef str_op4
 
 #define str_op (*tsgSBuff1)
 void arithmetic_abort1(CTXTdeclc char *OP, Cell op)
