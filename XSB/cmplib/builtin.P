@@ -31,22 +31,22 @@
 /* inline predicates							*/
 /*======================================================================*/
 
-inline_predicate('<', 2).
-inline_predicate('>', 2).
-inline_predicate('=<', 2).
-inline_predicate('>=', 2).
-inline_predicate('=:=', 2).
-inline_predicate('=\=', 2).
+inline_predicate(<, 2).
+inline_predicate(>, 2).
+inline_predicate(=<, 2).
+inline_predicate(>=, 2).
+inline_predicate(=:=, 2).
+inline_predicate(=\=, 2).
 inline_predicate(is, 2).
 
-inline_predicate('=', 2).
-inline_predicate('==', 2).
-inline_predicate('@=', 2).
-inline_predicate('\==', 2).
-inline_predicate('@<', 2).
-inline_predicate('@=<', 2).
-inline_predicate('@>', 2).
-inline_predicate('@>=', 2).
+inline_predicate(=, 2).
+inline_predicate(==, 2).
+inline_predicate(@=, 2).
+inline_predicate(\==, 2).
+inline_predicate(@<, 2).
+inline_predicate(@=<, 2).
+inline_predicate(@>, 2).
+inline_predicate(@>=, 2).
 
 %%inline_predicate(var, 1).
 %%inline_predicate(nonvar, 1).
@@ -57,7 +57,7 @@ inline_predicate('_$builtin', 1).
 inline_predicate(fail, 0).
 inline_predicate(true, 0).
 inline_predicate(halt, 0).
-inline_predicate('!', 0).
+inline_predicate(!, 0).
 
 inline_predicate(Pred,A) :- inline_jumpcof_cond(Pred,A,_).
 
@@ -257,13 +257,13 @@ inline_jumpcof_cond(ground, 1, GROUND_TEST).
 /* builtin functions							*/
 /*======================================================================*/
 
-builtin_function('+', 2, 1).
-builtin_function('-', 2, 2).
-builtin_function('*', 2, 3).
-builtin_function('/', 2, 4).
-builtin_function('/\', 2, 5).
-builtin_function('\/', 2, 6).
-builtin_function('//', 2, 7).
+builtin_function(+, 2, 1).
+builtin_function(-, 2, 2).
+builtin_function(*, 2, 3).
+builtin_function(/, 2, 4).
+builtin_function(/\, 2, 5).
+builtin_function(\/, 2, 6).
+builtin_function(//, 2, 7).
 builtin_function(sin, 1, 9).
 builtin_function(cos, 1, 10).
 builtin_function(tan, 1, 11).
