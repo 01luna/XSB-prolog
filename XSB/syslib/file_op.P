@@ -142,55 +142,55 @@ deactivate_op(T, S) :-
 '_$op1'(1000,xfy,',').
 '_$op1'(900,fy,not).		% Not in the Prolog standard
 '_$op1'(900,fy,tnot).		% Not in the Prolog standard
-'_$op1'(900,fy,'\+').		% Not in the Prolog standard
+'_$op1'(900,fy,\+).		% Not in the Prolog standard
 '_$op1'(900,fy,spy).		% Not in the Prolog standard
 '_$op1'(900,fy,nospy).		% Not in the Prolog standard
-'_$op1'(700,xfx,'=').
-'_$op1'(700,xfx,'\=').
-'_$op1'(700,xfx,'==').
-'_$op1'(700,xfx,'@=').
-'_$op1'(700,xfx,'\==').
-'_$op1'(700,xfx,'@<').
-'_$op1'(700,xfx,'@=<').
-'_$op1'(700,xfx,'@>').
-'_$op1'(700,xfx,'@>=').
-'_$op1'(700,xfx,'=..').
-'_$op1'(700,xfx,'^=..').	% HiLog univ
+'_$op1'(700,xfx,=).
+'_$op1'(700,xfx,\=).
+'_$op1'(700,xfx,==).
+'_$op1'(700,xfx,@=).
+'_$op1'(700,xfx,\==).
+'_$op1'(700,xfx,@<).
+'_$op1'(700,xfx,@=<).
+'_$op1'(700,xfx,@>).
+'_$op1'(700,xfx,@>=).
+'_$op1'(700,xfx,=..).
+'_$op1'(700,xfx,^=..).	% HiLog univ
 '_$op1'(700,xfx,is).
-'_$op1'(700,xfx,'=:=').
-'_$op1'(700,xfx,'=\=').
-'_$op1'(700,xfx,'<').
-'_$op1'(700,xfx,'=<').
-'_$op1'(700,xfx,'>').
-'_$op1'(700,xfx,'>=').
+'_$op1'(700,xfx,=:=).
+'_$op1'(700,xfx,=\=).
+'_$op1'(700,xfx,<).
+'_$op1'(700,xfx,=<).
+'_$op1'(700,xfx,>).
+'_$op1'(700,xfx,>=).
 %'_$op1'(700,xfx,in).		% Not in the Prolog standard (used for domains)
-%'_$op1'(700,xfx,'/=').		% Not in the Prolog standard (used for domains)
-'_$op1'(700,xfx,'?=').
-'_$op1'(661,xfy,'.').		% Not in the Prolog standard /* !! */
-'_$op1'(600,xfy,':').		% As Quintus (Not as in the Prolog standard)
-'_$op1'(500,yfx,'+').
-'_$op1'(500,yfx,'-').
-'_$op1'(500,yfx,'/\').
-'_$op1'(500,yfx,'\/').
-'_$op1'(500,yfx,'><').
-'_$op1'(500,yfx,'xor').
-%%'_$op1'(500,fx,'+').		% Not in the Prolog standard (200 in Ciao)
-'_$op1'(200,fx,'+').
-%%'_$op1'(500,fx,'-').		% Not in the Prolog standard (200 in Ciao)
-'_$op1'(200,fx,'-').
-%%'_$op1'(500,fx,'\').		% Not in the Prolog standard (200 in Ciao)
-'_$op1'(200,fx,'\').
-'_$op1'(400,yfx,'*').
-'_$op1'(400,yfx,'/').
-'_$op1'(400,yfx,'//').
+%'_$op1'(700,xfx,/=).		% Not in the Prolog standard (used for domains)
+'_$op1'(700,xfx,?=).
+'_$op1'(661,xfy,.).		% Not in the Prolog standard /* !! */
+'_$op1'(600,xfy,:).		% As Quintus (Not as in the Prolog standard)
+'_$op1'(500,yfx,+).
+'_$op1'(500,yfx,-).
+'_$op1'(500,yfx,/\).
+'_$op1'(500,yfx,\/).
+'_$op1'(500,yfx,><).
+'_$op1'(500,yfx,xor).
+%%'_$op1'(500,fx,+).		% Not in the Prolog standard (200 in Ciao)
+'_$op1'(200,fx,+).
+%%'_$op1'(500,fx,-).		% Not in the Prolog standard (200 in Ciao)
+'_$op1'(200,fx,-).
+%%'_$op1'(500,fx,\).		% Not in the Prolog standard (200 in Ciao)
+'_$op1'(200,fx,\).
+'_$op1'(400,yfx,*).
+'_$op1'(400,yfx,/).
+'_$op1'(400,yfx,//).
 '_$op1'(400,yfx,mod).
 '_$op1'(400,yfx,rem).
 '_$op1'(400,yfx,div).
-'_$op1'(400,yfx,'<<').
-'_$op1'(400,yfx,'>>').
-'_$op1'(400,yfx,'\').
-'_$op1'(200,xfx,'**').
-'_$op1'(200,xfy,'^').
+'_$op1'(400,yfx,<<).
+'_$op1'(400,yfx,>>).
+'_$op1'(400,yfx,\).
+'_$op1'(200,xfx,**).
+'_$op1'(200,xfy,^).
 
 
 			/************************/

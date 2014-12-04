@@ -214,7 +214,7 @@ decode_star_index(Ind,IndIn,IndOut):-
 	        (I < 0 -> IndOut = Ind ; IndOut = *(I))
 	      ; (I < 0 -> IndOut = IndIn + Ind ; IndOut = IndIn + *(I) ) ) ).
 decode_star_index(Ind,IndIn,IndOut):- 
-	PreInd1 is '/\'(Ind,255),
+	PreInd1 is /\(Ind,255),
 	decode_star_index(PreInd1,IndIn,IndMid),
 	IndRest is Ind >> 8,
 	decode_star_index(IndRest,IndMid,IndOut).
