@@ -833,14 +833,15 @@ READ_ERROR:
             case 'v': 		      /* vertical tab */
                 return '\v';
             case 'x':		        /* hexadecimal */
-                {   int i, n;
-                    for (n = 0, i = 2; --i >= 0; n = (n<<4) + DigVal(c))
-		      if (DigVal(c = GetCode(charset,card,instr)) >= 16) {
-                            if (c < 0) goto READ_ERROR;
-                            (void)unGetC(c, card, instr); /* may not recover */
-                            break;
-                        }
-                    return n & 255;
+                { int n = 0;
+		  c = GetCode(charset,card,instr);
+		  while (DigVal(c) < 16) {
+		    n = n * 16 + DigVal(c);
+		    c = GetCode(charset,card,instr);
+		  }
+		  if (c < 0) goto READ_ERROR;
+		  if (c != '\\') xsb_warn("[TOKENIZER] Ill-formed \\xHEX\\ escape");
+		  return n;
                 }
 
    	    /* nfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfznfz */
@@ -884,20 +885,17 @@ READ_ERROR:
 
 	case '0': case '1': case '2': case '3':
             case '4': case '5': case '6': case '7':
-                {   int i, n;
-                    for (n = c-'0', i = 2; --i >= 0; n = (n<<3) + DigVal(c))
-		      if (DigVal(c = GetCode(charset,card,instr)) >= 8) {
-			  // if (c < 0) goto READ_ERROR;
-			  // (void) unGetC(c, card, instr);
-			  if (c != '\\') (void) unGetC(c,card,instr); // more standardish
-                            break;
-                        }
-                    return n & 255;
+	        { int n = 0;
+		  do {
+		    n = n * 8 + DigVal(c);
+		    c = GetCode(charset,card,instr);
+		  } while (DigVal(c) < 8);
+		  if (c < 0) goto READ_ERROR;
+		  if (c != '\\') xsb_warn("[TOKENIZER] Ill-formed \\OCTAL\\ escape");
+		  return n;
                 }
 	    case '\\':			/* backslash */
 	        return '\\';
-// Don't include ISO's single quote escape; it breaks '/\', which is (commonly?) used in XSB
-// If this is changed, change double_quotes() in io_builtins_xsb.c
 	    case '\'':			/* single quote */
 	        return '\'';
 	    case '"':			/* double quote */
