@@ -1229,10 +1229,10 @@ void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
       xsb_type_error_vargs(CTXTc "evaluable",op2, "NULL","Wrong type in evaluable function %s/2: (Goal: %s(%s,%s))",
 			   OP,OP,str_op3.string,str_op4.string);
     } else if (!isointeger(op1)) {
-      xsb_type_error_vargs(CTXTc "evaluable",op1, "NULL", "Wrong type in evaluable function %s/2  (Goal: %s(%s,%s))",
+      xsb_type_error_vargs(CTXTc "integer",op1, "NULL", "Wrong type in evaluable function %s/2  (Goal: %s(%s,%s))",
 			   OP,OP,str_op3.string,str_op4.string);
     } else if (!isointeger(op2)) {
-      xsb_type_error_vargs(CTXTc "evaluable",op2, "NULL", "Wrong type in evaluable function %s/2 (Goal: %s(%s,%s)",
+      xsb_type_error_vargs(CTXTc "integer",op2, "NULL", "Wrong type in evaluable function %s/2 (Goal: %s(%s,%s)",
 			   OP,OP,str_op3.string,str_op4.string);
     }
   }
@@ -1273,11 +1273,11 @@ void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
 			   get_name(get_str_psc(op1)),str_op3.string);
     }
     else if (!isointeger(arg1)) {
-      xsb_type_error_vargs(CTXTc "evaluable",arg1, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
+      xsb_type_error_vargs(CTXTc "integer",arg1, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
 			   get_name(get_str_psc(op1)),str_op3.string);
     }
     else if (!isointeger(arg2)) {
-      xsb_type_error_vargs(CTXTc "evaluable",arg2, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
+      xsb_type_error_vargs(CTXTc "integer",arg2, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
 			   get_name(get_str_psc(op1)),str_op3.string);
     }
 } else {
