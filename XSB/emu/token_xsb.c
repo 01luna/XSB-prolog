@@ -1281,6 +1281,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 		    token->nextch = d;
 		    token->value = 0;
 		    token->type = TK_EOC;
+		    unGetC(d, card, instr); // dsw added ??
 		    return token;       /* i.e. '.' followed by layout */
                 }
                 c = d;
