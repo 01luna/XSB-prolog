@@ -130,8 +130,14 @@ interpreter_readloop(_) :-
 	),
 	stat_flag(CURRENT_INPUT, FileIn),
 	file_read(FileIn, X, Vars),
-	( nonvar(X), read_in_stop(X), halt, ! %% end of top loop; halt
-	; process_query(X, Vars)
+	(nonvar(X), read_in_stop(X)
+	 ->	halt		% end of top loop; halt
+	 ;	file_get(FileIn,WS), % ignore ws after fullstop
+		(WS =:= CH_PERCENT
+		 ->	scan_thru_nl(FileIn)
+		 ;	true
+		),
+		process_query(X, Vars)
 	).
 
 read_in_stop(halt) :-          %% quit XSB, regardless of break level
@@ -184,8 +190,18 @@ process_query1(X, Vars) :-
 
 no_more :-
 	file_get(0, X),
-	( X =:= CH_EOF_P /* end_of_file */ ; X =:= CH_NEWLINE ), !.
+	( X =:= CH_EOF_P ; X =:= CH_NEWLINE ), !.
 no_more :- no_more, fail.
+
+scan_thru_nl(FileIn) :-
+	file_get(FileIn,C),
+	(C =:= CH_NEWLINE
+	 ->	true
+	 ; C =:= CH_EOF_P
+	 ->	true
+	 ;	scan_thru_nl(FileIn)
+	).
+
 
 call_query(X) :- 
 %%	'_$savecp'(C),			%% moved into call/1, affect trace?
