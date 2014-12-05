@@ -1560,8 +1560,8 @@ call_goal_cut_transform1((A;B),';;'(Na,Nb),Cutpoint) :-
 	call_goal_cut_transform(A,Na,Cutpoint),
 	call_goal_cut_transform(B,Nb,Cutpoint).
 call_goal_cut_transform1((A->B),(Na->Nb),Cutpoint) :-
-	'_$savecp'(Condcutpoint),
-	call_goal_cut_transform(A,Na,Condcutpoint),
+	Na = ('_$savecp'(Condcutpoint),Naa),
+	call_goal_cut_transform(A,Naa,Condcutpoint),
 	call_goal_cut_transform(B,Nb,Cutpoint).
 
 hack_consult([X],consult(X)) :- var(X),!.
@@ -1633,7 +1633,13 @@ repeat :- true; repeat.
 
 '_$cutto'(X) :- '_$cutto'(X).
 
-'_$savecp'(X) :- '_$savecp'(X).
+/* This following is required because the gettbreg instruction, which
+would be generated without the explicit =/2, is odd.  It only sets the
+register, not unifying the variable; and somewhere it seems to be
+using in a context where the register is invalid.  Anyway this way
+forces a use of the putpbreg, and returns the CP displacement as
+desired. */
+'_$savecp'(X) :- '_$savecp'(Y),X=Y.
 
 forall(G1,G2) :-
 	\+ (call(G1), \+call(G2)).
