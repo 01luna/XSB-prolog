@@ -200,14 +200,12 @@ something much simpler for now.
 In any case, I really should tie the spacing in with the tokenizing somehow.
 */
 
-maybe_space(_Ci,_Co):- put_code(0' ).
+%maybe_space(_Ci,_Co):- put_code(0' ).
 
-/*
 maybe_space(Ci, Co) :-
 	(   Ci\/Co<2'100, xor(Ci,Co,C),C < 2'010 -> put_code(0' )
         ;   true
         ).
-*/
 
 /*
 sticky_contexts(alpha, alpha).
@@ -498,12 +496,12 @@ write_string_tail(Other, Options, Depth, Co) :-
 	put_code(0'|),
 	write_out(Other, Options, 999, 0, Depth, '(', 2'100, Co).
 
-put_string_code(0'") :- !, display('""').
+put_string_code(0'") :- !, display('""').  %"
 put_string_code(0'\\) :- !, display('\\\\').
 put_string_code(C) :- put_code(C).
 
-%%xor(A,B,C):- 
-%%	C is ((A \/ B) - (A /\ B)).
+xor(A,B,C):- 
+	C is ((A \/ B) - (A /\ B)).
 
 displayq(Term):- writeq(Term).
 
