@@ -548,6 +548,9 @@ extract_vars([H|R],[V|R1]):-
 
 isoify([],[]).
 isoify([vv(A,V)|R],[A = V|R1]):- 
+	A \== '_', !,
+	isoify(R,R1).
+isoify([_|R],R1):- 
 	isoify(R,R1).
 
 %-------------

@@ -855,12 +855,12 @@ read_proc_token(tk_intfunc, V, intfunc(V), _Dict).
 read_proc_token(tk_realfunc, V, realfunc(V), _Dict).
 read_proc_token(tk_vvar, V, var(R, Name), Dict) :-
 	read_getcon(V, Name),
-	( Name = '_' -> true
+	( Name = '_' -> read_add(Dict,vv(Name,R))
 	; read_lookup(Dict, vv(Name, R))
 	).
 read_proc_token(tk_vvarfunc, V,  varfunc(R,Name), Dict) :-    % For HiLog
         read_getcon(V, Name),
-	( Name = '_' -> true
+	( Name = '_' -> read_add(Dict,vv(Name,R))
         ; read_lookup(Dict, vv(Name, R))
         ).
 read_proc_token(tk_eoc, _, tk_eoc, _).
@@ -877,6 +877,10 @@ read_proc_token(tk_eoc, _, tk_eoc, _).
 read_lookup([X|_], X) :- !.
 read_lookup([_|T], X) :-
         read_lookup(T, X). 
+
+% to add anonymous variables
+read_add(Dict,Pair) :- var(Dict), !, Dict = [Pair|_].
+read_add([_|Dict],Pair) :- read_add(Dict,Pair).
 
 %   gets the constant with the the name "String"
 
