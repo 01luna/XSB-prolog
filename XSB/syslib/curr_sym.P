@@ -688,7 +688,8 @@ iso_flag(max_integer,Maxint):-
 	    Maxint is (2**62 - 1) + 2**62
 	;   Maxint is (2**30 - 1) + 2**30).
 %'
-iso_flag(min_integer,Minint) :- iso_flag(max_integer,Maxint), Minint is -Maxint - 1.
+%%iso_flag(min_integer,Minint) :- iso_flag(max_integer,Maxint), Minint is -Maxint - 1.
+iso_flag(min_integer,Minint) :- iso_flag(max_integer,Maxint), Minint is -Maxint.
 iso_flag(max_arity,255).
 iso_flag(integer_rounding_function,toward_zero).
 iso_flag(debug, Debug) :- xsb_flag(debugging, Debug).
