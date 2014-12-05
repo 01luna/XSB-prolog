@@ -1277,7 +1277,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                     *++s = d, d = GetCode(charset,card,instr);
                 }
                 *++s = 0;
-                if (InType(d)>=SPACE && c==intab.termin && strbuff[1]==0) {
+                if ((InType(d)>=SPACE || d == '%') && c==intab.termin && strbuff[1]==0) {
 		    token->nextch = d;
 		    token->value = 0;
 		    token->type = TK_EOC;
