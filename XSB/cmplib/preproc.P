@@ -156,7 +156,14 @@ pre_ifthen(A,B,C,if_then_else(A1,NB,NC),CutVid) :-
 	pre_body(C,NC,CutVid).
 pre_ifthen(A,B,C,NGoal,CutVid) :-
 	gensym('_v', CutVid1),
-	pre_body(A, T1, CutVid1),
+	have_hardcut_1(A,Hardcut),
+	(Hardcut =:= 1
+	 ->	gensym('_v',CutVidCond),
+		pre_body(A, T1a, CutVidCond),
+		T1 = and(inlinegoal('_$savecp', 1, [varocc(CutVidCond)]),
+			 T1a)
+	 ;	pre_body(A, T1, _)
+	),
 	pre_body(B, NB, CutVid),
 	(C == inlinegoal(fail,0,[])
 	 ->	NGoal = and(inlinegoal('_$savecp', 1, [varocc(CutVid1)]),
