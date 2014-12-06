@@ -1274,6 +1274,7 @@ trans_goals('$$var'(Vid), goal(Sym,[varocc(Vid)]), SymTab, VidIn, VidOut) :- !,
 %% hack to eliminate true goals at end of clauses, so that
 %% the compiler may consider TCO --lfcastro, 050801
 trans_goals((A, True), Goal,SymTab,VidIn,VidOut) :-
+	\+ A = (_->_),		% but not in context of a conditional!
 	True == true,  %% can't be a variable!
 	!,
 	trans_goals(A,Goal,SymTab,VidIn,VidOut).
