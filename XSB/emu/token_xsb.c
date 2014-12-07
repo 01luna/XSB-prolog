@@ -238,6 +238,24 @@ char digval[AlphabetSize+1] =
         99,     99,     99,     99,     99,     99,     99,     99
     };
 
+Integer input_file_position(FILE *curr_in, STRFILE *instr) {
+  if (curr_in) {
+    return ftell(curr_in);
+  } else {
+    return (instr->strptr - instr->strbase);
+  }
+}
+
+char *input_file_name(FILE *curr_in, STRFILE *instr) {
+  if (curr_in) {
+    int xsb_filedes = unset_fileptr(curr_in);
+    if (xsb_filedes < 0) return "unknown";
+    else return open_files[xsb_filedes].file_name;
+  } else {
+    return "reading string";
+  }
+}
+
 int intype(int c)
 {
   return (intab.chtype+1)[c];
@@ -766,24 +784,20 @@ static int read_character(CTXTdeclc register FILE *card,
         c = GetCode(charset,card,instr);
 BACK:   if (c < 0) {
           if (c == EOF) { /* to mostly handle cygwin stdio.h bug ... */
-	    char *filename;
-	    int xsb_filedes;
 READ_ERROR: 
-	    if (instr) filename = "reading string";
-	    else {
-	      xsb_filedes = unset_fileptr(card);
-	      if (xsb_filedes < 0) filename = "unknown";
-	      else filename = open_files[xsb_filedes].file_name;
-	    }
 	    if (!instr && ferror(card)) {
-	      xsb_warn("[TOKENIZER] I/O error in file %s: %s\n",filename,strerror(errno));
+	      xsb_warn("[TOKENIZER] I/O error in file %s: %s at position %d\n",
+		       input_file_name(card,instr),input_file_position(card,instr),
+		       strerror(errno));
 	    }
 	    if (q < 0) {
-	      snprintf(message,200,"end of file in character constant in file %s",filename);
+	      snprintf(message,200,"end of file in character constant in %s",
+		       input_file_name(card,instr));
 	      SyntaxError(CTXTc message);
 		//		return -2;		/* encounters EOF */
             } else {
-	      snprintf(message,200, "end of file in %cquoted%c constant in file %s", q, q, filename);
+	      snprintf(message,200, "end of file in %cquoted%c constant in %s", 
+		       q, q, input_file_name(card,instr));
 	      SyntaxError(CTXTc message);
 		//		return -2;		/* encounters EOF */
             }
@@ -804,7 +818,9 @@ READ_ERROR:
         switch (c) {
             case EOF:
 	        if (!instr && ferror(card)) 
-		  xsb_warn("[TOKENIZER] I/O error: %s\n",strerror(errno));
+		  xsb_warn("[TOKENIZER] I/O error: %s at position %d in %s\n",
+			   strerror(errno),input_file_position(card,instr),
+			   input_file_name(card,instr));
 		clearerr(card);
                 goto READ_ERROR;
 	    case 'a':		        /* alarm */
@@ -840,7 +856,12 @@ READ_ERROR:
 		    c = GetCode(charset,card,instr);
 		  }
 		  if (c < 0) goto READ_ERROR;
-		  if (c != '\\') xsb_warn("[TOKENIZER] Ill-formed \\xHEX\\ escape");
+		  if (c != '\\') {
+		    unGetC(c, card, instr);
+		    xsb_warn("Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
+			     n,input_file_position(card,instr),
+			     input_file_name(card,instr));
+		  }
 		  return n;
                 }
 
@@ -855,7 +876,9 @@ READ_ERROR:
 			n = (n<<4) + DigVal(c);
 		      } else {
 			unGetC(c,card,instr);
-			xsb_warn("[TOKENIZER] Ill-formed \\u unicode escape");
+			xsb_warn("Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
+				 n,input_file_position(card,instr),
+				 input_file_name(card,instr));
 			return n;
 		      }
 		    }
@@ -868,7 +891,9 @@ READ_ERROR:
 			  n = (n<<4) + DigVal(c);
 			} else {
 			  unGetC(c,card,instr);
-			  xsb_warn("[TOKENIZER] Ill-formed \\u unicode escape");
+			  xsb_warn("Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
+				   n,input_file_position(card,instr),
+				   input_file_name(card,instr));
 			  return n;
 			}
 		      }
@@ -891,7 +916,12 @@ READ_ERROR:
 		    c = GetCode(charset,card,instr);
 		  } while (DigVal(c) < 8);
 		  if (c < 0) goto READ_ERROR;
-		  if (c != '\\') xsb_warn("[TOKENIZER] Ill-formed \\OCTAL\\ escape");
+		  if (c != '\\') {
+		    unGetC(c, card, instr);
+		    xsb_warn(CTXTc "Ill-formed \\OCTAL\\ escape: %d (dec) at position %d in %s",
+			     n,input_file_position(card,instr),
+			     input_file_name(card,instr));
+		  }
 		  return n;
                 }
 	    case '\\':			/* backslash */
@@ -1011,6 +1041,7 @@ void realloc_strbuff(CTXTdeclc byte **pstrbuff, byte **ps, int *pn)
   strbuff_len *= 2;
   return;
 }
+
 
 struct xsb_token_t *GetToken(CTXTdeclc int io_port, int prevch)
 {
@@ -1400,7 +1431,7 @@ case deleted ****/
             case EOFCH:
 	        if (!instr) {
 		  if (ferror(card))
-		    xsb_warn("[TOKENIZER] I/O error: %s\n",strerror(errno));
+		    xsb_warn("[TOKENIZER] I/O error: %s",strerror(errno));
 		  clearerr(card);
 	        }
 		token->nextch = ' ';
