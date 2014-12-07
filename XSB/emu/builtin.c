@@ -659,6 +659,19 @@ inline static void ctop_constr(CTXTdeclc int regnum, Pair psc_pair)
 
 /* --------------------------------------------------------------------	*/
 
+int list_unifiable(CTXTdeclc Cell term) {
+  Cell locterm = term;
+  XSB_Deref(locterm);
+  while (islist(locterm)) {
+    locterm = get_list_tail(locterm);
+    XSB_Deref(locterm);
+  }
+  if (isref(locterm) || isnil(locterm)) return TRUE;
+  else return FALSE;
+}
+
+/* --------------------------------------------------------------------	*/
+
 UInteger val_to_hash(Cell term)
 {
   UInteger value;
@@ -960,7 +973,8 @@ int make_ground(Cell term, struct ltrail *templ_trail) {
   return TRUE;
 }
 
-CPtr excess_vars(CTXTdeclc Cell term, CPtr varlist, struct ltrail *templ_trail, struct ltrail *var_trail) {
+CPtr excess_vars(CTXTdeclc Cell term, CPtr varlist, int ifExist,
+		 struct ltrail *templ_trail, struct ltrail *var_trail) {
  begin_excess_vars:
   XSB_Deref(term);
   switch (cell_tag(term)) {
@@ -979,31 +993,31 @@ CPtr excess_vars(CTXTdeclc Cell term, CPtr varlist, struct ltrail *templ_trail, 
     psc = get_str_psc(term);
     arity = (int) get_arity(psc);
     if (arity == 0) return varlist;
-    if (psc == caret_psc) {
+    if (psc == caret_psc && ifExist) {
       CPtr *save_templ_base;
       save_templ_base = templ_trail->ltrail_top;
       make_ground(get_str_arg(term,1), templ_trail);
-      varlist = excess_vars(CTXTc get_str_arg(term,2), varlist, templ_trail, var_trail);
+      varlist = excess_vars(CTXTc get_str_arg(term,2), varlist, ifExist, templ_trail, var_trail);
       undo_ltrail_bindings(templ_trail,save_templ_base);
       return varlist;
     }
-    if (psc == setof_psc || psc == bagof_psc) {
+    if (ifExist && (psc == setof_psc || psc == bagof_psc)) {
       CPtr *save_templ_base;
       save_templ_base = templ_trail->ltrail_top;
       make_ground(get_str_arg(term,1), templ_trail);
-      varlist = excess_vars(CTXTc get_str_arg(term,2),varlist,templ_trail,var_trail);
-      varlist = excess_vars(CTXTc get_str_arg(term,3),varlist,templ_trail,var_trail);
+      varlist = excess_vars(CTXTc get_str_arg(term,2),varlist,ifExist,templ_trail,var_trail);
+      varlist = excess_vars(CTXTc get_str_arg(term,3),varlist,ifExist,templ_trail,var_trail);
       undo_ltrail_bindings(templ_trail,save_templ_base);
       return varlist;
     }
       for (i = 1; i < arity; i++) {
-	varlist = excess_vars(CTXTc get_str_arg(term,i), varlist, templ_trail, var_trail);
+	varlist = excess_vars(CTXTc get_str_arg(term,i), varlist, ifExist, templ_trail, var_trail);
       }
       term = get_str_arg(term,arity);
   }
     goto begin_excess_vars;
   case XSB_LIST:
-    varlist = excess_vars(CTXTc get_list_head(term), varlist, templ_trail, var_trail);
+    varlist = excess_vars(CTXTc get_list_head(term), varlist, ifExist, templ_trail, var_trail);
     term = get_list_tail(term);
     goto begin_excess_vars;
   case XSB_FLOAT:
@@ -2447,7 +2461,7 @@ case WRITE_OUT_PROFILE:
     break;
 
   case EXCESS_VARS: {
-    Cell term, templ, startvlist, ovar;
+    Cell term, templ, startvlist, ovar, retlist;
     CPtr anslist, tanslist, tail;
     int max_num_vars;
     struct ltrail templ_trail, var_trail;
@@ -2475,17 +2489,25 @@ case WRITE_OUT_PROFILE:
 	  hreg += 2;
 	  startvlist = get_list_tail(startvlist);
 	  XSB_Deref(startvlist);
-	} else {xsb_error("Excess_vars: arg 3 must be a list of variables"); break;}
-      } else {xsb_error("Excess_vars: arg 3 must be a list"); break;}
+	} else {
+	  xsb_type_error(CTXTc "list of variables",ptoc_tag(CTXTc 3),"excess_vars/4",3);
+	  break;
+	}
+      } else {
+	  xsb_type_error(CTXTc "list of variables",ptoc_tag(CTXTc 3),"excess_vars/4",3);
+	break;
+      }
     }
     templ = ptoc_tag(CTXTc 2);
     make_ground(templ, &var_trail);
     term = ptoc_tag(CTXTc 1);
-    tail = excess_vars(CTXTc term,tanslist,&templ_trail,&var_trail);
+    tail = excess_vars(CTXTc term,tanslist,(int)ptoc_int(CTXTc 4),&templ_trail,&var_trail);
     cell(tail) = makenil;
     undo_ltrail_bindings(&templ_trail,templ_trail_base);
     undo_ltrail_bindings(&var_trail,var_trail_base);
-    return unify(CTXTc (Cell)anslist,ptoc_tag(CTXTc 4));
+    retlist = ptoc_tag(CTXTc 5);
+    if (list_unifiable(retlist)) return unify(CTXTc (Cell)anslist,retlist);
+    else xsb_type_error(CTXTc "list",retlist,"term_variables/2",2);
   }
   break;
 
