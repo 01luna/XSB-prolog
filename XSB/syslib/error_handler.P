@@ -493,6 +493,17 @@ check_nonvar_list(Term,Predicate,Arg) :-
 	;	type_error(list,Term,Predicate,Arg)
 	).
 
+% Checks that Term can be grounded to a list.
+check_listable(Term,Predicate,Arg) :-
+	(listable(Term)
+	 ->	true
+	 ;	type_error(list,Term,Predicate,Arg)
+	).
+
+listable(X) :- var(X), !.
+listable([]).
+listable([_|L]) :- listable(L).
+
 % PM: the order of the next two clauses matters, otherwise an instantiiation
 % error will not be generated in case of an open list
 check_nonvar_list1([H|T],Predicate,Arg) :- 

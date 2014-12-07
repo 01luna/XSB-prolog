@@ -103,9 +103,12 @@ decide([], Bag, Key, Key, Bag) :- !.
 decide(_, Bag, Key, Key, Bag).
 decide(Bags, _, _, Key, Bag) :- pick(Bags, Key, Bag).
 
-%% now use builtin
-excess_vars(_Term,_Tmpl,_PVars,_Vars) :- '_$builtin'(EXCESS_VARS).
+excess_vars(Term,Tmpl,PVars,Vars) :- excess_vars(Term,Tmpl,PVars,1,Vars).
 
+term_variables(Term,Vars) :- excess_vars(Term,[],[],0,Vars).
+
+%% use builtin
+excess_vars(_Term,_Tmpl,_PVars,_IfExist,_Vars) :- '_$builtin'(EXCESS_VARS).
 
 old_excess_vars(T,X,L0,L) :- var(T), !,
    ( no_occurrence(T,X), !, introduce(T,L0,L)
