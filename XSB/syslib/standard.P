@@ -958,47 +958,72 @@ expand_term(Term, Term).
 hilog(HS) :- 
 	add_hilog_symbol(HS).
 
-
-op(Priority, Specifier, OPs) :- 
-	( (op_priority(Priority), op_specifier(Specifier)) ->
-		( ok_op(OPs) -> add_ops(Priority, Specifier, [OPs])
-		; ok_ops(OPs) -> add_ops(Priority, Specifier, OPs)
-	%--- From here on start the error conditions of this predicate ---
-		; ( atom(OPs) -> L = [OPs] ; OPs = [_|_] -> L = OPs ) ->
-			%--- From here on we deal only with lists (proper or improper) ---
-			( is_list(L) ->
-				( all_atoms(L) -> 
-					permission_error(modify,operator,(','),op/3)
-				; contains_var(L) ->
-				        instantiation_error(op/3,3,bound)
-				; domain_error(atom_or_atomList,Ops,op/3,3)
-				)
-			; instantiation_error(op/3,3,bound)
-			)
-		; domain_error(atom_or_atomList,Ops,op/3,3)
-		)
-	; var(Priority) -> 
-		instantiation_error(op/3,1,bound)
-	; var(Specifier) -> 
-		instantiation_error(op/3,2,bound)
-	; \+ integer(Priority) ->
-	        type_error(integer,Priority,op/3,1)
-	; \+ atom(Specifier) ->
-	        type_error(atom,Specifier,op/3,2)
-	; integer(Priority), (Priority < 0 ; Priority > 1200) ->
-	        domain_error(operator_priority,Priority,op/3,2)
-	; \+ op_specifier(Specifier) ->
-	        domain_error(operator_specifier,Specifier,op/3,2)
-	; abort('Argument 2 of op/3 is not compatible with current set of operators')
+op(Priority, Specifier, Operators) :-
+	check_operator_priority(Priority),
+	check_operator_specifier(Specifier),
+	check_operator_names(Operators, Priority, Specifier),
+	(	atom(Operators) ->
+		add_ops(Priority, Specifier, [Operators])
+	;	add_ops(Priority, Specifier, Operators)
 	).
 
-ok_ops(L) :-
-	var(L), !, fail.	% This captures improper lists
-ok_ops([]).
-ok_ops([OP|OPs]) :-		% This captures lists containing 
-	ok_op(OP), ok_ops(OPs).	% ',' or a non-atom (i.e variables)
+check_operator_priority(Priority) :-
+	(	var(Priority) ->
+		instantiation_error(op/3, 1, bound)
+	;	\+ integer(Priority),
+		type_error(integer, Priority, op/3, 1)
+	;	(Priority < 0; Priority > 1200) ->
+		domain_error(operator_priority, Priority, op/3, 1)
+	;	true
+	).
 
-ok_op(OP) :- atom(OP), OP \== ','.
+check_operator_specifier(Term) :-
+	(	var(Term) ->
+		instantiation_error(op/3, 2, bound)
+	;	\+ atom(Term) ->
+		type_error(atom, Term, op/3, 2)
+	;	operator_specifier(Term) ->
+		true
+	;	domain_error(operator_specifier, Term, op/3, 2)
+	).
+
+operator_specifier(fx).
+operator_specifier(fy).
+operator_specifier(xfx).
+operator_specifier(xfy).
+operator_specifier(yfx).
+operator_specifier(xf).
+operator_specifier(yf).
+
+check_operator_names(Term, Priority, Specifier) :-
+	(	var(Term) ->
+		instantiation_error(op/3, 3, bound)
+	;	forbidden_operator(Term, Priority, Specifier, Permission) ->
+		permission_error(Permission, operator, Term, op/3)
+	;	atom(Term) ->
+		true
+	;	\+ is_list(Term) ->
+		type_error(list, Term, op/3, 3)
+	;	\+ (member(Operator, Term), \+ check_operator_name(Operator, Priority, Specifier))
+	).
+
+forbidden_operator((','), _, _, modify).
+forbidden_operator(('{}'), _, _, create).
+forbidden_operator(('|'), Priority, Specifier, create) :-
+	(	Priority \== 0, Priority \== 1105 ->
+		true
+	;	Specifier \== xfy
+	).
+
+check_operator_name(Term, Priority, Specifier) :-
+	(	var(Term) ->
+		instantiation_error(op/3, 3, bound)
+	;	forbidden_operator(Term, Priority, Specifier, Permission) ->
+		permission_error(Permission, operator, Term, op/3)
+	;	atom(Term) ->
+		true
+	;	type_error(atom, Term, op/3, 3)
+	).
 
 /*------------------------------------------------------------------*/
 /* add index declaration */
