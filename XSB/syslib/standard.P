@@ -1002,6 +1002,8 @@ check_operator_names(Term, Priority, Specifier) :-
 		permission_error(Permission, operator, Term, op/3)
 	;	atom(Term) ->
 		true
+	;	contains_var(Term) ->
+		instantiation_error(op/3, 3, bound)	
 	;	\+ is_list(Term) ->
 		type_error(list, Term, op/3, 3)
 	;	\+ (member(Operator, Term), \+ check_operator_name(Operator, Priority, Specifier))
