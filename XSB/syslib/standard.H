@@ -113,7 +113,7 @@
 :- import (dynamic)/1, asserta/1, assert0/4 from assert.
 :- import member/2,append/3,comma_member/2 from basics.
 :- import consult/1, reconsult/1 from consult.
-:- import predicate_property/2 from curr_sym.
+:- import predicate_property/2, current_op/3 from curr_sym.
 :- import dcg/2 from dcg.
 %%:- import eval/2 from eval.
 :- import file_open/3, file_open/4, file_close/2, 

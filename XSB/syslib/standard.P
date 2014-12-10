@@ -982,18 +982,18 @@ check_operator_specifier(Term) :-
 		instantiation_error(op/3, 2, bound)
 	;	\+ atom(Term) ->
 		type_error(atom, Term, op/3, 2)
-	;	operator_specifier(Term) ->
+	;	operator_specifier(Term, _) ->
 		true
 	;	domain_error(operator_specifier, Term, op/3, 2)
 	).
 
-operator_specifier(fx).
-operator_specifier(fy).
-operator_specifier(xfx).
-operator_specifier(xfy).
-operator_specifier(yfx).
-operator_specifier(xf).
-operator_specifier(yf).
+operator_specifier(fx, prefix).
+operator_specifier(fy, prefix).
+operator_specifier(xfx, infix).
+operator_specifier(xfy, infix).
+operator_specifier(yfx, infix).
+operator_specifier(xf, postfix).
+operator_specifier(yf, postfix).
 
 check_operator_names(Term, Priority, Specifier) :-
 	(	var(Term) ->
@@ -1009,12 +1009,27 @@ check_operator_names(Term, Priority, Specifier) :-
 	;	\+ (member(Operator, Term), \+ check_operator_name(Operator, Priority, Specifier))
 	).
 
-forbidden_operator((','), _, _, modify).
-forbidden_operator(('{}'), _, _, create).
+forbidden_operator((','), _, _, modify) :-
+	!.
+forbidden_operator(('{}'), _, _, create) :-
+	!.
 forbidden_operator(('|'), Priority, Specifier, create) :-
+	!,
 	(	Priority \== 0, Priority \== 1105 ->
 		true
 	;	Specifier \== xfy
+	).
+forbidden_operator(Operator, _, Specifier, create) :-
+	atom(Operator),
+	(	operator_specifier(Specifier, infix),
+		current_op(_, PostfixSpecifier, Operator),
+		operator_specifier(PostfixSpecifier, postfix) ->
+		true
+	;	operator_specifier(Specifier, postfix),
+		current_op(_, InfixSpecifier, Operator),
+		operator_specifier(InfixSpecifier, infix) ->
+		true
+	;	fail
 	).
 
 check_operator_name(Term, Priority, Specifier) :-
