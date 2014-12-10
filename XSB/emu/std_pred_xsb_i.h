@@ -173,11 +173,11 @@ inline static xsbBool univ_builtin(CTXTdecl)
   int i, arity;
   int  new_indicator;
   char *name;
-  Cell list, new_list, term, chead, ctail, new_term;
+  Cell list, olist, new_list, term, chead, ctail, new_term;
   Pair sym;
 
   term = ptoc_tag(CTXTc 1);
-  list = ptoc_tag(CTXTc 2);
+  olist = list = ptoc_tag(CTXTc 2);
   if (isnonvar(term)) {	/* Usage is deconstruction of terms */
     if (!isref(list) && !islist(list)) {
       if (not_univ_list_type(list)){
@@ -253,34 +253,30 @@ inline static xsbBool univ_builtin(CTXTdecl)
 	    } else {
 	      /* leave hreg unchanged */
 	      if (arity > MAX_ARITY)
-		xsb_representation_error(CTXTc "less than MAX_ARITY",
+		xsb_representation_error(CTXTc "max_arity",
 					 makestring(string_find("Length of list",1)),"=../2",2);
 	      else {
-		if (not_univ_list_type(list)) 
-		  xsb_type_error(CTXTc "list",list,"=../2",2);  /* X =.. [foo|Y]. */
-		else xsb_instantiation_error(CTXTc "=../2",2);
-		return FALSE;
+		if (isref(list)) xsb_instantiation_error(CTXTc "=../2",2);
+		else xsb_type_error(CTXTc "list",olist,"=../2",2);  /* X =.. [foo|Y]. */
 	      }
 	    }
 	  }
 	} 
 	return unify(CTXTc term,new_term);
       }
-      if ((xsb_isnumber(chead) || isboxedinteger(chead)) && isnil(ctail)) { /* list=[num] */
-	bind_copy((CPtr)term, chead);	 /* term<-num  */
-	return TRUE;	/* succeed */
+      if (isnil(ctail) && (isofloat(chead) || isointeger(chead))) { /* list=[num] */
+	  bind_copy((CPtr)term, chead);	 /* term<-num  */
+	  return TRUE;	/* succeed */
+      } else { /* error, which one? */
+	if (isref(chead)) xsb_instantiation_error(CTXTc "=../2",2);
+	else if (!isnil(ctail) || (isofloat(chead) || isointeger(chead))) {
+	  xsb_type_error(CTXTc "atom",chead,"=../2",2);
+	} else xsb_type_error(CTXTc "atomic",chead,"=../2",2);
       }
-      else
-	{
-	  if (not_univ_list_type(list)) 
-	    xsb_type_error(CTXTc "atomic",chead,"=../2",2);  /* X =.. X =.. [2,a,b]. */
-	  else xsb_instantiation_error(CTXTc "=../2",2);
-	  return(FALSE);
-	}
     } /* List is a list */
-    if (not_univ_list_type(list))
-	  xsb_type_error(CTXTc "list",list,"=../2",2);  /* X =.. a */
-    else xsb_instantiation_error(CTXTc "=../2",2);
+    if (isref(list)) xsb_instantiation_error(CTXTc "=../2",2);
+    if (isnil(list)) xsb_domain_error(CTXTc "non_empty_list",list,"=../2",2);
+    else xsb_type_error(CTXTc "list",list,"=../2",2);  /* X =.. a */
   } /* usage is construction; term is known to be a variable */
   return TRUE;
 }
