@@ -1207,6 +1207,11 @@ set_xsb_flag_1(errors_with_position,Mode):- !,
 	( Mode = on -> 
 	    stat_set_flag(ERRORS_WITH_POSITION, 1)
 	 ;  (Mode = off, stat_set_flag(ERRORS_WITH_POSITION, 0))).
+set_xsb_flag_1(Type, _) :-
+	(	iso_flag(Type)
+	;	prolog_commons_flag(Type)
+	),
+	permission_error(modify,flag,Type,set_prolog_flag/2).
 set_xsb_flag_1(Type, _) :-  
 	domain_error(prolog_flag,Type,set_prolog_flag/2,1).
 
