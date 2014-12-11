@@ -632,9 +632,15 @@ module_properties(PSC, Property) :-
 /* ===== current_prolog_flag/2 ================================== */
 
 current_prolog_flag(Flag, Value) :- 
-	(	(var(Flag) ; atom(Flag)) -> 
+	(	var(Flag) ->
 		true
-	;	type_error(atom,Flag,current_prolog_flag/2,1)
+	;	\+ atom(Flag) ->
+		type_error(atom,Flag,current_prolog_flag/2,1)
+	;	\+ iso_flag(Flag),
+		\+ xsb_flag(Flag),
+		\+ prolog_commons_flag(Flag) ->
+		domain_error(prolog_flag,Flag,current_prolog_flag/2,1)
+	;	true
 	),
 	(	iso_flag(Flag,Value) 
 	;	xsb_flag(Flag,Value)
@@ -676,6 +682,18 @@ set_prolog_flag(Flag,Value) :-
 %make_set_tail([Val],[Val,'}']) :- !.
 %make_set_tail([Val|Vals],[Val,','|SetTail]) :- make_set_tail(Vals,SetTail).
 
+% PM: list of ISO specified flags for error checking
+iso_flag(bounded).
+iso_flag(max_integer). 
+iso_flag(min_integer).
+iso_flag(max_arity).
+iso_flag(integer_rounding_function).
+iso_flag(debug).
+iso_flag(unknown).
+iso_flag(double_quotes).
+iso_flag(char_conversion).
+
+
 %% fix for 64-bit compilation?
 iso_flag(bounded,true).
 
@@ -695,6 +713,7 @@ iso_flag(integer_rounding_function,toward_zero).
 iso_flag(debug, Debug) :- xsb_flag(debugging, Debug).
 iso_flag(unknown, State) :- settable_prolog_flag(unknown, State).
 iso_flag(double_quotes,codes).
+iso_flag(char_conversion, off).
 
 % TLS: need to understand ISO char conversion
 %iso_flag(char_conversion,{on,off})
@@ -704,6 +723,10 @@ iso_flag(double_quotes,codes).
 %iso_flag(unknown,{error,warning,fail})
 
 /* ===== prolog_commons_flag/2 ========================================== */
+
+% PM: list of Prolog Commons specified flags for error checking
+prolog_commons_flag(dialect).
+prolog_commons_flag(version_data).
 
 prolog_commons_flag(dialect,xsb).
 prolog_commons_flag(version_data, xsb(Major, Minor, Patch, _)):-
@@ -729,6 +752,50 @@ prolog_commons_flag(version_data,xsb(Maj, Min, 0, _)):-
 	xsb_configuration(major_version,Maj),
 	xsb_configuration(minor_version,Min).
 */
+
+% PM: list of XSB specific flags for error checking
+xsb_flag(write_attributes). 
+xsb_flag(write_depth).
+xsb_flag(backtrace_on_error).
+xsb_flag(debugging).
+xsb_flag(tracing).
+xsb_flag(verboseness).
+xsb_flag(verboseness).
+xsb_flag(goal).
+xsb_flag(dcg_style).
+xsb_flag(garbage_collection).
+xsb_flag(heap_garbage_collection).
+xsb_flag(clause_garbage_collection).
+xsb_flag(atom_garbage_collection).
+xsb_flag(heap_margin).
+xsb_flag(gc_verbose_level).
+xsb_flag(verbose_gc).
+xsb_flag(count_chains).
+xsb_flag(examine_data).
+xsb_flag(table_gc_action).
+xsb_flag(thread_pdlsize).
+xsb_flag(thread_glsize).
+xsb_flag(thread_tcpsize).
+xsb_flag(thread_complsize).
+xsb_flag(thread_detached).
+xsb_flag(max_threads).
+xsb_flag(max_queue_terms).
+xsb_flag(shared_predicates).
+xsb_flag(warning_action).
+xsb_flag(max_table_subgoal_depth).
+xsb_flag(max_table_subgoal_action).
+xsb_flag(max_table_answer_depth).
+xsb_flag(max_table_answer_action).
+xsb_flag(max_table_answer_list_depth).
+xsb_flag(max_table_answer_list_action).
+xsb_flag(unify_with_occurs_check).
+xsb_flag(max_tab_usage).
+xsb_flag(max_memory).
+xsb_flag(exception_pre_action).
+xsb_flag(exception_action).
+xsb_flag(ctrace).
+xsb_flag(character_set).
+xsb_flag(errors_with_position).
 
 /* ===== xsb_flag/2 ========================================== */
 
