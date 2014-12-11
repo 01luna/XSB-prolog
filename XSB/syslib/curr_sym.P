@@ -648,12 +648,17 @@ current_prolog_flag(Flag, Value) :-
 	).
 
 settable_flag(unknown).
+settable_flag(double_quotes).
+
 settable_flag_value(unknown,error).
 settable_flag_value(unknown,fail).
 settable_flag_value(unknown,warning).
+% PM: avoid error when setting the double_quotes flag to codes
+settable_flag_value(double_quotes,codes).
 
 :- dynamic settable_prolog_flag/2.
 :- asserta(settable_prolog_flag(unknown,error)).
+:- asserta(settable_prolog_flag(double_quotes,codes)).
 
 set_prolog_flag(Flag,Value) :-
 	(	var(Flag) ->
@@ -712,7 +717,7 @@ iso_flag(max_arity,255).
 iso_flag(integer_rounding_function,toward_zero).
 iso_flag(debug, Debug) :- xsb_flag(debugging, Debug).
 iso_flag(unknown, State) :- settable_prolog_flag(unknown, State).
-iso_flag(double_quotes,codes).
+iso_flag(double_quotes, Meaning) :- settable_prolog_flag(double_quotes, Meaning).
 iso_flag(char_conversion, off).
 
 % TLS: need to understand ISO char conversion
