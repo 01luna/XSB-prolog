@@ -660,13 +660,12 @@ inline static void ctop_constr(CTXTdeclc int regnum, Pair psc_pair)
 /* --------------------------------------------------------------------	*/
 
 int list_unifiable(CTXTdeclc Cell term) {
-  Cell locterm = term;
-  XSB_Deref(locterm);
-  while (islist(locterm)) {
-    locterm = get_list_tail(locterm);
-    XSB_Deref(locterm);
+  XSB_Deref(term);
+  while (islist(term)) {
+    term = get_list_tail(term);
+    XSB_Deref(term);
   }
-  if (isref(locterm) || isnil(locterm)) return TRUE;
+  if (isref(term) || isnil(term)) return TRUE;
   else return FALSE;
 }
 

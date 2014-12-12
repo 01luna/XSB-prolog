@@ -476,7 +476,7 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
   XSB_Deref(term);
   list = ptoc_tag(CTXTc 2);
   XSB_Deref(list);
-  if (islist(list) || isnil(list)) { /* use is: CHARS/CODES --> NUMBER */
+  if ((islist(list) && ground(list)) || isnil(list)) { /* use is: CHARS/CODES --> NUMBER */
     term2 = list;
     do {
       XSB_Deref(term2);
@@ -551,7 +551,8 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
     }
   } else {	/* use is: NUMBER --> CHARS/CODES/DIGITS */
     if (isref(term)) {
-      xsb_instantiation_error(CTXTc call_name,1);
+      if (list_unifiable(list)) xsb_instantiation_error(CTXTc call_name,1);
+      else xsb_type_error(CTXTc "list",list,"number_codes/2",2); //fix pred name
     } else if (isointeger(term)) {
       sprintf(str, "%" Intfmt, oint_val(term));
     } else if (isofloat(term)) {
@@ -581,7 +582,8 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
       follow(hreg-1) = makelist(hreg);
     } follow(hreg-1) = makenil;
     if (isref(list)) {bind_list((CPtr)list,new_list);}
-    else xsb_type_error(CTXTc "list",term,call_name,2);
+    else return unify(makelist(new_list),list);
+    //else xsb_type_error(CTXTc "list",term,call_name,2);
   }
   return TRUE;
 }
