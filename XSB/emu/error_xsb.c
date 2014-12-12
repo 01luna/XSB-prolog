@@ -1314,24 +1314,24 @@ void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
 }
 
    
-#undef str_op1
-#undef str_op2
-#undef str_op3
-#undef str_op4
-
-#define str_op (*tsgSBuff1)
-void arithmetic_abort1(CTXTdeclc char *OP, Cell op)
-{
-  XSB_StrSet(&str_op,"_Var");
-  if (! isref(op)) print_pterm(CTXTc op, TRUE, &str_op);
-  xsb_abort("%s evaluable function %s/2\n%s %s(%s) %s",
-	    (isref(op) ? "Uninstantiated argument of" : "Wrong domain in"),
-	    OP, "   Goal:", OP, str_op.string,
-	    ", probably as 2nd arg of is/2");  
+void arithmetic_abort1(CTXTdeclc char *OP, Cell value) {
+  prolog_term term;
+  XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
+  //  value = cell(regaddr);
+    //  XSB_Deref(value);  /* already derefed */
+  /* The following sequence should be good for all 1-ary functions. */
+  term = (prolog_term) value;
+  print_pterm(CTXTc term, TRUE, &str_op3);
+  if (is_var(term)) {
+    xsb_instantiation_error_vargs(CTXTc "NULL","In evaluable function (Goal: %s(%s))\n",OP,str_op3.string);
+  } else if (!isofloat(term) && !isointeger(term)) {
+    xsb_type_error_vargs(CTXTc "evaluable",term, "NULL", "In evaluable function (Goal: %s(%s))",OP,str_op3.string);
+  } else {
+    xsb_type_error_vargs(CTXTc "integer",term, "NULL", "In evaluable function (Goal: %s(%s))",OP,str_op3.string);
+  }
 }
-#undef str_op
 
-#define str_op1 (*tsgSBuff1)
+
 void arithmetic_comp_abort(CTXTdeclc Cell op1, char *OP, Cell op2)
 {
   XSB_StrSet(&str_op1,"_Var");
@@ -1341,6 +1341,9 @@ void arithmetic_comp_abort(CTXTdeclc Cell op1, char *OP, Cell op2)
 	    OP, "   Goal:", str_op1.string, OP, op2);
 }
 #undef str_op1
+#undef str_op2
+#undef str_op3
+#undef str_op4
 
 /*----------------------------------------------------------------------*/
 
