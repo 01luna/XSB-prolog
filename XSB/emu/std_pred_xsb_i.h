@@ -551,7 +551,7 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
     }
   } else {	/* use is: NUMBER --> CHARS/CODES/DIGITS */
     if (isref(term)) {
-      if (list_unifiable(list)) xsb_instantiation_error(CTXTc call_name,1);
+      if (list_unifiable(CTXTc list)) xsb_instantiation_error(CTXTc call_name,1);
       else xsb_type_error(CTXTc "list",list,"number_codes/2",2); //fix pred name
     } else if (isointeger(term)) {
       sprintf(str, "%" Intfmt, oint_val(term));
@@ -582,7 +582,7 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
       follow(hreg-1) = makelist(hreg);
     } follow(hreg-1) = makenil;
     if (isref(list)) {bind_list((CPtr)list,new_list);}
-    else return unify(makelist(new_list),list);
+    else return unify(CTXTc makelist(new_list),list);
     //else xsb_type_error(CTXTc "list",term,call_name,2);
   }
   return TRUE;

@@ -1220,7 +1220,7 @@ void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
     print_pterm(CTXTc op2, TRUE, &str_op4);
     /* The following sequence should be good for all 2-ary functions. */
     if (isref(op1) || isref(op2)) {
-      xsb_instantiation_error_vargs("NULL","Uninstantiated argument of evaluable function %s/2 (Goal: %s(%s,%s))",
+      xsb_instantiation_error_vargs(CTXTc "NULL","Uninstantiated argument of evaluable function %s/2 (Goal: %s(%s,%s))",
 				    OP,OP,str_op3.string,str_op4.string);
     } else if (!isofloat(op1) && !isointeger(op1)) {
       xsb_type_error_vargs(CTXTc "evaluable",op1,"NULL", "Wrong type in evaluable function %s/2: (Goal: %s(%s,%s))",
@@ -1254,7 +1254,7 @@ void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
 */
 void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
   XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
-  //  printf("addintfastuni: %s\n",get_name(get_str_psc(op1)));
+  printf("addintfastuni: %s\n",get_name(get_str_psc(op1)));
   if (get_arity(get_str_psc(op1)) == 2) {
     Cell arg1 = get_str_arg(op1,1);
     Cell arg2 = get_str_arg(op1,2);
@@ -1262,7 +1262,7 @@ void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
     print_pterm(CTXTc op1, TRUE, &str_op3);
     /* The following sequence should be good for all 2-ary functions. */
     if (isref(arg1) || isref(arg2)) {
-      xsb_instantiation_error_vargs(str_op3.string,"Uninstantiated argument of evaluable function %s/2 (Goal: %s)",
+      xsb_instantiation_error_vargs(CTXTc str_op3.string,"Uninstantiated argument of evaluable function %s/2 (Goal: %s)",
 				    get_name(get_str_psc(op1)),str_op3.string);
     } else if (!isofloat(arg1) && !isointeger(arg1)) {
       xsb_type_error_vargs(CTXTc "evaluable",arg1, str_op3.string,"Wrong type in evaluable function %s/2 (Goal: %s)",
@@ -1300,7 +1300,7 @@ void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
   Cell value;
   prolog_term term;
   XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
-  //  printf("unifunc abort\n");
+  printf("unifunc abort\n");
   value = cell(regaddr);
   XSB_Deref(value);
   /* The following sequence should be good for all 1-ary functions. */

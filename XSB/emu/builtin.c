@@ -2505,7 +2505,7 @@ case WRITE_OUT_PROFILE:
     undo_ltrail_bindings(&templ_trail,templ_trail_base);
     undo_ltrail_bindings(&var_trail,var_trail_base);
     retlist = ptoc_tag(CTXTc 5);
-    if (list_unifiable(retlist)) return unify(CTXTc (Cell)anslist,retlist);
+    if (list_unifiable(CTXTc retlist)) return unify(CTXTc (Cell)anslist,retlist);
     else xsb_type_error(CTXTc "list",retlist,"term_variables/2",2);
   }
   break;
