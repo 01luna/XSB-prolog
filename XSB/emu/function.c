@@ -148,8 +148,11 @@ int  unifunc_call(CTXTdeclc int funcnum, CPtr regaddr)
   case FUN_sqrt:
       set_fvalue_from_value;
       fvalue = (Float)sqrt(fvalue);
-      bld_boxedfloat(CTXTc regaddr, fvalue);
-  break;
+      if (fvalue == fvalue) 
+	bld_boxedfloat(CTXTc regaddr, fvalue);
+      else 
+	xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,"sqrt/1 returned %f",fvalue);
+      break;
   case FUN_asin:
       set_fvalue_from_value;
       fvalue = (Float)asin(fvalue);
