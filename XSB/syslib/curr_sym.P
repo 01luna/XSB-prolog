@@ -316,11 +316,36 @@ current_output_port(FileDes) :- stat_flag(CURRENT_OUTPUT, FileDes).
 % of predicate indicators.  09/04
 
 current_predicate(Specifier) :-		% This takes care of global modules.
-	(Specifier = Module:Functor/N -> 
-	   current_predicate_module(Module,Functor,N)
-	;  (Specifier = Functor/N -> 
-	      current_predicate_global(Functor,N)
-	      ; type_error(predicate_indicator,Specifier,current_predicate/1,1) ) ).
+	check_current_predicate_argument(Specifier),
+	(	Specifier = Module:Functor/N ->
+		current_predicate_module(Module,Functor,N)
+	;	Specifier = Functor/N,
+		current_predicate_global(Functor,N)
+	).
+
+% PM: ISO oddly specifies only a type error for current_predicate/1,
+% which is not consistent with other standard predicates
+check_current_predicate_argument(Term) :-
+	(	var(Term) ->
+		true
+	;	Term = Module:Functor/Arity ->
+		(	nonvar(Module), \+ atom(Module) ->
+			type_error(predicate_indicator,Term,current_predicate/1,1)
+		;	nonvar(Functor), \+ atom(Functor) ->
+			type_error(predicate_indicator,Term,current_predicate/1,1)
+		;	nonvar(Arity), (\+ integer(Arity); Arity < 0) ->
+			type_error(predicate_indicator,Term,current_predicate/1,1)
+		;	true
+		)
+	;	Term = Functor/Arity ->
+		(	nonvar(Functor), \+ atom(Functor) ->
+			type_error(predicate_indicator,Term,current_predicate/1,1)
+		;	nonvar(Arity), (\+ integer(Arity); Arity < 0) ->
+			type_error(predicate_indicator,Term,current_predicate/1,1)
+		;	true
+		)
+	;	type_error(predicate_indicator,Term,current_predicate/1,1)
+	).
 
 /*
 current_predicate(Specifier) :-		% This takes care of global modules.
