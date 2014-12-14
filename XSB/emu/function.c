@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <errno.h>
 #include <string.h>
 
 #include "auxlry.h"
@@ -137,31 +138,45 @@ int  unifunc_call(CTXTdeclc int funcnum, CPtr regaddr)
       break;
   case FUN_log:
       set_fvalue_from_value;
-      fvalue = (Float)log(fvalue);
-      bld_boxedfloat(CTXTc regaddr, fvalue);
+      if (fvalue > 0) {               /* tls -- shd be able to use errno, but I cant seem to get it to work(?) */
+	fvalue = (Float)log(fvalue);
+	bld_boxedfloat(CTXTc regaddr, fvalue);
+      }
+      else /* NaN */
+	xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,"in log/1");
   break;
   case FUN_log10:
-      set_fvalue_from_value;
+    set_fvalue_from_value;
+    if (fvalue > 0) {
       fvalue = (Float)log10(fvalue);
       bld_boxedfloat(CTXTc regaddr, fvalue);
+    }
+    else /* NaN */
+      xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,"in log10/1");
   break;
   case FUN_sqrt:
       set_fvalue_from_value;
       fvalue = (Float)sqrt(fvalue);
       if (fvalue == fvalue) 
 	bld_boxedfloat(CTXTc regaddr, fvalue);
-      else 
-	xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,"sqrt/1 returned %f",fvalue);
+      else /* NaN */
+	xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,"sqrt/1 returned NaN");
       break;
   case FUN_asin:
       set_fvalue_from_value;
       fvalue = (Float)asin(fvalue);
-      bld_boxedfloat(CTXTc regaddr, fvalue);
+      if (fvalue == fvalue) 
+	bld_boxedfloat(CTXTc regaddr, fvalue);
+      else /* NaN */
+	xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,"asin/1 returned NaN");
   break;
   case FUN_acos:
     set_fvalue_from_value;
     fvalue = (Float)acos(fvalue);
-    bld_boxedfloat(CTXTc regaddr, fvalue);
+    if (fvalue == fvalue) 
+      bld_boxedfloat(CTXTc regaddr, fvalue);
+    else /* NaN */
+      xsb_evaluation_error(CTXTc EVALUATION_DOMAIN_ERROR,"acos/1 returned NaN");
     break;
   case FUN_atan:
     set_fvalue_from_value;
