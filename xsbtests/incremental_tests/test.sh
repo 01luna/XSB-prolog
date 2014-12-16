@@ -74,3 +74,5 @@ options=$2
 #-------------------------------------------------- yet more tests of invalidation
 ../gentest.sh "$XEMU -l $options" test_invalidate "test."
 #--------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_table_errors "test."
+#--------------------------------------------------
