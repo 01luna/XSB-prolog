@@ -909,8 +909,6 @@ void call_conv xsb_table_error(CTXTdeclc char *message)
 #ifdef MULTI_THREAD
   char mtmessage[MAXBUFSIZE];
   int tid = xsb_thread_self();
-  //  th_context *th;
-  //  th = find_context(xsb_thread_self());
 #endif
 
   if (heap_local_overflow(ball_len)) {
@@ -936,47 +934,90 @@ void call_conv xsb_table_error(CTXTdeclc char *message)
 }			       
 
 /**************/
-
-#define MsgBuf (*tsgSBuff1)
-#define FlagBuf (*tsgSBuff2)
-
-void call_conv xsb_new_table_error(CTXTdeclc char *subtype, char *usr_msg,
-					const char *predicate,int arity) 
+void call_conv xsb_table_error_vargs(CTXTdeclc char *goalstring, char *description, ...) 
 {
+  va_list args;  
+  char message[MAXBUFSIZE];
   prolog_term ball_to_throw;
   int isnew;
   CPtr error_rec;
-  char message[ERRMSGLEN];
-  size_t ball_len = 10*sizeof(Cell);
+  size_t ball_len = 20*sizeof(Cell);
+#ifdef MULTI_THREAD
+  char mtmessage[MAXBUFSIZE];
+  int tid = xsb_thread_self();
+#endif
+
+  va_start(args, description);
+  strcpy(message, " ");
+  vsnprintf(message+strlen(message), (MAXBUFSIZE-strlen(message)), description, args);
+  if (message[strlen(message)-1] == '\n') message[strlen(message)-1] = 0;
+  va_end(args);
+
+  if (heap_local_overflow(ball_len)) {
+    xsb_exit("no heap space in xsb_table_error");
+  }
+  ball_to_throw = makecs(hreg);
+  error_rec = hreg;
+  hreg += 8; // error/2 + context/2 + context/2
+  bld_functor(error_rec, pair_psc(insert("error",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+1,string_find("table_error",1));
+  bld_cs((error_rec+2),(error_rec+3));
+  bld_functor(error_rec+3, pair_psc(insert("context",2,
+				    (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_cs((error_rec+4),(error_rec+6));
+  bld_copy(error_rec+5,build_xsb_backtrace(CTXT));
+  bld_functor(error_rec+6, pair_psc(insert("context",2,
+					   (Psc)flags[CURRENT_MODULE],&isnew)));
+#ifdef MULTI_THREAD
+  snprintf(mtmessage,MAXBUFSIZE,"[th %d] %s",tid,message);
+  bld_string(error_rec+7,string_find(mtmessage,1));
+#else  
+  bld_string(error_rec+7,string_find(message,1));
+#endif
+  bld_string(error_rec+8,string_find(goalstring,1));
+  xsb_throw_internal(CTXTc ball_to_throw,ball_len);
+}			       
+
+/**************/
+
+void call_conv xsb_new_table_error(CTXTdeclc char *subtype, char * goalstring, char *description,...) 
+{
+  va_list args;
+  char message[MAXTERMBUFSIZE];
+  prolog_term ball_to_throw;
+  int isnew;
+  CPtr error_rec;
+  size_t ball_len = 24*sizeof(Cell);
+
+  va_start(args, description);
+  strcpy(message, " ");
+  vsnprintf(message+strlen(message), (MAXBUFSIZE-strlen(message)), description, args);
+  if (message[strlen(message)-1] == '\n') message[strlen(message)-1] = 0;
+  va_end(args);
 
   if (heap_local_overflow(ball_len)) {
     xsb_exit("++Unrecoverable Error[XSB/Runtime]: [Resource] Out of memory");
   }
 
-  snprintf(message,ERRMSGLEN,"%s in predicate %s/%d)",usr_msg,predicate,arity);
-  XSB_StrSet(&MsgBuf,message);
-  XSB_StrSet(&FlagBuf,subtype);
-
   ball_to_throw = makecs(hreg);
   error_rec = hreg;
-  hreg += 8;  // error/2 + typed_table_error/1 + context/2
+  hreg += 11;  // error/2 + typed_table_error/1 + context/2 + context/2
   bld_functor(error_rec, pair_psc(insert("error",2,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
   bld_cs((error_rec+1),(error_rec+3));
   bld_cs((error_rec+2),(error_rec+5));
-  bld_functor(error_rec+3, pair_psc(insert("typed_table_error",1,
-				    (Psc)flags[CURRENT_MODULE],&isnew)));
-  bld_string(error_rec+4,string_find(FlagBuf.string,1));
-  bld_functor(error_rec+5, pair_psc(insert("context",2,
-				    (Psc)flags[CURRENT_MODULE],&isnew)));
-  bld_string(error_rec+6,MsgBuf.string);
+  bld_functor(error_rec+3, pair_psc(insert("typed_table_error",1,(Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+4,string_find(subtype,1));
+  bld_functor(error_rec+5, pair_psc(insert("context",2,(Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_cs(error_rec+6,error_rec+8);
   bld_copy(error_rec+7,build_xsb_backtrace(CTXT));
+  bld_functor(error_rec+8, pair_psc(insert("context",2,(Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+9,message);
+  bld_string(error_rec+10,string_find(goalstring,1));
 
   xsb_throw_internal(CTXTc ball_to_throw, ball_len);
 }
-
-#undef MsgBuf
-#undef FlagBuf
 
 /**************/
 
@@ -1254,7 +1295,7 @@ void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
 */
 void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
   XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
-  printf("addintfastuni: %s\n",get_name(get_str_psc(op1)));
+  //  printf("addintfastuni: %s\n",get_name(get_str_psc(op1)));
   if (get_arity(get_str_psc(op1)) == 2) {
     Cell arg1 = get_str_arg(op1,1);
     Cell arg2 = get_str_arg(op1,2);
@@ -1300,7 +1341,7 @@ void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
   Cell value;
   prolog_term term;
   XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
-  printf("unifunc abort\n");
+  //  printf("unifunc abort\n");
   value = cell(regaddr);
   XSB_Deref(value);
   /* The following sequence should be good for all 1-ary functions. */

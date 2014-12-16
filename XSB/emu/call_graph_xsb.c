@@ -563,7 +563,7 @@ void deallocate_call_list(calllistptr cl)  {
   }
 
 void dfs_outedges_check_non_completed(CTXTdeclc callnodeptr call1) {
-  char bufferb[MAXTERMBUFSIZE]; 
+  //  char bufferb[MAXTERMBUFSIZE]; 
 
   if(IsNonNULL(call1->goal) && !subg_is_completed((VariantSF)call1->goal)){
     if (calllist_next(affected_gl) != NULL) {
@@ -572,11 +572,11 @@ void dfs_outedges_check_non_completed(CTXTdeclc callnodeptr call1) {
     }
     //    printf("outedges affected_gl %p %p\n",affected_gl,*affected_gl);
     sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
-    sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
-	    forest_log_buffer_1->fl_buffer);
-    xsb_new_table_error(CTXTc "incremental_tabling",bufferb,
-		      get_name(TIF_PSC(subg_tif_ptr(call1->goal))),
-		      get_arity(TIF_PSC(subg_tif_ptr(call1->goal))));
+    //    sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
+    //	    forest_log_buffer_1->fl_buffer);
+    //    sprintf(bufferb,"%s",forest_log_buffer_1->fl_buffer);
+    xsb_new_table_error(CTXTc "incremental_tabling",forest_log_buffer_1->fl_buffer,
+			"An incremental update is trying to invalidate the goal %s",forest_log_buffer_1->fl_buffer);
   }
 }
 
@@ -601,7 +601,7 @@ typedef struct incr_callgraph_dfs_frame {
 
 #define pop_dfs_frame {incr_callgraph_dfs_top--;}
 
-void dfs_outedges(CTXTdeclc callnodeptr call1){
+static void dfs_outedges(CTXTdeclc callnodeptr call1){
   callnodeptr cn;
   struct hashtable *h;	
   struct hashtable_itr *itr;
@@ -806,11 +806,14 @@ int dfs_inedges(CTXTdeclc callnodeptr call1, calllistptr * lazy_affected, int fl
 
   if(IsNonNULL(call1->goal)) {
     if (!subg_is_completed((VariantSF)call1->goal)){
+      char bufferb[MAXTERMBUFSIZE]; 
+
       deallocate_call_list(*lazy_affected);
-      xsb_new_table_error(CTXTc "incremental_tabling",
-			  "Incremental tabling is trying to invalidate an incomplete table",
-			  get_name(TIF_PSC(subg_tif_ptr(call1->goal))),
-			  get_arity(TIF_PSC(subg_tif_ptr(call1->goal))));
+      sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
+      sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
+	    forest_log_buffer_1->fl_buffer);
+      xsb_new_table_error(CTXTc "incremental_tabling",bufferb,"in predicate %s/%d",
+			  get_name(TIF_PSC(subg_tif_ptr(call1->goal))),get_arity(TIF_PSC(subg_tif_ptr(call1->goal))));
     }
     if (subg_visitors(call1->goal)) {
       #ifdef ISO_INCR_TABLING
