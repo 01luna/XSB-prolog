@@ -34,6 +34,13 @@
 #include "builtin.h"
 #include "memory_defs.h"
 
+get_error_tag(error(Tag,_),Tag).
+get_error_message(error(_Tag,context(MaybeM,_Backtrace)),Message):- 
+	(MaybeM = context(Message,_Goal) ; MaybeM = Message),!.
+get_error_backtrace(error(_Tag,context(_MaybeM,Backtrace)),Backtrace).
+get_error_goal(error(_Tag,context(context(_Msg,Goal),_Backtrace)),Goal).
+
+
 :- import default_user_error_handler/1 from usermod.
 :- dynamic default_user_error_handler/1.
 :- thread_shared(default_user_error_handler(_)).
@@ -80,7 +87,9 @@ ccall_error_handler(Error) :-
 default_sys_error_handler(error(Error,Msg,Backtrace)) :-
 	default_sys_error_handler(error(Error,context(Msg,Backtrace))).
 
+%:- import writeln/1 from standard.
 default_sys_error_handler(error(Error,context(Msg_or_Ctxt,Backtrace))) :- !,
+%writeln(default_sys_error_handler(error(Error,context(Msg_or_Ctxt,Backtrace)))),
 	get_message(Msg_or_Ctxt,Msg),
 	% here is where we may do something abt backtraces.
 	xsb_flag(backtrace_on_error,BT),
