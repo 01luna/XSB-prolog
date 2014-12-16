@@ -56,15 +56,20 @@ test:- catch(tbitneg(foo),E,(E= error(Tag,context(context(Msg,Goal),_)),writeln(
 test:- catch(tbitneg(1.618),E,(E= error(Tag,context(context(Msg,Goal),_)),writeln(bitneg_error(Tag,context(Msg,Goal))))),fail.
 test:- writeln('------------'),fail.
 
-test:- catch(tsqrt(-1),E,(E= error(Tag,context(Msg,_)),writeln(sqrt_error(Tag,Msg)))),fail.
+test:- catch(tsqrt(-1),E,(E= error(Tag,context(_Msg,_)),writeln(sqrt_error(Tag)))),fail.
+
+test:- catch(tlog(0,_),E,(E= error(Tag,context(_Msg,_)),writeln(log_error(Tag)))),fail.
 
 test.
 
 tsqrt(X):- _X is sqrt(X).
 
+tlog(X,Y):- Y is log(X).
+
 txor1(X,Y):- _Z is X >< Y.
 
 tatan(X):- _Z is atan(X).
+tasin(X):- _X is asin(X).
 
 
 tbitneg(X):- _Z is \X.
