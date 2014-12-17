@@ -727,7 +727,7 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
   BTNptr trieNode;
   ALNptr ALNlist;
 
-  //  printf("find the visitors: subg %p trie root %p\n",subgoal,subg_ans_root_ptr(subgoal));
+  printf("find the visitors: subg %p trie root %p\n",subgoal,subg_ans_root_ptr(subgoal));
   cp_top1 = breg ;				 
   cp_bot1 = (CPtr)(tcpstack.high) - CP_SIZE;
   if (xwammode && hreg < hfreg) {
@@ -746,8 +746,8 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
       if (IsInAnswerTrie(trieNode)) {
 	//	printf("in answer trie\n");
 	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode))  {
-	  //	  printf("found top of run %p \n",cp_top1);
-	  //	  print_subgoal(CTXTc stdout, subgoal); printf("\n");
+	  //	  	  printf("found top of run %p ",cp_top1);
+	  //	  	  print_subgoal(CTXTc stdout, subgoal); printf("\n");
 	  cp_root = cp_top1; 
 	  #ifdef INCR_DEBUG1
 	  cp_first = cp_top1;
@@ -797,6 +797,15 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
   //  instr_flag = 1;  printf("setting instr_flag\n");  hreg_pos = hreg;
 }
 
+void throw_dfs_inedges_error(CTXTdeclc callnodeptr call1) {
+  char bufferb[MAXTERMBUFSIZE]; 
+  sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
+  sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
+	  forest_log_buffer_1->fl_buffer);
+  xsb_new_table_error(CTXTc "incremental_tabling",bufferb,"in predicate %s/%d",
+		      get_name(TIF_PSC(subg_tif_ptr(call1->goal))),get_arity(TIF_PSC(subg_tif_ptr(call1->goal))));
+}
+
 /* If ret != 0 (= CANNOT_UPDATE) then we'll use the old table, and we
    wont lazily update at all. */
 int dfs_inedges(CTXTdeclc callnodeptr call1, calllistptr * lazy_affected, int flag ){
@@ -806,14 +815,10 @@ int dfs_inedges(CTXTdeclc callnodeptr call1, calllistptr * lazy_affected, int fl
 
   if(IsNonNULL(call1->goal)) {
     if (!subg_is_completed((VariantSF)call1->goal)){
-      char bufferb[MAXTERMBUFSIZE]; 
 
       deallocate_call_list(*lazy_affected);
-      sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
-      sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
-	    forest_log_buffer_1->fl_buffer);
-      xsb_new_table_error(CTXTc "incremental_tabling",bufferb,"in predicate %s/%d",
-			  get_name(TIF_PSC(subg_tif_ptr(call1->goal))),get_arity(TIF_PSC(subg_tif_ptr(call1->goal))));
+      throw_dfs_inedges_error(CTXTc call1);
+
     }
     if (subg_visitors(call1->goal)) {
       #ifdef ISO_INCR_TABLING
