@@ -217,7 +217,12 @@ get_sys_error_description(error(resource_error(Flag),Msg), ExceptionDesc) :-
 get_sys_error_description(error(SyntaxError,Msg), ExceptionDesc) :-
 	SyntaxError =.. [syntax_error,Culprit],
 	ExceptionDesc =   ('++Error[XSB/Runtime/P]: [Syntax] (', Culprit1,') ',Msg),
-	(Culprit = [_H|_T] -> term_to_atom(Culprit,Culprit1) ; Culprit1 = Culprit).
+	(var(Culprit)
+	 ->	Culprit1 = ''
+	 ; Culprit = [_H|_T]
+	 ->	term_to_atom(Culprit,Culprit1)
+	 ; Culprit1 = Culprit
+	).
 get_sys_error_description(error(syntax_error,Msg), ExceptionDesc) :- 
 	ExceptionDesc =   ('++Error[XSB/Runtime/P]: [Syntax] ', Msg) .
 get_sys_error_description(error(system_error,Msg), ExceptionDesc) :- 
