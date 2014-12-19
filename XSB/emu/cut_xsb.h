@@ -90,7 +90,7 @@
   sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF) tcp_subgoal_ptr(breg));	\
   printf("Illegal cut over incomplete tabled subgoal: %s, from within a call to %s/%d", \
 	 forest_log_buffer_1->fl_buffer,get_name(calling_psc), get_arity(calling_psc));	\
-  xsb_table_error_vargs(CTXTdeclc "NULL", \
+  xsb_table_error_vargs(CTXTc "NULL", \
 				"Illegal cut over incomplete tabled subgoal: %s, from within a call to %s/%d", \
 				forest_log_buffer_1->fl_buffer,get_name(calling_psc), get_arity(calling_psc));\
   }
