@@ -281,7 +281,9 @@ void deleteoutedges(callnodeptr callnode){
 	  printf("     found back depends from (id %d) ",cn->id);
 	  print_callnode(stddbg,in->inedge_node->callnode);printf("\n");
 #endif
-	  if (i == 0)  cn->inedges = NULL; 
+	  if (i == 0) {
+	    cn->inedges = in->next;
+	     }
 	  else last->next =  in->next;  // need to deallcoate
 	  SM_DeallocateStruct(smCallList, in);      
 	  //	  printf("again! ");print_inedges(cn);
