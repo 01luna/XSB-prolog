@@ -120,8 +120,13 @@ immed_affects(Call,Call2):-
 
 %--------
 :- import abolish_table_call/1 from tables.
+:- import member/2 from basics.
 
-incr_trans_depends(X,Y):-
+incr_trans_depends(X,Y):- 
+    findall(d(X,Y),incr_trans_depends_1(X,Y),Dependencies),
+    member(d(X,Y),Dependencies).
+
+incr_trans_depends_1(X,Y):-
 	(nonvar(X),var(Y)
 	 ->	check_incrementally_tabled(X,predicate_not_icrementally_tabled),
 	        abolish_table_call(trans_depends(X,Y)),
