@@ -210,7 +210,7 @@ void print_inedges(callnodeptr cn) {
 }
 
 
-void deleteinedges(callnodeptr callnode){
+void deleteinedges(CTXTdeclc callnodeptr callnode){
   calllistptr tmpin,in;
   
   KEY *ownkey;
@@ -229,8 +229,8 @@ void deleteinedges(callnodeptr callnode){
     tmpin = in->next;
     hasht = in->inedge_node->hasht;
 #ifdef INCR_DEBUG1
-        printf("  removing affects ptr from "); print_callnode(stddbg,in->inedge_node->callnode);
-        printf(" to "),print_callnode(stddbg,callnode);printf("\n");
+        printf("  removing affects ptr from "); print_callnode(CTXTc stddbg,in->inedge_node->callnode);
+        printf(" to "),print_callnode(CTXTc stddbg,callnode);printf("\n");
         printf("  removing affects ptr from %d to %d\n",in->inedge_node->callnode->id,callnode->id); printf("\n");
 #endif
     //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
@@ -253,7 +253,7 @@ void deleteinedges(callnodeptr callnode){
 
 //---------------------------------------------------------------------------
 
-void deleteoutedges(callnodeptr callnode){
+void deleteoutedges(CTXTdeclc callnodeptr callnode){
   struct hashtable *h;                                                                                                     struct hashtable_itr *itr;                                                                                             
   callnodeptr cn;
   calllistptr in;
@@ -271,7 +271,7 @@ void deleteoutedges(callnodeptr callnode){
     do {                                                                                                                 
       cn = hashtable1_iterator_value(itr);        
 #ifdef INCR_DEBUG1
-      printf("iterating (id %d)",cn->id);print_callnode(stddbg,cn); printf("\n");
+      printf("iterating (id %d)",cn->id);print_callnode(CTXTc stddbg,cn); printf("\n");
       print_inedges(cn);
 #endif
       in = cn->inedges;
@@ -279,7 +279,7 @@ void deleteoutedges(callnodeptr callnode){
 	if (in->inedge_node->callnode == callnode) {
 #ifdef INCR_DEBUG1
 	  printf("     found back depends from (id %d) ",cn->id);
-	  print_callnode(stddbg,in->inedge_node->callnode);printf("\n");
+	  print_callnode(CTXTc stddbg,in->inedge_node->callnode);printf("\n");
 #endif
 	  if (i == 0) {
 	    cn->inedges = in->next;
@@ -532,7 +532,7 @@ void add_callnode(calllistptr *cl,callnodeptr c){
   add_callnode_sub(cl,c);
 }
 
-callnodeptr delete_calllist_elt(calllistptr *cl){   
+callnodeptr delete_calllist_elt(CTXTdeclc calllistptr *cl){   
   
   calllistptr tmp;
   callnodeptr c;
@@ -544,7 +544,7 @@ callnodeptr delete_calllist_elt(calllistptr *cl){
   tmp = *cl;
   *cl = (*cl)->next;
   #ifdef INCR_DEBUG1
-  if (c) {printf("deleting from call list: "); print_callnode(stddbg, c); printf("\n");}
+  if (c) {printf("deleting from call list: "); print_callnode(CTXTc stddbg, c); printf("\n");}
   #endif
   //  printf("calllist %p item %p next %p\n",tmp,c,*cl);
   SM_DeallocateStruct(smCallList, tmp);      
@@ -554,11 +554,11 @@ callnodeptr delete_calllist_elt(calllistptr *cl){
 
 /* Used to deallocate dfs-created call lists when encountering
    visitors or incomplete tables. */
-void deallocate_call_list(calllistptr cl)  {
+void deallocate_call_list(CTXTdeclc calllistptr cl)  {
     callnodeptr tmp_call;
 
     //    printf(" in deallocate call list %p *%p\n",cl,*cl);
-    while ((tmp_call = delete_calllist_elt(&cl)) != EMPTY){
+    while ((tmp_call = delete_calllist_elt(CTXTc &cl)) != EMPTY){
       ;
     }
     //    SM_DeallocateStruct(smCallList, cl);      
@@ -570,7 +570,7 @@ void dfs_outedges_check_non_completed(CTXTdeclc callnodeptr call1) {
   if(IsNonNULL(call1->goal) && !subg_is_completed((VariantSF)call1->goal)){
     if (calllist_next(affected_gl) != NULL) {
       //      print_call_list(affected_gl);
-      deallocate_call_list(affected_gl);
+      deallocate_call_list(CTXTc affected_gl);
     }
     //    printf("outedges affected_gl %p %p\n",affected_gl,*affected_gl);
     sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
@@ -705,7 +705,7 @@ static void dfs_outedges(CTXTdeclc callnodeptr call1){
 // TLS: factored out this warning because dfs_inedges is recursive and
 // this makes the stack frames too big. 
 void dfs_inedges_warning(CTXTdeclc callnodeptr call1,calllistptr *lazy_affected) {
-  deallocate_call_list(*lazy_affected);
+  deallocate_call_list(CTXTc *lazy_affected);
   sprint_subgoal(CTXTc forest_log_buffer_1,0,call1->goal);
     xsb_warn("%d Choice point(s) exist to the table for %s -- cannot incrementally update (dfs_inedges)\n",
 	     subg_visitors(call1->goal),forest_log_buffer_1->fl_buffer);
@@ -818,7 +818,7 @@ int dfs_inedges(CTXTdeclc callnodeptr call1, calllistptr * lazy_affected, int fl
   if(IsNonNULL(call1->goal)) {
     if (!subg_is_completed((VariantSF)call1->goal)){
 
-      deallocate_call_list(*lazy_affected);
+      deallocate_call_list(CTXTc *lazy_affected);
       throw_dfs_inedges_error(CTXTc call1);
 
     }
@@ -891,7 +891,7 @@ int return_affected_list_for_update(CTXTdecl){
   reg[4] = reg[3] = makelist(hreg);  // reg 3 first not-used, use regs in case of stack expanson
   new_heap_free(hreg);   // make heap consistent
   new_heap_free(hreg);
-  while((call1 = delete_calllist_elt(&affected_gl)) != EMPTY){
+  while((call1 = delete_calllist_elt(CTXTc &affected_gl)) != EMPTY){
     subgoal = (VariantSF) call1->goal;      
     if(IsNULL(subgoal)){ /* fact predicates */
       call1->deleted = 0; 
@@ -976,7 +976,7 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
   reg[6] = reg[5] = makelist(hreg);  // reg 5 first not-used, use regs in case of stack expanson
   new_heap_free(hreg);   // make heap consistent
   new_heap_free(hreg);
-  while((call1 = delete_calllist_elt(&lazy_affected)) != EMPTY){
+  while((call1 = delete_calllist_elt(CTXTc &lazy_affected)) != EMPTY){
     subgoal = (VariantSF) call1->goal;      
     //    fprintf(stddbg,"  considering ");print_subgoal(stdout,subgoal);printf("\n");
     if(IsNULL(subgoal)){ /* fact predicates */
@@ -1081,7 +1081,7 @@ int return_changed_call_list(CTXTdecl){
   reg[4] = makelist(hreg);
   new_heap_free(hreg);   // make heap consistent
   new_heap_free(hreg);
-  while ((call1 = delete_calllist_elt(&changed_gl)) != EMPTY){
+  while ((call1 = delete_calllist_elt(CTXTc &changed_gl)) != EMPTY){
     subgoal = (VariantSF) call1->goal;      
     tif = (TIFptr) subgoal->tif_ptr;
     psc = TIF_PSC(tif);
@@ -1416,8 +1416,8 @@ can be potentially deleted. In the next phase we unmarking the calls -
 which should not be deleted. 
 */
 
-void mark_for_incr_abol(callnodeptr);
-void check_assumption_list(void);
+void mark_for_incr_abol(CTXTdeclc callnodeptr);
+void check_assumption_list(CTXTdecl);
 void delete_calls(CTXTdecl);
 call2listptr create_cdbllist(void);
 
@@ -1429,8 +1429,8 @@ void abolish_incr_call(CTXTdeclc callnodeptr p){
   printf("marking phase starts\n");
 #endif
   
-  mark_for_incr_abol(p);
-  check_assumption_list();
+  mark_for_incr_abol(CTXTc p);
+  check_assumption_list(CTXT);
 #ifdef INCR_DEBUG1
   printf("assumption check ends \n");
 #endif
@@ -1481,13 +1481,13 @@ dependent calls not marked
 
 */
 
-void mark_for_incr_abol(callnodeptr c){
+void mark_for_incr_abol(CTXTdeclc callnodeptr c){
   calllistptr in=c->inedges;
   call2listptr markedlistptr;
   callnodeptr c1;
 
 #ifdef INCR_DEBUG1 
-  printf("marking ");print_callnode(stddbg, c);printf("\n");
+  printf("marking ");print_callnode(CTXTc stddbg, c);printf("\n");
 #endif
 
   c->deleted=1;
@@ -1499,7 +1499,7 @@ void mark_for_incr_abol(callnodeptr c){
     c1=in->inedge_node->callnode;
     c1->outcount--;
     if(c1->deleted==0){
-      mark_for_incr_abol(c1);
+      mark_for_incr_abol(CTXTc c1);
     }
     in=in->next;
   }  
@@ -1523,7 +1523,7 @@ void delete_calls(CTXTdecl){
     if(c->deleted){
       /* facts are not deleted */       
       if(IsNonNULL(c->goal)){
-	deleteinedges(c);
+	deleteinedges(CTXTc c);
       }
     }
     n=n->next;
@@ -1557,12 +1557,12 @@ void delete_calls(CTXTdecl){
 
 
 
-void unmark(callnodeptr c){
+void unmark(CTXTdeclc callnodeptr c){
   callnodeptr c1;
   calllistptr in=c->inedges;
 
 #ifdef INCR_DEBUG1
-  printf("unmarking ");print_callnode(stddbg,c);printf("\n");
+  printf("unmarking ");print_callnode(CTXTc stddbg,c);printf("\n");
 #endif
   
   c->deleted=0;
@@ -1570,7 +1570,7 @@ void unmark(callnodeptr c){
     c1=in->inedge_node->callnode;
     c1->outcount++;
     if(c1->deleted)
-      unmark(c1);
+      unmark(CTXTc c1);
     in=in->next;
   }  
   
@@ -1580,7 +1580,7 @@ void unmark(callnodeptr c){
 
 
 
-void check_assumption_list(void){
+void check_assumption_list(CTXTdecl){
   calllistptr tempin,in=assumption_list_gl;
   call2listptr marked_ptr;
   callnodeptr c;
@@ -1590,18 +1590,18 @@ void check_assumption_list(void){
     marked_ptr=in->item2;
     c=marked_ptr->item;
 #ifdef INCR_DEBUG1
-      printf("in check assumption ");print_callnode(stddbg,c);printf("\n");
+      printf("in check assumption ");print_callnode(CTXTc stddbg,c);printf("\n");
 #endif
     if(c->outcount>0){
       remove_callnode_from_list(marked_ptr);
       SM_DeallocateStruct(smCall2List,marked_ptr);
 
 #ifdef INCR_DEBUG1
-      printf("deleting ");print_callnode(stddbg,c);printf("\n");
+      printf("deleting ");print_callnode(CTXTc stddbg,c);printf("\n");
 #endif
       
       if(c->deleted)   
-	unmark(c);      
+	unmark(CTXTc c);      
     }
     SM_DeallocateStruct(smCallList, in);      
     in=tempin;

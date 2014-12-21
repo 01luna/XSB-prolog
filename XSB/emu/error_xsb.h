@@ -155,7 +155,8 @@ DllExport extern void call_conv xsb_syntax_error(CTXTdeclc char *) ;
 DllExport extern void call_conv xsb_syntax_error_non_compile(CTXTdeclc Cell,
 							     const char *,int) ;
 DllExport extern void call_conv xsb_table_error(CTXTdeclc char *) ;
-  DllExport extern void call_conv xsb_new_table_error(CTXTdeclc char *, char *,char*, ...) ;
+DllExport extern void call_conv xsb_table_error_vargs(CTXTdeclc char *, char *, ...) ;
+DllExport extern void call_conv xsb_new_table_error(CTXTdeclc char *, char *,char*, ...) ;
 DllExport extern void call_conv xsb_type_error(CTXTdeclc char *,Cell , const char *,int) ;
 
 extern void call_conv xsb_memory_error(char *, char *);

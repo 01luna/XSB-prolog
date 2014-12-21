@@ -3210,7 +3210,7 @@ void abolish_table_call(CTXTdeclc VariantSF subgoal, int invocation_flag) {
   start_table_gc_time(timer);
 
 #ifdef DEBUG_ABOLISH
-  printf("abolish_table_call called (%p): ",subgoal); print_subgoal(stddbg, subgoal); printf("\n");
+  printf("abolish_table_call called (%p): ",subgoal); print_subgoal(CTXTc stddbg, subgoal); printf("\n");
 #endif
 
   if (IsVariantSF(subgoal) 
@@ -4040,14 +4040,22 @@ static inline void thread_free_private_deltfs(CTXTdecl) {
 }
 #endif
 
-#define check_for_incomplete_tables(PredName) \
-  {					    \
-    CPtr csf;						 \
+/* Factored into a function because of large buffer */
+void check_for_incomplete_tables_error(CTXTdeclc VariantSF subgoal,char * predname) {
+  
+  sprint_subgoal(CTXTc forest_log_buffer_1,0, subgoal);
+  xsb_table_error_vargs(CTXTc predname,"[%s] Illegal table operation:  Cannot abolish incomplete tables."
+			"\n\t First incomplete subgoal encountered: %s\n",predname,forest_log_buffer_1->fl_buffer);		
+  
+}
+
+#define check_for_incomplete_tables(PredName)			\
+  {								\
+    CPtr csf;							\
     for ( csf = top_of_complstk;  csf != COMPLSTACKBOTTOM;	\
 	  csf = csf + COMPLFRAMESIZE )				\
-      if ( ! is_completed(compl_subgoal_ptr(csf)) ) {		   \
-	xsb_table_error(CTXTc "["PredName"] Illegal table operation"	\
-			"\n\t Cannot abolish incomplete tables");	\
+      if ( ! is_completed(compl_subgoal_ptr(csf)) ) {			\
+	check_for_incomplete_tables_error(CTXTc compl_subgoal_ptr(csf),PredName);			\
       }									\
   }
 
@@ -4417,8 +4425,8 @@ void abolish_all_tables(CTXTdeclc int action) {
   release_all_tabling_resources(CTXT);
   current_call_node_count_gl = 0; current_call_edge_count_gl = 0;
   abolish_wfs_space(CTXT);               // free wfs stuff that does not use structure managers
-  reinitialize_incremental_tries(CTXT);  
   affected_gl = empty_calllist();
+  reinitialize_incremental_tries(CTXT);  
   changed_gl = empty_calllist();
   incr_table_update_safe_gl = TRUE;
 
@@ -4435,15 +4443,15 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   callnodeptr callnode = subg_callnode_ptr(goal);
   //  printf("1affected_gl %p %p\n",affected_gl,*affected_gl);
   #ifdef DEBUG_ABOLISH
-  abolish_dbg(("abolish incr call single: ")); print_subgoal(stddbg,goal); 
+  abolish_dbg(("abolish incr call single: ")); print_subgoal(CTXTc stddbg,goal); 
   printf("(id %d flag %d)\n",callnode->id,invalidate_flag);
-  print_call_list(affected_gl," affected_gl ");
+  print_call_list(CTXTc affected_gl," affected_gl ");
   #endif
   if (invalidate_flag) {
     invalidate_call(CTXTc callnode);
   }
-  deleteoutedges(callnode);
-  deleteinedges(callnode);
+  deleteoutedges(CTXTc callnode);
+  deleteinedges(CTXTc callnode);
   deletecallnode(callnode);
   SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
   //  tif = subg_tif_ptr(goal);

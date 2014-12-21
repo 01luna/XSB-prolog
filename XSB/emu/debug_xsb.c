@@ -1234,7 +1234,13 @@ void print_subgoal_callnode_leaf(CTXTdeclc FILE *fp, callnodeptr cn)
 {
   BTNptr leaf;
   int  i = 0;
-  Psc  psc = TIF_PSC((TIFptr) callnode_tif_ptr(cn));
+  Psc  psc;
+
+  if (!callnode_tif_ptr(cn)) {
+    fprintf(fp,"NULL TIF");
+    return;
+  }
+  psc = TIF_PSC((TIFptr) callnode_tif_ptr(cn));
 
   for (leaf = callnode_leaf_ptr(cn); leaf != NULL; leaf = Parent(leaf)) {
     cell_array[i++] = BTN_Symbol(leaf);
