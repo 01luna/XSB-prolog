@@ -943,7 +943,7 @@ void call_conv xsb_table_error_vargs(CTXTdeclc char *goalstring, char *descripti
   CPtr error_rec;
   size_t ball_len = 20*sizeof(Cell);
 #ifdef MULTI_THREAD
-  char mtmessage[MAXBUFSIZE];
+  char thread_id[MAXBUFSIZE];
   int tid = xsb_thread_self();
 #endif
 
@@ -958,7 +958,11 @@ void call_conv xsb_table_error_vargs(CTXTdeclc char *goalstring, char *descripti
   }
   ball_to_throw = makecs(hreg);
   error_rec = hreg;
+  #ifdef MULTI_THREAD
+  hreg += 11; // error/2 + context/2 + context/2 + context/2
+  #else
   hreg += 8; // error/2 + context/2 + context/2
+  #endif
   bld_functor(error_rec, pair_psc(insert("error",2,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
   bld_string(error_rec+1,string_find("table_error",1));
@@ -970,12 +974,17 @@ void call_conv xsb_table_error_vargs(CTXTdeclc char *goalstring, char *descripti
   bld_functor(error_rec+6, pair_psc(insert("context",2,
 					   (Psc)flags[CURRENT_MODULE],&isnew)));
 #ifdef MULTI_THREAD
-  snprintf(mtmessage,MAXBUFSIZE,"[th %d] %s",tid,message);
-  bld_string(error_rec+7,string_find(mtmessage,1));
+  bld_cs((error_rec+7),(error_rec+9));
+  bld_string(error_rec+8,string_find(goalstring,1));
+  bld_functor(error_rec+9, pair_psc(insert("context",2,
+					   (Psc)flags[CURRENT_MODULE],&isnew)));
+  bld_string(error_rec+10,string_find(message,1));
+  snprintf(thread_id,MAXBUFSIZE,"[th %d]",tid);
+  bld_string(error_rec+11,string_find(thread_id,1));
 #else  
   bld_string(error_rec+7,string_find(message,1));
-#endif
   bld_string(error_rec+8,string_find(goalstring,1));
+#endif
   xsb_throw_internal(CTXTc ball_to_throw,ball_len);
 }			       
 

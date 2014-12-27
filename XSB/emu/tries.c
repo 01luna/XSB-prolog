@@ -958,7 +958,7 @@ static int *depth_stack;
     if (depth_ctr >= depth_limit) {					\
       if (flags[MAX_TABLE_ANSWER_ACTION] == XSB_WARNING) {		\
 	sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(subg_tif_ptr(subgoal_ptr)));	\
-	xsb_warn("Exceeded max answer term depth of %d in call %s\n",	\
+	xsb_warn("Exceeded max answer term depth of %d in call %s\n", \
 		 (int)depth_limit,forest_log_buffer_1->fl_buffer);	\
 	psc = get_str_psc(xtemp1);					\
 	depth_stack_push(get_arity(psc));				\
@@ -984,7 +984,7 @@ static int *depth_stack;
 	  xsb_abort("Cyclic term in arg %d of tabled subgoal %s\n",i+1,forest_log_buffer_1->fl_buffer); \
 	}								\
 	else								\
-	  xsb_abort("Exceeded max answer term depth of %d in call %s\n", \
+	  xsb_table_error_vargs(CTXTc forest_log_buffer_1->fl_buffer,"Exceeded max answer term depth of %d in call %s\n", \
 		    (int)depth_limit,forest_log_buffer_1->fl_buffer);	\
       }									\
     }									\
@@ -1015,7 +1015,7 @@ static int *depth_stack;
     }									\
     else {								\
       sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(subg_tif_ptr(subgoal_ptr))); \
-      xsb_abort("Exceeded max answer list depth of %d in call %s\n",	\
+      xsb_table_error_vargs(CTXTc forest_log_buffer_1->fl_buffer,"Exceeded max answer list depth of %d in call %s\n",	\
 		flags[MAX_TABLE_ANSWER_LIST_DEPTH],forest_log_buffer_1->fl_buffer); \
     }									\
 }
@@ -1868,7 +1868,7 @@ int vcs_tnot_call = 0;
 	}                            					\
 	else {								\
 	  sprintNonCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(CallInfo_TableInfo(*call_info))); \
-	  xsb_abort("Exceeded max table subgoal depth of %d in arg %i in tnot(%s)\n", \
+	  xsb_table_error_vargs(CTXTc forest_log_buffer_1->fl_buffer,"Exceeded max table subgoal depth of %d in arg %i in tnot(%s)\n", \
 		    (int) flags[MAX_TABLE_SUBGOAL_DEPTH],i+1,forest_log_buffer_1->fl_buffer);	\
 	}								\
       }									\
@@ -1879,7 +1879,7 @@ int vcs_tnot_call = 0;
 	}								\
 	else {								\
 	  sprintNonCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(CallInfo_TableInfo(*call_info))); \
-	  xsb_abort("Exceeded max table subgoal depth of %d in arg %i in %s\n",	\
+	  xsb_table_error_vargs(CTXTc forest_log_buffer_1->fl_buffer,"Exceeded max table subgoal depth of %d in arg %i in %s\n", \
 		  (int) flags[MAX_TABLE_SUBGOAL_DEPTH],i+1,forest_log_buffer_1->fl_buffer);	\
 	}								\
       }									\
@@ -2376,7 +2376,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
       if (is_cyclic(CTXTc term))					\
 	xsb_abort("Cyclic term in term to be trie-interned %s\n",forest_log_buffer_1->fl_buffer); \
       else								\
-	xsb_abort("Exceeded max trie_intern depth of %d for %s\n",	\
+	xsb_table_error_vargs(CTXTc forest_log_buffer_1->fl_buffer,"Exceeded max trie_intern depth of %d for %s\n", \
 		  (int)flags[MAX_TABLE_ANSWER_DEPTH],forest_log_buffer_1->fl_buffer); \
     }									\
 }
@@ -2394,7 +2394,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
       if (is_cyclic(CTXTc term))					\
 	xsb_abort("Cyclic term in term to be trie-interned %s\n",forest_log_buffer_1->fl_buffer); \
       else								\
-	xsb_abort("Exceeded max trie_intern depth of %d for %s\n",	\
+	xsb_table_error_vargs(CTXTc forest_log_buffer_1->fl_buffer,"Exceeded max trie_intern depth of %d for %s\n", \
 		  (int)flags[MAX_TABLE_ANSWER_DEPTH],forest_log_buffer_1->fl_buffer); \
     }									\
 }
