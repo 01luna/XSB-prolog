@@ -51,7 +51,7 @@
 
 :- export psc_modname_filename/3.
 :- export flush_all_open_streams/1.
-:- export get_error_tag/2,get_error_message/2,get_error_backtrace/2,get_error_goal/2.
+:- export xsb_error_get_tag/2,xsb_error_get_message/2,xsb_error_get_backtrace/2,xsb_error_get_goal/2,xsb_error_get_tid/2.
 
 :- import (dynamic)/1,asserta/1 from assert.
 %%:- import reset_undef_pred_handlers/0 from loader.
