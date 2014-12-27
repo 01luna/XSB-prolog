@@ -1,5 +1,6 @@
 :- import new_trie/1 , trie_intern/2, trie_interned/4, trie_interned/2,  trie_unintern_nr/2,
 	  trie_unintern/2, delete_trie/1, bulk_trie_intern/2,trie_retractall/2  from intern.
+:- import xsb_error_get_tag/2 from error_handler.
 
 :- set_prolog_flag(max_table_answer_depth,10).
 :- set_prolog_flag(max_table_answer_list_depth,10).
@@ -18,11 +19,11 @@ create_trie:- new_trie(Trie),assert(cycle_trie(Trie)).
 
 test_term_error:- cycle_trie(Trie),
        X = f(X),
-       catch(trie_intern(X,Trie),error(misc_error,context(_Msg,_BT)),writeln(caught_term_eror)).
+       catch(trie_intern(X,Trie),E,(xsb_error_get_tag(E,table_error),writeln(caught_term_error))).
 test_list_error:- 
        cycle_trie(Trie),
        X = [X],
-       catch(trie_intern(X,Trie),error(misc_error,context(_Msg,_BT)),writeln(caught_list_eror)).
+       catch(trie_intern(X,Trie),E,(xsb_error_get_tag(E,table_error),writeln(caught_list_error))).
 
 test_term_failure:- cycle_trie(Trie),
        X = f(X),

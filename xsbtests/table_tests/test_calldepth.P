@@ -1,8 +1,10 @@
 
+:- import xsb_error_get_tag/2 from error_handler.
+
 test:-
 	test_fail,write('fail succeeded!').
 test:- 
-	catch(test_error,error(X,context(_Y,_)),writeln(error(X))).
+     catch(test_error,E,(xsb_error_get_tag(E,T),writeln(error(T)))).
 
 test_fail:- 
 	abolish_all_tables,

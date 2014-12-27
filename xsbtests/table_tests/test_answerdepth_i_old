@@ -1,4 +1,4 @@
-error_caught(misc_error)
+error_caught(table_error)
 on_failure(p(7,a))
 on_failure(p(7,f(a)))
 on_failure(p(7,f(f(a))))
