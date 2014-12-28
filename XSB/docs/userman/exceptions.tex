@@ -14,8 +14,9 @@ extensions for tabling.
 \subsection{Exception Handling in Non-Tabled Evaluations}
 %
 The preferred mechanism for dealing with exceptions in XSB is to use
-the predicates {\tt catch/3}, {\tt throw/1}, and {\tt
-  default\_user\_error\_handler/1} together.  These predicates are
+the predicates {\tt catch/3} and {\tt default\_user\_error\_handler/1}
+together together with either one of XSB's error predicates (such as
+{\tt misc\_error/1}) or {\tt throw/1}.  These predicates are
 ISO-compatible, and their use can give a great deal of control to
 exception handling.  At a high level, when an exception is encountered
 an error term $T$ is {\em thrown}.  In a Prolog program, throwing an
@@ -144,21 +145,25 @@ Aborting...
 \noindent
 By examining the program above, it can be seen that if {\tt p(1)} is
 entered, the predicate {\tt type\_error/3} is called.  {\tt
-  type\_error/3} is an XSB mechanism to throw an ISO-style type error
-from Prolog.  Such an error is known to the default system error
-handler which prints out a message along with a {\em backtrace} that
-indicates the calling context in which the error arose (this behavior
-can be controlled: see Section~\ref{sec:backtrace}).  Alternately, in
-the second case, when {\tt -1} is entered, the error term {\tt
+  type\_error/3} is an XSB mechanism to throw a type error from
+Prolog.  Error terms thrown by system predicates such as {\tt
+  type\_error/3} are in XSB's {\em standard error format}, which is
+ISO-compatable and which may encode useful information.  For instance,
+the type error thrown in the above example is known to XSB's default
+system error handler which prints out a message along with a {\em
+  backtrace} that indicates the calling context in which the error
+arose (this behavior can be controlled: see
+Section~\ref{sec:backtrace}).  Alternately, in the second case, when
+{\tt -1} is entered, the (non-standard) error term {\tt
   mydiv1(error2(-1))} is thrown, which is caught within {\tt
   userdiv/2} and handled by {\tt handleUserdiv/2}.  Finally, when {\tt
   0} is entered for the denominator, an error term of the form {\tt
   error(zerodivision,userdiv/1)} is thrown, and that this term does
 not unify with the second argument of the {\tt catch/3} literal in the
-body of {\tt userdiv/1}, or with a known ISO error.  The error is
-instead caught by XSB's default system error handler which prints an
-uncaught exception message and aborts to the top level of the
-interpreter.
+body of {\tt userdiv/1}, or with any error in standard format.  The
+error is instead caught by XSB's default system error handler which
+prints an uncaught exception message and aborts to the top level of
+the interpreter.
 
 XSB has two default system error handlers: one used when XSB is called
 as a stand-alone process, and another when XSB is embedded in a
@@ -166,12 +171,12 @@ process.  Each recognizes certain error formats (see Section
 \ref{sec:iso-errors}), and handles the rest as uncaught exceptions.
 However, there may be times when an application requires special
 default handling: perhaps the application calls XSB from through a
-socket, so that aborts are not practical.  Alternately, perhaps XSB is
-being called from a graphical user interface via
-Interprolog~\cite{Cale01} or some other interface, and in addition to
-a special abort handling, one would like to display an error window.
-In these cases it is convenient to make use of the dynamic predicate
-{\tt default\_user\_error\_handler/1}.  {\tt
+socket, so that aborts are not practical.  As another example, perhaps
+XSB is being called from a graphical user interface via
+Interprolog~\cite{Cale01} or some other interface, so that in addition
+to a special abort handling, one would like to display an error
+window.  In these cases it is convenient to make use of the dynamic
+predicate {\tt default\_user\_error\_handler/1}.  {\tt
   default\_user\_error\_handler/1} is called immediately before the
 default system error handler, and after it is ascertained that no
 catcher for an error term is available via a {\tt catch/3} ancestor.
@@ -254,7 +259,7 @@ evalution XSB's throw mechanism searches for the nearest catcher $C$
 among its ancestors
 %
 \begin{itemize}
-\item whose {\tt Catchterm} unifies with the thrown error; and
+\item whose first argument unifies with the thrown error; and
 \item where $C$ is between SCCs: that is where the set of subgoals
   that depend on $C$ is disjoint from the set of subgoals upon which
   $C$ depends.  We term this the {\em SCC restriction} for exception
@@ -335,7 +340,7 @@ which, for a type error, does not interact with tabling in any way.
   just as in case 1).
 %
 \item Otherwise, abort the entire tabled computation and handle it
-  from there.
+  from there.  (Unless you really know what you're doing!)
 \end{enumerate}
 %
 
@@ -356,109 +361,144 @@ The file may be obtained through the predicate {\tt
 generated unless the exception is thrown over at least one incomplete
 table.
 
-\section{Representation of ISO Errors} \label{sec:iso-errors}
+\section{XSB's Standard Format for Errors} \label{sec:iso-errors}
 \index{ISO!errors}
 
 All exceptions that occur during the execution of an XSB program can
 be caught.  However, by structuring error terms in a consistent
 manner, different classes of errors can be handled much more easily by
-user-defined handlers.  This philosophy partly underlies the ISO
-Standard for defining classes of Prolog errors \cite{ISO-Prolog}.
-While the ISO standard defines various types of errors and how they
-should arise during execution of ISO Prolog predicates, it does not
-define the actual error terms a system should use.  Accordingly, we
-define the formats for various ISO errors.  Below, in
-Section~\ref{sec:errorpredicates} we provide predicates for throwing
-various ISO errors and performing various error checks.
+handlers, both system- and user-defined.  This philosophy partly
+underlies the ISO Standard for defining classes of Prolog errors
+\cite{ISO-Prolog}.  While the ISO standard defines various types of
+errors and how they should arise during execution of ISO Prolog
+predicates, it only partially defines the actual error terms a system
+should use.  The ISO format can be represented as:
 
-In the following predicates, {\tt Msg} is either a list of HiLog terms
-or a comma-list of HiLog terms.  Each of the {\tt error/2} terms below
-can also be represented as {\tt error/3} terms, where the third
-argument is instantiated to the representation of a
-backtrace~\footnote{If a program catches errors itself, error/3 may
-  need to be imported from {\tt error\_handler}.}.
+\begin{center}
+{\tt error(Tag,Context), }
+\end{center}
+
+\noindent
+where {\tt Tag} is specific to each class of error, while {\tt
+  Context} is implementation-dependent.\footnote{If a program catches
+  errors itself, {\tt error/2} may need to be imported from {\tt
+    error\_handler}.}
+
+\subsection{Error Tags}
+
+In XSB, the ISO-compliant values for {\tt Tag} are given below.
 
 \begin{description}
-\item [error(domain\_error(Valid\_type,Culprit),Msg)] is the format of
-  an ISO type error, where {\tt Valid\_type} is the domain expected
-  and {\tt Culprit} is the term observed.  Unlike types, domains can
-  be user-defined.
+\item[{\tt domain\_error(Valid\_type,Culprit)}] is the tag for an ISO
+  domain error, where {\tt Valid\_type} is the domain expected and
+  {\tt Culprit} is the term observed.  Various ISO predicates may have
+  specific domains for input values; and in addition unlike types,
+  domains can be user-defined.
 %
-\item[error(evaluation\_error(Flag),Msg)] is the format of an ISO
-  evaluation error (e.g. overflow or underflow), and {\tt Flag} is the
-  type of evaluation error encountered.
+\item[{\tt evaluation\_error(Flag)}] is the tag for an ISO evaluation
+  error (e.g. overflow or underflow), and {\tt Flag} is the type of
+  evaluation error encountered (e.g., {\tt undefined}, if an
+  arithmetic function is undefined for a given input).
 %
-\item [error(existence\_error(Type,Culprit),Msg)] is the format of an
-  ISO type error, where {\tt Type} is the type of a resource and {\tt
-    Culprit} is the term observed (e.g., a predicate, stream,
-  attribute handler, etc.).
+\item[{\tt existence\_error(Type,Culprit)}] is the tag for an ISO
+  existence error, where {\tt Type} is the type of a resource (e.g., a
+  predicate, stream, attribute handler, etc.) and {\tt Culprit} is the
+  term observed.
 %
-\item[error(instantiation\_error,Msg))] is the format of an ISO
-  instantiation error.
+\item[{\tt instantiation\_error}] is the tag for an ISO instantiation
+  error.
 %
-\item [error(permission\_error(Op,Obj\_type,Culprit),Msg)] is the format of
-  an ISO permission error, for an operation {\tt Op} applied to an
-  object of type {\tt Obj\_type}, where {\tt Culprit} was observed.
+\item[{\tt permission\_error(Op,Obj\_type,Culprit)}] is the tag for an ISO
+  permission error, when an operation {\tt Op} was applied to an
+  object of type {\tt Obj\_type}, but {\tt Culprit} was observed.
 %
-\item[error(representation\_error(Flag),Msg)] is the format of an ISO
+\item[{\tt representation\_error(Flag)}] is the tag for an ISO
   representation error (e.g., the maximum arity of a predicate has
   been exceeded), and {\tt Flag} is the type of representation error
   encountered.
 %
-\item[error(resource\_error(Flag),Msg)] is the format of an ISO
-  resource error (e.g. allowed memory has been used, or too many files
-  have been opened), and {\tt Flag} is the type of resource error
-  encountered.
+\item[{\tt resource\_error(Flag)}] is the tag for an ISO resource error
+  (e.g. allowed memory has been used, or too many files have been
+  opened), and {\tt Flag} is the type of resource error encountered.
 %
-\item[error(syntax\_error,Msg)] and {\tt
-  error(syntax\_error(Culprit),Msg)} are alternate formats of an ISO
-  syntax error, where {\tt Culprit} is used for a
+\item {\tt syntax\_error} and {\tt syntax\_error(Culprit)} are alternate
+  tags for an ISO syntax error, where {\tt Culprit} denotes a
   syntactically-incorrect sequence of tokens.
 %
-\item[error(system\_error(Flag),Msg)] is the format of an ISO system error,
-  and {\tt Flag} is the type of system error encountered.
+\item {\tt system\_error(Flag)} is the tag for an ISO system
+  error, and {\tt Flag} is the type of system error encountered.
 %
-\item[error(type\_error(Valid\_type,Culprit),Msg)] is the format of an
+\item {\tt type\_error(Valid\_type,Culprit)} is the tag for an
   ISO type error, where {\tt Valid\_type} is the type expected and
-  {\tt Culprit} is the term observed.  This should be used for checks
-  of Prolog types only (i.e. integers, floats, atoms, etc.)
+  {\tt Culprit} is the term observed.  As opposed to domain errors,
+  type errors should be used for checks of Prolog types only
+  (i.e. integers, floats, atoms, etc.)
 %
 \end{description}
 
 \noindent
-In addition, XSB also makes use of some other types of errors.
+In addition, XSB also makes use of two other classes of errors.
 %
 \begin{description}
-\item[error(table\_error,Msg)] is the format of an error arising when
-  using XSB's tabling mechanism.
+\item[{\tt table\_error}] and {\tt type\_error(Subtype)} are the tags for an
+  error arising when using XSB's tabling mechanism, when the condition
+  giving rise to the error does npt easily fit under one of the above
+  classes.
 %
-\item[error(misc\_error,Msg)] is the format of an error that is not
+\item[{\tt misc\_error}] is the tag for an error that is not
   otherwise classified.
 %
-\item[error(thread\_cancel,Id)] is the format of an error ball for a
+\item[{\tt error(thread\_cancel,Id)}] is the format of an error ball for a
   thread that has been cancelled by XSB thread {\tt Id} (See
   Chapter~\ref{chap:threads} for details on thread cancellation.)
 %
 \end{description}
 
 In \version{} of XSB, errors for ISO predicates usually, but not not
-always ISO-compliant.  First, when XSB determines it is out of
-available system memory, recovering from such an error may be
-difficult at best.  Accordingly the computation is aborted in the
-sequential engine, or XSB exits in the multi-threaded
-engine~\footnote{This does not include overflowaing a memory limit
-  specified by the flag {\tt max\_memory}.}.  Second, errors in XSB
-code sometimes arise as miscellaneous errors rather than as a
-designated ISO-error type.
+always ISO-compliant, although the number of such non-compliances will
+reduce over time. First, when XSB determines it is out of available
+system memory, recovering from such an error may be difficult at best.
+Accordingly the computation is aborted in the sequential engine, or
+XSB exits in the multi-threaded engine~\footnote{This does not include
+  overflowaing a memory limit specified by the flag {\tt
+    max\_memory}.}.  Second, errors in XSB code sometimes arise as
+miscellaneous errors rather than as a designated ISO-error type.
 
-When XSB generates a memory exception {\em at the OS level} (e.g., a
-segmentation violation or bus error) it prints out a backtrace and
-exits.  This should be caused only by a bug in XSB or included C code.
-The first predicate in the backtrace that is printed in these
-circumstances may be incorrect or redundant.  This is because the
-memory structures used to generate the backtrace are not always
-completely consistent, and so an interrupt at an unexpected point may
-result in the use of somewhat inconsistent information.
+\subsection{XSB-Specific Information in Error Terms}
+
+XSB also encodes other information in error terms, which may vary with
+the error thrown, the form in which XSB was compiled, and the version
+of XSB.  In addition, the specifics of how the information is
+represented may vary, so that this information should always be
+represented through the access methods described in this and the next
+section.
+
+\begin{description}
+
+\item[{\tt Message}] describes the error in human-readable format.
+  Messages are present in all of XSB's system errors, and can be
+  obtained through {\tt xsb\_error\_get\_message/2}.
+
+\item[{\tt Goal}] is an atom representing the tabled goal that is
+  closest to the environment of the thrown error.  It is present in n
+  some, but not all error terms thrown by XSB and can be obtained
+  through {\tt xsb\_error\_get\_goal/2}.
+
+\item[{\tt Thread Id}] is an atom {\tt 'th <tid>'} indicating the id
+  of the thread that threw the error.  Thread Id information is only
+  present when using the multi-threaded version of XSB, and even in
+  that version is not present in all error terms.  The predicate {\tt
+    xsb\_error\_get\_tid/2} can be used to obtain this information if
+  present.
+
+\item[{\tt Backtrace}] represents the stack of the forward
+  continuations in the execution stack at the time the error was
+  thrown.  Backtraces are present by default in all XSB system error
+  terms, and are described in Section~\ref{sec:backtrace}.  They may be
+  obtained from an error term using the predicate {\tt
+    xsb\_error\_get\_backtrace/2}.
+
+\end{description}
 
 %---------------------------------------------------------------------------------------
 \section{Predicates to Throw and Handle Errors}
@@ -486,12 +526,13 @@ error handler is called.  In a non-main joinable thread, the error
 term is stored internally and the thread exits; in a detached thread,
 the thread exits with no action taken.  {\tt throw/1} is most useful
 in conjunction with specialized handlers for new types of errors not
-already supported in XSB.
+already supported in XSB.  
 %
 \ourmoditem{domain\_error(+Valid\_type,-Culprit,+Predicate,+Arg)}{domain\_error/4}{error\_handler}
 %
 Throws a domain error.  Using the default system error handler (with
-{\tt backtrace\_on\_error} set to off) an example is {\small
+the Prolog flag {\tt backtrace\_on\_error} set to off) an example is
+{\small
 \begin{verbatim}
 domain_error(posInt,-1,checkPosInt/3,3).
 ++Error[XSB/Runtime/P]: [Domain (-1 not in domain posInt)] in arg 3 of predicate 
@@ -501,7 +542,8 @@ checkPosInt/3
 \ourmoditem{evaluation\_error(+Flag,+Predicate,+Arg)}{evaluation\_error/3}{error\_handler}
 %
 Throws an evaluation error.  Using the default system error handler
-(with {\tt backtrace\_on\_error} set to off) an example is {\small
+(with the Prolog flag {\tt backtrace\_on\_error} set to off) an
+example is {\small
 \begin{verbatim}
 evaluation_error(zero_divisor,unidiv/1,2).
 ++Error[XSB/Runtime/P]: [Evaluation (zero_divisor)] in arg 2 of predicate unidiv/2
@@ -509,9 +551,9 @@ evaluation_error(zero_divisor,unidiv/1,2).
 %
 \ourmoditem{existence\_error(+Object\_type,?Culprit,+Predicate,+Arg)}{existence\_error/4}{error\_handler}
 %
-Throws an existence error.  Using the default system error
-handler (with {\tt backtrace\_on\_error} set to off) an example is 
-{\small 
+Throws an existence error.  Using the default system error handler
+(with the Prolog flag {\tt backtrace\_on\_error} set to off) an
+example is {\small
 \begin{verbatim}
 existence_error(file,'myfile.P','load_intensional_rules/2',2).
 ++Error[XSB/Runtime/P]: [Existence (No file myfile.P exists)]  in arg 2 of predicate 
@@ -522,8 +564,8 @@ load_intensional_rules/2
 \ourmoditem{instantiation\_error(+Predicate,+Arg,+State)}{instantiation\_error/4}{error\_handler}
 %
 Throws an instantiation error.  Using the default system error
-handler, an example (with {\tt backtrace\_on\_error} set to off) is 
-{\small 
+handler, an example (with the Prolog flag {\tt backtrace\_on\_error}
+set to off) is {\small
 \begin{verbatim}
 ?- instantiation_error(foo/1,1,nonvar).
 ++Error[XSB/Runtime/P]: [Instantiation]  in arg 1 of predicate foo/1: must be nonvar
@@ -532,9 +574,9 @@ handler, an example (with {\tt backtrace\_on\_error} set to off) is
 %
 \ourmoditem{permission\_error(+Op,+Obj\_type,?Culprit,+Predicate)}{permission\_error/4}{error\_handler}
 %
-Throws a permission error.  Using the default system error
-handler, an example (with {\tt backtrace\_on\_error} set to off) is 
-{\small 
+Throws a permission error.  Using the default system error handler, an
+example (with the Prolog flag {\tt backtrace\_on\_error} set to off)
+is {\small
 \begin{verbatim}
 | ?- permission_error(write,file,'myfile.P',foo/1).
 ++Error[XSB/Runtime/P]: [Permission (Operation) write on file: myfile.P]  in foo/1
@@ -544,7 +586,7 @@ handler, an example (with {\tt backtrace\_on\_error} set to off) is
 \ourmoditem{representation\_error(+Flag,+Predicate,+Arg)}{representation\_error/3}{error\_handler}
 % 
 Throws a representation error.  Using the default system error handler, an
-example (with {\tt backtrace\_on\_error} set to off) is {\small
+example (with the Prolog flag {\tt backtrace\_on\_error} set to off) is {\small
 \begin{verbatim}
 representation_error(max_arity,assert/1,1).
 ++Error[XSB/Runtime/P]: [Representation (max_arity)] in arg 1 of predicate assert/1
@@ -553,7 +595,7 @@ representation_error(max_arity,assert/1,1).
 \ourmoditem{resource\_error(+Flag,+Predicate)}{resource\_error/3}{error\_handler}
 %
 Throws a resource error.  Using the default system error handler
-(with {\tt backtrace\_on\_error} set to off) and example is {\small
+(with the Prolog flag {\tt backtrace\_on\_error} set to off) and example is {\small
 \begin{verbatim}
 resource_error(open_files,open/3)
 ++Error[XSB/Runtime/P]: [Resource (open_files)] in predicate open/3
@@ -561,25 +603,25 @@ resource_error(open_files,open/3)
 %
 \ourmoditem{type\_error(+Valid\_type,-Culprit,+Predicate,+Arg)}{type\_error/4}{error\_handler}
 %
-Throws a type error.  Using the default system error
-handler, an example (with {\tt backtrace\_on\_error} set to off) is 
-{\small 
+Throws a type error.  Using the default system error handler, an
+example (with the Prolog flag {\tt backtrace\_on\_error} set to off)
+is {\small
 \begin{verbatim}
 | ?- type_error(atom,f(1),foo/1,1).
 ++Error[XSB/Runtime/P]: [Type (f(1) in place of atom)]  in arg 1 of predicate foo/1
 \end{verbatim}
 }
 %
-\ourmoditem{misc\_error(+Message)}{misc\_error/3}{error\_handler}
+\ourmoditem{misc\_error(+Message)}{misc\_error/1}{error\_handler}
 %
-Throws a miscellaneous error that will
-be caught by the default system handler.  For good programming
-practice miscellaneous errors should only be thrown when the cases
-above are not applicable, and the type of error is not of interest for
-structured error handling.  Such situations occur can occur for
-instance in debugging, during program development, or in small-special
-purpose programs.  Note that this {\tt misc\_error/2} replaces the
-obsolescent XSB predicates {\tt abort/1} and {\tt abort/2}.
+Throws a miscellaneous error that will be caught by the default system
+handler.  For good programming practice miscellaneous errors should
+only be thrown when the cases above are not applicable, and the type
+of error is not of interest for structured error handling.  Such
+situations occur can occur for instance in debugging, during program
+development. or for other reasons.  Note that this {\tt misc\_error/2}
+replaces the obsolescent XSB predicates {\tt abort/1} and {\tt
+  abort/2}.
 %
 \end{description}
 %
@@ -601,7 +643,7 @@ obsolescent XSB predicates {\tt abort/1} and {\tt abort/2}.
 %    Acts as {\tt abort/0} but sents {\tt Message} to {\tt STDERR}
 %    before aborting.
 
-\subsection{Predicates to Handle Errors}~\label{sec:catch}
+\subsection{Predicates used in Handling Errors}~\label{sec:catch}
 %
 For best results, output for handling errors should be sent to XSB's
 standard error stream using the alias {\tt user\_error} or one of the
@@ -638,6 +680,33 @@ XSB's {\tt STDOUT} stream, as does {\tt write/1} and {\tt writeln/1}.
 In addition, if {\tt Message} is a comma list, the elements in the
 comma list are output as if they were concatenated together.  Each of
 these predicates must be implicitly from the module {\tt standard}.
+
+\ourmoditem{xsb\_error\_get\_message(Error,Message)}{\tt
+  xsb\_error\_get\_message/2}{error\_handler} 
+%
+Obtains the message associated with an error in XSB's standard format.
+All errors in standard format have messages.
+
+\ourmoditem{xsb\_error\_get\_goal(Error,?GoalAtom}{xsb\_error\_get\_goal/2}{error\_handler}
+%
+Obtains the goal (represented as an atom), if any, from an error term
+that is in XSB's standard format.  If the error term has no goal, the
+predicate fails.
+
+\ourmoditem{xsb\_error\_get\_tid(Error,?Tid)}{xsb\_error\_get\_tid/2}{error\_handler} 
+%
+Obtains the atom {\tt 'th <tid>'} indicating the id of the thread that
+threw the error.  Thread Id information is only present when using the
+multi-threaded version of XSB, and even in that version is not present
+in all error terms.  
+
+\ourmoditem{xsb\_error\_get\_backtrace(+Error,-Backtrace)}
+{xsb\_error\_get\_backtrace/2}{error\_handler} 
+%
+Obtains the backtrace --- the stack of the forward continuations in
+the execution stack at the time the error was thrown.  Backtraces are
+present by default in all XSB system error terms, and are described in
+Section~\ref{sec:backtrace}.
 
 %\ourmoditem{close\_open\_tables}{close\_open\_tables/0}{machine}
 %
@@ -767,3 +836,13 @@ list can be manipulated as desired by error handling routines.
  a backtrace structure to XSB's standard error stream.
 \end{description}
 \index{exceptions|)}
+
+When XSB generates a memory exception {\em at the OS level} (e.g., a
+segmentation violation or bus error) it prints out a backtrace and
+exits.  This should be caused only by a bug in XSB or included C code.
+The first predicate in the backtrace that is printed in these
+circumstances may be incorrect or redundant.  This is because the
+memory structures used to generate the backtrace are not always
+completely consistent, and so an interrupt at an unexpected point may
+result in the use of somewhat inconsistent information.
+
