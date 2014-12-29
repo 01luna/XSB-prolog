@@ -74,7 +74,6 @@ XSB/docs/userman/xsb-logo.jpg svn_mime_002dtype=application%2Foctet-stream
 XSB/etc/images/xsb-logo.ico svn_mime_002dtype=application%2Foctet-stream
 XSB/examples/XSB_calling_c/simple_foreignW64.mak svn_mime_002dtype=application%2Foctet-stream
 XSB/gpp/MSVC_mkfile64.mak svn_mime_002dtype=application%2Foctet-stream
-XSB/packages/bounds.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/NMakefile.mak svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/NMakefile64.mak svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/curl/cc/NMakefile.mak svn_mime_002dtype=application%2Foctet-stream
