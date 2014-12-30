@@ -95,11 +95,12 @@ istreq(const ichar *s1, const ichar *s2)
 }
 */
 int
-istrncaseeq(const ichar *s1, const ichar *s2, size_t len)
-{ while(--len >= 0 && tolower(*s1) == tolower(*s2))
+istrncaseeq(const ichar *s1, const ichar *s2, size_t len) {
+  int templen = (int) len;
+  while(--templen >= 0 && tolower(*s1) == tolower(*s2))
     s1++, s2++;
   
-  if ( len < 0 )
+  if ( templen < 0 )
     return TRUE;
   
   return FALSE;
