@@ -94,11 +94,13 @@ ccall_error_handler(Error) :-
 :- dynamic '_$thread_exit_ball'/2.
 :- thread_shared('_$thread_exit_ball'(_,_)).
 
+%:- import writeln/1 from standard.
 default_sys_error_handler(error(Error,Msg,Backtrace)) :-
 	default_sys_error_handler(error(Error,context(Msg,Backtrace))).
 
-%:- import writeln/1 from standard.
-default_sys_error_handler(error(Error,context(Msg_or_Ctxt,Backtrace))) :- !,
+default_sys_error_handler(error(Error,Context)) :- 
+	nonvar(Context),
+	Context = context(Msg_or_Ctxt,Backtrace),!,
 %writeln(default_sys_error_handler(error(Error,context(Msg_or_Ctxt,Backtrace)))),
 	get_message(Msg_or_Ctxt,Msg),
 	% here is where we may do something abt backtraces.
