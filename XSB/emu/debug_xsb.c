@@ -663,7 +663,7 @@ static void sprint_registers(CTXTdeclc forestLogBuffer fl_buf,Psc psc,long depth
 
   arity = (int)get_arity(psc);
 
-  size = sprintf(buffer, "%s", get_name(psc));
+  size = sprint_quotedname(buffer, 0, get_name(psc));
   if (arity != 0) sprintf(buffer+size, "(");size++;
   for (i=1; i <= arity; i++) {
     size = sprint_term(fl_buf, size, cell(reg+i), CAR, depth-1);
@@ -684,8 +684,7 @@ static void sprint_cyclic_registers(CTXTdeclc forestLogBuffer fl_buf,Psc psc,lon
   char * buffer = fl_buf->fl_buffer;
   arity = (int)get_arity(psc);
 
-  sprintf(buffer, "%s", get_name(psc));
-  size = (int)strlen(get_name(psc));
+  size = sprint_quotedname(buffer, 0, get_name(psc));
   if (arity != 0) sprintf(buffer+size, "(");size++;
   for (i=1; i <= arity; i++) {
     size = sprint_cyclic_term_nonvoid(CTXTc fl_buf, size,  cell(reg+i), depth-1);
