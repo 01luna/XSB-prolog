@@ -1,10 +1,12 @@
 :- import put_attr/1 from machine.
 :- import incr_assert/1 from increval.
-:- import xsb_error_get_message/2,xsb_error_get_tag/2,xsb_error_get_goal/2 from error_handler.
+:- import numbervars/1 from num_vars.
+:- import xsb_error_get_message/2,xsb_error_get_tag/2,xsb_error_get_goal/2,xsb_error_get_goalatom/2 from error_handler.
 
 test:- catch(t1(_X),E,(xsb_error_get_message(E,M),writeln(message(M)))),fail.
 test:- catch(t1(_X),E,(xsb_error_get_tag(E,M),writeln(tag(M)))),fail.
-test:- catch(t1(_X),E,(xsb_error_get_goal(E,M),writeln(goal(M)))),fail.
+test:- catch(t1(_X),E,(xsb_error_get_goal(E,M),numbervars(M),writeln(goal(M)))),fail.
+test:- catch(t1(_X),E,(xsb_error_get_goalatom(E,M),writeln(goalatom(M)))),fail.
 test.
 
 
