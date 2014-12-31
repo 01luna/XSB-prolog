@@ -479,10 +479,11 @@ section.
   Messages are present in all of XSB's system errors, and can be
   obtained through {\tt xsb\_error\_get\_message/2}.
 
-\item[{\tt Goal}] is an atom representing the tabled goal that is
-  closest to the environment of the thrown error.  It is present in n
-  some, but not all error terms thrown by XSB and can be obtained
-  through {\tt xsb\_error\_get\_goal/2}.
+\item[{\tt Goal}] represents tabled goal that is closest to the
+  environment of the thrown error.  It is present in some, but not all
+  error terms thrown by XSB and can be obtained as a term through {\tt
+    xsb\_error\_get\_goal/2}, and as an atom through {\tt
+    xsb\_error\_get\_goalatom/2}.
 
 \item[{\tt Thread Id}] is an atom {\tt 'th <tid>'} indicating the id
   of the thread that threw the error.  Thread Id information is only
@@ -687,11 +688,18 @@ these predicates must be implicitly from the module {\tt standard}.
 Obtains the message associated with an error in XSB's standard format.
 All errors in standard format have messages.
 
-\ourmoditem{xsb\_error\_get\_goal(Error,?GoalAtom}{xsb\_error\_get\_goal/2}{error\_handler}
+\ourmoditem{xsb\_error\_get\_goal(Error,?Goal}{xsb\_error\_get\_goal/2}{error\_handler}
 %
-Obtains the goal (represented as an atom), if any, from an error term
+Obtains the goal (represented as a Prolog term), if any, from an error term
 that is in XSB's standard format.  If the error term has no goal, the
 predicate fails.
+
+\ourmoditem{xsb\_error\_get\_goalatom(Error,?GoalAtom}{xsb\_error\_get\_goalatom/2}{error\_handler}
+%
+Obtains the goal (represented as a Prolog atom), if any, from an error
+term that is in XSB's standard format.  If the error term has no goal,
+the predicate fails.  This routine is slightly more efficient than
+{\tt xsb\_error\_get\_goal/2}.
 
 \ourmoditem{xsb\_error\_get\_tid(Error,?Tid)}{xsb\_error\_get\_tid/2}{error\_handler} 
 %
