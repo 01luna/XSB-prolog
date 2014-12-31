@@ -42,12 +42,14 @@ get_error_backtrace(error(_Tag,context(_MaybeM,Backtrace)),Backtrace).
 get_error_goal(error(_Tag,context(context(_Msg,Goal),_Backtrace)),Goal).
 */
 
+:- import read_atom_to_term/2 from string.
 xsb_error_get_tag(error(Tag,_),Tag).
 xsb_error_get_message(error(_Tag,context(MaybeM,_Backtrace)),Message):- 
 	(MaybeM = context(MaybeM1,_Goal) -> 
 	 (MaybeM1 = context(Message,_Tid) ; MaybeM1 = Message)
 	  ; MaybeM = Message),!.
-xsb_error_get_goal(error(_Tag,context(context(_Msg,Goal),_Backtrace)),Goal).
+xsb_error_get_goal(error(_Tag,context(context(_Msg,GoalAtom),_Backtrace)),Goal):- read_atom_to_term(GoalAtom,Goal).
+xsb_error_get_goalatom(error(_Tag,context(context(_Msg,Goal),_Backtrace)),Goal).
 xsb_error_get_tid(error(_Tag,context(context(context(_Msg,Tid),_Goal),_Backtrace)),Tid).
 xsb_error_get_backtrace(error(_Tag,context(_MaybeM,Backtrace)),Backtrace).
 
