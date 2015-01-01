@@ -230,7 +230,7 @@ void deleteinedges(CTXTdeclc callnodeptr callnode){
     hasht = in->inedge_node->hasht;
 #ifdef INCR_DEBUG1
         printf("  removing affects ptr from "); print_callnode(CTXTc stddbg,in->inedge_node->callnode);
-        printf(" to "),print_callnode(CTXTc stddbg,callnode);printf("\n");
+        printf(" to ");print_callnode(CTXTc stddbg,callnode);printf("\n");
         printf("  removing affects ptr from %d to %d\n",in->inedge_node->callnode->id,callnode->id); printf("\n");
 #endif
     //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
@@ -255,7 +255,7 @@ void deleteinedges(CTXTdeclc callnodeptr callnode){
 
 void deleteoutedges(CTXTdeclc callnodeptr callnode){
   struct hashtable *h;                                                                                                     struct hashtable_itr *itr;                                                                                             
-  callnodeptr cn;
+  callnodeptr cn_itr;
   calllistptr in;
   //  calllistptr * last;
   calllistptr last = NULL;
@@ -264,40 +264,42 @@ void deleteoutedges(CTXTdeclc callnodeptr callnode){
   h=callnode->outedges->hasht;
   itr = hashtable1_iterator(h);
   #ifdef INCR_DEBUG1
-  printf("deleteoutedges (id %d) before hashtable count %d\n",callnode->id,hashtable1_count(h));
+  printf("----- deleteoutedges (id %d) before hashtable count %d\n",callnode->id,hashtable1_count(h));
   #endif
 
   if (hashtable1_count(h) > 0){
     do {                                                                                                                 
-      cn = hashtable1_iterator_value(itr);        
+      cn_itr = hashtable1_iterator_value(itr);        
 #ifdef INCR_DEBUG1
-      printf("iterating (id %d)",cn->id);print_callnode(CTXTc stddbg,cn); printf("\n");
-      print_inedges(cn);
+      printf("iterating (id %d)",cn_itr->id);print_callnode(CTXTc stddbg,cn_itr); printf("\n");
+      print_inedges(cn_itr);
 #endif
-      in = cn->inedges;
-      while(IsNonNULL(in)){
-	if (in->inedge_node->callnode == callnode) {
+      if (cn_itr != callnode) {  /* messes things up, otherwise.  This will be dealloc'd anyway */
+	in = cn_itr->inedges;
+	while(IsNonNULL(in)){
+	  if (in->inedge_node->callnode == callnode) {
 #ifdef INCR_DEBUG1
-	  printf("     found back depends from (id %d) ",cn->id);
-	  print_callnode(CTXTc stddbg,in->inedge_node->callnode);printf("\n");
+	    printf("     found back depends from (id %d) ",cn_itr->id);
+	    print_callnode(CTXTc stddbg,in->inedge_node->callnode);printf("\n");
 #endif
-	  if (i == 0) {
-	    cn->inedges = in->next;
-	     }
-	  else last->next =  in->next;  // need to deallcoate
-	  SM_DeallocateStruct(smCallList, in);      
-	  //	  printf("again! ");print_inedges(cn);
-	  break;
-	}
+	    if (i == 0) {
+	      cn_itr->inedges = in->next;
+	    }
+	    else last->next =  in->next;  // need to deallcoate
+	    SM_DeallocateStruct(smCallList, in);      
+	    //	  printf("again! ");print_inedges(cn_itr);
+	    break;
+	  }
 	//printf("skipping\n");
 	  last = in; in = in->next; i++;
+	}
       }
       current_call_edge_count_gl--;
     } while (hashtable1_iterator_advance(itr)); 
     callnode->outcount = 0;  // hashtable will be deallocated in delete callnode
   }
   #ifdef INCR_DEBUG1
-  printf("deleteoutedges (id %d) after  hashtable count %d\n",callnode->id,hashtable1_count(h));
+  printf("--- deleteoutedges (id %d) after  hashtable count %d\n",callnode->id,hashtable1_count(h));
   #endif
 
 }
@@ -484,7 +486,7 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
     insert_some(fromcn->outedges->hasht,k1,tocn);
 
 #ifdef INCR_DEBUG	
-    printf("--------------------------------- addcalledge before \n");
+    printf("--------------- addcalledge (from %d to %d) before \n",fromcn->id,tocn->id);
     print_inedges(tocn);
 #endif
     
@@ -496,7 +498,7 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
     if(IsNonNULL(fromcn->goal)){
       sfPrintGoal(stdout,(VariantSF)fromcn->goal,NO);printf("(%d)",fromcn->id);
     }else
-      printf("  (%d)",fromcn->id);
+      printf("--------------- addcalledge after  (%d)",fromcn->id);
     
     if(IsNonNULL(tocn->goal)){
       printf("-->");	
