@@ -60,6 +60,8 @@ test:- catch(tsqrt(-1),E,(E= error(Tag,context(_Msg,_)),writeln(sqrt_error(Tag))
 
 test:- catch(tlog(0,_),E,(E= error(Tag,context(_Msg,_)),writeln(log_error(Tag)))),fail.
 
+test:- catch(X is aaa,E,(E= error(Tag,context(_Msg,_)),writeln(atom_error(Tag)))),fail.
+
 test.
 
 tsqrt(X):- _X is sqrt(X).
@@ -73,6 +75,8 @@ tasin(X):- _X is asin(X).
 
 
 tbitneg(X):- _Z is \X.
+
+   tatom(X):- _Z is X.
 
 p(_).
 
