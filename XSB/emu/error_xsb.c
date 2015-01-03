@@ -1305,7 +1305,7 @@ void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
 void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
   XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");
   //  printf("addintfastuni: %s\n",get_name(get_str_psc(op1)));
-  if (get_arity(get_str_psc(op1)) == 2) {
+  if (isconstr(op1) && get_arity(get_str_psc(op1)) == 2) {
     Cell arg1 = get_str_arg(op1,1);
     Cell arg2 = get_str_arg(op1,2);
     XSB_StrSet(&str_op4,"");
@@ -1330,7 +1330,7 @@ void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
       xsb_type_error_vargs(CTXTc "integer",arg2, str_op3.string, "Wrong type in evaluable function %s/2 (Goal: %s)",
 			   get_name(get_str_psc(op1)),str_op3.string);
     }
-} else {
+  } else  if (isconstr(op1) && get_arity(get_str_psc(op1)) == 1) {
     /* The following sequence should be good for all 1-ary functions. */
       prolog_term term = (prolog_term) op1;
       term = p2p_arg(term,1);
@@ -1342,6 +1342,7 @@ void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
 			   get_name(get_str_psc(op1)), str_op3.string);
       }
   }
+  else 	xsb_type_error_vargs(CTXTc "evaluable",op1,string_val(op1), "Non-evaluable function in is/2");
 }
     
 extern char * function_names[];
