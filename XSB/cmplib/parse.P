@@ -26,6 +26,7 @@
 :- compiler_options([sysmod, xpp_on]).
 #include "flag_defs_xsb.h"
 #include "standard.h"
+#include "char_defs.h"
 %%#define DEBUG_GPP 1
 
 /*======================================================================*/
@@ -185,7 +186,10 @@ xpp_process_file(FileName,XPP_process,IOportFromProc,Make_XPP_Command) :-
 	-> fmt_write_string(FullXPP_command,'%s',arg(XPP_command)),
 	    InputStream = FileName
 	;
-	    fmt_write_string(FullXPP_command,'%s "%s"',args(XPP_command,FileName)),
+	    escape_dbl_quotes(FileName,FileNameEsc),
+	    fmt_write_string(FullXPP_command,
+			     '%s "%s"',
+			     args(XPP_command,FileNameEsc)),
 	    InputStream = block
 	),
         preprocessor_name(Make_XPP_Command,XPP_Name),
@@ -206,7 +210,7 @@ xpp_process_file(FileName,XPP_process,IOportFromProc,Make_XPP_Command) :-
 	-> XPP_command_msg = ('[',XPP_Name,': Preprocessing input stream]')
 	; fmt_write_string(XPP_command_msg,
 			   '[%s: Preprocessing %s]',
-			   args(XPP_Name,FileName))
+			   args(XPP_Name,FileNameEsc))
 	),
 #endif
         %% If --quietload, don't print Preprocessing messages
@@ -1432,6 +1436,21 @@ filename_pop(File):-
 	; true
 	),
 	!.
+
+%% escape double quotes with a backslash.
+%% used to fix file names
+escape_dbl_quotes(Atm,AtmOut) :-
+	atom_codes(Atm,AtmL),
+	escape_dbl_quotes_aux(AtmL,AtmOutL),
+	atom_codes(AtmOut,AtmOutL).
+
+escape_dbl_quotes_aux([],[]) :- !.
+escape_dbl_quotes_aux([CH_DOUBLEQUOTE|AtmL],[CH_BACKSLASH,CH_DOUBLEQUOTE|AtmOutL]) :-
+	!,
+	escape_dbl_quotes_aux(AtmL,AtmOutL).
+escape_dbl_quotes_aux([Ch|AtmL],[Ch|AtmOutL]) :-
+	escape_dbl_quotes_aux(AtmL,AtmOutL).
+
 
 end_of_file.
 

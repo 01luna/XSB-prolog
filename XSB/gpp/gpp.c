@@ -261,6 +261,7 @@ void write_include_marker(FILE *f, int lineno, char *filename, char *marker);
 void construct_include_directive_marker(char **include_directive_marker,
 					char *includemarker_input);
 void escape_backslashes(char *instr, char **outstr);
+void escape_single_quotes(char *instr, char **outstr);
 
 static int is_slash(char ch);
 
@@ -2822,7 +2823,9 @@ void replace_directive_with_blank_line(FILE *f)
 void write_include_marker(FILE *f, int lineno, char *filename, char *marker)
 {
   static char lineno_buf[MAX_GPP_NUM_SIZE];
-  static char *escapedfilename = NULL;
+  static char
+    *escapedfilename = NULL,
+    *safequoted_FN = NULL;
 
   if ((include_directive_marker != NULL) && (f != NULL)) {
 #ifdef WIN_NT
@@ -2830,8 +2833,9 @@ void write_include_marker(FILE *f, int lineno, char *filename, char *marker)
 #else
     escapedfilename = filename;
 #endif
+    escape_single_quotes(escapedfilename,&safequoted_FN);
     sprintf(lineno_buf,"%d", lineno);
-    fprintf(f, include_directive_marker, lineno_buf, escapedfilename, marker);
+    fprintf(f, include_directive_marker, lineno_buf, safequoted_FN, marker);
   }
 }
 
@@ -2849,6 +2853,33 @@ void escape_backslashes(char *instr, char **outstr)
   while (*instr != '\0') {
     if (*instr=='\\') {
       *(*outstr+out_idx) = '\\';
+      out_idx++;
+    }
+    *(*outstr+out_idx) = *instr;
+    out_idx++;
+    instr++;
+  }
+  *(*outstr+out_idx) = '\0';
+}
+
+/*
+  The include marker looks like 
+     something. something(1,'file',...).
+  If file has single quotes, they must be doubled or else it'll look
+  like 'foo'bar', which is invalid syntax.
+  We escape quotes by doubling them.
+  (Could have done it with a \, but don't want to mess up with windows.
+*/
+void escape_single_quotes(char *instr, char **outstr)
+{
+  int out_idx=0;
+
+  if (*outstr != NULL) free(*outstr);
+  *outstr = malloc(2*strlen(instr));
+
+  while (*instr != '\0') {
+    if (*instr=='\'') {
+      *(*outstr+out_idx) = '\'';
       out_idx++;
     }
     *(*outstr+out_idx) = *instr;
