@@ -596,8 +596,11 @@ int sprintTerm(forestLogBuffer fl_buf, Cell Term) {
 }
 
 static int sprint_cyclic_term_nonvoid(CTXTdeclc forestLogBuffer fl_buf, int size, Cell Term,long depth) {
+  int newsize;
   mark_cyclic(CTXTc Term);
-  return sprint_term(fl_buf, size, Term, CAR, depth);
+  newsize = sprint_term(fl_buf, size, Term, CAR, depth);
+  unwind_cycle_trail;
+  return newsize;
 }
 
 /*------------------------------------------------------------------*/
@@ -1235,6 +1238,7 @@ void print_subgoal_callnode_leaf(CTXTdeclc FILE *fp, callnodeptr cn)
   int  i = 0;
   Psc  psc;
 
+  fprintf(fp,"Incr dyn: ");
   if (!callnode_tif_ptr(cn)) {
     fprintf(fp,"NULL TIF");
     return;
@@ -1257,9 +1261,9 @@ void print_subgoal_callnode_leaf(CTXTdeclc FILE *fp, callnodeptr cn)
 }
 
 void print_callnode(CTXTdeclc FILE *fp, callnodeptr cn) {
-  if (cn -> goal)  print_subgoal(CTXTc stddbg,cn->goal);
-  else if (!cn->is_incremental_trie) print_subgoal_callnode_leaf(CTXTc stddbg, cn); 
-  else fprintf(stddbg,"incremental trie");
+  if (cn -> goal)  print_subgoal(CTXTc fp,cn->goal);
+  else if (!cn->is_incremental_trie) print_subgoal_callnode_leaf(CTXTc fp, cn); 
+  else fprintf(stdout,"incremental trie");
 }
 
 void print_subgoal(CTXTdeclc FILE *fp, VariantSF subg)
@@ -1325,7 +1329,7 @@ void print_completion_stack(CTXTdeclc FILE *fptr)
   int SCCnum = 1; int lastSCCnum;
   VariantSF subg;
   CPtr temp = COMPLSTACKBOTTOM-COMPLFRAMESIZE;
-
+  printf("----------- scc -----------");
   lastSCCnum = compl_level(temp);
 
  while (temp >= openreg) {
@@ -1334,7 +1338,7 @@ void print_completion_stack(CTXTdeclc FILE *fptr)
    }
    subg = (VariantSF) *temp;
    print_subgoal(CTXTc fptr,subg);
-   fprintf(fptr," - scc(%d).\n",SCCnum);
+   fprintf(fptr," - scc(%d,%d).\n",SCCnum,compl_level(temp));
    temp = next_compl_frame(temp);
   }
 }
