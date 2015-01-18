@@ -221,28 +221,30 @@ void deleteinedges(CTXTdeclc callnodeptr callnode){
   in = callnode->inedges;
   
 #ifdef INCR_DEBUG	
-  printf("--------------------------------- deleteinedges (id %d)before \n",callnode->id);
+  printf("--------------------------------- deleteinedges (id %d) before \n",callnode->id);
   print_inedges(callnode);
 #endif
 
   while(IsNonNULL(in)){
     tmpin = in->next;
-    hasht = in->inedge_node->hasht;
+    if (in->inedge_node->callnode->id != callnode->id) {
+      hasht = in->inedge_node->hasht;
 #ifdef INCR_DEBUG1
-        printf("  removing affects ptr from "); print_callnode(CTXTc stddbg,in->inedge_node->callnode);
-        printf(" to ");print_callnode(CTXTc stddbg,callnode);printf("\n");
-        printf("  removing affects ptr from %d to %d\n",in->inedge_node->callnode->id,callnode->id); printf("\n");
+      printf("  removing affects ptr from "); print_callnode(CTXTc stddbg,in->inedge_node->callnode);
+      printf(" to ");print_callnode(CTXTc stddbg,callnode);printf("\n");
+      printf("  removing affects ptr from %d to %d\n",in->inedge_node->callnode->id,callnode->id); printf("\n");
 #endif
-    //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
-    if (remove_some(hasht,ownkey) == NULL) {
-      xsb_abort("BUG: key not found for removal\n");
+      //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
+      if (remove_some(hasht,ownkey) == NULL) {
+	xsb_abort("BUG: key not found for removal (deleteinedges)\n");
+      }
+      current_call_edge_count_gl--;
+      in->inedge_node->callnode->outcount--;
+      SM_DeallocateStruct(smCallList, in);      
     }
-    current_call_edge_count_gl--;
-    SM_DeallocateStruct(smCallList, in);      
     in = tmpin;
   }
   SM_DeallocateSmallStruct(smKey, ownkey);      
-
 #ifdef INCR_DEBUG	
   printf("--------------------------------- deleteinedges after \n");
   //  print_inedges(callnode);
@@ -254,7 +256,8 @@ void deleteinedges(CTXTdeclc callnodeptr callnode){
 //---------------------------------------------------------------------------
 
 void deleteoutedges(CTXTdeclc callnodeptr callnode){
-  struct hashtable *h;                                                                                                     struct hashtable_itr *itr;                                                                                             
+  struct hashtable *h; 
+  struct hashtable_itr *itr;                                                                                             
   callnodeptr cn_itr;
   calllistptr in;
   //  calllistptr * last;
@@ -264,7 +267,7 @@ void deleteoutedges(CTXTdeclc callnodeptr callnode){
   h=callnode->outedges->hasht;
   itr = hashtable1_iterator(h);
   #ifdef INCR_DEBUG1
-  printf("----- deleteoutedges (id %d) before hashtable count %d\n",callnode->id,hashtable1_count(h));
+  printf("----- deleteoutedges (id %d) before hashtable count %d outedges_count %d\n",callnode->id,hashtable1_count(h),callnode->outcount);
   #endif
 
   if (hashtable1_count(h) > 0){
@@ -279,7 +282,6 @@ void deleteoutedges(CTXTdeclc callnodeptr callnode){
 	while(IsNonNULL(in)){
 	  if (in->inedge_node->callnode == callnode) {
 #ifdef INCR_DEBUG1
-	    printf("     found back depends from (id %d) ",cn_itr->id);
 	    print_callnode(CTXTc stddbg,in->inedge_node->callnode);printf("\n");
 #endif
 	    if (i == 0) {
@@ -299,7 +301,7 @@ void deleteoutedges(CTXTdeclc callnodeptr callnode){
     callnode->outcount = 0;  // hashtable will be deallocated in delete callnode
   }
   #ifdef INCR_DEBUG1
-  printf("--- deleteoutedges (id %d) after  hashtable count %d\n",callnode->id,hashtable1_count(h));
+  printf("--- deleteoutedges (id %d) after  hashtable count %d outcount %d\n",callnode->id,hashtable1_count(h),callnode->outcount);
   #endif
 
 }
@@ -335,17 +337,18 @@ void deleteoutedges(CTXTdeclc callnodeptr callnode){
 
 /* used for abolishes -- its known that outcount is 0 */
 void deletecallnode(callnodeptr callnode){
-
   current_call_node_count_gl--;
-   
+ 
   if(callnode->outcount==0){
     hashtable1_destroy(callnode->outedges->hasht,0);
     SM_DeallocateStruct(smOutEdge, callnode->outedges);      
     SM_DeallocateStruct(smCallNode, callnode);        
-  }else
+  }else {
+    printf("aborting id %d outcount %d\n",callnode->id,callnode->outcount);
     xsb_abort("outcount is nonzero\n");
+  }
   
-  return;
+  //  return;
 }
 
 
@@ -375,7 +378,7 @@ void deallocate_previous_call(callnodeptr callnode){
 	sfPrintGoal(stdout,(VariantSF)callnode->goal,NO); printf("(%d)",callnode->id);
       }
       */
-      xsb_abort("BUG: key not found for removal\n");
+      xsb_abort("BUG: key not found for removal (deallocate previous call)\n");
     }
     in->inedge_node->callnode->outcount--;
     current_call_edge_count_gl--;
