@@ -134,10 +134,10 @@ cdf_dynamic(dlTable/9).
 cdf_dynamic(dlTable/10).
 cdf_dynamic(dlTable/11).
 
-:- dynamic isa_ext/2 as intern.
-cdf_dynamic(isa_ext/2).  % delete if mti
+%:- dynamic isa_ext/2 as intern.  % delete if mti
+%cdf_dynamic(isa_ext/2).  % delete if mti
 cdf_dynamic(allAttr_ext/3).
-cdf_dynamic(hasAttr_ext/3).  % delete if mti
+%cdf_dynamic(hasAttr_ext/3).  % delete if mti
 cdf_dynamic(classHasAttr_ext/3).
 cdf_dynamic(minAttr_ext/4).
 cdf_dynamic(maxAttr_ext/4).
@@ -579,7 +579,7 @@ isa_bf(Sub,Sup):-
 #endif
 
 % TLS: this is to handle bb intensional rules like in cdftm.
-isa_bf_maybe_table(Sub,Sup):-
+/*isa_bf_maybe_table(Sub,Sup):-
     nonvar(Sup),
     isa_int(Sub,Sup).
 isa_bf_maybe_table(Sub,Sub).
@@ -589,17 +589,25 @@ isa_bf_maybe_table(Sub,Sup):-
 isa_bf_maybe_table(Sub,Sup):-
     implicit_isa_bf(Sub,Mid),
     isa_bf_maybe_table(Mid,Sup).
+**/
 
-/*isa_bf_maybe_table(Sub,Sup):-
-    (   immed_isa1(Sub,Mid)
-      ; implicit_isa_bf(Sub,Mid) ),
-    isa_bf_inner(Mid,Sup). **/
 
-/**isa_bf_inner(Sub,Sub).
-isa_bf_inner(Sub,Sup):-
+isa_bf_maybe_table(Sub,Sup):-
+	immed_isa1(Sub,Mid),
+/*    (   immed_isa1(Sub,Mid)
+      ; implicit_isa_bf(Sub,Mid) ), */
+    isa_bf_inner(Mid,Sup).
+
+:- table isa_bf_inner/2.
+isa_bf_inner(Sub,Sub).
+/*isa_bf_inner(Sub,Sup):-
     immed_isa1(Sub,Mid),
-    isa_bf_inner(Mid,Sup).  % so not tabling... could lead to loop.
-***/
+    isa_bf_inner(Mid,Sup).  % so not tabling... could lead to loop. */
+isa_bf_inner(Sub,Sup):-
+    isa_bf_inner(Sub,Mid),  % so not tabling... could lead to loop.
+    immed_isa1(Mid,Sup).
+
+
 %--------------------
 
 % Here implicit would fail; just do immediate, and look down.
@@ -676,7 +684,8 @@ outer functor must be @tt{F/A}.  In either case, both Nids are broken
 into their constituent identifiers and @tt{explosive_isa/2} is
 recursively called on each of these.  ").
 
-/*explosive_isa(Id1,Id2):-
+/***
+explosive_isa(Id1,Id2):-
       ( (\+cdf_flags(implicit_isa,off),
 	 (product_identifier(Id1) ; product_identifier(Id2)),
           cdf_id_fields(Id1,F,N1,S),
@@ -685,9 +694,11 @@ recursively called on each of these.  ").
           N1 =.. [_|Args1],
           N2 =.. [_|Args2],
           explosive_isa_list(Args1,Args2)
-          ;       isa_nocheck(Id1,Id2) ).*/
+          ;       isa_nocheck(Id1,Id2) ).
+***/
 explosive_isa(Id1,Id2) :- isa_nocheck(Id1,Id2).      
 
+/***
 make_terms_if_necess(N1,N2):-
     (structure(N1) ->
         functor(N1,F,A),
@@ -699,6 +710,7 @@ explosive_isa_list([],[]).
 explosive_isa_list([Arg1|R1],[Arg2|R2]):-
     explosive_isa(Arg1,Arg2),
     explosive_isa_list(R1,R2).
+***/
 
 %%%%%%%%%%%%%% hasAttr %%%%%%%%%%%%%%%%%%%%
 
@@ -1960,7 +1972,8 @@ abolish_isas:-
 #endif
 
 %%% set invalidate_table handler for cdf updates.
-:- Head = invalidate_table_for(Term,_),
+:- import invalidate_table_for/2 from usermod.  % be explicit
+?- Head = invalidate_table_for(Term,_),
     Body = abolish_nec_tables(Term),
     (clause(Head,Body)
      ->	true
@@ -2007,7 +2020,7 @@ abolish_nec_tables(necessCond_ext(_,_)) :- !,
 abolish_nec_tables(isa_int(_,_)) :- !,
     abolish_nec_tables(isa_ext(_,_)) .
 abolish_nec_tables(isa_ext(_,_)) :- !,
-            abolish_isas,
+    abolish_isas,
     abolish_hasAttr_inherits,
     abolish_allAttr_inherits,
     abolish_classHasAttr_inherits,
@@ -2201,7 +2214,7 @@ newExtTerm(Context,Term,Upd0,Upd):-
 %%%%%% TLS: please keep this here -- we want to do the initialization
 %%%%%% LAST upon load.
 
-:- ensure_loaded(cdf_config).
+?- ensure_loaded(cdf_config), writeln(userout,cdf_config_loaded).
 
 #if TABLEDISA
 ?- cdf_message('Using tabled isa').
@@ -2252,7 +2265,7 @@ cdf_update_term(asserta(Term),CFlg) :-
 cdf_update_term(retractall(Term),CFlg) :-
     retractall_cdf(Term),
     (CFlg =:= 1
-     ->	cache_invalidate_for(Term)
+     ->	    cache_invalidate_for(Term)
      ;	true
     ),
     invalidate_tables_for(Term,retract).
