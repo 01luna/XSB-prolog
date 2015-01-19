@@ -8,7 +8,9 @@
 
 :- export load_extensional_facts/1, 
 	dump_extensional_facts/1, 
+	dump_extensional_facts_with_backup/1, 
 	load_intensional_rules/1,
+	merge_intensional_rules/1,
 	dump_intensional_rules/1, 
 	write_component_intensional/1,
 	write_intensional_dlTables/0,
@@ -36,8 +38,6 @@
 	 newExtTermBatch/2,transform_intensional_rules/4,
 	 abolish_cdf_tables/0, cdf_id_fields/4 from cdf_init_cdf.
 
-:- import init_dynamic_code/0 from cdf_init_cdf.
-
 :- import  get_intensional_mfile_expansion/2 from cdf_comps_share.
 
 :- import clause_assert/2 from cdf_utilities.
@@ -54,6 +54,8 @@
 
 :- import assert_mti/1 from usermod.  % cdf_config.P  mti
 
+:- import rm/1 from shell.
+
 :- comment(module, "These routines load CDF files from a disk file
 system into memory, save them from memory to disk, and merge
 information into a CDF state.  Both intensional and extensional
@@ -62,6 +64,20 @@ the components system.").
 
 %-----------------------------------------------------------------
 	
+dump_extensional_facts_with_backup(Dir) :-
+	throw_cdf_writable(Dir),
+	cdf_fix_dir(Dir,DirS),
+	concat_atom([DirS,'cdf_extensional.P.backup'],BackupFile),
+	(file_exists(BackupFile)
+	 ->	rm(BackupFile)
+	 ;	true
+	),
+	concat_atom([DirS,'cdf_extensional.P'],File),
+	rename(File,BackupFile),
+	tell(File),
+	dump_extensional_facts_2,
+	told.
+
 :- comment(dump_extensional_facts/1,"@tt{dump_extensional_facts(Dir)}
 writes extensional facts to the file @tt{cdf_extensional.P} in
 @tt{Directory}.  No intensional rules are dumped by this predicate.
@@ -161,6 +177,7 @@ write_component_intensional(Comp):-
 	fail.
 write_component_intensional(Comp):- 
 	compdlrule(Comp,DLHead,DLBody),
+	writeln(userout,write_can_rule),
 	write_canonical('<='(DLHead,DLBody)), writeln('.'),
 	fail.
 write_component_intensional(_Comp).
@@ -331,28 +348,36 @@ extract_file_name(File,Name):-
 	reverse(Rn2,Nl),
 	atom_chars(Name,Nl).
 
-strip_closing_slash_if_any(['\'|L],L) :- !.
-strip_closing_slash_if_any(['/'|L],L) :- !.
+strip_closing_slash_if_any([\|L],L) :- !.
+strip_closing_slash_if_any([/|L],L) :- !.
 strip_closing_slash_if_any(L,L).
 
 % Windows allows slashes in both directions
 read_till_slash(L,L1):- 
-	((member('\',L) ; member('/',L)) -> 	
+	((member(\,L) ; member(/,L)) -> 	
 	    read_till_slash_1(L,L1)
 	  ; L = L1).
 
-read_till_slash_1(['\'|_R],[]):- !.
-read_till_slash_1(['/'|_R],[]):- !.
+read_till_slash_1([\|_R],[]):- !.
+read_till_slash_1([/|_R],[]):- !.
 read_till_slash_1([H|R],[H|R1]):- 
 	read_till_slash_1(R,R1).
+
+merge_intensional_rules(Dir) :-
+	extract_file_name(Dir,Name),
+	writeln(userout,merging_intensional_rules(Dir,Name)),
+	merge_intensional_rules(Dir,Name).
 
 %TLS: dont know if permission error is right here.	   :	
 load_intensional_rules(Path,Name):- 
 	writeln(userout,loading_intensional_rules(Path,Name)),
-	seeing(OldF),
 	retract_intensional_rules(Name),
+	merge_intensional_rules(Path,Name).
+
+merge_intensional_rules(Path,Name) :-
 	abolish_cdf_tables,
 	concat_atom([Path,'/cdf_intensional.P'],File),
+	seeing(OldF),
 	(file_exists(File) -> 
    	    see(File),
 	    read_intensional_rules_1(Name),
