@@ -2356,6 +2356,25 @@ VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf)
   }
 }
 
+VariantSF exper_get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf, CPtr tbreg)
+{
+  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) && ((int) TN_Instr(pLeaf) != trie_fail) ) {
+    //    printf("Getting ptn_parent %p\n",pLeaf);                                                                                            
+    pLeaf = BTN_Parent(pLeaf);
+  }
+  if (TN_Instr(pLeaf) == trie_fail) {
+    printf("returning for trie_fail\n");
+    return  (VariantSF) BTN_Parent((BTNptr) *(tbreg + CP_SIZE));
+  }
+  if (TN_Parent(pLeaf)) { /* workaround till all roots pointing to subg's */
+    return (VariantSF) TN_Parent(pLeaf);
+  } else {
+    fprintf(stderr,"Null parent ptr for TN Root Node type: %d Trie type %d\n",
+            TN_TrieType(pLeaf), TN_NodeType(pLeaf));
+    return NULL;
+  }
+}
+
 /* - - - - - */
 
 /* TLS: this routine is called from mark_cp_tabled_preds() and similar
@@ -2757,7 +2776,8 @@ void mark_cp_tabled_subgoals(CTXTdecl) {
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	//	printf("is in answer trie\n");
-	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
+	//	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
+	subgoal = exper_get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	//	printf("Marking ");print_subgoal(CTXTc stddbg, subgoal);printf("\n");
 	GC_MARK_SUBGOAL(subgoal);
       }
@@ -2785,7 +2805,8 @@ void unmark_cp_tabled_subgoals(CTXTdecl)
       trieNode = TrieNodeFromCP(cp_top1);
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
-	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
+	//	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
+	subgoal = exper_get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	GC_UNMARK_SUBGOAL(subgoal);
       }
     }
