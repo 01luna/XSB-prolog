@@ -937,11 +937,11 @@ void call_conv xsb_table_error(CTXTdeclc char *message)
 void call_conv xsb_table_error_vargs(CTXTdeclc char *goalstring, char *description, ...) 
 {
   va_list args;  
-  char message[MAXBUFSIZE];
+  char message[MAXTERMBUFSIZE];
   prolog_term ball_to_throw;
   int isnew;
   CPtr error_rec;
-  size_t ball_len = 20*sizeof(Cell);
+  size_t ball_len = 40*sizeof(Cell);
 #ifdef MULTI_THREAD
   char thread_id[MAXBUFSIZE];
   int tid = xsb_thread_self();
@@ -959,9 +959,9 @@ void call_conv xsb_table_error_vargs(CTXTdeclc char *goalstring, char *descripti
   ball_to_throw = makecs(hreg);
   error_rec = hreg;
   #ifdef MULTI_THREAD
-  hreg += 11; // error/2 + context/2 + context/2 + context/2
+  hreg += 12; // error/2 + context/2 + context/2 + context/2
   #else
-  hreg += 8; // error/2 + context/2 + context/2
+  hreg += 9; // error/2 + context/2 + context/2
   #endif
   bld_functor(error_rec, pair_psc(insert("error",2,
 				    (Psc)flags[CURRENT_MODULE],&isnew)));
