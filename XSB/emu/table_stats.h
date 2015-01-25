@@ -113,7 +113,7 @@ typedef struct {
    ------------------- */
 NodeStats subgoal_statistics(CTXTdeclc Structure_Manager *);
 NodeStats node_statistics(Structure_Manager *);
-HashStats hash_statistics(Structure_Manager *);
+HashStats hash_statistics(CTXTdeclc Structure_Manager *);
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 

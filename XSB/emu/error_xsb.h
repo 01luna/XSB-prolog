@@ -99,7 +99,7 @@ DllExport extern void call_conv xsb_bug(char *, ...);
 DllExport extern void call_conv bug_xsb(char *);
 void call_conv xsb_basic_abort(char *);
 
-DllExport extern void call_conv xsb_warn(char *, ...);
+DllExport extern void call_conv xsb_warn(CTXTdeclc char *, ...);
 DllExport extern void call_conv warn_xsb(char *);
 
 DllExport extern void call_conv xsb_mesg(char *, ...);

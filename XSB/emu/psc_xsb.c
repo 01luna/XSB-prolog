@@ -150,13 +150,13 @@ static Psc make_psc_rec(char *name, char arity) {
   return temp;
 }
 
-void set_psc_ep_to_psc(Psc psc_to_set, Psc target_psc) {
+void set_psc_ep_to_psc(CTXTdeclc Psc psc_to_set, Psc target_psc) {
   if (get_arity(psc_to_set) != get_arity(target_psc)) {
     xsb_abort("[IMPORT AS] Cannot import predicate as a predicate with a different arity: %s/%d\n",
 	     get_name(psc_to_set),get_arity(psc_to_set));
   } else if (get_ep(psc_to_set) != (byte *)&(psc_to_set->load_inst) &&
 	     get_ep(psc_to_set) != (byte *)&(target_psc->load_inst)) {
-    xsb_warn("[IMPORT AS] Redefining entry to import-as predicate: %s/%d\n",
+    xsb_warn(CTXTc "[IMPORT AS] Redefining entry to import-as predicate: %s/%d\n",
 	    get_name(psc_to_set),get_arity(psc_to_set));
     set_ep(psc_to_set,(byte *)&(target_psc->load_inst));
   } else {
@@ -389,7 +389,7 @@ Pair insert_module(int type, char *name)
  *           PSC-PAIR record.
  */
 
-Pair link_sym(Psc psc, Psc mod_psc)
+Pair link_sym(CTXTdeclc Psc psc, Psc mod_psc)
 {
     Pair *search_ptr, found_pair;
     char *name;
@@ -426,7 +426,7 @@ Pair link_sym(Psc psc, Psc mod_psc)
 	    snprintf(message,220,
 		    "%s/%d (type %d) had been defined in another module!",
 		    name, arity, type);
-	  xsb_warn(message);
+	  xsb_warn(CTXTc message);
 	}
 	pair_psc(found_pair) = psc;
       }

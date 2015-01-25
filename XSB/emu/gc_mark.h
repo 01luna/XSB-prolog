@@ -430,7 +430,7 @@ static int mark_root(CTXTdeclc Cell cell_val)
 	case XSB_REF1 :
 	  if (whereto != TO_NOWHERE) return(0) ;
 	  break ;
-	default: xsb_warn("Encountered bad STR pointer in GC marking; ignored\n");
+	default: xsb_warn(CTXTc "Encountered bad STR pointer in GC marking; ignored\n");
 	  return(0);
 	}
 	TO_BUFFER(cell_ptr);

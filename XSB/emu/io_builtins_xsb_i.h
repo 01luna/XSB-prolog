@@ -42,7 +42,7 @@
 STRFILE *iostrs[MAXIOSTRS] = {NULL,NULL,NULL,NULL,NULL};
 
 extern char   *expand_filename(char *filename);
-extern int xsb_intern_fileptr(FILE *, char *, char *, char *, int);
+//extern int xsb_intern_fileptr(FILE *, char *, char *, char *, int);
 
 static FILE *stropen(CTXTdeclc char *str)
 {
@@ -271,7 +271,7 @@ inline static xsbBool file_function(CTXTdecl)
       SYS_MUTEX_UNLOCK( MUTEX_IO );
       return TRUE;
     default:
-      xsb_warn("FILE_OPEN: Invalid open file mode");
+      xsb_warn(CTXTc "FILE_OPEN: Invalid open file mode");
       ctop_int(CTXTc 5, -1000);
       SYS_MUTEX_UNLOCK( MUTEX_IO );
       return TRUE;
@@ -281,7 +281,7 @@ inline static xsbBool file_function(CTXTdecl)
     addr = expand_filename(tmpstr);
 
     opennew = (int)ptoc_int(CTXTc 4);
-    if (!xsb_intern_file("FILE_OPEN",addr, &ioport,strmode,opennew)) {
+    if (!xsb_intern_file(CTXTc "FILE_OPEN",addr, &ioport,strmode,opennew)) {
       open_files[ioport].stream_type = str_type;
       ctop_int(CTXTc 5,ioport);
     }
@@ -549,7 +549,7 @@ inline static xsbBool file_function(CTXTdecl)
       ctop_int(CTXTc 5, -1000);
       return TRUE;
     default:
-      xsb_warn("FILE_REOPEN: Invalid open file mode");
+      xsb_warn(CTXTc "FILE_REOPEN: Invalid open file mode");
       ctop_int(CTXTc 5, -1000);
       return TRUE;
     }
@@ -569,7 +569,7 @@ inline static xsbBool file_function(CTXTdecl)
 	/* file exists and isn't a dir */
 	ctop_int(CTXTc 5, 0);
       else {
-	xsb_warn("FILE_REOPEN: File %s is a directory, cannot open!", addr);
+	xsb_warn(CTXTc "FILE_REOPEN: File %s is a directory, cannot open!", addr);
 	ctop_int(CTXTc 5, -2);
       }
     } else
@@ -658,7 +658,7 @@ inline static xsbBool file_function(CTXTdecl)
 	dest_fptr = fdopen(dest_fd, mode);
 	if (dest_fptr) {
 	  dest_xsb_fileno = 
-	    xsb_intern_fileptr(dest_fptr,"FILE_CLONE",
+	    xsb_intern_fileptr(CTXTc dest_fptr,"FILE_CLONE",
 			       open_files[src_xsb_fileno].file_name,
 			       &open_files[src_xsb_fileno].io_mode,
 			       open_files[src_xsb_fileno].charset);
@@ -731,7 +731,7 @@ inline static xsbBool file_function(CTXTdecl)
 
     SYS_MUTEX_LOCK( MUTEX_IO );
     /* xsb_intern_file will return -1, if fdopen fails */
-    i = xsb_intern_fileptr(fptr, "FD2IOPORT","created from fd",mode,CURRENT_CHARSET);
+    i = xsb_intern_fileptr(CTXTc fptr, "FD2IOPORT","created from fd",mode,CURRENT_CHARSET);
     ctop_int(CTXTc 3, i);
     open_files[i].stream_type = PIPE_STREAM;
     SYS_MUTEX_UNLOCK( MUTEX_IO );
@@ -757,7 +757,7 @@ inline static xsbBool file_function(CTXTdecl)
        Opens a temp file in r/w mode and returns its IO port */
     SYS_MUTEX_LOCK( MUTEX_IO );
     if ((fptr = tmpfile())) 
-      ctop_int(CTXTc 2, xsb_intern_fileptr(fptr, "TMPFILE_OPEN",
+      ctop_int(CTXTc 2, xsb_intern_fileptr(CTXTc fptr, "TMPFILE_OPEN",
 					   "TMPFILE","wb+",CURRENT_CHARSET));
     else
       ctop_int(CTXTc 2, -1);

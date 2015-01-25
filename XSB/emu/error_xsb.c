@@ -1440,7 +1440,7 @@ DllExport void call_conv xsb_log(char *description, ...)
   }
 }
 
-DllExport void call_conv xsb_warn(char *description, ...)
+DllExport void call_conv xsb_warn(CTXTdeclc char *description, ...)
 {
   va_list args;
 

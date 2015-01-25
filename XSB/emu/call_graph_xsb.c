@@ -712,7 +712,7 @@ static void dfs_outedges(CTXTdeclc callnodeptr call1){
 void dfs_inedges_warning(CTXTdeclc callnodeptr call1,calllistptr *lazy_affected) {
   deallocate_call_list(CTXTc *lazy_affected);
   sprint_subgoal(CTXTc forest_log_buffer_1,0,call1->goal);
-    xsb_warn("%d Choice point(s) exist to the table for %s -- cannot incrementally update (dfs_inedges)\n",
+    xsb_warn(CTXTc "%d Choice point(s) exist to the table for %s -- cannot incrementally update (dfs_inedges)\n",
 	     subg_visitors(call1->goal),forest_log_buffer_1->fl_buffer);
   }
 
@@ -909,7 +909,7 @@ int return_affected_list_for_update(CTXTdecl){
       #else
       //      sprint_subgoal(CTXTc forest_log_buffer_1,0,subgoal);
       #ifdef WARN_ON_UNSAFE_UPDATE
-      xsb_warn("%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_call_list)\n",
+      xsb_warn(CTXTc "%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_call_list)\n",
 	       subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
       #else
       xsb_abort("%d Choice point(s) exist to the table for %s -- cannot incrementally update (create call list)\n",
@@ -994,7 +994,7 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
       find_the_visitors(CTXTc subgoal);
       #else
       #ifdef WARN_ON_UNSAFE_UPDATE
-            xsb_warn("%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_lazy_call_list)\n",
+            xsb_warn(CTXTc "%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_lazy_call_list)\n",
       	       subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
       #else
             xsb_abort("%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_lazy_call_list)\n",
@@ -1243,7 +1243,7 @@ int immediate_outedges_list(CTXTdeclc callnodeptr call1){
     else
       reg[4] = makenil;
   }else{
-    xsb_warn("Called with non-incremental predicate\n");
+    xsb_warn(CTXTc "Called with non-incremental predicate\n");
     reg[4] = makenil;
   }
 
@@ -1389,7 +1389,7 @@ int immediate_inedges_list(CTXTdeclc callnodeptr call1){
     else
       reg[4] = makenil;
   }else{
-    xsb_warn("Called with non-incremental predicate\n");
+    xsb_warn(CTXTc "Called with non-incremental predicate\n");
     reg[4] = makenil;
   }
   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));

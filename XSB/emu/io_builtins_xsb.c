@@ -301,7 +301,7 @@ xsbBool fmt_write(CTXTdecl)
     if (current_fmt_spec->type == '.') {
       PRINT_ARG("");
       if (i < Arity)
-	xsb_warn("[FMT_WRITE] More arguments than format specifiers");
+	xsb_warn(CTXTc "[FMT_WRITE] More arguments than format specifiers");
       goto EXIT_WRITE;
     }
 
@@ -461,7 +461,7 @@ xsbBool fmt_write_string(CTXTdecl)
     if (current_fmt_spec->type == '.') {
       SPRINT_ARG("");
       if (i < Arity)
-	xsb_warn("[FMT_WRITE_STRING] More arguments than format specifiers");
+	xsb_warn(CTXTc "[FMT_WRITE_STRING] More arguments than format specifiers");
       goto EXIT_WRITE_STRING;
     }
 
@@ -631,7 +631,7 @@ xsbBool fmt_read(CTXTdecl)
     case '.': /* last format substring (and has no conversion spec) */
       curr_assignment = fscanf(fptr,  current_fmt_spec->fmt, "");
       if (isref(Arg))
-	xsb_warn("[FMT_READ] More arguments than format specifiers");
+	xsb_warn(CTXTc "[FMT_READ] More arguments than format specifiers");
       goto EXIT_READ;
     case 's':
       XSB_StrEnsureSize(&StrArgBuf, MAX_IO_BUFSIZE);
@@ -1529,7 +1529,7 @@ void next_format_substr(CTXTdeclc char *format, struct next_fmt_state *fmt_state
    whether a file pointer is present or not, rather than a file and
    I/O mode, as below. */
 
-int xsb_intern_fileptr(FILE *fptr, char *context,char* name,char *strmode, int charset)
+int xsb_intern_fileptr(CTXTdeclc FILE *fptr, char *context,char* name,char *strmode, int charset)
 {
   int i;
   char mode = '\0';
@@ -1553,7 +1553,7 @@ int xsb_intern_fileptr(FILE *fptr, char *context,char* name,char *strmode, int c
 
   for (i=MIN_USR_OPEN_FILE; i < MAX_OPEN_FILES && open_files[i].file_ptr != NULL; i++);
   if (i == MAX_OPEN_FILES) {
-    xsb_warn("[%s] Too many open files", context);
+    xsb_warn(CTXTc "[%s] Too many open files", context);
     return -1;
   } else {
     open_files[i].file_ptr = fptr;
@@ -1571,7 +1571,7 @@ int xsb_intern_fileptr(FILE *fptr, char *context,char* name,char *strmode, int c
    is to handle possible Posix I/O modes, of which there is
    redundancy. */
 
-int xsb_intern_file(char *context,char *addr, int *ioport,char *strmode,int opennew)
+int xsb_intern_file(CTXTdeclc char *context,char *addr, int *ioport,char *strmode,int opennew)
 {
   FILE *fptr;			/* working variable */
   int i, first_null, stream_found; 
@@ -1615,7 +1615,7 @@ int xsb_intern_file(char *context,char *addr, int *ioport,char *strmode,int open
        i < MAX_OPEN_FILES ;
        i++) printf("File Ptr %p Name %s\n",open_files[i].file_ptr, open_files[i].file_name);
 
-    xsb_warn("[%s] Too many open files", context);
+    xsb_warn(CTXTc "[%s] Too many open files", context);
     *ioport = 0;
     return -1;
   }
@@ -1645,7 +1645,7 @@ int xsb_intern_file(char *context,char *addr, int *ioport,char *strmode,int open
       *ioport = first_null;
       return 0;
     }  else {
-	xsb_warn("FILE_OPEN: File %s is a directory, cannot open!", addr);
+	xsb_warn(CTXTc "FILE_OPEN: File %s is a directory, cannot open!", addr);
 	fclose(fptr);
 	return -1;
     }

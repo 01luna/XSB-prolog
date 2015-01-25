@@ -1393,7 +1393,7 @@ contcase:     /* the main loop */
 		xsb_basic_abort(local_global_exception);
 	      }
 	    } else {
-	      xsb_warn("Reallocation is turned OFF !");
+	      xsb_warn(CTXTc "Reallocation is turned OFF !");
 	      xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	    }
 	  }
@@ -2502,7 +2502,7 @@ argument positions.
 	      xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	    }
 	  } else {
-	    xsb_warn("Reallocation is turned OFF !");
+	    xsb_warn(CTXTc "Reallocation is turned OFF !");
 	    xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	  }
 	}
@@ -2528,7 +2528,7 @@ argument positions.
 	      xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	    }
 	  } else {
-	    xsb_warn("Reallocation is turned OFF !");
+	    xsb_warn(CTXTc "Reallocation is turned OFF !");
 	    xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	  }
 	}

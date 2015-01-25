@@ -65,7 +65,7 @@ static xsbBool dummy(void)
 
 /*----------------------------------------------------------------------*/
 
-static byte *load_obj_dyn(char *pofilename, Psc cur_mod, char *ld_option)
+static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_option)
 {
   char	*name;
   Pair	search_ptr;
@@ -164,7 +164,7 @@ static byte *load_obj_dyn(char *pofilename, Psc cur_mod, char *ld_option)
     if (get_type(search_ptr->psc_ptr) == T_FORN) {
       if ((funcep = (int *) dlsym(handle, name)) == NULL) {
 	fprintf(stdwarn, "%s\n", dlerror());
-	xsb_warn("LOADER: Cannot find foreign procedure %s", name);
+	xsb_warn(CTXTc "LOADER: Cannot find foreign procedure %s", name);
 	set_forn(search_ptr->psc_ptr, (byte *)(dummy));
       } else { 
 	set_forn(search_ptr->psc_ptr, (byte *)(funcep));

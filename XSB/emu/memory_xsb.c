@@ -518,7 +518,7 @@ Please use -c N or cpsize(N) to start with a larger choice point stack"
        *  this may signal a bug in the engine.
        */
       else if ( (cell_val < cps_top) && (cell_val > trail_top) )
-	xsb_warn("During Trail / Choice Point Stack Reallocation\n\t   "
+	xsb_warn(CTXTc "During Trail / Choice Point Stack Reallocation\n\t   "
 		 "Erroneous pointer:  Points between Trail and CP Stack tops"
 		 "\n\t   Addr:%p, Value:%p", cell_ptr, cell_val);
     }
@@ -568,7 +568,7 @@ Please use -c N or cpsize(N) to start with a larger choice point stack"
 void handle_tcpstack_overflow(CTXTdecl)
 {
   if (pflags[STACK_REALLOC]) {
-    xsb_warn("Expanding the Trail and Choice Point Stack...");
+    xsb_warn(CTXTc "Expanding the Trail and Choice Point Stack...");
     tcpstack_realloc(CTXTc resize_stack(tcpstack.size,0));
   }
   else {

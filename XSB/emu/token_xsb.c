@@ -786,7 +786,7 @@ BACK:   if (c < 0) {
           if (c == EOF) { /* to mostly handle cygwin stdio.h bug ... */
 READ_ERROR: 
 	    if (!instr && ferror(card)) {
-	      xsb_warn("[TOKENIZER] I/O error in file %s: %s at position %d\n",
+	      xsb_warn(CTXTc "[TOKENIZER] I/O error in file %s: %s at position %d\n",
 		       input_file_name(card,instr),input_file_position(card,instr),
 		       strerror(errno));
 	    }
@@ -818,7 +818,7 @@ READ_ERROR:
         switch (c) {
             case EOF:
 	        if (!instr && ferror(card)) 
-		  xsb_warn("[TOKENIZER] I/O error: %s at position %d in %s\n",
+		  xsb_warn(CTXTc "[TOKENIZER] I/O error: %s at position %d in %s\n",
 			   strerror(errno),input_file_position(card,instr),
 			   input_file_name(card,instr));
 		clearerr(card);
@@ -858,7 +858,7 @@ READ_ERROR:
 		  if (c < 0) goto READ_ERROR;
 		  if (c != '\\') {
 		    unGetC(c, card, instr);
-		    xsb_warn("Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
+		    xsb_warn(CTXTc "Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
 			     n,input_file_position(card,instr),
 			     input_file_name(card,instr));
 		  }
@@ -876,7 +876,7 @@ READ_ERROR:
 			n = (n<<4) + DigVal(c);
 		      } else {
 			unGetC(c,card,instr);
-			xsb_warn("Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
+			xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
 				 n,input_file_position(card,instr),
 				 input_file_name(card,instr));
 			return n;
@@ -891,7 +891,7 @@ READ_ERROR:
 			  n = (n<<4) + DigVal(c);
 			} else {
 			  unGetC(c,card,instr);
-			  xsb_warn("Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
+			  xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
 				   n,input_file_position(card,instr),
 				   input_file_name(card,instr));
 			  return n;
@@ -1028,7 +1028,7 @@ void realloc_strbuff(CTXTdeclc byte **pstrbuff, byte **ps, int *pn)
   newbuff = (byte *)mem_realloc(*pstrbuff, strbuff_len, strbuff_len * 2,OTHER_SPACE);
   exit_if_null(newbuff);
   if (token_too_long_warning) {
-    xsb_warn("Extra-long token. Runaway string?");
+    xsb_warn(CTXTc "Extra-long token. Runaway string?");
     token_too_long_warning = 0;
   }
 
@@ -1431,7 +1431,7 @@ case deleted ****/
             case EOFCH:
 	        if (!instr) {
 		  if (ferror(card))
-		    xsb_warn("[TOKENIZER] I/O error: %s",strerror(errno));
+		    xsb_warn(CTXTc "[TOKENIZER] I/O error: %s",strerror(errno));
 		  clearerr(card);
 	        }
 		token->nextch = ' ';

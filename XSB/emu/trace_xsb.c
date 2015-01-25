@@ -172,13 +172,13 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
     de_count, i;
 
   tbtn = node_statistics(&smTableBTN);
-  tbtht = hash_statistics(&smTableBTHT);
+  tbtht = hash_statistics(CTXTc &smTableBTHT);
   varsf = subgoal_statistics(CTXTc &smVarSF);
   prodsf = subgoal_statistics(CTXTc &smProdSF);
   conssf = subgoal_statistics(CTXTc &smConsSF);
   aln = node_statistics(&smALN);
   tstn = node_statistics(&smTSTN);
-  tstht = hash_statistics(&smTSTHT);
+  tstht = hash_statistics(CTXTc &smTSTHT);
   tsi = node_statistics(&smTSIN);
   asi = node_statistics(&smASI);
 
@@ -205,7 +205,7 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
   tablespace_used = tablespace_used + de_space_used + dl_space_used + pnde_space_used;
 
   abtn = node_statistics(&smAssertBTN);
-  abtht = hash_statistics(&smAssertBTHT);
+  abtht = hash_statistics(CTXTc &smAssertBTHT);
   trieassert_alloc =
     NodeStats_SizeAllocNodes(abtn) + HashStats_SizeAllocTotal(abtht);
   trieassert_used =
@@ -311,13 +311,13 @@ void total_stat(CTXTdeclc double elapstime) {
     trieassert_alloc, trieassert_used, tc_avail, gl_avail;
 
   tbtn = node_statistics(&smTableBTN);
-  tbtht = hash_statistics(&smTableBTHT);
+  tbtht = hash_statistics(CTXTc &smTableBTHT);
   varsf = subgoal_statistics(CTXTc &smVarSF);
   prodsf = subgoal_statistics(CTXTc &smProdSF);
   conssf = subgoal_statistics(CTXTc &smConsSF);
   aln = node_statistics(&smALN);
   tstn = node_statistics(&smTSTN);
-  tstht = hash_statistics(&smTSTHT);
+  tstht = hash_statistics(CTXTc &smTSTHT);
   tsi = node_statistics(&smTSIN);
   asi = node_statistics(&smASI);
 
@@ -327,7 +327,7 @@ void total_stat(CTXTdeclc double elapstime) {
 					       conssf,aln,tstn,tstht,tsi,asi);
 
   abtn = node_statistics(&smAssertBTN);
-  abtht = hash_statistics(&smAssertBTHT);
+  abtht = hash_statistics(CTXTc &smAssertBTHT);
   trieassert_alloc =
     NodeStats_SizeAllocNodes(abtn) + HashStats_SizeAllocTotal(abtht);
   trieassert_used =
@@ -535,20 +535,20 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
     i;
 
   tbtn = node_statistics(&smTableBTN);
-  tbtht = hash_statistics(&smTableBTHT);
+  tbtht = hash_statistics(CTXTc &smTableBTHT);
   varsf = subgoal_statistics(CTXTc &smVarSF);
   aln = node_statistics(&smALN);
   asi = node_statistics(&smASI);
 
   pri_tbtn = node_statistics(&smTableBTN);
-  pri_tbtht = hash_statistics(&smTableBTHT);
+  pri_tbtht = hash_statistics(CTXTc &smTableBTHT);
   pri_varsf = subgoal_statistics(CTXTc &smVarSF);
   pri_aln = node_statistics(&smALN);
   pri_asi = node_statistics(&smASI);
   pri_prodsf = subgoal_statistics(CTXTc &smProdSF);
   pri_conssf = subgoal_statistics(CTXTc &smConsSF);
   pri_tstn = node_statistics(&smTSTN);
-  pri_tstht = hash_statistics(&smTSTHT);
+  pri_tstht = hash_statistics(CTXTc &smTSTHT);
   pri_tsi = node_statistics(&smTSIN);
 
   private_tablespace_alloc = CurrentPrivateTableSpaceAlloc(pri_tbtn,pri_tbtht,pri_varsf,
@@ -603,7 +603,7 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
     private_dl_space_used + private_pnde_space_used;
 
   abtn = node_statistics(&smAssertBTN);
-  abtht = hash_statistics(&smAssertBTHT);
+  abtht = hash_statistics(CTXTc &smAssertBTHT);
   trieassert_alloc =
     NodeStats_SizeAllocNodes(abtn) + HashStats_SizeAllocTotal(abtht);
   trieassert_used =
@@ -736,20 +736,20 @@ void total_stat(CTXTdeclc double elapstime) {
     i;
 
   tbtn = node_statistics(&smTableBTN);
-  tbtht = hash_statistics(&smTableBTHT);
+  tbtht = hash_statistics(CTXTc &smTableBTHT);
   varsf = subgoal_statistics(CTXTc &smVarSF);
   aln = node_statistics(&smALN);
   asi = node_statistics(&smASI);
 
   pri_tbtn = node_statistics(private_smTableBTN);
-  pri_tbtht = hash_statistics(private_smTableBTHT);
+  pri_tbtht = hash_statistics(CTXTc private_smTableBTHT);
   pri_varsf = subgoal_statistics(CTXTc private_smVarSF);
   pri_aln = node_statistics(private_smALN);
   pri_asi = node_statistics(private_smASI);
   pri_prodsf = subgoal_statistics(CTXTc private_smProdSF);
   pri_conssf = subgoal_statistics(CTXTc private_smConsSF);
   pri_tstn = node_statistics(private_smTSTN);
-  pri_tstht = hash_statistics(private_smTSTHT);
+  pri_tstht = hash_statistics(CTXTc private_smTSTHT);
   pri_tsi = node_statistics(private_smTSIN);
 
   private_tablespace_alloc = CurrentPrivateTableSpaceAlloc(pri_tbtn,pri_tbtht,pri_varsf,
@@ -766,7 +766,7 @@ void total_stat(CTXTdeclc double elapstime) {
   tablespace_used =  shared_tablespace_used + private_tablespace_used;
 
   abtn = node_statistics(&smAssertBTN);
-  abtht = hash_statistics(&smAssertBTHT);
+  abtht = hash_statistics(CTXTc &smAssertBTHT);
   trieassert_alloc =
     NodeStats_SizeAllocNodes(abtn) + HashStats_SizeAllocTotal(abtht);
   trieassert_used =

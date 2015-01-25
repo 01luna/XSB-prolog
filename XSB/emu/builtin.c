@@ -1429,7 +1429,7 @@ int builtin_call(CTXTdeclc byte number)
       char str[100];
       snprintf(str,100,"[psc_prop/2] Cannot get property of predicate: %s/%d\n",
 	      get_name(psc),get_arity(psc));
-      xsb_warn(str);
+      xsb_warn(CTXTc str);
       return FALSE;
     }
     ctop_int(CTXTc 2, (Integer)get_data(psc));
@@ -1442,7 +1442,7 @@ int builtin_call(CTXTdeclc byte number)
       char str[100];
       snprintf(str,100,"[psc_mod/2] Cannot get property of predicate: %s/%d\n",
 	      get_name(psc),get_arity(psc));
-      xsb_warn(str);
+      xsb_warn(CTXTc str);
       return FALSE;
     }
     ctop_int(CTXTc 2, (Integer)(get_mod_for_psc(psc)));
@@ -1451,7 +1451,7 @@ int builtin_call(CTXTdeclc byte number)
   case PSC_SET_PROP: {	       /* R1: +PSC; R2: +int */
     Psc psc = (Psc)ptoc_addr(1);
     if (get_type(psc) == T_PRED || get_type(psc) == T_DYNA) {
-      xsb_warn("[psc_set_prop/2] Cannot set property of predicate.\n");
+      xsb_warn(CTXTc "[psc_set_prop/2] Cannot set property of predicate.\n");
       return FALSE;
     }
     set_data(psc, (Psc)ptoc_int(CTXTc 2));
@@ -1562,7 +1562,7 @@ int builtin_call(CTXTdeclc byte number)
     newtermpsc = pair_psc(insert(get_name(termpsc),get_arity(termpsc),modpsc,&new));
     if (new) {
       set_data(newtermpsc, modpsc);
-      env_type_set(newtermpsc, T_IMPORTED, T_ORDI, (xsbBool)new);
+      env_type_set(CTXTc newtermpsc, T_IMPORTED, T_ORDI, (xsbBool)new);
     }
     ctop_constr(CTXTc 3, (Pair)hreg);
     new_heap_functor(hreg, newtermpsc);
@@ -1651,7 +1651,7 @@ int builtin_call(CTXTdeclc byte number)
     value = ((ptoc_int(CTXTc 3)+7)>>3)<<3;	/* alignment */
     value *= ZOOM_FACTOR ;
     if (value > disp) {
-      xsb_warn("[BUFF_DEALLOC] New Buffer Size (%d) Cannot exceed the old one (%d)!!",
+      xsb_warn(CTXTc "[BUFF_DEALLOC] New Buffer Size (%d) Cannot exceed the old one (%d)!!",
 	       value, disp);
       break;
     }
@@ -1722,7 +1722,7 @@ int builtin_call(CTXTdeclc byte number)
     case XSB_LIST:
       bld_list(vptr(addr+disp), (CPtr)ptoc_int(CTXTc 4)); break;
     default:
-      xsb_warn("[BUFF_SET_CELL] Type %d is not implemented", value);
+      xsb_warn(CTXTc "[BUFF_SET_CELL] Type %d is not implemented", value);
     }
     break;
   }
@@ -1928,7 +1928,7 @@ int builtin_call(CTXTdeclc byte number)
 	HashStats abtht;
 	size_t trieassert_used;
 	abtn = node_statistics(&smAssertBTN);
-	abtht = hash_statistics(&smAssertBTHT);
+	abtht = hash_statistics(CTXTc &smAssertBTHT);
 	trieassert_used =
 	  NodeStats_SizeUsedNodes(abtn) + HashStats_SizeUsedTotal(abtht);
 	ctop_int(CTXTc 2, (Integer)trieassert_used);
@@ -1989,15 +1989,15 @@ int builtin_call(CTXTdeclc byte number)
     Pair sym = insert(ptoc_string(CTXTc 1), (char)ptoc_int(CTXTc 2), psc, &value);
     if (value)       /* if predicate is new */
       set_data(pair_psc(sym), (psc));
-    env_type_set(pair_psc(sym), T_IMPORTED, T_ORDI, (xsbBool)value);
+    env_type_set(CTXTc pair_psc(sym), T_IMPORTED, T_ORDI, (xsbBool)value);
     if (flags[CURRENT_MODULE]) /* in case before flags is initted */
-      link_sym(pair_psc(sym), (Psc)flags[CURRENT_MODULE]);
-    else link_sym(pair_psc(sym), global_mod);
+      link_sym(CTXTc pair_psc(sym), (Psc)flags[CURRENT_MODULE]);
+    else link_sym(CTXTc pair_psc(sym), global_mod);
     break;
   }
 
   case PSC_IMPORT_AS: {    /* R1: PSC addr of source psc, R2 PSC addr of target psc */
-    set_psc_ep_to_psc((Psc)ptoc_int(CTXTc 2),(Psc)ptoc_int(CTXTc 1));
+    set_psc_ep_to_psc(CTXTc (Psc)ptoc_int(CTXTc 2),(Psc)ptoc_int(CTXTc 1));
     break;
   }
 
@@ -2833,7 +2833,7 @@ case WRITE_OUT_PROFILE:
       if (get_tip(CTXTc psc)) {
 	TIF_EvalMethod(get_tip(CTXTc psc)) = VARIANT_EVAL_METHOD;
 	if (TIF_CallTrie(get_tip(CTXTc psc))) {
-	  xsb_warn("Change to variant tabling method for predicate with tabled subgoals: %s/%d",
+	  xsb_warn(CTXTc "Change to variant tabling method for predicate with tabled subgoals: %s/%d",
 		   get_name(psc),get_arity(psc));
 	}
       }
@@ -2846,7 +2846,7 @@ case WRITE_OUT_PROFILE:
       if (get_tip(CTXTc psc)) {
 	TIF_EvalMethod(get_tip(CTXTc psc)) = SUBSUMPTIVE_EVAL_METHOD;
 	if (TIF_CallTrie(get_tip(CTXTc psc))) {
-	  xsb_warn("Change to subsumptive tabling method for predicate with tabled subgoals: %s/%d",
+	  xsb_warn(CTXTc "Change to subsumptive tabling method for predicate with tabled subgoals: %s/%d",
 		   get_name(psc),get_arity(psc));
 	}
       }
@@ -2854,11 +2854,11 @@ case WRITE_OUT_PROFILE:
 
     /***    tif = get_tip(CTXTc psc);
     if ( IsNULL(tif) ) {
-      xsb_warn("Predicate %s/%d is not tabled", get_name(psc), get_arity(psc));
+      xsb_warn(CTXTc "Predicate %s/%d is not tabled", get_name(psc), get_arity(psc));
       return FALSE;
     }
     if ( IsNonNULL(TIF_CallTrie(tif)) ) {
-      xsb_warn("Cannot change tabling method for tabled predicate %s/%d\n"
+      xsb_warn(CTXTc "Cannot change tabling method for tabled predicate %s/%d\n"
 	       "\t   Calls to %s/%d have already been issued\n",
 	       get_name(psc), get_arity(psc), get_name(psc), get_arity(psc));
       return FALSE;
@@ -3056,7 +3056,7 @@ case WRITE_OUT_PROFILE:
       xsb_default_segfault_handler = xsb_segfault_catcher;
       break;
     default:
-      xsb_warn("Request for unsupported type of segfault handling, %s", type);
+      xsb_warn(CTXTc "Request for unsupported type of segfault handling, %s", type);
       return TRUE;
     }
 #ifdef SIGBUS

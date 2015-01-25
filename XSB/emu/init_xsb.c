@@ -390,7 +390,7 @@ static int init_open_files(void)
    'optionname'. Process it and return.  (Dont worry -- init_flags has
    already been done)
 */
-static int process_long_option(char *option,int *ctr,char *argv[],int argc)
+static int process_long_option(CTXTdeclc char *option,int *ctr,char *argv[],int argc)
 {
   if (0==strcmp(option, "nobanner")) {
     flags[BANNER_CTL] *= NOBANNER;
@@ -413,13 +413,13 @@ static int process_long_option(char *option,int *ctr,char *argv[],int argc)
       sscanf(argv[*ctr], "%d", &max_threads_glc);
 #endif
     }
-    else xsb_warn("Missing size value for --max_threads");
+    else xsb_warn(CTXTc "Missing size value for --max_threads");
   }  else if (0==strcmp(option, "max_tries")) {
     if ((int) (*ctr) < argc) {
       (*ctr)++;
       sscanf(argv[*ctr], "%d", &max_interned_tries_glc);
     }
-    else xsb_warn("Missing size value for --max_tries");
+    else xsb_warn(CTXTc "Missing size value for --max_tries");
   } else if (0==strcmp(option, "max_mqueues")) {
     if ((int) (*ctr) < argc) {
       (*ctr)++;
@@ -427,14 +427,14 @@ static int process_long_option(char *option,int *ctr,char *argv[],int argc)
       sscanf(argv[*ctr], "%d", &max_mqueues_glc);
 #endif
     }
-    else xsb_warn("Missing size value for --max_mqueues");
+    else xsb_warn(CTXTc "Missing size value for --max_mqueues");
   } else if (!strcmp(option,"max_subgoal_depth")) {
     if ((int) (*ctr) < argc) {
       (*ctr)++;
       if (sscanf(argv[*ctr], "%d", (int*) &flags[MAX_TABLE_SUBGOAL_DEPTH]) < 1)
-	xsb_warn("Invalid depth value for --max_subgoal_depth");
+	xsb_warn(CTXTc "Invalid depth value for --max_subgoal_depth");
     }
-    else xsb_warn("Missing depth value for --max_subgoal_depth");
+    else xsb_warn(CTXTc "Missing depth value for --max_subgoal_depth");
   }
   else if (!strcmp(option,"max_subgoal_action")) {
     char action;
@@ -454,13 +454,13 @@ static int process_long_option(char *option,int *ctr,char *argv[],int argc)
 	flags[MAX_TABLE_SUBGOAL_ACTION] = XSB_FAILURE;
 	break;
       }
-      default: xsb_warn("Invalid action for (%c) for --max_subgoal_action "
+      default: xsb_warn(CTXTc "Invalid action for (%c) for --max_subgoal_action "
 			"values can be (a)bstract (e)rror or (f)ail",action);
       }
     }
-    else xsb_warn("Missing depth value for --max_subgoal_depth");
+    else xsb_warn(CTXTc "Missing depth value for --max_subgoal_depth");
   } 
-  else xsb_warn("Unknown option --%s",option);
+  else xsb_warn(CTXTc "Unknown option --%s",option);
 
   return(0);
 }
@@ -669,11 +669,11 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	if (strcmp(argv[i],"none")==0)
 	  pflags[GARBAGE_COLLECT] = NO_GC;
 	else
-	xsb_warn("Unrecognized garbage collection type");
+	xsb_warn(CTXTc "Unrecognized garbage collection type");
       } else
-        xsb_warn("Missing garbage collection type");
+        xsb_warn(CTXTc "Missing garbage collection type");
 #else
-      xsb_warn("-g option does not make sense in this XSB configuration");
+      xsb_warn(CTXTc "-g option does not make sense in this XSB configuration");
 #endif
       break;
     case 'u':
@@ -692,7 +692,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	  flags[THREAD_PDLSIZE] = get_memarea_size( argv[i] ) ;
 #endif
 	else
-	  xsb_warn("Missing size value for -u");
+	  xsb_warn(CTXTc "Missing size value for -u");
       }
       break;
     case 'm':
@@ -711,7 +711,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	  flags[THREAD_GLSIZE] = get_memarea_size( argv[i] ) ;
 #endif
 	else
-	  xsb_warn("Missing size value for -m");
+	  xsb_warn(CTXTc "Missing size value for -m");
       }
       break;
     case 'c':
@@ -730,7 +730,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	  flags[THREAD_TCPSIZE] = get_memarea_size( argv[i] ) ;
 #endif
 	else
-	  xsb_warn("Missing size value for -c");
+	  xsb_warn(CTXTc "Missing size value for -c");
       }
       break;
     case 'o':
@@ -749,7 +749,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	  flags[THREAD_COMPLSIZE] = get_memarea_size( argv[i] ) ;
 #endif
 	else
-	  xsb_warn("Missing size value for -o");
+	  xsb_warn(CTXTc "Missing size value for -o");
       }
       break;
     case 'S':
@@ -803,7 +803,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	if (i < argc)
 	   boot_module = argv[i];
 	 else
-	   xsb_warn("Missing boot module's file name");
+	   xsb_warn(CTXTc "Missing boot module's file name");
       }
       break;
     case 'D':
@@ -818,7 +818,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	if (i < argc)
 	   cmd_loop_driver = argv[i];
 	 else
-	   xsb_warn("Missing top-level command loop driver's file name");
+	   xsb_warn(CTXTc "Missing top-level command loop driver's file name");
       }
       break;
     case 'e': {
@@ -830,7 +830,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	if (i < argc)
 	   tmp_goal = argv[i];
 	 else
-	   xsb_warn("Missing command line goal");
+	   xsb_warn(CTXTc "Missing command line goal");
       }
 
       if (strchr(tmp_goal, '.') == NULL) {
@@ -856,7 +856,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 	i = argc;
       } else
 	/* long options of the form --optionname */
-      process_long_option(argv[i]+2,&i,argv,argc);
+      process_long_option(CTXTc argv[i]+2,&i,argv,argc);
       break;
     case 'p':
       xsb_profiling_enabled = 1;
@@ -865,7 +865,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
       break;
     default:
       sprintf(warning, "Unknown command line option %s", argv[i]);
-      xsb_warn(warning);
+      xsb_warn(CTXTc warning);
     } /* switch */
   } /* for */
   /* Done with command line arguments */
@@ -1482,7 +1482,7 @@ void init_machine(CTXTdeclc int glsize, int tcpsize,
 
 } /* init_machine() */
 
-Psc make_code_psc_rec(char *name, int arity, Psc mod_psc) {
+Psc make_code_psc_rec(CTXTdeclc char *name, int arity, Psc mod_psc) {
   Pair temp;
   int new;
   Psc new_psc;
@@ -1491,7 +1491,7 @@ Psc make_code_psc_rec(char *name, int arity, Psc mod_psc) {
   set_data(new_psc, mod_psc);
   set_env(new_psc, T_UNLOADED);
   set_type(new_psc, T_ORDI);
-  if (mod_psc != global_mod) link_sym(new_psc, global_mod); /* Add to global module as well */
+  if (mod_psc != global_mod) link_sym(CTXTc new_psc, global_mod); /* Add to global module as well */
   return new_psc;
 }
 
@@ -1564,36 +1564,35 @@ void init_symbols(CTXTdecl)
   setofmod_psc = pair_psc(insert_module(0, "setof"));	/* unloaded */
   loader_psc = pair_psc(insert_module(0, "loader"));	/* unloaded */
 
-  true_psc = make_code_psc_rec("true", 0, standard_psc);
+  true_psc = make_code_psc_rec(CTXTc "true", 0, standard_psc);
   true_string = get_name(true_psc);
   cut_string = string_find("!",1);
   cyclic_string = (char *) string_find("<cyclic>",1);
 
-  visited_psc = make_code_psc_rec("_$visited", 0, standard_psc);
-  //  cyclic_psc = make_code_psc_rec("_$cyclic", 0, standard_psc);
+  visited_psc = make_code_psc_rec(CTXTc "_$visited", 0, standard_psc);
 
-  load_undef_psc = make_code_psc_rec("_$load_undef", 1, loader_psc);
-  comma_psc = make_code_psc_rec(",", 2, standard_psc);
-  colon_psc = make_code_psc_rec(":", 2, standard_psc);
-  caret_psc = make_code_psc_rec("^", 2, setofmod_psc);
-  setof_psc = make_code_psc_rec("setof", 3, setofmod_psc);
-  bagof_psc = make_code_psc_rec("bagof", 3, setofmod_psc);
-  cut_psc = make_code_psc_rec("!", 0, standard_psc);
-  cond_psc = make_code_psc_rec("->", 2, standard_psc);
+  load_undef_psc = make_code_psc_rec(CTXTc "_$load_undef", 1, loader_psc);
+  comma_psc = make_code_psc_rec(CTXTc ",", 2, standard_psc);
+  colon_psc = make_code_psc_rec(CTXTc ":", 2, standard_psc);
+  caret_psc = make_code_psc_rec(CTXTc "^", 2, setofmod_psc);
+  setof_psc = make_code_psc_rec(CTXTc "setof", 3, setofmod_psc);
+  bagof_psc = make_code_psc_rec(CTXTc "bagof", 3, setofmod_psc);
+  cut_psc = make_code_psc_rec(CTXTc "!", 0, standard_psc);
+  cond_psc = make_code_psc_rec(CTXTc "->", 2, standard_psc);
 
   ccall_mod_psc = pair_psc(insert_module(0,"ccallxsb"));
   c_callloop_psc = pair_psc(insert("c_callloop_query_loop",1,ccall_mod_psc,&new));
   if (new) {
     set_data(c_callloop_psc,ccall_mod_psc);
-    env_type_set(c_callloop_psc, T_IMPORTED, T_ORDI, (xsbBool)new);
-    link_sym(c_callloop_psc, global_mod);
+    env_type_set(CTXTc c_callloop_psc, T_IMPORTED, T_ORDI, (xsbBool)new);
+    link_sym(CTXTc c_callloop_psc, global_mod);
   }
 
 
   /* insert symbol tnot/1 into module tables */
   tables_psc = pair_psc(insert_module(0, "tables"));		/* unloaded */
 
-  tnot_psc = make_code_psc_rec("tnot", 1, tables_psc);
+  tnot_psc = make_code_psc_rec(CTXTc "tnot", 1, tables_psc);
 
   /* insert "[]"/0 into String Table */
   nil_string = string_find("[]", 1);

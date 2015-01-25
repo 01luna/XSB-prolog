@@ -694,11 +694,11 @@ xsbBool xsb_socket_request(CTXTdecl)
       if (SETSOCKOPT(sock_handle, SOL_SOCKET, SO_LINGER,
 		     &sock_linger_opt, sizeof(sock_linger_opt))
 	  < 0) {
-	xsb_warn("[SOCKET_SET_OPTION] Cannot set socket linger time");
+	xsb_warn(CTXTc "[SOCKET_SET_OPTION] Cannot set socket linger time");
 	return FALSE;
       } 
     }else {
-      xsb_warn("[SOCKET_SET_OPTION] Invalid option, `%s'", option_name);
+      xsb_warn(CTXTc "[SOCKET_SET_OPTION] Invalid option, `%s'", option_name);
       return FALSE;
     }
     
@@ -869,7 +869,7 @@ xsbBool xsb_socket_request(CTXTdecl)
   }
 
   default:
-    xsb_warn("[SOCKET_REQUEST] Invalid socket request %d", (int) ptoc_int(CTXTc 1));
+    xsb_warn(CTXTc "[SOCKET_REQUEST] Invalid socket request %d", (int) ptoc_int(CTXTc 1));
     return FALSE;
   }
 

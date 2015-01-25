@@ -652,7 +652,7 @@ void delete_variant_call(CTXTdeclc VariantSF pSF, xsbBool should_warn) {
 #else
     if ( subg_tag(pSF) == COND_ANSWERS && should_warn) {
 #endif
-      xsb_warn("abolish_table_call/1 is deleting a table entry for %s/%d with conditional"
+      xsb_warn(CTXTc "abolish_table_call/1 is deleting a table entry for %s/%d with conditional"
                       " answers: delay dependencies may be corrupted.\n",	    
 	       get_name(TIF_PSC(subg_tif_ptr(pSF))),get_arity(TIF_PSC(subg_tif_ptr(pSF))));
     }
@@ -812,11 +812,11 @@ static void delete_variant_table(CTXTdeclc BTNptr x, xsbBool should_warn) {
 #else
 	  if ( subg_tag(pSF) == COND_ANSWERS && should_warn) {
 #endif
-	    xsb_warn("abolish_table_pred/1 is deleting a table entry for %s/%d with conditional\
+	    xsb_warn(CTXTc "abolish_table_pred/1 is deleting a table entry for %s/%d with conditional\
                       answers: delay dependencies may be corrupted flags %d.\n",	    
 		     get_name(TIF_PSC(subg_tif_ptr(pSF))),get_arity(TIF_PSC(subg_tif_ptr(pSF))),flags[TABLE_GC_ACTION]);
 	    /*
-	    xsb_warn("abolish_table_pred/1 is deleting a table entry for %s/%d with conditional\
+	    xsb_warn(CTXTc "abolish_table_pred/1 is deleting a table entry for %s/%d with conditional\
                       answers: delay dependencies may be corrupted.\n",	    
 		     get_name(TIF_PSC(subg_tif_ptr(pSF))),get_arity(TIF_PSC(subg_tif_ptr(pSF))));
 	    */
@@ -2075,7 +2075,7 @@ static IGRptr getIGRnode(CTXTdeclc Integer rootn)
       p = p -> next;
   }  
   if(p != NULL)
-    xsb_warn("Invariant p == NULL violated");
+    xsb_warn(CTXTc "Invariant p == NULL violated");
 
   p = newIGR(rootn);
   p -> next = IGRhead;
@@ -3885,7 +3885,7 @@ int abolish_module_tables(CTXTdeclc const char *module_name)
     modpair = pair_next(modpair);
 
   if (!modpair) {
-    xsb_warn("[abolish_module_tables] Module %s not found.\n",
+    xsb_warn(CTXTc "[abolish_module_tables] Module %s not found.\n",
 		module_name);
     return FALSE;
   }

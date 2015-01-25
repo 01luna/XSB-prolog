@@ -135,7 +135,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
   case  GET_CALLNODEPTR_INCR:{
     const int regLeafChild=3; 
     if(IsNULL(BTN_Child(Last_Nod_Sav))){
-      xsb_warn("Callnodeptr is NULL! Invalid incrdynamic predicate.");
+      xsb_warn(CTXTc "Callnodeptr is NULL! Invalid incrdynamic predicate.");
       return FALSE;
     }
     ctop_int(CTXTc regLeafChild, (Integer)BTN_Child(Last_Nod_Sav));    

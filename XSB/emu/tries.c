@@ -958,7 +958,7 @@ static int *depth_stack;
     if (depth_ctr >= depth_limit) {					\
       if (flags[MAX_TABLE_ANSWER_ACTION] == XSB_WARNING) {		\
 	sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(subg_tif_ptr(subgoal_ptr)));	\
-	xsb_warn("Exceeded max answer term depth of %d in call %s\n", \
+	xsb_warn(CTXTc "Exceeded max answer term depth of %d in call %s\n", \
 		 (int)depth_limit,forest_log_buffer_1->fl_buffer);	\
 	psc = get_str_psc(xtemp1);					\
 	depth_stack_push(get_arity(psc));				\
@@ -1004,7 +1004,7 @@ static int *depth_stack;
   if (--list_depth_ctr <= 0)	{						\
     if (flags[MAX_TABLE_ANSWER_LIST_ACTION] == XSB_WARNING) {		\
       sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(subg_tif_ptr(subgoal_ptr)));	\
-      xsb_warn("Exceeded max answer list depth of %d in call %s\n",	\
+      xsb_warn(CTXTc "Exceeded max answer list depth of %d in call %s\n",	\
 	       flags[MAX_TABLE_ANSWER_LIST_DEPTH],forest_log_buffer_1->fl_buffer); \
     }									\
     else if (flags[MAX_TABLE_ANSWER_LIST_ACTION] == XSB_FAILURE) {		\
@@ -1763,7 +1763,7 @@ void load_solution_trie(CTXTdeclc int arity, int attv_num, CPtr cptr, BTNptr Tri
     }
     heap_needed = follow_par_chain(CTXTc TriePtr); /* side-effect: fills termstack */
     if (glstack_overflow(heap_needed*sizeof(Cell))) {
-      xsb_warn("stack overflow could cause problems for delay lists\n");
+      xsb_warn(CTXTc "stack overflow could cause problems for delay lists\n");
       handle_heap_overflow_trie(CTXTc &cptr,arity,heap_needed);
     }
     load_solution_trie_1(CTXTc arity,cptr);
@@ -1787,7 +1787,7 @@ CPtr xtemp; int heap_needed;
     }
     heap_needed = follow_par_chain(CTXTc TriePtr); /* side-effect: fills termstack */
     if (glstack_overflow(heap_needed*sizeof(Cell))) {
-      xsb_warn("stack overflow could cause problems for delay lists\n");
+      xsb_warn(CTXTc "stack overflow could cause problems for delay lists\n");
       handle_heap_overflow_trie(CTXTc &cptr,arity,heap_needed);
     }
     load_solution_trie_notrail_1(CTXTc arity,cptr);        // <<<<<<< only difference from previous

@@ -195,7 +195,7 @@ DllExport xsbBool call_conv c2p_int(CTXTdeclc Integer val, prolog_term var)
       bind_oint(vptr(v), val);
       return TRUE;
     } else {
-      xsb_warn("[C2P_INT] Argument 2 must be a variable");
+      xsb_warn(CTXTc "[C2P_INT] Argument 2 must be a variable");
       return FALSE;
     }
 }
@@ -207,7 +207,7 @@ DllExport xsbBool call_conv c2p_float(CTXTdeclc double val, prolog_term var)
 	bind_boxedfloat(vptr(v), (Float)(val));
 	return TRUE;
     } else {
-	xsb_warn("[C2P_FLOAT] Argument 2 must be a variable");
+	xsb_warn(CTXTc "[C2P_FLOAT] Argument 2 must be a variable");
 	return FALSE;
     }
 }
@@ -219,7 +219,7 @@ DllExport xsbBool call_conv c2p_string(CTXTdeclc char *val, prolog_term var)
 	bind_string(vptr(v), (char *)string_find(val, 1));
 	return TRUE;
     } else {
-	xsb_warn("[C2P_STRING] Argument 2 must be a variable");
+	xsb_warn(CTXTc "[C2P_STRING] Argument 2 must be a variable");
 	return FALSE;
     }
 }
@@ -234,7 +234,7 @@ DllExport xsbBool call_conv c2p_list(CTXTdeclc prolog_term var)
 	bind_list(vptr(v), sreg);
 	return TRUE;
     } else {
-	xsb_warn("[C2P_LIST] Argument must be a variable");
+	xsb_warn(CTXTc "[C2P_LIST] Argument must be a variable");
 	return FALSE;
     }
 }
@@ -246,7 +246,7 @@ DllExport xsbBool call_conv c2p_nil(CTXTdeclc prolog_term var)
        bind_nil(vptr(v));
        return TRUE;
     } else {
-	xsb_warn("[C2P_NIL] Argument must be a variable");
+	xsb_warn(CTXTc "[C2P_NIL] Argument must be a variable");
 	return FALSE;
     }
 }
@@ -277,7 +277,7 @@ DllExport xsbBool call_conv c2p_functor(CTXTdeclc char *functor, int arity,
 	for (i=0; i<arity; sreg++,i++) { bld_free(sreg); }
 	return TRUE;
     } else {
-	xsb_warn("[C2P_FUNCTOR] Argument 3 must be a variable");
+	xsb_warn(CTXTc "[C2P_FUNCTOR] Argument 3 must be a variable");
 	return FALSE;
     }
 }
@@ -1125,7 +1125,7 @@ void printpstring(char *atom, int toplevel, VarString *straddr)
 }
 
 /* calculate approximate length of a printed term.  For space alloc. */
-size_t clenpterm(prolog_term term)
+size_t clenpterm(CTXTdeclc prolog_term term)
 {
   int i;
   size_t clen;
@@ -1137,26 +1137,26 @@ size_t clenpterm(prolog_term term)
   else if (is_string(term)) return strlen(p2c_string(term))+5;
   else if (is_list(term)) {
       clen = 1;
-      clen += clenpterm(p2p_car(term)) + 1;
+      clen += clenpterm(CTXTc p2p_car(term)) + 1;
       while (is_list(term)) {
-          clen += clenpterm(p2p_car(term)) + 1;
+          clen += clenpterm(CTXTc p2p_car(term)) + 1;
           term = p2p_cdr(term);
       }
       if (!is_nil(term)) {
-          clen += clenpterm(term) + 1;
+          clen += clenpterm(CTXTc term) + 1;
       }
       return clen+1;
   } else if (is_functor(term)) {
       clen = strlen(p2c_functor(term))+5;
       if (p2c_arity(term) > 0) {
-          clen += clenpterm(p2p_arg(term,1)) + 1;
+          clen += clenpterm(CTXTc p2p_arg(term,1)) + 1;
           for (i = 2; i <= p2c_arity(term); i++) {
-              clen += clenpterm(p2p_arg(term,i)) + 1;
+              clen += clenpterm(CTXTc p2p_arg(term,i)) + 1;
           }
           return clen + 1;
       } else return clen;
   } else {
-      xsb_warn("Unrecognized prolog term type");
+      xsb_warn(CTXTc "Unrecognized prolog term type");
       return 0;
   }
 }
@@ -1217,7 +1217,7 @@ DllExport void call_conv print_pterm(CTXTdeclc prolog_term term, int toplevel,
       toplevel = FALSE;
       goto begin_print_pterm;
     }
-  } else xsb_warn("[PRINT_PTERM] Unrecognized prolog term type");
+  } else xsb_warn(CTXTc "[PRINT_PTERM] Unrecognized prolog term type");
   for (cpi=1; cpi<=close_paren_count; cpi++) {
       XSB_StrAppend(straddr, ")");
   }
@@ -2085,14 +2085,14 @@ static inline ssize_t pread(int fd, void *buf, size_t count, size_t offset)
 /*	xsb_get_last_error_string returns previous answer.             */
 /*                                                                      */
 /************************************************************************/
-DllExport int call_conv xsb_get_last_error_string(char *buff, int buflen, int *anslen)
+DllExport int call_conv xsb_get_last_error_string(CTXTdeclc char *buff, int buflen, int *anslen)
 {
 int rc = 2;
 ssize_t bytesRead = 1;
 ssize_t totalBytesRead = 0;
 
 if(!flags[STDERR_BUFFERED])
-	xsb_warn("[xsb_get_last_error_string] This feature must be activated with the -q option");
+	xsb_warn(CTXTc "[xsb_get_last_error_string] This feature must be activated with the -q option");
 else
 	{
 	rc = 1;				// Assume failure on the ftell or read

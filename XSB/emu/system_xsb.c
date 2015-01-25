@@ -81,10 +81,10 @@ static void init_process_table(void);
 static int process_status(int pid);
 static void split_command_arguments(char *string, char *params[], char *callname);
 static char *get_next_command_argument(char **buffptr, char **cmdlineprt);
-static int file_copy(char *, char *);
-static int copy_file_chunk(FILE *, FILE *, size_t);
+static int file_copy(CTXTdeclc char *, char *);
+static int copy_file_chunk(CTXTdeclc FILE *, FILE *, size_t);
 #ifndef WIN_NT
-static char *xreadlink(const char *, int *);
+static char *xreadlink(CTXTdeclc const char *, int *);
 #endif
 
 static struct proc_table_t {
@@ -183,7 +183,7 @@ int sys_syscall(CTXTdeclc int callno)
   case SYS_filecopy: {
     char *from = ptoc_longstring(CTXTc 3);
     char *to = ptoc_longstring(CTXTc 4);
-    result = file_copy(from,to);
+    result = file_copy(CTXTc from,to);
     break;
   }
   case SYS_create: {
@@ -385,7 +385,7 @@ xsbBool sys_system(CTXTdeclc int callno)
     
     /* -1 means: no space left */
     if ((tbl_pos = get_free_process_cell()) < 0) {
-      xsb_warn("Can't create subprocess because XSB process table is full");
+      xsb_warn(CTXTc "Can't create subprocess because XSB process table is full");
       SYS_MUTEX_UNLOCK( MUTEX_SYS_SYSTEM );
       return FALSE;
     }
@@ -399,25 +399,25 @@ xsbBool sys_system(CTXTdeclc int callno)
 			      fromproc_stderr_fptr);
       
     if (pid_or_status < 0) {
-      xsb_warn("[%s] Subprocess creation failed, Error: %d, errno: %d, Cmd: %s", callname,pid_or_status,errno,params[0]);
+      xsb_warn(CTXTc "[%s] Subprocess creation failed, Error: %d, errno: %d, Cmd: %s", callname,pid_or_status,errno,params[0]);
       SYS_MUTEX_UNLOCK( MUTEX_SYS_SYSTEM );
       return FALSE;
     }
 
     if (toproc_needed) {
       toprocess_fptr = fdopen(pipe_to_proc[1], "w");
-      toproc_stream =  xsb_intern_fileptr(toprocess_fptr,callname,"pipe","w",CURRENT_CHARSET); 
+      toproc_stream =  xsb_intern_fileptr(CTXTc toprocess_fptr,callname,"pipe","w",CURRENT_CHARSET); 
       ctop_int(CTXTc 3, toproc_stream);
     }
     if (fromproc_needed) {
       fromprocess_fptr = fdopen(pipe_from_proc[0], "r");
-      fromproc_stream =  xsb_intern_fileptr(fromprocess_fptr,callname,"pipe","r",CURRENT_CHARSET); 
+      fromproc_stream =  xsb_intern_fileptr(CTXTc fromprocess_fptr,callname,"pipe","r",CURRENT_CHARSET); 
       ctop_int(CTXTc 4, fromproc_stream);
     }
     if (fromstderr_needed) {
       fromproc_stderr_fptr = fdopen(pipe_from_stderr[0], "r");
       fromproc_stderr_stream
-	= xsb_intern_fileptr(fromproc_stderr_fptr,callname,"pipe","r",CURRENT_CHARSET); 
+	= xsb_intern_fileptr(CTXTc fromproc_stderr_fptr,callname,"pipe","r",CURRENT_CHARSET); 
       ctop_int(CTXTc 5, fromproc_stderr_stream);
     }
     ctop_int(CTXTc 6, pid_or_status);
@@ -554,7 +554,7 @@ xsbBool sys_system(CTXTdeclc int callno)
       return TRUE;
     }
 
-    xsb_warn("[PROCESS_CONTROL] Arg 2: Invalid signal specification. Must be `kill' or `wait(Var)'");
+    xsb_warn(CTXTc "[PROCESS_CONTROL] Arg 2: Invalid signal specification. Must be `kill' or `wait(Var)'");
     return FALSE;
   }
    
@@ -597,17 +597,17 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
 
   if ( (pipe_to_proc != NULL) && PIPE(pipe_to_proc) < 0 ) {
     /* can't open pipe to process */
-    xsb_warn("[SPAWN_PROCESS] Can't open pipe for subprocess input");
+    xsb_warn(CTXTc "[SPAWN_PROCESS] Can't open pipe for subprocess input");
     return PIPE_TO_PROC_FAILED;
   }
   if ( (pipe_from_proc != NULL) && PIPE(pipe_from_proc) < 0 ) {
     /* can't open pipe from process */
-    xsb_warn("[SPAWN_PROCESS] Can't open pipe for subprocess output");
+    xsb_warn(CTXTc "[SPAWN_PROCESS] Can't open pipe for subprocess output");
     return PIPE_FROM_PROC_FAILED;
   }
   if ( (pipe_from_stderr != NULL) && PIPE(pipe_from_stderr) < 0 ) {
     /* can't open stderr pipe from process */
-    xsb_warn("[SPAWN_PROCESS] Can't open pipe for subprocess errors");
+    xsb_warn(CTXTc "[SPAWN_PROCESS] Can't open pipe for subprocess errors");
     return PIPE_FROM_PROC_FAILED;
   }
 
@@ -627,19 +627,19 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
   stdout_saved = dup(fileno(stdout));
   stderr_saved = dup(fileno(stderr));
   if ((fileno(stdin) < 0) || (stdin_saved < 0))
-    xsb_warn("[SPAWN_PROCESS] Bad stdin=%d; stdin closed by mistake?",
+    xsb_warn(CTXTc "[SPAWN_PROCESS] Bad stdin=%d; stdin closed by mistake?",
 	     fileno(stdin));
   if ((fileno(stdout) < 0) || (stdout_saved < 0))
-    xsb_warn("[SPAWN_PROCESS] Bad stdout=%d; stdout closed by mistake?",
+    xsb_warn(CTXTc "[SPAWN_PROCESS] Bad stdout=%d; stdout closed by mistake?",
 	     fileno(stdout));
   if ((fileno(stderr) < 0) || (stderr_saved < 0))
-    xsb_warn("[SPAWN_PROCESS] Bad stderr=%d; stderr closed by mistake?",
+    xsb_warn(CTXTc "[SPAWN_PROCESS] Bad stderr=%d; stderr closed by mistake?",
 	     fileno(stderr));
 
   if (pipe_to_proc != NULL) {
     /* close child stdin, bind it to the reading part of pipe_to_proc */
     if (dup2(pipe_to_proc[0], fileno(stdin)) < 0) {
-      xsb_warn("[SPAWN_PROCESS] Can't connect pipe %d to subprocess stdin",
+      xsb_warn(CTXTc "[SPAWN_PROCESS] Can't connect pipe %d to subprocess stdin",
 	       pipe_to_proc[0]);
       return PIPE_TO_PROC_FAILED;
     }
@@ -648,7 +648,7 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
   /* if stdin must be captured in an existing I/O port -- do it */
   if (toprocess_fptr != NULL)
     if (dup2(fileno(toprocess_fptr), fileno(stdin)) < 0) {
-      xsb_warn("[SPAWN_PROCESS] Can't connect stream %d to subprocess stdin",
+      xsb_warn(CTXTc "[SPAWN_PROCESS] Can't connect stream %d to subprocess stdin",
 	       fileno(toprocess_fptr));
       return PIPE_TO_PROC_FAILED;
     }
@@ -656,7 +656,7 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
   if (pipe_from_proc != NULL) {
     /* close child stdout, bind it to the write part of pipe_from_proc */
     if (dup2(pipe_from_proc[1], fileno(stdout)) < 0) {
-      xsb_warn("[SPAWN_PROCESS] Can't connect subprocess stdout to pipe %d",
+      xsb_warn(CTXTc "[SPAWN_PROCESS] Can't connect subprocess stdout to pipe %d",
 	       pipe_from_proc[1]);
       return PIPE_TO_PROC_FAILED;
     }
@@ -665,7 +665,7 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
   /* if stdout must be captured in an existing I/O port -- do it */
   if (fromprocess_fptr != NULL)
     if (dup2(fileno(fromprocess_fptr), fileno(stdout)) < 0) {
-      xsb_warn("[SPAWN_PROCESS] Can't connect subprocess stdout to stream %d",
+      xsb_warn(CTXTc "[SPAWN_PROCESS] Can't connect subprocess stdout to stream %d",
 	       fileno(fromprocess_fptr));
       return PIPE_TO_PROC_FAILED;
     }
@@ -673,7 +673,7 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
   if (pipe_from_stderr != NULL) {
     /* close child stderr, bind it to the write part of pipe_from_proc */
     if (dup2(pipe_from_stderr[1], fileno(stderr)) < 0) {
-      xsb_warn("[SPAWN_PROCESS] Can't connect subprocess stderr to pipe %d",
+      xsb_warn(CTXTc "[SPAWN_PROCESS] Can't connect subprocess stderr to pipe %d",
 	       pipe_from_stderr[1]);
       return PIPE_TO_PROC_FAILED;
     }
@@ -682,7 +682,7 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
   /* if stderr must be captured in an existing I/O port -- do it */
   if (fromproc_stderr_fptr != NULL)
     if (dup2(fileno(fromproc_stderr_fptr), fileno(stderr)) < 0) {
-      xsb_warn("[SPAWN_PROCESS] Can't connect subprocess stderr to stream %d",
+      xsb_warn(CTXTc "[SPAWN_PROCESS] Can't connect subprocess stderr to stream %d",
 	       fileno(fromproc_stderr_fptr));
       return PIPE_TO_PROC_FAILED;
     }
@@ -720,7 +720,7 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
 
     if (pid < 0) {
       /* failed */
-      xsb_warn("[SPAWN_PROCESS] Can't fork off subprocess");
+      xsb_warn(CTXTc "[SPAWN_PROCESS] Can't fork off subprocess");
       return pid;
     } else if (pid == 0) {
       /* child process */
@@ -1128,7 +1128,7 @@ static int xsb_find_next_file(CTXTdeclc prolog_term handle,
 }
 
 /* file_copy: based on code from busybox (www.busybox.net) */
-static int file_copy(char *source, char *dest)
+static int file_copy(CTXTdeclc char *source, char *dest)
 {
   struct stat source_stat;
   struct stat dest_stat;
@@ -1136,7 +1136,7 @@ static int file_copy(char *source, char *dest)
   int status = 1;
   
   if (stat(source, &source_stat) < 0) {
-    xsb_warn("[file_copy] Source file not found: %s\n",
+    xsb_warn(CTXTc "[file_copy] Source file not found: %s\n",
 	     source);
     return 0;
   }
@@ -1147,19 +1147,19 @@ static int file_copy(char *source, char *dest)
   if (stat(dest, &dest_stat) < 0) {
 #endif
     if (errno != ENOENT) {
-      xsb_warn("[file_copy] Unable to stat destination: %s\n", dest);
+      xsb_warn(CTXTc "[file_copy] Unable to stat destination: %s\n", dest);
       return 0;
     }
   } else {
 #ifdef WIN_NT
     if (!strcmp(source,dest)) {
-      xsb_warn("[file_copy] %s and %s are the same file.\n", source,dest);
+      xsb_warn(CTXTc "[file_copy] %s and %s are the same file.\n", source,dest);
       return 0;
     }
 #else
     if (source_stat.st_dev == dest_stat.st_dev &&
 	source_stat.st_ino == dest_stat.st_ino) {
-      xsb_warn("[file_copy] %s and %s are the same file.\n", source,dest);
+      xsb_warn(CTXTc "[file_copy] %s and %s are the same file.\n", source,dest);
       return 0;
     }
 #endif
@@ -1167,12 +1167,12 @@ static int file_copy(char *source, char *dest)
   }
   
   if (S_ISDIR(source_stat.st_mode)) {
-    xsb_warn("[file_copy] Source is a directory: %s\n",source);
+    xsb_warn(CTXTc "[file_copy] Source is a directory: %s\n",source);
     return 0;
   } else if (S_ISREG(source_stat.st_mode)) {
     FILE *sfp, *dfp=NULL;
     if ((sfp = fopen(source, "r")) == NULL) {
-      xsb_warn("[file_copy] Unable to open source file: %s\n", source);
+      xsb_warn(CTXTc "[file_copy] Unable to open source file: %s\n", source);
       return 0;
     }
     if (flags[LOG_ALL_FILES_USED]) {
@@ -1185,7 +1185,7 @@ static int file_copy(char *source, char *dest)
     if (dest_exists) {
       if ((dfp = fopen(dest, "w")) == NULL) {
 	if (unlink(dest) < 0) {
-	  xsb_warn("[file_copy] Unable to remove destination: %s\n",
+	  xsb_warn(CTXTc "[file_copy] Unable to remove destination: %s\n",
 		   dest);
 	  fclose (sfp);
 	  return 0;
@@ -1201,22 +1201,22 @@ static int file_copy(char *source, char *dest)
 	  (dfp = fdopen(fd, "w")) == NULL) {
 	if (fd >= 0)
 	  close(fd);
-	xsb_warn("[file_copy] Unable to open destination: %s\n",dest);
+	xsb_warn(CTXTc "[file_copy] Unable to open destination: %s\n",dest);
 	fclose (sfp);
 	return 0;
       }
     }
 
-    if (copy_file_chunk(sfp, dfp, -1) < 0)
+    if (copy_file_chunk(CTXTc sfp, dfp, -1) < 0)
       status = 0;
 
     if (fclose(dfp) < 0) {
-      xsb_warn("[file_copy] Unable to close destination: %s\n", dest);
+      xsb_warn(CTXTc "[file_copy] Unable to close destination: %s\n", dest);
       status = 0;
     }
 
     if (fclose(sfp) < 0) {
-      xsb_warn("[file_copy] Unable to close source: %s\n", source);
+      xsb_warn(CTXTc "[file_copy] Unable to close source: %s\n", source);
       status = 0;
     }
   } 
@@ -1227,34 +1227,34 @@ static int file_copy(char *source, char *dest)
 	     ) {
 
     if (dest_exists && unlink(dest) < 0) {
-      xsb_warn("[file_copy] Unable to remove destination: %s\n", dest);
+      xsb_warn(CTXTc "[file_copy] Unable to remove destination: %s\n", dest);
       return 0;
     }
   } 
 #endif
   else {
-    xsb_warn("[file_copy] Unrecognized source file type: %s\n", source);
+    xsb_warn(CTXTc "[file_copy] Unrecognized source file type: %s\n", source);
     return 0;
   }
 #ifndef WIN_NT
   if (S_ISBLK(source_stat.st_mode) || S_ISCHR(source_stat.st_mode) ||
       S_ISSOCK(source_stat.st_mode)) {
     if (mknod(dest, source_stat.st_mode, source_stat.st_rdev) < 0) {
-      xsb_warn("[file_copy] Unable to create destination: %s\n", dest);
+      xsb_warn(CTXTc "[file_copy] Unable to create destination: %s\n", dest);
       return 0;
     }
   } else if (S_ISFIFO(source_stat.st_mode)) {
     if (mkfifo(dest, source_stat.st_mode) < 0) {
-      xsb_warn("[file_copy] Unable to create FIFO: %s\n", dest);
+      xsb_warn(CTXTc "[file_copy] Unable to create FIFO: %s\n", dest);
       return 0;
     }
   } else if (S_ISLNK(source_stat.st_mode)) {
     char *lpath; 
     int lpath_len;
 
-    lpath = xreadlink(source,&lpath_len);
+    lpath = xreadlink(CTXTc source,&lpath_len);
     if (symlink(lpath, dest) < 0) {
-      xsb_warn("[file_copy] Cannot create symlink %s", dest);
+      xsb_warn(CTXTc "[file_copy] Cannot create symlink %s", dest);
       return 0;
     }
     mem_dealloc(lpath,lpath_len,OTHER_SPACE);
@@ -1266,7 +1266,7 @@ static int file_copy(char *source, char *dest)
 
 /* Copy CHUNKSIZE bytes (or until EOF if CHUNKSIZE equals -1) from SRC_FILE
  * to DST_FILE.  */
-static int copy_file_chunk(FILE *src_file, FILE *dst_file, size_t chunksize)
+static int copy_file_chunk(CTXTdeclc FILE *src_file, FILE *dst_file, size_t chunksize)
 {
   size_t nread, nwritten, size;
   char buffer[BUFSIZ];
@@ -1280,11 +1280,11 @@ static int copy_file_chunk(FILE *src_file, FILE *dst_file, size_t chunksize)
     nread = fread (buffer, 1, size, src_file);
 
     if (nread != size && ferror (src_file)) {
-      xsb_warn("[file_copy] Internal error: read.\n");
+      xsb_warn(CTXTc "[file_copy] Internal error: read.\n");
       return -1;
     } else if (nread == 0) {
       if (chunksize != -1) {
-	xsb_warn("[file_copy] Internal error: Unable to read all data.\n");
+	xsb_warn(CTXTc "[file_copy] Internal error: Unable to read all data.\n");
 	return -1;
       }
       return 0;
@@ -1294,9 +1294,9 @@ static int copy_file_chunk(FILE *src_file, FILE *dst_file, size_t chunksize)
 
     if (nwritten != nread) {
       if (ferror (dst_file))
-	xsb_warn("[file_copy] Internal error: write.\n");
+	xsb_warn(CTXTc "[file_copy] Internal error: write.\n");
       else
-	xsb_warn("[file_copy] Internal error: Unable to write all data.\n");
+	xsb_warn(CTXTc "[file_copy] Internal error: Unable to write all data.\n");
       return -1;
     }
 
@@ -1308,7 +1308,7 @@ static int copy_file_chunk(FILE *src_file, FILE *dst_file, size_t chunksize)
 }
 
 #ifndef WIN_NT
-static char *xreadlink(const char *path, int *bufsize)
+static char *xreadlink(CTXTdeclc const char *path, int *bufsize)
 {                       
   static const int GROWBY = 80; /* how large we will grow strings by */
 
@@ -1321,7 +1321,7 @@ static char *xreadlink(const char *path, int *bufsize)
     *bufsize += GROWBY;
     readsize = readlink(path, buf, *bufsize); /* 1st try */
     if (readsize == -1) {
-      xsb_warn("[file_copy] Internal error: xreadlink.\n");
+      xsb_warn(CTXTc "[file_copy] Internal error: xreadlink.\n");
       return NULL;
     }
   }           

@@ -618,7 +618,7 @@ static int env_check[4][5] = {
 Not sure if its ever good to have a soft error as they are easy to
 confuse with a hard error, but in this case the query actually
 succeeds with an answer substitution. */
-void env_type_set(Psc psc, byte t_env, byte t_type, xsbBool is_new) {
+void env_type_set(CTXTdeclc Psc psc, byte t_env, byte t_type, xsbBool is_new) {
 int env; byte type;
 
   if (is_new) {
@@ -636,7 +636,7 @@ int env; byte type;
 	if (t_env == T_IMPORTED) {
 	  /* Here the psc record of the symbol has already been created */
 	  /* by another module that imported (mistakenly) this symbol.  */
-	  xsb_warn("Environment conflict in the use of %s/%d !", 
+	  xsb_warn(CTXTc "Environment conflict in the use of %s/%d !", 
 		    get_name(psc), get_arity(psc));
 	  set_env(psc, T_LOCAL);	
 	}
@@ -644,10 +644,10 @@ int env; byte type;
 		that imports sth not exported. */
 	  Psc mod_psc = get_data(psc);
 	  if (mod_psc != NULL) 
-	    xsb_warn("Environment conflict in the use of %s/%d: "
+	    xsb_warn(CTXTc "Environment conflict in the use of %s/%d: "
 		      "%s/%d is imported from %s but not exported\n",
 		     get_name(psc), get_arity(psc),get_name(psc),get_arity(psc),get_name(mod_psc));
-	  else 	    xsb_warn("Environment conflict in the use of %s/%d: "
+	  else 	    xsb_warn(CTXTc "Environment conflict in the use of %s/%d: "
 			     "%s/%d is imported but not exported\n",
 			     get_name(psc), get_arity(psc),get_name(psc),get_arity(psc));
 	}
@@ -704,7 +704,7 @@ inline static void get_obj_atom(FILE *fd, VarString *atom)
 
 /*----------------------------------------------------------------------*/
 
-static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
+static xsbBool load_one_sym(CTXTdeclc FILE *fd, Psc cur_mod, int count, int exp)
 {
   static XSB_StrDefine(str);
   int  is_new, def_is_new;
@@ -757,7 +757,7 @@ static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
     temp_pair = insert(str.string, t_arity, mod, &is_new);
 
     if (t_definedas) {
-      set_psc_ep_to_psc(temp_pair->psc_ptr,defas_pair->psc_ptr);
+      set_psc_ep_to_psc(CTXTc temp_pair->psc_ptr,defas_pair->psc_ptr);
       t_type = T_PRED;
     }
 
@@ -769,11 +769,11 @@ static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
 	 get_data(temp_pair->psc_ptr) == NULL)) {
       set_data(temp_pair->psc_ptr, mod);
     }
-    env_type_set(temp_pair->psc_ptr, (byte)(t_env&(T_ENV|T_GLOBAL)), t_type, (xsbBool)is_new);
+    env_type_set(CTXTc temp_pair->psc_ptr, (byte)(t_env&(T_ENV|T_GLOBAL)), t_type, (xsbBool)is_new);
 
     if (is_new || !get_shared(temp_pair->psc_ptr)) {
       if (!(get_ep(temp_pair->psc_ptr)) && (*(pb)get_ep(temp_pair->psc_ptr) == switchonthread))
-	xsb_warn("Shared declaration ignored for %s/%d\n",
+	xsb_warn(CTXTc "Shared declaration ignored for %s/%d\n",
 		get_name(temp_pair->psc_ptr),get_arity(temp_pair->psc_ptr));
       else { 
 	if (flags[PRIVSHAR_DEFAULT] == DEFAULT_PRIVATE) {
@@ -811,10 +811,10 @@ static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
       if ((usermod_pair = search_in_usermod(get_arity(temp_pair->psc_ptr),get_name(temp_pair->psc_ptr)))) {
 	/* if existing usermod rec without ep, set its ep to that of new one */
 	if (get_ep(usermod_pair->psc_ptr) == (byte *)&((usermod_pair->psc_ptr)->load_inst)) {
-	  set_psc_ep_to_psc(usermod_pair->psc_ptr,temp_pair->psc_ptr);
+	  set_psc_ep_to_psc(CTXTc usermod_pair->psc_ptr,temp_pair->psc_ptr);
 	}
       }
-      link_sym(temp_pair->psc_ptr, (Psc)flags[CURRENT_MODULE]);
+      link_sym(CTXTc temp_pair->psc_ptr, (Psc)flags[CURRENT_MODULE]);
     }
   }
   if (!temp_pair) return FALSE;
@@ -844,7 +844,7 @@ static xsbBool load_one_sym(FILE *fd, Psc cur_mod, int count, int exp)
 *                                                                       *
 ************************************************************************/
 
-static xsbBool load_syms(FILE *fd, int psc_count, int count, Psc cur_mod, int exp)
+static xsbBool load_syms(CTXTdeclc FILE *fd, int psc_count, int count, Psc cur_mod, int exp)
 {
   int i;
   
@@ -853,7 +853,7 @@ static xsbBool load_syms(FILE *fd, int psc_count, int count, Psc cur_mod, int ex
   /* xsb_dbgmsg(("reloc_table %x,psc_count %d",reloc_table,psc_count)); */
 
   for (i = count; i < psc_count; i++) {
-    if (!load_one_sym(fd, cur_mod, i, exp)) return FALSE;
+    if (!load_one_sym(CTXTc fd, cur_mod, i, exp)) return FALSE;
   }
   return TRUE;
 }
@@ -966,7 +966,7 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp)
     set_ep(ptr->psc_ptr,(byte *)makestring(filename)); //!!!DSWDSW filename for module goes here?
   }
   get_obj_word_bb(&psc_count);
-  if (!load_syms(fd, (int)psc_count, 0, cur_mod, exp)) 
+  if (!load_syms(CTXTc fd, (int)psc_count, 0, cur_mod, exp)) 
     return FALSE;
   /*	xsb_dbgmsg(("symbol table of module %s loaded", name));	*/
   do {
@@ -1038,7 +1038,7 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp)
 #else
 	    strcmp(string_val(get_data(ptr->psc_ptr)),filename)) {
 #endif
-	  xsb_warn("Redefining: %s/%d from file %s; Previously defined from file %s",
+	  xsb_warn(CTXTc "Redefining: %s/%d from file %s; Previously defined from file %s",
 		   get_name(ptr->psc_ptr),get_arity(ptr->psc_ptr),
 		   filename, string_val(get_data(ptr->psc_ptr)));
 	  set_data(ptr->psc_ptr,(struct psc_rec *)makestring(string_find(filename,1)));
@@ -1097,7 +1097,7 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp)
 
 /* ldoption is specified in .H file and indicates library files, etc
    that need to be loaded. */
-static byte *loader_foreign(char *filename, FILE *fd, int exp)
+static byte *loader_foreign(CTXTdeclc char *filename, FILE *fd, int exp)
 {
   byte name_len, *instr;
   char name[FOREIGN_NAMELEN];
@@ -1118,7 +1118,7 @@ static byte *loader_foreign(char *filename, FILE *fd, int exp)
   ptr = insert_module(T_MODU, name);
   cur_mod = ptr->psc_ptr;
   get_obj_word_bb(&psc_count);
-  if (!load_syms(fd, (int)psc_count, 0, cur_mod, exp)) return FALSE;
+  if (!load_syms(CTXTc fd, (int)psc_count, 0, cur_mod, exp)) return FALSE;
   instr = load_obj(filename, cur_mod, ldoption.string);
 
   SQUASH_LINUX_COMPILER_WARN(dummy) ; 
@@ -1173,7 +1173,7 @@ byte *loader(CTXTdeclc char *file, int exp)
 
   if (magic_num == 0x11121304 || magic_num == 0x11121305) {
     if (!warned_old_obj) {
-      xsb_warn("File \"%s\"\n"
+      xsb_warn(CTXTc "File \"%s\"\n"
 	       "\t   has old byte code format, which is likely to cause\n"
 	       "\t   unpredictable behavior.\n"
 	       "\t   Please recompile the file with XSB version > 2.01.",
@@ -1189,7 +1189,7 @@ byte *loader(CTXTdeclc char *file, int exp)
     first_inst = loader1(CTXTc fd,filename,exp);
   } else if (magic_num == 0x11121308 || magic_num == 0x11121309) {
 #ifdef FOREIGN
-    first_inst = loader_foreign(file, fd, exp);
+    first_inst = loader_foreign(CTXTc file, fd, exp);
 #else
     xsb_abort("Loading a foreign file: %s", file);
 #endif

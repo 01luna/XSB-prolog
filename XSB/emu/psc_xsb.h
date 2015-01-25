@@ -168,11 +168,9 @@ typedef struct psc_pair *Pair;
 /* Interface routines							*/
 /*======================================================================*/
 
-extern Pair link_sym(Psc, Psc);
 extern Pair search_in_usermod(int, char *);
 extern Pair insert_module(int, char *);
 extern Pair insert(char *, byte, Psc, int *);
-extern void set_psc_ep_to_psc(Psc, Psc);
 
 DllExport extern char* call_conv string_find(const char*, int);
 
@@ -217,9 +215,13 @@ extern Psc get_intern_psc();
 
 /* Can't use CTXTdeclc here because its included early in context.h */
 #ifdef MULTI_THREAD
+extern Pair link_sym(struct th_context *, Psc, Psc);
 extern struct Table_Info_Frame *get_tip(struct th_context *, Psc);
+extern void set_psc_ep_to_psc(struct th_context *, Psc, Psc);
 #else
 extern struct Table_Info_Frame *get_tip(Psc);
+extern Pair link_sym(Psc, Psc);
+extern void set_psc_ep_to_psc(Psc, Psc);
 #endif
 
 extern void print_symbol_table();
