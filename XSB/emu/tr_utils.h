@@ -71,6 +71,7 @@ typedef struct shared_interned_trie_t *ShrTrieTabPtr;
     ((TYPE) = ((TID) & TRIE_ID_TYPE_MASK) >> 20);				\
     ((IND) = ((TID) &TRIE_ID_ID_MASK)); }
 
+extern VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr,CPtr);
 extern VariantSF get_variant_sf(CTXTdeclc Cell, TIFptr, Cell *);
 extern SubProdSF get_subsumer_sf(CTXTdeclc Cell, TIFptr, Cell *);
 extern BTNptr get_trie_root(BTNptr);

@@ -18,7 +18,7 @@
 ** along with XSB; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 **
-** $Id: tr_utils.c,v 1.193 2010/06/18 17:07:05 tswift Exp $
+** $Id: tr_utils.c,v 1.193 2010/06/18 17:07:05 tswift Expxtox $
 ** 
 */
 
@@ -2340,30 +2340,30 @@ Psc get_psc_for_trie_cp(CTXTdeclc CPtr cp_ptr, BTNptr trieNode) {
 
 /* - - - - - */
 
-VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf) 
-{
+// -- old -- VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf) 
+// {
+// 
+//   while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) && ((int) TN_Instr(pLeaf) != trie_fail) ) {
+//     pLeaf = BTN_Parent(pLeaf);
+//   }
+// 
+//   if (TN_Parent(pLeaf)) { /* workaround till all roots pointing to subg's */
+//     return (VariantSF) TN_Parent(pLeaf);
+//   } else {
+//     fprintf(stderr,"Null parent ptr for TN Root Node type: %d Trie type %d\n",
+// 	    TN_TrieType(pLeaf), TN_NodeType(pLeaf));
+//     return NULL;
+//   }
+//}
 
-  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) && ((int) TN_Instr(pLeaf) != trie_fail) ) {
-    pLeaf = BTN_Parent(pLeaf);
-  }
-
-  if (TN_Parent(pLeaf)) { /* workaround till all roots pointing to subg's */
-    return (VariantSF) TN_Parent(pLeaf);
-  } else {
-    fprintf(stderr,"Null parent ptr for TN Root Node type: %d Trie type %d\n",
-	    TN_TrieType(pLeaf), TN_NodeType(pLeaf));
-    return NULL;
-  }
-}
-
-VariantSF exper_get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf, CPtr tbreg)
+VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf, CPtr tbreg)
 {
   while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) && ((int) TN_Instr(pLeaf) != trie_fail) ) {
     //    printf("Getting ptn_parent %p\n",pLeaf);                                                                                            
     pLeaf = BTN_Parent(pLeaf);
   }
   if (TN_Instr(pLeaf) == trie_fail) {
-    printf("returning for trie_fail\n");
+    //    printf("returning for trie_fail\n");
     return  (VariantSF) BTN_Parent((BTNptr) *(tbreg + CP_SIZE));
   }
   if (TN_Parent(pLeaf)) { /* workaround till all roots pointing to subg's */
@@ -2704,7 +2704,7 @@ int abolish_table_call_cps_check(CTXTdeclc VariantSF subgoal) {
       // Below we want basic_answer_trie_tt, ts_answer_trie_tt
       trieNode = TrieNodeFromCP(cp_top1);
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
-	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode)) 
+	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1))
 	  return CANT_RECLAIM;
       }
     }
@@ -2776,8 +2776,7 @@ void mark_cp_tabled_subgoals(CTXTdecl) {
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	//	printf("is in answer trie\n");
-	//	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
-	subgoal = exper_get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
+	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	//	printf("Marking ");print_subgoal(CTXTc stddbg, subgoal);printf("\n");
 	GC_MARK_SUBGOAL(subgoal);
       }
@@ -2805,8 +2804,7 @@ void unmark_cp_tabled_subgoals(CTXTdecl)
       trieNode = TrieNodeFromCP(cp_top1);
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
-	//	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
-	subgoal = exper_get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
+	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	GC_UNMARK_SUBGOAL(subgoal);
       }
     }
@@ -3665,7 +3663,7 @@ void mark_tabled_preds(CTXTdecl) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	/* Check for predicate DelTFs */
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
-	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
+	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	if (tif) mark_deltfs(CTXTc tif, subgoal);
       }
     }
@@ -3700,7 +3698,7 @@ void mark_private_tabled_preds(CTXTdecl) {
 	/* Check for predicate DelTFs */
 	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
 	if (tif && !get_shared(TIF_PSC(tif))) {
-	  subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode);
+	  subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	  mark_deltfs(CTXTc tif, subgoal);
 	}
       }

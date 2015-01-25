@@ -717,7 +717,6 @@ void dfs_inedges_warning(CTXTdeclc callnodeptr call1,calllistptr *lazy_affected)
   }
 
 extern BTNptr TrieNodeFromCP(CPtr);
-extern VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr);
 extern ALNptr traverse_variant_answer_trie( VariantSF, CPtr, CPtr) ;
 extern Cell list_of_answers_from_answer_list(VariantSF,int,int,ALNptr);
 
@@ -752,7 +751,7 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
       trieNode = TrieNodeFromCP(cp_top1);
       if (IsInAnswerTrie(trieNode)) {
 	//	printf("in answer trie\n");
-	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode))  {
+	if (subgoal == get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1))  {
 	  //	  	  printf("found top of run %p ",cp_top1);
 	  //	  	  print_subgoal(CTXTc stdout, subgoal); printf("\n");
 	  cp_root = cp_top1; 
@@ -764,7 +763,8 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
 	    cp_first = cp_root;
 	  #endif
 	    cp_root = cp_prevbreg(cp_root);
-	    if (*cp_pcreg(cp_root) != trie_fail && subgoal != get_subgoal_frame_for_answer_trie_cp(CTXTc TrieNodeFromCP(cp_root)))
+	    if (*cp_pcreg(cp_root) != trie_fail && 
+		subgoal != get_subgoal_frame_for_answer_trie_cp(CTXTc TrieNodeFromCP(cp_root),cp_top1))
 	      printf(" couldn't find incr trie root -- whoa, whu? (%p\n",cp_root);
 	  }
 	  ALNlist = traverse_variant_answer_trie(subgoal, cp_root,cp_top1);
