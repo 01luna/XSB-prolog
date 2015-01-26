@@ -2382,14 +2382,17 @@ VariantSF get_subgoal_frame_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf, CPtr tbre
    they found a trie_fail on the CP stack -- hence the special case.
  */
 
-TIFptr get_tif_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf)
+TIFptr get_tif_for_answer_trie_cp(CTXTdeclc BTNptr pLeaf,CPtr tbreg)
 {
   while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) && ((int) TN_Instr(pLeaf) != trie_fail) )  {
     // &&      ((int) TN_Instr(pLeaf) != trie_fail_unlock) ) {
     pLeaf = BTN_Parent(pLeaf);
   }
-  if (TN_Instr(pLeaf) == trie_fail) 
-    return NULL;
+  if (TN_Instr(pLeaf) == trie_fail) {
+    //      printf("returning for trie_fail\n");
+      return subg_tif_ptr(BTN_Parent((BTNptr) *(tbreg + CP_SIZE)));
+      //          return NULL;
+  }
   else return subg_tif_ptr(TN_Parent(pLeaf));
   
 }
@@ -2638,7 +2641,7 @@ void mark_cp_tabled_preds(CTXTdecl)
       trieNode = TrieNodeFromCP(cp_top1);
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
-	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
+	tif = get_tif_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	if (tif) gc_mark_tif(tif);
       }
     }
@@ -2665,7 +2668,7 @@ void unmark_cp_tabled_preds(CTXTdecl)
       trieNode = TrieNodeFromCP(cp_top1);
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
-	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
+	tif = get_tif_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	if (tif) gc_unmark_tif(tif);
       }
     }
@@ -3662,8 +3665,9 @@ void mark_tabled_preds(CTXTdecl) {
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	/* Check for predicate DelTFs */
-	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
+	tif = get_tif_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
+	//	printf("marking tif? %p \n",tif);
 	if (tif) mark_deltfs(CTXTc tif, subgoal);
       }
     }
@@ -3696,7 +3700,7 @@ void mark_private_tabled_preds(CTXTdecl) {
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	//      if (IsInAnswerTrie(trieNode)) {
 	/* Check for predicate DelTFs */
-	tif = get_tif_for_answer_trie_cp(CTXTc trieNode);
+	tif = get_tif_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	if (tif && !get_shared(TIF_PSC(tif))) {
 	  subgoal = get_subgoal_frame_for_answer_trie_cp(CTXTc trieNode,cp_top1);
 	  mark_deltfs(CTXTc tif, subgoal);
@@ -3773,17 +3777,16 @@ int sweep_tabled_preds(CTXTdecl) {
     else {
       if (DTF_Type(deltf_ptr) == DELETED_PREDICATE) {
 	tif_ptr = subg_tif_ptr(DTF_Subgoals(deltf_ptr));
-	//  printf("fia\n");printTIF((TIFptr) 0x54c620);
+	//	  printf("fia\n");printTIF((TIFptr) 0x54c620);
 	//	fprintf(stderr,"Garbage Collecting Predicate: %s/%d\n",
-	//get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
+	//	get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
 	reclaim_deleted_predicate_table(CTXTc deltf_ptr);
 	Free_Global_DelTF_Pred(deltf_ptr,tif_ptr);
       } else 
 	if (DTF_Type(deltf_ptr) == DELETED_SUBGOAL) {
 	  tif_ptr = subg_tif_ptr(DTF_Subgoal(deltf_ptr));
-	  //	    fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
-	  //   get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
-	  //	    delete_variant_call(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
+	  //		    fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
+	  //	   get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
 	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE,SHOULDNT_COND_WARN);
 	  Free_Global_DelTF_Subgoal(deltf_ptr,tif_ptr);
 	}
