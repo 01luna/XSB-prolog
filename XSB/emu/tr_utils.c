@@ -3100,6 +3100,49 @@ int find_subgoal_backward_dependencies(CTXTdeclc VariantSF subgoal) {
     return done_subgoal_stack_top;
   }
 
+int find_subgoal_forward_dependencies(CTXTdeclc VariantSF subgoal) {
+    BTNptr as_leaf;
+    DL delayList;
+    DE current;
+    VariantSF last_subgoal, current_subgoal;
+    int answer_stack_current_pos = 0;
+
+    reset_answer_stack(CTXT);
+    find_answers_for_subgoal(CTXTc subgoal);
+    //    print_answer_stack(CTXT);
+    last_subgoal = subgoal;
+    //    printf("--------\n");
+
+    while (answer_stack_current_pos < answer_stack_top) {
+      as_leaf = answer_stack[answer_stack_current_pos];
+      //      printf("as_leaf %p\n",as_leaf);
+      if (asi_subgoal((ASI) Child(as_leaf)) != last_subgoal) {
+	last_subgoal = asi_subgoal((ASI) Child(as_leaf));
+      }
+      delayList = asi_dl_list((ASI) Child(as_leaf));
+      while (delayList) {
+	current = dl_de_list(delayList);
+	//	printf("----- new dl -----\n");
+	while (current) {
+	  //	  print_subgoal(stddbg,de_subgoal(current));printf(" | ");
+	  if (!VISITED_SUBGOAL(de_subgoal(current))) {
+	    MARK_VISITED_SUBGOAL(de_subgoal(current));
+	    push_done_subgoal_node(CTXTc de_subgoal(current));
+	    find_answers_for_subgoal(CTXTc de_subgoal(current));
+	  }
+	  current = de_next(current);
+	}
+	//	printf("\n");
+	delayList = dl_next(delayList);
+      }
+      answer_stack_current_pos++;
+    }
+    //      print_answer_stack(CTXT);
+      reset_answer_stack(CTXT);
+      //      print_done_subgoal_stack(CTXT);
+    return done_subgoal_stack_top;
+}
+
 // End of done stack utilities -------------------------------------
 
 /* For use when abolishing nonincremental tabled subgoals that do not have conditional answers */
@@ -3179,6 +3222,7 @@ void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
     psc = TIF_PSC(tif);
 
     find_subgoal_backward_dependencies(CTXTc subgoal);
+    //    find_subgoal_forward_dependencies(CTXTdeclc subgoal);
 
     if (flags[NUM_THREADS] == 1 || !get_shared(psc)) {
       mark_cp_tabled_subgoals(CTXT);     // also marks tables in delay list
