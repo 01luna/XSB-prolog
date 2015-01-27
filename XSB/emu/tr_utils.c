@@ -3060,7 +3060,7 @@ void reset_done_subgoal_stack(CTXTdecl) {
 int find_subgoal_backward_dependencies(CTXTdeclc VariantSF subgoal) {
     BTNptr as_leaf;
     PNDE pdeElement;
-    DL delayList;
+    DL delayList;     DE current;
     BTNptr as_prev;
     VariantSF last_subgoal;
     int answer_stack_current_pos = 0;
@@ -3091,6 +3091,22 @@ int find_subgoal_backward_dependencies(CTXTdeclc VariantSF subgoal) {
 	  find_answers_for_subgoal(CTXTc subgoal);
 	}
         pdeElement = pnde_next(pdeElement);
+      }
+      delayList = asi_dl_list((ASI) Child(as_leaf));
+      while (delayList) {
+	current = dl_de_list(delayList);
+	//	printf("----- new dl -----\n");
+	while (current) {
+	  //	  print_subgoal(stddbg,de_subgoal(current));printf(" | ");
+	  if (!VISITED_SUBGOAL(de_subgoal(current))) {
+	    MARK_VISITED_SUBGOAL(de_subgoal(current));
+	    push_done_subgoal_node(CTXTc de_subgoal(current));
+	    find_answers_for_subgoal(CTXTc de_subgoal(current));
+	  }
+	  current = de_next(current);
+	}
+	//	printf("\n");
+	delayList = dl_next(delayList);
       }
       answer_stack_current_pos++;
     }
