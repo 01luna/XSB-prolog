@@ -109,8 +109,10 @@ double total_table_gc_time = 0;
 //#define DEBUG_ABOLISH 1
 #ifdef DEBUG_ABOLISH
 #define abolish_dbg(X) printf X
+#define abolish_print_subgoal(X) print_subgoal(stdout,X)
 #else
 #define abolish_dbg(X) 
+#define abolish_print_subgoal(X)
 #endif
 
 /*----------------------------------------------------------------------*/
@@ -3216,6 +3218,7 @@ void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int invalidat
 
   //  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
   if (!IsIncrSF(subgoal)){
+    abolish_dbg(("abolishing nonincremental table %p\n",subgoal));abolish_print_subgoal(subgoal);abolish_dbg(("\n"));
     if (IsVariantSF(subgoal)) {
       delete_variant_call(CTXTc subgoal, cond_warn_flag);
     }
@@ -3237,7 +3240,7 @@ void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
     tif = subg_tif_ptr(subgoal);
     psc = TIF_PSC(tif);
 
-    find_subgoal_backward_dependencies(CTXTc subgoal);
+    find_subgoal_backward_dependencies(CTXTc subgoal);  // also forward deps
     //    find_subgoal_forward_dependencies(CTXTdeclc subgoal);
 
     if (flags[NUM_THREADS] == 1 || !get_shared(psc)) {
@@ -3307,7 +3310,7 @@ void abolish_table_call(CTXTdeclc VariantSF subgoal, int invocation_flag) {
     abolish_dbg(("calling atc_s\n"));
     abolish_table_call_single(CTXTc subgoal);
   }
-  //  printf("atc done\n");
+  abolish_dbg(("atc done %p \n",subgoal));
   end_table_gc_time(timer);
 
 }
@@ -3569,8 +3572,6 @@ static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_c
       snprintf(message,ERRMSGLEN/2,"incomplete tabled predicate %s/%d",get_name(TIF_PSC(tif)),
 	       get_arity(TIF_PSC(tif)));
       xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
-      //      xsb_abort("[abolish_table_pred] Cannot abolish incomplete table"
-      //		" of predicate %s/%d\n", get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)));
     }
  if (flags[CTRACE_CALLS])  { 
     fprintf(fview_ptr,"ta(pred(%s/%d),%d).\n",get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)),ctrace_ctr++);
@@ -3578,12 +3579,13 @@ static inline void abolish_table_pred_transitive(CTXTdeclc TIFptr tif, int cps_c
 
     //        printf(" abolishing %s/%d\n",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
     if (action == CAN_RECLAIM && !TIF_Mark(tif) ) {
-      //            printf("   really abolishing %s/%d\n",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif)));
+      abolish_dbg(("   abolish predicate transitive (reclaim) %s/%d\n",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif))));
       transitive_delete_predicate_table(CTXTc tif,FALSE);
     }
     /* This check is needed to avoid makding a deltf frame multiple times for the same predicate, 
        when it is encountered more tha once by find_pred_backwared_dependencies() */
     else if (TIF_Subgoals(tif)) {
+      abolish_dbg(("   abolish predicate transitive (put on gc list) %s/%d\n",get_name(TIF_PSC(tif)),get_arity(TIF_PSC(tif))));
       //        fprintf(stderr,"Delaying abolish of table in use: %s/%d\n",
       //        get_name(psc),get_arity(psc));
 #ifndef MULTI_THREAD
@@ -3610,9 +3612,13 @@ inline void abolish_table_predicate_switch(CTXTdeclc TIFptr tif, Psc psc, int in
       && (invocation_flag == ABOLISH_TABLES_TRANSITIVELY 
 	  || (invocation_flag == ABOLISH_TABLES_DEFAULT 
 	      && flags[TABLE_GC_ACTION] == ABOLISH_TABLES_TRANSITIVELY))) {
+    abolish_dbg(("atp_trans called\n"));
     abolish_table_pred_transitive(CTXTc tif, cps_check_flag);
   }
-  else abolish_table_pred_single(CTXTc tif, cps_check_flag,incomplete_action_flag);
+    else {
+      abolish_dbg(("...atp_single called\n"));
+      abolish_table_pred_single(CTXTc tif, cps_check_flag,incomplete_action_flag);
+    }
 }
 
 /* When calling a_t_p_switch, cps_check_flag is set to true, to ensure a check. 
@@ -4676,6 +4682,7 @@ int table_status(CTXTdeclc Cell goalTerm, TableStatusFrame* ResultsFrame) {
   VariantSF goalSF = NULL, subsumerSF;
 
   if ( is_encoded_addr(goalTerm) ) {
+    printf("encoded addr %p\n",goalTerm);
     goalSF = (VariantSF)decode_addr(goalTerm);
   if ( IsProperlySubsumed(goalSF) )
     subsumerSF = (VariantSF)conssf_producer(goalSF);
