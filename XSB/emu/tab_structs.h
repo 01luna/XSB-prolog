@@ -629,16 +629,16 @@ typedef struct subgoal_frame {
   TIFptr tif_ptr;	  /* Table of which this call is a part */
   BTNptr leaf_ptr;	  /* Handle for call in the CallTrie */
   BTNptr ans_root_ptr;	  /* Root of the return trie */
-  ALNptr ans_list_ptr;	  /* Pointer to the list of returns in the ret trie (pre-compl)*/
-  union{
-    ALNptr ans_list_tail;   /* pointer to the tail of the answer list (pre-compl) */
-    DelTFptr deltf_ptr;     /* pointer to deltf (post-compl) */
-  };
+  ALNptr ans_list_ptr;	  /* Pointer to the list of returns in the ret trie */
+  ALNptr ans_list_tail;   /* pointer to the tail of the answer list */
   PNDE nde_list;	  /* pointer to a list of negative DEs */
   void *next_subgoal;	  
   void *prev_subgoal;
-  CPtr  cp_ptr;		  /* Pointer to the Generator CP (pre-compl)*/
-  CPtr pos_cons;	  /* Pointer to list of (CP) active subgoal frames (pre-compl) */
+  CPtr  cp_ptr;		  /* Pointer to the Generator CP (cannot be used as union w. post-compl)*/
+  union{ 
+    CPtr pos_cons;	  /* Pointer to list of (CP) active subgoal frames (pre-compl) */
+    DelTFptr deltf_ptr;     /* pointer to deltf (post-compl) */
+  };
   union{
     CPtr compl_stack_ptr;	  /* Pointer to subgoal's completion stack frame (pre-compl) */
     long visitors;};
