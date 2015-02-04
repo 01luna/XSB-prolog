@@ -139,16 +139,18 @@ DEFINE_HASHTABLE_ITERATOR_SEARCH(search_itr_some, KEY);
 void print_call_list(CTXTdeclc calllistptr affected_ptr,char * string) {
 
   printf("%s",string);
-  while ( calllist_next(affected_ptr) != NULL) {
-    printf("item %p sf %p ",calllist_item(affected_ptr),callnode_sf(calllist_item(affected_ptr)));
-    printf("next %p ",calllist_next(affected_ptr));  
-    if (callnode_sf(calllist_item(affected_ptr)) != NULL) {
-      print_subgoal(CTXTc stddbg, callnode_sf(calllist_item(affected_ptr)));
+  if (calllist_next(affected_ptr) == NULL) printf(" (empty) \n");
+  else{
+    while ( calllist_next(affected_ptr) != NULL) {
+      printf("...item %p sf %p ",calllist_item(affected_ptr),callnode_sf(calllist_item(affected_ptr)));
+      printf("next %p ",calllist_next(affected_ptr));  
+      if (callnode_sf(calllist_item(affected_ptr)) != NULL) {
+	print_subgoal(CTXTc stddbg, callnode_sf(calllist_item(affected_ptr)));
       }
-    printf("\n");
-    affected_ptr = (calllistptr) calllist_next(affected_ptr);
-  } ;
-
+      printf("\n");
+      affected_ptr = (calllistptr) calllist_next(affected_ptr);
+    } ;
+  }
 }
 
 /*****************************************************************************/
@@ -608,7 +610,7 @@ typedef struct incr_callgraph_dfs_frame {
 
 #define pop_dfs_frame {incr_callgraph_dfs_top--;}
 
-static void dfs_outedges(CTXTdeclc callnodeptr call1){
+static void dfs_outedges(CTXTdeclc callnodeptr call1,xsbBool inval_context){
   callnodeptr cn;
   struct hashtable *h;	
   struct hashtable_itr *itr;
@@ -640,8 +642,10 @@ static void dfs_outedges(CTXTdeclc callnodeptr call1){
 	if (!hashtable1_iterator_advance(itr)) {  // last element in the hash
 	  itr = 0;
 	  cn = incr_callgraph_dfs[incr_callgraph_dfs_top].cn;
-	  add_callnode(&affected_gl,cn);		
-	  //	  printf("+ adding callnode %p\n",cn);
+	  if (inval_context == NOT_ABOLISHING || cn != call1)  {
+	    add_callnode(&affected_gl,cn);	
+	    //	    abolish_dbg(("+ (dfsoutedges)  adding callnode %p sf %p\n",cn,cn->goal));
+	  }
 	  pop_dfs_frame;
 	}
       }
@@ -653,8 +657,10 @@ static void dfs_outedges(CTXTdeclc callnodeptr call1){
 	}
 	else {
 	  cn = incr_callgraph_dfs[incr_callgraph_dfs_top].cn;
-	  add_callnode(&affected_gl,cn);		
-	  //	  printf("+ adding callnode %p\n",cn);
+	  if (inval_context == NOT_ABOLISHING || cn != call1)  {
+	    add_callnode(&affected_gl,cn);		
+	    //	    abolish_dbg(("+ (dfsoutedges) adding callnode %p sf %p\n",cn,cn->goal));
+	  }
 	  pop_dfs_frame;
 	}
       }
@@ -865,7 +871,7 @@ int dfs_inedges(CTXTdeclc callnodeptr call1, calllistptr * lazy_affected, int fl
 }
 
  
-void invalidate_call(CTXTdeclc callnodeptr cn){
+void invalidate_call(CTXTdeclc callnodeptr cn,xsbBool abolishing){
 
   //#ifdef MULTI_THREAD
   //  xsb_abort("Incremental Maintenance of tables in not available for multithreaded engine\n");
@@ -873,7 +879,7 @@ void invalidate_call(CTXTdeclc callnodeptr cn){
   //  printf("invalidate call: ");print_callnode(stddbg,cn); printf(" deleted (%d)\n",cn->deleted);
   if(cn->deleted==0){
     cn->falsecount++;
-    dfs_outedges(CTXTc cn);
+    dfs_outedges(CTXTc cn,abolishing);
   }
 }
 
@@ -1083,6 +1089,10 @@ int return_changed_call_list(CTXTdecl){
   Psc psc;
   CPtr oldhreg = NULL;
 
+  if (!incr_table_update_safe_gl) {
+    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
+    return FALSE;
+  }
   reg[4] = makelist(hreg);
   new_heap_free(hreg);   // make heap consistent
   new_heap_free(hreg);

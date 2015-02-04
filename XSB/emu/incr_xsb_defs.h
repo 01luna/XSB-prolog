@@ -59,3 +59,6 @@
   
 /* dfs_inedges */
 #define CANNOT_UPDATE              1
+
+#define NOT_ABOLISHING             0
+#define ABOLISHING                 1

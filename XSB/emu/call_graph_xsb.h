@@ -49,7 +49,7 @@ extern callnodeptr makecallnode(VariantSF);
 extern void deallocate_previous_call(callnodeptr);
 extern void propagate_no_change(callnodeptr);
 extern void addcalledge(callnodeptr,callnodeptr);
-extern void invalidate_call(CTXTdeclc callnodeptr c);
+extern void invalidate_call(CTXTdeclc callnodeptr,xsbBool);
 
 extern int return_affected_list_for_update(CTXTdecl);
 extern int return_changed_call_list(CTXTdecl);

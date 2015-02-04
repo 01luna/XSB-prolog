@@ -118,7 +118,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
 			   "incr_invalidate_call",1);
     }
     c=subg_callnode_ptr(sf);
-    invalidate_call(CTXTc c); 
+    invalidate_call(CTXTc c,NOT_ABOLISHING); 
 
     break;
   }
@@ -128,7 +128,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
     
     const int callreg=2;
     callnodeptr c=ptoc_addr(callreg);
-    invalidate_call(CTXTc c); 
+    invalidate_call(CTXTc c,NOT_ABOLISHING); 
     break;
   }
   
@@ -226,7 +226,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
     const int callreg=2;
 
     callnodeptr c = itrie_array[ptoc_int(CTXTc callreg)].callnode;
-    invalidate_call(CTXTc c); 
+    invalidate_call(CTXTc c,NOT_ABOLISHING); 
     break;
   }
 

@@ -644,7 +644,7 @@ void delete_variant_call(CTXTdeclc VariantSF pSF, xsbBool should_warn) {
   abol_subg_ctr++;
 #endif
   
-  //  printf("delete_variant_sf %p\n",pSF);
+  abolish_dbg(("delete_variant_sf %p\n",pSF));
   TRIE_W_LOCK();
   /* TLS: this checks whether any answer for this subgoal has a delay
      list: may overstate problems but will warn for any possible
@@ -3185,7 +3185,7 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
     //    delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
     if (action == CAN_RECLAIM) {
       if (IsIncrSF(subgoal)) {
-	invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	invalidate_call(CTXTc subg_callnode_ptr(subgoal),ABOLISHING);
 	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 	//	safe_delete_branch(subgoal->leaf_ptr); 
       }
@@ -3196,7 +3196,7 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
       //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
       if (!get_shared(psc)) {
 	if (IsIncrSF(subgoal)) {
-	  invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	  invalidate_call(CTXTc subg_callnode_ptr(subgoal),ABOLISHING);
 	  //	  safe_delete_branch(subgoal->leaf_ptr); 
 	}
 	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
@@ -3268,7 +3268,7 @@ void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
       else {
 	//	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
 	if (!get_shared(psc)) {
-	  if (IsIncrSF(subgoal)) invalidate_call(CTXTc subg_callnode_ptr(subgoal));
+	  if (IsIncrSF(subgoal)) invalidate_call(CTXTc subg_callnode_ptr(subgoal),ABOLISHING);
 	  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 	  check_insert_private_deltf_subgoal(CTXTc subgoal,FALSE);
 	}
@@ -4018,6 +4018,7 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
 		  while (IsNonNULL(sf)) {
 		    this_next = subg_next_subgoal(sf);
 		    if ( is_completed(sf) ) {
+		      abolish_dbg(("... abolishing non-incremental tables-1 (usermod) %p\n",sf));
 		      delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 		      *last_next = this_next;
 		      //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
@@ -4063,6 +4064,7 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
 		//	      printf("TIF_Subgoals %p\n",TIF_Subgoals(tif));
 		this_next = subg_next_subgoal(sf);
 		if ( is_completed(sf) ) {
+		  abolish_dbg(("... abolishing non-incremental tables-1 (non-usermod) %p\n",sf));
 		  delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 		  *last_next = this_next;
 		  //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
@@ -4531,12 +4533,13 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   callnodeptr callnode = subg_callnode_ptr(goal);
   //  printf("1affected_gl %p %p\n",affected_gl,*affected_gl);
   #ifdef DEBUG_ABOLISH
-  abolish_dbg(("abolish incr call single: ")); print_subgoal(CTXTc stddbg,goal); 
+  abolish_dbg(("abolish incr call single: %p ",goal)); print_subgoal(CTXTc stddbg,goal); 
   printf("(id %d flag %d)\n",callnode->id,invalidate_flag);
   print_call_list(CTXTc affected_gl," affected_gl ");
+  //  print_call_list(CTXTc changed_gl," changed_gl ");
   #endif
   if (invalidate_flag) {
-    invalidate_call(CTXTc callnode);
+    invalidate_call(CTXTc callnode,ABOLISHING);
   }
   deleteoutedges(CTXTc callnode);
   deleteinedges(CTXTc callnode);
@@ -4545,8 +4548,8 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   //  tif = subg_tif_ptr(goal);
   //  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
   delete_variant_call(CTXTc goal,SHOULDNT_COND_WARN); // delete answers + subgoal
-  //  printf("end aics\n");
-  if (affected_gl->item != NULL) incr_table_update_safe_gl = FALSE;
+  abolish_dbg(("end aics\n"));
+  if (affected_gl->item != NULL || changed_gl != NULL) incr_table_update_safe_gl = FALSE;
   return TRUE;
 }
 
@@ -4682,7 +4685,7 @@ int table_status(CTXTdeclc Cell goalTerm, TableStatusFrame* ResultsFrame) {
   VariantSF goalSF = NULL, subsumerSF;
 
   if ( is_encoded_addr(goalTerm) ) {
-    printf("encoded addr %p\n",goalTerm);
+    //    printf("encoded addr %p\n",goalTerm);
     goalSF = (VariantSF)decode_addr(goalTerm);
   if ( IsProperlySubsumed(goalSF) )
     subsumerSF = (VariantSF)conssf_producer(goalSF);
