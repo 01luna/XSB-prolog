@@ -64,8 +64,8 @@ xsb_configuration(perl_cc_compiler, '').
 xsb_configuration(perl_ccflags, '').
 xsb_configuration(perl_libs, '').
 
-xsb_configuration(site_dir, 'C:\xsb_site').
-xsb_configuration(srcdir, 'C:\xsb').
+xsb_configuration(site_dir, 'C:\\xsb_site').
+xsb_configuration(srcdir, 'C:\\xsb').
 
 /* Java compiler */
 xsb_configuration(javac, '').
@@ -87,9 +87,9 @@ xsb_configuration(word_size, '64').
 
 xsb_configuration(major_version, '3').
 xsb_configuration(minor_version, '5').
-xsb_configuration(patch_version, '0').
+xsb_configuration(patch_version, '1').
 xsb_configuration(beta_version, '').
-xsb_configuration(version, '3.5.0').
+xsb_configuration(version, '3.5.1').
 
 xsb_configuration(codename, 'Maotai').
 xsb_configuration(release_date,

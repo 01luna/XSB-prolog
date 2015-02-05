@@ -9,7 +9,7 @@ xsb_patch_date=`echo $xsb_patch_date | sed 's,.*Da,Patch da,' | sed 's, *\\$,,'`
 
 xsb_major_version=3
 xsb_minor_version=5
-xsb_patch_version=0
+xsb_patch_version=1
 #xsb_beta_version=pre"
 #xsb_codename="Skol"        # for Version 2.1
 #xsb_codename="Tsingtao"    # for Version 2.2

@@ -3,7 +3,7 @@
 ; A compiled version of XSB must exist in the location pointed by the MyBaseDir variable below.
 
 #define MyAppName "XSB"
-#define XSBVersion "3.4"
+#define XSBVersion "3.5.1"
 #define MyAppVerName "XSB "+XSBVersion
 #define MyAppPublisher "XSB"
 #define MyAppURL "http://xsb.sourceforge.net/"
@@ -32,7 +32,7 @@ SolidCompression=yes
 PrivilegesRequired=none
 
 VersionInfoVersion={#XSBVersion}
-VersionInfoCopyright=© The Research Foundation of SUNY, 1986 - 2002
+VersionInfoCopyright=© The Research Foundation of SUNY, 1986 - 2015
 
 AllowRootDirectory=yes
 UninstallFilesDir="{userdocs}\XSB uninstaller"
@@ -59,7 +59,7 @@ Name: shortcut; Description: "&Create a desktop shortcut to run XSB"; Components
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-BeveledLabel=XSB {#XSBVersion} © The Research Foundation of SUNY, 1986, 1993-2002
+BeveledLabel=XSB {#XSBVersion} © The Research Foundation of SUNY, 1986, 1993-2015
 
 [Dirs]
 Name: "{userdocs}\XSB uninstaller"
