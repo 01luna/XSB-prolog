@@ -149,6 +149,8 @@ rm test_ec.xwam
 ../gentest.sh "$XEMU -l $options" test_table_as_intern "test."
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_3vwfs_1 "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" abolish_dag "test."
 
 #VALGRIND
 if test "$valgrind" = "true"; then
