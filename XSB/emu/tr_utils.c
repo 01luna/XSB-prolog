@@ -82,8 +82,10 @@ counter abol_subg_ctr,abol_pred_ctr,abol_all_ctr; /* statistics */
 #include "ptoc_tag_xsb_i.h"
 #include "term_psc_xsb_i.h"
 
-extern void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int,int);
-extern int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF subgoal, int);
+void  abolish_incremental_call_single_nocheck_deltf(CTXTdeclc VariantSF, int, int);
+void  abolish_incremental_call_single_nocheck_no_nothin(CTXTdeclc VariantSF subgoal, int, int);
+void  abolish_subsumptive_call_single_nocheck_deltf(CTXTdeclc SubProdSF, int);
+
 extern int incr_table_update_safe_gl;
 
 #if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
@@ -2838,7 +2840,7 @@ traversed.
 
 So, at the end of find_answers_for_subgoal(S) the answer_stack is
 incremented to include all unconditional answers for S.  At the end of
-find_subgoal_backward_dependencies(), the done_stack contains all
+find_subgoal_cross_dependencies(), the done_stack contains all
 visited subgoals, while the answer_stack contains all conditional
 answers for all visited subgoals.
 
@@ -3059,7 +3061,7 @@ void reset_done_subgoal_stack(CTXTdecl) {
    if this is a bad assumption, a deallocate can be put in the end.
 */
 
-int find_subgoal_backward_dependencies(CTXTdeclc VariantSF subgoal) {
+int find_subgoal_cross_dependencies(CTXTdeclc VariantSF subgoal) {
     BTNptr as_leaf;
     PNDE pdeElement;
     DL delayList;     DE current;
@@ -3122,7 +3124,7 @@ int find_subgoal_forward_dependencies(CTXTdeclc VariantSF subgoal) {
     BTNptr as_leaf;
     DL delayList;
     DE current;
-    VariantSF last_subgoal, current_subgoal;
+    VariantSF last_subgoal;
     int answer_stack_current_pos = 0;
 
     reset_answer_stack(CTXT);
@@ -3163,6 +3165,58 @@ int find_subgoal_forward_dependencies(CTXTdeclc VariantSF subgoal) {
 
 // End of done stack utilities -------------------------------------
 
+/* To be used in nocheck_deltf functions as well as gc sweeps and
+   reclaim_incomplete_tables.  For this reason it rechecks for
+   incremental or subsumptive.  Assumes that branches have already
+   been deleted. */
+
+void abolish_table_call_single_nocheck_no_nothin(CTXTdeclc VariantSF subgoal,int invalidate_flag, int cond_warn_flag) {
+  //  TIFptr tif = subg_tif_ptr(subgoal);
+
+  //  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+  if (!IsIncrSF(subgoal)){
+    if (IsVariantSF(subgoal)) {
+      delete_variant_call(CTXTc subgoal, cond_warn_flag);
+    }
+    else {
+      delete_subsumptive_call(CTXTc (SubProdSF) subgoal);
+    }
+  }
+  else abolish_incremental_call_single_nocheck_no_nothin(CTXTc subgoal, invalidate_flag,cond_warn_flag);
+}
+
+void abolish_table_call_single_nocheck_deltf(CTXTdeclc VariantSF subgoal, int action) {
+    TIFptr tif;
+    Psc psc;
+
+    tif = subg_tif_ptr(subgoal);
+    psc = TIF_PSC(tif);
+
+    if (flags[CTRACE_CALLS])  { 
+      sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)subgoal);     
+      fprintf(fview_ptr,"abol_tab_call_sing(subg(%s),%d).\n",forest_log_buffer_1->fl_buffer,ctrace_ctr++);
+    }
+
+    SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
+    if (action == CAN_RECLAIM && !GC_MARKED_SUBGOAL(subgoal)) {
+      delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+      abolish_table_call_single_nocheck_no_nothin(CTXTc subgoal,DO_INVALIDATE,SHOULD_COND_WARN);
+    }
+    else {  /* CANT_RECLAIM */
+      //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
+      if (!get_shared(psc)) {
+	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+	check_insert_private_deltf_subgoal(CTXTc subgoal,FALSE);
+      }
+#ifdef MULTI_THREAD
+      else {
+	safe_delete_branch(subgoal->leaf_ptr); 
+	check_insert_shared_deltf_subgoal(CTXT, subgoal,FALSE);
+      }
+#endif
+    }
+}
+
 /* For use when abolishing nonincremental tabled subgoals that do not have conditional answers */
 void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
     TIFptr tif;
@@ -3176,77 +3230,39 @@ void abolish_table_call_single(CTXTdeclc VariantSF subgoal) {
       action = abolish_table_call_cps_check(CTXTc subgoal);
     } else action = CANT_RECLAIM;
 
-    if (flags[CTRACE_CALLS])  { 
-      sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)subgoal);     
-      fprintf(fview_ptr,"ta(subg(%s),%d).\n",forest_log_buffer_1->fl_buffer,ctrace_ctr++);
-    }
-
-    SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
-    //    delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-    if (action == CAN_RECLAIM) {
-      if (IsIncrSF(subgoal)) {
-	invalidate_call(CTXTc subg_callnode_ptr(subgoal),ABOLISHING);
-	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-	//	safe_delete_branch(subgoal->leaf_ptr); 
-      }
-      else  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-      abolish_table_call_single_nocheck(CTXTc subgoal,DO_INVALIDATE,SHOULD_COND_WARN);
-    }
-    else {  /* CANT_RECLAIM */
-      //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
-      if (!get_shared(psc)) {
-	if (IsIncrSF(subgoal)) {
-	  invalidate_call(CTXTc subg_callnode_ptr(subgoal),ABOLISHING);
-	  //	  safe_delete_branch(subgoal->leaf_ptr); 
-	}
-	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-	check_insert_private_deltf_subgoal(CTXTc subgoal,FALSE);
-      }
-#ifdef MULTI_THREAD
-      else {
-	// incremental tabling not yet implemented for MT
-	safe_delete_branch(subgoal->leaf_ptr); 
-	check_insert_shared_deltf_subgoal(CTXT, subgoal,FALSE);
-      }
-#endif
-    }
-}
-
-
-void abolish_table_call_single_nocheck(CTXTdeclc VariantSF subgoal,int invalidate_flag,int cond_warn_flag) {
-  //  TIFptr tif = subg_tif_ptr(subgoal);
 
   //  delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
   if (!IsIncrSF(subgoal)){
     abolish_dbg(("abolishing nonincremental table %p\n",subgoal));abolish_print_subgoal(subgoal);abolish_dbg(("\n"));
     if (IsVariantSF(subgoal)) {
-      delete_variant_call(CTXTc subgoal, cond_warn_flag);
+      abolish_table_call_single_nocheck_deltf(CTXTc subgoal,action);
     }
     else {
-      delete_subsumptive_call(CTXTc (SubProdSF) subgoal);
+      abolish_subsumptive_call_single_nocheck_deltf(CTXTc (SubProdSF) subgoal,action);
     }
   }
-  else abolish_incremental_call_single_nocheck(CTXTc subgoal, invalidate_flag);
+  else abolish_incremental_call_single_nocheck_deltf(CTXTc subgoal, action, DO_INVALIDATE);
+  // No unmarking needed
 }
 
+void abolish_subsumptive_call_single_nocheck_deltf(CTXTdeclc SubProdSF subgoal,int action) {
+  delete_subsumptive_call(CTXTc  subgoal);
+}
+
+//------------------- end abolish_table_call_single
+
 /* Assuming no intermixing of shared and private tables */
-void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
+void abolish_table_call_transitive_nocheck_deltf(CTXTdeclc VariantSF subgoal, int action) {
 
     TIFptr tif;
     Psc psc;
-    int action;
 
     //       printf("in abolish_table_call_transitive\n");
     tif = subg_tif_ptr(subgoal);
     psc = TIF_PSC(tif);
 
-    find_subgoal_backward_dependencies(CTXTc subgoal);  // also forward deps
+    find_subgoal_cross_dependencies(CTXTc subgoal);  // also forward deps
     //    find_subgoal_forward_dependencies(CTXTdeclc subgoal);
-
-    if (flags[NUM_THREADS] == 1 || !get_shared(psc)) {
-      mark_cp_tabled_subgoals(CTXT);     // also marks tables in delay list
-      action = CAN_RECLAIM;
-    } else action = CANT_RECLAIM;
 
     SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
     while (done_subgoal_stack_top) {
@@ -3263,8 +3279,8 @@ void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
 
       if (action == CAN_RECLAIM && !GC_MARKED_SUBGOAL(subgoal) ) {
 	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-	abolish_table_call_single_nocheck(CTXTc subgoal,DO_INVALIDATE,SHOULDNT_COND_WARN);
-      }
+	abolish_table_call_single_nocheck_no_nothin(CTXTc subgoal,DO_INVALIDATE,SHOULDNT_COND_WARN);
+       }
       else {
 	//	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
 	if (!get_shared(psc)) {
@@ -3281,7 +3297,25 @@ void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
       }
     }
     reset_done_subgoal_stack(CTXT);
-    unmark_cp_tabled_subgoals(CTXT);
+}
+
+/* Assuming no intermixing of shared and private tables */
+void abolish_table_call_transitive(CTXTdeclc VariantSF subgoal) {
+  TIFptr tif;
+  Psc psc;
+  int action;
+
+  tif = subg_tif_ptr(subgoal);
+  psc = TIF_PSC(tif);
+
+  if (flags[NUM_THREADS] == 1 || !get_shared(psc)) {
+    mark_cp_tabled_subgoals(CTXT);     // also marks tables in delay list
+    action = CAN_RECLAIM;
+  } else action = CANT_RECLAIM;
+
+  abolish_table_call_transitive_nocheck_deltf(CTXTc subgoal,action);
+
+  unmark_cp_tabled_subgoals(CTXT);
 }
 
 /* Took check for incomplete out -- its been done in tables.P.
@@ -3809,7 +3843,7 @@ int sweep_private_tabled_preds(CTXTdecl) {
 	  //	 	  fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
 	  //			  get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
 	  //	  delete_variant_call(CTXTc DTF_Subgoal(deltf_ptr),DTF_Warn(deltf_ptr)); 
-	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE,SHOULDNT_COND_WARN);
+	  abolish_table_call_single_nocheck_no_nothin(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE,SHOULDNT_COND_WARN);
 	  Free_Private_DelTF_Subgoal(deltf_ptr,tif_ptr);
 	}
     }
@@ -3853,7 +3887,7 @@ int sweep_tabled_preds(CTXTdecl) {
 	  tif_ptr = subg_tif_ptr(DTF_Subgoal(deltf_ptr));
 	  //		    fprintf(stderr,"Garbage Collecting Subgoal: %s/%d\n",
 	  //	   get_name(TIF_PSC(tif_ptr)),get_arity(TIF_PSC(tif_ptr)));
-	  abolish_table_call_single_nocheck(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE,SHOULDNT_COND_WARN);
+	  abolish_table_call_single_nocheck_no_nothin(CTXTc DTF_Subgoal(deltf_ptr),DONT_INVALIDATE,SHOULDNT_COND_WARN);
 	  Free_Global_DelTF_Subgoal(deltf_ptr,tif_ptr);
 	}
     }
@@ -3990,14 +4024,18 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
   Psc psc, module;
   TIFptr tif;
   VariantSF sf, this_next; VariantSF * last_next;
-
+  int action;
   declare_timer
-    
+
   start_table_gc_time(timer);
   
   mark_cp_tabled_preds(CTXT);
+  mark_cp_tabled_subgoals(CTXT);
 
   abolish_dbg(("abolishing non-incremental tables\n"));
+  if (flags[NUM_THREADS] == 1) {
+    action = CAN_RECLAIM;
+  } else action = CANT_RECLAIM;
 
   /********  first abolish tables in usermod *********/
   
@@ -4019,10 +4057,10 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
 		    this_next = subg_next_subgoal(sf);
 		    if ( is_completed(sf) ) {
 		      abolish_dbg(("... abolishing non-incremental tables-1 (usermod) %p\n",sf));
-		      delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+		      //		      delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 		      *last_next = this_next;
+		      abolish_table_call_single_nocheck_deltf(CTXTc sf, action);
 		      //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
-		      delete_variant_call(CTXTc sf, SHOULD_COND_WARN) ;
 		    }
 		    else {
 		      //		printf("skipping ");print_subgoal(stddbg,sf);printf("\n");
@@ -4065,10 +4103,11 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
 		this_next = subg_next_subgoal(sf);
 		if ( is_completed(sf) ) {
 		  abolish_dbg(("... abolishing non-incremental tables-1 (non-usermod) %p\n",sf));
-		  delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+		  //		  delete_branch(CTXTc sf->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 		  *last_next = this_next;
+		  abolish_table_call_single_nocheck_deltf(CTXTc sf, action);
 		  //		printf("deleting ");print_subgoal(stddbg,sf);printf("\n");
-		  delete_variant_call(CTXTc sf, SHOULD_COND_WARN) ;
+		  //		  delete_variant_call(CTXTc sf, SHOULD_COND_WARN) ;
 		}
 		else {
 		  //		printf("skipping ");print_subgoal(stddbg,sf);printf("\n");
@@ -4090,6 +4129,7 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
   }
 
   unmark_cp_tabled_preds(CTXT);
+  unmark_cp_tabled_subgoals(CTXT);
 
   end_table_gc_time(timer);
   return TRUE;
@@ -4528,7 +4568,7 @@ void abolish_all_tables(CTXTdeclc int action) {
 
 /* Checks are either done in abolish_call or in throw
    Do not delete branch here, as this may be called by gc. */
-int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invalidate_flag) {
+void abolish_incremental_call_single_nocheck_no_nothin(CTXTdeclc VariantSF goal, int invalidate_flag,int cond_warn_flag) {
   //  TIFptr tif;
   callnodeptr callnode = subg_callnode_ptr(goal);
   //  printf("1affected_gl %p %p\n",affected_gl,*affected_gl);
@@ -4547,36 +4587,38 @@ int abolish_incremental_call_single_nocheck(CTXTdeclc VariantSF goal, int invali
   SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
   //  tif = subg_tif_ptr(goal);
   //  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-  delete_variant_call(CTXTc goal,SHOULDNT_COND_WARN); // delete answers + subgoal
+  delete_variant_call(CTXTc goal,cond_warn_flag); // delete answers + subgoal
   abolish_dbg(("end aics\n"));
   if (affected_gl->item != NULL || changed_gl != NULL) incr_table_update_safe_gl = FALSE;
-  return TRUE;
 }
 
-/*
-* void abolish_if_tabled(CTXTdeclc Psc psc)
-* {
-*   CPtr ep;
-* 
-*   ep = (CPtr) get_ep(psc);
-*   switch (*(pb)ep) {
-*   case tabletry:
-*   case tabletrysingle:
-*     abolish_table_predicate(CTXTc psc);
-*     break;
-*   case test_heap:
-*     if (*(pb)(ep+2) == tabletry || *(pb)(ep+2) == tabletrysingle)
-*       abolish_table_predicate(CTXTc psc);
-*     break;
-*   case switchon3bound:
-*   case switchonbound:
-*   case switchonterm:
-*     if (*(pb)(ep+3) == tabletry || *(pb)(ep+3) == tabletrysingle)
-*       abolish_table_predicate(CTXTc psc);
-*     break;
-*   }
-* }
-*/
+void abolish_incremental_call_single_nocheck_deltf(CTXTdeclc VariantSF subgoal, int action, int invalidate_flag) {
+    TIFptr tif;
+    Psc psc;
+
+    tif = subg_tif_ptr(subgoal);
+    psc = TIF_PSC(tif);
+
+    if (flags[CTRACE_CALLS])  { 
+      sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)subgoal);     
+      fprintf(fview_ptr,"abol_incr_call_sing(subg(%s),%d).\n",forest_log_buffer_1->fl_buffer,ctrace_ctr++);
+    }
+
+    SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
+    /* Invalidate Flag -- don't self-invalidate when abolishing, leads to core dump */
+    if (invalidate_flag) {
+      invalidate_call(CTXTc subg_callnode_ptr(subgoal),ABOLISHING);     
+    }
+    delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
+    if (action == CAN_RECLAIM && !GC_MARKED_SUBGOAL(subgoal)) {
+      abolish_incremental_call_single_nocheck_no_nothin(CTXTc subgoal,DO_INVALIDATE,SHOULD_COND_WARN);
+    }
+    else {  /* CANT_RECLAIM */
+      //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));
+      check_insert_private_deltf_subgoal(CTXTc subgoal,FALSE);
+      }
+}
+
 
 /*----------------------------------------------------------------------*/
 
@@ -4627,7 +4669,7 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
        tif = subg_tif_ptr(CallStrPtr);
        delete_branch(CTXTc CallStrPtr->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
        //       delete_variant_call(CTXTc CallStrPtr,FALSE); // delete answers + subgoal
-       abolish_table_call_single_nocheck(CTXTc CallStrPtr,DONT_INVALIDATE,SHOULDNT_COND_WARN);
+       abolish_table_call_single_nocheck_no_nothin(CTXTc CallStrPtr,DONT_INVALIDATE,SHOULDNT_COND_WARN);
      } else remove_calls_and_returns(CTXTc CallStrPtr);  // not sure why this is used, and not delete_subsumptive_table
     }
     openreg += COMPLFRAMESIZE;
@@ -5986,3 +6028,28 @@ case CALL_SUBS_SLG_NOT: {
 //    
 //  return TRUE;
 //}
+
+/*
+* void abolish_if_tabled(CTXTdeclc Psc psc)
+* {
+*   CPtr ep;
+* 
+*   ep = (CPtr) get_ep(psc);
+*   switch (*(pb)ep) {
+*   case tabletry:
+*   case tabletrysingle:
+*     abolish_table_predicate(CTXTc psc);
+*     break;
+*   case test_heap:
+*     if (*(pb)(ep+2) == tabletry || *(pb)(ep+2) == tabletrysingle)
+*       abolish_table_predicate(CTXTc psc);
+*     break;
+*   case switchon3bound:
+*   case switchonbound:
+*   case switchonterm:
+*     if (*(pb)(ep+3) == tabletry || *(pb)(ep+3) == tabletrysingle)
+*       abolish_table_predicate(CTXTc psc);
+*     break;
+*   }
+* }
+*/

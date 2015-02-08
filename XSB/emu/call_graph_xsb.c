@@ -1433,32 +1433,7 @@ which should not be deleted.
 
 void mark_for_incr_abol(CTXTdeclc callnodeptr);
 void check_assumption_list(CTXTdecl);
-void delete_calls(CTXTdecl);
 call2listptr create_cdbllist(void);
-
-void abolish_incr_call(CTXTdeclc callnodeptr p){
-
-  marked_list_gl=create_cdbllist();
-
-#ifdef INCR_DEBUG1
-  printf("marking phase starts\n");
-#endif
-  
-  mark_for_incr_abol(CTXTc p);
-  check_assumption_list(CTXT);
-#ifdef INCR_DEBUG1
-  printf("assumption check ends \n");
-#endif
-
-  delete_calls(CTXT);
-
-
-#ifdef INCR_DEBUG1
-  printf("delete call ends\n");
-#endif
-}
-
-
 
 /* Double Linked List functions */
 
@@ -1523,54 +1498,6 @@ void mark_for_incr_abol(CTXTdeclc callnodeptr c){
 
 
 //--------------------------------------------------------------------------------------------
-
-/* This is part of a "transitive abolish" to support eager recomputation */
-void delete_calls(CTXTdecl){
-
-  call2listptr  n=marked_list_gl->next,temp;
-  callnodeptr c;
-  VariantSF goal;
-
-  /* first iteration to delete inedges */
-  
-  while(n!=marked_list_gl){    
-    c=n->item;
-    if(c->deleted){
-      /* facts are not deleted */       
-      if(IsNonNULL(c->goal)){
-	deleteinedges(CTXTc c);
-      }
-    }
-    n=n->next;
-  }
-
-  /* second iteration is to delete outedges and callnode */
-
-  n=marked_list_gl->next;
-  while(n!=marked_list_gl){    
-    temp=n->next;
-    c=n->item;
-    if(c->deleted){
-      /* facts are not deleted */       
-      if(IsNonNULL(c->goal)){
-
-	goal=c->goal;
-	deletecallnode(c);
-	
-	abolish_table_call(CTXTc goal,ABOLISH_TABLES_DEFAULT);
-      }
-    }
-    SM_DeallocateStruct(smCall2List,n);
-    n=temp;
-  }
-  
-  SM_DeallocateStruct(smCall2List,marked_list_gl);
-  marked_list_gl=NULL;
-  return;
-}
-
-
-
 
 void unmark(CTXTdeclc callnodeptr c){
   callnodeptr c1;
@@ -1814,5 +1741,76 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
  *   return;
  * }
 */
-/******************** GENERATION OF CALLED_BY GRAPH ********************/
+/*******
+************* GENERATION OF CALLED_BY GRAPH ********************/
 
+#ifdef UNDEFINED
+%%% OBSOLETE
+%%% void abolish_incr_call(CTXTdeclc callnodeptr p){
+%%% 
+%%%   marked_list_gl=create_cdbllist();
+%%% 
+%%% #ifdef INCR_DEBUG1
+%%%   printf("marking phase starts\n");
+%%% #endif
+%%%   
+%%% %%%   mark_for_incr_abol(CTXTc p);
+%%%   check_assumption_list(CTXT);
+%%% #ifdef INCR_DEBUG1
+%%%   printf("assumption check ends \n");
+%%% #endif
+%%% 
+%%%   delete_calls(CTXT);
+%%% 
+%%% 
+%%% #ifdef INCR_DEBUG1
+%%%   printf("delete call ends\n");
+%%% #endif
+%%% }
+%%% 
+%%% /* This is part of a "transitive abolish" to support eager recomputation */
+%%% void delete_calls(CTXTdecl){
+%%% 
+%%%   call2listptr  n=marked_list_gl->next,temp;
+%%%   callnodeptr c;
+%%%   VariantSF goal;
+%%% 
+%%%   /* first iteration to delete inedges */
+%%%   
+%%%   while(n!=marked_list_gl){    
+%%% %%%     c=n->item;
+%%% %%%     if(c->deleted){
+%%%       /* facts are not deleted */       
+%%%       if(IsNonNULL(c->goal)){
+%%% 	deleteinedges(CTXTc c);
+%%%       }
+%%%     }
+%%%     n=n->next;
+  }
+%%% 
+%%%   /* second iteration is to delete outedges and callnode */
+%%% 
+%%%   n=marked_list_gl->next;
+%%%   while(n!=marked_list_gl){    
+%%%     temp=n->next;
+%%%     c=n->item;
+%%%     if(c->deleted){
+%%%       /* facts are not deleted */       
+%%% %%%       if(IsNonNULL(c->goal)){
+
+%%% 	goal=c->goal;
+%%% 	deletecallnode(c);
+%%% 	
+%%% 	abolish_table_call(CTXTc goal,ABOLISH_TABLES_DEFAULT);  // will call abol_incr, but checks trans/single
+%%%       }
+%%%     }
+%%%     SM_DeallocateStruct(smCall2List,n);
+%%%     n=temp;
+%%% %%%   }
+%%%   
+%%%   SM_DeallocateStruct(smCall2List,marked_list_gl);
+%%%   marked_list_gl=NULL;
+%%% %%%   return;
+%%% }
+
+#endif
