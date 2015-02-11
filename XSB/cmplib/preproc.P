@@ -128,7 +128,7 @@ pre_body(and(A,B), and(NA,NB), CutVid) :- !,
 	pre_body(B, NB, CutVid).
 pre_body(if(A,B), NB, CutVid) :- !,
 	pre_ifthen(A, B, inlinegoal(fail,0,[]), NB, CutVid).
-pre_body(or(if(A,B),C), NB, CutVid) :-
+pre_body(or(if(A,B),C), NB, CutVid) :- !,
 	pre_ifthen(A, B, C, NB, CutVid).
 pre_body(or(A,B), Goal, CutVid) :-
 	compl_cond(A, B, Test, TP0, FP0),
@@ -177,7 +177,8 @@ pre_ifthen(A,B,C,NGoal,CutVid) :-
 					NB)),NC))
 	).
 
-
+pre_else(or(if(A,B),inlinegoal(fail,0,[])), NGoal, CutVid, _) :- !,
+	pre_body(if(A,B),NGoal,CutVid).
 pre_else(or(if(A,B),C), NGoal, CutVid, CutVid1) :- !,
 	NGoal = or( and(NA,and(inlinegoal('_$cutto', 1, [varocc(CutVid1)]),
 			NB)), NC),
