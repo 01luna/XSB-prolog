@@ -1529,16 +1529,11 @@ void simplify_pos_unsupported(CTXTdeclc NODEptr as_leaf)
   //  printf("in simplify pos unsupported... ");print_subgoal(stddbg,asi_subgoal(Delay(as_leaf)));;
 
   while ((pde = asi_pdes(asi))) {
-    //    printf("here\n");
 
     // TLS: seems to be a problem with printing out as_leaf in this case.
     if (flags[CTRACE_CALLS])  {				
       char bufferb[MAXTERMBUFSIZE];			
       memset(bufferb,0,MAXTERMBUFSIZE);
-      //      memset(bufferb,0,MAXTERMBUFSIZE);
-      //      memset(bufferc,0,MAXTERMBUFSIZE);
-      //      printTriePath(CTXTc buffera, as_leaf);
-      //      sprintTriePath(CTXTc buffera, as_leaf);
       sprint_subgoal(CTXTc forest_log_buffer_1,0,asi_subgoal(Delay(as_leaf)));
       sprintTriePath(CTXTc bufferb, dl_asl(pnde_dl(pde)));
       sprint_subgoal(CTXTc forest_log_buffer_3,0, 
@@ -1731,14 +1726,28 @@ void force_answer_false(CTXTdeclc NODEptr as_leaf)
   }
 }
 
+/* Prints backpointers of PNDEs (tested w. answers, not yet w. subgoals) */
 #ifndef MULTI_THREAD
-void print_pdes(PNDE firstPNDE)
-{
-    while (firstPNDE) {
-      fprintf(stddbg,"PDE subgoal ");
-      print_subgoal(stddbg, de_subgoal(pnde_de(firstPNDE))); fprintf(stddbg,"\n");
-		    firstPNDE = pnde_next(firstPNDE);
+void print_pdes(PNDE firstPNDE) {
+  //  DE de;
+  DL dl;
+
+  printf("PNDE for subgoal : ");print_subgoal(stddbg,de_subgoal(pnde_de(firstPNDE))); printf("\n");
+  while (firstPNDE) {
+    //    de = pnde_de(firstPNDE);
+    //      while (de) {
+    //	fprintf(stddbg,"  PDE subgoal ");
+    //	print_subgoal(stddbg, de_subgoal(de)); fprintf(stddbg,"\n");
+    //	de = de_next(de);
+    //      }
+    dl = pnde_dl(firstPNDE);
+    while (dl) {
+      fprintf(stddbg,"  backpoints to subgoal: ");
+      print_subgoal(stddbg,asi_subgoal((ASI) Child(dl_asl(dl))));fprintf(stddbg,"\n");
+      dl = dl_next(dl);
     }
+    firstPNDE = pnde_next(firstPNDE);
+  }
 }
 #endif
 
