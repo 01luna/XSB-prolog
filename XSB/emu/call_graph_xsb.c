@@ -739,7 +739,10 @@ void find_the_visitors(CTXTdeclc VariantSF subgoal) {
   BTNptr trieNode;
   ALNptr ALNlist;
 
+#ifdef NON_OPT_COMPILE
   printf("find the visitors: subg %p trie root %p\n",subgoal,subg_ans_root_ptr(subgoal));
+#endif
+
   cp_top1 = breg ;				 
   cp_bot1 = (CPtr)(tcpstack.high) - CP_SIZE;
   if (xwammode && hreg < hfreg) {

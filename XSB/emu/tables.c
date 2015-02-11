@@ -627,20 +627,21 @@ ALNptr table_identify_relevant_answers(CTXTdeclc SubProdSF prodSF, SubConsSF con
  */
 
 /*
- *  Deallocate all the data structures which become superfluous once the
- *  table has completed.  Currently, this includes the answer list nodes
- *  from the producer, and if subsumption was used, the TSIs from the
- *  answer set and the answer list nodes from the subsumed subgoals.
- *  For the producers, the engine requires that the dummy answer-list
- *  node remain, and that its 'next' field be set to either the constant
- *  CON_ANSWERS or UNCOND_ANSWERS depending on whether there were any
- *  conditional answers in the answer list.  For the subsumed (consumer)
- *  subgoals, the entire answer list, including the dummy, is reclaimed.
+ *  Deallocate all the data structures which become superfluous once
+ *  the table has completed.  Currently, this includes the answer list
+ *  nodes from the producer (for non-incremental tables), and if
+ *  subsumption was used, the TSIs from the answer set along with the
+ *  answer list nodes from the subsumed subgoals.  For the producers,
+ *  the engine requires that the dummy answer-list node remain, and
+ *  that its 'next' field be set to either the constant CON_ANSWERS or
+ *  UNCOND_ANSWERS depending on whether there were any conditional
+ *  answers in the answer list.  For the subsumed (consumer) subgoals,
+ *  the entire answer list, including the dummy, is reclaimed.
  *
  *  For statistical purposes, we check whether the current usage of
- *  these incomplete-table structures are new maximums.
+ *  these incomplete-table structures are new maximums.  TLS 09/11 --
+ *  Now only doing this in NON_OPT_COMPILE
  *
- *  TLS 09/11 -- Now only doing this in NON_OPT_COMPILE
  *  Currently, timestamps from the TSIs are copied back to the TSTNs.
  *  Although not necessary, this method has some advantages.  Foremost,
  *  this field will never contain garbage values, and so we avoid
@@ -704,6 +705,7 @@ void table_complete_entry(CTXTdeclc VariantSF producerSF) {
     }
 
   subg_visitors(producerSF) = 0;    /* was compl_stack_ptr */
+  subg_pos_cons(producerSF) = 0;
 
   /* incremental  evaluation start */
   /* 
