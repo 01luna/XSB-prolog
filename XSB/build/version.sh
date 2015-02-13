@@ -1,10 +1,17 @@
 #! /bin/sh
 
-# Do not touch xsb_patch_date! It is updated by CVS.
+# Do not touch xsb_patch_date! It should be updated by SVN (does not currently)
 xsb_patch_date='$Date$'
 
-xsb_build_date=`date`
-xsb_patch_date=`echo $xsb_patch_date | sed 's,.*Da,Patch da,' | sed 's, *\\$,,'`
+xsb_build_date=`date +"%Y-%m-%d" || status=failed`
+if test -n "$status"; then
+    # this date needs to be tested on a Mac
+    xsb_build_date=`date -jnu +"%Y-%m-%d"`
+fi
+
+# patch info needs to be worked on after the SVN switch
+xsb_patch_date=`echo Build date: $xsb_build_date`
+#xsb_patch_date=`echo $xsb_patch_date | sed 's,.*Da,Patch da,' | sed 's, *\\$,,'`
 
 
 xsb_major_version=3

@@ -227,12 +227,12 @@ echo "Testing $XEMU"
 echo "The log will be left in  $LOG_FILE"
 
 echo "Log for  $XEMU $options" > $LOG_FILE
-(echo "Date-Time: `date +"%y%m%d-%H%M"`" >> $LOG_FILE) || status=failed
+(echo "Date-Time: `date +"%Y-%m-%d %H:%M"`" >> $LOG_FILE) || status=failed
 if test -n "$status"; then
-	echo "Date-Time: no date for NeXT..." >> $LOG_FILE
-	NeXT_DATE=1
+	echo "Date-Time: `date`" >> $LOG_FILE
+	Mac_DATE=1
 else
-	NeXT_DATE=0
+	Mac_DATE=0
 fi
 
 ./testall.sh -opts "$options" -exclude "$excluded_tests" -add "$added_tests" -only "$only_tests" \
@@ -284,8 +284,8 @@ $GREP "Memory violation" $LOG_FILE >> $RES_FILE
 
 echo "-----------------------------------------"
 
-if test "$NeXT_DATE" = 1; then
-	NEW_LOG=$LOG_FILE.$NeXT_DATE
+if test "$Mac_DATE" = 1; then
+	NEW_LOG=$LOG_FILE.$Mac_DATE
 	cp $LOG_FILE $NEW_LOG
 else
 	NEW_LOG=$LOG_FILE-`date +"%y.%m.%d-%H:%M:%S"`

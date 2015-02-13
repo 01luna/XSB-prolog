@@ -555,8 +555,10 @@ xsbtests/compiler_tests/CVS
 xsbtests/compiler_tests/_*
 xsbtests/compiler_tests/core
 xsbtests/compiler_tests/temp
+xsbtests/constraint_tests/*.o
 xsbtests/constraint_tests/*.xwam
 xsbtests/constraint_tests/*_new
+xsbtests/constraint_tests/cvarconstr.exe
 xsbtests/core
 xsbtests/delay_tests/#*
 xsbtests/delay_tests/*$
@@ -641,6 +643,7 @@ xsbtests/flora_tests/pending_bugs/temp
 xsbtests/flora_tests/pending_bugs/temp1
 xsbtests/flora_tests/temp
 xsbtests/incremental_tests/*.xwam
+xsbtests/incremental_tests/*_new
 xsbtests/io_tests/#*
 xsbtests/io_tests/*$
 xsbtests/io_tests/*.BAK
@@ -702,6 +705,8 @@ xsbtests/prolog_tests/core
 xsbtests/prolog_tests/second_foreign.exp
 xsbtests/prolog_tests/second_foreign.lib
 xsbtests/prolog_tests/temp
+xsbtests/prolog_tests/temp_charset
+xsbtests/prolog_tests/tempfile.P
 xsbtests/prolog_tests/xeddis.exp
 xsbtests/prolog_tests/xeddis.lib
 xsbtests/prolog_tests/xsb_wrap_*
@@ -903,6 +908,7 @@ xsbtests/table_tests/,*
 xsbtests/table_tests/.#a
 xsbtests/table_tests/CVS
 xsbtests/table_tests/_*
+xsbtests/table_tests/actions_jxm.P
 xsbtests/table_tests/core
 xsbtests/table_tests/temp
 xsbtests/temp
