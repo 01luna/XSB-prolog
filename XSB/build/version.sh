@@ -40,5 +40,5 @@ xsb_codename="Maotai"       # Version 3.5 Chinese Beer (Neng-Fa)
 #xsb_release_date=2011-05-11
 #xsb_release_date=2011-07-02
 #xsb_release_date=2013-05-01
-xsb_release_date=2013-07-06
+xsb_release_date=2014-07-06
 

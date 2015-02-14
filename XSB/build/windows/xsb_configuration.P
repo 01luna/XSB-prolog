@@ -93,7 +93,7 @@ xsb_configuration(version, '3.5.1').
 
 xsb_configuration(codename, 'Maotai').
 xsb_configuration(release_date,
-		  date(2013, 7, 6)).
+		  date(2014, 7, 6)).
 
 %% Configuration looks as follows: machine-vendor-os-tag
 xsb_configuration(configuration, 'x86-pc-windows').

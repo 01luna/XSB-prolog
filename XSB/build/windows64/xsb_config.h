@@ -48,7 +48,7 @@
 
 
 #define WIN_NT 1
-#define RELEASE_DATE 2013-07-06
+#define RELEASE_DATE 2014-07-06
 #define XSB_VERSION "3.5.1 (Maotai)"
 
 /* this is used by many to check if config.h was included in proper order */
