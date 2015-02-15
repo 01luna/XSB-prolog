@@ -405,11 +405,11 @@ extern void     load_solution_trie_notrail(struct th_context *, int, int, CPtr, 
 #ifndef MULTI_THREAD
 extern void    consume_subsumptive_answer(BTNptr, int, CPtr);
 extern ALNptr  tst_collect_relevant_answers(TSTNptr, TimeStamp, size_t, CPtr);
-extern void    delete_subsumptive_table(struct Table_Info_Frame *);
+extern void    delete_subsumptive_predicate_table(struct Table_Info_Frame *);
 #else
 extern void    consume_subsumptive_answer(struct th_context *, BTNptr, int, CPtr);
 extern ALNptr  tst_collect_relevant_answers(struct th_context *, TSTNptr, TimeStamp, size_t, CPtr);
-extern void    delete_subsumptive_table(struct th_context *, struct Table_Info_Frame *);
+extern void    delete_subsumptive_predicate_table(struct th_context *, struct Table_Info_Frame *);
 #endif
 
 #ifndef MULTI_THREAD

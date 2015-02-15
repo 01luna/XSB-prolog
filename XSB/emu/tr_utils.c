@@ -628,7 +628,7 @@ void release_conditional_answer_info(CTXTdeclc BTNptr node) {
  * delete_variant_call deletes and reclaims space for
  *  answers and their subgoal frame in a variant table, and is used by
  *  abolish_table_call (which does not work on subsumptive table).  It
- *  copies code from delete_variant_tablex, but uses its own stack.
+ *  copies code from delete_variant_predicate_tablex, but uses its own stack.
  *  (Not easy to integrate due to macro usage.) 
  * 
  * TLS: since this deallocates from SMs, make sure
@@ -769,7 +769,7 @@ ALNptr traverse_variant_answer_trie(CTXTdeclc VariantSF subgoal, CPtr rootptr, C
 /* Code to abolish tables for a variant predicate */
 /* Incremental tabling is not yet implemented for predicates */
 
-static void delete_variant_table(CTXTdeclc BTNptr x, xsbBool should_warn) {
+static void delete_variant_predicate_table(CTXTdeclc BTNptr x, xsbBool should_warn) {
 
    //   printf("in delete variant table\n");
 
@@ -881,10 +881,10 @@ static void delete_variant_table(CTXTdeclc BTNptr x, xsbBool should_warn) {
   if ( TIF_CallTrie(tif) != NULL ) {
     SET_TRIE_ALLOCATION_TYPE_TIP(tif);
     if ( IsVariantPredicate(tif) ) {
-      delete_variant_table(CTXTc TIF_CallTrie(tif),warn);
+      delete_variant_predicate_table(CTXTc TIF_CallTrie(tif),warn);
     }
     else
-      delete_subsumptive_table(CTXTc tif);
+      delete_subsumptive_predicate_table(CTXTc tif);
     TIF_CallTrie(tif) = NULL;
     TIF_Subgoals(tif) = NULL;
   }
@@ -893,7 +893,7 @@ static void delete_variant_table(CTXTdeclc BTNptr x, xsbBool should_warn) {
 void transitive_delete_predicate_table(CTXTdeclc TIFptr tif, xsbBool should_warn) {
 
   SET_TRIE_ALLOCATION_TYPE_TIP(tif);
-  delete_variant_table(CTXTc TIF_CallTrie(tif),should_warn);
+  delete_variant_predicate_table(CTXTc TIF_CallTrie(tif),should_warn);
   TIF_CallTrie(tif) = NULL;
   TIF_Subgoals(tif) = NULL;
 }
@@ -907,7 +907,7 @@ void reclaim_deleted_predicate_table(CTXTdeclc DelTFptr deltf_ptr) {
 
   SET_TRIE_ALLOCATION_TYPE_TIP(tif);
   if ( IsVariantPredicate(tif) ) {
-    delete_variant_table(CTXTc DTF_CallTrie(deltf_ptr), DTF_Warn(deltf_ptr));
+    delete_variant_predicate_table(CTXTc DTF_CallTrie(deltf_ptr), DTF_Warn(deltf_ptr));
   } else reclaim_deleted_subsumptive_table(CTXTc deltf_ptr);
 }
 
@@ -4682,7 +4682,7 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
        delete_branch(CTXTc CallStrPtr->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
        //       delete_variant_call(CTXTc CallStrPtr,FALSE); // delete answers + subgoal
        abolish_table_call_single_nocheck_no_nothin(CTXTc CallStrPtr,DONT_INVALIDATE,SHOULDNT_COND_WARN);
-     } else remove_calls_and_returns(CTXTc CallStrPtr);  // not sure why this is used, and not delete_subsumptive_table
+     } else remove_calls_and_returns(CTXTc CallStrPtr);  // not sure why this is used, and not delete_subsumptive_predicate_table
     }
     openreg += COMPLFRAMESIZE;
   }
