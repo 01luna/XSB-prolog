@@ -283,6 +283,7 @@ typedef struct Deleted_Clause_Frame {
 
 #define isSharedTIF(pTIF)   (TIF_EvalMethod(pTIF) != DISPATCH_BLOCK)
 #define isPrivateTIF(pTIF)  (TIF_EvalMethod(pTIF) == DISPATCH_BLOCK)
+#define isIncrementalTif(pTIF) (get_incr(TIF_PSC(pTIF)))
 
 typedef byte TabledEvalMethod;
 
@@ -324,6 +325,7 @@ typedef struct Table_Info_Frame {
 #endif
 #define	TIF_SubgoalDepth(pTIF)      ( (pTIF)->subgoal_depth )
 #define TIF_AnswerDepth(pTIF)       ( (pTIF)->answer_depth )
+
 
 #define	gc_mark_tif(pTIF)   TIF_Mark(pTIF) = 0x1
 #define	gc_unmark_tif(pTIF)   TIF_Mark(pTIF) = 0x0

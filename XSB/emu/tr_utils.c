@@ -881,7 +881,14 @@ static void delete_variant_predicate_table(CTXTdeclc BTNptr x, xsbBool should_wa
   if ( TIF_CallTrie(tif) != NULL ) {
     SET_TRIE_ALLOCATION_TYPE_TIP(tif);
     if ( IsVariantPredicate(tif) ) {
-      delete_variant_predicate_table(CTXTc TIF_CallTrie(tif),warn);
+      if (!isIncrementalTif(tif) ){
+	delete_variant_predicate_table(CTXTc TIF_CallTrie(tif),warn);
+      } else {
+	char message[ERRMSGLEN/2];
+	snprintf(message,ERRMSGLEN/2,"incremental tabled predicate %s/%d",get_name(TIF_PSC(tif)),
+		 get_arity(TIF_PSC(tif)));
+	xsb_permission_error(CTXTc "abolish",message,0,"abolish_table_pred",1);
+      }
     }
     else
       delete_subsumptive_predicate_table(CTXTc tif);
