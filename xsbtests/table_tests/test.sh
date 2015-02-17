@@ -151,6 +151,16 @@ rm test_ec.xwam
 ../gentest.sh "$XEMU -l $options" test_3vwfs_1 "test."
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" abolish_dag "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" abolish_cycle "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" abolish_neg_dag "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" abolish_neg_cycle "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" pred_abolish_dag "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" pred_abolish_cycle "test."
 
 #VALGRIND
 if test "$valgrind" = "true"; then
