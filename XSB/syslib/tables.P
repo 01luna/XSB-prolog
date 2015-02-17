@@ -646,25 +646,29 @@ check_abolish_options_list(Culprit,_ActionType,Pred):-
 abolish_table_call(Call) :-
 	abolish_table_call_internal(Call,ABOLISH_TABLES_DEFAULT).
 
+:- import current_prolog_flag/2 from curr_sym.
 /* TLS: Action on call subsumption is to delete producer for consumer
    calls. get_calls/3 automatically finds all producers, so there is
-   no action we need to take for consumer calls. */
+   no action we need to take for consumer calls.
+
+   Note that if tables are abolished transitively, a check needs to be
+   made to determine whether the pointer to the unifying call still exists. */
 abolish_table_call_internal(Call,Action) :-
-	check_cyclic(Call,'abolish_table_call/1',1),
-        (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
-	get_calls(NewGoal,Handle,_Template),
-	check_if_subgoal_still_exists(NewGoal,Handle),
-      	table_state(Handle,_PredType,CallType,AnsSetStatus),
-	CallType \== subsumed,
-	(   AnsSetStatus == undefined
-	->  table_error(['abolishing undefined tabled call ',Call])
-	;   AnsSetStatus == incomplete
-	->  table_error(['abolishing incomplete tabled call ',Call])
-%	;   PredType == subsumptive
-%	->  table_error(['abolishing subsumptive tabled call ',Call])
-	;   abolish_table_call_bi(Handle,Action)
-	),
-	fail.
+    check_cyclic(Call,'abolish_table_call/1',1), 
+    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
+    current_prolog_flag(table_gc_action,GCAction),
+    get_calls(NewGoal,Handle,_Template), 
+    (GCAction = abolish_tables_transitively ->
+      check_if_subgoal_still_exists(NewGoal,Handle) 
+    ; true),
+    table_state(Handle,_PredType,CallType,AnsSetStatus), 
+    CallType \== subsumed, 
+    ( AnsSetStatus == undefined -> 
+      table_error(['abolishing undefined tabled call ',Call]) 
+    ; AnsSetStatus == incomplete ->
+      table_error(['abolishing incomplete tabled call ',Call])
+    ; abolish_table_call_bi(Handle,Action) ),
+    fail.
 abolish_table_call_internal(_Call,_Action).
 
 :- export check_if_subgoal_still_exists/2.
