@@ -95,6 +95,7 @@ add_incr_table(Spec,Mode) :-
  */
 
 table_state(Call, PredType, CallType, AnsSetStatus) :-
+%    writeln(table_state_called(table_state(Call, PredType, CallType, AnsSetStatus))),
 	(Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
 	table_status(NewGoal, PredTypeCode, CallTypeCode, AnsSetStatusCode,_SF),
 	predicate_type_code(PredTypeCode, PredType),
@@ -209,14 +210,14 @@ t_not_subsumptive_no_sf_comp(Subgoal):-
 	  ; table_inspection_function(CALL_SUBS_SLG_NOT,ProducerSF,RetLeaf,0,0) ).
 
 /*
-t_not_subsumptive_no_sf_incomp(Subgoal) :-
-	writeln(t_not_subsumptive_no_sf_incomp(Subgoal)),
-	get_ptcp(PTCP),
-        (   tcall(Subgoal), fail 
-          ; table_status(Subgoal,_PredType,_CallType,_AnsSetStatus,ConsumerSF),
-	    get_producer_call(Subgoal,ProducerSF,_Answertmplt),
-	    is_incomplete(ProducerSF,PTCP),
-	    slg_not(ConsumerSF) ).
+%t_not_subsumptive_no_sf_incomp(Subgoal) :-
+%	writeln(t_not_subsumptive_no_sf_incomp(Subgoal)),
+%	get_ptcp(PTCP),
+%        (   tcall(Subgoal), fail 
+%          ; table_status(Subgoal,_PredType,_CallType,_AnsSetStatus,ConsumerSF),
+%	    get_producer_call(Subgoal,ProducerSF,_Answertmplt),
+%	    is_incomplete(ProducerSF,PTCP),
+%	    slg_not(ConsumerSF) ).
 */
 
 t_not_subsumptive_no_sf_incomp(Subgoal) :-
@@ -397,10 +398,12 @@ were instantiated and so it subsumes the call in the table.
 
 
 get_calls(CallTerm, Handle, Template) :-
+%   writeln(get_calls(CallTerm, Handle, Template)),
 	(CallTerm = M:Goal -> term_new_mod(M,Goal,NewGoal) ; CallTerm = NewGoal),
 	findall('_$get_calls'(NewGoal,Handle,Template),
 		'_$$get_calls'(NewGoal,Handle,Template),
 		List),
+%writeln(get_calls_1(CallTerm, List)),
 	member('_$get_calls'(NewGoal,Handle,Template),List).
 
 
@@ -648,8 +651,10 @@ abolish_table_call(Call) :-
    no action we need to take for consumer calls. */
 abolish_table_call_internal(Call,Action) :-
 	check_cyclic(Call,'abolish_table_call/1',1),
-	get_calls(Call,Handle,_Template),
-	table_state(Handle,_PredType,CallType,AnsSetStatus),
+        (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
+	get_calls(NewGoal,Handle,_Template),
+	check_if_subgoal_still_exists(NewGoal,Handle),
+      	table_state(Handle,_PredType,CallType,AnsSetStatus),
 	CallType \== subsumed,
 	(   AnsSetStatus == undefined
 	->  table_error(['abolishing undefined tabled call ',Call])
@@ -661,6 +666,12 @@ abolish_table_call_internal(Call,Action) :-
 	),
 	fail.
 abolish_table_call_internal(_Call,_Action).
+
+:- export check_if_subgoal_still_exists/2.
+check_if_subgoal_still_exists(NewGoal,Handle):- 
+      '_$$get_calls'(NewGoal,Handle1,_Template),
+      Handle1 = Handle,
+      !.
 
 abolish_table_call_bi(_Handle,_Action) :-
 	'_$builtin'(ABOLISH_TABLE_CALL).
