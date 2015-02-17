@@ -3429,6 +3429,7 @@ static void find_subgoals_and_answers_for_pred(CTXTdeclc TIFptr tif) {
     if (varsf_has_conditional_answer(pSF)) {
       push_done_subgoal_node(CTXTc pSF);
       find_answers_for_subgoal(CTXTc pSF);
+      traverse_subgoal_ndes(pSF);
 	} 
     pSF = subg_next_subgoal(pSF);
   } /* there is a child of "node" */
@@ -3438,7 +3439,7 @@ static void find_subgoals_and_answers_for_pred(CTXTdeclc TIFptr tif) {
 int find_pred_backward_dependencies(CTXTdeclc TIFptr tif) {
     BTNptr as_leaf;
     PNDE pdeElement, ndeElement;
-    DL delayList, nde_delayList;
+    DL delayList, nde_delayList; DE current;
     BTNptr as_prev, nde_as_prev;
     VariantSF subgoal;
     int answer_stack_current_pos = 0;
@@ -3467,6 +3468,22 @@ int find_pred_backward_dependencies(CTXTdeclc TIFptr tif) {
 	  }
 	  pdeElement = pnde_next(pdeElement);
 	}
+      delayList = asi_dl_list((ASI) Child(as_leaf));
+      while (delayList) {
+	current = dl_de_list(delayList);
+	//	printf("----- new dl -----\n");
+	while (current) {
+	  tif = subg_tif_ptr(de_subgoal(current));
+	  if (!TIF_Visited(tif)) {
+	    TIF_Visited(tif) = 1;
+	    push_done_tif_node(CTXTc tif);
+	    find_subgoals_and_answers_for_pred(CTXTc tif);
+	  }
+	  current = de_next(current);
+	}
+	//	printf("\n");
+	delayList = dl_next(delayList);
+      }
 	answer_stack_current_pos++;
       }
       while (done_subgoal_stack_current_pos < done_subgoal_stack_top) {
