@@ -161,6 +161,8 @@ rm test_ec.xwam
 ../gentest.sh "$XEMU -l $options" pred_abolish_dag "test."
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" pred_abolish_cycle "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_trans_bug "test."
 
 #VALGRIND
 if test "$valgrind" = "true"; then
