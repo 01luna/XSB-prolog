@@ -551,23 +551,36 @@ isa(Sub,Sup):-
     isa_nocheck(Sub,Sup).
 
 isa_nocheck(Sub,Sup):-
-    (Sup @= oid(_,_) -> Sub = Sup ;
-    (ground(Sub) ->
-        (ground(Sup) ->
-            isa_bb(Sub,Sup) ,!	% want det for bb.
-          ; isa_bf(Sub,Sup))
-        ;   isa_fx(Sub,Sup) )).
+    (Sup @= oid(_,_)
+     ->	    Sub = Sup
+     ;	    (ground(Sub)
+	     ->	    (ground(Sup)
+		     ->	    isa_bb(Sub,Sup) ,! % want det for bb.
+		     ;	    isa_bf(Sub,Sup)
+		    )
+	     ; nonvar(Sub),cdf_id_fields(Sub,_,Name,Sou),nonvar(Name),nonvar(Sou)
+	     ->	    isa_bf(Sub,Sup)
+	     ;	    isa_fx(Sub,Sup)
+	    )
+    ).
 
 % Here use implicit bb specialization for first step as alternative
 % to the bf mode.
 
 isa_bb(Sub,Sup):- isa_bf(Sub,Sup).
 isa_bb(Sub,Sup):-
-    cdf_id_fields(Sub,_,Suba,_),
+    cdf_id_fields(Sub,Id,Suba,Sou),
     structure(Suba),
-    cdf_id_fields(Sup,_,Supa,_),
-    structure(Supa),
-    implicit_isa_bb(Sub,Sup).
+    cdf_id_fields(Sup,Id,Supa,_),
+    (structure(Supa)
+     ->	    implicit_isa_bb(Sub,Sup)
+     ;	    functor(Suba,F,A),
+	    functor(Subc,F,A),
+	    cdf_id_fields(SubM,Id,Subc,Sou),
+	    immed_isa1(SubM,_SupM),  % must find parameterized class in tax
+	    term_isa(Sub,SubM),
+	    isa_bf(SubM,Sup)
+    ).		
 
 % Here use implicit bf specialization for first step, then look upwards
 isa_bf(Sub,Sub).
@@ -593,16 +606,22 @@ isa_bf_maybe_table(Sub,Sup):-
 
 
 isa_bf_maybe_table(Sub,Sup):-
+	cdf_id_fields(Sub,Id,Suba,Sou),
+	structure(Suba),
+	\+ immed_isa1(Sub,_Mid),
+	!,
+	functor(Suba,F,A),
+	functor(Subc,F,A),
+	cdf_id_fields(SubM,Id,Subc,Sou),
+	immed_isa1(SubM,SupM),
+	term_isa(Sub,SubM),
+	isa_bf(SupM,Sup).
+isa_bf_maybe_table(Sub,Sup):-
 	immed_isa1(Sub,Mid),
-/*    (   immed_isa1(Sub,Mid)
-      ; implicit_isa_bf(Sub,Mid) ), */
-    isa_bf_inner(Mid,Sup).
+	isa_bf_inner(Mid,Sup).
 
 :- table isa_bf_inner/2.
 isa_bf_inner(Sub,Sub).
-/*isa_bf_inner(Sub,Sup):-
-    immed_isa1(Sub,Mid),
-    isa_bf_inner(Mid,Sup).  % so not tabling... could lead to loop. */
 isa_bf_inner(Sub,Sup):-
     isa_bf_inner(Sub,Mid),  % so not tabling... could lead to loop.
     immed_isa1(Mid,Sup).
@@ -640,6 +659,13 @@ isa_subclass_fx(Sub,Sup):-
 :- table isa_subclass_fx_maybe_table/2.
 #endif
 
+/**isa_subclass_fx_maybe_table(Sub,Sup):-
+	nonvar(Sub),
+	cdf_id_fields(Sub,cid,Suba,_),
+	nonvar(Suba),
+	!,
+	immed_isa1(Sub,SubM),
+	isa_bf(SubM,Sup).  ***/
 isa_subclass_fx_maybe_table(Sub,Sup):-
     immed_isa1(cid(MN,MS),Sup),
     isa_subclass_fx(Sub,cid(MN,MS)).
