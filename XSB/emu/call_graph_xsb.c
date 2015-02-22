@@ -23,7 +23,6 @@
 ** 
 */
  
-
 #include "xsb_config.h"
 #include "xsb_debug.h"
 
@@ -82,14 +81,6 @@ Terminology: outedge -- pointer to calls that depend on call
 
 /********************** STATISTICS *****************************/
 
-//int cellarridx_gl;
-//int maximum_dl_gl=0;
-//callnodeptr callq[20000000];
-//int callqptr=0;
-//int no_add_call_edge_gl=0;
-//int saved_call_gl=0,
-//int factcount_gl=0;
-
 // affected_gl drives create_call_list and updtes
 calllistptr affected_gl=NULL;
 calllistptr lazy_affected= NULL;
@@ -104,7 +95,6 @@ callnodeptr old_call_gl=NULL;
 // is this needed?  Can we use the root ptr from SF?
 BTNptr old_answer_table_gl=NULL;
 
-call2listptr marked_list_gl=NULL; /* required for abolishing incremental calls */ 
 calllistptr assumption_list_gl=NULL;  /* required for abolishing incremental calls */ 
 
 // current number of incremental subgoals / edges
@@ -211,6 +201,28 @@ void print_inedges(callnodeptr cn) {
   printf("\n");
 }
 
+void print_outedges(callnodeptr cn) {
+  struct hashtable *h; 
+  struct hashtable_itr *itr;                                                                                             
+  callnodeptr cn_itr;
+
+  printf("Outedges of %d = ",cn->id);
+  h=cn->outedges->hasht;
+  itr = hashtable1_iterator(h);
+
+  if (hashtable1_count(h) > 0){
+    do {                                                                                                                 
+      cn_itr = hashtable1_iterator_value(itr);        
+      printf(" %d ",cn_itr->id);
+    } while (hashtable1_iterator_advance(itr)); 
+  }
+  else {
+    printf("no outedges\n");
+  }
+  printf("\n");
+
+
+}
 
 void deleteinedges(CTXTdeclc callnodeptr callnode){
   calllistptr tmpin,in;
@@ -235,6 +247,7 @@ void deleteinedges(CTXTdeclc callnodeptr callnode){
       printf("  removing affects ptr from "); print_callnode(CTXTc stddbg,in->inedge_node->callnode);
       printf(" to ");print_callnode(CTXTc stddbg,callnode);printf("\n");
       printf("  removing affects ptr from %d to %d\n",in->inedge_node->callnode->id,callnode->id); printf("\n");
+      print_outedges(in->inedge_node->callnode);
 #endif
       //    printf("remove some callnode %x / ownkey %d\n",callnode,ownkey);
       if (remove_some(hasht,ownkey) == NULL) {
@@ -462,18 +475,11 @@ static void inline add_callnode_sub(calllistptr *list, callnodeptr item){
   //  printf("added list %p @list %p\n",list,*list);
 }
 
-static void inline add_calledge(calllistptr *list, outedgeptr item){
+/* used in addcalledge */
+static void inline addcalledge_1(calllistptr *list, outedgeptr item){
   calllistptr  temp;
   SM_AllocateStruct(smCallList,temp);
   temp->inedge_node=item;
-  temp->next=*list;
-  *list=temp;  
-}
-
-static void inline ecall3(calllistptr *list, call2listptr item){
-  calllistptr  temp;
-  SM_AllocateStruct(smCallList,temp);
-  temp->item2=item;
   temp->next=*list;
   *list=temp;  
 }
@@ -495,7 +501,7 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
     print_inedges(tocn);
 #endif
     
-    add_calledge(&(tocn->inedges),fromcn->outedges);      
+    addcalledge_1(&(tocn->inedges),fromcn->outedges);      
     current_call_edge_count_gl++;
     fromcn->outcount++;
     
@@ -1466,39 +1472,6 @@ void remove_callnode_from_list(call2listptr n){
   return;
 }
 
-/*
-
-Input: takes a callnode Output: puts the callnode to the marked list
-and sets the deleted bit; puts it to the assumption list if it has any
-dependent calls not marked 
-
-*/
-
-void mark_for_incr_abol(CTXTdeclc callnodeptr c){
-  calllistptr in=c->inedges;
-  call2listptr markedlistptr;
-  callnodeptr c1;
-
-#ifdef INCR_DEBUG1 
-  printf("marking ");print_callnode(CTXTc stddbg, c);printf("\n");
-#endif
-
-  c->deleted=1;
-  markedlistptr=insert_cdbllist(marked_list_gl,c);
-  if(c->outcount)
-    ecall3(&assumption_list_gl,markedlistptr);
-    
-  while(IsNonNULL(in)){
-    c1=in->inedge_node->callnode;
-    c1->outcount--;
-    if(c1->deleted==0){
-      mark_for_incr_abol(CTXTc c1);
-    }
-    in=in->next;
-  }  
-  return;
-}
-
 
 //--------------------------------------------------------------------------------------------
 
@@ -1815,5 +1788,57 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 %%%   marked_list_gl=NULL;
 %%% %%%   return;
 %%% }
+
+%%%/*
+%%%
+%%%Input: takes a callnode Output: puts the callnode to the marked list
+%%%and sets the deleted bit; puts it to the assumption list if it has any
+%%%dependent calls not marked 
+%%%
+%%%*/
+%%%
+%%%void mark_for_incr_abol(CTXTdeclc callnodeptr c){
+%%%  calllistptr in=c->inedges;
+%%%  call2listptr markedlistptr;
+%%%  callnodeptr c1;
+%%%
+%%%#ifdef INCR_DEBUG1 
+%%%  printf("marking ");print_callnode(CTXTc stddbg, c);printf("\n");
+%%%#endif
+%%%
+%%%  c->deleted=1;
+%%%  markedlistptr=insert_cdbllist(marked_list_gl,c);
+%%%  if(c->outcount)
+%%%    ecall3(&assumption_list_gl,markedlistptr);
+%%%    
+%%%  while(IsNonNULL(in)){
+%%%    c1=in->inedge_node->callnode;
+%%%    c1->outcount--;
+%%%    if(c1->deleted==0){
+%%%      mark_for_incr_abol(CTXTc c1);
+%%%    }
+%%%    in=in->next;
+%%%  }  
+%%%  return;
+%%%}
+
+%%%static void inline ecall3(calllistptr *list, call2listptr item){
+%%%  calllistptr  temp;
+%%%  SM_AllocateStruct(smCallList,temp);
+%%%  temp->item2=item;
+%%%  temp->next=*list;
+%%%  *list=temp;  
+%%%}
+
+
+//int cellarridx_gl;
+//int maximum_dl_gl=0;
+//callnodeptr callq[20000000];
+//int callqptr=0;
+//int no_add_call_edge_gl=0;
+//int saved_call_gl=0,
+//int factcount_gl=0;
+
+//call2listptr marked_list_gl=NULL; /* required for abolishing incremental calls */ 
 
 #endif
