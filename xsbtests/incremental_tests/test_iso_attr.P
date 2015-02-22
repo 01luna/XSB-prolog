@@ -2,7 +2,7 @@
 Test of ISO incremental tabling with attributed variables in calls.
  */
 
-:- import incr_assert_inval/1,incr_assert_immed/1 from increval.
+:- import incr_assert/1 from increval.
 :- import variant/2 from subsumes.
 :- import numbervars/1 from num_vars.
 %:- ensure_loaded(xsbbrat).
@@ -29,7 +29,7 @@ test1:-
        retractall(answer(_)),
        put_attr(X,verbose,X1),
        t1(X),register(first(t1(X))),
-       (d1(4) -> true ; incr_assert_immed(d1(4))),
+       (d1(4) -> true ; incr_assert(d1(4))),
        put_attr(Y,verbose,Y1),
        t1(Y),register(second(t1(Y))),
        fail.

@@ -1,6 +1,6 @@
 
 :- import numbervars/1 from num_vars.
-:- import incr_assert_immed/1 from increval.
+:- import incr_assert/1 from increval.
 :- import abolish_incremental_call_single/1 from tables.
 :- import incr_directly_depends/2 from increval.
 
@@ -27,8 +27,10 @@ test1:- abolish_all_tables,fail.
 test1:- t_1a(_),fail.
 test1:- t_1b(_),fail.
 test1:- abolish_table_call(t_2b(_)),fail.
-test1:- incr_assert_immed(d_1(2)),fail.
-test1:- writeln('-----------------'),print_results('after eager update '),fail.
+test1:- incr_assert(d_1(2)),fail.
+test1:- t_1a(_),fail.
+test1:- t_1b(_),fail.
+test1:- writeln('-----------------'),print_results('after lazy reeval '),fail.
 test1.
 
 test:- t_1a(_),fail.

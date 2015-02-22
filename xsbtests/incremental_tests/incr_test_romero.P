@@ -2,16 +2,16 @@
 
 % Bug submitted by Javier Romero (and now fixed).
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-:- import incr_assert_immed/1,incr_retractall/1,incr_assert_inval/1,
-incr_table_update/0,incr_retract_inval/1 from increval.
+:- import incr_assert/1,incr_retractall/1,incr_assert/1,
+incr_table_update/0,incr_retract/1 from increval.
 % general declarations
 :- table legal/1 as incremental.
 :- table tnext/1, fnext/1 as incremental. 
 :- dynamic true/1 as incremental.
 :- dynamic does/1 as incremental.
 :- dynamic ffnext/1, ttnext/1 as incremental.
-?- incr_assert_immed(true(cell(3,2,b))).
-?- incr_assert_immed(true(cell(3,3,b))).
+?- incr_assert(true(cell(3,2,b))).
+?- incr_assert(true(cell(3,3,b))).
 tnext(cell(Vm,Vn,x)) :- does(mark(Vm,Vn)), true(cell(Vm,Vn,b)).
 tnext(cell(Vm,Vn,o)) :- does(mark(Vm,Vn)), true(cell(Vm,Vn,b)).
 fnext(cell(Vm,Vn,b)) :- does(mark(Vm,Vn)).
@@ -21,15 +21,15 @@ test:- writeln('-------------------------'),fail.
 test :- test1, test2,finish.
 test.
 
-test1 :- legal(X), write(first([X])), writeln(.), incr_assert_inval(does(X)),!.
+test1 :- legal(X), write(first([X])), writeln(.), incr_assert(does(X)),!.
 %test2 :- tnext(X), write('assert: '), writeln(X), assert(ttnext(X)),fail.
 %test2 :- fnext(X), write('retract: '), writeln(X), assert(ffnext(X)),fail.
-test2 :- tnext(X), write('tt  assert: '), writeln(X), incr_assert_inval(ttnext(X)),fail.
-test2 :- fnext(X), write('ff retract: '), writeln(X), incr_assert_inval(ffnext(X)),fail.
-test2 :- ttnext(X), incr_assert_inval(true(X)),fail.
-test2 :- ffnext(X), not ttnext(X), write('actual retract: '), writeln(X), incr_retract_inval(true(X)),fail.
-test2 :- ttnext(X), incr_retract_inval(ttnext(X)), fail.
-test2 :- ffnext(X), incr_retract_inval(ffnext(X)), fail.
+test2 :- tnext(X), write('tt  assert: '), writeln(X), incr_assert(ttnext(X)),fail.
+test2 :- fnext(X), write('ff retract: '), writeln(X), incr_assert(ffnext(X)),fail.
+test2 :- ttnext(X), incr_assert(true(X)),fail.
+test2 :- ffnext(X), not ttnext(X), write('actual retract: '), writeln(X), incr_retract(true(X)),fail.
+test2 :- ttnext(X), incr_retract(ttnext(X)), fail.
+test2 :- ffnext(X), incr_retract(ffnext(X)), fail.
 test2.
 
 finish:- legal(X), write(finish([X])), writeln(.).

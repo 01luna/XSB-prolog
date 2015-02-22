@@ -1,4 +1,4 @@
-:- import incr_assert_immed/1,incr_retract_immed/1 from increval.
+:- import incr_assert/1,incr_retract/1 from increval.
 
 :- dynamic data/1 as incremental.
 
@@ -34,10 +34,11 @@ test.
 % testd_1 : pd(1) <- [opaque_undef]
 
 testd:- abolish_all_tables,retractall(data(_)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
 	(pd(X),fail ; true),
 	write_answers(testd_1,pd(X)),
-	incr_retract_immed(data(1)),
+	incr_retract(data(1)),
+	(pd(X),fail ; true),
 	write_answers(testd_2,pd(X)),
 	fail.
 
@@ -46,7 +47,8 @@ testd:- abolish_all_tables,retractall(data(_)),
 testa:- abolish_all_tables,retractall(data(_)),
 	(pd(X),fail ; true),
 	write_answers(testa_1,pd(X)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
+	(pd(X),fail ; true),
 	write_answers(testa_2,pd(X)),
 	fail.
 
@@ -60,7 +62,8 @@ testa:- abolish_all_tables,retractall(data(_)),
 test1:- abolish_all_tables,retractall(data(_)),
 	(p1(X),fail ; true),
 	write_answers(test1_1,p1(X)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
+	(p1(X),fail ; true),
 	write_answers(test1_2,p1(X)),
 	fail.
 
@@ -73,7 +76,8 @@ test1:- abolish_all_tables,retractall(data(_)),
 test2:- abolish_all_tables,retractall(data(_)),
 	(p1(1),fail ; true),
 	write_answers(test2_1,p1(X)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
+	(p1(1),fail ; true),
 	write_answers(test2_2,p1(X)),
 	fail.
 test2.
@@ -85,10 +89,11 @@ test2.
 % test3_2 : p1(1) <- [opaque_undef]
 
 test3:- abolish_all_tables,retractall(data(_)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
 	(p1(1),fail ; true),
 	write_answers(test3_1,p1(X)),
-	incr_retract_immed(data(1)),
+	incr_retract(data(1)),
+	(p1(1),fail ; true),
 	write_answers(test3_2,p1(X)),
 	fail.
 
@@ -98,10 +103,11 @@ test3:- abolish_all_tables,retractall(data(_)),
 % testd_prop_1 : pd_caller(1) <- [pd(1)]
 
 testd_prop:- abolish_all_tables,retractall(data(_)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
 	(pd_caller(X),fail ; true),
 	write_answers(testd_prop_1,pd_caller(X)),
-	incr_retract_immed(data(1)),
+	incr_retract(data(1)),
+	(pd_caller(X),fail ; true),
 	write_answers(testd_prop_2,pd_caller(X)),
 	fail.
 
@@ -113,7 +119,8 @@ testd_prop:- abolish_all_tables,retractall(data(_)),
 testa_prop:- abolish_all_tables,retractall(data(_)),
 	(pd_caller(X),fail ; true),
 	write_answers(testa_prop_1,pd_caller(X)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
+	(pd_caller(X),fail ; true),
 	write_answers(testa_prop_2,pd_caller(X)),
 	fail.
 
@@ -127,7 +134,8 @@ testa_prop:- abolish_all_tables,retractall(data(_)),
 test1_prop:- abolish_all_tables,retractall(data(_)),
 	(p1_caller(X),fail ; true),
 	write_answers(test1_prop_1,p1_caller(X)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
+	(p1_caller(X),fail ; true),
 	write_answers(test1_prop_2,p1_caller(X)),
 	fail.
 
@@ -140,8 +148,9 @@ test1_prop:- abolish_all_tables,retractall(data(_)),
 test2_prop:- abolish_all_tables,retractall(data(_)),
 	(p1_caller(1),fail ; true),
 	write_answers(test2_prop_1,p1_caller(X)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
 %	write_answers(test2_prop_2,p1(X)),
+	(p1_caller(1),fail ; true),
 	write_answers(test2_prop_2,p1_caller(X)),
 	fail.
 
@@ -152,10 +161,11 @@ test2_prop:- abolish_all_tables,retractall(data(_)),
 % test3_prop_2 : p1_caller(1) <- [opaque_undef]
 
 test3_prop:- abolish_all_tables,retractall(data(_)),
-	incr_assert_immed(data(1)),
+	incr_assert(data(1)),
 	(p1_caller(1),fail ; true),
 	write_answers(test3_prop_1,p1_caller(X)),
-	incr_retract_immed(data(1)),
+	incr_retract(data(1)),
+	(p1_caller(1),fail ; true),
 	write_answers(test3_prop_2,p1(X)),
 	write_answers(test3_prop_2,p1_caller(X)),
 	fail.
@@ -171,29 +181,3 @@ write_answers(Tag,Goal):-
 write_answers(_,_).
 
 end_of_file.
-
-:- table p_sane/1.
-p_sane(X):- writeln(first),undefined.
-p_sane(X):- writeln(second),undefined.
-
-
-%---------------------------------------------------------------
-
-:- table p2/1, q2/1 as incremental.
-
-p(X):- tnot(p(X)).
-p(X):- data(X), X > 0.
-
-q(X):- tnot(p(X)).
-q(X):- data(X), X <  0.
-
-test2:- abolish_all_tables,
-	(p(1),fail ; true),
-	incr_assert_immed(data(1)),
-	get_residual(p(1),F),
-	writeln(get_residual(p(1),F)),
-	fail.
-
-test2:- incr_assert_immed(data(1)).
-
-test3:- p(1).

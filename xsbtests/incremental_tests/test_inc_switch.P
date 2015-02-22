@@ -1,5 +1,4 @@
-:- import incr_assert_immed/1,incr_retractall/1,incr_assert_inval/1,
-	  incr_table_update/0,incr_retract_inval/1 from increval.
+:- import incr_assert/1,incr_retractall/1,incr_assert/1,incr_retract/1 from increval.
 
 
 /* This prevents a spurious error for executing incremental under the
@@ -15,22 +14,22 @@ test_seq:- test2.
 
 % test of opaque -> incremental
 test1:- po(X,Y),incr_writeln(first_po(X,Y)),fail.
-test1:- incr_assert_immed(qo(f,4)),fail.
+test1:- incr_assert(qo(f,4)),fail.
 test1:- abolish_all_tables,fail.
 test1:- (dynamic qo/2 as incremental),fail.
 test1:- po(X,Y),incr_writeln(second_po(X,Y)),fail.
-test1:- incr_assert_immed(qo(e,4)),fail.
+test1:- incr_assert(qo(e,4)),fail.
 test1:- po(X,Y),incr_writeln(third_po(X,Y)),fail.
 test1.
 
 % test of incremental -> opaque
 test2:- pi(X,Y),incr_writeln(first_pi(X,Y)),fail.
-test2:- incr_assert_immed(qi(e,4)),fail.
+test2:- incr_assert(qi(e,4)),fail.
 test2:- pi(X,Y),incr_writeln(second_pi(X,Y)),fail.
 test2:- abolish_all_tables,fail.
 test2:- (dynamic qi/2 as opaque),fail.
 test2:- pi(X,Y),incr_writeln(third_pi(X,Y)),fail.
-test2:- incr_assert_immed(qi(f,4)),fail.
+test2:- incr_assert(qi(f,4)),fail.
 test2:- pi(X,Y),incr_writeln(fourth_pi(X,Y)),fail.
 test2.
 

@@ -1,13 +1,11 @@
 
-/* 
-This test makes sure that no tables are updated that depend on a table
-that cannot be incrementally updated due to choice points.  
-*/
+/* This is a rewrite of a test constructed for eager incremental
+tabling, so its name is perhaps misleading. It now tests incr_invalid_subgoals/1.  */
 
 :- dynamic p/1 as incremental.
 :- dynamic q/1 as incremental.
 
-:- import incr_table_update/0, incr_assert_inval/1 from increval.
+:- import incr_invalid_subgoals/1, incr_assert/1 from increval.
 :- import numbervars/1 from num_vars.
 
 test:- test_1,fail.
@@ -17,15 +15,15 @@ test.
 test_1:- t_inc_5(_X),
 	 %writeln(t_inc_5(X)),
 	 fail.
-%test_un:- incr_assert_inval(q(a)),fail.
-test_1:- t_inc_5(_X),incr_assert_inval(p(a)),increval:consume_affected_calls(Y),
+%test_un:- incr_assert(q(a)),fail.
+test_1:- t_inc_5(_X),incr_assert(p(a)),incr_invalid_subgoals(Y),
 	 numbervars(test_1_affected(Y)),writeln(test_1_affected(Y)),!.
 
 test_2:- t_inc_5(_X),
 	 %writeln(t_inc_5(X)),
 	 fail.
-%test_un:- incr_assert_inval(q(a)),fail.
-test_2:- t_inc_4(_X),incr_assert_inval(p(a)),increval:consume_affected_calls(Y),
+%test_un:- incr_assert(q(a)),fail.
+test_2:- t_inc_4(_X),incr_assert(p(a)),incr_invalid_subgoals(Y),
 	 numbervars(test_2_affected(Y)),writeln(test_2_affected(Y)),!.
 
 p(1). p(2).

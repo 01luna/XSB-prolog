@@ -4,7 +4,7 @@ Test of ISO semantics for incremental updating -- undefined answers.
 
 :- compiler_options([spec_off,xpp_on]).
 #include "table_inspection_defs.h"
-:- import incr_assert_inval/1,incr_assert_immed/1 from increval.
+:- import incr_assert/1 from increval.
 :- import variant/2 from subsumes.
 :- import numbervars/1 from num_vars.
 %:- ensure_loaded(xsbbrat).
@@ -20,7 +20,7 @@ du1(1). du1(2).
 test_u1:- 
        retractall(answer(_)),
        tu1(X),get_tv(State),register(first(tu1(X,State))),
-       (du1(3) -> true ; incr_assert_immed(du1(3))),
+       (du1(3) -> true ; incr_assert(du1(3))),
        tu1(X1),get_tv(State),register(second(tu1(X1),State)),
        fail.
 test_u1:- validate(test_u1(_)).
@@ -96,7 +96,7 @@ test_heap:-
        retractall(answer(_)),
        th1(X),register(first(t1(X))),
        two_sols(_M),
-       (dh1(3) -> create_big_heap_structure(100,_H) ; incr_assert_immed(dh1(3))),
+       (dh1(3) -> create_big_heap_structure(100,_H) ; incr_assert(dh1(3))),
        th1(Y),register(second(t1(Y))),
        fail.
 test_heap:- validate(test1(_)).
