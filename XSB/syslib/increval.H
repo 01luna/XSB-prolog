@@ -22,31 +22,32 @@
 ** 
 */
 :- export
-   incr_table_update/0,
-   incr_table_update/1,
-   incr_table_update/2,
+%   incr_table_update/0,
+%   incr_table_update/1,
+%   incr_table_update/2,
    incr_assert/3,
    incr_assert/1,
    incr_asserta/1,
    incr_assertz/1,
    incr_retractall/1,
    incr_retract/1,
-   incr_assert_inval/1,
-   incr_asserta_inval/1,
-   incr_assertz_inval/1,
-   incr_assert_inval/3,
-   incr_retractall_inval/1,
-   incr_retract_inval/1,
+%   incr_assert_inval/1,
+%   incr_asserta_inval/1,
+%   incr_assertz_inval/1,
+%   incr_assert_inval/3,
+%   incr_retractall_inval/1,
+%   incr_retract_inval/1,
    incr_invalidate_call/1,
    incr_directly_depends/2,
    incr_trans_depends/2,
    incr_eval_builtin/3.
-:- export incr_asserta_immed/1,
-   incr_assertz_immed/1,
-   incr_assert_immed/1,
-   incr_retract_immed/1,
-   incr_retractall_immed/1.
-:- export lazy_reeval/1, lazy_reeval_trap/1.
+%:- export incr_asserta_immed/1,
+%   incr_assertz_immed/1,
+%   incr_assert_immed/1,
+%   incr_retract_immed/1,
+%   incr_retractall_immed/1.
+:- export lazy_reeval_trap/1.
+%:- export lazy_reeval/1b.
 :- export invalidate_callnode_trie/1.
    
 :- import assert/3,retractall/1, retract/1
