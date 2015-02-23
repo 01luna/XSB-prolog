@@ -122,6 +122,16 @@ double total_table_gc_time = 0;
 /* various utility predicates and macros */
 /*----------------------------------------------------------------------*/
 
+int is_ancestor_sf(VariantSF consumer_sf, VariantSF producer_sf) {
+  printf("ent ias, csf=%p, psf=%p\n",consumer_sf,producer_sf);
+  while (consumer_sf != NULL && consumer_sf != producer_sf) {
+    consumer_sf = (VariantSF)(nlcp_ptcp(subg_cp_ptr(consumer_sf)));
+    printf("next csf=%p\n",consumer_sf);
+  }
+  printf("ret: %p\n",consumer_sf);
+  if (consumer_sf == NULL) return FALSE; else return TRUE;
+}
+
 xsbBool varsf_has_unconditional_answers(VariantSF subg)
 {
   ALNptr node_ptr = subg_answers(subg);
@@ -4621,9 +4631,10 @@ void abolish_incremental_call_single_nocheck_no_nothin(CTXTdeclc VariantSF goal,
 }
 
 void maybe_detach_incremental_call_single(CTXTdeclc VariantSF goal, int invalidate_flag) {
+  callnodeptr callnode;
   if (!IsIncrSF(goal)) return;
 
-  callnodeptr callnode = subg_callnode_ptr(goal);
+  callnode = subg_callnode_ptr(goal);
   #ifdef DEBUG_ABOLISH
   abolish_dbg(("detachinng incr call for gc: %p ",goal)); print_subgoal(CTXTc stddbg,goal); 
   printf("(id %d flag %d)\n",callnode->id,invalidate_flag);
