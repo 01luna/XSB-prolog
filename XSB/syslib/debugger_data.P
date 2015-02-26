@@ -102,6 +102,7 @@ trace_this_noprint(bagof1, 3).
 
 %% Trace this standard predicate
 trace_standard_predicate(once,1).
+trace_standard_predicate((\+),1).
 
 trace_standard_predicate(catch,3).
 trace_this_noprint(catch,3).
