@@ -124,7 +124,7 @@
 :- import fmt_write/2 from file_io.
 :- import file_function/3, xsb_stream_lock/1,xsb_stream_unlock/1 from file_io.
 
-:- import add_ops/3, op_priority/1, op_specifier/1, add_index/3, '_$index'/3,
+:- import add_ops/3, add_index/3, '_$index'/3,
    add_trie_index/1  from file_op.
 
 :- import add_table/1, add_incr_table/2 from tables.

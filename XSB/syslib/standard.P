@@ -2041,8 +2041,8 @@ check_arity_integer(N,Pred,Arg) :-
 %  all_atoms(+List)
 %  Given a proper list List determines whether it contains atoms only.
 
-all_atoms([]).
-all_atoms([Atom|Atoms]) :- atom(Atom), all_atoms(Atoms).
+%all_atoms([]).
+%all_atoms([Atom|Atoms]) :- atom(Atom), all_atoms(Atoms).
 
 %  contains_var(+List)
 %  Given a proper list List determines whether it contains a variable
