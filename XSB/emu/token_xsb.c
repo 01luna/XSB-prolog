@@ -355,7 +355,7 @@ int code_page_1252[256] =
 int code_page_1252_hash[256] = {0};
 
 int w1252_char_to_codepoint(byte **s) {
-  return code_page_1252[**s];
+  return code_page_1252[*((*(s))++)];
 }
 
 /* many are self-inversions in w1252, i.e., 00-7F and A0-FF; For

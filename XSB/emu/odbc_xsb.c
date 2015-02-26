@@ -1750,15 +1750,12 @@ Cell build_codes_list(CTXTdeclc byte *charptr) {
     CPtr this_term;
     check_glstack_overflow(4,pcreg,2*sizeof(Cell)*len);
     this_term = hreg;
-    //    cell(hreg) = makeint((int)*charptr); charptr++;
+    /* char_to_codepoint increments charptr */
     cell(hreg) = makeint(char_to_codepoint(CURRENT_CHARSET,&charptr));
-    charptr++;
     hreg += 2;
     while (*charptr != 0) {
       cell(hreg-1) = makelist(hreg);
-      //      cell(hreg) = makeint((int)*charptr); charptr++;
       cell(hreg) = makeint(char_to_codepoint(CURRENT_CHARSET,&charptr));
-      charptr++;
       hreg += 2;
     }
     cell(hreg-1) = makenil;
