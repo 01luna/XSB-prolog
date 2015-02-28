@@ -273,11 +273,11 @@ void deleteinedges(CTXTdeclc callnodeptr callnode){
 void deleteoutedges(CTXTdeclc callnodeptr callnode){
   struct hashtable *h; 
   struct hashtable_itr *itr;                                                                                             
-  callnodeptr cn_itr;
+  callnodeptr cn_itr, cn_itr_sav;
   calllistptr in;
   //  calllistptr * last;
   calllistptr last = NULL;
-  int i = 0;
+  int i;
 
   h=callnode->outedges->hasht;
   itr = hashtable1_iterator(h);
@@ -290,10 +290,11 @@ void deleteoutedges(CTXTdeclc callnodeptr callnode){
       cn_itr = hashtable1_iterator_value(itr);        
 #ifdef INCR_DEBUG1
       printf("iterating (id %d)",cn_itr->id);print_callnode(CTXTc stddbg,cn_itr); printf("\n");
-      print_inedges(cn_itr);
+      printf("before deleting link "); print_inedges(cn_itr);
 #endif
       if (cn_itr != callnode) {  /* messes things up, otherwise.  This will be dealloc'd anyway */
 	in = cn_itr->inedges;
+	i = 0;
 	while(IsNonNULL(in)){
 	  if (in->inedge_node->callnode == callnode) {
 #ifdef INCR_DEBUG1
@@ -312,6 +313,9 @@ void deleteoutedges(CTXTdeclc callnodeptr callnode){
 	}
       }
       current_call_edge_count_gl--;
+#ifdef INCR_DEBUG1
+      printf("after deleting link "); print_inedges(hashtable1_iterator_value(itr));
+#endif
     } while (hashtable1_iterator_advance(itr)); 
     callnode->outcount = 0;  // hashtable will be deallocated in delete callnode
   }
@@ -499,6 +503,7 @@ void addcalledge(callnodeptr fromcn, callnodeptr tocn){
 #ifdef INCR_DEBUG	
     printf("--------------- addcalledge (from %d to %d) before \n",fromcn->id,tocn->id);
     print_inedges(tocn);
+    print_outedges(fromcn);
 #endif
     
     addcalledge_1(&(tocn->inedges),fromcn->outedges);      
