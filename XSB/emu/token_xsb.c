@@ -874,13 +874,13 @@ READ_ERROR:
 		      c = GetCode(charset,card,instr);
 		      if (DigVal(c) <= 15 && c != '_'){
 			n = (n<<4) + DigVal(c);
-		      } else {
+		      } else if (c != '\\') {
 			unGetC(c,card,instr);
 			xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
 				 n,input_file_position(card,instr),
 				 input_file_name(card,instr));
 			return n;
-		      }
+		      } else return n;
 		    }
 		    c = GetCode(charset,card,instr);
 		    if (DigVal(c) <= 15 && c != '_'){      /* \uxxxxxxxx */
@@ -889,16 +889,16 @@ READ_ERROR:
 			c = GetCode(charset,card,instr);
 			if (DigVal(c) <= 15 && c != '_'){
 			  n = (n<<4) + DigVal(c);
-			} else {
+			} else if (c != '\\') {
 			  unGetC(c,card,instr);
 			  xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
 				   n,input_file_position(card,instr),
 				   input_file_name(card,instr));
 			  return n;
-			}
+			} else return n;
 		      }
 		    } else {
-		      if (c>0) {unGetC(c,card,instr);}	
+		      if (c>0 && c != '\\') {unGetC(c,card,instr);}	
 		    }
 		    return n;
 		  } else {   // not UTF_8
