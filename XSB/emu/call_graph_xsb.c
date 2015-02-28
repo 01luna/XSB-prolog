@@ -273,7 +273,8 @@ void deleteinedges(CTXTdeclc callnodeptr callnode){
 void deleteoutedges(CTXTdeclc callnodeptr callnode){
   struct hashtable *h; 
   struct hashtable_itr *itr;                                                                                             
-  callnodeptr cn_itr, cn_itr_sav;
+  callnodeptr cn_itr;
+  //  callnodeptr cn_itr_sav;
   calllistptr in;
   //  calllistptr * last;
   calllistptr last = NULL;
