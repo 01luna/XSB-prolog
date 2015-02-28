@@ -485,7 +485,9 @@ read_peepop(S0, S0).
 read_prefix_is_atom([Token|_], Precedence) :-
         read_prefix_is_atom(Token, Precedence).
 
-read_prefix_is_atom(infixop(_,L,_,_), P) :- L >= P.
+%%read_prefix_is_atom(infixop(_,L,_,_), P) :- L >= P.
+read_prefix_is_atom(infixop(Op,L,_,_), P) :-
+	L >= P, \+ (read_prefixop(Op,Pp,_), Pp =< L, Pp >= P).
 read_prefix_is_atom(postfixop(_,L,_), P) :- L >= P.
 read_prefix_is_atom(punc(CH_RPAREN), _).			% ')'
 read_prefix_is_atom(punc(CH_RBRACKET), _).			% ']'
