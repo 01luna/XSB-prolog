@@ -855,12 +855,12 @@ READ_ERROR:
 		    n = n * 16 + DigVal(c);
 		    c = GetCode(charset,card,instr);
 		  }
-		  if (c < 0) goto READ_ERROR;
+		  //  if (c < 0) goto READ_ERROR;
 		  if (c != '\\') {
 		    unGetC(c, card, instr);
-		    xsb_warn(CTXTc "Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
-			     n,input_file_position(card,instr),
-			     input_file_name(card,instr));
+		    //  xsb_warn(CTXTc "Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
+		    //	     n,input_file_position(card,instr),
+		    //	     input_file_name(card,instr));
 		  }
 		  return n;
                 }
@@ -915,12 +915,12 @@ READ_ERROR:
 		    n = n * 8 + DigVal(c);
 		    c = GetCode(charset,card,instr);
 		  } while (DigVal(c) < 8);
-		  if (c < 0) goto READ_ERROR;
+		  //		  if (c < 0) goto READ_ERROR;
 		  if (c != '\\') {
 		    unGetC(c, card, instr);
-		    xsb_warn(CTXTc "Ill-formed \\OCTAL\\ escape: %d (dec) at position %d in %s",
-			     n,input_file_position(card,instr),
-			     input_file_name(card,instr));
+		    //		    xsb_warn(CTXTc "Ill-formed \\OCTAL\\ escape: %d (dec) at position %d in %s",
+		    //			     n,input_file_position(card,instr),
+		    //			     input_file_name(card,instr));
 		  }
 		  return n;
                 }
@@ -1348,6 +1348,12 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                 }
                 d = GetCode(charset,card,instr);
                 if (c == intab.begcom && d == intab.astcom) goto ASTCOM;
+		if ((c == '{' && d == '}') || (c == '[' && d == ']')) {
+		  /* handle {}, and [] as tokens, so can be functors */
+		  strbuff[0] = c; strbuff[1] = d; strbuff[2] = 0;
+		  c = GetCode(charset,card,instr);
+		  goto SYMBOL;
+		}
  
               /*  If we arrive here, c is an ordinary punctuation mark  */
 /*                  if (c == '(')  *s++ = ' '; */
