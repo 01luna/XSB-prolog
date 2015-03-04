@@ -57,6 +57,7 @@
 #include "flags_xsb.h"
 #include "tst_utils.h"
 #include "tables_i.h"
+#include "slgdelay.h"
 
 static void simplify_neg_succeeds(CTXTdeclc VariantSF);
 extern void simplify_pos_unsupported(CTXTdeclc NODEptr);
@@ -142,32 +143,6 @@ static PNDE current_pnde_block_top_gl = NULL; /* the top of current PNDE block*/
   }
 
 /* * * * */
-
-/*
- * remove_pnde(PNDE_HEAD, PNDE_ITEM, PNDE_FREELIST) removes PNDE_ITEM
- * from the corresponding doubly-linked PNDE list, and adds it to
- * PNDE_FREELIST. If PNDE_ITEM is the first one in the list, resets
- * PNDE_HEAD to point to the next one.
- *
- * One principle: Whenever we remove a DE, its PDE (or NDE) must be
- * removed from the PNDE list *first* using remove_pnde().
- */
-
-#define remove_pnde(PNDE_HEAD, PNDE_ITEM, PNDE_FREELIST) {	\
-  PNDE *pnde_head_ptr;					\
-  PNDE next;						\
-							\
-  pnde_head_ptr = &(PNDE_HEAD);				\
-  next = pnde_next(PNDE_ITEM);				\
-  if (*pnde_head_ptr == PNDE_ITEM)			\
-    *pnde_head_ptr = next;				\
-  else {						\
-    pnde_next(pnde_prev(PNDE_ITEM)) = next;		\
-    if (next)						\
-      pnde_prev(next) = pnde_prev(PNDE_ITEM);		\
-  }							\
-  release_entry(PNDE_ITEM, PNDE_FREELIST, pnde_next);	\
-}
 
 /* * * * */
 
@@ -1259,7 +1234,7 @@ void release_all_dls(CTXTdeclc ASI asi)
 	    remove_pnde(subg_nde_list(de_subgoal(de)), de_pnde(de), private_released_pndes)
 	  else
 #endif
-			  remove_pnde(subg_nde_list(de_subgoal(de)), de_pnde(de), released_pndes_gl);
+	    remove_pnde(subg_nde_list(de_subgoal(de)), de_pnde(de), released_pndes_gl);
     	  }
       }
       else {
@@ -1740,6 +1715,7 @@ void print_pdes(PNDE firstPNDE) {
     //	print_subgoal(stddbg, de_subgoal(de)); fprintf(stddbg,"\n");
     //	de = de_next(de);
     //      }
+    printf("considering pnde %p\n",firstPNDE);
     dl = pnde_dl(firstPNDE);
     while (dl) {
       fprintf(stddbg,"  backpoints to subgoal: ");
