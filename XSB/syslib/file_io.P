@@ -296,6 +296,8 @@ path_sysop(isdir, Path) :- !, is_directory(Path).
 path_sysop(rename, OldPath, NewPath) :- !, rename(OldPath,NewPath).
 path_sysop(copy, FromPath, ToPath) :- !,
 	sys_filecopy(FromPath,ToPath,Res), Res=:=0.
+path_sysop(append, FromPath, ToPath) :- !,
+	sys_fileappend(FromPath,ToPath,Res), Res=:=0.
 	/*
 	file_open(FromPath, r, FromIOport),
 	FromIOport >= 0,

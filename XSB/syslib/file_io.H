@@ -41,7 +41,7 @@
 %%%:- import gensym/2 from gensym.
 
 :- import is_plain_file/1, is_directory/1, rename/2, rm/1, rmdir_rec/1, cwd/1,
-	sys_filecopy/3,
+	sys_filecopy/3, sys_fileappend/3,
 	cd/1, sys_link/3, sys_mkdir/2, sys_rmdir/2, sys_access/3
       from shell.
 

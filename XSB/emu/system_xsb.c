@@ -81,7 +81,7 @@ static void init_process_table(void);
 static int process_status(int pid);
 static void split_command_arguments(char *string, char *params[], char *callname);
 static char *get_next_command_argument(char **buffptr, char **cmdlineprt);
-static int file_copy(CTXTdeclc char *, char *);
+static int file_copy(CTXTdeclc char *, char *, char *);
 static int copy_file_chunk(CTXTdeclc FILE *, FILE *, size_t);
 #ifndef WIN_NT
 static char *xreadlink(CTXTdeclc const char *, int *);
@@ -183,7 +183,13 @@ int sys_syscall(CTXTdeclc int callno)
   case SYS_filecopy: {
     char *from = ptoc_longstring(CTXTc 3);
     char *to = ptoc_longstring(CTXTc 4);
-    result = file_copy(CTXTc from,to);
+    result = (file_copy(CTXTc from,to,"w") == 0);
+    break;
+  }
+  case SYS_fileappend: {
+    char *from = ptoc_longstring(CTXTc 3);
+    char *to = ptoc_longstring(CTXTc 4);
+    result = (file_copy(CTXTc from,to,"a") == 0);
     break;
   }
   case SYS_create: {
@@ -1128,7 +1134,10 @@ static int xsb_find_next_file(CTXTdeclc prolog_term handle,
 }
 
 /* file_copy: based on code from busybox (www.busybox.net) */
-static int file_copy(CTXTdeclc char *source, char *dest)
+/* mode: "w" - for copy or "a" - for append. No checks for correctness of mode
+   are made! So, beware
+*/
+static int file_copy(CTXTdeclc char *source, char *dest, char* mode)
 {
   struct stat source_stat;
   struct stat dest_stat;
@@ -1183,7 +1192,7 @@ static int file_copy(CTXTdeclc char *source, char *dest)
       xsb_log("%s: %s\n",current_dir,source);
     }
     if (dest_exists) {
-      if ((dfp = fopen(dest, "w")) == NULL) {
+      if ((dfp = fopen(dest, mode)) == NULL) {
 	if (unlink(dest) < 0) {
 	  xsb_warn(CTXTc "[file_copy] Unable to remove destination: %s\n",
 		   dest);
@@ -1198,7 +1207,7 @@ static int file_copy(CTXTdeclc char *source, char *dest)
       int fd;
       
       if ((fd = open(dest, O_WRONLY|O_CREAT, source_stat.st_mode)) < 0 ||
-	  (dfp = fdopen(fd, "w")) == NULL) {
+	  (dfp = fdopen(fd, mode)) == NULL) {
 	if (fd >= 0)
 	  close(fd);
 	xsb_warn(CTXTc "[file_copy] Unable to open destination: %s\n",dest);

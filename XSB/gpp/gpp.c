@@ -783,6 +783,7 @@ int identifierEnd(int start)
     start+=2;
     c=getChar(start);
   }
+
   while (!isdelim(c)) c=getChar(++start);
   return start;
 }

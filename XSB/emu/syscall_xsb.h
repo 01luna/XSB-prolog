@@ -216,3 +216,4 @@
 #define SYS_cwd         300  /* current working directory */
 #define SYS_filecopy    301
 #define SYS_create      302  /* for creating file as lock */
+#define SYS_fileappend  303
