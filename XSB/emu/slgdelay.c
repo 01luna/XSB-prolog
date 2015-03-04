@@ -155,7 +155,7 @@ static PNDE current_pnde_block_top_gl = NULL; /* the top of current PNDE block*/
  * protected by the lock in do_delay_stuff to MUTEX_DELAY
  */
 
-#define create_as_info(ST_MAN,ANS, SUBG)			\
+#define create_asi_info(ST_MAN,ANS, SUBG)			\
   {								\
     SM_AllocateStruct(ST_MAN,( asi));				\
     Child(ANS) = (NODEptr) asi;					\

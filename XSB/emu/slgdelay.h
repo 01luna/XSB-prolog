@@ -199,7 +199,7 @@ to functions in slgdelay.c
 
 #define mark_conditional_answer(ANS, SUBG, NEW_DL,STRUCT_MGR)		\
   if (Child(ANS) == NULL || hasALNtag(ANS)) {				\
-    create_as_info(STRUCT_MGR,ANS, SUBG);				\
+    create_asi_info(STRUCT_MGR,ANS, SUBG);				\
   }									\
   else {								\
     asi = Delay(ANS);							\
