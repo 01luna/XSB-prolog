@@ -603,7 +603,7 @@ abolish_all_tables :-
 abolish_table_pred(Spec,Options) :-
 	check_nonvar(Spec,abolish_table_pred/1,1),
 	( Spec = F/A -> functor(Term,F,A) ; Term = Spec),
-	check_abolish_options_list(Options,ActionType,abolish_table_call/2),
+	check_abolish_options_list(Options,ActionType,abolish_table_pred/2),
 	abolish_table_pred_bi(Term,ActionType).
 
 abolish_table_pred(Spec) :-
@@ -623,9 +623,18 @@ invalidate_tables_for(_DynSkel,_).
 abolish_module_tables(_Predicate) :-
 	'_$builtin'(ABOLISH_MODULE_TABLES).
 
-abolish_table_call(Call,Options) :-
-	check_abolish_options_list(Options,ActionType,abolish_table_call/2),
-	abolish_table_call_internal(Call,ActionType).
+abolish_table_subgoals(Call,Options) :-
+	check_abolish_options_list(Options,ActionType,abolish_table_subgoals/2),
+	abolish_table_subgoals_internal(Call,ActionType).
+abolish_table_subgoals(Call) :-
+	abolish_table_subgoals_internal(Call,ABOLISH_TABLES_DEFAULT).
+
+abolish_table_subgoal(Call,Options) :-
+	check_abolish_options_list(Options,ActionType,abolish_table_subgoalb/2),
+	abolish_table_subgoal_internal(Call,ActionType).
+abolish_table_subgoal(Call) :-
+	abolish_table_subgoal_internal(Call,ABOLISH_TABLES_DEFAULT).
+
 
 check_abolish_options_list(Options,_ActionType,Pred):- 
 	check_nonvar(Options,Pred,2),
@@ -643,18 +652,14 @@ check_abolish_options_list([Option|_Rest],ActionType,Pred):- !,
 check_abolish_options_list(Culprit,_ActionType,Pred):- 
 	type_error(list,Culprit,Pred,2).
 
-abolish_table_call(Call) :-
-	abolish_table_call_internal(Call,ABOLISH_TABLES_DEFAULT).
-
-:- import current_prolog_flag/2 from curr_sym.
 /* TLS: Action on call subsumption is to delete producer for consumer
    calls. get_calls/3 automatically finds all producers, so there is
    no action we need to take for consumer calls.
 
    Note that if tables are abolished transitively, a check needs to be
    made to determine whether the pointer to the unifying call still exists. */
-abolish_table_call_internal(Call,Action) :-
-    check_cyclic(Call,'abolish_table_call/1',1), 
+abolish_table_subgoals_internal(Call,Action) :-
+    check_cyclic(Call,'abolish_table_subgoals/1',1), 
     (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
     current_prolog_flag(table_gc_action,GCAction),
     get_calls(NewGoal,Handle,_Template), 
@@ -667,9 +672,9 @@ abolish_table_call_internal(Call,Action) :-
       table_error(['abolishing undefined tabled call ',Call]) 
     ; AnsSetStatus == incomplete ->
       table_error(['abolishing incomplete tabled call ',Call])
-    ; abolish_table_call_bi(Handle,Action) ),
+    ; abolish_table_subgoal_bi(Handle,Action) ),
     fail.
-abolish_table_call_internal(_Call,_Action).
+abolish_table_subgoals_internal(_Call,_Action).
 
 :- export check_if_subgoal_still_exists/2.
 check_if_subgoal_still_exists(NewGoal,Handle):- 
@@ -677,7 +682,20 @@ check_if_subgoal_still_exists(NewGoal,Handle):-
       Handle1 = Handle,
       !.
 
-abolish_table_call_bi(_Handle,_Action) :-
+%---------
+abolish_table_subgoal_internal(Call,Action) :-
+    check_cyclic(Call,'abolish_table_subgoal/1',1), 
+    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
+    get_call(NewGoal,Handle,_Template), 
+    table_state(Handle,_PredType,CallType,AnsSetStatus), 
+    CallType \== subsumed, 
+    ( AnsSetStatus == undefined -> 
+      table_error(['abolishing undefined tabled call ',Call]) 
+    ; AnsSetStatus == incomplete ->
+      table_error(['abolishing incomplete tabled call ',Call])
+    ; abolish_table_subgoal_bi(Handle,Action) ).
+
+abolish_table_subgoal_bi(_Handle,_Action) :-
 	'_$builtin'(ABOLISH_TABLE_CALL).
 
 abolish_nonincremental_tables(Option):- 
@@ -1352,6 +1370,13 @@ subgoal_scc_member([ret(S,_,Index)|_],Subgoal,Index):-
 	variant(S,Subgoal),!.
 subgoal_scc_member([_|R],Subgoal,Index):- 
 	subgoal_scc_member(R,Subgoal,Index).
+
+/* Deprecated (but maintained for backwards compatability) */
+
+abolish_table_call(Term,Options) :-
+	abolish_table_subgoals(Term,Options).
+abolish_table_call(Term) :-
+	abolish_table_subgoals(Term).
 
 %------------------------------------------------------------------------------
 end_of_file.

@@ -25,7 +25,8 @@
 
 :- export
    abolish_all_tables/0,
-   abolish_table_call/1,       abolish_table_call/2, 
+   abolish_table_subgoals/1,       abolish_table_subgoals/2, 
+   abolish_table_subgoal/1,       abolish_table_subgoal/2, 
    abolish_table_pred/1,      abolish_table_pred/2,
    abolish_module_tables/1,
    abolish_nonincremental_tables/1,
@@ -77,6 +78,9 @@
    variant_get_residual/2.
 :- export floundered_undefined/0.
 
+% Obsolete
+:- export    abolish_table_call/1,       abolish_table_call/2.
+
 /****** Experimental ********/
 :- export find_components/1,
 	find_forward_dependencies/1,
@@ -104,6 +108,7 @@
      from basics.
 
 :- import set_prolog_flag/2 from curr_sym.
+:- import current_prolog_flag/2 from curr_sym.
 :- import load_dync/2 from consult.
 
 :- import
