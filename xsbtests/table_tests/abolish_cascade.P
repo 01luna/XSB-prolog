@@ -24,7 +24,7 @@ test:- get_residual(r2(A,B,C),F),writeln(get_residual(r2(A,B,C),F)),fail.
 test:- get_residual(r3(A,B,C),F),writeln(get_residual(r3(A,B,C),F)),fail.
 test:- writeln('cascading abolish test completed').
 
-:- table p1/3, r1/3, undefined/0.
+:- table p1/3, r1/3.
 p1(X,Y,Z):- r1(X,Y,Z).
 
 r1(a,b,c):- undefined.

@@ -88,7 +88,7 @@ rm test_ec.xwam
 #------------------------------------------------- cascading abolish for subgoals with gc etc.
 ../gentest.sh "$XEMU $options" abolish_cascade "test". 
 #------------------------------------------------- cascading abolish for preds with gc etc.
-../gentest.sh "$XEMU $options" abolish_cascade "test". 
+../gentest.sh "$XEMU $options" abolish_cascade_pred "test". 
 #-------------------------------------------------
 ../gentest.sh "$XEMU $options" recursive_aboltest "test".
 #------------------------------------------------- 
