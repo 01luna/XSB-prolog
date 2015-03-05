@@ -102,7 +102,6 @@ deactivate_op(T, S) :-
 
 :- dynamic dyn_op(_,_,_).	% need this form so get right psc record.
 
-
 '_$op1'(1200,xfx,(':-')).
 '_$op1'(1200,xfx,('-->')).	% Not in the Prolog standard
 '_$op1'(1200,fx,(':-')).
@@ -175,7 +174,7 @@ deactivate_op(T, S) :-
 '_$op1'(500,yfx,><).
 '_$op1'(500,yfx,xor).
 %%'_$op1'(500,fx,+).		% Not in the Prolog standard (200 in Ciao)
-'_$op1'(200,fx,+).
+'_$op1'(200,fy,+).
 %%'_$op1'(500,fx,-).		% Not in the Prolog standard (200 in Ciao)
 %'_$op1'(200,fx,-).
 '_$op1'(200,fy,-).

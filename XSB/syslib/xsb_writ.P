@@ -312,6 +312,7 @@ l_writebinop(File, Op, Term, Oldp, Curp, Newlp, Newrp, D,Flag) :-
 		'write binop'(File, Arg1, Op, Arg2, Newlp, Newrp, D,Flag)
 	).
 
+% if Arg2 is a prefix op that binds tighter, need parens?
 'write binop'(File, Arg1, Op, Arg2, Newlp, Newrp, D,Flag) :-
         D1 is D - 1,
 	l_write(File, Arg1, Newlp, D1,Flag),
@@ -457,7 +458,7 @@ l_write_prolog(File, T, _) :-
 	file_puttoken(File, Type, T).
 
 l_writevar_prolog(File, N, Quoted) :-
-	( integer(N) ->
+	( integer(N), N >= 0 ->
 		OrdLetter is N mod 26,
 		ChrLetter is CH_A + OrdLetter,	% Char A
 		file_put(File, ChrLetter),
