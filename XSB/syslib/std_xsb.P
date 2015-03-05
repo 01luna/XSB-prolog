@@ -42,6 +42,22 @@ standard_symbol(abolish_table_call, 2, tables).
 standard_metapredicate(abolish_table_call,2,1).
 standard_metapredicate_template(abolish_table_call,2,(:,*)).
 
+standard_symbol(abolish_table_subgoals, 1, tables).		
+standard_metapredicate(abolish_table_subgoals,1,1).
+standard_metapredicate_template(abolish_table_subgoals,1,(:)).
+
+standard_symbol(abolish_table_subgoals, 2, tables).		
+standard_metapredicate(abolish_table_subgoals,2,1).
+standard_metapredicate_template(abolish_table_subgoals,2,(:,*)).
+
+standard_symbol(abolish_table_subgoal, 1, tables).		
+standard_metapredicate(abolish_table_subgoal,1,1).
+standard_metapredicate_template(abolish_table_subgoal,1,(:)).
+
+standard_symbol(abolish_table_subgoal, 2, tables).		
+standard_metapredicate(abolish_table_subgoal,2,1).
+standard_metapredicate_template(abolish_table_subgoal,2,(:,*)).
+
 standard_symbol(abolish_table_pred, 1, tables).		
 standard_symbol(abolish_table_pred, 2, tables).		
 standard_symbol(abort, 0, standard).
