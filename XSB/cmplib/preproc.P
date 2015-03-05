@@ -93,7 +93,7 @@ pre_clauses([clause(Args,Body,P)|Rest], [clause(Args,NBody,P)|NRest]) :-
 
 pre_cutclauses([], []).
 pre_cutclauses([clause(A,B,P)|CRest], [clause(NA,NB,P)|NCRest]) :-
-        gensym('_v', CutVid),
+        cmp_gensym('_v', CutVid),
         append(A, [varocc(CutVid)], NA),
 	pre_body(B, NB, CutVid),
         pre_cutclauses(CRest, NCRest).
@@ -155,10 +155,10 @@ pre_ifthen(A,B,C,if_then_else(A1,NB,NC),CutVid) :-
 	pre_body(B,NB,CutVid),
 	pre_body(C,NC,CutVid).
 pre_ifthen(A,B,C,NGoal,CutVid) :-
-	gensym('_v', CutVid1),
+	cmp_gensym('_v', CutVid1),
 	have_hardcut_1(A,Hardcut),
 	(Hardcut =:= 1
-	 ->	gensym('_v',CutVidCond),
+	 ->	cmp_gensym('_v',CutVidCond),
 		pre_body(A, T1a, CutVidCond),
 		T1 = and(inlinegoal('_$savecp', 1, [varocc(CutVidCond)]),
 			 T1a)
@@ -277,8 +277,14 @@ ti_prag(Sym, Prag) :-
 empty_ifthen_else(inlinegoal(true,0,[]), inlinegoal(true,0,[])).
 
 gensym_pred(P, NP) :-
-	gensym('_#', N2),
+	cmp_gensym('_#', N2),
 	str_cat(P, N2, NP).
+
+cmp_gensym(Root,Sym) :-
+	coninc('_$compiler_gensym_ctr',Cnt),
+	number_codes(Cnt,CntC),
+	atom_codes(CntA,CntC),
+	str_cat(Root,CntA,Sym).
 
 force_preprocess_loaded.
 
