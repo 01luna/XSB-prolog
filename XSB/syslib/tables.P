@@ -693,7 +693,8 @@ abolish_table_subgoal_internal(Call,Action) :-
       table_error(['abolishing undefined tabled call ',Call]) 
     ; AnsSetStatus == incomplete ->
       table_error(['abolishing incomplete tabled call ',Call])
-    ; abolish_table_subgoal_bi(Handle,Action) ).
+    ; abolish_table_subgoal_bi(Handle,Action) ),!.
+abolish_table_subgoal_internal(_Call,_Action).
 
 abolish_table_subgoal_bi(_Handle,_Action) :-
 	'_$builtin'(ABOLISH_TABLE_CALL).
