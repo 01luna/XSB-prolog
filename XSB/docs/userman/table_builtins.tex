@@ -9,42 +9,57 @@
 In XSB, tables are designed so that they can be used transparently by
 computations.  However, it is necessary to first inform the system of
 which predicates should be evaluated using tabled resolution
-(\refsec{sec:CompilerOptions}), and whether variant or subsumptive
-tabling should be used (\refchap{chap:TablingOverview}).  Further, it
-is often useful to be able to explicitly inspect a table, or to alter
-its state.  The predicates described in this section are provided for
-these purposes.  In order to ground the discussion of these
-predicates, we continue our overview of tables and table creation from
+(\refsec{sec:CompilerOptions}) along with the properties to be used,
+such as call variance or call subsumptiion
+(\refchap{chap:TablingOverview}).  Further, it is often useful to be
+able to explicitly inspect a table, or to alter its state.  The
+predicates described in this section are provided for these purposes.
+In order to ground the discussion of these predicates, we continue our
+overview of tables and table creation from
 \refchap{chap:TablingOverview}.  For a detailed description of the
 implementation of table access routines in XSB, the reader is referred
-to~\cite{RRSSW98,TST99,CuSW99b} and other papers listed in the
+to~\cite{RRSSW98,TST99,CuSW99b,Swif14} and other papers listed in the
 bibliography.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \subsubsection*{Tables and Table Entries}
 
-Abstractly, a table can be seen as a set of entry triples $\langle
-S,\cA,Status \rangle$ where $S$ is a subgoal, $\cA$ is its associated
-answer set, and $Status$ its status~---~whether it is
-\texttt{complete} or \texttt{incomplete}.  In terms of implementation,
-``the table'' is actually a set of mini-tables, each one containing
-entries for a particular predicate.  Hence, we may refer to the table
-containing entries for some predicate \code{p/n} as ``the table for
-\code{p/n}.''  Further recall that a particular predicate may be
-evaluated according to either a variant or subsumptive strategy as
-chosen by the user.  Invocation of a call during an evaluation leads
-to the classification of the call, as well as its possible insertion
-into the table.  Each call can be classified as either (a) a
-\emph{generator}, or \emph{producer}, of an answer set, or (b) a
-\emph{consumer} of the answer set of some subgoal in the table.
-Creation of a table entry thus relies not only on the call and on the
-subgoals already present in the table, but also upon whether
-call-variance or call-subsumption is used (cf. \cite{TST99}).
+Abstractly, at a subgoal-level table can be seen as a set of entry
+triples $\langle S,\cA,Status \rangle$ where $S$ is a subgoal, $\cA$
+is its associated answer set, and $Status$ its status~---~whether it
+is \texttt{complete} or \texttt{incomplete}, along with tabling
+properties it uses (e.g., incremental or non-incremental, cf. Chapter
+\ref{chap:TablingOverview} for a discussion of tabling properties).
+%In terms of
+%implementation, ``the table'' is actually a set of mini-tables, each
+%one containing entries for a particular predicate.  
+However, we also refer to a predicate-level table. which contains the
+set of all subgoal-level tables for some (tabled) predicate
+\code{p/n}.  
+%Further recall that a particular predicate may be
+%evaluated according to either a variant or subsumptive strategy as
+%chosen by the user.  
+At execution time, invocation of a tabled subgoal $S$ leads to the
+classification $S$ according to the properties associated with its
+predicate, as well as its possible creation of a table for $S$.  Each
+occurrence of a subgoal that is not yet completely evaluated can be
+classified as either (a) a \emph{generator}, of answers or (b) a
+\emph{consumer} of those answers. 
+
+% If call subsumption is used, and
+%there are incomplete subgoals $S$ and $S\theta$, where $S$ subsumes
+%$S\theta$, and $S\theta$ consumes answers from $S$, $S$ is also called
+%a {\em producer}.
+
+%Creation of a table entry thus
+%relies not only on the call and on the subgoals already present in the
+%table, but also upon whether call-variance or call-subsumption is used
+%(cf. \cite{TST99}).
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\subsubsection*{Answers, Returns, and Templates}
+\subsubsection*{Answers, Returns, and Return Templates}
 
 \index{answer substitution}
 \index{substitution factor}
@@ -54,19 +69,18 @@ sometimes called the {\em substitution factor} of $S$.  The order of
 arguments in the substitution factor corresponds to the order of
 distinct variables in a left-to-right traversal of $S$.  Each answer
 in $\cA$ substitutes values for the variables in the substitution
-factor of $S$; this substitution is sometimes called an answer
-substitution.  The table inspection predicates allow access to
-substitution factors and answer substitutions through a family of terms
-whose principle functors are \retn, where \code{n} is the size of the
-substitution factor.
+factor of $S$; this substitution is sometimes called an {\em answer
+  substitution}.  The table inspection predicates allow access to
+substitution factors and answer substitutions through a family of
+terms called {\em return templates} and whose principle functors have
+the form \retn, where \code{n} is the size of the substitution factor.
 
 \begin{example}
-Let $S =$ \code{p(X,f(Y))} be a producer subgoal (or simply, a subgoal
-if call-variance is used).  Using the \retn notation, the substitution
-factor can be depicted as \code{ret(X,Y)}, while the answer
-substitution \code{\{X=a,Y=b\}} is depicted as \code{ret(a,b)}.  Note
-that the application of the answer substitution to the producer
-subgoal yields the answer \code{p(a,f(b))}.
+Let $S =$ \code{p(X,f(Y))} be a generaator subgoal.  Using a return
+template. the substitution factor can be depicted as \code{ret(X,Y)},
+while the answer substitution \code{\{X=a,Y=b\}} is depicted as
+\code{ret(a,b)}.  Note that the application of the answer substitution
+to the generator subgoal yields the answer \code{p(a,f(b))}.
 
 To take a slightly more complex example, consider the subgoal
 \code{q(X)} where {\tt X} is an attributed variable whose attribute is
@@ -74,26 +88,27 @@ To take a slightly more complex example, consider the subgoal
 \code{ret(X,Z,Y)}.\fillBox
 \end{example}
 
-In a similar manner, XSB maintains substitutions between producer
-subgoals and consuming subgoals when subsumption-based tabling is
-used.  The \emph{return template} for a consuming call is a
-substitution mapping variables of its producer to subterms of the
-call.  This template can then be used to select returns from the
-producer which satisfy the consuming call.  Note, then, that a return
-template of a \emph{subsumed} subgoal may show partial instantiations.
-Return templates are also represented as \retn{} terms in the manner
-described above.
+In a similar manner, XSB maintains substitutions between generator
+subgoals and consuming subgoals when call subsumption is used.  The
+return template for a consuming subgoal is a substitution that maps
+variables of its generator to subterms of the consuming subgoal.  This
+template can then be used to select answers from the generator that
+unify with the consuming call.  
+%Note, then, that a return template of
+%a \emph{subsumed} subgoal may show partial instantiations.  Return
+%templates are also represented as \retn{} terms in the manner
+%described above.
 
 \begin{example}
-Let \code{p/2} of the previous example be evaluated using subsumption
-and let $S$ be present in its table.  Further, let $S_1$:
-\code{p(A,f(B))} and $S_2$: \code{p(g(Z),f(b))} be two consuming
-subgoals of $S$\@.  Then the \emph{return template} of $S_1$ is
-\code{ret(A,B)} and that of $S_2$ is \code{ret(g(Z),b)}.  $S_1$, being
-a variant of $S$, selects all returns of $S$ such that
-\code{\{X=A,Y=B\}}\@.  $S_2$, on the other hand, selects only
-\emph{relevant} answers of $S$, those where the returns satisfy
-\code{\{X=g(Z),Y=b\}}.\fillBox
+Let \code{p/2} of the previous example be evaluated using call
+subsumption and let the subgoal $S =$ \code{p(A,f(B))} be present in
+its table.  Further, let $S_1$: \code{p(A,f(B))} and $S_2$:
+\code{p(g(Z),f(b))} be two consuming subgoals of $S$\@.  Then the
+\emph{return template} of $S_1$ is \code{ret(A,B)} and that of $S_2$
+is \code{ret(g(Z),b)}.  $S_1$, being a variant of $S$, selects answers
+for $S$ such that \code{\{X=A,Y=B\}}\@, i.e., all answers of $S$.
+$S_2$, on the other hand, selects only \emph{relevant} answers of $S$,
+those that satisfy \code{\{X=g(Z),Y=b\}}.\fillBox
 \end{example}
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -107,12 +122,12 @@ A \emph{skeleton} for a functor \code{f/n} is a structure of the form
 variable.  Similarly the skeleton of a term is the skeleton formed
 from the principal functor of the term, so that skeletons from the
 terms \code{f(1,2)} and \code{f(A,B)} are the same.  A \emph{return
-  skeleton} is a specific application of this notion to answer
-returns.  From it, one may discern the size of the template for a
-given subgoal.  Finally, we assume that a predicate specification for
-a predicate \code{p} and arity \code{n}, represented as
-\code{PredSpec} below, can be given either using the notation
-\code{p/n} or as a skeleton, \code{p($t_1$,\ldots,$t_n$)}.
+  skeleton} is a specific application of this notion to answers.  From
+it, one may discern the size of the template for a given subgoal.
+Finally, we assume that a predicate specification for a predicate
+\code{p} and arity \code{n}, represented as \code{PredSpec} below, can
+be given either using the notation \code{p/n} or as a skeleton,
+\code{p($t_1$,\ldots,$t_n$)}.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \comment{
@@ -160,8 +175,8 @@ each predicate use tabling and may indicate the mode of tabling to be
 used.  The parameter {\tt Operations} can take one of three forms:
 %
 \begin{enumerate}
-\item {\tt Operations} is a predicate indicator, a callable term, or
-  a comma-list or list of predicate indicators or callable terms.
+\item {\tt Operations} is a predicate indicator, a skeleton, or
+  a comma-list or list of predicate indicators or skeletons.
 %
 \item {\tt Operations} is a term indicating that a predicate is to be
   tabled with a particular form of answer subsumption
@@ -169,8 +184,8 @@ used.  The parameter {\tt Operations} can take one of three forms:
 %
 \item {\tt Operations} has the form {\tt Predspec as Options} where
 \bi
-\item {\tt PredSpec} is a predicate indicator, a callable term, or a
-  comma-list or list of predicate indicators or callable terms.
+\item {\tt PredSpec} is a predicate indicator, a skeleton, or a
+  comma-list or list of predicate indicators or skeletons.
 %
 \item {\tt Options} is either a table option or a list of table
   options.  In \version, the following table options are supported
@@ -219,7 +234,8 @@ If the directive
 is executed, various checks are performed on $Options$.  These checks
 are (mostly) performed before any predicates are declared as dynamic
 or options changed, and reduce the possibility of leaving some $p/n$
-in $PredList$ with inconsistent attributes.
+in $PredList$ with inconsistent attributes, which could cause an error
+to be thrown during program execution.
 %
 \begin{itemize}
 \item If a predicate in {\tt Predlist} has been declared as {\tt
@@ -239,10 +255,10 @@ in $PredList$ with inconsistent attributes.
 \end{itemize}
 
 In addition, regardless of the state of predicates in $PredList$, if
-options contains an unsupported set of declarations, a table error
+options contains an unsupported set of declarations, a permission error
 will be thrown (see Table~\ref{table:table} for a list of supported
 and non-supported combinations of tabling modes and predicate
-properties).  {\tt Options} is throws a table error in the following
+properties).  {\tt Options} throws a table error in the following
 cases:
 %
 \bi
@@ -276,8 +292,8 @@ form {\tt PredSpec} or {\tt PredSpec} as {\tt Options}.  Then if
 \bi
 \item {\tt instantiation\_error}
 \ei
-\item An element of {\tt PredSpec} is neither a variable nor a comma
-  list
+\item An element of {\tt PredSpec} is neither a variable nor a
+  predicate indicator, nor a skeleton.
 \bi
 \item 	{\tt type\_error(callable,PredSpec)}
 \ei
@@ -297,10 +313,10 @@ form {\tt PredSpec} or {\tt PredSpec} as {\tt Options}.  Then if
 \ei
 \item {\tt Options} contains a non-supported combination of  elements (as described above)
 \bi
-\item {\tt table\_error}
+\item {\tt permission\_error}
 \ei
-\item An option in {\tt Options} would modify a predicate in predspec
-  in a manner that is not allowed (as described above)
+\item An option in {\tt Options} would modify a predicate in {\tt
+  PredSpec} in a manner that is not allowed (as described above) 
 \bi
 \item {\tt permission\_error}
 \ei
@@ -346,11 +362,11 @@ not behave in the desired manner if the tabled predicates themselves
 have not been imported into {\tt usermod}.
 
 We maintain two running examples in this section for explanatory
-purposes.  One uses variant-based tabling:
+purposes.  One uses tabling based on call variance:
 %
 \begin{center}
 \begin{tabular}{cc}\hline \hline
-\multicolumn{2}{c}{\rule{0ex}{2.5ex}\textbf{Variant Example}} \\ \hline \hline
+\multicolumn{2}{c}{\rule{0ex}{2.5ex}\textbf{Call Variance Example}} \\ \hline \hline
 \rule[-2ex]{0ex}{5ex} \textbf{Program} & \textbf{Table} \\
 \begin{minipage}{14.5em}
 \begin{verbatim}
@@ -376,11 +392,11 @@ p(2,3).
 \end{center}
 
 \noindent
-and the other uses subsumption-based tabling:
+and the other uses tabling based on call subsumption::
 
 \begin{center}
 \begin{tabular}{cc}\hline \hline
-\multicolumn{2}{c}{\rule{0ex}{2.5ex}\textbf{Subsumptive Example}} \\ \hline \hline
+\multicolumn{2}{c}{\rule{0ex}{2.5ex}\textbf{Call Subsumption Example}} \\ \hline \hline
 \rule[-2ex]{0ex}{5ex} \textbf{Program} & \textbf{Table} \\
 \begin{minipage}{17em}
 \begin{verbatim}
@@ -406,7 +422,7 @@ q(a,c).
 \end{center}
 
 \noindent
-Note that in the subsumptive example, the subgoals \code{q(a,Y)} and
+Note that in the call subsumption example, the subgoals \code{q(a,Y)} and
 \code{q(X,c)} are subsumed by, and hence obtain their answers from,
 the subgoal \code{q(X,Y)}\@.
 
@@ -428,7 +444,7 @@ used, then this predicate searches for some entry that subsumes
 (properly or not) {\tt CallTerm}.  In either case, should the entry
 exist, then the handle to this entry is assigned to the second
 argument, while in the third, its return template is constructed.
-These latter two arguments should be given as variables.
+These latter two arguments must be uninstantiated at call time.
 
 {\bf Error Cases}
 \bi
@@ -518,13 +534,13 @@ no
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\ourstandarditem{get\_calls(\#CallTerm,-TableEntryHandle,-ReturnSkeleton)}{get\_calls/3}{Tabling}
+\ourstandarditem{get\_calls(\#CallTerm,-TableEntryHandle,-ReturnTemplate)}{get\_calls/3}{Tabling}
 %
 Identifies through backtracking each subgoal in the table which
 unifies with \code{CallTerm}.  For those that do, the handle to the
 table entry is assigned to the second argument, and its return
-skeleton is constructed in the third.  These latter two arguments
-should be given as variables.  The error terms are the same as for
+template is constructed in the third.  These latter two arguments must
+be uninstantiated at call time.  The error terms are the same as for
 {\tt get\_calls/1}.
 
 \begin{minipage}{6in}
@@ -631,7 +647,7 @@ no
 Identifies through backtracking all the subgoals whose predicate is
 that of \code{PredSpec} and which unify with \code{Call}.
 \code{PredSpec} is left unchanged while \code{Call} contains the
-unified resultant.
+unified result.
 
 \comment{Error if either \code{PredSpec} is a nontabled pred (STRUCTs
 and STRINGs are caught here) or a variable.  Fails if \code{PredSpec}
@@ -705,16 +721,16 @@ only skeletal information is used from the first argument.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\ourstandarditem{get\_returns(+TableEntryHandle,\#ReturnSkeleton)}{get\_returns/2}{Tabling}
+\ourstandarditem{get\_returns(+TableEntryHandle,\#ReturnTemplate)}{get\_returns/2}{Tabling}
 %
 Backtracks through the answers for the subgoal whose table entry is
 referenced through the first argument, \code{TableEntryHandle}, and
-instantiates \code{ReturnSkeleton} with the variable bindings
-corresponding to the return.
+instantiates \code{ReturnTemplate} with the variable bindings
+corresponding to the answer.
 
 The supplied values for the entry handle and return skeleton should be
 obtained from some previous invocation of a table-inspection
-predicate.
+predicate such as {\tt get\_call/3} or {\tt get\_calls/3}.
 
 \begin{minipage}{6in}
 \begin{example}\ \\
@@ -786,7 +802,7 @@ no
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\ourstandarditem{get\_returns\_and\_tvs(+TableEntryHandle,\#ReturnSkeleton,-TruthValue)}{get\_returns\_and\_tvs/3}{Tabling}
+\ourstandarditem{get\_returns\_and\_tvs(+TableEntryHandle,\#ReturnTemplate,-TruthValue)}{get\_returns\_and\_tvs/3}{Tabling}
 %
 Identical to \code{get\_returns/2}, but also obtains the truth value
 of a given answer, setting {\tt TruthValue} to {\tt t} if the answer
@@ -800,7 +816,7 @@ than {\tt get\_residual/2} (although less informative).
 \ourstandarditem{get\_returns(+TableEntryHandle,\#ReturnSkeleton,-ReturnHandle)}{get\_returns/3}{Tabling}
 %
 Functions identically to \code{get\_returns/2}, but also obtains a
-handle to the return given in the second argument.
+handle to the answer given in the second argument.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -812,9 +828,8 @@ Succeeds through backtracking for each answer of the subgoal
 does not unify with any of its answers or the answer set is empty.
 
 The answer is created in its entirety, including fresh variables; the
-call is \emph{not} further instantiated.  However, an explicit
-unification of the call with its answer may be performed if so
-desired.
+call is \emph{not} further instantiated.  Of course the user may unify
+the call with its answer if desired.
 
 \comment{Fails or gives error whenever \code{get_call/3} does.}
 
@@ -899,7 +914,7 @@ no
 {\tt get\_residual/2} backtracks through the answers to each
 \emph{completed} subgoal in the table that unifies with
 \code{CallTerm}.  With each successful unification, this argument is
-further instantiated as well as that of the \code{DelayList}.
+further instantiated as well as \code{DelayList}.
 
 \begin{example} \label{ex:residual-program}
 For the following program and table
@@ -973,10 +988,10 @@ follows:
 \begin{small}
 %\begin{minipage}{2.5in}
 \begin{verbatim} 
-| ?- variant\_get_residual(p(X,Y),List).
+| ?- variant_get_residual(p(X,Y),List).
 
 no
-| ?- variant\_get_residual(p(1,Y),List).
+| ?- variant_get_residual(p(1,Y),List).
 
 X = 1       % from subgoal p(1,X)
 Y = 2
@@ -1015,12 +1030,13 @@ Succeeds whenever \code{CallTerm} is a subgoal in the table, or
 predicate type, the type of the call, and the status of its answer
 set, unify with arguments 2 through 4, respectively.
 
-XSB defines three sets of atomic constants, one for each parameter.
-Taken together, they provide a detailed description of the given call.
-The valid combinations and their specific meaning is given in the
-following table.  Notice that not only can these combinations describe
-the characteristics of a subgoal in the table, but they are also
-equipped to predict how a new goal would have been treated had it been
+XSB defines three sets of atomic constants, one for each output
+argument.  Taken together, they provide a detailed description of
+state of the given subgoal within an evaluation.  The valid
+combinations and their specific meaning is given in the following
+table.  Notice that not only can these combinations describe the
+characteristics of a subgoal in the table, but they are also equipped
+to predict how {\tt CallTerm} would have been treated had it been
 called at that moment.
 
 \begin{center}
@@ -1032,7 +1048,8 @@ called at that moment.
         &       &                       & An incremental table that has been \\
         & \code{producer}  & {\code{incremental\_needs\_reeval}} 
                                         & invalidated, and is therefore inconsistent \\
-        &       &                       & with a KB and needs recomputation. \\ \cline{3-4}
+        &       &                       & with a KB and needs recomputation \\ 
+        &       &                       & (which will be lazily done). \\ \cline{3-4}
 \code{variant}  &   & \code{incomplete}
                 & Self explanatory. \\ \cline{2-4}
         & \code{no\_entry}      & \code{undefined}
@@ -1074,23 +1091,24 @@ answers that are present in a table.  Given an input {\tt Term}, {\tt
 that are subsumed by {\tt Term}; if {\tt Term} is a variable,
 information is provided about all tables.
 
-The information is provided at three levels of aggregation, and the form
-of the information is determined by the options in {\tt OptionsList}.
+The information can be provided at three levels of aggregation, and
+the form of the information is determined by the options in {\tt
+  OptionsList}.
 %
 \begin{itemize}
 \item If the option {\tt summary(true)} is set, the aggregate sum
   of subgoals and answers that are subsumed by {\tt Term} is
-  collected, along with the aggregate sum of calls {\bf to} these
+  collected, along with the aggregate sum of calls {\it to} these
   subgoals.  If {\tt Term} is a variable this information is broken
   down by tabled predicates.
 %
 \begin{itemize}
 \item If {\tt details(answers)} is set, a list is collected of every
   tabled subgoal $S$ such that $S$ is subsumed by {\tt Term} along
-  with the number of answers for each $S$ and a list of those answers
-  and the truth value of each answer ({\tt t} if true and {\tt u} if
-  undefined).  If {\tt Term} is a variable this information is broken
-  down by tabled predicates.
+  with the number of answers for each $S$ along with a list of those
+  answers and the truth value of each answer ({\tt t} if true and {\tt
+    u} if undefined).  If {\tt Term} is a variable this information is
+  broken down by tabled predicates.
 %
 \item If {\tt details(subgoals)} is set, a list is collected of all
   subgoals $S$ such that $S$ is subsumed by {\tt Term} along with the
@@ -1265,9 +1283,9 @@ where all elements are as before.  Finally $Status$ is
 %\ourrepeatmoditem{print\_incomplete\_tables(+Stream\_or\_alias)}{print\_incomplete\_tables/1}{tables}
 \ourmoditem{print\_incomplete\_tables}{print\_incomplete\_tables/0}{tables}
 %
-These predicates, which can be useful for debugging purposes, print
-out each incomplete subgoal in the current state, followed by the
-ordinal number of the SCC to which that subgoal belongs.  This
+These predicates, which can be useful for debugging, print out each
+incomplete subgoal in the current state of the evaluation, followed by
+the ordinal number of the SCC to which that subgoal belongs.  This
 information describes the dependencies among tabled predicates.  In
 local evaluation (the default evaluation method for XSB) all subgoals
 in SCC $m$ depend on all subgoals in SCC $n$ if $m < n$.  Furthermore,
@@ -1331,8 +1349,11 @@ If the Prolog flag {\tt exception\_pre\_action} is set to {\tt
   print\_incomplete\_tables} (its default setting is {\tt none}), then
 when an exception is thrown, incomplete tables and their SCC
 information are printed to a ``SCC dumpfile'' via {\tt
-  print\_incomplete\_tables/1}.  (No file is generated unless
-  the exception is thrown over at least one incomplete table.)
+  print\_incomplete\_tables/1}.  Note that the information is output
+for the state of execution where the error was thrown, and so is more
+informative than calling {\tt print\_incomplete\_tables/} when the
+error is caught.  (No file is generated unless the exception is thrown
+over at least one incomplete table.)
 
 This predicate returns the name of the last such file generated and
 fails if there is no such file.  Files are written to the {\tt
@@ -1435,11 +1456,11 @@ because of the use of bounded rationality
 the use of {\tt u\_not/1}.  
 
 The residual dependency graph can be constructed in a straightforward
-way from {\tt variant\_get\_residual/2}.  Another, slightly
-higher-level view can be obtained through {\tt
-  get\_residual\_sccs/[3,5]}.  Given a subgoal/answer pair as input,
-each of these predicates constructs SCC-based information about the
-residual dependency graph via structures of the form:
+way from {\tt variant\_get\_residual/2}.  {\tt
+  get\_residual\_sccs/[3,5]} provides an alternate view that is
+slightly higher-level and much faster.  Given a subgoal/answer pair as
+input, each of these predicates constructs SCC-based information about
+the residual dependency graph via structures of the form:
 %
 \begin{center}
 {\tt ret(Subgoal,Answer,SCCIndex)}.
@@ -1453,7 +1474,7 @@ the index~\footnote{The actual number for
   to be traversed; as a result it is best to rely on the index only as
   a ``generated'' name for each SCC.}.
 
-To obtain this information, {\tt get\_residual\_sccs/5} also returns a
+To obtain dependency information, {\tt get\_residual\_sccs/5} also returns a
 list indicating the direct dependencies among the SCCs, along with a
 list indicating whether given SCCs contain a negative edge.  For the
 example above, the SCC information would have a form such as:
@@ -1472,8 +1493,10 @@ while the sign list would have a form such as:
 \end{verbatim}
 If it is necessary to know which subgoal(s) in {\tt SCC1} directly
 depends on which subgoal(s) in {\tt SCC2}, the information can be
-easily reconstructed using {\tt variant\_get\_residual/2}.  A similar
-approach can be used to determine the actual edges within a given SCC.
+easily reconstructed from the output of {\tt
+  get\_residual\_sccs/[4,5]} using {\tt variant\_get\_residual/2}.  A
+similar approach can be used to determine the actual edges within a
+given SCC.
 
 SCC detection is implemented using Tarjan's algorithm~\cite{Tarj72} in
 C working directly on XSB's data structures.  The algorithm is
@@ -1582,32 +1605,58 @@ to {\tt bounded\_rationality} (this ordering is not guaranteed).
 
 %--------------------------------------------------------------------------
 
-\subsection{Deleting Tables and Table Components}
+\subsection{Abolishing Tables and Table Components}
 \label{sec:TablePred:Deleting}
 \index{tabling!table deletion}
 
-The following predicates are used to semantically invalidate tables
-and/or reclaim their space. The use of the word ``tables'' in this
+The following predicates are used to {\em abolish} tables: to ensure
+that they are not used by new computations and to reclaim their space
+when it is safe to do so.  The use of the word ``tables'' in this
 section is rather unspecific.  For the purpose of deletion a table can
 either refer to a single subgoal and its answers, or to all subgoals
 and answers for a tabled predicate.  Predicates are provided to
-invalidate tables not only for particular predicates and subgoals, but
+abolish tables not only for particular predicates and subgoals, but
 for all tabled predicates, all tabled predicates in a module, and in
 the multi-threaded engine all thread-private tabled predicates or all
 thread-shared tabled predicates.  Overall, these predicates share
 similar characteristics.
 
-First, an incomplete tabled subgoal $S$ may not be abolished by the
-user except under special circumstances described below.  This
-restriction is made since if $S$ is incomplete there may be pointers
-to $S$ from various elements of the current execution environment, and
-removing all of these pointers may be difficult to do.  
+\paragraph{Abolishing a Table that is being Computed}
+An incomplete tabled subgoal $S$ may not be directly abolished by the
+user.  This restriction is made since if $S$ is incomplete there may
+be pointers to $S$ from various elements of the current execution
+environment, and removing all of these pointers may be difficult to
+do. (Not to mention that abolishing an incomplete table has a murky
+semantics.)  Accordingly, calling an {\tt abolish\_xxx} predicate on
+an incomplete table raises an error.  
 
-If one of the deletion predicates is called when the current execution
-environment contains a reference to a {\em completed} table that is
-being abolished, space for the abolished information is not
-immediately reclaimed.  More precisely, if the current global tabling
-envonment (including suspended states) has either
+However, note that incomplete tables may be abolished
+\emph{automatically} by XSB on exceptions, and when the interpreter
+level is resumed.  Because tabled computation is more complex than
+Prolog computation, error handling must be correspondingly more
+complex.  Suppose an exception is thrown over some incomplete table,
+so that the system looks for some {\tt catch/3} or similar call that
+will catch the error.  In order to ensure safe space reclamation, XSB
+looks for the catcher $C$ that is nearest to the throw, but is also
+{\em between} SCCs.  Both XSB's command line interpeter and the
+interpreter XSB uses when embedded in a process use a top-level {\tt
+  catch/3} goal, which is considered to be ``between'' SCCs, so that a
+thrown error will eventually be caught.
+
+Because of the complexity of error handling in tabled computations, it
+is usually best to ensure that user-level catches are close to where
+an exception may be thrown so that there is no goal to an incomplete
+table between the thrower and catcher. In such a case XSB's error
+handling mechanism conforms to the ISO standard for Prolog.
+
+\paragraph{View Consistency and Table Garbage Collection}
+If one of the table abolish predicates is called when the current
+execution environment contains a failure continuation (i.e., a choice
+point) to an answer $A$ in a {\em completed} table $T$, space for $T$
+is not immediately reclaimed.  Rather the space for $T$ will be
+reclaimed by the {\em table garbage collector} at a later point.  More
+precisely, if the current global tabling envonment (including
+suspended states) has either
 \begin{itemize}
 \item a choice point that points to an answer $A$ in $T$; 
 \item or a (heap) delay list that points to a subgoal $S$ in $T$
@@ -1625,15 +1674,15 @@ will force rederivation of a new table version, rather than using the
 abolished information.
 \index{view consistency}
 
-\index{tabling!conditional answers}
-\index{\texttt{get\_residual/2}}
+\index{tabling!conditional answers} \index{\texttt{get\_residual/2}}
+\paragraph{Maintenance of the Residual Program}
 When conditional answers are present, abolishing a specific table or
 call may lead to semantic or implementational complications.  Consider
 the conditional answer {\tt r(a,b):- undef|} from
 Figure~\ref{ex:deletion}.  If the predicate {\tt r/2} (or subgoal {\tt
   r(a,X)}) is abolished and later rederived, the rederivation of {\tt
   r(a,X)} might have different semantics than the original derivation
-(e.g. if {\tt undef} depended on a dynamic predicate whose definition
+(e.g. if {\tt undef} depended on a database predicate whose definition
 has changed).  From an implementation perspective, if space for {\tt
   r(a,X))} is reclaimed, then the call {\tt get\_residual(p(a,X),Y)}
 may core dump, even if there are no choice points for completed tables
@@ -1709,7 +1758,24 @@ default behavior may be changed either by setting a Prolog flag:
 or by calling a 2-ary abolish command with {\tt abolish\_tables\_singly}
 in the options list.
 
+\paragraph{Abolishing Incremental Tab;es}
+In XSB, incremental tables react to changes in underlying dynamic
+predicates and/or external events (cf. Section
+\ref{sec:incremental_tabling}).  To support this, XSB maintains an
+Incremental Dependency Graph (IDG) among incrementally tabled subgoals
+and incremental dynamic predicates.  When an incremental table $T$ is
+abolished, the IDG needs to be restructured.  Fortunately, with lazy
+incremental tabling as used by XSB, the only maintenance needed for
+the IDG outside of $T$ is to delete direct links between other IDG
+tables and $T$.  In addition, all tables that depend on $T$ are
+incrementally invalidated.  As a result, if some $T'$ which had
+previously depended on $T$ is called after $T$ was abolished, $T'$
+will be seend to be incrementally invalid and will be recomputed.
+This recomputation will re-insert $T$ into the IDG in a manner that
+reflects the new state of the program.
+
 \index{tabling!multi-threaded}
+\paragraph{Multiple Threads}
 In the multi-threaded engine abolishing tables private to a thread
 behaves exactly as in the sequential engine, regardless of whether the
 tables are complete or incomplete, or contain conditional answers.  In
@@ -1719,14 +1785,6 @@ their space reclaimed, as are any incomplete shared tables owned by
 $T$ in local evaluation.  Shared tables can be abolished by the user
 at any time, but their space will not be reclaimed until there is a
 single active thread.
-
-As mentioned above, during normal execution, an incomplete tabled
-subgoal may not be abolished by the user, a restriction that is made
-to ensure correct evaluations.  Accordingly, calling an {\tt
-  abolish\_xxx} predicate when tables are incomplete raises an error.
-However, we note that any incomplete tables are abolished
-\emph{automatically} by the system on exceptions (by the default
-system error handler) when the interpreter level is resumed.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{Table Deletion Predicates}
@@ -1776,11 +1834,11 @@ Finally, {\tt abolish\_table\_pred/1} will throw an error if the
 predicate to be abolished is incremental.  
 %
 %This is because abolishing some incremental tables but not others
-%will leave dangling pointers in the data structures used for uncremental updates.  
+%will leave dangling poinrs in the data structures used for uncremental updates.  
 %
 Until {\tt abolish\_table\_pred/[1,2]} is extended to support
 incremental tables, use {\tt abolish\_table\_call/[1,2]} or {\tt
-  abolish\_all\_tables/0}~\
+  abolish\_all\_tables/0}.
 
 {\bf Error Cases}
 \bi
@@ -1839,10 +1897,10 @@ Behaves as {\tt abolish\_table\_pred/1}, but allows the default {\tt
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \index{tabling!abolishes!transitive vs. single}
-\ourstandarditem{abolish\_table\_call(+CallTerm)}{abolish\_table\_call/1}{Tabling}
+\ourstandarditem{abolish\_table\_subgoals(+Subgoal)}{abolish\_table\_subgoals/1}{Tabling}
 %
 Invalidates the table for any subgoal that unifies with {\tt
-  CallTerm}.  If a subgoal $S$ unifying with {\tt CallTerm} contains
+ Subgoal}.  If a subgoal $S$ unifying with {\tt Subgoal} contains
 an answer $A$ that is active in the current enviornment, the table
 entry for $S$ will not be reclaimed until $A$ is no longer active;
 otherwise the space for $S$ will be reclaimed immediately.
@@ -1878,11 +1936,11 @@ thread-private.
 \index{tabling!abolishes!incremental}
 %
 For incremental tables, {\tt abolish\_table\_call/[1,2]} not only
-deletes the table structures for {\tt CallTerm}, but pointers to {\tt
-  CallTerm} in the Incremental Dependency Graph (IDG), after
-invalidating all subgoals that depend on {\tt CallTerm}. The node and
-edges for {\tt CallTerm} will be reinserted into the IDG when {\tt
-  CallTerm} is re-evaluated, either lazily or by an explicit update
+deletes the table structures for {\tt Subgoal}, but pointers to {\tt
+  Subgoal} in the Incremental Dependency Graph (IDG), after
+invalidating all subgoals that depend on {\tt Subgoal}. The node and
+edges for {\tt Subgoal} will be reinserted into the IDG when {\tt
+  Subgoal} is re-evaluated, either lazily or by an explicit update
 command.
 
 %  incremental tables.
@@ -1892,19 +1950,19 @@ command.
 
 {\bf Error Cases}
 \bi
-\item The term spec {\tt CallTerm} does not correspond to a tabled predicate:
+\item The term spec {\tt Subgoal} does not correspond to a tabled predicate:
 \bi
 \item 	{\tt table\_error}
 \ei
-\item The term spec {\tt CallTerm} unifies with a tabled subgoal that is incomplete:
+\item The term spec {\tt Subgoal} unifies with a tabled subgoal that is incomplete:
 \bi
 \item 	{\tt permission\_error}
 \ei
-\item The term spec {\tt CallTerm} is a cyclic term::
+\item The term spec {\tt Subgoal} is a cyclic term::
 \bi
 \item 	{\tt table\_error}
 \ei
-%\item {\tt CallTerm} unifies with a table that is formed from a
+%\item {\tt Subgoal} unifies with a table that is formed from a
 %  predicate that does not use variant tabling.  
 %\bi
 %\item 	{\tt table\_error}
@@ -1913,7 +1971,7 @@ command.
 %
 
 \index{Prolog flags!{\tt table\_gc\_action}}
-\ourstandarditem{abolish\_table\_call(+CallTerm,+Options)}{abolish\_table\_call/2}{Tabling}
+\ourstandarditem{abolish\_table\_subgoals(+Subgoal,+Options)}{abolish\_table\_subgoals/2}{Tabling}
 %
 Behaves as {abolish\_table\_call/1}, but allows the default {\tt
   table\_gc\_action} to be over-ridden with a flag, which can be either 
@@ -1937,7 +1995,15 @@ Behaves as {abolish\_table\_call/1}, but allows the default {\tt
 \ei
 \ei
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\ourrepeatstandarditem{abolish\_table\_subgoal(+Subgoal,+Options)}{abolish\_table\_subgoal/2}{Tabling}
+\ourstandarditem{abolish\_table\_subgoal(+Subgoal,+Options)}{abolish\_table\_subgoal/2}{Tabling}
+%
+These predicates behave as {\tt abolish\_table\_subgoals/[1,2]}.
+However rather than abolishing all tables whose subgoal {\em unifies}
+with {\tt Subgoal} they only abolish the table whose subgoal is a {\em
+  variant} of {\tt Subgoal}, if such a table exists.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1993,12 +2059,12 @@ private tables for the main thread.
 \ourstandarditem{abolish\_nonincremental\_tables}{abolish\_nonincremental\_tables/0}{Tabling}
 %
 Abolishes all tabled calls for predicates that are {\em not} declared
-to be incremental~\footnote{Calls for predicates that are declared as
-opaque are considered to be non-incremental.}.  Such a predicate allows XSB to function in a manner similar
-to that of a deductive database: incremental tables will be
-automatically updated when the data they depends on changes; while
-non-incremental tables, which may have become invalid, can be
-abolished.  As currently implemented, {\tt
+to be incremental.~\footnote{Calls for predicates that are declared as
+  opaque are considered to be non-incremental.} This predicate
+allows XSB to function in a manner similar to that of a deductive
+database: incremental tables will be automatically updated when the
+data they depends on changes; while non-incremental tables, which may
+have become invalid, can be abolished.  As currently implemented, {\tt
   abolish\_nonincremental\_tables/1} traverses through each
 nonincremental tabled predicate, $Pred$, and if $Pred$ has any
 incomplete subgoals, a permission error will be thrown.  However,
@@ -2168,11 +2234,11 @@ called at various points in execution to check which answers are
 active in the current environment, and to reclaim the space for
 subgoals and predicates with no active answers.  In particular, space
 for all abolished tables is reclaimed whenever the engine re-executes
-the main command-line or C thread interpreter code.  However for
-certain applications this strategy may not be adequate.  For this
-reason, the user can explicitly call the table garbage collector
-to reclaim space for any deleted tabled predicates or subgoals that no
-longer have active answers.
+the main command-line or C thread interpreter code.  However in rare
+situations this strategy may not be adequate.  For this reason, the
+user can explicitly call the table garbage collector to reclaim space
+for any deleted tabled predicates or subgoals that no longer have
+active answers.
 
 {\tt gc\_tables/1} always succeeds, unifying {\tt Number} to $-1$ if
 garbage collection was not attempted (due to multiple active threads)
