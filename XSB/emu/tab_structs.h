@@ -705,6 +705,7 @@ typedef struct subgoal_frame {
 
 #define VISITED_SUBGOAL(subgoal)  ((subgoal->visited) & VISITED_SUBGOAL_MASK)
 #define MARK_VISITED_SUBGOAL(subgoal) {(subgoal->visited) = VISITED_SUBGOAL_MASK | (subgoal->visited);}
+//Unmarked are not yet used
 #define UNMARK_VISITED_SUBGOAL(subgoal) {(subgoal->visited) = (subgoal->visited) & (VISITED_SUBGOAL_NEG_MASK);}
 #define GC_MARKED_SUBGOAL(subgoal)  ((subgoal->visited) & GC_SUBGOAL_MASK)
 #define GC_MARK_SUBGOAL(subgoal) {(subgoal->visited) = GC_SUBGOAL_MASK | (subgoal->visited);}

@@ -293,15 +293,18 @@ DynamicStack  _tstTrail;
   int _in_simplify_neg_fails;
 
   /* Variables for table traversal for abolishing tables */
-  int _answer_stack_top;
-  BTNptr * _answer_stack;
-  int _answer_stack_size;
-  //  int _answer_stack_current_pos;
+  int _trans_abol_answer_stack_top;
+  BTNptr * _trans_abol_answer_stack;
+  int _trans_abol_answer_stack_size;
 
-  int _done_subgoal_stack_top;
-  VariantSF * _done_subgoal_stack;
-  int _done_subgoal_stack_size;
-  //  int _done_subgoal_stack_current_pos;
+int      _trans_abol_answer_array_top;
+BTNptr * _trans_abol_answer_array;
+int      _trans_abol_answer_array_size;
+
+  int _ta_done_subgoal_stack_top;
+  VariantSF * _ta_done_subgoal_stack;
+  int _ta_done_subgoal_stack_size;
+  //  int _ta_done_subgoal_stack_current_pos;
 
   int _done_tif_stack_top;
   TIFptr * _done_tif_stack;
@@ -760,13 +763,17 @@ typedef struct th_context th_context ;
 #define  simplify_neg_fails_stack_top       (th->_simplify_neg_fails_stack_top)
 #define  in_simplify_neg_fails              (th->_in_simplify_neg_fails)
 
-#define  answer_stack_top                  (th->_answer_stack_top)
-#define  answer_stack                      (th->_answer_stack)
-#define  answer_stack_size                 (th->_answer_stack_size)
+#define  trans_abol_answer_stack_top                  (th->_trans_abol_answer_stack_top)
+#define  trans_abol_answer_stack                      (th->_trans_abol_answer_stack)
+#define  trans_abol_answer_stack_size                 (th->_trans_abol_answer_stack_size)
 
-#define  done_subgoal_stack_top           (th->_done_subgoal_stack_top)
-#define  done_subgoal_stack               (th->_done_subgoal_stack)
-#define  done_subgoal_stack_size          (th->_done_subgoal_stack_size)
+#define  trans_abol_answer_array_top                  (th->_trans_abol_answer_array_top)
+#define  trans_abol_answer_array                      (th->_trans_abol_answer_array)
+#define  trans_abol_answer_array_size                 (th->_trans_abol_answer_array_size)
+
+#define  ta_done_subgoal_stack_top           (th->_ta_done_subgoal_stack_top)
+#define  ta_done_subgoal_stack               (th->_ta_done_subgoal_stack)
+#define  ta_done_subgoal_stack_size          (th->_ta_done_subgoal_stack_size)
 
 #define  done_tif_stack_top           (th->_done_tif_stack_top)
 #define  done_tif_stack               (th->_done_tif_stack)

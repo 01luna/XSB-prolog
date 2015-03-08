@@ -1064,13 +1064,13 @@ void init_thread_structures(CTXTdecl)
   in_simplify_neg_fails = 0;
 
   /* Stuff for abolishing tables */
-  answer_stack_top = 0;
-  answer_stack = NULL;
-  answer_stack_size = 0;
+  trans_abol_answer_stack_top = 0;
+  trans_abol_answer_stack = NULL;
+  trans_abol_answer_stack_size = 0;
 
-  done_subgoal_stack_top = 0;
-  done_subgoal_stack = NULL;
-  done_subgoal_stack_size = 0;
+  ta_done_subgoal_stack_top = 0;
+  ta_done_subgoal_stack = NULL;
+  ta_done_subgoal_stack_size = 0;
 
   done_tif_stack_top = 0;
   done_tif_stack = NULL;

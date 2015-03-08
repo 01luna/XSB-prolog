@@ -2860,7 +2860,7 @@ This continues until all answers and subgoals have been traversed.  Of
 course, back-pointers from the visitied subgoals themselves are also
 traversed.
 
-So, at the end of find_answers_for_subgoal(S) the answer_stack is
+So, at the end of find_conditional_answers_for_subgoal(S) the answer_stack is
 incremented to include all unconditional answers for S.  At the end of
 find_subgoal_cross_dependencies(), the done_stack contains all
 visited subgoals, while the answer_stack contains all conditional
@@ -2870,39 +2870,79 @@ answers for all visited subgoals.
 // Answer stack utilities -------------------------------------
 
 #ifndef MULTI_THREAD
-int answer_stack_top = 0;
-BTNptr * answer_stack = NULL;
-int answer_stack_size = 0;
+int trans_abol_answer_stack_top = 0;
+BTNptr * trans_abol_answer_stack = NULL;
+int trans_abol_answer_stack_size = 0;
+
+int trans_abol_answer_array_top = 0;
+BTNptr * trans_abol_answer_array = NULL;
+int trans_abol_answer_array_size = 0;
 #endif
 
-#define answer_stack_increment 1000
+#define trans_abol_answer_increment 1000
 
-void reset_answer_stack(CTXTdecl) {
-  answer_stack_top = 0;
+void reset_ta_answer_stack(CTXTdecl) {
+  trans_abol_answer_stack_top = 0; 
 }
 
-#define push_answer_node(as_leaf) {				                  \
-    if (answer_stack_top >= answer_stack_size) {			          \
-      size_t old_answer_stack_size = answer_stack_size;		          \
-      answer_stack_size = answer_stack_size + answer_stack_increment;	\
-      answer_stack = (BTNptr *) mem_realloc(answer_stack,			  \
-					  old_answer_stack_size*sizeof(BTNptr *), \
-					  answer_stack_size*sizeof(BTNptr *),     \
+void reset_ta_answer_array(CTXTdecl) {
+  trans_abol_answer_array_top = 0; 
+}
+
+#define push_node_ta_answer_stack(as_leaf) {				                  \
+    if (trans_abol_answer_stack_top >= trans_abol_answer_stack_size) {			          \
+      size_t old_trans_abol_answer_stack_size = trans_abol_answer_stack_size;		          \
+      trans_abol_answer_stack_size = trans_abol_answer_stack_size + trans_abol_answer_increment; \
+      trans_abol_answer_stack = (BTNptr *) mem_realloc(trans_abol_answer_stack,			  \
+					  old_trans_abol_answer_stack_size*sizeof(BTNptr *), \
+					  trans_abol_answer_stack_size*sizeof(BTNptr *),     \
 					  TABLE_SPACE);			          \
     }									          \
-    answer_stack[answer_stack_top] =     as_leaf;		                  \
-    answer_stack_top++;							          \
+    trans_abol_answer_stack[trans_abol_answer_stack_top] =     as_leaf;		                  \
+    trans_abol_answer_stack_top++;							          \
   }
 
-void print_answer_stack(CTXTdecl) {
+#define push_node_ta_answer_array(as_leaf) {				\
+    if (trans_abol_answer_array_top >= trans_abol_answer_array_size) {			          \
+      size_t old_trans_abol_answer_array_size = trans_abol_answer_array_size;		          \
+      trans_abol_answer_array_size = trans_abol_answer_array_size + trans_abol_answer_increment;	\
+      trans_abol_answer_array = (BTNptr *) mem_realloc(trans_abol_answer_array,			  \
+					  old_trans_abol_answer_array_size*sizeof(BTNptr *), \
+					  trans_abol_answer_array_size*sizeof(BTNptr *),     \
+					  TABLE_SPACE);			          \
+    }									          \
+    trans_abol_answer_array[trans_abol_answer_array_top] =     as_leaf;		                  \
+    trans_abol_answer_array_top++;							          \
+  }
+
+#define pop_ta_answer_node(answer_ptr) {			\
+  if (trans_abol_answer_stack_top > 0)				\
+      answer_ptr = trans_abol_answer_stack[--trans_abol_answer_stack_top];	\
+  else answer_ptr = NULL;   }
+
+#define pop_ta_answer_array(answer_ptr) {			\
+  if (trans_abol_answer_array_top >= 0)				\
+      answer_ptr = trans_abol_answer_array[--trans_abol_answer_array_top];	\
+  else answer_ptr = NULL;   }
+
+void print_ta_answer_stack(CTXTdecl) {
   int frame = 0;
-  while (frame < answer_stack_top) {
-    printf("answer_frame %d answer %p ",frame, answer_stack[frame]);
-    print_subgoal(CTXTc stddbg, asi_subgoal((ASI) Child(answer_stack[frame]))); printf("\n");
+  while (frame < trans_abol_answer_stack_top) {
+    printf("answer_stack_frame %d answer %p ",frame, trans_abol_answer_stack[frame]);
+    print_subgoal(CTXTc stddbg, asi_subgoal((ASI) Child(trans_abol_answer_stack[frame]))); printf("\n");
     frame++;
   }
-  printf("Answer queue TOP = %d\n", answer_stack_top);
-  //  printf("Answer queue CURRENT = %d\n", answer_stack_current_pos);
+  printf("Answer stack TOP = %d\n", trans_abol_answer_stack_top);
+}
+
+void print_ta_answer_array(CTXTdecl) {
+  int frame = 0;
+  while (frame < trans_abol_answer_array_top) {
+    printf("answer_array_frame %d answer %p ",frame, trans_abol_answer_array[frame]);
+    print_subgoal(CTXTc stddbg, asi_subgoal((ASI) Child(trans_abol_answer_array[frame]))); printf("\n");
+    frame++;
+  }
+  printf("Answer array TOP = %d\n", trans_abol_answer_array_top);
 }
 
 // End of answer stack utilities -------------------------------------
@@ -2910,7 +2950,7 @@ void print_answer_stack(CTXTdecl) {
 /* Trie traversal was copied from one of the delete routines. 
    There's probably a cleaner way to do this.
 */
-int find_answers_for_subgoal(CTXTdeclc VariantSF subgoal) {
+int find_conditional_answers_for_subgoal(CTXTdeclc VariantSF subgoal) {
 
   BTNptr root, sib, chil;  
   int trie_op_top = 0;
@@ -2967,7 +3007,8 @@ int find_answers_for_subgoal(CTXTdeclc VariantSF subgoal) {
             // minhdt - Do we need this change???
             // if ((is_conditional_answer(root)) && (!VISITED_ANSWER(root))){
 	      if (is_conditional_answer(root)){
-		push_answer_node(root);
+		push_node_ta_answer_stack(root);
+		push_node_ta_answer_array(root);
 		num_leaves++;
 	      }
 	      push_delete_trie_node(root,DT_DS);
@@ -2986,7 +3027,7 @@ int find_answers_for_subgoal(CTXTdeclc VariantSF subgoal) {
 	    }
 	  }
 	} else {
-	  fprintf(stdwarn,"null node encountered in find_answers_for_subgoal ");
+	  fprintf(stdwarn,"null node encountered in find_conditional_answers_for_subgoal ");
 	  print_subgoal(CTXTc stdwarn,subgoal); fprintf(stdwarn,"\n");
 	  break;
 	}
@@ -2996,72 +3037,135 @@ int find_answers_for_subgoal(CTXTdeclc VariantSF subgoal) {
   mem_dealloc(delete_trie_op,trie_op_size*sizeof(char),TABLE_SPACE); delete_trie_op = NULL;
   mem_dealloc(delete_trie_node,trie_node_size*sizeof(BTNptr),TABLE_SPACE); delete_trie_node = NULL;
   mem_dealloc(delete_trie_hh,trie_hh_size*sizeof(BTHTptr),TABLE_SPACE); delete_trie_hh = NULL;
-  //  print_answer_stack(CTXT);
+  //  print_ta_answer_stack(CTXT);
   return num_leaves;
 }
 
 // Done stack utilities -------------------------------------
 
 #ifndef MULTI_THREAD
-int done_subgoal_stack_top = 0;
-VariantSF *done_subgoal_stack = NULL;
-int done_subgoal_stack_size = 0;
+int ta_done_subgoal_stack_top = 0;
+VariantSF *ta_done_subgoal_stack = NULL;
+int ta_done_subgoal_stack_size = 0;
 #endif
 
-#define done_subgoal_stack_increment 1000
+#define ta_done_subgoal_stack_increment 1000
 
-static inline void push_done_subgoal_node(CTXTdeclc VariantSF Subgoal) {				
-    if (done_subgoal_stack_top >= done_subgoal_stack_size) {		
-      size_t old_done_subgoal_stack_size = done_subgoal_stack_size; 
-      done_subgoal_stack_size = done_subgoal_stack_size + done_subgoal_stack_increment; 
-      done_subgoal_stack = (VariantSF *) mem_realloc(done_subgoal_stack,	
-						    old_done_subgoal_stack_size*sizeof(VariantSF *), 
-						    done_subgoal_stack_size*sizeof(VariantSF *), 
+static inline void push_ta_done_subgoal_node(CTXTdeclc VariantSF Subgoal) {				
+    if (ta_done_subgoal_stack_top >= ta_done_subgoal_stack_size) {		
+      size_t old_ta_done_subgoal_stack_size = ta_done_subgoal_stack_size; 
+      ta_done_subgoal_stack_size = ta_done_subgoal_stack_size + ta_done_subgoal_stack_increment; 
+      ta_done_subgoal_stack = (VariantSF *) mem_realloc(ta_done_subgoal_stack,	
+						    old_ta_done_subgoal_stack_size*sizeof(VariantSF *), 
+						    ta_done_subgoal_stack_size*sizeof(VariantSF *), 
 						    TABLE_SPACE);	
     }									
-    done_subgoal_stack[done_subgoal_stack_top] = Subgoal;	
-    done_subgoal_stack_top++;						
+    ta_done_subgoal_stack[ta_done_subgoal_stack_top] = Subgoal;	
+    ta_done_subgoal_stack_top++;						
   }
 
-void print_done_subgoal_stack(CTXTdecl) {
+void print_ta_done_subgoal_stack(CTXTdecl) {
   int frame = 0;
-  while (frame < done_subgoal_stack_top) {
-    printf("done_subgoal_frame %d ",frame);
-    print_subgoal(CTXTc stddbg, done_subgoal_stack[frame]);
+  while (frame < ta_done_subgoal_stack_top) {
+    printf("ta_done_subgoal_frame %d ",frame);
+    print_subgoal(CTXTc stddbg, ta_done_subgoal_stack[frame]);
     printf("\n");
     frame++;
   }
 }
 
-void reset_done_subgoal_stack(CTXTdecl) {
-  done_subgoal_stack_top = 0;
+void reset_ta_done_subgoal_stack(CTXTdecl) {
+  ta_done_subgoal_stack_top = 0;
 }
 
-#define traverse_subgoal_ndes(subgoal)	{				\
-    DL nde_delayList;							\
-    BTNptr nde_as_prev;							\
-    PNDE ndeElement;							\
-    ndeElement = subg_nde_list(subgoal);				\
-    while (ndeElement) {						\
-      nde_delayList = pnde_dl(ndeElement);				\
-      nde_as_prev = dl_asl(nde_delayList);				\
-      if (nde_as_prev && !subg_deltf_ptr(asi_subgoal((ASI) Child(nde_as_prev))) \
-	  && !VISITED_SUBGOAL(asi_subgoal((ASI) Child(nde_as_prev)))) {	\
-	MARK_VISITED_SUBGOAL(asi_subgoal((ASI) Child(nde_as_prev)));	\
-	push_done_subgoal_node(CTXTc asi_subgoal((ASI) Child(nde_as_prev)));	\
-	find_answers_for_subgoal(CTXTc asi_subgoal((ASI) Child(nde_as_prev))); \
-      }									\
-      ndeElement = pnde_next(ndeElement);				\
-    }									\
+void traverse_conditional_affects_edges(CTXTdeclc VariantSF);
+
+static inline void traverse_subgoal_ndes(CTXTdeclc VariantSF subgoal)	{				
+    DL nde_delayList;							
+    BTNptr nde_as;							
+    PNDE ndeElement;							
+    VariantSF new_subgoal;						
+
+    ndeElement = subg_nde_list(subgoal);				
+    while (ndeElement) {						
+      nde_delayList = pnde_dl(ndeElement);				
+      while (nde_delayList) {
+	nde_as = dl_asl(nde_delayList);				
+	new_subgoal = asi_subgoal((ASI) Child(nde_as));		
+	if (!subg_deltf_ptr(new_subgoal) && !VISITED_SUBGOAL(new_subgoal)) { 
+	  traverse_conditional_affects_edges(CTXTc new_subgoal);
+	}			
+	nde_delayList = dl_next(nde_delayList);
+      }						
+      ndeElement = pnde_next(ndeElement);				
+    }									
+}
+		      
+static inline void traverse_answer_pdes(CTXTdeclc int current_answer_pos) {
+  BTNptr as_from, as_to;
+  PNDE pdeElement;
+  DL delayList;   
+  VariantSF subgoal;
+
+  while (current_answer_pos < trans_abol_answer_stack_top) {
+    pop_ta_answer_node(as_from);
+    pdeElement = asi_pdes((ASI) Child(as_from));
+    while (pdeElement) {
+#ifdef ABOLISH_DBG2
+      { VariantSF subgoal;
+	printf(" in subgoal ");print_subgoal(stddbg,asi_subgoal((ASI) Child(as_from)));printf("  pde start %p",pdeElement);
+	print_pdes(pdeElement);}
+#endif
+      delayList = pnde_dl(pdeElement);
+      while (delayList) {
+	as_to = dl_asl(delayList);
+	subgoal = asi_subgoal((ASI) Child(as_to));
+#ifdef ABOLISH_DBG2
+	printf("considering ");print_subgoal(stddbg,subgoal);printf("\n");
+	printf("deltf %d visited %d\n",subg_deltf_ptr(subgoal),VISITED_SUBGOAL(subgoal));
+#endif
+	if (!subg_deltf_ptr(subgoal) && !VISITED_SUBGOAL(subgoal)) {
+	  traverse_conditional_affects_edges(CTXTc subgoal);	  }
+	delayList = dl_next(delayList);
+      }
+      pdeElement = pnde_next(pdeElement);
+    }
   }
+}
+      /* The commented code shows how to find forward dependencies */
+      //      delayList = asi_dl_list((ASI) Child(as_leaf));
+      //      while (delayList) {
+      //	current = dl_de_list(delayList);
+      //	printf("----- new dl -----\n");
+      //	while (current) {
+      //	  print_subgoal(stddbg,de_subgoal(current));printf(" | ");
+      //  if (!VISITED_SUBGOAL(de_subgoal(current))) {
+      //    MARK_VISITED_SUBGOAL(de_subgoal(current));
+      //    push_ta_done_subgoal_node(CTXTc de_subgoal(current));
+      //    find_conditional_answers_for_subgoal(CTXTc de_subgoal(current));
+      //  }
+      //  current = de_next(current);
+      //}
+      //	printf("\n");
+      //	delayList = dl_next(delayList);
+      //    }
+
+void traverse_conditional_affects_edges(CTXTdeclc VariantSF subgoal) {
+  int starting_answer_pos;
+    MARK_VISITED_SUBGOAL(subgoal);
+    traverse_subgoal_ndes(CTXTc subgoal);
+    starting_answer_pos = trans_abol_answer_stack_top;
+    find_conditional_answers_for_subgoal(CTXTc subgoal);
+    traverse_answer_pdes(CTXTc starting_answer_pos);
+    push_ta_done_subgoal_node(CTXTc subgoal); 
+}
 
 void clean_up_backpointers_to_abolished_subgoals(CTXTdecl) {
   BTNptr as_leaf;
-  int answer_stack_current_pos = 0;
   DL delayList;     DE current_de; PNDE current_pnde;
 
-  while (answer_stack_current_pos < answer_stack_top) {
-    as_leaf = answer_stack[answer_stack_current_pos];
+  while (trans_abol_answer_array_top > 0) {
+    pop_ta_answer_array(as_leaf);
 #ifdef ABOLISH_DBG2
     printf("checking answer in ");print_subgoal(stddbg,asi_subgoal((ASI) Child(as_leaf)));printf("\n");
 #endif
@@ -3081,7 +3185,6 @@ void clean_up_backpointers_to_abolished_subgoals(CTXTdecl) {
 	    } else {
 	      current_pnde = subg_nde_list(de_subgoal(current_de));
 	    }
-	  //	  print_pdes(pnde_start);
 	  while (current_pnde && pnde_de(current_pnde) != current_de) {
 #ifdef ABOLISH_DBG2
 	    printf("current pnde from %p to %p\n",current_pnde,pnde_next(current_pnde));
@@ -3102,13 +3205,12 @@ void clean_up_backpointers_to_abolished_subgoals(CTXTdecl) {
 	  }
 	}
 #ifdef ABOLISH_DBG2
-		printf("\n");
+	printf("\n");
 #endif
 	current_de = de_next(current_de);
       }
       delayList = dl_next(delayList);
     }
-    answer_stack_current_pos++;
   }
 }
 
@@ -3140,105 +3242,24 @@ void clean_up_backpointers_to_abolished_subgoals(CTXTdecl) {
    if this is a bad assumption, a deallocate can be put in the end.
 */
 
-int find_subgoal_cross_dependencies(CTXTdeclc VariantSF subgoal) {
-    BTNptr as_leaf;
-    PNDE pdeElement;
-    DL delayList;   
-    BTNptr as_prev;
-    VariantSF last_subgoal;
-    int answer_stack_current_pos = 0;
 
-    reset_done_subgoal_stack(CTXT);
-    reset_answer_stack(CTXT);
-    MARK_VISITED_SUBGOAL(subgoal);
-    push_done_subgoal_node(CTXTc subgoal); 
-    find_answers_for_subgoal(CTXTc subgoal);
-#ifdef ABOLISH_DBG2
-    	printf("ndes started\n");
-#endif
-    traverse_subgoal_ndes(subgoal);
-#ifdef ABOLISH_DBG2
-        printf("ndes traversed\n");
-#endif
-    last_subgoal = subgoal;
-#ifdef ABOLISH_DBG2
-    printf("answer stack before main while\n");
-    print_answer_stack(CTXT);
-    printf("last subgoal (start) :");print_subgoal(stddbg,last_subgoal);printf("\n");
-#endif
-    while (answer_stack_current_pos < answer_stack_top) {
-      as_leaf = answer_stack[answer_stack_current_pos];
-#ifdef ABOLISH_DBG2
-      printf("as_leaf %p \n",as_leaf);
-#endif
-      if (asi_subgoal((ASI) Child(as_leaf)) != last_subgoal) {
-	last_subgoal = asi_subgoal((ASI) Child(as_leaf));
-#ifdef ABOLISH_DBG2
-		printf("last subgoal :");print_subgoal(stddbg,last_subgoal);printf("\n");
-		printf("ndes started\n");
-#endif
-	traverse_subgoal_ndes(last_subgoal);
-#ifdef ABOLISH_DBG2
-		printf("ndes traversed\n");
-#endif
-      }
-      pdeElement = asi_pdes((ASI) Child(as_leaf));
-      while (pdeElement) {
-#ifdef ABOLISH_DBG2
-	printf(" in subgoal ");print_subgoal(stddbg,last_subgoal);printf("  pde start %p",pdeElement);
-		print_pdes(pdeElement);
-#endif
-        delayList = pnde_dl(pdeElement);
-	while (delayList) {
-	  as_prev = dl_asl(delayList);
-#ifdef ABOLISH_DBG2
-	  	  printf("considering ");print_subgoal(stddbg,asi_subgoal((ASI) Child(as_prev)));printf("\n");
-	  	  printf("deltf %d\n",subg_deltf_ptr(asi_subgoal((ASI) Child(as_prev))));
-	  	  printf("visited %d\n",VISITED_SUBGOAL(asi_subgoal((ASI) Child(as_prev))));
-#endif
-		  if (as_prev && !subg_deltf_ptr(asi_subgoal((ASI) Child(as_prev)))
-		      //	  if (as_prev
-	      && !VISITED_SUBGOAL(asi_subgoal((ASI) Child(as_prev)))) {
-	    MARK_VISITED_SUBGOAL(asi_subgoal((ASI) Child(as_prev)));
-	    subgoal = asi_subgoal((ASI) Child(as_prev));
-	    //	    	    printf("adding to subgoal stack: ");print_subgoal(stddbg,subgoal);printf("\n");
-	    push_done_subgoal_node(CTXTc subgoal);
-	    find_answers_for_subgoal(CTXTc subgoal);
-	  }
-	  delayList = dl_next(delayList);
-	}
-        pdeElement = pnde_next(pdeElement);
-      }
-      /* The commented code shows how to find forward dependencies */
-      //      delayList = asi_dl_list((ASI) Child(as_leaf));
-      //      while (delayList) {
-      //	current = dl_de_list(delayList);
-      //	printf("----- new dl -----\n");
-      //	while (current) {
-      //	  print_subgoal(stddbg,de_subgoal(current));printf(" | ");
-      //  if (!VISITED_SUBGOAL(de_subgoal(current))) {
-      //    MARK_VISITED_SUBGOAL(de_subgoal(current));
-      //    push_done_subgoal_node(CTXTc de_subgoal(current));
-      //    find_answers_for_subgoal(CTXTc de_subgoal(current));
-      //  }
-      //  current = de_next(current);
-      //}
-      //	printf("\n");
-      //	delayList = dl_next(delayList);
-      //    }
-      answer_stack_current_pos++;
-    }
+int find_subgoal_cross_dependencies(CTXTdeclc VariantSF subgoal) {
+
+    reset_ta_done_subgoal_stack(CTXT);
+    reset_ta_answer_stack(CTXT);
+    reset_ta_answer_array(CTXT);
+    traverse_conditional_affects_edges(CTXTc subgoal);
 #ifdef ABOLISH_DBG2
     printf("answer stack before clean_up_backpointers\n");
-    print_answer_stack(CTXT);
+    print_ta_answer_stack(CTXT);
+    print_ta_answer_array(CTXT);
+    print_ta_done_subgoal_stack(CTXT);
 #endif
     clean_up_backpointers_to_abolished_subgoals(CTXT);
-    reset_answer_stack(CTXT);
-#ifdef ABOLISH_DBG2
-        print_done_subgoal_stack(CTXT);
-#endif
-    return done_subgoal_stack_top;
-  }
+    reset_ta_answer_stack(CTXT);
+    reset_ta_answer_array(CTXT);
+    return ta_done_subgoal_stack_top;
+}
 
 #ifdef UNDEFINED
 //TLS unused
@@ -3249,15 +3270,15 @@ static int find_subgoal_forward_dependencies(CTXTdeclc VariantSF subgoal) {
     VariantSF last_subgoal;
     int answer_stack_current_pos = 0;
 
-    reset_answer_stack(CTXT);
-    find_answers_for_subgoal(CTXTc subgoal);
-    //    print_answer_stack(CTXT);
+    reset_ta_answer_stack(CTXT);
+    reset_ta_answer_array(CTXT);
+    find_conditional_answers_for_subgoal(CTXTc subgoal);
+    //    print_ta_answer_stack(CTXT);
     last_subgoal = subgoal;
     //    printf("--------\n");
 
-    while (answer_stack_current_pos < answer_stack_top) {
+    while (answer_stack_current_pos < trans_abol_answer_stack_top) {
       as_leaf = answer_stack[answer_stack_current_pos];
-      //      printf("as_leaf %p\n",as_leaf);
       if (asi_subgoal((ASI) Child(as_leaf)) != last_subgoal) {
 	last_subgoal = asi_subgoal((ASI) Child(as_leaf));
       }
@@ -3269,8 +3290,8 @@ static int find_subgoal_forward_dependencies(CTXTdeclc VariantSF subgoal) {
 	  //	  print_subgoal(stddbg,de_subgoal(current));printf(" | ");
 	  if (!VISITED_SUBGOAL(de_subgoal(current))) {
 	    MARK_VISITED_SUBGOAL(de_subgoal(current));
-	    push_done_subgoal_node(CTXTc de_subgoal(current));
-	    find_answers_for_subgoal(CTXTc de_subgoal(current));
+	    push_ta_done_subgoal_node(CTXTc de_subgoal(current));
+	    find_conditional_answers_for_subgoal(CTXTc de_subgoal(current));
 	  }
 	  current = de_next(current);
 	}
@@ -3279,10 +3300,9 @@ static int find_subgoal_forward_dependencies(CTXTdeclc VariantSF subgoal) {
       }
       answer_stack_current_pos++;
     }
-    //      print_answer_stack(CTXT);
-      reset_answer_stack(CTXT);
-      //      print_done_subgoal_stack(CTXT);
-    return done_subgoal_stack_top;
+    reset_ta_answer_stack(CTXT);
+    reset_ta_answer_array(CTXT);
+    return ta_done_subgoal_stack_top;
 }
 #endif
 // End of done stack utilities -------------------------------------
@@ -3387,9 +3407,9 @@ void abolish_table_call_transitive_nocheck_deltf(CTXTdeclc VariantSF subgoal, in
     find_subgoal_cross_dependencies(CTXTc subgoal);  // also forward deps
 
     SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
-    while (done_subgoal_stack_top) {
-      done_subgoal_stack_top--;
-      subgoal = done_subgoal_stack[done_subgoal_stack_top];
+    while (ta_done_subgoal_stack_top) {
+      ta_done_subgoal_stack_top--;
+      subgoal = ta_done_subgoal_stack[ta_done_subgoal_stack_top];
       tif = subg_tif_ptr(subgoal);
       if (flags[CTRACE_CALLS])  { 
 	sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)subgoal);     
@@ -3397,7 +3417,7 @@ void abolish_table_call_transitive_nocheck_deltf(CTXTdeclc VariantSF subgoal, in
 		ctrace_ctr++);
       }
 
-      maybe_detach_incremental_call_single(CTXTc subgoal,DO_INVALIDATE);
+      maybe_detach_incremental_call_single(CTXTc subgoal,DO_INVALIDATE);  // detatch from IDG
       if (action == CAN_RECLAIM && !GC_MARKED_SUBGOAL(subgoal) ) {
 	delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
 	abolish_table_call_single_nocheck_no_nothin(CTXTc subgoal,SHOULDNT_COND_WARN);
@@ -3418,7 +3438,7 @@ void abolish_table_call_transitive_nocheck_deltf(CTXTdeclc VariantSF subgoal, in
 #endif
       }
     }
-    reset_done_subgoal_stack(CTXT);
+    reset_ta_done_subgoal_stack(CTXT);
 }
 
 /* Assuming no intermixing of shared and private tables */
@@ -3530,9 +3550,9 @@ static void find_subgoals_and_answers_for_pred(CTXTdeclc TIFptr tif) {
 
   while (pSF) {
     if (varsf_has_conditional_answer(pSF)) {
-      push_done_subgoal_node(CTXTc pSF);
-      find_answers_for_subgoal(CTXTc pSF);
-      traverse_subgoal_ndes(pSF);
+      push_ta_done_subgoal_node(CTXTc pSF);
+      find_conditional_answers_for_subgoal(CTXTc pSF);
+      traverse_subgoal_ndes(CTXTc pSF);
 	} 
     pSF = subg_next_subgoal(pSF);
   } /* there is a child of "node" */
@@ -3546,19 +3566,22 @@ int find_pred_backward_dependencies(CTXTdeclc TIFptr tif) {
     BTNptr as_prev, nde_as_prev;
     VariantSF subgoal;
     int answer_stack_current_pos = 0;
-    int done_subgoal_stack_current_pos = 0;
+    int ta_done_subgoal_stack_current_pos = 0;
 
+    reset_ta_answer_stack(CTXT);
+    reset_ta_done_subgoal_stack(CTXT);
     reset_done_tif_stack(CTXT);
+
     if (!TIF_Visited(tif)) {
       TIF_Visited(tif) = 1;
       push_done_tif_node(CTXTc tif); 
       find_subgoals_and_answers_for_pred(CTXTc tif);
 
-      //      print_answer_stack(CTXT);
-    while (answer_stack_current_pos < answer_stack_top 
-	   || done_subgoal_stack_current_pos < done_subgoal_stack_top) {
-      while (answer_stack_current_pos < answer_stack_top) {
-	as_leaf = answer_stack[answer_stack_current_pos];
+      //      print_ta_answer_stack(CTXT);
+    while (answer_stack_current_pos < trans_abol_answer_stack_top 
+	   || ta_done_subgoal_stack_current_pos < ta_done_subgoal_stack_top) {
+      while (answer_stack_current_pos < trans_abol_answer_stack_top) {
+	as_leaf = trans_abol_answer_stack[answer_stack_current_pos];
 	pdeElement = asi_pdes((ASI) Child(as_leaf));
 	while (pdeElement) {
 	  delayList = pnde_dl(pdeElement);
@@ -3589,8 +3612,8 @@ int find_pred_backward_dependencies(CTXTdeclc TIFptr tif) {
       }
 	answer_stack_current_pos++;
       }
-      while (done_subgoal_stack_current_pos < done_subgoal_stack_top) {
-	subgoal = done_subgoal_stack[done_subgoal_stack_current_pos];
+      while (ta_done_subgoal_stack_current_pos < ta_done_subgoal_stack_top) {
+	subgoal = ta_done_subgoal_stack[ta_done_subgoal_stack_current_pos];
 	ndeElement = subg_nde_list(subgoal);				
 	while (ndeElement) {						
 	  nde_delayList = pnde_dl(ndeElement);				
@@ -3603,17 +3626,14 @@ int find_pred_backward_dependencies(CTXTdeclc TIFptr tif) {
 	  }								
 	  ndeElement = pnde_next(ndeElement);				
 	}								
-	done_subgoal_stack_current_pos++;
+	ta_done_subgoal_stack_current_pos++;
       }
     }
     }
 
-    //    print_answer_stack(CTXT);
-    //    print_done_subgoal_stack(CTXT);
-    //    print_done_tif_stack(CTXT);
     unvisit_done_tifs(CTXT);
-    reset_answer_stack(CTXT);
-    reset_done_subgoal_stack(CTXT);
+    reset_ta_answer_stack(CTXT);
+    reset_ta_done_subgoal_stack(CTXT);
     return done_tif_stack_top;
   }
 
