@@ -281,14 +281,6 @@
 #define XSB_PROFILE             237
 #define XSB_BACKTRACE		238
 
-/* added by Bart Demoen & Kostis Sagonas for debugging and convenience */
-#define PRINT_LS                240
-#define PRINT_TR                241
-#define PRINT_HEAP              242
-#define PRINT_CP                243
-#define PRINT_REGS              244
-#define PRINT_ALL_STACKS        245
-
 #define EXP_HEAP                246
 #define MARK_HEAP               247
 #define GC_STUFF                248

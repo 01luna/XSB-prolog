@@ -1307,12 +1307,12 @@ void init_builtin_table(void)
   set_builtin_table(THREAD_REQUEST, "thread_request");
   set_builtin_table(MT_RANDOM_REQUEST, "mt_random_request");
 
-  set_builtin_table(PRINT_LS, "print_ls");
-  set_builtin_table(PRINT_TR, "print_tr");
-  set_builtin_table(PRINT_HEAP, "print_heap");
-  set_builtin_table(PRINT_CP, "print_cp");
-  set_builtin_table(PRINT_REGS, "print_regs");
-  set_builtin_table(PRINT_ALL_STACKS, "print_all_stacks");
+  //  set_builtin_table(PRINT_LS, "print_ls");
+  //    set_builtin_table(PRINT_TR, "print_tr");
+  //    set_builtin_table(PRINT_HEAP, "print_heap");
+  //    set_builtin_table(PRINT_CP, "print_cp");
+  //    set_builtin_table(PRINT_REGS, "print_regs");
+  //    set_builtin_table(PRINT_ALL_STACKS, "print_all_stacks");
   set_builtin_table(MARK_HEAP, "mark_heap");
   set_builtin_table(GC_STUFF, "gc_stuff");
   set_builtin_table(FINDALL_INIT, "$$findall_init");
@@ -1748,7 +1748,7 @@ int builtin_call(CTXTdeclc byte number)
     }
     break;
   }
-  case COPY_TERM: /* R1: +term to copy; R2: -variant */
+  case COPY_TERM: /* R1: +term to copy; R2: -variant; R3: -list_of_attvars */
     return copy_term(CTXT);
 
   case CALL0: {			/* R1: +Term, the call to be made */
@@ -2904,12 +2904,6 @@ case WRITE_OUT_PROFILE:
     }
     break;
 
-  case PRINT_LS: print_ls(CTXTc 1) ; return TRUE ;
-  case PRINT_TR: print_tr(CTXTc 1) ; return TRUE ;
-  case PRINT_HEAP: print_heap(CTXTc 0,2000,1) ; return TRUE ;
-  case PRINT_CP: alt_print_cp(CTXTc ptoc_string(CTXTc 1)) ; return TRUE ;
-  case PRINT_REGS: print_regs(CTXTc 10,1) ; return TRUE ;
-  case PRINT_ALL_STACKS: print_all_stacks(CTXTc 10) ; return TRUE ;
   case EXP_HEAP: glstack_realloc(CTXTc glstack.size + 1,0) ; return TRUE ;
   case MARK_HEAP: {
     size_t tmpval;

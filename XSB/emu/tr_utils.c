@@ -6118,6 +6118,12 @@ case CALL_SUBS_SLG_NOT: {
 
     return abolish_nonincremental_tables(CTXTc (int)ptoc_int(CTXTc 2));
   }
+  case PRINT_LS: print_ls(CTXTc 1) ; return TRUE ;
+  case PRINT_TR: print_tr(CTXTc 1) ; return TRUE ;
+  case PRINT_HEAP: print_heap(CTXTc 0,2000,1) ; return TRUE ;
+  case PRINT_CP: alt_print_cp(CTXTc ptoc_string(CTXTc 1)) ; return TRUE ;
+  case PRINT_REGS: print_regs(CTXTc 10,1) ; return TRUE ;
+  case PRINT_ALL_STACKS: print_all_stacks(CTXTc 10) ; return TRUE ;
 
     //  case TEMP_FUNCTION: {
     //    /* Input : Incall ; Output : Outcall */

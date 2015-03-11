@@ -50,6 +50,15 @@
 #define TEMP_FUNCTION_2                          26
 #define ABOLISH_NONINCREMENTAL_TABLES            27
 
+/* added by Bart Demoen & Kostis Sagonas for debugging and convenience */
+#define PRINT_LS                240
+#define PRINT_TR                241
+#define PRINT_HEAP              242
+#define PRINT_CP                243
+#define PRINT_REGS              244
+#define PRINT_ALL_STACKS        245
+
+
 // For delete return
 #define ANSWER_SUBSUMPTION   0
 #define USER_DELETE          1
