@@ -27,7 +27,8 @@
 /* NOTE: This file needs compilation with the "sysmod" option.  	*/
 /*----------------------------------------------------------------------*/
 
-:- compiler_options([sysmod]).
+:- compiler_options([sysmod,xpp_on]).
+#include "builtin.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -38,6 +39,14 @@ append([X|L1],L2,[X|L3]) :- append(L1,L2,L3).
 %---
 /* copy_term is an inlined builtin */
 copy_term(Term, Result) :- copy_term(Term, Result).
+
+%---
+:- export copy_term_nat/2.
+copy_term_nat(Term,Result):- copy_term(Term,Result,_).
+
+/* copy_term is an inlined builtin */
+copy_term(_Term, _Result,_) :- '_$builtin'(COPY_TERM_3).
+
 
 %---
 ground(X) :- ground(X).
