@@ -1559,6 +1559,12 @@ with
  since the last call to {\tt statistics/2}.  Times are measured in
  seconds.
 %
+\item {\tt total\_memory} which instantiates {\tt Result} to the list
+ {\tt [Alloc,Used]}.  In the single-threaded engine, {\tt Alloc} is
+ the total table space allocated and {\tt Used} is the total table
+ space used, both in bytes.  In the multi-threaded engine, both refer
+ to table space {\em private} to the calling thread.
+%
 \item {\tt tablespace} which instantiates {\tt Result} to the list {\tt
  [Alloc,Used]}.  In the single-threaded engine, {\tt Alloc} is the
  total table space allocated and {\tt Used} is the total table space
@@ -1571,19 +1577,24 @@ with
  is the total table space used, both in bytes.  An error is thrown if
  this option is called by the single-threaded engine.
 %
-\item {\tt gl} which instantiates {\tt Result} to the list {\tt
- [Alloc,Used]}, where {\tt Alloc} is the total number of bytes
- allocated for XSB's combined heap and local (environment) stack,
- while {\tt Used} is the approximate number of bytes used by both of
- these stacks.  In the multi-threaded engine, these numbers refer only
- to the stacks of the calling thread.
+\item {\tt trie\_assert} which instantiates {\tt Result} to the list
+ {\tt [Alloc,Used]}.  In the single-threaded engine, {\tt Alloc} is
+ the total space allocated for trie-asserted facts and interned tries;
+ {\tt Used} is the total space used for these purposes, both in bytes.
 %
-\item {\tt tc} which instantiates {\tt Result} to the list {\tt
- [Alloc,Used]}, where {\tt Alloc} is the total number of bytes
- allocated for XSB's combined trail and choice point stack while {\tt
- Used} is the number of bytes used by both of these stacks.  In the
- multi-threaded engine, these numbers refer only to the stacks of the
- calling thread.
+%\item {\tt gl} which instantiates {\tt Result} to the list {\tt
+% [Alloc,Used]}, where {\tt Alloc} is the total number of bytes
+% allocated for XSB's combined heap and local (environment) stack,
+% while {\tt Used} is the approximate number of bytes used by both of
+% these stacks.  In the multi-threaded engine, these numbers refer only
+% to the stacks of the calling thread.
+%
+%\item {\tt tc} which instantiates {\tt Result} to the list {\tt
+% [Alloc,Used]}, where {\tt Alloc} is the total number of bytes
+% allocated for XSB's combined trail and choice point stack while {\tt
+% Used} is the number of bytes used by both of these stacks.  In the
+%% multi-threaded engine, these numbers refer only to the stacks of the
+% calling thread.
 %
 \item {\tt heap} which instantiates {\tt Result} to the total number
  of bytes used by XSB's heap.  In the multi-threaded engine, the
