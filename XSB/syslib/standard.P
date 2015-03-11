@@ -1875,7 +1875,7 @@ statistics_2_trans(gl,GLMEMORY):- !.
 statistics_2_trans(tc,TCMEMORY):- !.
 statistics_2_trans(tablespace,TABLESPACE):- !.
 statistics_2_trans(shared_tablespace,SHARED_TABLESPACE):- !.
-statistics_2_trans(trieassert,TRIEASSERTMEM):- !.
+statistics_2_trans(trie\_assert,TRIEASSERTMEM):- !.  % not yet documented
 statistics_2_trans(heap,HEAPMEM):- !.
 statistics_2_trans(choice_point,CPMEM):- !.
 statistics_2_trans(trail,TRAILMEM):- !.
@@ -1883,7 +1883,6 @@ statistics_2_trans(local,LOCALMEM):- !.
 statistics_2_trans(incomplete_tables,OPENTABLECOUNT):- !.
 % open_tables deprecated
 statistics_2_trans(open_tables,OPENTABLECOUNT):- !.
-statistics_2_trans(incomplete_tables,OPENTABLECOUNT):- !.
 statistics_2_trans(atoms,ATOMMEM):- !.
 statistics_2_trans(idg,IDG_COUNTS):- !.
 statistics_2_trans(X,_):-
