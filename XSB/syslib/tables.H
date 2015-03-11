@@ -59,7 +59,8 @@
    log_all_forest_end/0, 
    log_forest/1, log_forest/2,
    print_incomplete_tables/0,print_incomplete_tables/1,
-   retract_table/1,          /* abolish/1 */
+print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks/0, 
+           retract_table/1,          /* abolish/1 */
    sk_not/1,
 %      table_state/2,
    table_state/4,

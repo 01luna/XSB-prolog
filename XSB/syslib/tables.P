@@ -1420,6 +1420,12 @@ find_forward_dependencies(Call):-
 find_answers(Pred):- 
 	table_inspection_function(FIND_ANSWERS,Pred,_,_,_).
 
+print_ls :- table_inspection_function(PRINT_LS,_,_,_,_).
+print_tr :- table_inspection_function(PRINT_TR,_,_,_,_).
+print_heap(X,Y) :- table_inspection_function(PRINT_HEAP,X,Y,_,_).
+print_cp(_Title) :-table_inspection_function(PRINT_CP,Title,_,_,_).
+print_regs :- table_inspection_function(PRINT_REGS,_,_,_,_).
+print_all_stacks :- table_inspection_function(PRINT_ALL_STACKS,_,_,_,_).
 
 /* Right now, experimental for aggregs.P */
 	
