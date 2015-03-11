@@ -208,6 +208,7 @@ extern xsbBool xsb_socket_request(CTXTdecl);
 extern int  findall_init(CTXTdecl), findall_add(CTXTdecl),
   findall_get_solutions(CTXTdecl);
 extern int  copy_term(CTXTdecl);
+extern int  copy_term_3(CTXTdecl);
 
 extern xsbBool substring(CTXTdecl);
 extern xsbBool string_substitute(CTXTdecl);
@@ -1307,12 +1308,7 @@ void init_builtin_table(void)
   set_builtin_table(THREAD_REQUEST, "thread_request");
   set_builtin_table(MT_RANDOM_REQUEST, "mt_random_request");
 
-  //  set_builtin_table(PRINT_LS, "print_ls");
-  //    set_builtin_table(PRINT_TR, "print_tr");
-  //    set_builtin_table(PRINT_HEAP, "print_heap");
-  //    set_builtin_table(PRINT_CP, "print_cp");
-  //    set_builtin_table(PRINT_REGS, "print_regs");
-  //    set_builtin_table(PRINT_ALL_STACKS, "print_all_stacks");
+  set_builtin_table(COPY_TERM_3,"copy_term_3");
   set_builtin_table(MARK_HEAP, "mark_heap");
   set_builtin_table(GC_STUFF, "gc_stuff");
   set_builtin_table(FINDALL_INIT, "$$findall_init");
@@ -2903,6 +2899,9 @@ case WRITE_OUT_PROFILE:
       break;
     }
     break;
+
+  case COPY_TERM_3:
+    return copy_term_3(CTXT);
 
   case EXP_HEAP: glstack_realloc(CTXTc glstack.size + 1,0) ; return TRUE ;
   case MARK_HEAP: {

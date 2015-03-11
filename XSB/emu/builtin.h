@@ -281,6 +281,8 @@
 #define XSB_PROFILE             237
 #define XSB_BACKTRACE		238
 
+#define COPY_TERM_3             240
+
 #define EXP_HEAP                246
 #define MARK_HEAP               247
 #define GC_STUFF                248
