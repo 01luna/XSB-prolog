@@ -142,6 +142,8 @@ extern void	remove_incomplete_tries(CTXTdeclc CPtr);
 extern counter abol_subg_ctr,abol_pred_ctr,abol_all_ctr; /* statistics */
 extern FILE * fview_ptr;
 
+extern int is_ancestor_sf(VariantSF consumer_sf, VariantSF producer_sf);
+
 #define MAX_INTERNED_TRIES 2003
 
 typedef struct Table_Status_Frame {
@@ -165,6 +167,8 @@ typedef struct scc_node {
 #define TableStatusFrame_subgoal(TSF) ( (TSF).subgoal )
 
 extern int table_status(CTXTdeclc Cell, TableStatusFrame*);
+
+extern void alt_print_cp(CTXTdeclc char *);
 
 #define MAX_VAR_SIZE	200
 
