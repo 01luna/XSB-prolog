@@ -3736,13 +3736,14 @@ a  or a list whose head is a variable
 	Argument 2 of {\tt \verb|^|=../2} is not a proper list.
      \end{description}
 
-\isoitem{copy\_term(+Term, -Copy)}{copy\_term/2}
-    Makes a {\tt Copy} of {\tt Term} in which all variables have been
-    replaced by brand new variables which occur nowhere else. It can
-    be very handy when writing (meta-)interpreters for logic-based
-    languages.  The version of {\tt copy\_term/2} provided is {\em space
-    efficient} in the sense that it never copies ground terms. 
-    Predicate {\tt copy\_term/2} has no associated errors or exceptions.
+\isoitem{copy\_term(+Term, -Copy)}{copy\_term/2} Makes a {\tt Copy} of
+        {\tt Term} in which all variables have been replaced by brand
+        new variables which occur nowhere else.  Variable attributes
+        are also copied.  It can be very handy when writing
+        (meta-)interpreters for logic-based languages.  The version of
+        {\tt copy\_term/2} provided is {\em space efficient} in the
+        sense that it never copies ground terms.  Predicate {\tt
+          copy\_term/2} has no associated errors or exceptions.
 
     Examples:
     {\footnotesize
@@ -3758,7 +3759,12 @@ rr                   | ?- copy_term(f(a,X), Y).
                    Y = f(a,_599112)
      \end{verbatim}}
 
-\isoitem{term\_variables(+Term, -VariableList)}{term\_variables/2}
+\ourmoditem{copy\_term\_nat(+Term, -Copy)}{copy\_term\_nat/2}{machine}
+%
+Behaves as {\tt copy\_term/2}, however it replaces attributed
+variables with non-attributed variables in the copy.
+
+\isoitem{term\_variables(+Term,-Variableust)}{term\_variables/2}
     Collects the variables in {\tt Term} into the list {\tt
     VariableList}.  The variables are in the order of their first
     occurrences in a depth-first traversal of {\tt Term}.
