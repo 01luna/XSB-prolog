@@ -51,6 +51,8 @@
 :- import path_sysop/2 from file_io.
 :- import slash/1 from machine.
 :- import variant/2 from subsumes.
+:- import write_canonical_lettervar/1 from xsb_writ.
+:- import numbervars/1 from num_vars.
 
 :- import assert_mti/1 from usermod.  % cdf_config.P  mti
 
@@ -109,16 +111,18 @@ throw_cdf_writable(Dir):-
 sort_and_write_terms(Terms) :-
 	sort(Terms,STerms),
 	member(Term,STerms),
-	write_canonical(Term),writeln('.'),
+	(ground(Term) -> true ; numbervars(Term)),
+	write_canonical_lettervar(Term),writeln('.'),
 	fail.
 sort_and_write_terms(_Terms).
 
 sort_and_write_cha_terms(Terms) :-
 	sort(Terms,STerms),
 	member(Term,STerms),
+	(ground(Term) -> true ; numbervars(Term)),
 	(Term = classHasAttr_ext(cid(compName(cid(N,N),_),N), crid(hasVersion,N),  Version)
-	 ->	write_canonical(classHasAttr_ext(cid(N,N),crid(hasVersion,N),Version)),writeln('.')
-	 ;	write_canonical(Term),writeln('.')
+	 ->	write_canonical_lettervar(classHasAttr_ext(cid(N,N),crid(hasVersion,N),Version)),writeln('.')
+	 ;	write_canonical_lettervar(Term),writeln('.')
 	),
 	fail.
 sort_and_write_cha_terms(_Terms).
@@ -178,7 +182,8 @@ write_component_intensional(Comp):-
 write_component_intensional(Comp):- 
 	compdlrule(Comp,DLHead,DLBody),
 	writeln(userout,write_can_rule),
-	write_canonical('<='(DLHead,DLBody)), writeln('.'),
+	(ground((DLHead,DLBody)) -> true ; numbervars((DLHead,DLBody))),
+	write_canonical_lettervar('<='(DLHead,DLBody)), writeln('.'),
 	fail.
 write_component_intensional(_Comp).
 
@@ -197,7 +202,8 @@ write_intensional_dlTables :-
 	findall(DLTableWrite,DLTableCall,DLTableEntsU),
 	sort(DLTableEntsU,DLTableEnts),
 	member(DLTableEnt,DLTableEnts),
-	write_canonical(DLTableEnt),
+	(ground(DLTableEnt) -> true ; numbervars(DLTableEnt)),
+	write_canonical_lettervar(DLTableEnt),
 	writeln('.'),
 	fail.
 write_intensional_dlTables.

@@ -139,7 +139,7 @@ cdf_index(allAttr_ext,3,[*(1) + *(2),*(1),*(3)]).
 %%cdf_index(hasAttr_ext,3,[*(1) + *(2),*(1),*(2) + *(3)]).
 %%cdf_index(hasAttr_ext,3,[*(1) + *(2) + *(3),*(1) + *(2),*(2) + *(3)]).
 
-%cdf_index(hasAttr_ext,3,[*(1) + *(2), *(2) + *(3), *(1), *(2)]/*,65537*/).  % mti (delete if mti
+cdf_index(hasAttr_ext,3,[*(1) + *(2), *(2) + *(3), *(1), *(2)]/*,65537*/).  % mti (delete if mti
 
 cdf_index(classHasAttr_ext,3,[*(1) + *(2),*(1), *(3), *(2)]).
 cdf_index(minAttr_ext,4,[*(1) + *(2),*(1),*(2) + *(3)]).
