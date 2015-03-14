@@ -1222,9 +1222,7 @@ copy_again_3 : /* for tail recursion optimisation */
 	*/
 
 	{
-	  Cell tr1;
-
-	  tr1 = *to = makelist(*h) ;
+	  *to = makelist(*h) ;
 	  to = (*h) ;
 	  (*h) += 2 ;
 	  if (q == (Cell)pfirstel) /* it is an UNDEF - special care needed */
@@ -1311,27 +1309,40 @@ copy_again_3 : /* for tail recursion optimisation */
 	if (ar > 0) {
 	  while ( --ar )
 	    {
-	      from = *(++pfirstel) ; XSB_Deref(from) ; to++ ;
+	      //	      printf("copying arg %d\n",ar+1);
+	      from = *(++pfirstel) ; 
+	      //	      printf("pfirstel %p @%p @@%p\n",pfirstel,from,cell((CPtr) dec_addr(from)));
+	      XSB_Deref(from) ; to++ ;
 	      do_copy_term_3(CTXTc from,to,h) ;
 	    }
-	  from = *(++pfirstel) ; XSB_Deref(from) ; to++ ;
+	  from = *(++pfirstel) ; 
+	  //	      printf("pfirstel %p @%p @@%p\n",pfirstel,from,cell((CPtr) dec_addr(from)));
+	  XSB_Deref(from) ; to++ ;
 	  goto copy_again_3 ;
 	} else return;
       }
 
-    case XSB_ATTV:
+    case XSB_ATTV: {
+	CPtr var;
+    
+	var = clref_val(from);	/* the VAR part of the attv  */
 #ifndef MULTI_THREAD
-      if ((CPtr)from < hreg)  /* meaning: a not yet copied undef */
+      if ((CPtr)var < hreg)  /* meaning: a not yet copied undef */
 #else
-      if ( ((CPtr)from < hreg) || ((CPtr)from >= (CPtr)glstack.high) )
+      if ( ((CPtr)var < hreg) || ((CPtr)var >= (CPtr)glstack.high) )
 #endif
 	{
-	  findall_trail(CTXTc (CPtr)from,from) ;
-	  *(CPtr)from = (Cell)to ;
-	  *to = (Cell)to ;
+	  //	  printf("before trail %p @%p @@%p\n",var,cell(var),cell((CPtr) dec_addr(cell(var))));
+	  findall_trail(CTXTc var,cell(var)) ;
+	  //	  printf("after trail %p @%p @@%p\n",var,cell(var),cell((CPtr) dec_addr(cell(var))));
+	  *(CPtr)clref_val(from) = (Cell)var ;
+	  *to = (Cell)var ;
 	}
       else *to = from ;
       return ;
+    }
+    }
+}
 
 
       //      {
@@ -1391,11 +1402,9 @@ copy_again_3 : /* for tail recursion optimisation */
       //      } /* case XSB_ATTV */
       //    } /* switch */
       //} /* do_copy_term_3 */
-    }
-}
 
 
-/* creates a new variant of a term in the heap
+/* Creates a new variant of a term in the heap
    arg1 - old term
    arg2 - new term; copy of old term unifies with new term
 */
