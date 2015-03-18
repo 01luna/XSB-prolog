@@ -3762,7 +3762,9 @@ rr                   | ?- copy_term(f(a,X), Y).
 \ourmoditem{copy\_term\_nat(+Term, -Copy)}{copy\_term\_nat/2}{machine}
 %
 Behaves as {\tt copy\_term/2}, however it replaces attributed
-variables with non-attributed variables in the copy.
+variables with non-attributed variables in the copy.\footnote{The name
+  of this predicate was chosen for consistency with SWI Prolog, and
+  stands for {\em copy\_term no attributes}.}
 
 \isoitem{term\_variables(+Term,-Variableust)}{term\_variables/2}
     Collects the variables in {\tt Term} into the list {\tt
