@@ -42,6 +42,8 @@
 #define GET_SUBGOAL_FRAME         19
 #define GET_INCR_SCCS             20
 #define IMMED_DEPENDS_PTRLIST     21
+#define PSC_GET_INTERN            22
+#define PSC_SET_INTERN            23
 
 // for psc hacking
 #define NONINCREMENTAL 0

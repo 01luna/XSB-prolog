@@ -126,7 +126,8 @@ char *string_find_safe(char *str) {
 void init_psc_ep_info(Psc psc) {
   set_type(psc, 0);
   psc->env = 0;
-  psc->incr = 0;
+  set_incr(psc,0);
+  set_intern(psc,0);
   set_data(psc, 0);
   set_ep(psc,(byte *)&(psc->load_inst));
   cell_opcode(&(psc->load_inst)) = load_pred;
@@ -365,7 +366,9 @@ Pair insert_module(int type, char *name)
     if (is_new) {
 	set_type(new_pair->psc_ptr, type);
 	new_pair->psc_ptr->env = 0;
-	new_pair->psc_ptr->incr = 0;
+	//	new_pair->psc_ptr->incr = 0;
+	set_incr(new_pair->psc_ptr,0);
+	set_intern(new_pair->psc_ptr,0);
 	set_data(new_pair->psc_ptr,0);
 	set_ep(new_pair->psc_ptr,0);
 	new_pair->psc_ptr->this_psc = 0;

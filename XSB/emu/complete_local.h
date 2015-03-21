@@ -301,7 +301,7 @@ static inline void CompleteSimplifyAndReclaim(CTXTdeclc CPtr cs_ptr)
   while (ComplStkFrame >= openreg) {
     compl_subg = compl_subgoal_ptr(ComplStkFrame);
     mark_as_completed(compl_subg);
-    if (flags[CTRACE_CALLS])  { 
+    if (flags[CTRACE_CALLS] && !subg_forest_log_off(compl_subg))  { 
       sprint_subgoal(CTXTc forest_log_buffer_1,0,compl_subg);     
       fprintf(fview_ptr,"cmp(%s,%d,%d).\n",forest_log_buffer_1->fl_buffer,
 	      compl_level(ComplStkFrame),ctrace_ctr++);

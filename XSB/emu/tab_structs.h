@@ -292,7 +292,9 @@ typedef struct Table_Info_Frame {
   Psc  psc_ptr;			/* pointer to the PSC record of the subgoal */
   byte method;	                /* eval pred using variant or subsumption? */
   byte mark;                    /* (bit) to indicate tif marked for gc */
-  byte visited;                 /* (bit) to indicate tif visited during cascading deletes */
+  unsigned int visited:1;       /* (bit) to indicate tif visited during cascading deletes */
+  unsigned int skip_forest_log:1;
+  unsigned int unused:6;
   byte intern_strs;		/* (bit) to indicate if variant table interns ground terms */
   DelTFptr del_tf_ptr;          /* pointer to first deletion frame for pred */
   BTNptr call_trie;		/* pointer to the root of the call trie */
@@ -313,6 +315,8 @@ typedef struct Table_Info_Frame {
 #define TIF_EvalMethod(pTIF)	   ( (pTIF)->method )
 #define TIF_Mark(pTIF)	           ( (pTIF)->mark )
 #define TIF_Visited(pTIF)          ( (pTIF)->visited )
+#define TIF_SkipForestLog(pTIF)    ( (pTIF)->skip_forest_log )
+
 #define TIF_Interning(pTIF)         ( (pTIF)->intern_strs )
 #define TIF_CallTrie(pTIF)	   ( (pTIF)->call_trie )
 #define TIF_Subgoals(pTIF)	   ( (pTIF)->subgoals )
@@ -678,6 +682,7 @@ typedef struct subgoal_frame {
 #define subg_cp_ptr(b)		( ((VariantSF)(b))->cp_ptr )
 #define subg_deltf_ptr(b)     	( ((VariantSF)(b))->deltf_ptr )
 /*#define subg_deltf_ptr(b)     	( (DelTFptr)((VariantSF)(b))->ans_list_tail )*/
+#define subg_forest_log_off(b)       (TIF_SkipForestLog(subg_tif_ptr(b)))
 
 #define subg_pos_cons(b)	( ((VariantSF)(b))->pos_cons )
 #define subg_callnode_ptr(b)    ( ((VariantSF)(b))->callnode ) /* incremental evaluation */

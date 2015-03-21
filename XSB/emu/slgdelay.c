@@ -1287,7 +1287,7 @@ void simplify_pos_unconditional(CTXTdeclc NODEptr as_leaf)
   //  print_pdes(asi_pdes(asi));
   while ((pde = asi_pdes(asi))) {
 
-    if (flags[CTRACE_CALLS])  {				
+    if (flags[CTRACE_CALLS] && !subg_forest_log_off(asi_subgoal(asi)))  {				
       char buffera[MAXTERMBUFSIZE];			
       char bufferc[MAXTERMBUFSIZE];			
       memset(buffera,0,MAXTERMBUFSIZE);
@@ -1381,7 +1381,7 @@ void simplify_neg_fails(CTXTdeclc VariantSF subgoal)
       de = pnde_de(nde);
       dl = pnde_dl(nde);
 
-    if (flags[CTRACE_CALLS])  {				
+      if (flags[CTRACE_CALLS] && !subg_forest_log_off(subgoal))  {				
       //      memset(bufferb,0,MAXTERMBUFSIZE);
       //      memset(buffera,0,MAXTERMBUFSIZE);
       sprint_subgoal(CTXTc forest_log_buffer_1,0, subgoal);
@@ -1429,7 +1429,7 @@ static void simplify_neg_succeeds(CTXTdeclc VariantSF subgoal)
 
   while ((nde = subg_nde_list(subgoal))) {
 
-    if (flags[CTRACE_CALLS])  {				
+    if (flags[CTRACE_CALLS] && !subg_forest_log_off(subgoal))  {
       //      memset(bufferb,0,MAXTERMBUFSIZE);
       //      memset(buffera,0,MAXTERMBUFSIZE);
       sprint_subgoal(CTXTc forest_log_buffer_1,0, subgoal);
@@ -1506,7 +1506,7 @@ void simplify_pos_unsupported(CTXTdeclc NODEptr as_leaf)
   while ((pde = asi_pdes(asi))) {
 
     // TLS: seems to be a problem with printing out as_leaf in this case.
-    if (flags[CTRACE_CALLS])  {				
+    if (flags[CTRACE_CALLS] && !subg_forest_log_off(asi_subgoal(asi)))  {
       char bufferb[MAXTERMBUFSIZE];			
       memset(bufferb,0,MAXTERMBUFSIZE);
       sprint_subgoal(CTXTc forest_log_buffer_1,0,asi_subgoal(Delay(as_leaf)));

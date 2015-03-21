@@ -54,7 +54,7 @@ case SLG_NOT: {
   if ( varsf_has_unconditional_answers(sf) )
     return FALSE;
   else {
-    if (flags[CTRACE_CALLS])  {				
+    if (flags[CTRACE_CALLS] && !subg_forest_log_off(sf))  {				
       sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF) sf);	      
       sprint_subgoal(CTXTc forest_log_buffer_2,0,(VariantSF)ptcpreg);	 
       fprintf(fview_ptr,"dly(%s,%s,%d).\n",

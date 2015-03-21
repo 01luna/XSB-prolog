@@ -393,7 +393,6 @@ VariantSF get_call(CTXTdeclc Cell callTerm, Cell *retTerm) {
   if ( IsNULL(tif) )
     xsb_permission_error(CTXTc "table access","non-tabled predicate",callTerm,
 			   "get_call",3);
-
   root = TIF_CallTrie(tif);
   if ( IsNULL(root) )
     return NULL;
@@ -6114,6 +6113,14 @@ case CALL_SUBS_SLG_NOT: {
     return get_residual_sccs(CTXTc ptoc_tag(CTXTc 2));
   }
 
+  case SET_FOREST_LOGGING_FOR_PRED: {
+    Psc psc =  term_psc((Cell)(ptoc_tag(CTXTc 2)));
+    if (get_tabled(psc)) {
+      TIF_SkipForestLog(get_tip(CTXTc psc)) = (ptoc_int(CTXTc 3) & 1);
+    } else
+      xsb_permission_error(CTXTc "set forest logging","non-tabled predicate",ptoc_tag(CTXTc 2),"set_forest_logging_for_pred",1);
+    return TRUE;
+  } 
   case ABOLISH_NONINCREMENTAL_TABLES: {
 
     return abolish_nonincremental_tables(CTXTc (int)ptoc_int(CTXTc 2));
@@ -6124,6 +6131,7 @@ case CALL_SUBS_SLG_NOT: {
   case PRINT_CP: alt_print_cp(CTXTc ptoc_string(CTXTc 1)) ; return TRUE ;
   case PRINT_REGS: print_regs(CTXTc 10,1) ; return TRUE ;
   case PRINT_ALL_STACKS: print_all_stacks(CTXTc 10) ; return TRUE ;
+
 
     //  case TEMP_FUNCTION: {
     //    /* Input : Incall ; Output : Outcall */

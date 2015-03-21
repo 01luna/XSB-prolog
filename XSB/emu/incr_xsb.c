@@ -177,7 +177,13 @@ xsbBool incr_eval_builtin(CTXTdecl)
 	ctop_int(CTXTc 3,INCREMENTAL);
     else if (get_opaque(psc))
       ctop_int(CTXTc 3,OPAQUE);
-    else if (get_intern(psc))
+    else ctop_int(CTXTc 3,0);
+    break;
+  }
+
+  case PSC_GET_INTERN: {
+    Psc psc = (Psc)ptoc_addr(2);   
+    if (get_intern(psc))
       ctop_int(CTXTc 3,T_INTERN);
     else ctop_int(CTXTc 3,0);
     break;

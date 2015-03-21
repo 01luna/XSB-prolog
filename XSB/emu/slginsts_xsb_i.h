@@ -117,7 +117,8 @@
 #endif
 
 #define  LOG_TABLE_CALL(state)						\
-  if (flags[CTRACE_CALLS])  {						\
+  /*  printf("ctrace %d forest_log_off %d\n",flags[CTRACE_CALLS],!subg_forest_log_off(producer_sf)); */	\
+  if (flags[CTRACE_CALLS] && !subg_forest_log_off(producer_sf))  {		\
     sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)producer_sf);	\
     if (ptcpreg) {							\
       sprint_subgoal(CTXTc forest_log_buffer_2,0,(VariantSF)ptcpreg);	\
@@ -131,8 +132,8 @@
 	      forest_log_buffer_2->fl_buffer,state,ctrace_ctr++); }	\
   }
 
-#define LOG_ANSWER_RETURN(answer,template_ptr)		\
-  if (flags[CTRACE_CALLS] > 1)  {			\
+#define LOG_ANSWER_RETURN(answer,template_ptr)				\
+  if (flags[CTRACE_CALLS] > 1 && !subg_forest_log_off(consumer_sf))  {			\
     sprintAnswerTemplate(CTXTc forest_log_buffer_1,template_ptr, template_size); \
     sprint_subgoal(CTXTc forest_log_buffer_2,0,(VariantSF)consumer_sf);	\
     sprint_subgoal(CTXTc forest_log_buffer_3,0,(VariantSF)ptcpreg); \
@@ -302,6 +303,7 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
     CPtr producer_cpf;
     producer_sf = NewProducerSF(CTXTc CallLUR_Leaf(lookupResults),
 				 CallInfo_TableInfo(callInfo));
+    //    printf("new producer sf %p\n",producer_sf);
 
 #endif /* !SHARED_COMPL_TABLES */
 #ifdef CONC_COMPL
@@ -1046,7 +1048,7 @@ XSB_Start_Instr(new_answer_dealloc,_new_answer_dealloc)
 
   if ( isNewAnswer ) {   /* go ahead -- look for more answers */
 
-  if (flags[CTRACE_CALLS])  { 
+  if (flags[CTRACE_CALLS] && !subg_forest_log_off(producer_sf))  { 
     memset(forest_log_buffer_1->fl_buffer,0,MAXTERMBUFSIZE);
     memset(forest_log_buffer_2->fl_buffer,0,MAXTERMBUFSIZE);
     memset(forest_log_buffer_3->fl_buffer,0,MAXTERMBUFSIZE);

@@ -49,6 +49,7 @@
 #define TEMP_FUNCTION                            25
 #define TEMP_FUNCTION_2                          26
 #define ABOLISH_NONINCREMENTAL_TABLES            27
+#define SET_FOREST_LOGGING_FOR_PRED              28
 
 /* added by Bart Demoen & Kostis Sagonas for debugging and convenience */
 #define PRINT_LS                240

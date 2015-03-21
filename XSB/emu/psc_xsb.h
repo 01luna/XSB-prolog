@@ -88,7 +88,10 @@ struct psc_rec {
   byte env;			/* 0&0x3 - visible; 1&0x3 - local; 2&0x3 - unloaded;  */
   				/* 0xc0, 2 bits for spy */
 				/* 0x20 - shared, 0x10 for determined; 0x8 - tabled */
-  byte incr;                    /* Only first 2 bits used: 1 incremental; 0 is non-incremental, 2: opaque; 4 for INTERN */
+  //  byte incr;                    /* Only first 2 bits used: 1 incremental; 0 is non-incremental, 2: opaque; 4 for INTERNED */
+  unsigned int incremental:2;
+  unsigned int intern:1;
+  unsigned int unused:5;
   byte entry_type;		/* see psc_defs.h */
   byte arity; 
   char *nameptr;
@@ -131,10 +134,13 @@ typedef struct psc_pair *Pair;
 #define  get_shared(psc)	((psc)->env & T_SHARED)
 #define  get_private(psc)	((psc)->env & ~T_SHARED & T_SHARED_DET)
 
-#define  get_incr(psc)           (((psc)->incr & T_INCR) == INCREMENTAL)  
-#define  get_intern(psc)	 ((psc)->incr & T_INTERN)
-#define  get_opaque(psc)         (((psc)->incr & T_INCR) == OPAQUE)  
-#define  get_nonincremental(psc) (((psc)->incr & T_INCR) == NONINCREMENTAL) 
+  //#define  get_incr(psc)           (((psc)->incr & T_INCR) == INCREMENTAL)  
+#define  get_incr(psc)           ((psc)->incremental == INCREMENTAL)  
+#define  get_opaque(psc)         ((psc)->incremental == OPAQUE)  
+#define  get_nonincremental(psc) ((psc)->incremental == NONINCREMENTAL) 
+
+  //#define  get_intern(psc)	 ((psc)->incr & T_INTERN)
+#define  get_intern(psc)	 ((psc)->intern)
 
 #define  get_arity(psc)		((psc)->arity)
 #define  get_ep(psc)		((psc)->ep)
@@ -146,8 +152,11 @@ typedef struct psc_pair *Pair;
 #define  set_spy(psc, spy)	(psc)->env = ((psc)->env & ~T_SPY) | spy
 #define  set_shared(psc, shar)	(psc)->env = ((psc)->env & ~T_SHARED) | shar
 #define  set_tabled(psc, tab)	(psc)->env = ((psc)->env & ~T_TABLED) | tab
-#define  set_incr(psc,val)      ((psc)->incr = ((psc)->incr & ~3) | val)  /* incremental */
-#define  set_intern(psc,val)    ((psc)->incr = ((psc)->incr & ~T_INTERN) | val)  /* val 0 or T_INTERN */
+
+#define  set_incr(psc,val)      ((psc)->incremental = val)  /* incremental */
+
+#define  set_intern(psc,val)    ((psc)->intern = val) /* val 0 or T_INTERN */
+
 #define  set_arity(psc, ari)	((psc)->arity = ari)
 #define  set_length(psc, len)	((psc)->length = len)
 #define  set_ep(psc, val)	do {(psc)->ep = val;     \
