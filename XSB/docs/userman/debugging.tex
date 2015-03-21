@@ -995,6 +995,24 @@ Error conditions on {\tt File} are the same as {\tt tell/1}.
 with a {\tt v} if the argument is a variable, a {\tt g} if the
 argument is ground, and {\tt m} otherwise.
 
+\ourmoditem{set\_forest\_logging\_for\_pred(+PredSpec,+Mode)}{set\_forest\_logging\_for\_pred/2}{tables}
+If forest logging is turned on, this predicate allows logging specific
+to the predicate {\tt PredSpec} to be turned on or off.  Thus, for
+instance, tabled predicates in a pre-existing library need not clutter
+up the log.
+
+{\bf Error Cases}
+\bi
+\item 	{\tt PredSpec} is not a callable term
+\bi
+\item 	{\tt type\_error}
+\ei
+%
+\item 	{\tt Mode} is not in the set \{{\tt on},{\tt off}\}
+\bi
+\item 	{\tt domain\_error}
+\ei
+\ei
 \end{description}
 
 %%% Local Variables: 
