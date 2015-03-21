@@ -261,8 +261,8 @@ code_to_buff(Clause0,AZ) :-
 /* Must fail after code is put into buffer, to reset variables bound in 
    the process */
 code_to_buff(Clause0,PSC,AZ) :-
-	psc_get_incr(PSC,Val),
-	(Val =:= 4		%=T_INTERN
+	psc_get_intern(PSC,Val),
+	(Val =:= T_INTERN
 	 ->	intern_term(Clause0,Clause)
 	 ;	Clause = Clause0
 	),
@@ -438,7 +438,17 @@ exec_pre_dynamic_option(private,PredList) :- !,
 exec_pre_dynamic_option(shared,PredList) :- !,
 	thread_shared(PredList).
 exec_pre_dynamic_option(intern,PredList) :- !,
-	set_predlist_incremental(PredList,T_INTERN).
+	set_predlist_intern(PredList).
+
+set_predlist_intern((Pred,Preds)):- !,
+	set_predlist_intern(Pred),
+	set_predlist_intern(Preds).
+set_predlist_intern(Pred):- 
+	mpa_to_skel(Pred,Call),
+	term_psc(Call,Psc),
+%	psc_type(Psc,Type),
+%	writeln(psc_type(Type)),
+	psc_set_intern(Psc,T_INTERN).
 
 set_predlist_incremental((Pred,Preds),Option):- !,
 	set_predlist_incremental(Pred,Option),

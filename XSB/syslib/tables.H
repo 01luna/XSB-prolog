@@ -90,6 +90,7 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
 :- export early_complete_on_nth/2.
 :- export early_complete_on_delta/4.
 :- export get_scc_dumpfile/1.
+:- export set_forest_logging_for_pred/2.
 
 /***** Other ******/
 :- export start_forest_view/1, stop_forest_view/0.
@@ -113,7 +114,7 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
 :- import load_dync/2 from consult.
 
 :- import
-	domain_error/5, check_nonvar/3, type_error/4, table_error/1, 
+	domain_error/4, domain_error/5, check_nonvar/3, type_error/4, table_error/1, 
 	%%instantiation_error/2,
 	permission_error/4 , check_cyclic/3
    from error_handler.

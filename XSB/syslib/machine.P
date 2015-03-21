@@ -106,6 +106,12 @@ psc_set_incr(PSC, CODE):-
 psc_get_incr(PSC, CODE):-
 	incr_eval_builtin(PSC_GET_INCR, PSC, CODE).
 
+psc_set_intern(PSC, CODE):-
+	incr_eval_builtin(PSC_SET_INTERN, PSC, CODE).
+
+psc_get_intern(PSC, CODE):-
+	incr_eval_builtin(PSC_GET_INTERN, PSC, CODE).
+
 term_new_mod(Mod, Term, NewTerm) :- term_new_mod(Mod, Term, NewTerm).
 term_psc(Term, PSC) :- term_psc(Term, PSC).
 term_type(Term, Type) :- term_type(Term, Type).

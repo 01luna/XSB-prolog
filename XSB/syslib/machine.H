@@ -181,7 +181,7 @@
 	globalvar/1,
         ccall_store_error/2,
    get_breg/1,
-   psc_set_incr/2,psc_get_incr/2,
+   psc_set_incr/2,psc_get_incr/2,psc_get_intern/2,psc_set_intern/2,
 	xsb_backtrace/0, xsb_backtrace/1.
 
 :- import assert/1, retract/1, (dynamic)/1 from assert.
