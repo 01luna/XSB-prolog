@@ -143,6 +143,18 @@ void print_call_list(CTXTdeclc calllistptr affected_ptr,char * string) {
   }
 }
 
+void call_list_length(CTXTdeclc calllistptr affected_ptr,char * string) {
+  int count = 0;
+
+  if (calllist_next(affected_ptr) == NULL) printf("% is empty) \n",string);
+  else {
+    while ( calllist_next(affected_ptr) != NULL) {
+      affected_ptr = (calllistptr) calllist_next(affected_ptr);
+    } ;
+  }
+  printf("length of %s is ",count);
+}
+
 /*****************************************************************************/
 static unsigned int hashid(void *ky)
 {
@@ -997,7 +1009,8 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
   Psc psc;
   CPtr oldhreg=NULL;
 
-  //  print_call_list(lazy_affected);
+  //  printf("beginning return_lazy_call_list\n");
+  //  call_list_length(lazy_affected,"lazy call_list");
 
   reg[6] = reg[5] = makelist(hreg);  // reg 5 first not-used, use regs in case of stack expanson
   new_heap_free(hreg);   // make heap consistent
@@ -1032,7 +1045,7 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
     //	xsb_table_error(CTXTc "Cannot access dynamic incremental table\n");	
     psc = TIF_PSC(tif);
     arity = get_arity(psc);
-    check_glstack_overflow(6,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
+    check_glstack_overflow(6,pcreg,2+arity*20000); // don't know how much for build_subgoal_args...
     oldhreg = clref_val(reg[6]);  // maybe updated by re-alloc
     if(arity>0){
       sreg = hreg;
@@ -1056,7 +1069,8 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
     hreg -= 2;  /* take back the extra words allocated... */
   } else
     reg[5] = makenil;
-    
+
+  //  printf("end of return lazy call list\n");
   return unify(CTXTc reg_term(CTXTc 4),reg_term(CTXTc 5));
 
   /*int i;
