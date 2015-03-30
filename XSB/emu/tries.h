@@ -362,6 +362,8 @@ extern byte *	trie_get_return(struct subgoal_frame *, Cell);
 extern void     init_trie_aux_areas(void);
 extern void     free_trie_aux_areas(void);
 extern void     load_solution_trie(int, int, CPtr, BTNptr);
+extern void     load_solution_trie_no_heapcheck(int, int, CPtr, BTNptr);
+extern void     load_solution_trie_notrail(int, int, CPtr, BTNptr);
 extern int      variant_call_search(TabledCallInfo *, CallLookupResults *);
 extern BTNptr   trie_assert_chk_ins(CPtr, BTNptr, int *);
 extern BTNptr   trie_intern_chk_ins(Cell, BTNptr *, int *, int, int);
@@ -373,7 +375,7 @@ extern BTNptr   delay_chk_insert(int, CPtr, CPtr *);
 extern void	load_delay_trie(int, CPtr, BTNptr);
 extern xsbBool  bottom_up_unify(void);
 extern BTHTptr  New_BTHT(Structure_Manager *, int);
-extern void     load_solution_trie_notrail(int, int, CPtr, BTNptr);
+extern int trie_path_heap_size(BTNptr pLeaf);
 #else
 struct th_context ;
 
@@ -389,6 +391,8 @@ extern byte *	trie_get_return(struct th_context *, struct subgoal_frame *, Cell)
 extern void     init_trie_aux_areas(struct th_context *);
 extern void     free_trie_aux_areas(struct th_context *);
 extern void     load_solution_trie(struct th_context *, int, int, CPtr, BTNptr);
+extern void     load_solution_trie_no_heapcheck(struct th_context *, int, int, CPtr, BTNptr);
+extern void     load_solution_trie_notrail(struct th_context *, int, int, CPtr, BTNptr);
 extern int      variant_call_search(struct th_context *, TabledCallInfo *, CallLookupResults *);
 extern BTNptr   trie_assert_chk_ins(struct th_context *, CPtr, BTNptr, int *);
 extern BTNptr   trie_intern_chk_ins(struct th_context *, Cell, BTNptr *, int *, int, int);
@@ -399,7 +403,7 @@ extern BTNptr   delay_chk_insert(struct th_context *, int, CPtr, CPtr *);
 //extern void     undo_answer_bindings(struct th_context *);
 extern void	load_delay_trie(struct th_context *, int, CPtr, BTNptr);
 extern xsbBool  bottom_up_unify(struct th_context *);
-extern void     load_solution_trie_notrail(struct th_context *, int, int, CPtr, BTNptr);
+extern int trie_path_heap_size(struct th_context *, BTNptr pLeaf);
 #endif
 
 #ifndef MULTI_THREAD

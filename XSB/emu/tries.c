@@ -653,6 +653,23 @@ static int follow_par_chain(CTXTdeclc BTNptr pLeaf)
   return heap_space;
 }
 
+/*
+ * Just calculate the size needed for the heap -- dont worry about termstack.
+ */
+int trie_path_heap_size(CTXTdeclc BTNptr pLeaf)
+{
+  int heap_space = 0;
+  Cell sym;
+
+  while ( IsNonNULL(pLeaf) && (! IsTrieRoot(pLeaf)) ) {
+    sym = BTN_Symbol(pLeaf);
+    if (TrieSymbolType(sym) == XSB_STRUCT) heap_space+=2;
+    else heap_space++;
+    pLeaf = BTN_Parent(pLeaf);
+  }
+  return heap_space;
+}
+
 /*----------------------------------------------------------------------*/
 
 /*
@@ -1791,6 +1808,34 @@ CPtr xtemp; int heap_needed;
       handle_heap_overflow_trie(CTXTc &cptr,arity,heap_needed);
     }
     load_solution_trie_notrail_1(CTXTc arity,cptr);        // <<<<<<< only difference from previous
+  }
+}
+
+
+/* Assumes that the heap check has already been done.  The others dont
+   protect registers, which is needed in case this function is called
+   from a builtin (e.g., for incremental tabling) */
+
+void load_solution_trie_no_heapcheck(CTXTdeclc int arity, int attv_num, CPtr cptr, BTNptr TriePtr) {
+  CPtr xtemp;  int heap_needed;
+  
+  num_heap_term_vars = 0;
+  if (arity > 0) {
+    /* Initialize var_addr[] as the attvs in the call. */
+    if (attv_num > 0) {
+      for (xtemp = cptr; xtemp > cptr - arity; xtemp--) {
+	if (isattv(cell(xtemp))) {
+	  //	  var_addr[num_heap_term_vars] = (CPtr) cell(xtemp);
+	  safe_assign(var_addr,num_heap_term_vars,(CPtr) cell(xtemp),var_addr_arraysz);
+	  num_heap_term_vars++;
+	}
+      }
+    }
+    heap_needed = follow_par_chain(CTXTc TriePtr); /* side-effect: fills termstack */
+    if (glstack_overflow(heap_needed*sizeof(Cell))) {
+      xsb_abort("Could not provide enough heap when loading subgoal\n");
+    }
+    load_solution_trie_1(CTXTc arity,cptr);
   }
 }
 

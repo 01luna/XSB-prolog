@@ -1044,7 +1044,9 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
     //	xsb_table_error(CTXTc "Cannot access dynamic incremental table\n");	
     psc = TIF_PSC(tif);
     arity = get_arity(psc);
-    check_glstack_overflow(6,pcreg,2+arity*20000); // don't know how much for build_subgoal_args...
+    //    check_glstack_overflow(6,pcreg,2+arity*20000); // don't know how much for build_subgoal_args...
+    check_glstack_overflow(6,pcreg,2+(sizeof(Cell)*trie_path_heap_size(CTXTc subg_leaf_ptr(subgoal)))); 
+
     oldhreg = clref_val(reg[6]);  // maybe updated by re-alloc
     if(arity>0){
       sreg = hreg;
@@ -1055,7 +1057,9 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
 	new_heap_free(sreg);
 	cell_array1[arity-j] = cell(sreg-1);
       }
-      build_subgoal_args(arity,cell_array1,subgoal);		
+      //      build_subgoal_args(arity,cell_array1,subgoal);		
+      /* Need to do separate heapcheck above to protect regs 1-6 */
+      load_solution_trie_no_heapcheck(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(subgoal));
     } else {
       follow(oldhreg++) = makestring(get_name(psc));
     }

@@ -201,6 +201,7 @@ extern byte *check_interrupts_restore_insts_addr;
 #define glstack_overflow(EXTRA)						\
   ((pb)top_of_localstk < (pb)top_of_heap + (OVERFLOW_MARGIN + EXTRA))	\
 
+/* Bytes, not calls */
 #define check_glstack_overflow(arity,PCREG,EXTRA)			      \
   if ((pb)top_of_localstk < (pb)top_of_heap + (OVERFLOW_MARGIN + EXTRA))      \
      glstack_ensure_space(CTXTc EXTRA,arity)
