@@ -431,6 +431,10 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
   size_t  new_size_in_bytes, new_size_in_cells ; /* what a mess ! */
   double   expandtime ;
 
+#ifdef NON_OPT_COMPILE
+  printf("Reallocating the Heap and Local Stack data area from %d to %d\n",(int) glstack.size,(int) new_size);
+#endif
+
   if (new_size <= glstack.size) { // asked to shrink
     // new_size is space needed + half of init_size, rounded to K
     new_size = (((glstack.high - (byte *)top_of_localstk) +
@@ -441,7 +445,6 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
     //    printf("shrinking glstack from %dK to %dK\n",glstack.size,new_size);
   }
 
-  //  fprintf(stddbg,"Reallocating the Heap and Local Stack data area");
 #ifdef DEBUG_VERBOSE
   if (LOG_REALLOC <= cur_log_level) {
     if (glstack.size == glstack.init_size) {

@@ -146,13 +146,13 @@ void print_call_list(CTXTdeclc calllistptr affected_ptr,char * string) {
 void call_list_length(CTXTdeclc calllistptr affected_ptr,char * string) {
   int count = 0;
 
-  if (calllist_next(affected_ptr) == NULL) printf("% is empty) \n",string);
+  if (calllist_next(affected_ptr) == NULL) printf("%s is empty) \n",string);
   else {
     while ( calllist_next(affected_ptr) != NULL) {
       affected_ptr = (calllistptr) calllist_next(affected_ptr);
     } ;
   }
-  printf("length of %s is ",count);
+  printf("length of %s is %d",string,count);
 }
 
 /*****************************************************************************/
@@ -1023,22 +1023,21 @@ int return_lazy_call_list(CTXTdeclc  callnodeptr call1){
       continue;
     }
     if (subg_visitors(subgoal)) {
-      sprint_subgoal(CTXTc forest_log_buffer_1,0,subgoal);
       #ifdef ISO_INCR_TABLING
       find_the_visitors(CTXTc subgoal);
       #else
+      sprint_subgoal(CTXTc forest_log_buffer_1,0,subgoal);
       #ifdef WARN_ON_UNSAFE_UPDATE
             xsb_warn(CTXTc "%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_lazy_call_list)\n",
       	       subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
+	    continue;
       #else
             xsb_abort("%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_lazy_call_list)\n",
       	       subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
       #endif
       #endif
-      continue;
     }
     //    fprintf(stddbg,"adding dependency for ");print_subgoal(stdout,subgoal);printf("\n");
-
     count++;
     tif = (TIFptr) subgoal->tif_ptr;
     //    if (!(psc = TIF_PSC(tif)))
