@@ -21,12 +21,12 @@
 ** $Id: incr_xsb_defs.h,v 1.15 2012-10-30 23:16:01 tswift Exp $
 ** 
 */
-#define GET_AFFECTED_CALLS         1
-#define CONSUME_AFFECTED_CALLS     2
+//#define GET_AFFECTED_CALLS         1
+//#define CONSUME_AFFECTED_CALLS     2
 //#define GET_CALL_GRAPH           3
 #define INVALIDATE_CALLNODE        4
 //#define PRINT_CALL               5
-#define GET_CHANGED_CALLS          6
+//#define GET_CHANGED_CALLS          6
 #define PSC_SET_INCR               7 
 #define GET_CALLNODEPTR_INCR       8
 #define INVALIDATE_SF              9

@@ -72,33 +72,33 @@ xsbBool incr_eval_builtin(CTXTdecl)
   
   switch(builtin_number) {
 
-  case GET_AFFECTED_CALLS: {
+    //  case GET_AFFECTED_CALLS: {
     /* This builtin creates a (prolog) list which contains all the
       affected calls in postorder.     */
-    int rc = call_list_to_prolog(CTXTc affected_gl);
-  printterm(stddbg,reg[4],25); printf(" -4i-\n");
-  printterm(stddbg,reg[3],25); printf(" -3i- \n");
-    return rc;
-    break;
-  }
+    //    int rc = call_list_to_prolog(CTXTc affected_gl);
+    //  printterm(stddbg,reg[4],25); printf(" -4i-\n");
+    //  printterm(stddbg,reg[3],25); printf(" -3i- \n");
+    //    return rc;
+    //    break;
+    //  }
 
-  case CONSUME_AFFECTED_CALLS: {
-    /* This builtin creates a (prolog) list which contains all the
-      affected calls in postorder.     */
-    int rc = return_affected_list_for_update(CTXT);
-    affected_gl=empty_calllist();
-    changed_gl=empty_calllist();
-    return rc;
-    break;
-  }
+    //  case CONSUME_AFFECTED_CALLS: {
+    //    /* This builtin creates a (prolog) list which contains all the
+    //      affected calls in postorder.     */
+    //    int rc = return_affected_list_for_update(CTXT);
+    //    affected_gl=empty_calllist();
+    //    changed_gl=empty_calllist();
+    //    return rc;
+    //    break;
+    //  }
 
-  case GET_CHANGED_CALLS: {
-    /* This builtin creates a (prolog) list which contains all the
-      changed calls.          */
-
-    return return_changed_call_list(CTXT);    
-    break;
-  }
+    //  case GET_CHANGED_CALLS: {
+    //    /* This builtin creates a (prolog) list which contains all the
+    //      changed calls.          */
+    //
+    //    return return_changed_call_list(CTXT);    
+    //    break;
+    //  }
     
 /*  
 | case GET_CALL_GRAPH: {

@@ -755,15 +755,15 @@ void table_complete_entry(CTXTdeclc VariantSF producerSF) {
       if (pc->changed==0){
 	unchanged_call_gl++;
 	propagate_no_change(pc); /* defined in call_graph_xsb.c */
-      } else
-	add_callnode(&changed_gl,producerSF->callnode);
+      } //else
+	//add_callnode(&changed_gl,producerSF->callnode);
     
       producerSF->callnode->prev_call=NULL;
     	
       deallocate_previous_call(pc);
             
-    } else /* newly added calls */
-      add_callnode(&changed_gl,producerSF->callnode);
+    } // else /* newly added calls */
+      //      add_callnode(&changed_gl,producerSF->callnode);
     
     if ( has_answers(producerSF) ) {
       pALN = pRealAnsList = subg_answers(producerSF);

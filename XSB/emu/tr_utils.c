@@ -4713,9 +4713,9 @@ void abolish_all_tables(CTXTdeclc int action) {
   release_all_tabling_resources(CTXT);
   current_call_node_count_gl = 0; current_call_edge_count_gl = 0;
   abolish_wfs_space(CTXT);               // free wfs stuff that does not use structure managers
-  affected_gl = empty_calllist();
+  //  affected_gl = empty_calllist();
   reinitialize_incremental_tries(CTXT);  
-  changed_gl = empty_calllist();
+  //  changed_gl = empty_calllist();
   incr_table_update_safe_gl = TRUE;
 
   end_table_gc_time(timer);

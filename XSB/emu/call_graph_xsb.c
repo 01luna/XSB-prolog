@@ -81,14 +81,14 @@ Terminology: outedge -- pointer to calls that depend on call
 
 /********************** STATISTICS *****************************/
 
-// affected_gl drives create_call_list and updtes
-calllistptr affected_gl=NULL;
+// affected_gl drives create_call_list and eager updates
+//calllistptr affected_gl=NULL;
 calllistptr lazy_affected= NULL;
 
 int incr_table_update_safe_gl = TRUE;
 
 // derives return_changed_call_list which reports those calls changed in last update
-calllistptr changed_gl=NULL;
+//calllistptr changed_gl=NULL;
 
 // used to compare new to previous tables.
 callnodeptr old_call_gl=NULL;
@@ -427,10 +427,6 @@ void initoutedges(CTXTdeclc callnodeptr cn){
 
 #ifdef INCR_DEBUG
   printf("Initoutedges for ");  print_callnode(CTXTc stddbg, cn);  printf(" (id %d) \n",cn->id);
-  printf("------- affected_gl\n");
-  print_call_list(CTXTc affected_gl,"affected_gl ");
-  printf("--------\n");
-    //  printf("affected_gl %p %p\n",affected_gl,*affected_gl);
 #endif
 
   SM_AllocateStruct(smOutEdge,out);
@@ -599,10 +595,10 @@ void dfs_outedges_check_non_completed(CTXTdeclc callnodeptr call1) {
   //  char bufferb[MAXTERMBUFSIZE]; 
 
   if(IsNonNULL(call1->goal) && !subg_is_completed((VariantSF)call1->goal)){
-    if (calllist_next(affected_gl) != NULL) {
-      //      print_call_list(affected_gl);
-      deallocate_call_list(CTXTc affected_gl);
-    }
+    //    if (calllist_next(affected_gl) != NULL) {
+    //      print_call_list(affected_gl);
+    //  deallocate_call_list(CTXTc affected_gl);
+    //    }
     //    printf("outedges affected_gl %p %p\n",affected_gl,*affected_gl);
     sprint_subgoal(CTXTc forest_log_buffer_1,0,(VariantSF)call1->goal);     
     //    sprintf(bufferb,"Incremental tabling is trying to invalidate an incomplete table \n %s\n",
@@ -666,10 +662,10 @@ static void dfs_outedges(CTXTdeclc callnodeptr call1,xsbBool inval_context){
 	if (!hashtable1_iterator_advance(itr)) {  // last element in the hash
 	  itr = 0;
 	  cn = incr_callgraph_dfs[incr_callgraph_dfs_top].cn;
-	  if (inval_context == NOT_ABOLISHING || cn != call1)  {
-	    add_callnode(&affected_gl,cn);	
-	    //	    abolish_dbg(("+ (dfsoutedges)  adding callnode %p sf %p\n",cn,cn->goal));
-	  }
+	  //	  if (inval_context == NOT_ABOLISHING || cn != call1)  {
+	  //	    add_callnode(&affected_gl,cn);	
+	  //	    abolish_dbg(("+ (dfsoutedges)  adding callnode %p sf %p\n",cn,cn->goal));
+	  //}
 	  pop_dfs_frame;
 	}
       }
@@ -681,10 +677,10 @@ static void dfs_outedges(CTXTdeclc callnodeptr call1,xsbBool inval_context){
 	}
 	else {
 	  cn = incr_callgraph_dfs[incr_callgraph_dfs_top].cn;
-	  if (inval_context == NOT_ABOLISHING || cn != call1)  {
-	    add_callnode(&affected_gl,cn);		
-	    //	    abolish_dbg(("+ (dfsoutedges) adding callnode %p sf %p\n",cn,cn->goal));
-	  }
+	  //	  if (inval_context == NOT_ABOLISHING || cn != call1)  {
+	  //        add_callnode(&affected_gl,cn);		
+	  //	    abolish_dbg(("+ (dfsoutedges) adding callnode %p sf %p\n",cn,cn->goal));
+	  //	  }
 	  pop_dfs_frame;
 	}
       }
@@ -1019,61 +1015,6 @@ int in_reg2_list(CTXTdeclc Psc psc) {
     list = get_list_tail(list);
   }
   return FALSE;
-}
-
-/* reg 1: tag for this call
-   reg 2: filter list of goals to keep (keep all if [])
-   reg 3: returned list of changed goals
-   reg 4: used as temp (in case of heap expansion)
- */
-int return_changed_call_list(CTXTdecl){
-  callnodeptr call1;
-  VariantSF subgoal;
-  TIFptr tif;
-  int j, count = 0,arity;
-  Psc psc;
-  CPtr oldhreg = NULL;
-
-  if (!incr_table_update_safe_gl) {
-    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
-    return FALSE;
-  }
-  reg[4] = makelist(hreg);
-  new_heap_free(hreg);   // make heap consistent
-  new_heap_free(hreg);
-  while ((call1 = delete_calllist_elt(CTXTc &changed_gl)) != EMPTY){
-    subgoal = (VariantSF) call1->goal;      
-    tif = (TIFptr) subgoal->tif_ptr;
-    psc = TIF_PSC(tif);
-    if (in_reg2_list(CTXTc psc)) {
-      count++;
-      arity = get_arity(psc);
-      check_glstack_overflow(4,pcreg,2+arity*200); // guess for build_subgoal_args...
-      oldhreg = hreg-2;
-      if(arity>0){
-	sreg = hreg;
-	follow(oldhreg++) = makecs(hreg);
-	hreg += arity + 1;
-	new_heap_functor(sreg, psc);
-	for (j = 1; j <= arity; j++) {
-	  new_heap_free(sreg);
-	  cell_array1[arity-j] = cell(sreg-1);
-	}
-	build_subgoal_args(arity,cell_array1,subgoal);		
-      }else{
-	follow(oldhreg++) = makestring(get_name(psc));
-      }
-      follow(oldhreg) = makelist(hreg);
-      new_heap_free(hreg);   // make heap consistent
-      new_heap_free(hreg);
-    }
-  }
-  if (count>0)
-    follow(oldhreg) = makenil;
-  else
-    reg[4] = makenil;
-    
-  return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
 }
 
 //---------------------------------------------------------------------------
@@ -1868,4 +1809,59 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 %%%  */
 %%%}
 
+/* reg 1: tag for this call
+   reg 2: filter list of goals to keep (keep all if [])
+   reg 3: returned list of changed goals
+   reg 4: used as temp (in case of heap expansion)
+ */
+// int return_changed_call_list(CTXTdecl){
+//   callnodeptr call1;
+//   VariantSF subgoal;
+//   TIFptr tif;
+//   int j, count = 0,arity;
+//   Psc psc;
+//   CPtr oldhreg = NULL;
+// 
+//   if (!incr_table_update_safe_gl) {
+//     xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
+//     return FALSE;
+//   }
+//   reg[4] = makelist(hreg);
+//   new_heap_free(hreg);   // make heap consistent
+//   new_heap_free(hreg);
+//   while ((call1 = delete_calllist_elt(CTXTc &changed_gl)) != EMPTY){
+//     subgoal = (VariantSF) call1->goal;      
+//     tif = (TIFptr) subgoal->tif_ptr;
+//     psc = TIF_PSC(tif);
+//     if (in_reg2_list(CTXTc psc)) {
+//       count++;
+//       arity = get_arity(psc);
+//       check_glstack_overflow(4,pcreg,2+arity*200); // guess for build_subgoal_args...
+//       oldhreg = hreg-2;
+//       if(arity>0){
+// 	sreg = hreg;
+// 	follow(oldhreg++) = makecs(hreg);
+// 	hreg += arity + 1;
+// 	new_heap_functor(sreg, psc);
+// 	for (j = 1; j <= arity; j++) {
+// 	  new_heap_free(sreg);
+// 	  cell_array1[arity-j] = cell(sreg-1);
+// 	}
+// 	build_subgoal_args(arity,cell_array1,subgoal);		
+//       }else{
+// 	follow(oldhreg++) = makestring(get_name(psc));
+//       }
+//       follow(oldhreg) = makelist(hreg);
+//       new_heap_free(hreg);   // make heap consistent
+//       new_heap_free(hreg);
+//     }
+//   }
+//   if (count>0)
+//     follow(oldhreg) = makenil;
+//   else
+//     reg[4] = makenil;
+//     
+//   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
+// }
+// 
 #endif

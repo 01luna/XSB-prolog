@@ -1430,8 +1430,8 @@ void init_machine(CTXTdeclc int glsize, int tcpsize,
   delayreg = NULL;
 
   /* for incremenatal evaluation */
-  affected_gl = empty_calllist(); 
-  changed_gl = empty_calllist(); 
+  //  affected_gl = empty_calllist(); 
+  //  changed_gl = empty_calllist(); 
 
   /* Place a base choice point frame on the CP Stack: this choice point
      is needed for cut -- make sure you initialize all its fields.
