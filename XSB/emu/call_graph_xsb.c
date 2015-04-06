@@ -912,93 +912,6 @@ void invalidate_call(CTXTdeclc callnodeptr cn,xsbBool abolishing){
 
 #define WARN_ON_UNSAFE_UPDATE 1
 
-/* Creates list for eager update, and empties affected_gl list */
-int return_affected_list_for_update(CTXTdecl){
-  callnodeptr call1;
-  VariantSF subgoal;
-  TIFptr tif;
-  int j,count=0,arity;
-  Psc psc;
-  CPtr oldhreg=NULL;
-
-  //  print_call_list(affected_gl);
-  if (!incr_table_update_safe_gl) {
-    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
-    return FALSE;
-  }
-  reg[4] = reg[3] = makelist(hreg);  // reg 3 first not-used, use regs in case of stack expanson
-  new_heap_free(hreg);   // make heap consistent
-  new_heap_free(hreg);
-  while((call1 = delete_calllist_elt(CTXTc &affected_gl)) != EMPTY){
-    subgoal = (VariantSF) call1->goal;      
-    if(IsNULL(subgoal)){ /* fact predicates */
-      call1->deleted = 0; 
-      continue;
-    }
-    //    fprintf(stddbg,"incrementally updating table for ");print_subgoal(stdout,subgoal);printf("\n");
-    if (subg_visitors(subgoal)) {
-      #ifdef ISO_INCR_TABLING
-      find_the_visitors(CTXTc subgoal);
-      #else
-      //      sprint_subgoal(CTXTc forest_log_buffer_1,0,subgoal);
-      #ifdef WARN_ON_UNSAFE_UPDATE
-      xsb_warn(CTXTc "%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_call_list)\n",
-	       subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
-      #else
-      xsb_abort("%d Choice point(s) exist to the table for %s -- cannot incrementally update (create call list)\n",
-		subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
-      #endif
-      #endif
-      break;
-    }
-
-    count++;
-    tif = (TIFptr) subgoal->tif_ptr;
-    //    if (!(psc = TIF_PSC(tif)))
-    //	xsb_table_error(CTXTc "Cannot access dynamic incremental table\n");	
-    psc = TIF_PSC(tif);
-    arity = get_arity(psc);
-    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
-    oldhreg = clref_val(reg[4]);  // maybe updated by re-alloc
-    if(arity>0){
-      sreg = hreg;
-      follow(oldhreg++) = makecs(sreg);
-      hreg += arity + 1;  // had 10, why 10?  why not 3? 2 for list, 1 for functor (dsw)
-      new_heap_functor(sreg, psc);
-      for (j = 1; j <= arity; j++) {
-	new_heap_free(sreg);
-	cell_array1[arity-j] = cell(sreg-1);
-      }
-      build_subgoal_args(arity,cell_array1,subgoal);		
-    }else{
-      follow(oldhreg++) = makestring(get_name(psc));
-    }
-    reg[4] = follow(oldhreg) = makelist(hreg);
-    new_heap_free(hreg);
-    new_heap_free(hreg);
-  }
-  if(count > 0) {
-    follow(oldhreg) = makenil;
-    hreg -= 2;  /* take back the extra words allocated... */
-  } else
-    reg[3] = makenil;
-    
-  //  printterm(stdout,call_list,100);
-
-  return unify(CTXTc reg_term(CTXTc 2),reg_term(CTXTc 3));
-
-  /*
-    int i;
-    for(i=0;i<callqptr;i++){
-      if(IsNonNULL(callq[i]) && (callq[i]->deleted==1)){
-    sfPrintGoal(stdout,(VariantSF)callq[i]->goal,NO);
-    printf(" %d %d\n",callq[i]->falsecount,callq[i]->deleted);
-    }
-    }
-    printf("-----------------------------\n");
-  */
-}
-
 //---------------------------------------------------------------------------
 // destroys
 
@@ -1729,6 +1642,7 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
 }
 
+// End of file
 /*****************************************************************************/
 /* Obsolete: use print_callnode() in debug_xsb, which also prints leaves 
  * void print_callnode_subgoal(callnodeptr c){
@@ -1863,5 +1777,95 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 //int factcount_gl=0;
 
 //call2listptr marked_list_gl=NULL; /* required for abolishing incremental calls */ 
+
+#endif
+
+#ifdef UNDEFINED
+%%%/* Creates list for eager update, and empties affected_gl list */
+%%%int return_affected_list_for_update(CTXTdecl){
+%%%  callnodeptr call1;
+%%%  VariantSF subgoal;
+%%%  TIFptr tif;
+%%%  int j,count=0,arity;
+%%%  Psc psc;
+%%%  CPtr oldhreg=NULL;
+%%%
+%%%%%%  //  print_call_list(affected_gl);
+%%%  if (!incr_table_update_safe_gl) {
+%%%    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
+%%%    return FALSE;
+%%%  }
+%%%  reg[4] = reg[3] = makelist(hreg);  // reg 3 first not-used, use regs in case of stack expanson
+%%%  new_heap_free(hreg);   // make heap consistent
+%%%  new_heap_free(hreg);
+%%%  while((call1 = delete_calllist_elt(CTXTc &affected_gl)) != EMPTY){
+%%%    subgoal = (VariantSF) call1->goal;      
+%%%    if(IsNULL(subgoal)){ /* fact predicates */
+%%%      call1->deleted = 0; 
+%%%      continue;
+%%%    }
+%%%    //    fprintf(stddbg,"incrementally updating table for ");print_subgoal(stdout,subgoal);printf("\n");
+%%%    if (subg_visitors(subgoal)) {
+%%%      #ifdef ISO_INCR_TABLING
+%%%      find_the_visitors(CTXTc subgoal);
+%%%      #else
+%%%      //      sprint_subgoal(CTXTc forest_log_buffer_1,0,subgoal);
+%%%      #ifdef WARN_ON_UNSAFE_UPDATE
+%%%      xsb_warn(CTXTc "%d Choice point(s) exist to the table for %s -- cannot incrementally update (create_call_list)\n",
+%%%	       subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
+%%%      #else
+%%%      xsb_abort("%d Choice point(s) exist to the table for %s -- cannot incrementally update (create call list)\n",
+%%%		subg_visitors(subgoal),forest_log_buffer_1->fl_buffer);
+%%%      #endif
+%%%      #endif
+%%%      break;
+%%%    }
+%%%
+%%%    count++;
+%%%    tif = (TIFptr) subgoal->tif_ptr;
+%%%    //    if (!(psc = TIF_PSC(tif)))
+%%%    //	xsb_table_error(CTXTc "Cannot access dynamic incremental table\n");	
+%%%    psc = TIF_PSC(tif);
+%%%    arity = get_arity(psc);
+%%%    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
+%%%    oldhreg = clref_val(reg[4]);  // maybe updated by re-alloc
+%%%    if(arity>0){
+%%%      sreg = hreg;
+%%%      follow(oldhreg++) = makecs(sreg);
+%%%      hreg += arity + 1;  // had 10, why 10?  why not 3? 2 for list, 1 for functor (dsw)
+%%%      new_heap_functor(sreg, psc);
+%%%      for (j = 1; j <= arity; j++) {
+%%%	new_heap_free(sreg);
+%%%	cell_array1[arity-j] = cell(sreg-1);
+%%%      }
+%%%      build_subgoal_args(arity,cell_array1,subgoal);		
+%%%    }else{
+%%%      follow(oldhreg++) = makestring(get_name(psc));
+%%%    }
+%%%    reg[4] = follow(oldhreg) = makelist(hreg);
+%%%    new_heap_free(hreg);
+%%%    new_heap_free(hreg);
+%%%  }
+%%%  if(count > 0) {
+%%%    follow(oldhreg) = makenil;
+%%%    hreg -= 2;  /* take back the extra words allocated... */
+%%%  } else
+%%%    reg[3] = makenil;
+    
+%%%  //  printterm(stdout,call_list,100);
+%%%
+%%%  return unify(CTXTc reg_term(CTXTc 2),reg_term(CTXTc 3));
+%%%
+%%%  /*
+%%%    int i;
+%%%    for(i=0;i<callqptr;i++){
+%%%      if(IsNonNULL(callq[i]) && (callq[i]->deleted==1)){
+%%%    sfPrintGoal(stdout,(VariantSF)callq[i]->goal,NO);
+%%%    printf(" %d %d\n",callq[i]->falsecount,callq[i]->deleted);
+%%%    }
+%%%    }
+%%%    printf("-----------------------------\n");
+%%%  */
+%%%}
 
 #endif

@@ -51,7 +51,7 @@ extern void propagate_no_change(callnodeptr);
 extern void addcalledge(callnodeptr,callnodeptr);
 extern void invalidate_call(CTXTdeclc callnodeptr,xsbBool);
 
-extern int return_affected_list_for_update(CTXTdecl);
+//extern int return_affected_list_for_update(CTXTdecl);
 extern int return_changed_call_list(CTXTdecl);
 extern int call_list_to_prolog(CTXTdeclc calllistptr);
 extern int return_lazy_call_list(CTXTdeclc  callnodeptr);
