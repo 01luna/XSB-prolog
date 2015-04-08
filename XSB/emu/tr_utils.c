@@ -5416,7 +5416,8 @@ int return_ans_depends_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
     psc = TIF_PSC(tif);
     arity = get_arity(psc);
     //    printf("subgoal %p, %s/%d\n",subgoal,get_name(psc),arity);
-    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args..
+    check_glstack_overflow(4,pcreg,2+(sizeof(Cell)*trie_path_heap_size(CTXTc subg_leaf_ptr(subgoal)))); 
+    //    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args..
     oldhreg=hreg-2;                          // ptr to car
     sreg = hreg;
     follow(oldhreg++) = makecs(sreg);      
@@ -5433,7 +5434,8 @@ int return_ans_depends_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 	new_heap_free(sreg);
 	cell_array1[arity-j] = cell(sreg-1);
       }
-      build_subgoal_args(arity,cell_array1,subgoal);		
+      load_solution_trie_no_heapcheck(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(subgoal));
+      //      build_subgoal_args(arity,cell_array1,subgoal);		
     }
     else {
       follow(hreg-3) = makestring(get_name(psc));

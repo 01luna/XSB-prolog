@@ -1018,71 +1018,6 @@ int in_reg2_list(CTXTdeclc Psc psc) {
 }
 
 //---------------------------------------------------------------------------
-// does not destroy list
-
-int call_list_to_prolog(CTXTdeclc calllistptr list_head){
-  calllistptr listptr = list_head;
-  callnodeptr call1 = list_head->item;
-  VariantSF subgoal;
-  TIFptr tif;
-  int j, count = 0,arity;
-  Psc psc;
-  CPtr oldhreg = NULL;
-  //  print_call_list(affected_gl);
-  if (!incr_table_update_safe_gl) {
-    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
-    return FALSE;
-  }
-  //  printf("cltp %p %p\n",listptr,call1);
-  //  printterm(stddbg,reg[3],25); printf(" -3.1- \n");
-  reg[4] = reg[3] = makelist(hreg);  // reg 3 first not-used, use regs in case of stack expanson
-  new_heap_free(hreg);   // make heap consistent
-  new_heap_free(hreg);
-
-  while (call1  != EMPTY){
-    if (call1->goal) {
-      subgoal = (VariantSF) call1->goal;      
-    count++;
-    tif = (TIFptr) subgoal->tif_ptr;
-    //    if (!(psc = TIF_PSC(tif)))
-    //	xsb_table_error(CTXTc "Cannot access dynamic incremental table\n");	
-    psc = TIF_PSC(tif);
-    arity = get_arity(psc);
-    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
-    oldhreg = clref_val(reg[4]);  // maybe updated by re-alloc
-    if(arity>0){
-      sreg = hreg;
-      follow(oldhreg++) = makecs(sreg);
-      hreg += arity + 1;  // had 10, why 10?  why not 3? 2 for list, 1 for functor (dsw)
-      new_heap_functor(sreg, psc);
-      for (j = 1; j <= arity; j++) {
-	new_heap_free(sreg);
-	cell_array1[arity-j] = cell(sreg-1);
-      }
-      build_subgoal_args(arity,cell_array1,subgoal);		
-    }else{
-      follow(oldhreg++) = makestring(get_name(psc));
-    }
-    reg[4] = follow(oldhreg) = makelist(hreg);
-    new_heap_free(hreg);
-    new_heap_free(hreg);
-    }
-    listptr = listptr->next;
-    call1 = listptr->item;
-  }
-
-  if(count > 0) {
-    follow(oldhreg) = makenil;
-    hreg -= 2;  /* take back the extra words allocated... */
-  } else
-    reg[3] = makenil;
-    
-  //  printterm(stdout,call_list,100);
-
-  return unify(CTXTc reg_term(CTXTc 2),reg_term(CTXTc 3));
-}
-
-//---------------------------------------------------------------------------
 
 int immediate_outedges_list(CTXTdeclc callnodeptr call1){
  
@@ -1113,7 +1048,8 @@ int immediate_outedges_list(CTXTdeclc callnodeptr call1){
 	  tif = (TIFptr) subgoal->tif_ptr;
 	  psc = TIF_PSC(tif);
 	  arity = get_arity(psc);
-	  check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
+	  //	  check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
+	  check_glstack_overflow(4,pcreg,2+(sizeof(Cell)*trie_path_heap_size(CTXTc subg_leaf_ptr(subgoal)))); 
 	  oldhreg=hreg-2;
 	  if(arity>0){
 	    sreg = hreg;
@@ -1124,7 +1060,8 @@ int immediate_outedges_list(CTXTdeclc callnodeptr call1){
 	      new_heap_free(sreg);
 	      cell_array1[arity-j] = cell(sreg-1);
 	    }
-	    build_subgoal_args(arity,cell_array1,subgoal);		
+	    load_solution_trie_no_heapcheck(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(subgoal));
+	    //    build_subgoal_args(arity,cell_array1,subgoal);		
 	  }else{
 	    follow(oldhreg++) = makestring(get_name(psc));
 	  }
@@ -1259,7 +1196,8 @@ int immediate_inedges_list(CTXTdeclc callnodeptr call1){
 	tif = (TIFptr) subgoal->tif_ptr;
 	psc = TIF_PSC(tif);
 	arity = get_arity(psc);
-	check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
+	check_glstack_overflow(4,pcreg,2+(sizeof(Cell)*trie_path_heap_size(CTXTc subg_leaf_ptr(subgoal)))); 
+	//	check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
 	oldhreg = hreg-2;
 	if(arity>0){
 	  sreg = hreg;
@@ -1270,7 +1208,8 @@ int immediate_inedges_list(CTXTdeclc callnodeptr call1){
 	    new_heap_free(sreg);
 	    cell_array1[arity-j] = cell(sreg-1);
 	  }		
-	  build_subgoal_args(arity,cell_array1,subgoal);		
+	  load_solution_trie_no_heapcheck(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(subgoal));
+	  //	  build_subgoal_args(arity,cell_array1,subgoal);		
 	}else{
 	  follow(oldhreg++) = makestring(get_name(psc));
 	}
@@ -1555,7 +1494,8 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
     psc = TIF_PSC(tif);
     arity = get_arity(psc);
     //    printf("subgoal %p, %s/%d\n",subgoal,get_name(psc),arity);
-    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args..
+    check_glstack_overflow(4,pcreg,2+(sizeof(Cell)*trie_path_heap_size(CTXTc subg_leaf_ptr(subgoal)))); 
+    //    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args..
     oldhreg=hreg-2;                          // ptr to car
     if(arity>0){
       sreg = hreg;
@@ -1571,7 +1511,8 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 	new_heap_free(sreg);
 	cell_array1[arity-j] = cell(sreg-1);
       }
-      build_subgoal_args(arity,cell_array1,subgoal);		
+      load_solution_trie_no_heapcheck(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(subgoal));
+      //      build_subgoal_args(arity,cell_array1,subgoal);		
     } else{
       follow(oldhreg++) = makestring(get_name(psc));
     }
@@ -1864,4 +1805,70 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, int num_nodes){
 //   return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
 // }
 // 
+
+//---------------------------------------------------------------------------
+// does not destroy list
+
+//int call_list_to_prolog(CTXTdeclc calllistptr list_head){
+//  calllistptr listptr = list_head;
+//  callnodeptr call1 = list_head->item;
+//  VariantSF subgoal;
+//  TIFptr tif;
+//  int j, count = 0,arity;
+//  Psc psc;
+//  CPtr oldhreg = NULL;
+//  //  print_call_list(affected_gl);
+//  if (!incr_table_update_safe_gl) {
+//    xsb_abort("An incremental table has been abolished since this list was created.  Updates must be done lazily.\n");
+//    return FALSE;
+//  }
+//  //  printf("cltp %p %p\n",listptr,call1);
+//  //  printterm(stddbg,reg[3],25); printf(" -3.1- \n");
+//  reg[4] = reg[3] = makelist(hreg);  // reg 3 first not-used, use regs in case of stack expanson
+//  new_heap_free(hreg);   // make heap consistent
+//  new_heap_free(hreg);
+//
+//  while (call1  != EMPTY){
+//    if (call1->goal) {
+//      subgoal = (VariantSF) call1->goal;      
+//    count++;
+//    tif = (TIFptr) subgoal->tif_ptr;
+//    //    if (!(psc = TIF_PSC(tif)))
+//    //	xsb_table_error(CTXTc "Cannot access dynamic incremental table\n");	
+//    psc = TIF_PSC(tif);
+//    arity = get_arity(psc);
+//    check_glstack_overflow(4,pcreg,2+arity*200); // don't know how much for build_subgoal_args...
+//    oldhreg = clref_val(reg[4]);  // maybe updated by re-alloc
+//    if(arity>0){
+//      sreg = hreg;
+//      follow(oldhreg++) = makecs(sreg);
+//      hreg += arity + 1;  // had 10, why 10?  why not 3? 2 for list, 1 for functor (dsw)
+//      new_heap_functor(sreg, psc);
+//      for (j = 1; j <= arity; j++) {
+//	new_heap_free(sreg);
+//	cell_array1[arity-j] = cell(sreg-1);
+//      }
+//      build_subgoal_args(arity,cell_array1,subgoal);		
+//    }else{
+//      follow(oldhreg++) = makestring(get_name(psc));
+//    }
+//    reg[4] = follow(oldhreg) = makelist(hreg);
+//    new_heap_free(hreg);
+//    new_heap_free(hreg);
+//    }
+//    listptr = listptr->next;
+//    call1 = listptr->item;
+//  }
+//
+//  if(count > 0) {
+//    follow(oldhreg) = makenil;
+//    hreg -= 2;  /* take back the extra words allocated... */
+//  } else
+//    reg[3] = makenil;
+//    
+//  //  printterm(stdout,call_list,100);
+//
+//  return unify(CTXTc reg_term(CTXTc 2),reg_term(CTXTc 3));
+//}
+
 #endif

@@ -1,4 +1,4 @@
-/* File:      init_xsb.c
+/* File:      initm_xsb.c
 ** Author(s): Warren, Swift, Xu, Sagonas, Johnson, Rao
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
@@ -91,7 +91,8 @@
 #define COMPLSTACK_DEFAULT_SIZE  (8*2)
 #else /* SEQUENTIAL OR CONC_COMPL */
 #define PDL_DEFAULT_SIZE         (64*2)
-#define GLSTACK_DEFAULT_SIZE    (K*2)
+//#define GLSTACK_DEFAULT_SIZE    (K*2)
+#define GLSTACK_DEFAULT_SIZE    (K*8)
 #define TCPSTACK_DEFAULT_SIZE   (K*2)
 #define COMPLSTACK_DEFAULT_SIZE  (64*2)
 #endif /* SHARED_COMPL_TABLES */
@@ -270,8 +271,10 @@ static void init_flags(CTXTdecl)
   flags[MAXTOINDEX_FLAG] = 5;
 #ifdef MULTI_THREAD
   flags[MAX_QUEUE_TERMS] = DEFAULT_MQ_SIZE; 
-#endif
   flags[HEAP_GC_MARGIN] = 8192 * ZOOM_FACTOR;
+#else
+  flags[HEAP_GC_MARGIN] = 32*K * ZOOM_FACTOR;
+#endif
   flags[WRITE_DEPTH] = 64;
   //  flags[UNIFY_WITH_OCCURS_CHECK_FLAG] = 0;
 }
