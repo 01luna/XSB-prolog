@@ -248,8 +248,11 @@ generate_agg_clauses(po(OpSpec),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClL
 	arg(1,OpSpec2,Var1), arg(2,OpSpec2,OVar),
 	Body = ('_$savecp'(Breg),
 		breg_retskel(Breg,Arity,Skel,Cs),
-		(nonvar(Var) -> instantiation_error(Pred/Arity,Arity,var) ; true),
-		excess_vars(Skel,[Var|ExistVarList],[],Vars),
+%% delete following line, since we want to allow terms in the call
+%%   and treat variables in that term as existential
+%%		(nonvar(Var) -> instantiation_error(Pred/Arity,Arity,var) ; true),
+%%		excess_vars(Skel,[Var|ExistVarList],[],Vars),
+		excess_vars(Skel,ExistVarList,[],Vars),
 		copy_term(t(Vars,Skel,Var),t(Vars,OSkel,OVar)),
 		Pred1Term,
 		\+ ('_$$get_returns'(Cs,OSkel,Leaf),
