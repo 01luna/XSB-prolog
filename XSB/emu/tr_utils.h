@@ -172,8 +172,9 @@ extern void alt_print_cp(CTXTdeclc char *);
 
 #define MAX_VAR_SIZE	200
 
-//#define build_subgoal_args(SUBG)					\
-//	load_solution_trie(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(SUBG))
+/* #define build_subgoal_args(SUBG)					\
+	load_solution_trie(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(SUBG))
+*/
 
 #define build_subgoal_args(ARITY,ARRAY,SUBG)				\
 	load_solution_trie(CTXTc ARITY, 0, &ARRAY[arity-1], subg_leaf_ptr(SUBG))
