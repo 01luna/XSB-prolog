@@ -855,7 +855,7 @@ READ_ERROR:
 		    n = n * 16 + DigVal(c);
 		    c = GetCode(charset,card,instr);
 		  }
-		  //  if (c < 0) goto READ_ERROR;
+		  if (c < 0) goto READ_ERROR;
 		  if (c != '\\') {
 		    unGetC(c, card, instr);
 		    //  xsb_warn(CTXTc "Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
@@ -1397,7 +1397,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                 return token;
  
             case ATMQT:
-	        while ((d = read_character(CTXTc card, instr, charset, c)) >= 0) {
+	        while ((d = read_character(CTXTc card, instr, charset, c)) != -1) {
 		  CODEPOINT_TO_UTF8_STR(d,s,n); /* nfz */
 		}
                 *s = 0;
@@ -1420,7 +1420,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 case deleted ****/
 
 	    case LISQT: 
-	        while ((d = read_character(CTXTc card, instr, charset, c)) >= 0) {
+	        while ((d = read_character(CTXTc card, instr, charset, c)) != -1) {
 		  CODEPOINT_TO_UTF8_STR(d,s,n);  /* nfz */
 		}
 		*s = 0;
