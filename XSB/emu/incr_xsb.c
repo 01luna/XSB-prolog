@@ -181,6 +181,12 @@ xsbBool incr_eval_builtin(CTXTdecl)
     break;
   }
 
+  case PSC_SET_INTERN: {
+    Psc psc = (Psc)ptoc_addr(2);   
+    set_intern(psc,(int)ptoc_int(CTXTc 3));
+    break;    
+  }
+
   case PSC_GET_INTERN: {
     Psc psc = (Psc)ptoc_addr(2);   
     if (get_intern(psc))
@@ -334,6 +340,7 @@ xsbBool incr_eval_builtin(CTXTdecl)
   }
 
   default:
+    xsb_abort("Unknown Incremental Evaluation Builtin");
     xsb_exit("Unknown Incremental Evaluation Builtin: %d\n.", builtin_number);
     break;
   }
