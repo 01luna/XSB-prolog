@@ -1503,7 +1503,7 @@ is specified for {\tt sp/3} using the declaration
 %
 {\small
 \begin{verbatim}
-  :- table sp(_,_,po(</2)).
+  :- table sp(_,_,po((<)/2)).
 \end{verbatim}
 }
 %
@@ -1515,6 +1515,33 @@ but not with answer variance.  Other partial orders beyond distance
 metrics may be useful.  For instance, $>_O$ may specify a preference
 ordering between derived atoms so that answer subsumption provides an
 alternative to default-based methods for computing preferences.
+
+The treatment of variables in calls to partial order answer
+subsumptive tabled predicates deserves mention.  Variables in
+arguments not in the subsumption position are treated as ``group-by''
+variables: i.e., for each value such a variable can take, a different
+aggregate is computed.  So for example a call to \verb|sp(a,X,SD)|
+will succeed for each node reachable from \verb|a|, binding \verb|X|
+to that node and \verb|SD| to the shortest distance from \verb|a| to
+that node.  One can place a \verb|^| in a non-subsumption position of
+table declaration, e.g.,
+%
+{\small
+\begin{verbatim}
+  :- table sp(_,^,po((<)/2)).
+\end{verbatim}
+}
+%
+\noindent
+to indicate that values of that position should be aggegated over.
+For example, with this table declaration, the call \verb|sp(a,X,SD)|
+will find the distance to the closest node reachable from \verb|a|,
+(which, if \verb|a| has any successors, will be $1$, since a successor
+to \verb|a| will be a nearest reachable successor at distance $1$ from
+\verb|a|.)
+
+Non-variables in the subsumption position in a call will be treated as
+selecting what answers are included in the aggregation.
 
 \subsubsection{Lattice Answer Subsumption.}
 \index{tabling!answer subsumption}
@@ -1792,51 +1819,56 @@ the term-set:
   p(a).
   p(f({X:p(X)})).
 \end{verbatim}
-This term-set contains the infinitely many terms:
+This term-set represents the terms for which {\tt p/1} is true.  Now
+{\tt p(a)} is true, so {\tt a} is in the term-set.  Since {\tt a} is
+in \verb|{X:p(X)}|, then {\tt p(f(a))} is true because of the second
+fact for {\tt p/1}, and so {\tt f(a)} is in the term-set.  And so on.
+So this term-set contains the infinitely many terms:
 \begin{verbatim}
 a, f(a), f(f(a)), f(f(f(a))), ...
 \end{verbatim}
 
-A particularly intriguing use of term-sets is in conjunction with
+A particularly interesting use of term-sets is in conjunction with
 tabling.  Consider the term-set \verb|{X:p(1,2,X)}| where {\tt p/3} is
 tabled.  If \verb|p(1,2,_}| has been called and so its table is
-filled, then extensionalizing the previous term-set is just a table
-lookup; in some sense we can think of such a term-set a standing for a
-pointer into a table to a set of terms.  This can be elegantly used to
-solve an important problem in handling parse trees in context-free
+filled, then extensionalizing this term-set requires just a table
+lookup; in some sense we can think of such a term-set as standing for
+a pointer into a table to a set of terms.  This can be elegantly used
+to solve an important problem in handling parse trees in context-free
 parsing.
 
-Consider the following DCG for the language a*:
+Consider the following DCG for the language {\tt a}*:
 \begin{verbatim}
 :- table a/3.
 a(a(P1,P2)) --> a(P1),a(P2).
 a(a) --> [a].
 \end{verbatim}
-which recognizes a string and constructs its parse trees.
+which recognizes a string of {\tt a's} and constructs its parse trees.
 
 To generate all answers, this DCG will take time exponential in the
 length of the input string; not surprising since there are
 exponentially many parses.  But say we give it an input string of $n$
 {\tt a}'s followed by one {\tt b}.  In this case it will take
 exponential time to fail, since it will construct all the
-exponentially many partial parse trees.  We would like the grammar in
-this case to fail in polynomial time.  By representing the parse trees
-as a term-set, while recognizing the string, and then after the string
-is recognized, extensionalize the set-term representing the parse
-trees, we can get the behavior we want.  The set-term representing the
+exponentially many partial parse trees for the initial $k$ {\tt a}'s.
+We would like the parser in this case to fail in polynomial time.  We
+can do this by representing the parse trees as a term-set during the
+recognition the string.  Then after the string is recognized, we
+extensionalize the set-term that represents the parse trees.  In this
+way we can get the behavior we want.  The set-term that represents the
 parse trees for any grammar will be constructed in polynomial time;
-the extensionalization will take exponential time only if there are
-exponentially many parses.
+the extensionalization of that term-set will take exponential time
+only if there are exponentially many parses.
 
-We can cause XSB to automatically use the term-set representation by
-adding to the above program the declaration:
+We can cause XSB to automatically use the term-set representation for
+the grammar by adding to the above program the declaration:
 \begin{verbatim}
 :- table a(termset,_,_).
 \end{verbatim}
 which tells XSB to use the term-set representation of the first
-argument of {\tt a/3}.
+argument of nonterminal {\tt a/3}.
 
-With this declaration, XSB will transform the above program into the
+With this declaration, XSB transforms the above program into the
 following:
 \begin{verbatim}
 :- table a/3.
@@ -1847,7 +1879,7 @@ a(a,S0,S1) --> 'C'(S0,a,S1).
 :- table '_$a'/3 as subsumptive.
 '_$a'({X:'_$a'(X,S0,S)},S0,S) :- a(_,S0,S).
 \end{verbatim}
-A new predicate {\tt '\_\$a'/3} is introduced, and all calls to the
+A new predicate {\tt '\_\$a'/3} has been introduced, and all calls to the
 original predicate {\tt a/3} are replaced by calls to the new one.  It
 is defined to call the original {\tt a/3} but to return the term-set
 instead of the concrete parse tree in the argument declared to be a
@@ -1855,20 +1887,24 @@ term-set.
 
 We can see that a call to {\tt a/3} in this new program will have
 exactly as many answers as the corresponding call to {\tt a/2} in the
-original recognizing DCG, since given values for {\tt S0} and {\tt S}, a
-call to {\tt '\_\$a'/2} returns only one value in its first argument.
-So a call to {\tt a/3} with have the polynomial complexity of the
-recognizer.  So now with this representation to get the concrete parse
-tree for a string, one writes, for example:
+original recognizing DCG, since given values for {\tt S0} and {\tt S},
+a call to {\tt '\_\$a'/2} returns only one value in its first
+argument.  So a call to {\tt a/3} with have the polynomial complexity
+of the recognizer.  So now when this representation is used, one gets
+the concrete parse tree for a string by writing, for example:
 \begin{verbatim}
 | ?- a(Pts,[a,a,a,a,a,a,a],[]), member_termset(Parse,Pts).
 \end{verbatim}
-which uses the term-set representation while recognizing the input
-string, and then extensionalizes it to the produce the actual parse
+Here the term-set representing the parses for the sequence of {\tt
+a}'s will be returned in the variable {\tt Pts}, and then {\tt
+member\_termset} is used to extensionalize it
+to the produce the actual explicit parse
 tree.  With this way of handling parse trees in arbitrary context-free
 grammars, the complexity of parsing to create the term-set is always
 polynomial, and then extensionalizing the term-set may be exponential
 if all parses are desired and there are exponentially many of them.
+(In fact, if the grammar contains a rule such as \verb|A --> A|, there
+may be infinitely many parses.)
 Of course, if the parsing call to {\tt a/3} fails, then there is no
 extensionalization to do, and the process is polynomial.
 
@@ -1878,7 +1914,7 @@ since the parsing calls to {\tt '\_\$a'/3} will normally have {\tt S0}
 bound and {\tt S} free, yet when extensionalizing the constructed
 term-set to obtain the parse trees, the calls will have both {\tt S0}
 and {\tt S} bound.  We do not want to recompute the parse during
-extensionalizion, which would happen were we to be using variant
+extensionalizion, which would happen were we to use variant
 tabling, and so we use subsumptive tabling.
 
 Problems in graph traversal provide another example of the effective
