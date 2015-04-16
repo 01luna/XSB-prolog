@@ -6116,7 +6116,8 @@ case CALL_SUBS_SLG_NOT: {
   }
 
   case SET_FOREST_LOGGING_FOR_PRED: {
-    Psc psc =  term_psc((Cell)(ptoc_tag(CTXTc 2)));
+    //    Psc psc =  term_psc((Cell)(ptoc_tag(CTXTc 2)));
+    Psc psc =  (Psc)(ptoc_int(CTXTc 2));
     if (get_tabled(psc)) {
       TIF_SkipForestLog(get_tip(CTXTc psc)) = (ptoc_int(CTXTc 3) & 1);
     } else

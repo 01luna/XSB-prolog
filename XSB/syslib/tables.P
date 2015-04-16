@@ -905,11 +905,16 @@ stop_forest_view:-
 
 set_forest_logging_for_pred(PredSpec,Val):- 
 	(callable(PredSpec) -> 
-            (PredSpec = F/A -> functor(Term,F,A) ; Term = PredSpec),
-	    (Val = on -> Num = 0
-	     ; Val = off -> Num = 1
-	     ; domain_error((on,off),Val,set_forest_logging_for_pred/2,1) ),
-	    table_inspection_function(SET_FOREST_LOGGING_FOR_PRED,Term,Num,_,_) 
+	  (PredSpec = Mod:PredSpec1  -> 
+             (PredSpec1 = F/A -> functor(TermIn,F,A) ; TermIn = PredSpec1),
+	     term_new_mod(Mod,TermIn,Term)
+	  ; 
+             (PredSpec = F/A -> functor(Term,F,A) ; Term = PredSpec)),
+          term_psc(Term,PSC),
+	  (Val = on -> Num = 0
+	   ; Val = off -> Num = 1
+	   ; domain_error((on,off),Val,set_forest_logging_for_pred/2,1) ),
+          table_inspection_function(SET_FOREST_LOGGING_FOR_PRED,PSC,Num,_,_) 
 	 ;  type_error(callable,PredSpec,set_forest_logging_for_pred/2,1)) .
 
 load_forest_log(File):- 
