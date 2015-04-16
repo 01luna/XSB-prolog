@@ -1119,7 +1119,7 @@ static byte *loader_foreign(CTXTdeclc char *filename, FILE *fd, int exp)
   cur_mod = ptr->psc_ptr;
   get_obj_word_bb(&psc_count);
   if (!load_syms(CTXTc fd, (int)psc_count, 0, cur_mod, exp)) return FALSE;
-  instr = load_obj(filename, cur_mod, ldoption.string);
+  instr = load_obj(CTXTc filename, cur_mod, ldoption.string);
 
   SQUASH_LINUX_COMPILER_WARN(dummy) ; 
   return instr;

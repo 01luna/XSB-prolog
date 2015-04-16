@@ -2120,7 +2120,7 @@ int builtin_call(CTXTdeclc byte number)
   case LOAD_OBJ:		/* R1: +FileName, R2: +Module (Psc) */
 	    			/* R3: +ld option, R4: -InitAddr */
 #ifdef FOREIGN
-    ctop_int(CTXTc 4, (Integer)load_obj(ptoc_string(CTXTc 1),(Psc)ptoc_addr(2),
+    ctop_int(CTXTc 4, (Integer)load_obj(CTXTc ptoc_string(CTXTc 1),(Psc)ptoc_addr(2),
 				  ptoc_string(CTXTc 3)));
 #else
     xsb_abort("Loading foreign object files is not implemented for this configuration");
