@@ -601,15 +601,25 @@ abolish_all_tables :-
 	   reinitialize_undefineds.
 
 abolish_table_pred(Spec,Options) :-
-	check_nonvar(Spec,abolish_table_pred/1,1),
-	( Spec = F/A -> functor(Term,F,A) ; Term = Spec),
+	check_nonvar(Spec,abolish_table_pred/2,1),
+	(Spec = M:Goal -> 
+	    (Goal = F/A -> functor(TermIn,F,A) ; TermIn = Goal),
+	    term_new_mod(M,TermIn,Term)
+	  ; (Spec = F/A -> functor(Term,F,A) ; Term = Spec)),
 	check_abolish_options_list(Options,ActionType,abolish_table_pred/2),
 	abolish_table_pred_bi(Term,ActionType).
 
+abolish_table_pred(Spec) :- abolish_table_pred(Spec,[]).
+
+/*
 abolish_table_pred(Spec) :-
 	check_nonvar(Spec,abolish_table_pred/1,1),
-	( Spec = F/A -> functor(Term,F,A) ; Term = Spec),
+	(Spec = M:Goal -> 
+	    (Goal = F/A -> functor(TermIn,F,A) ; TermIn = Goal),
+	    term_new_mod(M,TermIn,Term)
+	  ; (Spec = F/A -> functor(Term,F,A) ; Term = Spec)),
 	abolish_table_pred_bi(Term,ABOLISH_TABLES_DEFAULT).
+*/
 
 abolish_table_pred_bi(_TIF,_Action) :-
 	'_$builtin'(ABOLISH_TABLE_PREDICATE).
@@ -635,11 +645,10 @@ abolish_table_subgoal(Call,Options) :-
 abolish_table_subgoal(Call) :-
 	abolish_table_subgoal_internal(Call,ABOLISH_TABLES_DEFAULT).
 
-
 check_abolish_options_list(Options,_ActionType,Pred):- 
 	check_nonvar(Options,Pred,2),
 	fail.
-check_abolish_options_list([],ActionType,_Pred):-
+check_abolish_options_list([],ActionType,_Pred):- !,
 	(var(ActionType) -> ActionType = ABOLISH_TABLES_DEFAULT ; true).
 check_abolish_options_list([Option|_Rest],ActionType,Pred):- !,
 	check_nonvar(Option,Pred,2),
