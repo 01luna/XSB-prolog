@@ -718,7 +718,8 @@ void outchar(char c)
   }
 }
 
-void sendout(char *s,int l,int proc) /* only process the quotechar, that's all */
+/* only process the quotechar, that's all */
+void sendout(char *s,int l,int proc)
 {
   int i;
   
@@ -1285,6 +1286,7 @@ void initthings(int argc, char **argv)
     }
 }
 
+static char *e;
 int findCommentEnd(char *endseq,char quote,char warn,int pos,int flags)
 {
   int i;
@@ -1294,13 +1296,17 @@ int findCommentEnd(char *endseq,char quote,char warn,int pos,int flags)
     c=getChar(pos);
     i=pos;
     if (matchEndSequence(endseq,&i)) return pos;
-    if (c==0) bug("input ended while scanning a comment/string");
+    if (c==0) {
+      warning("input ended while scanning a comment/string: perhaps missing a quote character somewhere above the indicated line");
+      fprintf(C->out->f,endseq);
+      return pos;
+    }
     /*
     if (c=='\n' && (*endseq == '\'' || *endseq == '"'))
       warning("string spans multiple lines");
     */
     if (c==warn) {
-      warn=0;
+      warn=0; // to avoid issuing too many warnings
       if (WarningLevel > 2)
 	warning("possible comment/string termination problem");
     }
