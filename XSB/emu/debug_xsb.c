@@ -1988,7 +1988,7 @@ void quick_print_trail(CTXTdecl)	/* trail grows up */
 static void fprint_cp_cell(FILE * output,char *addrtype, CPtr addr, Cell term)
 {
   if ((ref_val(term) != NULL) && (cell_tag(term) == term)) {
-    fprintf(output, "NULL cell in %s %p: tag=%ld, value=0x%p\n",
+    fprintf(output, "NULL cell in %s %p: tag=%" Intfmt ", value=0x%p\n",
 	    addrtype, addr, cell_tag(term), ref_val(term));
   } else {  
     switch (cell_tag(term)) {
@@ -2012,7 +2012,7 @@ static void fprint_cp_cell(FILE * output,char *addrtype, CPtr addr, Cell term)
 		    addrtype, addr, cs_val(term), ref_val(term));*/
       break;
     case XSB_INT:
-      fprintf(output, "%s %p: XSB_INT, value=%ld, hexval=0x%p\n",
+      fprintf(output, "%s %p: XSB_INT, value=%" Intfmt ", hexval=0x%p\n",
 	      addrtype, addr, int_val(term), ref_val(term));
       break;
     case XSB_STRING:
