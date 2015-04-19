@@ -5120,13 +5120,13 @@ taken to execute {\tt Handler} is not counted as part of {\tt
   Interval} milliseconds.
 
 Nested calls to {\tt timed\_call/3} are not allowed unless {\tt
-  Option} is set to {\tt nested}.
+  Option} is set to {\tt nesting}.
 %
 \begin{itemize}
-\item If {\tt Option} is not equal to {\tt nested}, or if {\tt
+\item If {\tt Option} is not equal to {\tt nesting}, or if {\tt
   timed\_call/3} is used, then a nested call to {\tt timed\_call/4}
   will throw a permission error.
-\item If {\tt Option} is equal to {\tt nested} then the nested timed
+\item If {\tt Option} is equal to {\tt nesting} then the nested timed
   call is simply treated as a call to {\tt Goal}: in other words the
   interval and handler for the nested call is ignored.
 \end{itemize}
