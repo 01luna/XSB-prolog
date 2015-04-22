@@ -42,5 +42,5 @@ xsb_codename="Gazpatcho"    # Version 3.6 (Paulo Moura)
 #xsb_release_date=2011-07-02
 #xsb_release_date=2013-05-01
 #xsb_release_date=2014-07-06
-xsb_release_date=2015-04-28 # target (may be changed)
+xsb_release_date=2015-04-22 # target (may be changed)
 
