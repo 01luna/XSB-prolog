@@ -2376,7 +2376,7 @@ Error cases are as with {\tt shell/2}
 
 \ourmoditem{datime(?Date)}{datime/1}{standard}
 %
-Unifies {\tt Date} to the current date, returned as a Prolog term,
+Unifies {\tt Date} to the current UTC date, returned as a Prolog term,
 suitable for term comparison.  Note that {\tt datime/1} must be
 explicitly imported from the module {\tt standard}.
 
@@ -2385,7 +2385,7 @@ Example:
 \begin{verbatim}
                 > date
                 Mon Aug  9 16:19:44 EDT 2004
-                > nxsb1
+                > xsb
                 XSB Version 2.6 (Duff) of June 24, 2003
                 [i686-pc-cygwin; mode: optimal; engine: slg-wam; gc: indirection; scheduling: local]
 
@@ -2395,8 +2395,12 @@ Example:
                 | ?- datime(F).
                 F = datime(2004,8,9,20,20,23)
 
-                yes
+               yes
 \end{verbatim}}
+
+\ourmoditem{local\_datime(?Date)}{local\_datime/1}{standard}
+%
+Acts as {\tt datime/1}, but returns the local, rather than the UTC date.
 
 \end{description}
 

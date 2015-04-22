@@ -1973,7 +1973,7 @@ command.
 \index{Prolog flags!{\tt table\_gc\_action}}
 \ourstandarditem{abolish\_table\_subgoals(+Subgoal,+Options)}{abolish\_table\_subgoals/2}{Tabling}
 %
-Behaves as {abolish\_table\_call/1}, but allows the default {\tt
+Behaves as {abolish\_table\_subgoals/1}, but allows the default {\tt
   table\_gc\_action} to be over-ridden with a flag, which can be either 
 {\tt abolish\_tables\_transitively} or {\tt abolish\_tables\_singly}.
 
@@ -1997,7 +1997,7 @@ Behaves as {abolish\_table\_call/1}, but allows the default {\tt
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\ourrepeatstandarditem{abolish\_table\_subgoal(+Subgoal,+Options)}{abolish\_table\_subgoal/2}{Tabling}
+\ourrepeatstandarditem{abolish\_table\_subgoal(+Subgoal)}{abolish\_table\_subgoal/1}{Tabling}
 \ourstandarditem{abolish\_table\_subgoal(+Subgoal,+Options)}{abolish\_table\_subgoal/2}{Tabling}
 %
 These predicates behave as {\tt abolish\_table\_subgoals/[1,2]}.

@@ -15,42 +15,45 @@ extensions for tabling.
 %
 The preferred mechanism for dealing with exceptions in XSB is to use
 the predicates {\tt catch/3} and {\tt default\_user\_error\_handler/1}
-together together with either one of XSB's error predicates (such as
-{\tt misc\_error/1}) or {\tt throw/1}.  These predicates are
-ISO-compatible, and their use can give a great deal of control to
-exception handling.  At a high level, when an exception is encountered
-an error term $T$ is {\em thrown}.  In a Prolog program, throwing an
-error term $T$ causes XSB to examine its choice point stack until it
-finds a {\em catcher} that unifies with $T$.  This catcher then calls
-a {\em handler}.  If no explicit catcher for $T$ exists, a default
-handler is invoked, which usually results in an abort, and returns
-execution to the top-level of the interpreter, or to the calling C
+together with one of XSB's error predicates (such as {\tt
+  misc\_error/1}).  These predicates are ISO-compatible, and their use
+can give a great deal of control to exception handling.  At a high
+level, when an exception is encountered an error term $T$ is {\em
+  thrown}.  In a non-tabled Prolog program, throwing an error term $T$
+causes XSB to examine its choice point stack until it finds a {\em
+  catcher} that unifies with $T$.  This catcher then calls a {\em
+  handler}.  If no explicit catcher for $T$ exists, a default handler
+is invoked, which usually results in an abort, and returns execution
+to the top-level of the interpreter, or to the calling C
 function.\footnote{Starting in Version 3.5.1, XSB uses the ISO
   compliant {\tt error/2} for error terms, rather than {\tt error/3}
   as in previous versions.}
 
 A handler is set up when {\tt catch(Goal,Catcher,Handler)} is called.
-At this point a continuation is saved (i.e. a Prolog choice point),
-and {\tt Goal} is called.  If no exceptions are encountered, answers
-for {\tt Goal} are obtained as usual.  Within the execution of {\tt
-  Goal}, an exception is usually thrown by calling a Prolog predicate
-in the {\tt error\_handler} module, or by executing a C-level error
-function.  However, if a user-defined error type is desired, the
-Prolog predicate {\tt throw/1} can also be called directly.  As
-mentioned above, {\tt throw/1} searches for an ancestor of the current
-environment called by {\tt catch/3} and whose catcher (second
+At the time of the call, a continuation is saved (i.e. a Prolog choice
+point), and {\tt Goal} is called.  If no exceptions are encountered,
+answers for {\tt Goal} are obtained as usual.  However, within the
+execution of {\tt Goal}, an exception might be thrown by calling a
+Prolog predicate in the {\tt error\_handler} module, or by executing a
+C-level error function.~\footnote{A user-defined error type is
+  desired, the Prolog predicate {\tt throw/1} can also be called
+  directly.}  As mentioned above, when an error is thrown in an
+environment $Env$, XSB searches for an ancestor $Env_{anc}$ of $Env$
+in which {\tt catch/3} was called, and in which the catcher (second
 argument) unifies with {\tt Error}.  If such an ancestor is found,
 program execution reverts to the ancestor and all intervening choice
 points are removed.  The catcher's {\tt Handler} goal is called and
 the exception is thereby handled.  On the other hand, if no ancestor
-was called using {\tt catch/3} the system checks whether a clause with
-head {\tt default\_user\_error\_handler(Term)} has been asserted, such
-that {\tt Term} unifies with {\tt Error}.  If so, this handler is
-executed.  If not, XSB's default system error handler in invoked an
-error message is output and execution returns to the top level of the
-interpreter.
+in the user's program was called using {\tt catch/3} the exception is
+handled via the handler associated with XSB's goal interpreter at the
+top-level command line or C API.  This top-level handler checks
+whether a clause with head {\tt default\_user\_error\_handler(Term)}
+has been asserted, such that {\tt Term} unifies with {\tt Error}.  If
+so, this handler is executed.  If not, XSB's default system error
+handler in invoked an error message is output and execution returns to
+the top level of the interpreter.
 
-The following, somewhat fanciful example, helps clarify these
+The following, somewhat fanciful, example helps clarify these
 concepts~\footnote{Code for this example can be found in {\tt
 \$XSBDIR/examples/exceptions.P}.}.  Consider the predicate {\tt
 userdiv/2} (Figure~\ref{fig:userdiv}) which is designed to be called
@@ -158,8 +161,8 @@ Section~\ref{sec:backtrace}).  Alternately, in the second case, when
   mydiv1(error2(-1))} is thrown, which is caught within {\tt
   userdiv/2} and handled by {\tt handleUserdiv/2}.  Finally, when {\tt
   0} is entered for the denominator, an error term of the form {\tt
-  error(zerodivision,userdiv/1)} is thrown, and that this term does
-not unify with the second argument of the {\tt catch/3} literal in the
+  error(zerodivision,userdiv/1)} is thrown, and this term does not
+unify with the second argument of the {\tt catch/3} literal in the
 body of {\tt userdiv/1}, or with any error in standard format.  The
 error is instead caught by XSB's default system error handler which
 prints an uncaught exception message and aborts to the top level of
@@ -167,7 +170,7 @@ the interpreter.
 
 XSB has two default system error handlers: one used when XSB is called
 as a stand-alone process, and another when XSB is embedded in a
-process.  Each recognizes certain error formats (see Section
+process.  Each recognizes the same error formats (see Section
 \ref{sec:iso-errors}), and handles the rest as uncaught exceptions.
 However, there may be times when an application requires special
 default handling: perhaps the application calls XSB from through a
@@ -180,6 +183,7 @@ predicate {\tt default\_user\_error\_handler/1}.  {\tt
   default\_user\_error\_handler/1} is called immediately before the
 default system error handler, and after it is ascertained that no
 catcher for an error term is available via a {\tt catch/3} ancestor.
+
 It is important to note that the system error handlers catch errors
 only in the main thread, and do not affect errors thrown by goals
 executed by {\tt thread\_create/[2,3]}.  Error terms thrown by goals

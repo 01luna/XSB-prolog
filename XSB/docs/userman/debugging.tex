@@ -996,14 +996,14 @@ with a {\tt v} if the argument is a variable, a {\tt g} if the
 argument is ground, and {\tt m} otherwise.
 
 \ourmoditem{set\_forest\_logging\_for\_pred(+PredSpec,+Mode)}{set\_forest\_logging\_for\_pred/2}{tables}
-If forest logging is turned on, this predicate allows logging specific
-to the predicate {\tt PredSpec} to be turned on or off.  Thus, for
-instance, tabled predicates in a pre-existing library need not clutter
-up the log.
+If forest logging is active, this predicate allows any logging
+specific to the predicate or term indicater, {\tt PredSpec}, to be
+turned on or off.  Thus, for instance, tabled predicates in a
+pre-existing library need not clutter up the log.
 
 {\bf Error Cases}
 \bi
-\item 	{\tt PredSpec} is not a callable term
+\item 	{\tt PredSpec} is not a predicate or term indicator.
 \bi
 \item 	{\tt type\_error}
 \ei
