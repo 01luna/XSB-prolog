@@ -48,8 +48,8 @@
 
 
 #define WIN_NT 1
-#define RELEASE_DATE 2014-07-06
-#define XSB_VERSION "3.5.1 (Maotai)"
+#define RELEASE_DATE 2015-04-28
+#define XSB_VERSION "3.6. (Gazpatcho)"
 
 /* this is used by many to check if config.h was included in proper order */
 #ifndef CONFIG_INCLUDED
