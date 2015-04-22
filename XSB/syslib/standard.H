@@ -40,7 +40,7 @@
 	close/1,             close/2,	compare/3,	
 	compound/1,	cputime/1,	
 	directly_callable/1,
-	display/1, displayln/1, now/1, datime/1,
+   display/1, displayln/1, now/1, datime/1, local_datime/1,
 	get_date/6,
 	get_utcdate/6, get_localdate/6,
 	console_write/1, console_writeln/1,

@@ -1978,6 +1978,13 @@ datime(Datime) :-
 	;   throw(error(instantiation_error,context(('Error: datime(-Datime) called with bound var: ',When))))
 	).
 
+local_datime(Datime) :-
+	(   var(When)
+	->  get_localdate(Y,Mo,D,H,Mi,S),
+	    Datime = datime(Y,Mo,D,H,Mi,S)
+	;   throw(error(instantiation_error,context(('Error: datime(-Datime) called with bound var: ',When))))
+	).
+
 %-----------------------------------------------------------------------------%
 
 			/***************/
