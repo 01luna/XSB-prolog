@@ -318,7 +318,7 @@ int  unifunc_call(CTXTdeclc int funcnum, CPtr regaddr)
   case FUN_lgamma:
     set_fvalue_from_value;
 #if defined(WIN_NT)
-    xsb_warn("lgamma function NOT defined");
+    xsb_warn(CTXTc "lgamma function NOT defined");
     fvalue = 0.0;
 #else
     fvalue = (Float)lgamma(fvalue);
@@ -328,7 +328,7 @@ int  unifunc_call(CTXTdeclc int funcnum, CPtr regaddr)
   case FUN_erf:
     set_fvalue_from_value;
 #if defined(WIN_NT)
-    xsb_warn("lgamma function NOT defined");
+    xsb_warn(CTXTc "lgamma function NOT defined");
     fvalue = 0.0;
 #else
     fvalue = (Float)erf(fvalue);
@@ -681,7 +681,7 @@ int xsb_eval(CTXTdeclc Cell expr, FltInt *value) {
 	    break;
 	  } else if (strcmp(get_name(op_psc),"erf")==0) {
 #ifdef WIN_NT
-	    xsb_warn("erf function NOT defined");
+	    xsb_warn(CTXTc "erf function NOT defined");
 	    set_flt_val(value,0.0);
 #else
 	    if (isfiint(fiop1)) set_flt_val(value,(Float)erf((Float)fiint_val(fiop1)));
@@ -701,7 +701,7 @@ int xsb_eval(CTXTdeclc Cell expr, FltInt *value) {
 	    break;
 	  } else if (strcmp(get_name(op_psc),"lgamma")==0) {
 #ifdef WIN_NT
-	    xsb_warn("lgamma function NOT defined");
+	    xsb_warn(CTXTc "lgamma function NOT defined");
 	    set_flt_val(value,0.0);
 #else
 	    if (isfiint(fiop1)) set_flt_val(value,(Float)lgamma((Float)fiint_val(fiop1)));
@@ -733,7 +733,7 @@ int xsb_eval(CTXTdeclc Cell expr, FltInt *value) {
 	    break;
 	  } else if (strcmp(get_name(op_psc),"asinh")==0) {
 #ifdef WIN_NT
-	    xsb_warn("asinh function NOT defined");
+	    xsb_warn(CTXTc "asinh function NOT defined");
 	    set_flt_val(value,0.0);
 #else
 	    if (isfiint(fiop1)) set_flt_val(value,(Float)asinh((Float)fiint_val(fiop1)));

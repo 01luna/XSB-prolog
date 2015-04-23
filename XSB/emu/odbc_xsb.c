@@ -1822,7 +1822,7 @@ int GetColumn(CTXTdecl)
 	
 	strfile.strcnt = strlen(cur->Data[ColCurNum]);
 	if (strfile.strcnt >= MAXVARSTRLEN-1)
-	  xsb_warn("[ODBC] Likely overflow of data in column of PROLOG_TERM type\n");
+	  xsb_warn(CTXTc "[ODBC] Likely overflow of data in column of PROLOG_TERM type\n");
 	strfile.strptr = strfile.strbase = cur->Data[ColCurNum];
 	iostrs[0] = &strfile;
 	read_canonical_term(CTXTc iostrdecode(0),2); /* terminating '.'? */
@@ -1830,7 +1830,7 @@ int GetColumn(CTXTdecl)
       } else if (!strcmp(get_name(get_str_psc(op)),"NULL")) {
 	return FALSE;
       } else {
-	xsb_warn("unrecognized return argument type; return failed");
+	xsb_warn(CTXTc "unrecognized return argument type; return failed");
 	return FALSE;
       }
     }
