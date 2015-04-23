@@ -107,7 +107,7 @@
 \newcommand{\comment}[1]{}
 \newcommand{\ourprolog}{XSB}
 \newcommand{\smallourprolog}{xsb}
-\newcommand{\version}{Version 3.5}
+\newcommand{\version}{Version 3.6}
 \newcommand{\LRD}{LRD-stratified}
 
 \newcommand{\longline}{\noindent\rule{\textwidth}{.01in}}
@@ -169,12 +169,10 @@
 % to make the predicate index 	makeindex manual1.prdx -o manual1.pnd
 %------------------------------------------------------------
 
-\begin{document}
-
 \title{\bf The XSB System \\ \version .x\\ Volume 1: Programmer's Manual}
 
 \author{{\includegraphics[width=2.5in]{\xsblogo}}\\
-        \ \\ \ \\
+        \ \\ 
         {\em Terrance Swift} \ \ \ 
         {\em David S. Warren} \\ 
         \ \\
@@ -187,18 +185,20 @@
         {\em Rui F. Marques} \\
         {\em Diptikalyan Saha} \\
         {\em Steve Dawson} \\
-        {\em Michael Kifer} \\
-        \ \\
+        {\em Michael Kifer} 
+%        \ \\
 }
 
+\begin{document}
+
+\thispagestyle{empty}
 \maketitle
 
-\thispagestyle{empty}
+%\thispagestyle{empty}
+\pagenumbering{roman}
 \input{credits1}
 
-\newpage
-\thispagestyle{empty}
-\pagenumbering{roman}
+%\newpage
 \tableofcontents
 \newpage        % Just to avoid a silly LaTeX bug with \pagenumbering
   
