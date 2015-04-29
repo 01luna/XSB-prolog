@@ -57,10 +57,10 @@
 :- import (dynamic)/1,asserta/1 from assert.
 %%:- import reset_undef_pred_handlers/0 from loader.
 :- import close_open_tables/1, psc_data/2, psc_name/2, psc_arity/2, ccall_store_error/2,
-   stat_flag/2, xsb_backtrace/1, psc_ep/2,conget/2 from machine.
+   stat_flag/2, xsb_backtrace/1, psc_ep/2,conget/2, conset/2 from machine.
 
 :- import ','/2, (=..)/2 from standard.
-:- import atom/1, callable/1, messageln/2, number/1, warningln/1,
+   :- import atom/1, callable/1, messageln/2, number/1, warningln/1, message/2,
           throw/1,integer/1 from standard.
 :- import concat_atom/2, term_to_atom/2 from string.
 :- import xsb_flag/2 from curr_sym.

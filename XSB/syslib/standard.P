@@ -2067,11 +2067,18 @@ length([_|R], M, N) :- N1 is M+1, length(R, N1, N).
 abort :- misc_error('Aborting...').
 
 %  abort/1
-abort(Msg) :- misc_error(Msg).
+abort(Msg) :- 
+    conget('_$break_level',Level),
+    (Level == 0 -> 
+       misc_error(Msg)
+     ; abort_all(Msg) ). 
 
 abort_all(Msg):- 
     conget('_$break_level',Level),
     misc_error(Msg,Level).
+
+abort_level(Msg):- 
+    misc_error(Msg).
 
 console_write(X):- 
 	message(X,STDFDBK).
