@@ -105,7 +105,7 @@
    message/1,      messageln/1, message/2, messageln/2,
    warning/1,      warning/2,
    warningln/1,  % obsolete
-   abort/1,	abort/0,
+   abort/1,	abort/0, abort_all/1,
 	set_timer/1,
    (import)/1,	(multifile)/1, '_$multifile'/1.
 :- export cleanup_handler/2.
@@ -135,7 +135,7 @@
 	  check_ground/3,resource_error/2, representation_error/3,
    type_error/4, permission_error/4, 
    instantiation_error/3, instantiation_error/2, check_nonneg_integer/3, 
-	  misc_error/1, table_error/1
+	  misc_error/1,misc_error/2, table_error/1
      from error_handler.
 :- import  check_nonvar_list/3 from error_handler.
 :- import '_$load_undef'/1 from loader.
@@ -149,7 +149,7 @@
 	  stat_sta/1, stat_cputime/1, stat_walltime/1,
 %str_len/2,
           term_psc/2, term_new/2, term_new_mod/3, term_type/2,
-	  verify_attribute_handler/4
+   verify_attribute_handler/4, conget/2
 	  from machine.
 :- import calln/3,calln/4,calln/5,calln/6,calln/7,calln/8,calln/9,calln/10,calln/11,calln/12 from machine.
 

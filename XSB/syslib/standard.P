@@ -2069,6 +2069,10 @@ abort :- misc_error('Aborting...').
 %  abort/1
 abort(Msg) :- misc_error(Msg).
 
+abort_all(Msg):- 
+    conget('_$break_level',Level),
+    misc_error(Msg,Level).
+
 console_write(X):- 
 	message(X,STDFDBK).
 console_writeln(X):- 

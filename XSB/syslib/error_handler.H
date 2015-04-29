@@ -27,8 +27,8 @@
    evaluation_error/3, existence_error/4,
    instantiation_error/2,  % obsolescent
    instantiation_error/3,
-   misc_error/1,permission_error/4, 
-   preprocessing_error/1,
+   misc_error/1, misc_error/2,
+   permission_error/4,    preprocessing_error/1,
    representation_error/3, resource_error/2,
    syntax_error/1, system_error/3,
    table_error/1,    table_error/4, type_error/4, 
@@ -57,7 +57,7 @@
 :- import (dynamic)/1,asserta/1 from assert.
 %%:- import reset_undef_pred_handlers/0 from loader.
 :- import close_open_tables/1, psc_data/2, psc_name/2, psc_arity/2, ccall_store_error/2,
-   stat_flag/2, xsb_backtrace/1, psc_ep/2 from machine.
+   stat_flag/2, xsb_backtrace/1, psc_ep/2,conget/2 from machine.
 
 :- import ','/2, (=..)/2 from standard.
 :- import atom/1, callable/1, messageln/2, number/1, warningln/1,
