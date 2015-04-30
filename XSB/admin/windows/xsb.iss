@@ -3,15 +3,15 @@
 ; A compiled version of XSB must exist in the location pointed by the MyBaseDir variable below.
 
 #define MyAppName "XSB"
-#define XSBVersion "3.5.1"
+#define XSBVersion "3.6.0"
 #define MyAppVerName "XSB "+XSBVersion
 #define MyAppPublisher "XSB"
 #define MyAppURL "http://xsb.sourceforge.net/"
 #define MyAppUrlName "XSB Web Site.url"
 
 #define XSB_DIR "{reg:HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment,XSB_DIR|{pf}\XSB}"
-#define MyBaseDir "H:\XSB\XSB"
-;#define MyBaseDir "C:\XSB"
+;#define MyBaseDir "C:\XSBSYS\XSBENV\XSB"
+#define MyBaseDir "C:\XSB"
 
 [Setup]
 AppName={#MyAppName}
