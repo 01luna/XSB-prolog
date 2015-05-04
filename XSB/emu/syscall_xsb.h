@@ -210,6 +210,7 @@
 #define SYS_vpixsys	178
 
 #define SYS_epoch_seconds 180
+#define SYS_epoch_msecs   181
 
 /* XSB-specific numbers */
 

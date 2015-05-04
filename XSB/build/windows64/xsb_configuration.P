@@ -93,7 +93,7 @@ xsb_configuration(version, '3.6.').
 
 xsb_configuration(codename, 'Gazpatcho').
 xsb_configuration(release_date,
-		  date(2015, 4, 28)).
+		  date(2015, 4, 22)).
 
 %% Configuration looks as follows: machine-vendor-os-tag
 xsb_configuration(configuration, 'x64-pc-windows').

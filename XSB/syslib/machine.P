@@ -373,9 +373,11 @@ conpsc(_Con, _Psc) :- '_$builtin'(CONPSC).
 machine_file_exists(File) :- 
 	sys_syscall(SYS_access, Res, File, 'r'), Res =:= 0.
 
-:- export epoch_seconds/1.
+:- export epoch_seconds/1, epoch_milliseconds/2.
 epoch_seconds(Secs):- 
 	sys_syscall(SYS_epoch_seconds, _Res, Secs,_).
+epoch_milliseconds(Secs,Milli):- 
+	sys_syscall(SYS_epoch_msecs, _Res, Secs, Milli).
 
 /*======================================================================*/
 /* Some other stuff for convenience here;                               */

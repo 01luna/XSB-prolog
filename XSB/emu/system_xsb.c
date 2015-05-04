@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <time.h>
+#include <sys/timeb.h>
 
 #ifdef WIN_NT
 #include <windows.h>
@@ -204,6 +205,13 @@ int sys_syscall(CTXTdeclc int callno)
   }
   case SYS_epoch_seconds: {
     ctop_int(CTXTc 3,(Integer)time(0));
+    break;
+  }
+  case SYS_epoch_msecs: {
+    static struct timeb time_epoch;
+    ftime(&time_epoch);
+    ctop_int(CTXTc 3,(Integer)(time_epoch.time));
+    ctop_int(CTXTc 4,(Integer)(time_epoch.millitm));
     break;
   }
   default: xsb_abort("[SYS_SYSCALL] Unknown system call number, %d", callno);

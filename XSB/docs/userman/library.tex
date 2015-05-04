@@ -1241,12 +1241,16 @@ Exceptions:
     \end{description}
 
 \ourmoditem{epoch\_seconds(-Seconds)}{machine} 
+\ourmoditem{epoch\_milliseconds(-Seconds,-Milliseconds)}{machine} 
 \index{\texttt{epoch\_seconds/1}}
+\index{\texttt{epoch\_milliseconds/2}}
 %
 Returns the number of seconds since the beginning of the UNIX/POSIX
 epoch (January 1, 1970)~\footnote{Uses the Posix call {\tt time(0)},
   so the number of seconds will be returned on non-Unix platforms,
   such as Microsoft.}.  May cause overflow on 32-bit platforms.
+\texttt{epoch\_milliseconds/2} returns both the number of seconds and
+the number of additional milliseconds since the last whole second.
 
 \end{description}
 
