@@ -2064,7 +2064,11 @@ contains_var([_|T]) :- contains_var(T).
 length([], N, N).
 length([_|R], M, N) :- N1 is M+1, length(R, N1, N).
 
-abort :- misc_error('Aborting...').
+abort :- 
+    conget('_$break_level',Level),
+    (Level == 0 -> 
+       misc_error('Aborting...')
+     ; abort_all('Aborting...') ). 
 
 %  abort/1
 abort(Msg) :- 
