@@ -24,6 +24,7 @@
 */
 
 :- compiler_options([xpp_on,sysmod,optimize,spec_off]).
+%   :- import writeln/1 from standard.
 
 #include "sig_xsb.h"
 #include "flag_defs_xsb.h"
@@ -65,7 +66,7 @@ default_error_handler(Error) :-
 	xsb_thread_self(Thread),
 	Thread == 0,
 	default_user_error_handler(Error),
-	close_open_tables(non_memory_error),
+%	close_open_tables(non_memory_error),
 	!,fail.
 default_error_handler(Error) :-   /* Thread is not console */
 	default_user_error_handler(Error),!.
@@ -156,7 +157,7 @@ default_sys_error_handler_main(misc_error(Level),Message,_BT,_Backtrace):- !,
 	 throw(error(misc_error(New_Break_Level),Message)) ).
 default_sys_error_handler_main(_Error,_Message,BT,Backtrace):- 
 	(BT == on,Backtrace \== [] -> print_backtrace(Backtrace) ; true),
-	close_open_tables(non_memory_error),
+%	close_open_tables(non_memory_error),
 	fail.
 
 %-----

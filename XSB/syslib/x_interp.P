@@ -158,7 +158,7 @@ process_query(X, Vars) :-
 process_query1(X, []) :-	%% no printable variables appeared in the input
 	!,
 	call_query(X),
-	close_open_tables(non_memory_error),
+%	close_open_tables(non_memory_error),
 	!,
 	xwam_state(2,DelayReg),
 	(DelayReg =:= 0
@@ -293,6 +293,7 @@ readl_brklp1 :-
 	x_interp_repeat,
 	catch(readl_brklp1([]),Ball,(default_error_handler(Ball),fail)),
 	!.
+
 
 readl_brklp1(_) :- 
 	x_interp_repeat, 
