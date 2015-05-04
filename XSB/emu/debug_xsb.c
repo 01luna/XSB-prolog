@@ -1612,8 +1612,7 @@ void print_deltf_chain(CTXTdecl) {
 /*----- For table debugging --------------------------------------------*/ 
 
 static char *compl_stk_frame_field[] = {
-  "subgoal_ptr", "level_num",
-  "del_ret_list", "visited", 
+  "subgoal_ptr",   "del_ret_list", "level_num","visited", 
 #ifndef LOCAL_EVAL
 "DG_edges", "DGT_edges"
 #endif
@@ -1624,13 +1623,13 @@ void print_subg_header(CTXTdeclc FILE * where,VariantSF SUBG) {
     if (is_completed(SUBG)) fprintf(where, " (completed) ===\n"); 
     else fprintf(where, " (incomplete) ===\n"); }
 
+/* Not using array of field names because int fields are bit-mapped in a single 64-bit word */
 void debug_print_completion_stack(CTXTdecl)
 {
   int i = 0;
   EPtr eptr;
   VariantSF subg;
   CPtr temp = openreg;
-
   fprintf(stddbg,"openreg -> ");
   while (temp < COMPLSTACKBOTTOM) {
     if ((i % COMPLFRAMESIZE) == 0) {
@@ -1638,17 +1637,20 @@ void debug_print_completion_stack(CTXTdecl)
       subg = (VariantSF) *temp;
       print_subg_header(CTXTc stddbg, subg);
     }
-    fprintf(stddbg,"Completion Stack %p: %lx\t(%s)",
-	    temp, *temp, compl_stk_frame_field[(i % COMPLFRAMESIZE)]);
+    if ((i % COMPLFRAMESIZE) == 0) { fprintf(stddbg,"Completion Stack %p: %lx\t(subgoal_ptr)",temp, *temp);}
+    if ((i % COMPLFRAMESIZE) == 1) { fprintf(stddbg,"Completion Stack %p: %lx\t(del_ret_list)",temp, *temp);}
+    if ((i % COMPLFRAMESIZE) == 2) { fprintf(stddbg,"Completion Stack %p: %d/%d\t(level_num/visited)",temp, (*temp)&0xffffffff,(*temp)>>16);}
+#ifndef LOCAL_EVAL
     if ((i % COMPLFRAMESIZE) >= COMPLFRAMESIZE-2) {
       for (eptr = (EPtr)*temp; eptr != NULL; eptr = next_edge(eptr)) {
 	fprintf(stddbg," --> %p", edge_to_node(eptr));
       }
     }
+#endif
     fprintf(stddbg,"\n");
     temp++; i++;
   }
-  fprintf(stddbg, EOS);
+  fprintf(stddbg,"--------------------BOTTOM_OF_STACK (%p) --------------------\n",COMPLSTACKBOTTOM);
 }
 
 
