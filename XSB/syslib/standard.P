@@ -2427,29 +2427,47 @@ call_attribute_handlers([Mod,Attr|Rest],Value) :-
 call_attribute_handlers(Rest,Value).	
 
 :- dynamic '_$timed_call_handler'/2.
+:- dynamic '_$timed_call_handler'/4.
 :- export  '_$timed_call_handler'/2.
+:- export  '_$timed_call_handler'/4.
 :- import check_pos_integer/3 from error_handler.
 
-timed_call(Call,Interval,Handler):- timed_call(Call,Interval,Handler,nonesting).
+timed_call(Call,Interval,Handler):- timed_call(Call,Interval,Handler,no_nesting).
 
 timed_call(Call,Interval,Handler,Options):- 
 	(Options == nesting -> Nesting = true ; Nesting = false),
-	(integer(Interval),Interval > 0 -> 
-	    timed_call_1(Call,Interval,Handler,0,Nesting)
-	  ; (nonvar(Interval),Interval = repeating(Int) -> 
-	       timed_call_1(Call,Int,Handler,Int,Nesting)
-	     ; check_pos_integer(Interval,timed_call/3,2) ) ).
+        check_nonvar(Interval,timed_call/[3,4],2),
+	(Interval = repeating(Period) -> 
+	       check_pos_integer(Period,timed_call/3,2),
+	       timed_call_1(Call,Period,Handler,Period,Nesting)
+	  ; Interval = repeating(Period,Max) -> 
+	       check_pos_integer(Period,timed_call/3,2),
+	       check_pos_integer(Max,timed_call/3,2),
+	       timed_call_1(Call,Period,Handler,Period,Nesting,Max)
+          ; integer(Interval),Interval > 0 -> 
+	       timed_call_1(Call,Interval,Handler,0,0,Nesting)
+	  ; domain_error([positive_integer,repeating(positive_integer),repeating(positive_integer,positive_integer)],
+	                 Interval,timed_call/[3,4],2) ).
 
 % need to make assert faster.
-timed_call_1(Call,Interval,Handler,Repeating,Nesting):- 
-	('_$timed_call_handler'(_,_) -> 
+timed_call_1(Call,Interval,Handler,Repeating,Nesting):-
+        ('_$timed_call_handler'(_,_) ->
+            (Nesting == true ->
+                  call(Call)
+              ;   permission_error(nested_call,predicate,timed_call(Call),'timed_call/3'))
+          ;
+            assert('_$timed_call_handler'(Handler,Repeating)),
+            start_sleeper_thread(Interval),
+            call_cleanup(Call,retractall('_$timed_call_handler'(_Handler,_Interval))) ).
+timed_call_1(Call,Interval,Handler,Repeating,Nesting,Max):- 
+	('_$timed_call_handler'(_,_,_,_) -> 
    	    (Nesting == true -> 
 	          call(Call)
               ;   permission_error(nested_call,predicate,timed_call(Call),'timed_call/3'))
 	  ; 
-	    assert('_$timed_call_handler'(Handler,Repeating)),
+	    assert('_$timed_call_handler'(Handler,Repeating,0,Max)),
 	    start_sleeper_thread(Interval),
-	    call_cleanup(Call,retractall('_$timed_call_handler'(_Handler,_Interval))) ).
+	    call_cleanup(Call,retractall('_$timed_call_handler'(_Handler,_Interval,_Accum,_Max))) ).
 
 :- export bounded_call/4.
 bounded_call(Goal,MaxMemory,MaxTime,Handler):-

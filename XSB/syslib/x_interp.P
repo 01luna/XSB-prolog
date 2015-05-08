@@ -260,7 +260,6 @@ portray_attributes_1([Mod,Attr|T]):-
 	 portray_attributes_1(T).
 ***********************/
 
-%%:- import writeln/1 from standard.
 :- import constraint_portray_hook/4 from machine.
 maybe_print_constraints(VarList):- 
 	constraint_portray_hook(_Mod,ValList,NameList,Hook),
@@ -333,13 +332,25 @@ execute_messages_on_signale_queue:-
 
 %:- import writeln/1 from standard.
 :- import '_$timed_call_handler'/2 from standard.
-:- import start_sleeper_thread/1 from machine.
+:- import '_$timed_call_handler'/4 from standard.
+'_$timer_int'(One,_Two) :-
+        '_$timed_call_handler'(Handler,Interval),!,
+%	 writeln('_$timed_call_handler'(Handler,Interval)),
+        call_handler(Handler),
+        (Interval > 0 ->
+            start_sleeper_thread(Interval)
+	 ; true),
+	 call_c(One).
 '_$timer_int'(One,_Two) :- 
-	'_$timed_call_handler'(Handler,Interval),!,
-%	writeln(calling(Handler)),
+	'_$timed_call_handler'(Handler,Interval,Accum,Max),!,
+%        writeln('_$timed_call_handler'(Handler,Interval,Accum,Max)),
 	call_handler(Handler),
-	(Interval > 0 -> 
-   	    start_sleeper_thread(Interval)	
+	(Accum >= Max -> 
+	      abort('exceeded maximum for timed call')
+	    ; New_Accum is Accum + Interval,
+	      retract('_$timed_call_handler'(_Handler,Interval,Accum,Max)),
+	      assert('_$timed_call_handler'(Handler,Interval,New_Accum,Max)),
+              start_sleeper_thread(Interval)	
 	  ; true),
 	call_c(One).
 '_$timer_int'(One,_Two) :- 
