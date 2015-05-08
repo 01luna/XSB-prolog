@@ -5105,23 +5105,40 @@ results.
 Error cases are the same as {\tt call/1}.
 
 \ourrepeatstandarditem{timed\_call(\#Goal,+Interval,\#Handler,+Option)}{timed\_call/4}{}
-\ourstandarditem{timed\_call(\#Goal,+Interval,\#Handler)}{timed\_call/3}{}
+\ourstandarditem{timed\_call(\#Goal,+TimingSpec,\#Handler)}{timed\_call/3}{}
 %
-This predicate calls {\tt Goal} and, if {\tt Goal} is still being
-evaluated after {\tt Interval} milliseconds, {\tt Goal} will be
-interrupted and {\tt Handler} executed.  In the case where {\tt
-  Handler} succeeds or fails, the execution of {\tt Goal} will be
-continued; if {\tt Handler} throws an uncaught exception the execution
-of {\tt Goal} may be aborted. In this way {\tt timed\_call/3} can be
-used enforce a time-out on {\tt Goal}.  
+These predicates call {\tt Goal} and depending on the form of {\tt
+  TimingSpec}, either interrupt {\tt Goal} to call {\tt Handler}, or
+abort {\tt Goal}.  In the case where {\tt Handler} succeeds or fails,
+the execution of {\tt Goal} will be continued; if {\tt Handler} throws
+an uncaught exception the execution of {\tt Goal} may be aborted. In
+this way {\tt timed\_call/3} can be used enforce a time-out on {\tt
+  Goal}.
 
-{\tt Interval} can be either a positive integer or the term {\tt
-  repeating(Int)} where {\tt Int} is a non-negative integer.  In this
-latter case, {\tt Goal} is interrupted every {\tt Int} milliseconds
-until it terminates (whether by normal termination or by {\tt Handler}
-throwing an exception).  In the case of repeated interrupts, the time
-taken to execute {\tt Handler} is not counted as part of {\tt
-  Interval} milliseconds.
+The forms for {\tt TimingSpec} are as follows.  
+\bi
+\item {\tt TimingSpec} is a positive integer {\em Int}.  In this case
+  {\tt Goal} will be interrupted exactly once, after {\em Int}
+  milliseconds have elapsed, and {\tt Handler} executed.  As a use
+  case, if {\tt Handler} throws an exception, {\tt Goal} can be
+  aborted.
+\item {\tt TimingSpec} is of the form {\em repeating(Interval)} where
+  {\em Interval} is a positive integer.  In this case {\tt Goal} is
+  interrupted every {\em Interval} milliseconds of elapsed time until
+  it terminates (whether by normal termination or by {\tt Handler}
+  throwing an exception).  The time taken to execute {\tt Handler} is
+  not counted as part of {\em Interval} milliseconds.
+\item {\tt TimingSpec} is of the form {\em repeating(Interval,Max)}
+  where {\em Interval} and {\em Max} are both positive integers.  In
+  this case {\tt Goal} is interrupted every {\em Interval}
+  milliseconds as in the above case.  Also, it acts in the above case
+  if {\tt Goal} it terminates (whether by normal termination or by
+  {\tt Handler} throwing an exception).  However, at interrupt time,
+  if the accumulated number of elapsed milliseconds taken to execute
+  {\tt Goal} exceeded {\em Max} milliseconds a miscellaneous error
+  will be thrown..  The time taken to execute {\tt Handler} is not
+  counted as part of {\em Interval} or {\em Max} milliseconds.
+\ei
 
 Nested calls to {\tt timed\_call/3} are not allowed unless {\tt
   Option} is set to {\tt nesting}.
@@ -5182,13 +5199,14 @@ Error cases are the same as in {\tt call/1} for the first and third
 arguments of {\tt timed\_call/3}, along with these other errors.
 %
 \begin{description}
-\item {\tt Interval} is not an integer
+\item {\tt Interval} is not an integer, or a term of the form {\tt repeating/[1,2]}
 \bi
-\item {\tt type\_error(integer,Interval)}
+\item {\tt domain\_error}
 \ei
-\item {\tt Interval} is not a positive integer
+\item {\tt Interval} is of the form {\tt repeating/[1,2]} but the term
+  contains an argument that is not an integer 
 \bi
-\item {\tt domain\_error(positive\_integer,Interval)}
+\item {\tt type\_error}
 \ei
 \item A call {\tt C} to {\tt timed\_call/3} is made within the scope
   of some other call to {\tt timed\_call/3}
