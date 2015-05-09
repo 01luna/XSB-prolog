@@ -502,6 +502,7 @@ variables. Associated hooks are not executed~\footnote{In \version ,
   than many of the predicates in this section.}.
 
 \ourmoditem{setarg(+Index,+Term,+Value)}{constraintLib}\index{\texttt{setarg/3}}
+\ourmoditem{set\_arg(+Index,+Term,+Value)}{machine}\index{\texttt{set\_arg/3}}
 %
 The predicate {\tt setarg/3} provides an efficient but non-logical way
 to update argument {\tt Index} of a Prolog term {\tt Term} to {\tt
@@ -550,7 +551,7 @@ X = p(f(1),g(2),r([a]))
 \ei
 \ei
 
-\ourmoditem{term\_variables(+Term,-Variables}{constraintLib}
+\ourmoditem{term\_variables(+Term,-Variables)}{constraintLib}
 \index{\texttt{term\_variables/2}}
 % 
 Given any Prolog term {\tt Term} as input, returns a sorted list of
