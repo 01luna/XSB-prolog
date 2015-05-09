@@ -1627,7 +1627,7 @@ void print_subg_header(CTXTdeclc FILE * where,VariantSF SUBG) {
 void debug_print_completion_stack(CTXTdecl)
 {
   int i = 0;
-  EPtr eptr;
+  //  EPtr eptr;  // currently unused.
   VariantSF subg;
   CPtr temp = openreg;
   fprintf(stddbg,"openreg -> ");
