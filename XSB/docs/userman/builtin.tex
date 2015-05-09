@@ -5104,64 +5104,53 @@ results.
 
 Error cases are the same as {\tt call/1}.
 
-\ourrepeatstandarditem{timed\_call(\#Goal,+Interval,\#Handler,+Option)}{timed\_call/4}{}
-\ourstandarditem{timed\_call(\#Goal,+TimingSpec,\#Handler)}{timed\_call/3}{}
+%\ourrepeatstandarditem{timed\_call(\#Goal,+Interval,\#Handler,+Option)}{timed\_call/4}{}
+\ourstandarditem{timed\_call(\#Goal,\#Options)}{timed\_call/2}{}
 %
-These predicates call {\tt Goal} and depending on the form of {\tt
-  TimingSpec}, either interrupt {\tt Goal} to call {\tt Handler}, or
-abort {\tt Goal}.  In the case where {\tt Handler} succeeds or fails,
-the execution of {\tt Goal} will be continued; if {\tt Handler} throws
-an uncaught exception the execution of {\tt Goal} may be aborted. In
-this way {\tt timed\_call/3} can be used enforce a time-out on {\tt
-  Goal}.
+These predicates call {\tt Goal} and may interrupt {\tt Goal} to call
+various handlers as specified in the {\tt Options} the list of
+options.  In the case where a handler succeeds or fails, the execution
+of {\tt Goal} will be continued; if a handler throws an uncaught
+exception the execution of {\tt Goal} may be aborted. In these ways
+{\tt timed\_call/2} can be used both to allow co-routining of {\tt
+  Goal} and a handler as well as a handled time-out.
 
-The forms for {\tt TimingSpec} are as follows.  
+{\tt Options} is a list that may contain the following terms
 \bi
-\item {\tt TimingSpec} is a positive integer {\em Int}.  In this case
-  {\tt Goal} will be interrupted exactly once, after {\em Int}
-  milliseconds have elapsed, and {\tt Handler} executed.  As a use
-  case, if {\tt Handler} throws an exception, {\tt Goal} can be
+\item The term {\tt max(+MaxInterval,\#MaxHandler)} specifies that {\tt
+  MaxHandler} will be called when it is determined that the total elapsed
+  time to execute {\tt Goal} exceeds {\tt MaxInterval} milliseconds.  As
+  a use case, if {\tt MaxHandler} throws an exception, {\tt Goal} can be
   aborted.
-\item {\tt TimingSpec} is of the form {\em repeating(Interval)} where
-  {\em Interval} is a positive integer.  In this case {\tt Goal} is
-  interrupted every {\em Interval} milliseconds of elapsed time until
-  it terminates (whether by normal termination or by {\tt Handler}
-  throwing an exception).  The time taken to execute {\tt Handler} is
-  not counted as part of {\em Interval} milliseconds.
-\item {\tt TimingSpec} is of the form {\em repeating(Interval,Max)}
-  where {\em Interval} and {\em Max} are both positive integers.  In
-  this case {\tt Goal} is interrupted every {\em Interval}
-  milliseconds as in the above case.  Also, it acts in the above case
-  if {\tt Goal} it terminates (whether by normal termination or by
-  {\tt Handler} throwing an exception).  However, at interrupt time,
-  if the accumulated number of elapsed milliseconds taken to execute
-  {\tt Goal} exceeded {\em Max} milliseconds a miscellaneous error
-  will be thrown.  The time taken to execute {\tt Handler} is not
-  counted as part of {\em Interval} or {\em Max} milliseconds.
+%
+\item The term {\tt repeating(+RepInterval,\#RepHandler)} specifies that
+  {\tt RepHandler} will be repeatedly called whenever {\tt Goal} has
+  executed an additional {\tt RepInterval} milliseconds of elapsed time.
+  The time taken to execute {\tt RepHandler} is not counted as part of
+  {\tt RepInterval} milliseconds (or that of {\tt MaxInterval}, if a
+  maximum handler is also specified).
+%
+\item The term {\tt nesting} indicates that nested timed calls should
+  be allowed.  In this case, then the nested timed call is simply
+  treated as a call to {\tt Goal}: in other words the interval(s) and
+  handlers for the nested call are ignored.  Otherwise, if {\tt
+    Options} does not contain the term {\tt nesting} an attempt to
+  nest calls will raise a permission exception.
 \ei
 
-Nested calls to {\tt timed\_call/3} are not allowed unless {\tt
-  Option} is set to {\tt nesting}.
-%
-\begin{itemize}
-\item If {\tt Option} is not equal to {\tt nesting}, or if {\tt
-  timed\_call/3} is used, then a nested call to {\tt timed\_call/4}
-  will throw a permission error.
-\item If {\tt Option} is equal to {\tt nesting} then the nested timed
-  call is simply treated as a call to {\tt Goal}: in other words the
-  interval and handler for the nested call is ignored.
-\end{itemize}
-%
+Executing a timed call for {\tt Goal} is more expensive than simply
+calling {\tt Goal}, so it should not be used for frequent calls to
+goals that whose derivation is simple.
 
-As an implementation note, {\tt timed\_call/[3,4]} is based on XSB's
-internal interrupt mechanism, used for attributed variable handlers
-and thread signalling.  As such, the ability to execute complex
-actions upon interrupt and to resume is very robust.  However, checks
-for interrupts are only made whenever XSB's SLG-WAM engine is
-executing.  Because of this, if XSB is suspended on I/O, calling a C
-or java function, in a C-implemented builtin, or otherwise outside of
-its virtual machine, the interrupt will not be executed until
-computation is back within XSB's virtual machine.
+{\tt timed\_call/[3,4]} is based on XSB's internal interrupt
+mechanism, used for attributed variable handlers and thread
+signalling.  As such, the ability to execute complex actions upon
+interrupt and to resume is very robust.  However, checks for
+interrupts are only made whenever XSB's SLG-WAM engine is executing.
+Because of this, if XSB is suspended on I/O, calling a C or java
+function, in a C-implemented builtin, or otherwise outside of its
+virtual machine, the interrupt will not be executed until computation
+is back within XSB's virtual machine.
 
 {\tt timed\_call/3} is not yet implemented for the multi-threaded
 engine but its functionality is easily duplicated using thread
@@ -5175,38 +5164,49 @@ loop :- loop.
 which goes into an infinite loop on the query {\tt ?- loop.}  However,
 the query
 \begin{verbatim}
-timed_call(loop,repeating(500),abort).
+timed_call(loop,[max(5000,abort]).
 \end{verbatim}
-will interrupt {\tt loop} and abort its computation after 500
+will interrupt {\tt loop} and abort its computation after 5000
 milliseconds.  Alternately, the query
 \begin{verbatim}
-timed_call(loop,500,statistics).
+timed_call(loop,[repeating(500,statistics)]).
 \end{verbatim}
-will interrupt the computation after 500 seconds, print out
+will interrupt the computation every 500 seconds, print out
 statistics, and resume the computation where it left off.
 \begin{verbatim}
-timed_call(loop,repeating(500),statistics).
+timed_call(loop,[repeating(500,statistics),max(5000,abort)]).
 \end{verbatim}
-will interrupt the computation every 500 milliconds tp print
-statistics.  More sophisticated interrupt handlers could introspect a
-computation (e.g., using {\tt statistics/2} or {\tt table\_dump/[1,3]})
-and possibly modify parameters of the computation when possible (e.g.,
-by changing one form of tabling to another, when permitted).
+will interrupt the computation every 500 milliconds to print
+statistics, and will abort after 5000 milliseconds.  More
+sophisticated interrupt handlers could introspect a computation (e.g.,
+using {\tt statistics/2} or {\tt table\_dump/[1,3]}) and possibly
+modify parameters of the computation when possible (e.g., by changing
+one form of tabling to another, when permitted).
 
 {\bf Error Cases} 
 %
-Error cases are the same as in {\tt call/1} for the first and third
-arguments of {\tt timed\_call/3}, along with these other errors.
+Error cases are the same as {\tt call/1} for the first argument of
+{\tt timed\_call/3} and for handlers.  arguments, along with these
+other errors.
 %
 \begin{description}
-\item {\tt Interval} is not an integer, or a term of the form {\tt repeating/[1,2]}
+\item {\tt Options} is non-ground
 \bi
-\item {\tt domain\_error}
+\item {\tt instantiation\_error}
 \ei
-\item {\tt Interval} is of the form {\tt repeating/[1,2]} but the term
-  contains an argument that is not an integer 
+\item {\tt Options} is not a list
 \bi
 \item {\tt type\_error}
+\ei
+\item {\tt Interval} as contained in the first argument o {\tt max/2}
+  or {\tt repeating/2} is not a positive  integer
+\bi
+\item {\tt type\_error}
+\ei
+\item {\tt Options} contains neither a term of the form {\tt max/2}
+  nor of the form {\tt repeating/2}
+\bi
+\item {\tt misc\_error}
 \ei
 \item A call {\tt C} to {\tt timed\_call/3} is made within the scope
   of some other call to {\tt timed\_call/3}
