@@ -5131,7 +5131,7 @@ exception the execution of {\tt Goal} may be aborted. In these ways
   maximum handler is also specified).
 %
 \item The term {\tt nesting} indicates that nested timed calls should
-  be allowed.  In this case, then the nested timed call is simply
+  be allowed.  In this case, the nested timed call is simply
   treated as a call to {\tt Goal}: in other words the interval(s) and
   handlers for the nested call are ignored.  Otherwise, if {\tt
     Options} does not contain the term {\tt nesting} an attempt to
@@ -5164,7 +5164,7 @@ loop :- loop.
 which goes into an infinite loop on the query {\tt ?- loop.}  However,
 the query
 \begin{verbatim}
-timed_call(loop,[max(5000,abort]).
+timed_call(loop,[max(5000,abort)]).
 \end{verbatim}
 will interrupt {\tt loop} and abort its computation after 5000
 milliseconds.  Alternately, the query
@@ -5346,7 +5346,9 @@ for {\tt Goal}.
   $E$ will be rethrown.  This is illustrated in the following example
   (Error handling is discussed further in Section~\ref{sec:catch}):
 \begin{verbatim}
-   ?- catch(call_cleanup(throw(my_error),writeln(invoking_handler)),Ball,write(Ball)).
+   ?- catch(call_cleanup(throw(my_error),writeln(invoking_handler)),
+            Ball,
+            write(Ball)).
    invoking_handler
    my_error
    yes
