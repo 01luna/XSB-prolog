@@ -87,8 +87,9 @@
         '@>='/2,	';'/2,		','/2,		'->'/2,         '?='/2,
 	':'/2,		'_$cutto'/1,	'_$savecp'/1.	
 :- export handle_interrupts/1.
-:- export timed_call/3.
-:- export timed_call/4.
+%:- export timed_call/3.
+%:- export timed_call/4.
+:- export timed_call/2.
 :- export memory_bounded_call/3.
 
    :- export expand_atom/2.
@@ -111,7 +112,7 @@
 :- export cleanup_handler/2.
 
 :- import (dynamic)/1, asserta/1, assert0/4 from assert.
-:- import member/2,append/3,comma_member/2 from basics.
+	  :- import member/2,append/3,comma_member/2,memberchk/2 from basics.
 :- import consult/1, reconsult/1 from consult.
 :- import predicate_property/2, current_op/3 from curr_sym.
 :- import dcg/2 from dcg.
@@ -131,7 +132,7 @@
 
 :- import '_$hilog_symbol'/1, add_hilog_symbol/1 from hilogsym.
 :- import clause/2, retractall/1 from assert.
-:- import domain_error/4, domain_error/5, check_atom/3, check_nonvar/3,check_var/3, 
+   :- import domain_error/4, domain_error/5, check_atom/3, check_nonvar/3,check_var/3, check_callable/3,
 	  check_ground/3,resource_error/2, representation_error/3,
    type_error/4, permission_error/4, 
    instantiation_error/3, instantiation_error/2, check_nonneg_integer/3, 
