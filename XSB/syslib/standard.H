@@ -135,7 +135,7 @@
    :- import domain_error/4, domain_error/5, check_atom/3, check_nonvar/3,check_var/3, check_callable/3,
 	  check_ground/3,resource_error/2, representation_error/3,
    type_error/4, permission_error/4, 
-   instantiation_error/3, instantiation_error/2, check_nonneg_integer/3, 
+   instantiation_error/3, instantiation_error/2, check_nonneg_integer/3, check_pos_integer/3,
 	  misc_error/1,misc_error/2, table_error/1
      from error_handler.
 :- import  check_nonvar_list/3 from error_handler.

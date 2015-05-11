@@ -331,25 +331,29 @@ execute_messages_on_signale_queue:-
 	 ;  true),!.
 
 %:- import writeln/1 from standard.
-:- import '_$timed_call_handler'/2 from standard.
-:- import '_$timed_call_handler'/5 from standard.
+:- import '_$timed_call_handler'/3 from standard.
+:- import '_$timed_call_handler'/6 from standard.
+:- import get_timed_call_index/1 from standard.
+
 '_$timer_int'(One,_Two) :-
-        '_$timed_call_handler'(Handler,Interval),
+        get_timed_call_index(Index),
+        '_$timed_call_handler'(Index,Handler,Interval),
         call_handler(Handler),
         (Interval > 0 ->
             start_sleeper_thread(Interval)
 	 ; true),!,
 	 call_c(One).
 '_$timer_int'(One,_Two) :- 
-	'_$timed_call_handler'(Rep_handler,Rep_interval,Accum,Max_handler,Max_interval),
+        get_timed_call_index(Index),
+	'_$timed_call_handler'(Index,Rep_handler,Rep_interval,Accum,Max_handler,Max_interval),
 %	writeln('_$timed_call_handler'(Rep_handler,Rep_interval,Accum,Max_handler,Max_interval)),
 	New_Accum is Accum + Rep_interval,
 	(New_Accum >= Max_interval -> 
 	      call_handler(Max_handler)
 	    ; 
 	      call_handler(Rep_handler),
-	      retract('_$timed_call_handler'(_Handler,_Interval,_Accum,_Max_handler,_Max_interval)),
-	      assert('_$timed_call_handler'(Rep_handler,Rep_interval,New_Accum,Max_handler,Max_interval)),
+	      retract('_$timed_call_handler'(Index,_Handler,_Interval,_Accum,_Max_handler,_Max_interval)),
+	      assert('_$timed_call_handler'(Index,Rep_handler,Rep_interval,New_Accum,Max_handler,Max_interval)),
               start_sleeper_thread(Rep_interval)	
 	  ; true),!,
 	call_c(One).

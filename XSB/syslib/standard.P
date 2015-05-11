@@ -2426,11 +2426,12 @@ call_attribute_handlers([Mod,Attr|Rest],Value) :-
 	                       call_attribute_handlers/2,1) ) ),
 call_attribute_handlers(Rest,Value).	
 
-:- dynamic '_$timed_call_handler'/2.
-:- dynamic '_$timed_call_handler'/5.
-:- export  '_$timed_call_handler'/2.
-:- export  '_$timed_call_handler'/5.
-:- import check_pos_integer/3 from error_handler.
+:- dynamic '_$timed_call_handler'/3.
+:- dynamic '_$timed_call_handler'/6.
+:- export  '_$timed_call_handler'/3.
+:- export  '_$timed_call_handler'/6.
+:- import timed_call_index_dyn/1 from usermod.
+:- dynamic timed_call_index_dyn/1.
 
 timed_call(Call,Options):- 
         check_nonvar_list(Options,timed_call/2,2),
@@ -2457,26 +2458,32 @@ timed_call(Call,Options):-
 
 % need to make assert faster.
 timed_call_1(Call,Rep_interval,Rep_handler,Nesting):- 
-        (timed_call_handler_is_active -> 
+	get_timed_call_index(Index),
+        (timed_call_handler_is_active(Index) -> 
             (Nesting == true ->
                   call(Call)
               ;   permission_error(nested_call,predicate,timed_call(Call),'timed_call/2') )
           ;
-            assert('_$timed_call_handler'(Rep_handler,Rep_interval)),
+            assert('_$timed_call_handler'(Index,Rep_handler,Rep_interval)),
             start_sleeper_thread(Rep_interval),
-            call_cleanup(Call,retractall('_$timed_call_handler'(_Handler,_Interval))) ).
+            call_cleanup(Call,retractall('_$timed_call_handler'(Index,_Handler,_Interval))) ).
 timed_call_1(Call,Rep_interval,Rep_handler,Max_interval,Max_handler,Nesting):- 
-        (timed_call_handler_is_active -> 
+	get_timed_call_index(Index),
+        (timed_call_handler_is_active(Index) -> 
    	    (Nesting == true -> 
 	          call(Call)
               ;   permission_error(nested_call,predicate,timed_call(Call),'timed_call/2'))
 	  ; 
-	    assert('_$timed_call_handler'(Rep_handler,Rep_interval,0,Max_handler,Max_interval)),
+	    assert('_$timed_call_handler'(Index,Rep_handler,Rep_interval,0,Max_handler,Max_interval)),
 	    start_sleeper_thread(Rep_interval),
-	    call_cleanup(Call,retractall('_$timed_call_handler'(_Handler,_Interval,_Accum,_Max_handler,_Max_interval))) ).
+	    call_cleanup(Call,retractall('_$timed_call_handler'(Index,_Handler,_Interval,_Accum,_Max_handler,_Max_interval))) ).
 
-timed_call_handler_is_active:- 	'_$timed_call_handler'(_,_,_,_,_),!.
-timed_call_handler_is_active:- 	'_$timed_call_handler'(_,_),!.
+:- export get_timed_call_index/1.
+get_timed_call_index(Index):- timed_call_index_dyn(Index),!.  % for Flora
+get_timed_call_index(Index):- conget('_$break_level',Index). 
+
+timed_call_handler_is_active(Index):- 	'_$timed_call_handler'(Index,_,_,_,_,_),!.
+timed_call_handler_is_active(Index):- 	'_$timed_call_handler'(Index,_,_),!.
 
 :- export bounded_call/4.
 bounded_call(Goal,MaxMemory,MaxTime,Handler):-
