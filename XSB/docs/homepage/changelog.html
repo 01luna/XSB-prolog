@@ -48,8 +48,8 @@ replaces eager incremental tabling, as the lazy version is both more
 robust and more efficient.  In addition
 <ul>
 <li>A new predicate <tt>abolish_nonincremental_tables/0</tt> safely
-absolishes all nonincremental tables, even when incremental and
-nonincremental tables may depend on one another. </li>
+abolishes all non-incremental tables, even when incremental and
+non-incremental tables may depend on one another. </li>
 <li> Other new predicates have been added to allow introspection data
 structures and state related to incremental tabling.
 <tt>incr_is_invalid/1</tt> allows inspection of the state of an
@@ -104,7 +104,7 @@ name.
 <li> XSB's character-level I/O has been significantly rewritten and
 expanded.  It now supports as encodings UTF-8, CP-1252, and LATIN-1;
 with UTF-8 as the default encoding on UNIX-style systems, and CP-1252
-as the default encoding on Windows sytems.  Various ISO predicates
+as the default encoding on Windows systems.  Various ISO predicates
 regarding encodings are also supported such
 as <tt>character_set/1</tt>.  Finally, other character-based I/O
 predicates such as <tt>get_XXX</tt>, <tt>peek_XXX</tt>,
@@ -114,7 +114,7 @@ ISO-compliant and more efficient.
 called "hash-consing" or "interning".  This feature can greatly
 improve performance when tabling is used for structural
 recursion.</li>
-<li> XSB now cleanly compiles under the latest version of Mac OSX
+<li> XSB now cleanly compiles under the latest version of Mac OS X
 which uses LLVM's clang compiler.</li>
 <li> XSB's incremental tabling now fully supports view consistency for
 tables that have been updated.  Incremental tabling has also been
@@ -122,7 +122,7 @@ extended to allow abstraction of dynamic predicates in the call graph.
 Finally, a number of bugs in incremental tabling have been fixed.</li>
 <li>XSB's compiler has been extended so that XSB can be used as a
 preprocessor extending GPP</li>
-<li>Various predicates have been added: a platform-independant
+<li>Various predicates have been added: a platform-independent
 built-in predicate <tt>epoch_seconds/1</tt>,
 and <tt>module_of_term/2.</tt>  XSB's <tt>concat_atom/2</tt>, a
 generalization of the ISO <tt>atom_concat/2</tt> now also can be used
@@ -197,9 +197,9 @@ variables, or answers with large delay lists.</li>
 delaying the evaluation of tabled predicates via the <i>when</i>
 library, and in certain cases where attributed variables occurred in
 dynamic code.  Finally, listing now prints out attributed variables
-correctlly. </li>
+correctly. </li>
 <li> Various bugs were fixed that occurred in error handling during
-heavily tabled computations, such as when thorwing an "maximum subgoal
+heavily tabled computations, such as when throwing a "maximum subgoal
 depth exceeded" exception on very large subgoals, or when throwing
 over incomplete incrementally tabled subgoals. Also error handling was
 improved when a term to be interned exceeds a maximal user-defined
@@ -274,7 +274,7 @@ of an incomplete table: previously this could cause a core dump under
 certain situations, while now all such situations are detected and
 handled properly.  </li>
 
-<li>XSB handles updates to an incemental table that has active choice
+<li>XSB handles updates to an incremental table that has active choice
 points without core-dumping, as it sometimes did in previous
 versions.  </li>
 
@@ -315,7 +315,7 @@ operations (including tabling).
 <li> A new predicate, <tt>timed_call/3</tt>, allows a goal to be
 executed and repeatedly interrupted every <i>n</i> milliseconds with a
 handler.  During a long computation <tt>timed_call/3</tt> can be used
-to repeatedly reporte on the system state, to dynamically alter
+to repeatedly report on the system state, to dynamically alter
 heuristics, or to enforce resource limits (a more specialized
 predicate, <tt>bounded_call/[3,4]</tt> is also available.)
 </li>
@@ -329,7 +329,7 @@ these predicates and functions under non-ISO names.)</li>
 <li> Another new flag can be used to limit XSB's memory consumption to
 a preset amount.  Using an internally set memory limit, rather than
 the system memory limit, can be important when XSB is used with Java
-through Interprolog or is embedded into a C or Java program.
+through InterProlog or is embedded into a C or Java program.
 
 <li> Various other new predicates have been added to
 XSB.  <tt>print_incomplete_tables/[0,1]</tt> can be used to aid
@@ -342,7 +342,7 @@ subgoals.</li>
 
 <li><b> Important bug fixes and enhancements </b></li>
 <ul>
-<li> Fixed issue where XSB was not being configured correctly for Linux kernals 3.*
+<li> Fixed issue where XSB was not being configured correctly for Linux kernels 3.*
 </li>
 <li> XSB now performs unification of cyclic terms.  In addition, <tt>
 tnot/1</tt>, <tt>sk_not/1</tt>, <tt>
@@ -351,7 +351,7 @@ and <tt>atom_codes/2</tt> are now cycle safe.  The
 predicate <tt>ground_or_cyclic/1</tt> provides a cycle-safe groundness
 check.
 </li>
-<li> Improvided compilation time for files with very large numbers of
+<li> Improved compilation time for files with very large numbers of
 predicates.  Improved performance times
 for <tt>tnot/1</tt>, <tt>is_<a>cyclic/1</tt>,
 and <tt>subsumes_term/2</tt>.
@@ -396,7 +396,7 @@ of Cygwin is now working again.
 <li> XSB now includes a Java-based installer for Windows 32- and
 64-bits, and for several varieties of Linux.
 </li> 
-<li> XSB now allows a compier option indicating that the input file is
+<li> XSB now allows a compiler option indicating that the input file is
 canonical, which can improve the speed of compilation of files in
 canonical form by 10-20\%.
 </li> 
@@ -409,7 +409,7 @@ for statistics.</li>
 <li> <tt>load_dyn/[1,2]</tt> can now dynamically load a file into a
 module.</li>
 <li> Several bug fixes, including the following.  An obscure bug in
-handling unsafe variables.  A bug that somtimes occured when adding
+handling unsafe variables.  A bug that sometimes occurred when adding
 conditional answers with answers in the head but not in the delay
 lists.  Arrays used in interning an answer or trie term with a very
 large number of variables, are now expanded when necessary. </li>
@@ -449,10 +449,10 @@ Windows using the MSVC compiler.
 </li>
 <li>
 Fix to allow XSB to be compiled on the Mac with very recent changes to
- Apple's xcode.  These xcode changes broke backwards compatability!
+ Apple's xcode.  These xcode changes broke backwards compatibility!
 </li>
 <li> Fix for recently introduced bug that broke XSB embedability into
-C programs on Linux.  In addtion a fix allows XSB to exit cleanly in
+C programs on Linux.  In addition a fix allows XSB to exit cleanly in
 32-bit Linux when tagged address space has been exceeded.
 </li>
 <li>
@@ -474,7 +474,7 @@ negation).
 <li><tt>pretty_print/2</tt> now implemented to pretty print to a stream.</li>
 </li>
 <li>
-XSB now treats <tt>0'\s</tt> as a space to improve compatability with
+XSB now treats <tt>0'\s</tt> as a space to improve compatibility with
 some other Prologs.
 </li>
 <li>
