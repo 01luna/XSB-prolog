@@ -153,6 +153,7 @@ eval0(tan(X), Res,Expr) :- !,eval(X, Res1,Expr), Res is tan(Res1).
 eval0(asin(X), Res,Expr) :- !,eval(X, Res1,Expr), Res is asin(Res1).
 eval0(acos(X), Res,Expr) :- !,eval(X, Res1,Expr), Res is acos(Res1).
 eval0(atan(X), Res,Expr) :- !,eval(X, Res1,Expr), Res is atan(Res1).
+eval0(atan2(X,Y), Res,Expr) :- !,eval(X, Res1,Expr), eval(Y, Res2,Expr), Res is atan2(Res1,Res2).
 eval0(exp(X), Res,Expr) :- !,eval(X, Res1,Expr), Res is exp(Res1).
 eval0(log(X), Res,Expr) :- !,eval(X, Res1,Expr), Res is log(Res1).
 eval0(log10(X), Res,Expr) :- !,eval(X, Res1,Expr), Res is log10(Res1).

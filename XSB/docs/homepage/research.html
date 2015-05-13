@@ -34,7 +34,7 @@ ensures that answers to <i>S </i>are read from the table rather than
 being re-derived using program clauses. Even from this simple
 description, a first advantage of tabling can be seen, that it
 provides termination to various classes of programs. Consider the case
-of ground positive datalog programs &mdash; i.e. Horn Clause programs that
+of ground positive Datalog programs &mdash; i.e. Horn Clause programs that
 allow only constant terms over a finite alphabet. Such a program
 contains only finitely many ground atoms. Each of these atoms can be
 added at most once to the table as a subgoal, and each such subgoal
@@ -60,7 +60,7 @@ to determine the truth value of literals that do not have a
 derivation. If such literals are involved in a cyclic dependency
 through negation, they are undefined under WFS; if not, the literals
 belong to an unfounded set and are false in WFS. In fact, it can be
-shown that tabling allows non-floundering datalog programs with
+shown that tabling allows non-floundering Datalog programs with
 negation to terminate with polynomial data complexity under the
 well-founded semantics. A second feature to extend the power of
 tabling is called <i>tabled aggregation</i>. If <i>partial order

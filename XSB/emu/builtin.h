@@ -293,7 +293,7 @@
 #define JAVA_INTERRUPT          253
 #define FORCE_TRUTH_VALUE	254
 
-/* This hook is for Interprolog */
+/* This hook is for InterProlog */
 #define INTERPROLOG_CALLBACK    255
 
 /* cons for jumpcof calls */

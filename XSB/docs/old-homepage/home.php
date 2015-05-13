@@ -89,7 +89,7 @@ Interfaces to Java (distributed separately):
         <ul>
 	<li><a href="http://www-db.stanford.edu/~stefan/rdf/yajxb/">
 	      YAJXB</a>
-	<li><a href="http://www.declarativa.com/interprolog">Interprolog</a>
+	<li><a href="http://www.declarativa.com/interprolog">InterProlog</a>
 	</ul>
 </li>
 </ul>
