@@ -5107,13 +5107,14 @@ Error cases are the same as {\tt call/1}.
 %\ourrepeatstandarditem{timed\_call(\#Goal,+Interval,\#Handler,+Option)}{timed\_call/4}{}
 \ourstandarditem{timed\_call(\#Goal,\#Options)}{timed\_call/2}{}
 %
-These predicates call {\tt Goal} and may interrupt {\tt Goal} to call
-various handlers as specified in the {\tt Options} the list of
-options.  In the case where a handler succeeds or fails, the execution
-of {\tt Goal} will be continued; if a handler throws an uncaught
-exception the execution of {\tt Goal} may be aborted. In these ways
-{\tt timed\_call/2} can be used both to allow co-routining of {\tt
-  Goal} and a handler as well as a handled time-out.
+This predicate calls {\tt Goal} and may interrupt {\tt Goal} to call
+various handlers as specified in {\tt Options}, the list of options.
+In the case where a handler succeeds, the execution of {\tt Goal} will
+be continued; if the handler fails, {\tt Goal} will fail; and if a
+handler throws an uncaught exception the execution of {\tt Goal} may
+be aborted. In these ways {\tt timed\_call/2} can be used both to
+allow co-routining of {\tt Goal} with both a handler as well as a handled
+time-out.
 
 {\tt Options} is a list that may contain the following terms
 \bi
@@ -5121,7 +5122,7 @@ exception the execution of {\tt Goal} may be aborted. In these ways
   MaxHandler} will be called when it is determined that the total elapsed
   time to execute {\tt Goal} exceeds {\tt MaxInterval} milliseconds.  As
   a use case, if {\tt MaxHandler} throws an exception, {\tt Goal} can be
-  aborted.
+  aborted; and if {\tt MaxHandler} fails, {\tt Goal} will fail.
 %
 \item The term {\tt repeating(+RepInterval,\#RepHandler)} specifies that
   {\tt RepHandler} will be repeatedly called whenever {\tt Goal} has
@@ -5131,12 +5132,11 @@ exception the execution of {\tt Goal} may be aborted. In these ways
   maximum handler is also specified).
 %
 \item The term {\tt nesting} indicates that nested timed calls should
-  be allowed.  In this case, the nested timed call is simply
-  treated as a call to {\tt Goal}: in other words the interval(s) and
-  handlers for the nested call are ignored.  Otherwise, if {\tt
-    Options} does not contain the term {\tt nesting} an attempt to
-  nest calls will raise a permission exception.
-\ei
+  be allowed within the same break level.  In this case, the nested
+  timed call is simply treated as a call to {\tt Goal}: in other words
+  the interval(s) and handlers for the nested call are ignored.
+  Otherwise, if {\tt Options} does not contain the term {\tt nesting}
+  an attempt to nest calls will raise a permission exception.  \ei
 
 Executing a timed call for {\tt Goal} is more expensive than simply
 calling {\tt Goal}, so it should not be used for frequent calls to
@@ -5169,25 +5169,32 @@ timed_call(loop,[max(5000,abort)]).
 will interrupt {\tt loop} and abort its computation after 5000
 milliseconds.  Alternately, the query
 \begin{verbatim}
+timed_call(loop,[max(500,fail)]).
+\end{verbatim}
+will fail the query.  Finally, the query
+\begin{verbatim}
 timed_call(loop,[repeating(500,statistics)]).
 \end{verbatim}
-will interrupt the computation every 500 seconds, print out
+will interrupt the computation every 500 milliseconds, print out
 statistics, and resume the computation where it left off.
+
+These approaches can be combined: 
 \begin{verbatim}
 timed_call(loop,[repeating(500,statistics),max(5000,abort)]).
 \end{verbatim}
 will interrupt the computation every 500 milliconds to print
 statistics, and will abort after 5000 milliseconds.  More
 sophisticated interrupt handlers could introspect a computation (e.g.,
-using {\tt statistics/2} or {\tt table\_dump/[1,3]}) and possibly
-modify parameters of the computation when possible (e.g., by changing
-one form of tabling to another, when permitted).
+using {\tt statistics/2}, {\tt table\_dump/[1,3]} or other such
+predicates) and possibly modify parameters of the computation when
+possible (e.g., by changing one form of tabling to another, when
+permitted).
 
 {\bf Error Cases} 
 %
 Error cases are the same as {\tt call/1} for the first argument of
-{\tt timed\_call/3} and for handlers.  arguments, along with these
-other errors.
+{\tt timed\_call/3} and for handlers.  In addition {\tt timed\_call/1}
+also throws these other errors.
 %
 \begin{description}
 \item {\tt Options} is non-ground
@@ -5198,7 +5205,7 @@ other errors.
 \bi
 \item {\tt type\_error}
 \ei
-\item {\tt Interval} as contained in the first argument o {\tt max/2}
+\item {\tt Interval} as contained in the first argument of {\tt max/2}
   or {\tt repeating/2} is not a positive  integer
 \bi
 \item {\tt type\_error}
@@ -5212,7 +5219,7 @@ other errors.
   of some other call to {\tt timed\_call/3}
 %
 \bi
-\item {\tt permission\_error(nested\_call,predicate,{\tt Goal})}
+\item {\tt permission\_error(nested\_call,predicate,{\tt C})}
 \ei
 \item {\tt timed\_call/3} is called from the multi-threaded engine
 \bi
