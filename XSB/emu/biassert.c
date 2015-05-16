@@ -3278,8 +3278,8 @@ static inline void allocate_prref_tab_and_tif(CTXTdeclc Psc psc, PrRef *prref, p
 
   if (!(*prref = (PrRef)mem_alloc_nocheck(sizeof(PrRefData),ASSERT_SPACE))) 
     xsb_exit( "[Resource] Out of memory (PrRef)");
-  //fprintf(stdout,"build_prref: %s/%d, shared=%d, prref=%p, incr=%d\n",
-  //          get_name(psc),get_arity(psc),get_shared(psc),prref,get_incr(psc));
+  // fprintf(stdout,"build_prref: %p %s/%d, shared=%d, prref=%p, incr=%d\n",
+  //	 psc,get_name(psc),get_arity(psc),get_shared(psc),prref,get_incr(psc));
 
   if (xsb_profiling_enabled)
     add_prog_seg(psc,(byte *)*prref,sizeof(PrRefData)); /* dsw profiling */
@@ -3296,6 +3296,7 @@ static inline void allocate_prref_tab_and_tif(CTXTdeclc Psc psc, PrRef *prref, p
     {
       TIFptr tip;
       CPtr tp;
+      //      printf("allocate prref tab tabled %d nonincremental %d\n",get_tabled(psc),get_nonincremental(psc));
       /* PSC is declared tabled in New_TIF */
       tip = New_TIF(CTXTc psc);
       tp  = (CPtr)mem_alloc_nocheck(FIXED_BLOCK_SIZE_FOR_TABLED_PRED,ASSERT_SPACE) ;
@@ -3304,7 +3305,7 @@ static inline void allocate_prref_tab_and_tif(CTXTdeclc Psc psc, PrRef *prref, p
       }
       Loc = 0 ;
       if (!get_nonincremental(psc)) { /* incremental evaluation */
-	//	printf("%s is incr %p\n",get_name(psc),*prref);
+	//       	printf("%s is incr prref: %p\n",get_name(psc),*prref);
 	dbgen_inst_ppvww(tabletrysinglenoanswers,get_arity(psc),*prref,tip,tp,&Loc);
       } else {
 	dbgen_inst_ppvww(tabletrysingle,get_arity(psc),(tp+3),tip,tp,&Loc) ;
@@ -3333,7 +3334,14 @@ PrRef build_prref( CTXTdeclc Psc psc )
   if (get_data(psc) == NULL) 
     set_data(psc,global_mod);
     
+#ifdef MULTI_THREAD
+  struct DispBlk_t *dispblk = ((struct DispBlk_t **)get_ep(psc))[1];
   allocate_prref_tab_and_tif(CTXTc psc,&p,&new_ep);
+  (&(dispblk->Thread0))[xsb_thread_entry] = (CPtr) new_ep;
+#else
+  allocate_prref_tab_and_tif(CTXTc psc,&p,&new_ep);
+#endif
+
   p->psc = psc;
   p-> mark = 0;
 
@@ -3781,7 +3789,7 @@ static void retractall_clause(CTXTdeclc ClRef Clause, Psc psc, int flag ) {
 
   
   mark_for_deletion(CTXTc Clause);
-
+  //  printf("retractall clause psc %p %s/%d\n",psc,get_name(psc),get_arity(psc));
     if ((flags[NUM_THREADS] == 1 || !get_shared(psc))
 	&& pflags[CLAUSE_GARBAGE_COLLECT] == 1  
 	&& !dyntabled_incomplete(CTXTc psc) && !flag) {

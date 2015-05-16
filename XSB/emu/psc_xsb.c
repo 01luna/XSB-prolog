@@ -239,12 +239,13 @@ TIFptr get_tip(CTXTdeclc Psc psc) {
 #ifndef MULTI_THREAD
   return tip?(*tip):NULL;
 #else
+  //  printf("get tip %s/%d tip %p\n",get_name(psc),get_arity(psc),tip);
   if (!tip) { /* get it out of dispatch table */
     CPtr temp1 = (CPtr) get_ep(psc);
     if ((get_type(psc) == T_DYNA) &&
 	(*(pb)(temp1) ==  switchonthread)) {
       temp1 = dynpredep_to_prortb(CTXTc temp1);
-      if (temp1 && (*(pb)temp1 == tabletrysingle) ) 
+      if (temp1 && ( (*(pb)temp1 == tabletrysingle) || (*(pb)temp1 == tabletrysinglenoanswers)))
 	return *(TIFptr *)(temp1+2);
       else return (TIFptr) NULL;
     } else {
