@@ -702,6 +702,7 @@ XSB_Start_Instr(tabletrysinglenoanswers,_tabletrysinglenoanswers)
    *  Retrieve instruction arguments and test the system stacks for
    *  overflow.  The local PCreg, "lpcreg", is incremented to point to
    *  the instruction to be executed should this one fail.
+   *  Parameters are the same as tabletrysingle
    */
   
   TabledCallInfo callInfo;
@@ -718,7 +719,6 @@ XSB_Start_Instr(tabletrysinglenoanswers,_tabletrysinglenoanswers)
 
   xwammode = 1;
    
-
   CallInfo_CallArity(callInfo) = get_xxa; 
   LABEL = (CPtr)((byte *) get_xxxl);  
   Op1(get_xxxxl);
