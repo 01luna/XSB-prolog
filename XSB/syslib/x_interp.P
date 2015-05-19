@@ -357,15 +357,15 @@ execute_messages_on_signale_queue:-
               start_sleeper_thread(Rep_interval)	
 	  ; true),!,
 	call_c(One).
-'_$timer_int'(One,_Two) :- 
-	call_c(One).
+%'_$timer_int'(One,_Two) :- 
+%	call_c(One).
 
 :- import lazy_reeval_trap/1 from increval.
 '_$lazy_reeval_int'(One,_Two):- 
 	lazy_reeval_trap(One).
 
 call_handler(Handler):- call(Handler),!.
-call_handler(_).
+%call_handler(_).
 
 '_$attv_int'(Intlist, Call) :-
 % 	file_write(1, '.... in _$attv_int/2'), file_nl(1),
