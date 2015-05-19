@@ -539,7 +539,7 @@ check_dynamic_option(Option,_,_PredCList) :- !,
 
 /*======================================================================*/
 /* get_dynamic_pred_ep(+PHead,+Operation,+CallingRef,-PredEP,-PSC):     */
-/*	returns the PredEP for the predicate that is the main functor       */
+/*	returns the PredEP for the predicate that is the main functor   */
 /*      symbol of PHead.  CallingRef is used in the error message       */
 /*      thrown if PHead is a compiled predicate.  The predicate fails   */
 /*      if PHead is undefined, and succeeds returning the PredEP if     */
@@ -566,6 +566,9 @@ get_dynamic_pred_ep(Head,Operation,CallingPred,PredEP,PSC) :-
 		psc_ep(PSC, PredEP)
 	).
 
+:- export dynamic_pred_has_clauses/2.
+dynamic_pred_has_clauses(Head,Has_Clauses) :-
+    dynamic_code_function(DYNAMIC_PRED_HAS_CLAUSES,Head,Has_Clauses,dynamic_pred_has_clauses,1).
 
 /*======================================================================*/
 /* retract(+Fact)							*/
