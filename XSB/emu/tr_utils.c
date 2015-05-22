@@ -4717,7 +4717,7 @@ void abolish_all_tables(CTXTdeclc int action) {
   reinitialize_incremental_tries(CTXT);  
   //  changed_gl = empty_calllist();
   incr_table_update_safe_gl = TRUE;
-
+  lazy_affected = empty_calllist();
   end_table_gc_time(timer);
 }
 
@@ -5657,6 +5657,18 @@ Cell list_of_answers_from_answer_list(CTXTdeclc VariantSF sf,int as_length,int a
   return listHead;
 }
 
+int hello_world(void) {
+  printf("hello world!!!\n");
+}
+
+void insert_cpred(char * name,int arity,int (*pfunc)(void) ) {
+    int dummy_flag;
+
+    set_forn(insert(name,arity, global_mod, &dummy_flag)->psc_ptr, 
+	     pfunc);
+
+}
+
 int table_inspection_function( CTXTdecl ) {
   switch (ptoc_int(CTXTc 1)) {
 
@@ -6135,7 +6147,17 @@ case CALL_SUBS_SLG_NOT: {
   case PRINT_REGS: print_regs(CTXTc 10,1) ; return TRUE ;
   case PRINT_ALL_STACKS: print_all_stacks(CTXTc 10) ; return TRUE ;
 
+  case TEMP_FUNCTION: {
+    int (*pfunc)() = hello_world;
+    //    (void)(*pfunc)(void);
+    insert_cpred("hello_world",0,pfunc );
+    return TRUE;
+  } /* switch */
+  return TRUE;
+  }
+}
 
+//---------------------------------------------------------------------------------------------------
     //  case TEMP_FUNCTION: {
     //    /* Input : Incall ; Output : Outcall */
     //    VariantSF sf;
@@ -6193,9 +6215,7 @@ case CALL_SUBS_SLG_NOT: {
     //      find_the_visitors(sf);
     //    }
     //  }
-  } /* switch */
-  return TRUE;
-}
+
 
 /* incremental */
 //int abolish_table_call_incr(CTXTdeclc VariantSF subgoal) {
