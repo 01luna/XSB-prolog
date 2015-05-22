@@ -6,6 +6,7 @@ XSB/bin/chr_pp
 XSB/bin/chr_pp-*
 XSB/bin/xsb
 XSB/bin/xsb-*
+XSB/build/*.*~
 XSB/build/*.bak
 XSB/build/*.cache
 XSB/build/*.log
@@ -16,7 +17,10 @@ XSB/build/Installation*
 XSB/build/MS_VC_Mfile.mak
 XSB/build/config.status.lineno
 XSB/build/makexsb
+XSB/build/odbc/*.*~
+XSB/build/windows/*.*~
 XSB/build/windows/custom_settings.mak
+XSB/build/windows64/*.*~
 XSB/build/windows64/custom_settings.mak
 XSB/build/xsb_wrap_smodels.c
 XSB/cmplib/ChangeLog
