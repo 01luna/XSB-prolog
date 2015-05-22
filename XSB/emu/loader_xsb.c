@@ -1034,7 +1034,7 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp)
 	if (isstring(get_data(ptr->psc_ptr)) && 
 	    !has_generated_prefix(name) &&
 #if defined(WIN_NT) || defined(CYGWIN)
-	    stricmp(string_val(get_data(ptr->psc_ptr)),filename)) {
+	    strcasecmp(string_val(get_data(ptr->psc_ptr)),filename)) {
 #else
 	    strcmp(string_val(get_data(ptr->psc_ptr)),filename)) {
 #endif

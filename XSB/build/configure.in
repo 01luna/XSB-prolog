@@ -1307,6 +1307,9 @@ AC_MSG_RESULT($__export_dynamic)
 LDFLAGS=$TEMP_LDFLAGS
 ####### End of test for -export-dynamic option of ld
 
+if test "${word_size}" = "64" -a "${host_os}" = "cygwin" ; then
+   enable_no_cygwin=no
+fi
 if test "${enable_no_cygwin}" != "yes" -o \( "${host_os}" != "cygwin" -a "${host_os}" != "windows" \); then
     LDFLAGS="$LDFLAGS -lm"
 fi
