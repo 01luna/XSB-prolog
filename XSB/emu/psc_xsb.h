@@ -167,7 +167,7 @@ typedef struct psc_pair *Pair;
 
 #define set_forn(psc, val) {                   \
     cell_opcode(get_ep(psc)) = call_forn;      \
-    *(((byte **)get_ep(psc))+1) = val;         \
+    *(((byte **)get_ep(psc))+1) = (byte *)(val);	\
 }
 
 #define  pair_psc(pair)		((pair)->psc_ptr)

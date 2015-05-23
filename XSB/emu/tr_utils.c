@@ -5659,9 +5659,10 @@ Cell list_of_answers_from_answer_list(CTXTdeclc VariantSF sf,int as_length,int a
 
 int hello_world(void) {
   printf("hello world!!!\n");
+  return 0;
 }
 
-void insert_cpred(char * name,int arity,int (*pfunc)(void) ) {
+void insert_cpred(char * name,int arity,int (*pfunc)() ) {
     int dummy_flag;
 
     set_forn(insert(name,arity, global_mod, &dummy_flag)->psc_ptr, 
@@ -6152,9 +6153,9 @@ case CALL_SUBS_SLG_NOT: {
     //    (void)(*pfunc)(void);
     insert_cpred("hello_world",0,pfunc );
     return TRUE;
+  }
   } /* switch */
   return TRUE;
-  }
 }
 
 //---------------------------------------------------------------------------------------------------
