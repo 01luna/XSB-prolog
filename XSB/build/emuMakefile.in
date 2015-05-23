@@ -145,6 +145,8 @@ OBJS =	auxlry.o biassert.o builtin.o call_xsb.o cinterf.o conc_compl.o \
 	url_encode.o \
 	incr_xsb.o call_graph_xsb.o 
 
+# if emuMakefile.h exists, include it. Assume that it contains the var OTHEROBJS
+-include $(arch_config_prefix)/emuMakefile.h
 
 allOBJS = main_xsb.o ${OBJS} ${ODBCOBJ} ${INTERPROLOGOBJ}
 
@@ -174,10 +176,10 @@ xsbora:: init $(allORAOBJS)
 xsbmod:: $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ}
 	@echo ""; \
 	   echo "Making a C-callable XSB module"; \
-	   echo "@LD@ @MEMFLAG@ -o xsb.o $(XSBMOD_LDFLAGS) -r $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ}" ; \
+	   echo "@LD@ @MEMFLAG@ -o $(LIB_OBJECTS) $(XSBMOD_LDFLAGS) -r $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ} ${OTHEROBJS}" ; \
 	   echo ""
-	@@LD@ @MEMFLAG@ -o xsb.o $(XSBMOD_LDFLAGS) -r $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ}
-	@cp xsb.o $(arch_config_objlibdir) 2> /dev/null || echo ""
+	@@LD@ @MEMFLAG@ -o $(LIB_OBJECTS) $(XSBMOD_LDFLAGS) -r $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ} ${OTHEROBJS}
+	@cp $(LIB_OBJECTS) $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 xsbdynmod::
 	@echo "Making XSB Shared Library $(bindir)/libxsb.$(SHAREDLIB_EXTENSION)"
@@ -187,10 +189,10 @@ xsbdynmod::
 # same as xsbmod, but with oracle support
 xsboramod:: $(ORAOBJS)
 	@echo ""; \
-	   echo "Making a C-callable XSB module $(arch_config_objlibdir)/xsb.o with support for Oracle"; \
+	   echo "Making a C-callable XSB module $(arch_config_objlibdir)/$(LIB_OBJECTS) with support for Oracle"; \
 	   echo ""
-	@@LD@ -o xsb.o $(XSBMOD_LDFLAGS) -r $(ORAOBJS)
-	@cp xsb.o $(arch_config_objlibdir) 2> /dev/null || echo ""
+	@@LD@ -o $(LIB_OBJECTS) $(XSBMOD_LDFLAGS) -r $(ORAOBJS) ${OTHEROBJS}
+	@cp $(LIB_OBJECTS) $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 
 depend::
@@ -200,7 +202,7 @@ depend::
 #
 # create a new DLL library in cygwin (compiled with -mno-cygwin) environment
 #
-# LIB_OBJECTS: xsb.o, initdll_xsb.o files
+# LIB_OBJECTS: xsb.o 
 # DLLNAME: name of the new dll
 # DEFFILE is the name of the definitions file.
 # BASEFILE temporary
