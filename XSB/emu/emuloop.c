@@ -491,6 +491,7 @@ int emuloop(CTXTdeclc byte *startaddr)
   DefGlobOps
   byte flag = READFLAG;  	/* read/write mode flag */
   int  restore_type;	/* 0 for retry restore; 1 for trust restore */ 
+  //FILE *logfile = fopen("XSB_LOGFILE.txt","w");
 #ifdef MULTI_THREAD
     int (*fp)();
 #endif
@@ -542,7 +543,7 @@ contcase:     /* the main loop */
 	builtin_table[(int) *(lpcreg+3)][1] + 1;
   }
 #endif
-  //  printf("%x\n",*lpcreg);
+  //fprintf(logfile,"%x\n",*lpcreg);
   switch (*lpcreg) {
 #endif
     
