@@ -290,13 +290,15 @@ DLL_LINK_FLAGS=\
 	/out:"$(DLLDIR)/xsb.dll"
 
 "$(OUTDIR)\xsb.exe" : "$(OBJDIR)" $(DEF_FILE) $(LINK_OBJS) $(LINK_OTHEROBJS)
+	@echo Linking to create xsb.exe: $(LINK_OBJS) $(LINK_OTHEROBJS)
 	-@$(EXECUTABLE) @<<
   $(LINK_FLAGS) $(LINK_OBJS) $(LINK_OTHEROBJS)
 <<
 
-"$(DLLDIR)\xsb.dll" : "$(DLLDIR)" $(DEF_FILE) $(DLL_LINK_OBJS)
+"$(DLLDIR)\xsb.dll": "$(DLLDIR)" $(DEF_FILE) $(DLL_LINK_OBJS) $(LINK_OTHEROBJS)
+	@echo Linking to create xsb.dll: $(DLL_LINK_OBJS) $(LINK_OTHEROBJS)
 	-@$(EXECUTABLE) @<<
-  $(DLL_LINK_FLAGS) $(DLL_LINK_OBJS)
+  $(DLL_LINK_FLAGS) $(DLL_LINK_OBJS) $(LINK_OTHEROBJS)
 <<
 
 .c{$(CPP_OBJS)}.obj:

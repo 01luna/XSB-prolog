@@ -159,17 +159,17 @@ init::
 
 xsb:: init $(allOBJS)
 	@echo ""; echo "Making XSB executable $(EXECUTABLE) "; echo ""
-	@echo -e "\t[$(CC)] -o $(EXECUTABLE)"
+	@echo -e "\t[$(CC)] -o $(EXECUTABLE) $(LDFLAGS) "
 	@cd $(emudir); \
-		$(CC) -o $(EXECUTABLE) $(allOBJS) $(LDFLAGS)
+		$(CC) -o $(EXECUTABLE) $(allOBJS) ${OTHEROBJS} $(LDFLAGS)
 
 xsbora:: init $(allORAOBJS)
 	@echo ""; \
 	  echo "Making XSB executable $(EXECUTABLE) with support for Oracle"; \
 	  echo ""
-	@echo -e "\t[$(CC)] -o $(EXECUTABLE)"
+	@echo -e "\t[$(CC)] -o $(EXECUTABLE) $(LDFLAGS) "
 	@cd $(emudir); \
-		$(CC) -o $(EXECUTABLE) $(allORAOBJS) $(LDFLAGS)
+		$(CC) -o $(EXECUTABLE) $(allORAOBJS) ${OTHEROBJS} $(LDFLAGS)
 
 # Goal for making an XSB load module to be linked with external
 # C-drivers that pass queries to XSB

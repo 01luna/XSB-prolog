@@ -1793,7 +1793,7 @@ void write_quotedname(FILE *file, int charset, char *string)
 }
 
 /********************** write_canonical ****************/
-static Psc dollar_var_psc = NULL;
+Psc dollar_var_psc = NULL;
 #define wcan_string tsgLBuff1
 #define wcan_atombuff tsgLBuff2
 #define wcan_buff tsgSBuff1
