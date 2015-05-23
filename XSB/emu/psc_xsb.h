@@ -236,6 +236,8 @@ extern void set_psc_ep_to_psc(Psc, Psc);
 extern void print_symbol_table();
 extern Psc get_psc_from_ep(void *);
 
+extern void insert_cpred(char * ,int ,int (*)(void) );
+
 /*======================================================================*/
 /*  HiLog related macros.						*/
 /*======================================================================*/

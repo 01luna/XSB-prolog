@@ -475,3 +475,12 @@ Psc get_intern_psc() {
   return (pair_psc(intern_handle));
 }
 
+
+/* Used for PRISM port */
+void insert_cpred(char * name,int arity,int (*pfunc)(void) ) {
+    int dummy_flag;
+
+    set_forn(insert(name,arity, global_mod, &dummy_flag)->psc_ptr, 
+	     pfunc);
+
+}
