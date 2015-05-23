@@ -6143,7 +6143,7 @@ case CALL_SUBS_SLG_NOT: {
   case TEMP_FUNCTION: {
     //int (*pfunc)() = hello_world;
     //(void)(*pfunc)(void);
-    insert_cpred("hello_world",0,pfunc );
+    //insert_cpred("hello_world",0,pfunc );
     return TRUE;
   }
   } /* switch */
