@@ -1611,12 +1611,14 @@ void print_deltf_chain(CTXTdecl) {
 
 /*----- For table debugging --------------------------------------------*/ 
 
+/** not used, but in commented-out code..
 static char *compl_stk_frame_field[] = {
   "subgoal_ptr",   "del_ret_list", "level_num","visited", 
 #ifndef LOCAL_EVAL
 "DG_edges", "DGT_edges"
 #endif
 };
+***/
 
 void print_subg_header(CTXTdeclc FILE * where,VariantSF SUBG) {			    
     fprintf(where, "=== Frame for "); print_subgoal(CTXTc where, SUBG); 
