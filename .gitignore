@@ -57,6 +57,7 @@ XSB/docs/userman/manual1
 XSB/docs/userman/manual1.dvi
 XSB/docs/userman/manual2
 XSB/docs/userman/odbc_man/auto
+XSB/emu/*.*-sv
 XSB/emu/*.bak
 XSB/emu/*.lnk
 XSB/emu/*.o

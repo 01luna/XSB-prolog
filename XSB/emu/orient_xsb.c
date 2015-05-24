@@ -68,6 +68,7 @@ DllExport extern char * call_conv strip_names_from_path(char*, int);
 static void check_create_dir(CTXTdeclc char *);
 
 extern void transform_cygwin_pathname(char *);
+extern void fix_cygwin_pathname(char*);
 
 char current_dir_gl[MAXPATHLEN];
 char xsbinfo_dir_gl[MAXPATHLEN];
@@ -165,15 +166,18 @@ DllExport char *xsb_executable_full_path(char *myname)
     snprintf(myname_augmented, MAXPATHLEN, "%s.exe", myname);
 #endif
 
-#ifdef WIN_NT
-  /* CygWin32 uses absolute paths like this:
-     //<drive letter>/dir1/dir2/...
-     actually /cygdrive/<drive letter>/....
+#if defined(WIN_NT)
+  /* CYGWIN uses absolute paths like this:
+     /<drive letter>/dir1/dir2/...
      If we find such a path, we transform it to a windows-like pathname.
      This assumes that XSB has been compiled using the native Windows
-     API, and is being run from CygWin32 bash (like from the test
+     API, and is being run from CYGWIN bash (like from the test
      scripts). */
   transform_cygwin_pathname(myname_augmented);
+#endif
+#if defined(CYGWIN)
+  // converts Letter:/dir/dir into /cygdrive/Letter/dir/dir
+  fix_cygwin_pathname(myname_augmented);
 #endif
 
   if (is_absolute_filename(myname_augmented))
