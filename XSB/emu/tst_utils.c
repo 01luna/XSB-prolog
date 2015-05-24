@@ -152,7 +152,7 @@ void printTrieSymbol(FILE *fp, Cell symbol) {
   else {
     switch(TrieSymbolType(symbol)) {
     case XSB_INT:
-      fprintf(fp, Intfmt, int_val(symbol));
+      fprintf(fp, "%"Intfmt, int_val(symbol));
       break;
     case XSB_FLOAT:
       fprintf(fp, "%f", float_val(symbol));
@@ -161,7 +161,7 @@ void printTrieSymbol(FILE *fp, Cell symbol) {
       fprintf(fp, "%s", string_val(symbol));
       break;
     case XSB_TrieVar:
-      fprintf(fp, "_V" Intfmt, DecodeTrieVar(symbol));
+      fprintf(fp, "_V%" Intfmt, DecodeTrieVar(symbol));
       break;
     case XSB_STRUCT:
       {
@@ -193,7 +193,7 @@ int sprintTrieSymbol(char * buffer, Cell symbol) {
   else {
     switch(TrieSymbolType(symbol)) {
     case XSB_INT:
-      return sprintf(buffer, Intfmt, int_val(symbol));
+      return sprintf(buffer, "%"Intfmt, int_val(symbol));
       break;
     case XSB_FLOAT:
       return sprintf(buffer, "%f", float_val(symbol));
@@ -202,7 +202,7 @@ int sprintTrieSymbol(char * buffer, Cell symbol) {
       return sprintf(buffer, "%s", string_val(symbol));
       break;
     case XSB_TrieVar:
-      return sprintf(buffer, "_V" Intfmt, DecodeTrieVar(symbol));
+      return sprintf(buffer, "_V%" Intfmt, DecodeTrieVar(symbol));
       break;
     case XSB_STRUCT:
       {
@@ -268,9 +268,9 @@ static void symstkPrintNextTerm(CTXTdeclc FILE *fp, xsbBool list_recursion) {
   switch ( TrieSymbolType(symbol) ) {
   case XSB_INT:
     if ( list_recursion )
-      fprintf(fp, "|" Intfmt "]", int_val(symbol));
+      fprintf(fp, "|%" Intfmt "]", int_val(symbol));
     else
-      fprintf(fp, Intfmt, int_val(symbol));
+      fprintf(fp, "%"Intfmt, int_val(symbol));
     break;
   case XSB_FLOAT:
     if ( list_recursion )
@@ -293,9 +293,9 @@ static void symstkPrintNextTerm(CTXTdeclc FILE *fp, xsbBool list_recursion) {
     break;
   case XSB_TrieVar:
     if ( list_recursion )
-      fprintf(fp, "|V" Intfmt "]", DecodeTrieVar(symbol));
+      fprintf(fp, "|V%" Intfmt "]", DecodeTrieVar(symbol));
     else
-      fprintf(fp, "_V" Intfmt, DecodeTrieVar(symbol));
+      fprintf(fp, "_V%" Intfmt, DecodeTrieVar(symbol));
     break;
   case XSB_STRUCT:
     {
@@ -352,9 +352,9 @@ static int symstkSPrintNextTerm(CTXTdeclc char * buffer, xsbBool list_recursion)
   switch ( TrieSymbolType(symbol) ) {
   case XSB_INT:
     if ( list_recursion )
-      ctr = ctr + sprintf(buffer+ctr, "|" Intfmt "]", int_val(symbol));
+      ctr = ctr + sprintf(buffer+ctr, "|%" Intfmt "]", int_val(symbol));
     else
-      ctr = ctr + sprintf(buffer+ctr, Intfmt, int_val(symbol));
+      ctr = ctr + sprintf(buffer+ctr, "%"Intfmt, int_val(symbol));
     break;
   case XSB_FLOAT:
     if ( list_recursion )
@@ -382,9 +382,9 @@ static int symstkSPrintNextTerm(CTXTdeclc char * buffer, xsbBool list_recursion)
     break;
   case XSB_TrieVar:
     if ( list_recursion )
-      ctr = ctr + sprintf(buffer+ctr, "|V" Intfmt "]", DecodeTrieVar(symbol));
+      ctr = ctr + sprintf(buffer+ctr, "|V%" Intfmt "]", DecodeTrieVar(symbol));
     else
-      ctr = ctr + sprintf(buffer+ctr, "_V" Intfmt, DecodeTrieVar(symbol));
+      ctr = ctr + sprintf(buffer+ctr, "_V%" Intfmt, DecodeTrieVar(symbol));
     break;
   case XSB_STRUCT:
     {

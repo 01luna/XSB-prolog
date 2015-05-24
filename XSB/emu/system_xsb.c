@@ -938,12 +938,12 @@ static char *get_next_command_argument(char **buffptr, char **cmdlineprt)
   char *returnptr = *buffptr;
 
   /* skip white space */
-  while (isspace(**cmdlineprt))
+  while (isspace((int)**cmdlineprt))
     (*cmdlineprt)++;
 
   /* loop as long as not end of cmd line or until the next command argument has
      been found and extracted */
-  while ((!isspace(**cmdlineprt) || quoted) && **cmdlineprt != '\0') {
+  while ((!isspace((int)**cmdlineprt) || quoted) && **cmdlineprt != '\0') {
     if (escaped) {
       switch (**cmdlineprt) {
       case 'b': **buffptr='\b'; break;

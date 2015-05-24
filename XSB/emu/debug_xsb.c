@@ -1641,7 +1641,7 @@ void debug_print_completion_stack(CTXTdecl)
     }
     if ((i % COMPLFRAMESIZE) == 0) { fprintf(stddbg,"Completion Stack %p: %lx\t(subgoal_ptr)",temp, *temp);}
     if ((i % COMPLFRAMESIZE) == 1) { fprintf(stddbg,"Completion Stack %p: %lx\t(del_ret_list)",temp, *temp);}
-    if ((i % COMPLFRAMESIZE) == 2) { fprintf(stddbg,"Completion Stack %p: %d/%d\t(level_num/visited)",temp, (*temp)&0xffffffff,(*temp)>>16);}
+    if ((i % COMPLFRAMESIZE) == 2) { fprintf(stddbg,"Completion Stack %p: %lu/%lu\t(level_num/visited)",temp, (*temp)&0xffffffff,(*temp)>>16);}
 #ifndef LOCAL_EVAL
     if ((i % COMPLFRAMESIZE) >= COMPLFRAMESIZE-2) {
       for (eptr = (EPtr)*temp; eptr != NULL; eptr = next_edge(eptr)) {
@@ -1998,11 +1998,11 @@ static void fprint_cp_cell(FILE * output,char *addrtype, CPtr addr, Cell term)
     switch (cell_tag(term)) {
     case XSB_REF: 
     case XSB_REF1:
-      fprintf(output, "%s %p: XSB_REF (tag=%ld), value=0x%p\n",
+      fprintf(output, "%s %p: XSB_REF (tag=%du), value=0x%p\n",
 	      addrtype, addr, cell_tag(term), ref_val(term));
       break;
     case XSB_ATTV:
-      fprintf(output, "%s %p: XSB_ATTV (tag=%ld), value=0x%p\n",
+      fprintf(output, "%s %p: XSB_ATTV (tag=%du), value=0x%p\n",
 	      addrtype, (CPtr)dec_addr(cell(addr)),
 	      cell_tag(term), ref_val(term));
       break;
@@ -2032,7 +2032,7 @@ static void fprint_cp_cell(FILE * output,char *addrtype, CPtr addr, Cell term)
 	      addrtype, addr, ref_val(term));
       break;
     default:
-      fprintf(output, "%s %p: tag=%ld, value=0x%p\n", 
+      fprintf(output, "%s %p: tag=%du, value=0x%p\n", 
 	      addrtype, addr, cell_tag(term), ref_val(term));
       break;
     }
