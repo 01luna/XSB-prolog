@@ -1430,7 +1430,8 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-no-cygwin           compiled with option -mno-cygwin (default: enabled)
+  --enable-no-cygwin           Compile with the gss option -mno-cygwin (default: disabled)
+                                The latest Cygwins don't support this flag
   --enable-general-tagging     When this option is enabled XSB will determine
                                which bits in the address to tag during
                                runtime. This option is the last resort, if
@@ -2784,9 +2785,9 @@ fi
 
 # Check whether --enable-no-cygwin was given.
 if test "${enable_no_cygwin+set}" = set; then :
-  enableval=$enable_no_cygwin;
+  enableval=$enable_no_cygwin; enable_no_cygwin=yes
 else
-  enable_no_cygwin=yes
+  enable_no_cygwin=no
 fi
 
 # Check whether --enable-general-tagging was given.
@@ -6157,9 +6158,6 @@ $as_echo "$__export_dynamic" >&6; }
 LDFLAGS=$TEMP_LDFLAGS
 ####### End of test for -export-dynamic option of ld
 
-if test "${word_size}" = "64" -a "${host_os}" = "cygwin" ; then
-   enable_no_cygwin=no
-fi
 if test "${enable_no_cygwin}" != "yes" -o \( "${host_os}" != "cygwin" -a "${host_os}" != "windows" \); then
     LDFLAGS="$LDFLAGS -lm"
 fi
