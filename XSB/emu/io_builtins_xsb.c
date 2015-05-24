@@ -1793,7 +1793,7 @@ void write_quotedname(FILE *file, int charset, char *string)
 }
 
 /********************** write_canonical ****************/
-Psc dollar_var_psc = NULL;
+//static Psc dollar_var_psc = NULL;
 #define wcan_string tsgLBuff1
 #define wcan_atombuff tsgLBuff2
 #define wcan_buff tsgSBuff1
@@ -1901,10 +1901,6 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
        XSB_StrAppend(wcan_string,wcan_buff->string);
        break;         
      }        
-      if (!dollar_var_psc) {
-	int new_indicator;
-	dollar_var_psc = pair_psc(insert("$VAR", 1, global_mod, &new_indicator));
-      }
       if (letter_flag && (get_str_psc(prologterm) == dollar_var_psc)) {
 	int ival, letter;
 	Cell tempi = get_str_arg(prologterm,1);

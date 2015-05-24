@@ -1582,6 +1582,7 @@ void init_symbols(CTXTdecl)
   bagof_psc = make_code_psc_rec(CTXTc "bagof", 3, setofmod_psc);
   cut_psc = make_code_psc_rec(CTXTc "!", 0, standard_psc);
   cond_psc = make_code_psc_rec(CTXTc "->", 2, standard_psc);
+  dollar_var_psc = make_code_psc_rec(CTXTc "$VAR", 1, global_mod);
 
   ccall_mod_psc = pair_psc(insert_module(0,"ccallxsb"));
   c_callloop_psc = pair_psc(insert("c_callloop_query_loop",1,ccall_mod_psc,&new));

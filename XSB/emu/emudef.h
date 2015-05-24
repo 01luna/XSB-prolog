@@ -98,7 +98,7 @@ char *nil_string, *true_string, *cut_string, *cyclic_string;
 
 Pair list_pscPair;
 
-Psc list_psc, comma_psc, true_psc, if_psc, colon_psc, caret_psc, ccall_mod_psc, c_callloop_psc;
+Psc list_psc, comma_psc, true_psc, if_psc, colon_psc, caret_psc, ccall_mod_psc, c_callloop_psc, dollar_var_psc;
 Psc tnot_psc, delay_psc, cond_psc, cut_psc, load_undef_psc, setof_psc, bagof_psc;
 Psc box_psc, visited_psc;
 /*

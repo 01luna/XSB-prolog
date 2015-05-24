@@ -206,6 +206,7 @@ extern Psc cut_psc;
 extern Psc load_undef_psc;
 extern Psc cyclic_psc;
 extern Psc visited_psc;
+extern Psc dollar_var_psc;
 
 extern char *nil_string;
 extern char *true_string;
