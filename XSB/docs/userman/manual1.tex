@@ -7,17 +7,20 @@
 \usepackage{epsf,epsfig,subfigure,latexsym,makeidx,latexsym,xspace,amssymb,index}
 \usepackage{lmodern}
 \usepackage[T1]{fontenc}
-
+\usepackage{alltt}
+\usepackage{epic}
+\usepackage{ecltree}
+\usepackage{longtable}
+\usepackage{graphicx,makeidx}
 \usepackage{CJK}
 %\usepackage{pinyin}
-\usepackage{alltt}
-
 %\usepackage[utf8]{inputenc}
+
 \pagestyle{headings}
 
 % LaTeX Size Stuff
 % ----------------
-\setlength{\topmargin}{-0.25in}
+%\setlength{\topmargin}{-0.25in}
 \setlength{\headheight}{10pt}
 \setlength{\headsep}{30pt}
 \setlength{\oddsidemargin}{0.0in}
@@ -76,6 +79,10 @@
 %\newcommand{\ourmoditem}[2]{\item[{\mbox{\tt #1}}]\hspace*{\fill}{\mbox{\sf module:} {\tt #2}}\ \\}
 \newcommand{\ourmoditem}[3]{\item[{\mbox{\tt #1}}] \index{\texttt{#2}}\hspace*{\fill}{\mbox{\sf module:} {\tt #3}}\ \\}
 \newcommand{\ourrepeatmoditem}[3]{\item[{\mbox{\tt #1}}]\index{\texttt{#2}}\hspace*{\fill}{\mbox{\sf module:} {\tt #3}}\ \\ \vspace*{-.35in}}
+
+% used for manual2 -> manual1
+\newcommand{\ouroldmoditem}[2]{\item[{\mbox{\tt #1}}]\hspace*{\fill}{\mbox{\tt module: #2}}\ \\}
+\newcommand{\altourmoditem}[3]{\item[{\mbox{\tt #1}}] \index{\texttt{#2}}\hspace*{\fill}{\mbox{\sf module:} {\tt #3}}\ \\}
 
 \newcommand{\ournewmoditem}[2]{\item[{\mbox{\tt #1}}]\hspace*{\fill}{\sf #2}
                    {\mbox{\sf module: }{\tt #2}}\ \\}
@@ -222,8 +229,8 @@
 \input{exceptions}
 \input{foreign}
 \input{ccallingxsb}
+\input{library}
 \input{restrict}
-
 \appendix
 
 \input{gpp}

@@ -449,24 +449,27 @@ In addition, XSB also makes use of two other classes of errors.
   giving rise to the error does npt easily fit under one of the above
   classes.
 %
-\item[{\tt misc\_error}] is the tag for an error that is not
-  otherwise classified.
-%
 \item[{\tt error(thread\_cancel,Id)}] is the format of an error ball for a
   thread that has been cancelled by XSB thread {\tt Id} (See
   Chapter~\ref{chap:threads} for details on thread cancellation.)
 %
+\item[{\tt misc\_error}] is the tag for an error that is not
+  otherwise classified.
+%
+\item[{\tt misc\_error(Level)}] is the tag for {\tt abort/0-1}, and is
+  used to allow users to abort a suspended query.  {\tt Level} is the
+  break level at which the error was thrown.
+%
 \end{description}
 
-In \version{} of XSB, errors for ISO predicates usually, but not not
-always ISO-compliant, although the number of such non-compliances will
-reduce over time. First, when XSB determines it is out of available
-system memory, recovering from such an error may be difficult at best.
+In \version{} of XSB, errors for ISO predicates are usually, but
+always ISO-compliant (we still have a few non-compliant errors to
+catch).  However, when XSB determines it is out of available system
+memory, recovering from such an error may be difficult at best.
 Accordingly the computation is aborted in the sequential engine, or
 XSB exits in the multi-threaded engine~\footnote{This does not include
   overflowaing a memory limit specified by the flag {\tt
-    max\_memory}.}.  Second, errors in XSB code sometimes arise as
-miscellaneous errors rather than as a designated ISO-error type.
+    max\_memory}.}.
 
 \subsection{XSB-Specific Information in Error Terms}
 
@@ -474,8 +477,8 @@ XSB also encodes other information in error terms, which may vary with
 the error thrown, the form in which XSB was compiled, and the version
 of XSB.  In addition, the specifics of how the information is
 represented may vary, so that this information should always be
-represented through the access methods described in this and the next
-section.
+represented through the access methods described in this section along
+with Section~\ref{sec:catch}.
 
 \begin{description}
 
@@ -617,16 +620,29 @@ is {\small
 \end{verbatim}
 }
 %
+\index{break level}
 \ourmoditem{misc\_error(+Message)}{misc\_error/1}{error\_handler}
 %
 Throws a miscellaneous error that will be caught by the default system
-handler.  For good programming practice miscellaneous errors should
-only be thrown when the cases above are not applicable, and the type
-of error is not of interest for structured error handling.  Such
+handler at the current break level.  Usually, miscellaneous errors
+should only be thrown when the cases above are not applicable, and the
+type of error is not of interest for structured error handling.  Such
 situations occur can occur for instance in debugging, during program
-development. or for other reasons.  Note that this {\tt misc\_error/2}
-replaces the obsolescent XSB predicates {\tt abort/1} and {\tt
-  abort/2}.
+development. or for other reasons.  Conceptually, {\tt misc\_error/1}
+differs from {\tt abort/0-1} only when called from a break level.
+%
+\repeatstandarditem{abort(+Message)}{abort/1}
+\standarditem{abort}{abort/0}
+%
+Throws a type of miscellaneous error that will be caught by the
+default system handler at the top level of the command-line intepreter
+(CLI), but not at the current break level (if any).  This type of
+exception can be useful, for instance if a long-running query is
+interrupted by a ctrl-C, which suspends the query and starts a new
+break level for XSB.  If a regular error is thrown, it will be caught
+by the CLI for the current break level, and so does not provide a way
+to abort the top-level query.  On the other hand, the exception thrown
+by {\tt abort/0-1} will only be caught by the top-level CLI.  
 %
 \end{description}
 %
