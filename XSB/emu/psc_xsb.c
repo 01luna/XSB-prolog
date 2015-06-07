@@ -479,8 +479,10 @@ Psc get_intern_psc() {
 /* Used for PRISM port */
 void insert_cpred(char * name,int arity,int (*pfunc)(void) ) {
     int dummy_flag;
+    Psc psc;
 
-    set_forn(insert(name,arity, global_mod, &dummy_flag)->psc_ptr, 
-	     pfunc);
+    psc = insert(name,arity, global_mod, &dummy_flag)->psc_ptr;
+    set_forn(psc,pfunc);
+    set_type(psc,T_FORN);
 
 }
