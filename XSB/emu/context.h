@@ -282,6 +282,9 @@ DynamicStack  _tstTrail;
   CPtr _gAnsTmplt;
   int _gSizeTmplt;
 
+  /* for skiplist (1-level) to speed up tsiOrderedInsert */
+  SL_node_ptr _SL_header;
+
   /* delay, simplification, etc. */
   Cell _cell_array[MAXTERMBUFSIZE];
   CPtr *_copy_of_var_addr;
@@ -754,6 +757,7 @@ typedef struct th_context th_context ;
 #define  gAnsLeaf               (th->_gAnsLeaf)
 #define  gAnsTmplt              (th->_gAnsTmplt)
 #define  gSizeTmplt             (th->_gSizeTmplt)
+#define  SL_header		(th->_SL_header)
 
 #define  cell_array                         (th->_cell_array)
 #define  copy_of_var_addr                   (th->_copy_of_var_addr)

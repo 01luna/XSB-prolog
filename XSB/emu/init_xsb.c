@@ -1481,6 +1481,8 @@ void init_machine(CTXTdeclc int glsize, int tcpsize,
   slide_top = 0;
   slide_buffering = 0;
   slide_buf_size = 0;
+
+  SL_header = NULL;  // init skiplist header...
 #endif
 
 } /* init_machine() */

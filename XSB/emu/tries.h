@@ -474,6 +474,13 @@ extern counter subg_chk_ins, subg_inserts, ans_chk_ins, ans_inserts;
 	VarEnumerator_trail_top--;			\
     }	
 
+typedef struct SL_node_t *SL_node_ptr;
+typedef struct SL_node_t {
+  SL_node_ptr SL_next;
+  void *SL_down;
+  TimeStamp SL_ts;
+} SL_node;
+
 #ifndef MULTI_THREAD
 /* trie routine variables */
 extern BTNptr Last_Nod_Sav;
