@@ -135,6 +135,8 @@ static void dis_data_sub(FILE *filedes, Pair *chain_ptr, char* modname)
    } /* while */
 }
 
+Integer inst_cnt = 0;
+
 CPtr print_inst(FILE *fd, CPtr inst_ptr)
 {
     Cell instr ;
@@ -143,8 +145,10 @@ CPtr print_inst(FILE *fd, CPtr inst_ptr)
     Psc psc;
 
     loc_pcreg = (CPtr) inst_ptr;
-    fprintf(fd,"     inst("),
-    fprintf(fd,"%p, ", loc_pcreg);
+    inst_cnt++;
+    fprintf(fd,"inst("),
+      //      fprintf(fd,"%lld, %lld, ", inst_cnt, (Integer)loc_pcreg);
+      fprintf(fd,"%ld, %ld, ", inst_cnt, (Integer)loc_pcreg);
     instr = cell(loc_pcreg++) ;
 /* We want the instruction string printed out below.  
  * Someday we should ANSI-fy it. 
@@ -157,7 +161,7 @@ CPtr print_inst(FILE *fd, CPtr inst_ptr)
 	   if (cell_opcode(&instr) == (byte) builtin) {
 	     a++;
 	     fprintf(fd, ", '%d'", cell_operand3(&instr));
-	     fprintf(fd, ", %s", 
+	     fprintf(fd, ", '%s'", 
 		     (char *)builtin_table[cell_operand3(&instr)][0]);
 	   } else 
 	     fprintf(fd, ", %d", cell_operandn(&instr,a++));
@@ -169,7 +173,7 @@ CPtr print_inst(FILE *fd, CPtr inst_ptr)
 	   fprintf(fd, ", r%d", cell_operandn(&instr,a++));
 	   break;
 	 case T:
-	   fprintf(fd, ", %lx", cell(loc_pcreg++));
+	   fprintf(fd, ", 0x%lx", cell(loc_pcreg++));
 	   break;
 	 case P:
 	   a++;
@@ -179,7 +183,7 @@ CPtr print_inst(FILE *fd, CPtr inst_ptr)
 	       cell_opcode(&instr) == (byte) xsb_execute) {
 	     fprintf(fd, ", 0x%lx", *loc_pcreg);
 	     psc = (Psc) cell(loc_pcreg++);
-	     fprintf(fd,", '%s'/%d", get_name(psc), get_arity(psc));
+	     fprintf(fd,", /('%s',%d)", get_name(psc), get_arity(psc));
 	   }
 	   else
 	     fprintf(fd, ", 0x%lx", cell(loc_pcreg++));
@@ -278,7 +282,7 @@ void dis_text(FILE * filedes)
 	    }
 	    comma = 1;
 	    fprintf(filedes, 
-		    "          hash_entry(%p,%lx)", 
+		    "          hash_entry(0x%p,0x%lx)", 
 		    inst_addr2, 
 		    cell(inst_addr2));
 	    inst_addr2 ++;
