@@ -126,8 +126,8 @@
 	'_$_make_xpathH'(CC, CC_opts),
 	('_$_xpath_running_under'(windows) ->
 	    %% Copy libxml2, iconv, zlib libraries from xpath/cc/bin
-	    shell(['copy /B /Y ', WindXML2Dlls, ' ', ConfigBinDir]),
-	    shell(['copy /B /Y ', WindXML2Libs, ' ', ConfigBinDir]),
+	    shell(['copy /B /Y ', '"', WindXML2Dlls, '"', ' ', '"', ConfigBinDir, '"']),
+	    shell(['copy /B /Y ', '"', WindXML2Libs, '"', ' ', '"', ConfigBinDir, '"']),
 	    [Basename],
 	    (path_sysop(exists,Objfile) -> '_$_xpath_force_rename'(Objfile, LibObjFile)
 	    ; true
@@ -135,8 +135,8 @@
 
 	; '_$_xpath_running_under'(cygwin) ->
 	    %% Copy libxml2, iconv, zlib libraries from xpath/cc/bin
-	    shell(['copy /B /Y ', WindXML2Dlls, ' ', ConfigBinDir]),
-	    shell(['copy /B /Y ', WindXML2Libs, ' ', ConfigBinDir]),
+	    shell(['copy /B /Y ', '"', WindXML2Dlls, '"', ' ', '"', ConfigBinDir, '"']),
+	    shell(['copy /B /Y ', '"', WindXML2Libs, '"', ' ', '"', ConfigBinDir, '"']),
 
 	    str_cat(Module, '.dll', SharedLib),
 	    consult(Module, [cc(CC), cc_opts(CC_opts)]),

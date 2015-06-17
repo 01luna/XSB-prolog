@@ -110,16 +110,16 @@
     ;
 	'_$_pcrematch_make_pcrematchH'(CC, CC_opts),
 	('_$_pcrematch_running_under'(windows) ->
-	    shell(['copy /B /Y ', WindPcrematchDlls, ' ', ConfigBinDir]),
-	    shell(['copy /B /Y ', WindPcrematchLibs, ' ', ConfigBinDir]),
+	    shell(['copy /B /Y ', '"', WindPcrematchDlls, '"', ' ', '"', ConfigBinDir, '"']),
+	    shell(['copy /B /Y ', '"', WindPcrematchLibs, '"', ' ', '"', ConfigBinDir, '"']),
 	    [Basename],
 	    (path_sysop(exists,Objfile) -> '_$_pcrematch_force_rename'(Objfile, LibObjFile)
 	    ; true
 	    )
 
 	; '_$_pcrematch_running_under'(cygwin) ->
-	    shell(['copy /B /Y ', WindPcrematchDlls, ' ', ConfigBinDir]),
-	    shell(['copy /B /Y ', WindPcrematchLibs, ' ', ConfigBinDir]),
+	    shell(['copy /B /Y ', '"', WindPcrematchDlls, '"', ' ', '"', ConfigBinDir, '"']),
+	    shell(['copy /B /Y ', '"', WindPcrematchLibs, '"', ' ', '"', ConfigBinDir, '"']),
 
 	    str_cat(Module, '.dll', SharedLib),
 	    consult(Module, [cc(CC), cc_opts(CC_opts)]),

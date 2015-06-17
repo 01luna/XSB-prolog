@@ -119,16 +119,16 @@
     ;
 	'_$_curl_make_curlH'(CC, CC_opts),
 	('_$_curl_running_under'(windows) ->
-	    shell(['copy /B /Y ', WindCurlDlls, ' ', ConfigBinDir]),
-	    shell(['copy /B /Y ', WindCurlLibs, ' ', ConfigBinDir]),
+	    shell(['copy /B /Y ', '"', WindCurlDlls, '"', ' ', '"', ConfigBinDir, '"']),
+	    shell(['copy /B /Y ', '"', WindCurlLibs, '"', ' ', '"', ConfigBinDir, '"']),
 	    [Basename],
 	    (path_sysop(exists,Objfile) -> '_$_curl_force_rename'(Objfile, LibObjFile)
 	    ; true
 	    )
 
 	; '_$_curl_running_under'(cygwin) ->
-	    shell(['copy /B /Y ', WindCurlDlls, ' ', ConfigBinDir]),
-	    shell(['copy /B /Y ', WindCurlLibs, ' ', ConfigBinDir]),
+	    shell(['copy /B /Y ', '"', WindCurlDlls, '"', ' ', '"', ConfigBinDir, '"']),
+	    shell(['copy /B /Y ', '"', WindCurlLibs, '"', ' ', '"', ConfigBinDir, '"']),
 
 	    str_cat(Module, '.dll', SharedLib),
 	    consult(Module, [cc(CC), cc_opts(CC_opts)]),
