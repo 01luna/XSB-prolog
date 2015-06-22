@@ -5112,9 +5112,9 @@ various handlers as specified in {\tt Options}, the list of options.
 In the case where a handler succeeds, the execution of {\tt Goal} will
 be continued; if the handler fails, {\tt Goal} will fail; and if a
 handler throws an uncaught exception the execution of {\tt Goal} may
-be aborted. In these ways {\tt timed\_call/2} can be used both to
-allow co-routining of {\tt Goal} with both a handler as well as a handled
-time-out.
+be aborted. In these ways {\tt timed\_call/2} can be used to allow
+co-routining of {\tt Goal} with a repetition handler and/or timing
+{\tt Goal} out with a (separate) handler.
 
 {\tt Options} is a list that may contain the following terms
 \bi
@@ -5151,6 +5151,12 @@ Because of this, if XSB is suspended on I/O, calling a C or java
 function, in a C-implemented builtin, or otherwise outside of its
 virtual machine, the interrupt will not be executed until computation
 is back within XSB's virtual machine.
+
+{\tt timed\_call/2} is integrated with XSB's break levels with a
+different timed call possible at each break level.  In this way, an
+executing program can be interrupted via a Ctrl-C and inspected using
+one of XSB's introspection builtins.  The time that is spent in a
+break level is not counted as part of the goals maximum allowable time.
 
 {\tt timed\_call/3} is not yet implemented for the multi-threaded
 engine but its functionality is easily duplicated using thread
