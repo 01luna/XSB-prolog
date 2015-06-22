@@ -277,6 +277,7 @@ split_lists([vv(Name,Val)|R],[Val|R1],[Name|R2]):-
 break :-
 	seeing(InpFile), telling(OutFile),
 	see(userin), tell(userout),
+	handle_timed_calls,
 	conget('_$break_level', Blevel),
 	Nblevel is Blevel+1, conset('_$break_level', Nblevel),
 	file_write(STDMSG, '[ Break (level '), file_write(STDMSG, Nblevel),
@@ -286,13 +287,64 @@ break :-
 	file_write(STDMSG, '[ End break (level '), file_write(STDMSG, Nblevel),
 	file_write(STDMSG, ') ]'), file_nl(STDMSG),
 	seen, told,
-	see(InpFile), tell(OutFile).
+	see(InpFile), tell(OutFile),
+        reinvoke_timed_calls.
+
+:- import cancel_sleeper_thread/0,start_sleeper_thread/1 from machine.
+handle_timed_calls:- 
+      cancel_sleeper_thread,
+      machine:stat_walltime(NewWalltime),
+      get_timed_call_index(Index),
+%      writeln(index_is(Index)),
+      ('_$timed_call_rep_max_handler'(Index,_Rep_handler,_Rep_interval,_Max_handler,_Remaining,_Walltime) -> 
+         handle_timed_calls_rep_max(Index,NewWalltime)
+	 ; ( '_$timed_call_max_handler'(Index,_Max_handler,_Remaining,_Walltime) -> 
+	       handle_timed_calls_max(Index,NewWalltime)
+	     ; true  ) ), % nothing to do for rep
+      !.
+handle_timed_calls.
+
+handle_timed_calls_max(Index,NewWalltime):- 
+      retract('_$timed_call_max_handler'(Index,Max_handler,Remaining,Walltime)),
+      NewRemaining is Remaining - (NewWalltime - Walltime),
+%      writeln(stopping_sleeper_thread_max(Remaining,Walltime,NewWalltime,NewRemaining)),
+      assert('_$timed_call_max_handler'(Index,Max_handler,NewRemaining,Walltime)).
+
+handle_timed_calls_rep_max(Index,NewWalltime):- 
+      retract('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,Remaining,Walltime)),
+      NewRemaining is Remaining - (NewWalltime - Walltime),
+%      writeln(stopping_sleeper_thread_rep_max(Remaining,Walltime,NewWalltime,NewRemaining)),
+      assert('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,NewRemaining,Walltime)).
+% nothing to do for timed_call_rep_handler
+
+reinvoke_timed_calls:- 
+      get_timed_call_index(Index),
+      ( '_$timed_call_rep_max_handler'(Index,_Rep_handler,_Rep_interval,_Max_handler,_Max_interval,_Walltime) -> 
+            reinvoke_timed_calls_rep_max(Index)
+        ; '_$timed_call_max_handler'(Index,_Max_handler,_Remaining,_Walltime) -> 
+            reinvoke_timed_calls_max(Index)
+	; '_$timed_call_rep_handler'(_Index,_Rep_handler,Rep_interval) ->
+%	    writeln(restarting_sleeper_thread_rep(Rep_interval)),
+            start_sleeper_thread(Rep_interval)
+	; true ).
+  
+reinvoke_timed_calls_max(Index):- 
+      retract('_$timed_call_max_handler'(Index,Max_handler,Remaining,_Walltime)),
+      machine:stat_walltime(NewWalltime),
+      assert('_$timed_call_max_handler'(Index,Max_handler,Remaining,NewWalltime)),
+%      writeln(restarting_sleeper_thread_max(Remaining)),
+      start_sleeper_thread(Remaining),!.
+reinvoke_timed_calls_rep_max(Index):- 
+      retract('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,Max_interval,_Walltime)),
+      machine:stat_walltime(NewWalltime),
+      assert('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,Max_interval,NewWalltime)),
+%      writeln(restarting_sleeper_thread_max_rep(Rep_interval)),
+      start_sleeper_thread(Rep_interval),!.
 
 readl_brklp1 :-
 	x_interp_repeat,
 	catch(readl_brklp1([]),Ball,(default_error_handler(Ball),fail)),
 	!.
-
 
 readl_brklp1(_) :- 
 	x_interp_repeat, 
@@ -331,29 +383,36 @@ execute_messages_on_signale_queue:-
 	 ;  true),!.
 
 %:- import writeln/1 from standard.
-:- import '_$timed_call_handler'/3 from standard.
-:- import '_$timed_call_handler'/6 from standard.
+:- import '_$timed_call_rep_handler'/3 from standard.
+:- import '_$timed_call_max_handler'/4 from standard.
+:- import '_$timed_call_rep_max_handler'/6 from standard.
 :- import get_timed_call_index/1 from standard.
 
 '_$timer_int'(One,_Two) :-
         get_timed_call_index(Index),
-        '_$timed_call_handler'(Index,Handler,Interval),
+        '_$timed_call_rep_handler'(Index,Handler,Interval),!,
         call_handler(Handler),
         (Interval > 0 ->
             start_sleeper_thread(Interval)
 	 ; true),!,
 	 call_c(One).
+'_$timer_int'(_One,_Two) :-
+        get_timed_call_index(Index),
+        '_$timed_call_max_handler'(Index,Handler,_Max,_Walltime),!,
+%	writeln('_$timed_call_max_handler'(Index,Handler,_Max,_Walltime)),
+        call_handler(Handler).
 '_$timer_int'(One,_Two) :- 
         get_timed_call_index(Index),
-	'_$timed_call_handler'(Index,Rep_handler,Rep_interval,Accum,Max_handler,Max_interval),
-%	writeln('_$timed_call_handler'(Rep_handler,Rep_interval,Accum,Max_handler,Max_interval)),
-	New_Accum is Accum + Rep_interval,
-	(New_Accum >= Max_interval -> 
+	'_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,Max_interval,_Walltime),
+%	writeln('_$timed_call_rep_max_handler'(Rep_handler,Rep_interval,Max_handler,Max_interval,Walltime)),
+	New_Max is Max_interval - Rep_interval,
+	(New_Max =< 0 -> 
 	      call_handler(Max_handler)
 	    ; 
 	      call_handler(Rep_handler),
-	      retract('_$timed_call_handler'(Index,_Handler,_Interval,_Accum,_Max_handler,_Max_interval)),
-	      assert('_$timed_call_handler'(Index,Rep_handler,Rep_interval,New_Accum,Max_handler,Max_interval)),
+	      retract('_$timed_call_rep_max_handler'(Index,_Handler,_Interval,Max_handler,_Max_interval,_Walltime)),
+	      machine:stat_walltime(NewWalltime),
+	      assert('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,New_Max,NewWalltime)),
               start_sleeper_thread(Rep_interval)	
 	  ; true),!,
 	call_c(One).

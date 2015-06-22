@@ -421,10 +421,17 @@ set_prompt(Pstore,Prompt) :-
 
 get_breg(_):- '_$builtin'(GET_BREG).
 
+:- import writeln/1 from standard.
 :- export start_sleeper_thread/1.
-start_sleeper_thread(_Interval):- 
-	'_$builtin'(START_SLEEPER_THREAD).
+start_sleeper_thread(Interval):- 
+        sleeper_thread_operation(START_SLEEPER_THREAD,Interval).
 
+sleeper_thread_operation(_Type,_Interval):- 
+	'_$builtin'(SLEEPER_THREAD_OPERATION).
+
+:- export cancel_sleeper_thread/0.
+cancel_sleeper_thread:- 
+        sleeper_thread_operation(CANCEL_SLEEPER_THREAD,_).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % General Purpose Constraint Stuff
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
