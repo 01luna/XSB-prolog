@@ -1,4 +1,3 @@
-
 /* Not a test of incremental tabling, but put here so its not tested by mt engine */
 
 :- import timed_call/2,abort_level/1 from standard.
@@ -6,20 +5,27 @@
 :- import xsb_backtrace/1 from machine.
 :- import get_backtrace_list/2 from error_handler.
 
-test:- catch(tc_1,error(E,context(M,_)),writeln(caught(E,M))),fail.
-test:- catch(tc_2,error(E,context(M,_)),writeln(caught(E,M))),fail.
-test:- catch(tc_3,error(E,context(M,_)),writeln(caught(E,M))),fail.
+test:- catch(tc_max,error(E,context(M,_)),writeln(caught(E,M))),fail.
+test:- catch(tc_rep,error(E,context(M,_)),writeln(caught(E,M))),fail.
+test:- catch(tc_rep_max,error(E,context(M,_)),writeln(caught(E,M))),fail.
 test:- catch(tc_nest,error(E,context(M,_)),writeln(caught(E,M))),fail.
 test:-  catch(timed_call(true,[]),error(E,context(M,_)),writeln(caught_dummy(E,M))),fail.
+test:-  timed_call(loop,[max(200,fail)]), writeln('oops -- not didnt fail'),fail.
 test.
 
-tc_1:- 
+tc_max:- 
        timed_call(loop,[max(200,mycall_1)]).
+
+tc_max_break:- 
+       timed_call(loop,[max(2000,mycall_1)]).
 
 mycall_1:- writeln('tc_1: mycall!!!'),abort.
 
-tc_2:- conset(mycall_number,0),
+tc_rep:- conset(mycall_number,0),
 	timed_call(loop,[repeating(200,mycall2)]).
+
+tc_rep_break:- conset(mycall_number,0),
+	timed_call(loop,[repeating(400,mycall2)]).
 
 mycall2:- update_mycall_number(N),
 	  (N >= 5 -> 
@@ -32,7 +38,9 @@ update_mycall_number(N1):-
 	N1 is N + 1,
 	conset(mycall_number,N1).
 	
-tc_3:- timed_call(loop,[repeating(200,myrep_3),max(1000,mymax_3)]).
+tc_rep_max:- timed_call(loop,[repeating(200,myrep_3),max(1000,mymax_3)]).
+
+tc_rep_max_break:- timed_call(loop,[repeating(200,myrep_3),max(5000,mymax_3)]).
 
 myrep_3:- writeln('tc_3 heres an interrupt').
 mymax_3:- abort('tc_3 phew!').
@@ -70,6 +78,10 @@ update_mycall_number_5_2(N1):-
 	conget(mycall_number_5_2,N),
 	N1 is N + 1,
 	conset(mycall_number_5_2,N1).
+
+tc_break:-
+       timed_call(loop,[max(5000,mycall_1)]).
+
 
 loop:- loop.
 
