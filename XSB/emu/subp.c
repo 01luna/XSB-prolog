@@ -1076,7 +1076,7 @@ int sleep_interval;
 #ifdef WIN_NT
 HANDLE executing_sleeper_thread = NULL;
 #else
-pthread_t executing_sleeper_thread = NULL;
+pthread_t executing_sleeper_thread = (pthread_t) NULL;
 #endif
 
 // TLS: For some embarassing reason, I don't seem to be able to pass a
@@ -1098,25 +1098,35 @@ executeSleeperThread(void * interval) {
 #else
   usleep(1000*i);  // want milliseconds
 #endif
-  //  printf("slept for %p %d usecs\n",i,*i);
-  //  printf("slept for %d usecs (%d)\n",i,TIMER_INTERRUPT);
   asynint_val |= TIMER_MARK;
   if (executing_sleeper_thread) {
 #ifdef WIN_NT
     CloseHandle(executing_sleeper_thread);
 #endif
-    executing_sleeper_thread = NULL;
+    executing_sleeper_thread = (pthread_t) NULL;
   }
+}
+
+xsbBool cancelSleeperThread(void) {
+  int killrc;
+#ifdef WIN_NT
+#else
+  if (executing_sleeper_thread) { // previous sleeper
+    printf("cancelling sleeper\n");
+    if ((killrc = pthread_cancel(executing_sleeper_thread))) {
+	xsb_warn(CTXTc "could not kill sleeper thread: error %d\n",killrc);
+    }
+    executing_sleeper_thread = (pthread_t) NULL;
+  }
+  asynint_val = asynint_val & ~TIMER_MARK;	
+  return TRUE;
+#endif
 }
 
 // TLS, copied thread start for windows from startProfileThread()
 xsbBool startSleeperThread(int interval) {
   //  struct sched_param param;
 
-  //  printf("interval %d\n",interval);
-  //  int i = interval;
-  //  printf("interval %d\n",i);
-  //  printf("i %p %d\n",&i,*&i);
 #ifdef WIN_NT
   int killrc;
   HANDLE sleeper_thread;
@@ -1139,8 +1149,10 @@ xsbBool startSleeperThread(int interval) {
   int killrc;
 
   if (executing_sleeper_thread) { // previous sleeper, now obsolete
-    killrc = pthread_cancel(executing_sleeper_thread);
-    executing_sleeper_thread = NULL;
+    if ((killrc = pthread_cancel(executing_sleeper_thread))) {
+	xsb_warn(CTXTc "could not kill sleeper thread: error %d\n",killrc);
+    }
+    executing_sleeper_thread = (pthread_t) NULL;
   }
   pthread_create(&sleeper_thread, NULL, (void*)&executeSleeperThread,(void *) &sleep_interval);
   param.sched_priority = sched_get_priority_max(SCHED_OTHER);

@@ -39,6 +39,7 @@ extern xsbBool unify(CTXTdeclc Cell, Cell);
 extern xsbBool unify_rat(CTXTdeclc Cell, Cell, CPtr);
 extern xsbBool are_identical_terms(Cell, Cell);
 extern xsbBool startSleeperThread(int);
+extern xsbBool cancelSleeperThread(void);
 
 /* don't use Cell declarations here, to avoid gcc compiler warnings;
    However, this causes warnings under Windows */

@@ -201,7 +201,7 @@
 #define GET_ATTRIBUTES		173
 #define DELETE_ATTRIBUTES	174
 #define ATTV_UNIFY		175
-#define START_SLEEPER_THREAD    176
+#define SLEEPER_THREAD_OPERATION 176
 #define MARK_TERM_CYCLIC        177
 
 /* This is the builtin where people should put their private, experimental
@@ -358,3 +358,6 @@
 
 #define CYCLIC_SUCCEED 1
 #define CYCLIC_FAIL    2
+
+#define START_SLEEPER_THREAD 1
+#define CANCEL_SLEEPER_THREAD 2

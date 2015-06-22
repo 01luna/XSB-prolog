@@ -3215,10 +3215,20 @@ case WRITE_OUT_PROFILE:
     }
     break;
   }
-
-  case START_SLEEPER_THREAD: {
+  
+  case SLEEPER_THREAD_OPERATION: {
+    int selection = ptoc_int(CTXTc 1);
 #ifndef MULTI_THREAD
-    startSleeperThread(CTXTc (int)ptoc_int(CTXTc 1));
+    if (selection == START_SLEEPER_THREAD) {
+      printf("starting sleeper thread\n");
+      startSleeperThread(CTXTc (int)ptoc_int(CTXTc 2));
+    }
+    else if (selection == CANCEL_SLEEPER_THREAD) {
+      printf("cancelling sleeper thread\n");
+      cancelSleeperThread(CTXT);
+    }
+    else 
+      xsb_abort("sleeper thread operation called with bad operation number: %d\n",selection);
 #else
     xsb_abort("timed_call/3 not implemented for multi-threaded engine.  Please use "
               "thread signalling");
