@@ -25,6 +25,7 @@
 
 :- export cp_opt/2.
 :- export perform_tabling_transforms/2.
+:- export extract_aggr_spec/4.
 
 :- import nthmember/3 from listutil.
 :- import have_hardcut/2 from preproc.

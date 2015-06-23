@@ -1068,7 +1068,7 @@ parse_comma_list_table(Spec, SymTab,Options) :-
 	sym_insert(P, A, [tabled], SymTab, _),
 	insert_compiler_based_options(Options,P/A,SymTab).
 parse_comma_list_table(Spec, SymTab,Options) :- 
-	is_aggregation_spec(Spec),
+	is_aggregation_spec(Spec,SymTab),
 	!,
 	functor(Spec,P,A),
 	sym_insert(P, A, [aggregation(Spec)], SymTab, _),
@@ -1077,28 +1077,28 @@ parse_comma_list_table(X, _Symtab,_Options) :-
 	warning(('Non predicate specification "', X, 
 		 '" found in table directive. Ignored!')).
 
-is_aggregation_spec(Spec) :-
+is_aggregation_spec(Spec,SymTab) :-
 	Spec =.. [_|Args],
 	get_aggregation_spec(Args,Arg),
-	is_aggregation_arg_spec(Arg).
+	is_aggregation_arg_spec(Arg,SymTab).
 
-is_aggregation_arg_spec(Spec3-_) :- is_spec3(Spec3), !.
-is_aggregation_arg_spec(Spec2) :- is_spec2(Spec2), !.
-is_aggregation_arg_spec(lattice(Spec3)) :- is_spec3(Spec3), !.
-is_aggregation_arg_spec(fold(Spec3,Id)) :- is_spec3(Spec3),is_spec1(Id),!.
-is_aggregation_arg_spec(po(Spec2)) :- is_spec2(Spec2),!.
-is_aggregation_arg_spec(po(Spec2,Spec3)) :- is_spec2(Spec2),is_spec3(Spec3),!.
-is_aggregation_arg_spec(termset).
+is_aggregation_arg_spec(Spec3-_,SymTab) :- is_spec3(Spec3,SymTab), !.
+is_aggregation_arg_spec(Spec2,SymTab) :- is_spec2(Spec2,SymTab), !.
+is_aggregation_arg_spec(lattice(Spec3),SymTab) :- is_spec3(Spec3,SymTab), !.
+is_aggregation_arg_spec(fold(Spec3,Id),SymTab) :- is_spec3(Spec3,SymTab),is_spec1(Id,SymTab),!.
+is_aggregation_arg_spec(po(Spec2),SymTab) :- is_spec2(Spec2,SymTab),!.
+is_aggregation_arg_spec(po(Spec2,Spec3),SymTab) :- is_spec2(Spec2,SymTab),is_spec3(Spec3,SymTab),!.
+is_aggregation_arg_spec(termset,_SymTab).
 
-is_spec3(P/3) :- atom(P),!.
-is_spec3(Skel) :- functor(Skel,_,3).
+is_spec3(P/3,SymTab) :- atom(P),!,sym_insert(P,3,[pred],SymTab,_).
+is_spec3(Skel,SymTab) :- functor(Skel,P,3),sym_insert(P,3,[pred],SymTab,_).
 
-is_spec2(P/2) :- atom(P),!.
-is_spec2(Skel) :- functor(Skel,_,2).
+is_spec2(P/2,SymTab) :- atom(P),!,sym_insert(P,2,[pred],SymTab,_).
+is_spec2(Skel,SymTab) :- functor(Skel,P,2),sym_insert(P,2,[pred],SymTab,_).
 
-is_spec1(Id) :- atom(Id),!.
-is_spec1(P/1) :- atom(P),!.
-is_spec1(Skel) :- functor(Skel,_,1).
+is_spec1(Id,SymTab) :- atom(Id),!,sym_insert(Id,1,[pred],SymTab,_).
+is_spec1(P/1,SymTab) :- atom(P),!,sym_insert(P,1,[pred],SymTab,_).
+is_spec1(Skel,SymTab) :- functor(Skel,P,1),sym_insert(P,1,[pred],SymTab,_).
 
 /**	(Arg = P/3- _Id, atom(P)
 	 ;
