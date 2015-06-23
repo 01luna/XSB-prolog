@@ -315,6 +315,7 @@ generate_agg_clauses(lattice(OpSpec),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Va
 	globalize(var,0,SymTab),
 	ensure_imported(call/1,standard,SymTab),
 	ensure_imported(','/2,standard,SymTab),
+	ensure_imported('.'/2,consult,SymTab),
 	ensure_imported(mywriteln/1,cp_opt,SymTab),                     % only for debugging
 	ensure_imported(call_join_op/6,cp_opt,SymTab),
 	ensure_imported('_$$get_returns_and_tvs'/4,tables,SymTab),
@@ -370,6 +371,7 @@ generate_agg_clauses(fold(OpSpec,Id),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Va
 	ensure_imported('_$$get_returns'/3,tables,SymTab),
 	ensure_imported(delete_return/2,tables,SymTab),
 	ensure_imported('_$member'/2,basics,SymTab),
+	ensure_imported('.'/2,consult,SymTab),
 	% TLS: for approximations (whether or not used)
 	ensure_imported(early_complete_on_nth/2,tables,SymTab),
 	ensure_imported(early_complete_on_delta/4,tables,SymTab).
