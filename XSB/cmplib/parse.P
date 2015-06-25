@@ -1082,13 +1082,13 @@ is_aggregation_spec(Spec,SymTab) :-
 	get_aggregation_spec(Args,Arg),
 	is_aggregation_arg_spec(Arg,SymTab).
 
-is_aggregation_arg_spec(Spec3-_,SymTab) :- is_spec3(Spec3,SymTab), !.
+is_aggregation_arg_spec(Spec3-_,SymTab) :- !, is_spec3(Spec3,SymTab).
+is_aggregation_arg_spec(lattice(Spec3),SymTab) :- !, is_spec3(Spec3,SymTab).
+is_aggregation_arg_spec(fold(Spec3,Id),SymTab) :- !, is_spec3(Spec3,SymTab),is_spec1(Id,SymTab).
+is_aggregation_arg_spec(po(Spec2),SymTab) :- !, is_spec2(Spec2,SymTab).
+is_aggregation_arg_spec(po(Spec2,Spec3),SymTab) :- !, is_spec2(Spec2,SymTab),is_spec3(Spec3,SymTab).
+is_aggregation_arg_spec(termset,_SymTab) :- !.
 is_aggregation_arg_spec(Spec2,SymTab) :- is_spec2(Spec2,SymTab), !.
-is_aggregation_arg_spec(lattice(Spec3),SymTab) :- is_spec3(Spec3,SymTab), !.
-is_aggregation_arg_spec(fold(Spec3,Id),SymTab) :- is_spec3(Spec3,SymTab),is_spec1(Id,SymTab),!.
-is_aggregation_arg_spec(po(Spec2),SymTab) :- is_spec2(Spec2,SymTab),!.
-is_aggregation_arg_spec(po(Spec2,Spec3),SymTab) :- is_spec2(Spec2,SymTab),is_spec3(Spec3,SymTab),!.
-is_aggregation_arg_spec(termset,_SymTab).
 
 is_spec3(P/3,SymTab) :- atom(P),!,sym_insert(P,3,[pred],SymTab,_).
 is_spec3(Skel,SymTab) :- functor(Skel,P,3),sym_insert(P,3,[pred],SymTab,_).
@@ -1096,7 +1096,7 @@ is_spec3(Skel,SymTab) :- functor(Skel,P,3),sym_insert(P,3,[pred],SymTab,_).
 is_spec2(P/2,SymTab) :- atom(P),!,sym_insert(P,2,[pred],SymTab,_).
 is_spec2(Skel,SymTab) :- functor(Skel,P,2),sym_insert(P,2,[pred],SymTab,_).
 
-is_spec1(Id,SymTab) :- atom(Id),!,sym_insert(Id,1,[pred],SymTab,_).
+is_spec1(Id,_SymTab) :- atomic(Id), !.
 is_spec1(P/1,SymTab) :- atom(P),!,sym_insert(P,1,[pred],SymTab,_).
 is_spec1(Skel,SymTab) :- functor(Skel,P,1),sym_insert(P,1,[pred],SymTab,_).
 
