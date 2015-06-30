@@ -719,11 +719,12 @@ typedef struct subgoal_frame {
 #define DELETED_SUBGOAL_FRAME(subgoal)  ((subgoal->visited) & DELETED_SUBGOAL_MASK)
 #define DELETE_SUBGOAL_FRAME(subgoal) {(subgoal->visited) = DELETED_SUBGOAL_MASK | (subgoal->visited);}
 
-#define is_completed(SUBG_PTR)		(subg_is_complete(SUBG_PTR) == TRUE)
-#define subg_is_completed(SUBG_PTR)		(subg_is_complete(SUBG_PTR) == TRUE)
+#define is_completed(SUBG_PTR)		(subg_is_complete(SUBG_PTR) & 1)
+#define subg_is_completed(SUBG_PTR)		(subg_is_complete(SUBG_PTR) & 1)
+#define complete_subg(SUBG_PTR)    subg_is_complete((SUBG_PTR)) |= 1
 
-#define subg_is_ec_scheduled(SUBG_PTR)		(subg_is_complete(SUBG_PTR) == 2)
-#define schedule_ec(SUBG_PTR)                   (subg_is_complete(SUBG_PTR) = 2)
+#define subg_is_ec_scheduled(SUBG_PTR)		(subg_is_complete(SUBG_PTR) & 2)
+#define schedule_ec(SUBG_PTR)                   subg_is_complete(SUBG_PTR) |= 2
 
 
 #ifdef BITS64
@@ -1037,16 +1038,16 @@ void tstCreateTSIs(struct th_context *,TSTNptr);
 
 #ifndef MULTI_THREAD   
 #define mark_as_completed(SUBG_PTR) {		\
-    if (  subg_is_complete(SUBG_PTR) != TRUE) { \
-      subg_is_complete(SUBG_PTR) = TRUE;	\
+    if (  !subg_is_completed(SUBG_PTR) ) { \
+      complete_subg(SUBG_PTR);			\
       reclaim_del_ret_list(SUBG_PTR);		\
     }						\
   }
 #else
 #define mark_as_completed(SUBG_PTR) {		\
-    if (  subg_is_complete(SUBG_PTR) != TRUE) { \
-          subg_is_complete(SUBG_PTR) = TRUE;	\
-          reclaim_del_ret_list(th, SUBG_PTR);	\
+    if (  !subg_is_completed(SUBG_PTR)) {	\
+      complete_subg(SUBG_PTR);			\
+      reclaim_del_ret_list(th, SUBG_PTR);	\
     }						\
   }
 #endif

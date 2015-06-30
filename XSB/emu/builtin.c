@@ -3217,7 +3217,7 @@ case WRITE_OUT_PROFILE:
   }
   
   case SLEEPER_THREAD_OPERATION: {
-    int selection = ptoc_int(CTXTc 1);
+    Integer selection = ptoc_int(CTXTc 1);
 #ifndef MULTI_THREAD
     if (selection == START_SLEEPER_THREAD) {
       printf("starting sleeper thread\n");

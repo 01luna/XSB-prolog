@@ -157,7 +157,7 @@ DllExport extern char * call_conv strip_names_from_path(char*, int);
 Cell answer_return_inst;
 Cell resume_compl_suspension_inst;
 Cell resume_compl_suspension_inst2;
-Cell check_complete_inst;
+CPtr check_complete_inst;
 Cell hash_handle_inst;
 Cell fail_inst;
 Cell trie_fail_inst;

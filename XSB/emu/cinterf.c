@@ -1521,8 +1521,9 @@ DllExport int call_conv writeln_to_xsb_stdin(char * input){
 #else
 #define EXECUTE_XSB {						\
     if (th != main_thread_gl) {					\
+      int pthread_cond_wait_err;	\
       xsb_ready = XSB_IN_Prolog;										\
-      int pthread_cond_wait_err = xsb_cond_signal(&xsb_started_cond, "EXECUTE_XSB", __FILE__, __LINE__);	\
+      pthread_cond_wait_err = xsb_cond_signal(&xsb_started_cond, "EXECUTE_XSB", __FILE__, __LINE__);	\
       while ((XSB_IN_Prolog == xsb_ready) && (!pthread_cond_wait_err))										\
       	pthread_cond_wait_err = xsb_cond_wait(&xsb_done_cond, &xsb_synch_mut, "EXECUTE_XSB", __FILE__, __LINE__);	\
     }	\
@@ -1530,8 +1531,9 @@ DllExport int call_conv writeln_to_xsb_stdin(char * input){
   }
 #define EXECUTE_XSB_SETUP_X(NR) {				\
     if (th != main_thread_gl) {					\
+      int pthread_cond_wait_err;					\
       xsb_ready = XSB_IN_Prolog;										\
-      int pthread_cond_wait_err = xsb_cond_signal(&xsb_started_cond, "EXECUTE_XSB_SETUP_X", __FILE__, __LINE__);	\
+      pthread_cond_wait_err = xsb_cond_signal(&xsb_started_cond, "EXECUTE_XSB_SETUP_X", __FILE__, __LINE__);	\
       while ((XSB_IN_Prolog == xsb_ready) && (!pthread_cond_wait_err))										\
       	pthread_cond_wait_err = xsb_cond_wait(&xsb_done_cond, &xsb_synch_mut, "EXECUTE_XSB_SETUP_X", __FILE__, __LINE__);	\
     }	\
@@ -2067,9 +2069,9 @@ typedef SSIZE_T	ssize_t;
 #endif
 static inline ssize_t pread(int fd, void *buf, size_t count, size_t offset)
 {
-  if (-1 == lseek(fd,(long)offset,SEEK_SET))
+  if (-1 == _lseek(fd,(long)offset,SEEK_SET))
     return(-1);
-  return(read(fd,buf,(unsigned int)count));
+  return(_read(fd,buf,(unsigned int)count));
 }
 #else
 //

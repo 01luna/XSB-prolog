@@ -546,7 +546,7 @@ void fix_cygwin_pathname(char *filename)
   if (strlen(filename) < MAXPATHLEN - 9    // /cygdrive = 9 chars
       && filename[1] == ':'
       && filename[2] == '/'
-      && isalpha(filename[0]))
+      && isalpha(((int)filename[0])))
     {
       strcpy(tmp,"/cygdrive/");
       tmp[10] = filename[0];

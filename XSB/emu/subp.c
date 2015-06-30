@@ -1102,16 +1102,19 @@ executeSleeperThread(void * interval) {
   if (executing_sleeper_thread) {
 #ifdef WIN_NT
     CloseHandle(executing_sleeper_thread);
-#endif
+    executing_sleeper_thread = (HANDLE) NULL;
+#else
     executing_sleeper_thread = (pthread_t) NULL;
+#endif
   }
 }
 
 xsbBool cancelSleeperThread(void) {
-  int killrc;
 #ifdef WIN_NT
+  return FALSE;  // should be defined??
 #else
   if (executing_sleeper_thread) { // previous sleeper
+    int killrc;
     printf("cancelling sleeper\n");
     if ((killrc = pthread_cancel(executing_sleeper_thread))) {
 	xsb_warn(CTXTc "could not kill sleeper thread: error %d\n",killrc);

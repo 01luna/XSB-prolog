@@ -148,7 +148,7 @@ CPtr print_inst(FILE *fd, CPtr inst_ptr)
     inst_cnt++;
     fprintf(fd,"inst("),
       //      fprintf(fd,"%lld, %lld, ", inst_cnt, (Integer)loc_pcreg);
-      fprintf(fd,"%ld, %ld, ", inst_cnt, (Integer)loc_pcreg);
+      fprintf(fd,"%" Intfmt ", %" Intfmt " ", inst_cnt, (Integer)loc_pcreg);
     instr = cell(loc_pcreg++) ;
 /* We want the instruction string printed out below.  
  * Someday we should ANSI-fy it. 

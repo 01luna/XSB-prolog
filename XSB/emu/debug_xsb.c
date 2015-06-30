@@ -1585,8 +1585,8 @@ void printDelTF(DelTFptr dtf) {
 
 #ifdef MULTI_THREAD
 void print_private_deltfs(CTXTdecl) {
-  printf("========================== private deltf chain\n");
   DelTFptr dtf =   private_deltf_chain_begin;
+  printf("========================== private deltf chain\n");
   while (dtf != NULL) {
     printDelTF(dtf);
     printf("\n");

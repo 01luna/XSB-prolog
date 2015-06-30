@@ -5922,7 +5922,7 @@ case CALL_SUBS_SLG_NOT: {
   case GET_CURRENT_SCC: {
     VariantSF subgoal_frame;
     subgoal_frame = (VariantSF) ptoc_int(CTXTc 2);
-    if (subg_is_complete(subgoal_frame)) return FALSE;
+    if (subg_is_completed(subgoal_frame) || subg_is_ec_scheduled(subgoal_frame)) return FALSE;
     ctop_int(CTXTc 3, compl_level(subg_compl_stack_ptr(subgoal_frame)));
     break;
   }

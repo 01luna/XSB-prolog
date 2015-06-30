@@ -2703,8 +2703,9 @@ argument positions.
     current_inst = lpcreg;
 #ifdef MULTI_THREAD
     if (xsb_mode == C_CALLING_XSB && th != main_thread_gl) {
+      int pthread_cond_wait_err;
       xsb_ready = XSB_IN_C;
-      int pthread_cond_wait_err = xsb_cond_signal(&xsb_done_cond, "emuloop", __FILE__, __LINE__);
+      pthread_cond_wait_err = xsb_cond_signal(&xsb_done_cond, "emuloop", __FILE__, __LINE__);
       while ((XSB_IN_C == xsb_ready) && (!pthread_cond_wait_err))
       	pthread_cond_wait_err = xsb_cond_wait(&xsb_started_cond, &xsb_synch_mut, "emuloop", __FILE__, __LINE__);
     } else  

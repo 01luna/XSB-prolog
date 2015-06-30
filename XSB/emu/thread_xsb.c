@@ -32,6 +32,9 @@
 
 #ifndef WIN_NT
 #include <unistd.h>
+#else
+#include <Windows.h>
+#include <stdint.h>
 #endif
 
 
@@ -718,7 +721,7 @@ static int xsb_thread_create(th_context *th, int glsize, int tcsize, int complsi
 
 /*-------------------*/
 
-call_conv int xsb_ccall_thread_create(th_context *th,th_context **thread_return)
+int call_conv xsb_ccall_thread_create(th_context *th,th_context **thread_return)
 {
   int rc;
   th_context *new_th_ctxt;
@@ -1081,6 +1084,29 @@ int wait_on_queue( th_context *th, XSB_MQ_Ptr q, op_type send )
 	return FALSE;
 }
 
+#endif
+
+#if defined(WIN_NT) && defined(MULTI_THREAD)
+
+int gettimeofday(struct timeval * tp, struct timezone * tzp)
+{
+    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+    static const UInteger EPOCH = ((UInteger) 116444736000000000ULL);
+
+    SYSTEMTIME  system_time;
+    FILETIME    file_time;
+    UInteger    time;
+
+    GetSystemTime( &system_time );
+    SystemTimeToFileTime( &system_time, &file_time );
+    time =  ((UInteger)file_time.dwLowDateTime )      ;
+    // this only works for 64-bit
+    time += ((UInteger)file_time.dwHighDateTime) << 32;
+
+    tp->tv_sec  = (long) ((time - EPOCH) / 10000000L);
+    tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
+    return 0;
+}
 #endif
 
 /*-------------------------------------------------------------------------*/
@@ -1500,9 +1526,9 @@ xsbBool xsb_thread_request( CTXTdecl )
 	  int id = ptoc_int(CTXTc 2);
 	  XSB_MQ_Ptr message_queue;
           int index = THREAD_ENTRY(id);
+	  MQ_Cell_Ptr this_cell;
 	  
 	  message_queue = &mq_table[index];
-	  MQ_Cell_Ptr this_cell;
 
 	  lock_message_queue(message_queue,"thread_send_message");
 	  
@@ -1792,12 +1818,11 @@ case THREAD_ACCEPT_MESSAGE: {
 	  int id = ptoc_int(CTXTc 2);
 	  XSB_MQ_Ptr message_queue;
           int index = THREAD_ENTRY(id);
+	  int islast = 0;
 
 	  message_queue = &mq_table[index];
 
 	  //	  printf("thread %d peek message %d\n",xsb_thread_entry,index);
-
-	  int islast = 0;
 
 	  pthread_mutex_lock(&message_queue->mq_mutex);
 	  check_deleted(th, id, message_queue, MESG_PEEK);
@@ -1818,10 +1843,9 @@ case THREAD_ACCEPT_MESSAGE: {
 	  int id = ptoc_int(CTXTc 2);
 	  XSB_MQ_Ptr message_queue;
           int index = THREAD_ENTRY(id);
+	  int islast = 0;
 	  
 	  message_queue = &mq_table[index];
-
-	  int islast = 0;
 
 	  check_deleted(th, id, message_queue, MESG_PEEK);
 	  if (message_queue->last_message == current_mq_cell) {

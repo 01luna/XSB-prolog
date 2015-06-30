@@ -159,11 +159,12 @@ extern byte *inst_begin_gl;       /* ptr to beginning of instruction array. */
 extern byte *current_inst;
 #endif
 
-extern Cell answer_return_inst, check_complete_inst, hash_handle_inst,
+extern Cell answer_return_inst, hash_handle_inst,
 	    resume_compl_suspension_inst, fail_inst, dynfail_inst, 
   halt_inst, proceed_inst, trie_fail_inst,
   resume_compl_suspension_inst2,completed_trie_member_inst,
             reset_inst, trie_fail_unlock_inst;
+extern CPtr check_complete_inst;
 extern byte *check_interrupts_restore_insts_addr;
 
 

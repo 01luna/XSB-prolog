@@ -1127,7 +1127,7 @@ static void handle_empty_dl_creation(CTXTdeclc DL dl)
 				 get_arity(TIF_PSC(subg_tif_ptr(subgoal))),
 				 (CPtr) DynStk_Base(tstSymbolStack), callVars);
       if ( IsNonNULL(leaf) ) {
-	subg_is_complete( (VariantSF) Child(leaf)) = TRUE;
+	complete_subg( (VariantSF) Child(leaf));
 	//	subg_asf_list_ptr( (VariantSF) Child(leaf)) = NULL;
 	//	fprintf(stderr,"hedc B\n");
 	simplify_neg_succeeds(CTXTc (VariantSF) Child(leaf));

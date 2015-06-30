@@ -1776,6 +1776,8 @@ static void db_addbuff_i(byte Arity, ClRef Clause, PrRef Pred, int AZ,
 	|| ClRefSOBArg(SOBbuff,1) != (byte)(Ind>>16)  /* for byte-back */
 	|| ClRefSOBArg(SOBbuff,2) != (byte)(Ind>>8)
 	|| ClRefSOBArg(SOBbuff,3) != (byte)Ind) {
+      if (PredOpCode(Pred) != fail && ClRefType(SOBbuff) != SOB_RECORD) 
+      	ThisTabSize = 1;
       SOBbuff = new_SOBblock(ThisTabSize,Ind,get_str_psc(Head));
       /* add new SOB block */
       db_addbuff(Arity,SOBbuff,Pred,AZ,TRUE,Inum);
@@ -3326,6 +3328,9 @@ PrRef build_prref( CTXTdeclc Psc psc )
   PrRef p;
   pb new_ep;
   //  Integer Tabled = ptoc_int(CTXTc 2);
+#ifdef MULTI_THREAD
+  struct DispBlk_t *dispblk;
+#endif
 
   set_type(psc, T_DYNA);
   set_env(psc, T_VISIBLE);
@@ -3335,7 +3340,7 @@ PrRef build_prref( CTXTdeclc Psc psc )
     set_data(psc,global_mod);
     
 #ifdef MULTI_THREAD
-  struct DispBlk_t *dispblk = ((struct DispBlk_t **)get_ep(psc))[1];
+  dispblk = ((struct DispBlk_t **)get_ep(psc))[1];
   allocate_prref_tab_and_tif(CTXTc psc,&p,&new_ep);
   (&(dispblk->Thread0))[xsb_thread_entry] = (CPtr) new_ep;
 #else
