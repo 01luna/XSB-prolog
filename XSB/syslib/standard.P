@@ -2293,7 +2293,8 @@ get_exception_ball(_T,E):-
 %	stat_flag(MEMORY_ERROR_FLAG,Flag),
 	stat_flag(95,Flag),
 	Flag > 0,
-	return_memory_exception(Flag,E).
+	return_memory_exception(Flag,E),
+	stat_set_flag(95,0).
 
 ?- dynamic_code_function(INIT_STANDARD_CGC_BLOCKS,_,_,_,_).
 
