@@ -4063,7 +4063,7 @@ xsbBool dynamic_code_function( CTXTdecl )
 
 // Problems with clang
 #if !defined(DARWIN) 
-inline 
+//inline 
 #endif
 CPtr trie_asserted_clref(CPtr prref)
 {

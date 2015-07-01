@@ -697,7 +697,7 @@ void intercept(CTXTdeclc Psc psc) {
 #define FLOAT_MASK 0xfffffff8
 #endif
 
-inline int sign(Float num)
+int sign(Float num)
 {
   if (num==0.0) return 0;
   else if (num>0.0) return 1;

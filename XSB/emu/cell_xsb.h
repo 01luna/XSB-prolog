@@ -101,7 +101,7 @@
 #endif
 //extern inline float getfloatval(Cell);
 //extern inline Cell makefloat(float);
-extern inline int sign(Float);
+extern int sign(Float);
 
 #define isref(cell)  (!((word)(cell)&0x3))
 #define isnonvar(cell) ((word)(cell)&0x3)		/* dcell -> xsbBool */
