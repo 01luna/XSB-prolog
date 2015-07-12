@@ -80,7 +80,7 @@ int sha1_string(prolog_term InputTerm, char *Result) {
 
   if (isstring(InputTerm)) {
     char *Str = string_val(InputTerm);
-    SHA1Input(&sha, (const unsigned char *) Str, strlen(Str));
+    SHA1Input(&sha, (const unsigned char *) Str, (unsigned int) strlen(Str));
   } else if (isconstr(InputTerm)) {
     char *filename = string_val(p2p_arg(InputTerm,1));
     FILE *fp;                /* File pointer for reading files*/
