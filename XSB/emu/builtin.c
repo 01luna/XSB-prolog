@@ -123,7 +123,7 @@
 #include "debug_xsb.h"
 
 #include "thread_xsb.h"
- /* incremental evaluation */
+/* incremental evaluation */
 
 #include "incr_xsb.h"
 #include "call_graph_xsb.h"
@@ -229,6 +229,8 @@ extern double realtime_count_gl; /* from subp.c */
 
 extern BTNptr trie_asserted_trienode(CPtr clref);
 extern int gc_dynamic(CTXTdecl);
+
+extern int sha1_string(prolog_term, char *);
 
 /* ------- variables also used in other parts of the system -----------	*/
 
@@ -3273,6 +3275,34 @@ case WRITE_OUT_PROFILE:
   case MT_RANDOM_REQUEST: {
     return mt_random_request(CTXT) ;
   }
+
+  case CRYPTO_HASH: 
+    /* Arg 1: type of hash - MD5 (not implemented) or SHA1
+       Arg 2: input - string or file(filename)
+       Arg 3: string - output
+    */
+    {
+      Integer type = ptoc_int(CTXTc 1);
+      prolog_term InputTerm = reg_term(2);
+      prolog_term Output = reg_term(3);
+      // SHA1 hash has 40 characters; MD5 has less
+      char *Result = (char *)mem_alloc(41,BUFF_SPACE);
+
+      switch (type) {
+      case MD5: {
+	xsb_error("crypto_hash: MD5 hash is not implemented yet");
+	return FALSE;
+      }
+      case SHA1: {
+	int retcode = sha1_string(InputTerm,Result);
+	return retcode && atom_unify(makestring(string_find(Result,1)),Output);
+      }
+      default: {
+	xsb_error("crypto_hash: unknown hash function type");
+	return FALSE;
+      }
+      }
+    }
 
   default:
     xsb_abort("Builtin #%d is not implemented", number);

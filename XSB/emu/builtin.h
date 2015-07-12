@@ -114,6 +114,8 @@
 #define DO_ONCE                  72
 #define INTERN_TERM		 73
 
+#define CRYPTO_HASH		 74
+
 /* for efficiency, implemented these in C */
 #define CONGET_TERM	         75
 #define CONSET_TERM	         76
@@ -361,3 +363,6 @@
 
 #define START_SLEEPER_THREAD 1
 #define CANCEL_SLEEPER_THREAD 2
+
+#define MD5  1
+#define SHA1 2
