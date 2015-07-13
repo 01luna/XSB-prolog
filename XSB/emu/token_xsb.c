@@ -833,7 +833,6 @@ READ_ERROR:
             case '\n':		      /* seeing a newline */
 	      //	      while (IsLayout(c = GetCode(charset,card,instr)));
 	        c = GetCode(charset,card,instr); // ignore it
-		printf("next after back-nl: %d\n",c);
                 goto BACK;
 	case '\r':  // newline for windows eol?
 	        c = GetCode(charset,card,instr); // ignore it
