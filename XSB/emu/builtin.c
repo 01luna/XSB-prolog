@@ -599,7 +599,7 @@ DllExport void call_conv ctop_int(CTXTdeclc int regnum, prolog_int value)
     bind_oint(vptr(addr),value);
   }
   else {
-    xsb_abort("[CTOP_INT] Argument %d of illegal type: %s", 
+    xsb_abort("[CTOP_INT] Argument %d of illegal type: %s",
 	      regnum, canonical_term(CTXTc addr, 0));
   }
 }
@@ -2064,10 +2064,10 @@ int builtin_call(CTXTdeclc byte number)
       xsb_fprint_variable(CTXTc fptr, var);
       break;
     }
-    case XSB_INT    : 
+    case XSB_INT    :
 
       fprintf(fptr, "%" Intfmt, (Integer)ptoc_int(CTXTc 3)); break;
-    case XSB_STRING : 
+    case XSB_STRING :
       write_string_code(fptr,charset,(byte *)ptoc_string(CTXTc 3));
       break;
     case XSB_FLOAT  : fprintf(fptr, "%2.4f", ptoc_float(CTXTc 3)); break;
@@ -2370,7 +2370,7 @@ int builtin_call(CTXTdeclc byte number)
     else ctop_int(CTXTc 1,0);
     break;
 
-  case CLOSE_OPEN_TABLES:	
+  case CLOSE_OPEN_TABLES:
     //    printf("close open tables... %d\n",ptoc_int(CTXTc 1));
     remove_incomplete_tables_reset_freezes(CTXTc (int)ptoc_int(CTXTc 1));
 #ifdef MULTI_THREAD
@@ -2548,7 +2548,7 @@ case WRITE_OUT_PROFILE:
     ctop_int(CTXTc 4,TableStatusFrame_answer_set_status(TSF));
     ctop_addr(5, TableStatusFrame_subgoal(TSF));
     return TRUE;
-  } 
+  }
 
   case ABOLISH_TABLE_PREDICATE: {
     const int regTerm = 1;   /* in: tabled predicate as term */
@@ -2931,7 +2931,7 @@ case WRITE_OUT_PROFILE:
       local_ret_val = gc_tabled_preds(CTXT);
 
 #ifndef MULTI_THREAD
-      total_table_gc_time =  total_table_gc_time + (cpu_time() - timer); 
+      total_table_gc_time =  total_table_gc_time + (cpu_time() - timer);
 #endif
 
       ret_val |= local_ret_val;
@@ -3018,7 +3018,7 @@ case WRITE_OUT_PROFILE:
   {
     Integer termsize;
     prolog_term term;
-    
+
     term = ptoc_tag(CTXTc 1);
     XSB_Deref(term);
     if (!isinternstr_really(term)) {
@@ -3029,7 +3029,7 @@ case WRITE_OUT_PROFILE:
     if (term) {
       //printf("o %p\n",term);
       return unify(CTXTc term, ptoc_tag(CTXTc 2));
-    } else {    
+    } else {
       //printf("of\n");
       return FALSE;
     }
@@ -3168,7 +3168,7 @@ case WRITE_OUT_PROFILE:
 |	     bld_copy(attv_attr,atts);
 	***/
 	bind_attv((CPtr)dec_addr(attv), hreg);
-	bld_free(hreg); 
+	bld_free(hreg);
 	bld_copy(hreg+1, atts); hreg += 2;
       }
     }
@@ -3217,7 +3217,7 @@ case WRITE_OUT_PROFILE:
     }
     break;
   }
-  
+
   case SLEEPER_THREAD_OPERATION: {
     Integer selection = ptoc_int(CTXTc 1);
 #ifndef MULTI_THREAD
@@ -3229,13 +3229,13 @@ case WRITE_OUT_PROFILE:
       printf("cancelling sleeper thread\n");
       cancelSleeperThread(CTXT);
     }
-    else 
+    else
       xsb_abort("sleeper thread operation called with bad operation number: %d\n",selection);
 #else
     xsb_abort("timed_call/3 not implemented for multi-threaded engine.  Please use "
               "thread signalling");
 #endif
-    break; 
+    break;
 }
 
   case MARK_TERM_CYCLIC: {
@@ -3248,9 +3248,9 @@ case WRITE_OUT_PROFILE:
     break;
   }
   case UNWIND_STACK: {
-    if (flags[CTRACE_CALLS])  { 
-      if (ptcpreg) 
-	sprint_subgoal(CTXTc forest_log_buffer_1,0, (VariantSF)ptcpreg); 
+    if (flags[CTRACE_CALLS])  {
+      if (ptcpreg)
+	sprint_subgoal(CTXTc forest_log_buffer_1,0, (VariantSF)ptcpreg);
       else sprintf(forest_log_buffer_1->fl_buffer,"null");
       fprintf(fview_ptr,"err(%s,%d).\n",forest_log_buffer_1->fl_buffer,
 	      ctrace_ctr++);
@@ -3276,15 +3276,15 @@ case WRITE_OUT_PROFILE:
     return mt_random_request(CTXT) ;
   }
 
-  case CRYPTO_HASH: 
+  case CRYPTO_HASH:
     /* Arg 1: type of hash - MD5 (not implemented) or SHA1
        Arg 2: input - string or file(filename)
        Arg 3: string - output
     */
     {
       Integer type = ptoc_int(CTXTc 1);
-      prolog_term InputTerm = reg_term(2);
-      prolog_term Output = reg_term(3);
+      prolog_term InputTerm = reg_term(CTXTc 2);
+      prolog_term Output = reg_term(CTXTc 3);
       // SHA1 hash has 40 characters; MD5 has less
       char *Result = (char *)mem_alloc(41,BUFF_SPACE);
 
@@ -3295,7 +3295,7 @@ case WRITE_OUT_PROFILE:
       }
       case SHA1: {
 	int retcode = sha1_string(InputTerm,Result);
-	return retcode && atom_unify(makestring(string_find(Result,1)),Output);
+	return retcode && atom_unify(CTXTc makestring(string_find(Result,1)),Output);
       }
       default: {
 	xsb_error("crypto_hash: unknown hash function type");
@@ -3567,7 +3567,7 @@ prolog_term build_xsb_backtrace(CTXTdecl) {
   prolog_term backtrace;
   int backtrace_cnt = 0;
 
-  if (heap_local_overflow(MAX_BACKTRACE_LEN*2*sizeof(Cell)) 
+  if (heap_local_overflow(MAX_BACKTRACE_LEN*2*sizeof(Cell))
       || !pflags[BACKTRACE]) {
     return makenil;
   }
@@ -3586,8 +3586,8 @@ prolog_term build_xsb_backtrace(CTXTdecl) {
     tmp_ereg = ereg;
     tmp_cpreg = cpreg;
     instruction = *(tmp_cpreg-2*sizeof(Cell));
-    while (backtrace_cnt++ < MAX_BACKTRACE_LEN 
-	   && tmp_cpreg 
+    while (backtrace_cnt++ < MAX_BACKTRACE_LEN
+	   && tmp_cpreg
 	   && (instruction == call || instruction == trymeorelse)
 	   && (pb)top_of_localstk > (pb)top_of_heap + 96) {
       if (instruction == call) {
