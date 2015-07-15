@@ -326,7 +326,7 @@ void MD5_Final(unsigned char *result, MD5_CTX *ctx)
 
 int md5_string(prolog_term InputTerm, char *Result) {
   MD5_CTX md5ctx;
-  int bytes, i;
+  size_t bytes, i;
   char data[BUF_SIZE+1];
   unsigned char out[40];
 
@@ -344,7 +344,7 @@ int md5_string(prolog_term InputTerm, char *Result) {
     }
     while (((bytes = fread (&data, 1, BUF_SIZE, fp)) != 0)
 	   && !feof(fp) && !ferror(fp))
-      MD5_Update (&md5ctx, data, bytes);
+      MD5_Update (&md5ctx, data, (unsigned long)bytes);
     if (!feof(fp))
       xsb_error("crypto_hash: error while reading input file %s\n", filename);
     fclose(fp);
@@ -355,6 +355,6 @@ int md5_string(prolog_term InputTerm, char *Result) {
 
   MD5_Final((unsigned char *)out,&md5ctx);
   for(i = 0; i < 16; ++i)
-    sprintf(Result+i*2, "%02x", (unsigned int)out[i]);
+    sprintf(Result+i*2, "%02X", (unsigned int)out[i]);
   return TRUE;
 }
