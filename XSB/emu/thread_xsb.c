@@ -34,7 +34,8 @@
 #include <unistd.h>
 #else
 #include <Windows.h>
-#include <stdint.h>
+//#include <stdint.h>
+#include "stdint.h"
 #endif
 
 
