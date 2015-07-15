@@ -3220,8 +3220,8 @@ case WRITE_OUT_PROFILE:
   }
 
   case SLEEPER_THREAD_OPERATION: {
-    Integer selection = ptoc_int(CTXTc 1);
 #ifndef MULTI_THREAD
+    Integer selection = ptoc_int(CTXTc 1);
     if (selection == START_SLEEPER_THREAD) {
       printf("starting sleeper thread\n");
       startSleeperThread(CTXTc (int)ptoc_int(CTXTc 2));
@@ -3284,8 +3284,8 @@ case WRITE_OUT_PROFILE:
     */
     {
       Integer type = ptoc_int(CTXTc 1);
-      prolog_term InputTerm = reg_term(2);
-      prolog_term Output = reg_term(3);
+      prolog_term InputTerm = reg_term(CTXTc 2);
+      prolog_term Output = reg_term(CTXTc 3);
       // SHA1 hash has 40 characters; MD5 has less
       char *Result = (char *)mem_alloc(41,BUFF_SPACE);
       int retcode;
@@ -3304,7 +3304,7 @@ case WRITE_OUT_PROFILE:
 	return FALSE;
       }
       }
-      return retcode && atom_unify(makestring(string_find(Result,1)),Output);
+      return retcode && atom_unify(CTXTc makestring(string_find(Result,1)),Output);
     }
 
   default:
