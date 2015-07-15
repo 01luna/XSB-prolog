@@ -136,6 +136,7 @@ DLL_LINK_OBJS= \
 	"$(OBJDIR)/heap_xsb.obj" \
 	"$(OBJDIR)/url_encode.obj" \
 	"$(OBJDIR)/sha1.obj" \
+	"$(OBJDIR)/md5.obj" \
 	"$(OBJDIR)/incr_xsb.obj" \
 	"$(OBJDIR)/init_xsb.obj" \
 	"$(OBJDIR)/inst_xsb.obj" \
