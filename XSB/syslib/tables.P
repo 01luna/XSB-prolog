@@ -34,6 +34,7 @@
 #include "table_inspection_defs.h"
 #include "heap_defs_xsb.h"
 #include "psc_defs.h"
+#include "flag_defs_xsb.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -182,7 +183,30 @@ t_not_variant(Subgoal,AnsSetStatus,SF,PTCP):-
 		     slg_not(ProducerSF) 
 		 )
           ;  %get_producer_call(Subgoal,ProducerSF,_AnswerTmplt),
+	     ensure_answer_completed(AnsSetStatus,Subgoal,SF),
 	     is_incomplete(SF,PTCP),slg_not(SF) ).
+
+ensure_answer_completed(AnsSetStatus,Subgoal,SF) :-
+	(AnsSetStatus =\= COMPLETED_ANSWER_SET
+	 ->	true		% not completed
+	 ;	stat_flag(ANSWER_COMPLETION,AC),
+		(AC =:= 0	% not doing answer_completion
+		 ->	true
+		 ;	is_answer_completed(SF,SAC),
+			(SAC =:= 1
+			 ->	true
+			 ;	%writeln(userout,'AC in slg_not '(Subgoal)),
+				excess_vars(Subgoal,[],[],Vars),
+				Tmp =.. [ret|Vars],
+				stat_set_flag(ANSWER_COMPLETION,0),
+				(answer_completion(SF,Tmp),
+				 fail
+				 ;	
+				 true
+				)
+			)
+		)
+	).
 
 % needs to be optimized!
 t_not_subsumptive_sf_comp(Subgoal,SF,_):- 
@@ -506,6 +530,8 @@ change_attv_to_var1([V|Vs]) :-
 
 
 trie_get_return(_TableEntryHandle,_ReturnTemplate) :-
+	trie_get_return(_TableEntryHandle,_ReturnTemplate, 0).
+trie_get_return(_TableEntryHandle,_ReturnTemplate,_Delay) :-
 	'_$builtin'(TRIE_GET_RETURN).
 
 
@@ -1404,6 +1430,130 @@ abolish_table_call(Term) :-
 	abolish_table_subgoals(Term).
 
 %------------------------------------------------------------------------------
+/*======================================================================*/
+
+
+/* Conditionally called after check_complete and in table_try, when
+answers are returned from a completed table and the subgoal may need
+answer completion. */
+%% answer_completion(+LeaderSubGoalFrameAddr,+Template)
+answer_completion(SGF,Template) :-
+%%	writeln(userout,answer_completion(SGF,Template)),
+	ac_loop(SGF,Template), % iterate answer-completion
+	fail.
+answer_completion(SGF,Template) :-
+	stat_set_flag(83,1),	% turn answer_completion back on,
+				% was turned off in C before entry
+	trie_get_return(SGF,Template,1).
+
+ac_loop(SGF,Tmp) :-
+%%	print_residual_pgm(SGF,Tmp),
+	abolish_table_pred(eval_subgoal_in_residual(_,_),[abolish_tables_singly]),
+	(eval_subgoal_in_residual(SGF,Tmp),fail ; true),
+	conset('_$AC_CHANGED',0),
+	delete_answers_for_failing_calls,
+	(conget('_$AC_CHANGED',1)
+	 ->	%%writeln(userout,iterate),
+		ac_loop(SGF,Tmp)
+	 ;	mark_succeeding_calls_as_answer_completed
+	).
+
+delete_answers_for_failing_calls :-
+	get_calls(eval_subgoal_in_residual(ASGF,ATmp),ESGF,ETmp),
+	\+ get_returns(ESGF,ETmp),
+	get_returns(ASGF,ATmp,ALeaf),
+	delete_return(ASGF,ALeaf,1),
+	conset('_$AC_CHANGED',1),
+	%%writeln(userout,deleted(ASGF,ALeaf)),
+	fail.
+delete_answers_for_failing_calls.
+
+mark_succeeding_calls_as_answer_completed :-
+	get_calls(eval_subgoal_in_residual(ASGF,ATmp),_,_),
+	once(get_returns(ASGF,ATmp)),
+	set_answer_completed(ASGF),
+	%writeln(userout,set_answer_completed(ASGF)),
+	fail.
+mark_succeeding_calls_as_answer_completed.
+
+:- import is_most_general_term/1 from standard.
+:- import excess_vars/4 from setof.
+eval_dl_in_residual([]).
+eval_dl_in_residual([tnot G|Gs]) :- !,
+	get_call(G,SGF,Tmp),
+	%%writeln(userout,goal_n(G,SGF,Tmp)),
+	tnot eval_subgoal_in_residual(SGF,Tmp),
+	eval_dl_in_residual(Gs).
+eval_dl_in_residual([G|Gs]) :-
+	(get_call(G,SGF,Tmp)
+	 ->	true
+	 ; excess_vars(G,[],[],Vars), % must be more general
+		get_calls(G,SGF,Tmp),
+		is_most_general_term(Vars)
+	 ->	true
+	 ;	writeln(userout,'MISSING CALL? '(G)),
+		fail
+	),	 
+	%%writeln(userout,goal(G,SGF,Tmp)),
+	eval_subgoal_in_residual(SGF,Tmp),
+	eval_dl_in_residual(Gs).
+	
+:- table eval_subgoal_in_residual/2.
+eval_subgoal_in_residual(Gs,Tmp) :-
+	(is_answer_completed(Gs)
+	 ->	true		%,writeln(userout,already_ac(Gs))
+	 ;	get_returns_and_dls(Gs,Tmp,DelayLists),
+		%%writeln(userout,dl(Gs,DelayLists)),
+		(DelayLists == []
+		 ->	writeln(userout,'MISSING DELAY LIST? '(Gs,Tmp))
+		 ;	member(DL,DelayLists),
+			eval_dl_in_residual(DL)
+		)
+	).
+
+set_answer_completed(SGF) :-
+	answer_completion_ops(1,SGF,_).
+
+is_answer_completed(SGF,Flag) :-
+	answer_completion_ops(2,SGF,Flag).
+
+is_answer_completed(SGF) :-
+	answer_completion_ops(2,SGF,Flag),
+	Flag =:= 1.
+
+answer_completion_ops(_Op,_SGF,_Res) :-
+	'_$builtin'(ANSWER_COMPLETION_OPS).
+
+/***print_residual_pgm(SGF,Tmp) :-
+	abolish_table_pred(print_residual_pgm(_,_,_)),
+	writeln(userout,''),
+	writeln(userout,'Residual Program:'),
+	print_residual_pgm(unknown,SGF,Tmp).
+print_residual_pgm(_SGF,_Tmp).
+
+:- table print_residual_pgm/3.
+print_residual_pgm(Goal,SGF,Tmp) :-
+	get_returns_and_dls(SGF,Tmp,DelayLists),
+	(DelayLists == []
+	 ->	writeln(userout,([Goal,SGF,Tmp] :- true))
+	 ;	(member(DL,DelayLists),
+		 writeln(userout,([Goal,SGF,Tmp] :- DL)),
+		 fail
+		 ;
+		 true
+		),
+		(member(DL,DelayLists),
+		 member(Goal0,DL),
+		 (Goal0 = tnot(SGoal)
+		  ->	 true
+		  ;	 SGoal = Goal0
+		 ),
+		 get_call(SGoal,SSGF,STmp),
+		 print_residual_pgm(SGoal,SSGF,STmp),
+		 fail
+		)
+	).
+***/
 end_of_file.
 
 :- export explain_u_val/4.

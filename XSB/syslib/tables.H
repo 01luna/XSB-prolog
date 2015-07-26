@@ -78,6 +78,8 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
    (use_variant_tabling)/1,
    variant_get_residual/2.
 :- export floundered_undefined/0.
+:- export answer_completion/2.
+
 
 % Obsolete
 :- export    abolish_table_call/1,       abolish_table_call/2.
@@ -128,10 +130,11 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
    ground_and_acyclic/1,
    psc_set_incr/2, psc_set_tabled/2, psc_tabled/2, psc_type/2,
    table_inspection_function/5, table_inspection_function/7,
-   term_psc/2, term_new/2
+   term_psc/2, term_new/2, stat_flag/2
    from machine.
 :- import term_new_mod/3 from machine.
 :- import term_arg/3, parsort/4 from machine.
+:- import stat_set_flag/2 from machine.
 
 :- import numbervars/4, unnumbervars/2 from num_vars.
 
@@ -140,9 +143,11 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
 :- import
 	(=..)/2, abort/1, call/1,
 	functor/3, is_attv/1, tcall/1,
-	(index)/2
+	(index)/2, (==)/2
    from standard.
 :- import call_c/1,nl/0,write/1, tell/1, told/0, '\='/2, arg/3 from standard.
+:- import writeln/2 from standard.
+:- import conget/2, conset/2 from gensym.
 
 :- import variant/2 from subsumes.
 :- import invalidate_table_for/2 from usermod.
