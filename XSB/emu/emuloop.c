@@ -362,6 +362,7 @@ extern int is_proper_list(Cell term);
 extern int is_most_general_term(Cell term);
 extern int is_number_atom(Cell term);
 extern int ground(Cell term);
+extern int is_ground_subgoal(VariantSF);
 
 extern void log_prog_ctr(byte *);
 

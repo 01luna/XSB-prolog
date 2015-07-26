@@ -723,6 +723,10 @@ typedef struct subgoal_frame {
 #define subg_is_completed(SUBG_PTR)		(subg_is_complete(SUBG_PTR) & 1)
 #define complete_subg(SUBG_PTR)    subg_is_complete((SUBG_PTR)) |= 1
 
+#define subg_is_answer_completed(SUBG_PTR) !(subg_is_complete(SUBG_PTR) & 4)
+#define answer_complete_subg(SUBG_PTR) subg_is_complete((SUBG_PTR)) &= ~4
+#define subg_needs_answer_completion(SUBG_PTR) subg_is_complete((SUBG_PTR)) |= 4
+
 #define subg_is_ec_scheduled(SUBG_PTR)		(subg_is_complete(SUBG_PTR) & 2)
 #define schedule_ec(SUBG_PTR)                   subg_is_complete(SUBG_PTR) |= 2
 

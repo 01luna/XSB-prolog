@@ -204,6 +204,7 @@ extern Psc delay_psc;
 extern Psc cond_psc;
 extern Psc cut_psc;
 extern Psc load_undef_psc;
+extern Psc answer_completion_psc;
 extern Psc cyclic_psc;
 extern Psc visited_psc;
 extern Psc dollar_var_psc;

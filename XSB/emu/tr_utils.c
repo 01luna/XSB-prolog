@@ -124,12 +124,9 @@ double total_table_gc_time = 0;
 /*----------------------------------------------------------------------*/
 
 int is_ancestor_sf(VariantSF consumer_sf, VariantSF producer_sf) {
-  printf("ent ias, csf=%p, psf=%p\n",consumer_sf,producer_sf);
   while (consumer_sf != NULL && consumer_sf != producer_sf) {
     consumer_sf = (VariantSF)(nlcp_ptcp(subg_cp_ptr(consumer_sf)));
-    printf("next csf=%p\n",consumer_sf);
   }
-  printf("ret: %p\n",consumer_sf);
   if (consumer_sf == NULL) return FALSE; else return TRUE;
 }
 
@@ -830,9 +827,11 @@ static void delete_variant_predicate_table(CTXTdeclc BTNptr x, xsbBool should_wa
 #else
 	  if ( subg_tag(pSF) == COND_ANSWERS && should_warn) {
 #endif
-	    xsb_warn(CTXTc "abolish_table_pred/1 is deleting a table entry for %s/%d with conditional\
-                      answers: delay dependencies may be corrupted flags %d.\n",	    
+	    /* until add parameter...
+	    xsb_warn(CTXTc "abolish_table_pred/1 is deleting a table entry for %s/%d with conditional \
+answers: delay dependencies may be corrupted flags %d.\n",	    
 		     get_name(TIF_PSC(subg_tif_ptr(pSF))),get_arity(TIF_PSC(subg_tif_ptr(pSF))),flags[TABLE_GC_ACTION]);
+	    */
 	    /*
 	    xsb_warn(CTXTc "abolish_table_pred/1 is deleting a table entry for %s/%d with conditional\
                       answers: delay dependencies may be corrupted.\n",	    
@@ -1320,6 +1319,9 @@ void delete_return(CTXTdeclc BTNptr leaf, VariantSF sg_frame,int eval_method)
 
   //  printf("DELETE_NODE: %d - Par: %d\n", leaf, BTN_Parent(leaf));
   //    ans_deletes++;
+
+    // already simplified this return away
+    if (subg_ans_root_ptr(sg_frame) == NULL) return;
 
     /* deleting an answer makes it false, so we have to deal with 
        delay lists */
@@ -3342,7 +3344,7 @@ void abolish_nonincremental_call_single_nocheck_deltf(CTXTdeclc VariantSF subgoa
     SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
     if (action == CAN_RECLAIM && !GC_MARKED_SUBGOAL(subgoal)) {
       delete_branch(CTXTc subgoal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-      abolish_table_call_single_nocheck_no_nothin(CTXTc subgoal,SHOULD_COND_WARN);
+      abolish_table_call_single_nocheck_no_nothin(CTXTc subgoal,SHOULD_COND_WARN); /* DSW, until par added */
     }
     else {  /* CANT_RECLAIM */
       //	printf("Mark %x GC %x\n",subgoal->visited,GC_MARKED_SUBGOAL(subgoal));

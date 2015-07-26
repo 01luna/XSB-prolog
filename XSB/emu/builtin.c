@@ -1218,6 +1218,7 @@ void init_builtin_table(void)
   set_builtin_table(FORMATTED_IO, "formatted_io");
   set_builtin_table(TABLE_STATUS, "table_status");
   set_builtin_table(GET_DELAY_LISTS, "get_delay_lists");
+  set_builtin_table(ANSWER_COMPLETION_OPS, "answer_completion_ops");
 
   set_builtin_table(ABOLISH_TABLE_PREDICATE, "abolish_table_pred");
   set_builtin_table(ABOLISH_TABLE_CALL, "abolish_table_call");
@@ -2551,6 +2552,22 @@ case WRITE_OUT_PROFILE:
     return TRUE;
   }
 
+  case ANSWER_COMPLETION_OPS: {
+    switch (ptoc_int(CTXTc 1)) {
+    case 1:  // 1 is reset needs_completion
+      answer_complete_subg(ptoc_int(CTXTc 2));
+      break;
+    case 2:  // 2 is get needs_answer_completion flag
+      if (subg_is_answer_completed(ptoc_int(CTXTc 2)))
+	ctop_int(CTXTc 3, 1);
+      else ctop_int(CTXTc 3, 0);
+      break;
+    default: 
+      xsb_abort("builtin(ANSWER_COMPLETION_OPS): illegal op: %d",ptoc_int(CTXTc 1));
+    }
+    return TRUE;
+  }
+
   case ABOLISH_TABLE_PREDICATE: {
     const int regTerm = 1;   /* in: tabled predicate as term */
     Cell term;
@@ -2659,7 +2676,7 @@ case WRITE_OUT_PROFILE:
       xsb_instantiation_error(CTXTc "trie_get_return/2",regRetTerm);
       break;
     }
-    pcreg = trie_get_return(CTXTc sf, retTerm);
+    pcreg = trie_get_return(CTXTc sf, retTerm, (int)ptoc_int(CTXTc 3));
     break;
   }
 

@@ -2670,7 +2670,7 @@ BTNptr trie_assert_chk_ins(CTXTdeclc CPtr termptr, BTNptr root, int *flagptr)
  * This is builtin #150: TRIE_GET_RETURN
  */
 
-byte *trie_get_return(CTXTdeclc VariantSF sf, Cell retTerm) {
+byte *trie_get_return(CTXTdeclc VariantSF sf, Cell retTerm, int delay) {
 
   BTNptr ans_root_ptr;
   Cell retSymbol;
@@ -2728,7 +2728,7 @@ byte *trie_get_return(CTXTdeclc VariantSF sf, Cell retTerm) {
 #ifdef DEBUG_DELAYVAR
   xsb_dbgmsg((LOG_DEBUG,">>>> The end of trie_get_return ==> go to answer trie"));
 #endif
-  delay_it = 0;  /* Don't delay the answer. */
+  delay_it = delay;  /* whether to delay the answer. */
   //#ifdef MULTI_THREAD_RWL
   /* save choice point for trie_unlock instruction */
   //       save_find_locx(ereg);

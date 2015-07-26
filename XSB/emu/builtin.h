@@ -136,6 +136,7 @@
 #define PSC_SET_TABLED		103
 
 #define IS_INCOMPLETE           104
+#define ANSWER_COMPLETION_OPS	105
 
 #define GET_PTCP	        107
 #define GET_PRODUCER_CALL	108

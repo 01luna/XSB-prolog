@@ -234,9 +234,11 @@ static inline CPtr ProcessSuspensionFrames(CTXTdeclc CPtr cc_tbreg_in,
   VariantSF compl_subg;
   CPtr cc_tbreg = cc_tbreg_in;
   CPtr cur_breg = NULL; /* tail of chain of nsf's; used in ResumeCSFs */
+  int num_subgoals_in_scc = 0;
 
   /* check from leader up to the youngest subgoal */
   while (ComplStkFrame >= openreg) {
+    num_subgoals_in_scc++;
     compl_subg = compl_subgoal_ptr(ComplStkFrame);
     /* TLS: Explanation for the dull-witted (i.e. me).  If compl_subg
      * is early completed, this means it has an unconditional answer.
@@ -284,6 +286,9 @@ static inline CPtr ProcessSuspensionFrames(CTXTdeclc CPtr cc_tbreg_in,
     } /* else if not early completed */
     ComplStkFrame = next_compl_frame(ComplStkFrame);
   } /* while - for each subg in compl stack */
+
+  /* Heuristic: if only one goal in SCC, then it cannot need answer_completion */
+  if (num_subgoals_in_scc == 1) answer_complete_subg(compl_subgoal_ptr(cs_ptr));
   return cc_tbreg;
 }
 

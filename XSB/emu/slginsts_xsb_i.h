@@ -147,6 +147,20 @@
 	      ctrace_ctr++);						\
   }
 
+/* need to test if ground (or better, but harder, if goals are
+   identical) since p(X) :- p(X) is different from p(X) :- p(Y), yet
+   they have the same goals. */
+#define fail_if_direct_recursion(SUBGOAL)				\
+  do {									\
+    if (SUBGOAL == (VariantSF)ptcpreg					\
+	&& is_ground_subgoal(SUBGOAL) ) {				\
+      Fail1;								\
+      XSB_Next_Instr();							\
+    }									\
+    } while (0)
+
+#include "complete_xsb_i.h"
+
 /*
  *  Instruction format:
  *    1st word: opcode X X pred_arity
@@ -179,10 +193,8 @@ XSB_Start_Instr(tabletrysingle,_tabletrysingle)
 
   //  printf("starting breg is %x %x\n",breg,((pb)tcpstack.high - (pb)breg));
 
-  old_call_gl=NULL;   /* incremental evaluation */
-
 #ifdef SHARED_COMPL_TABLES
-  byte * inst_addr = lpcreg;
+  byte *inst_addr = lpcreg;
   Integer table_tid ;
   int grabbed = FALSE;
   th_context * waiting_for_thread;
@@ -193,6 +205,8 @@ XSB_Start_Instr(tabletrysingle,_tabletrysingle)
   CPtr old_cptop;
 #endif
 #endif
+
+  old_call_gl=NULL;   /* incremental evaluation */
 
   xwammode = 1;
   CallInfo_Arguments(callInfo) = reg + 1;
@@ -453,7 +467,9 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
       }
       //      printf("unif stk size is %d\n",i);
       delay_it = 1;
-      lpcreg = (byte *)subg_ans_root_ptr(producer_sf);
+
+      setup_to_return_completed_answers(producer_sf,template_size);
+
       //#ifdef MULTI_THREAD_RWL
       ///* save choice point for trie_unlock instruction */
       //      save_find_locx(ereg);
@@ -664,6 +680,7 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
 	   * delay_positively().
 	   */
 	  if (num_heap_term_vars == 0) {
+	    fail_if_direct_recursion(producer_sf);
 	    delay_positively(producer_sf, first_answer,
 			     makestring(get_ret_string()));
 	  }
@@ -1099,6 +1116,7 @@ XSB_Start_Instr(new_answer_dealloc,_new_answer_dealloc)
        * answer was saved as a term ret/n (in variant_answer_search()).
        */
 #ifndef IGNORE_DELAYVAR
+      fail_if_direct_recursion(producer_sf);
       if (isinteger(cell(ans_var_pos_reg))) {
 	delay_positively(producer_sf, answer_leaf,
 			 makestring(get_ret_string()));
@@ -1216,8 +1234,6 @@ XSB_Start_Instr(tabletrust,_tabletrust)
   TABLE_RESTORE_SUB
 XSB_End_Instr()
 /*-------------------------------------------------------------------------*/
-
-#include "complete_xsb_i.h"
 
 /*-------------------------------------------------------------------------*/
 

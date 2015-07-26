@@ -158,6 +158,7 @@ Cell answer_return_inst;
 Cell resume_compl_suspension_inst;
 Cell resume_compl_suspension_inst2;
 CPtr check_complete_inst;
+CPtr call_answer_completion_inst_addr;
 Cell hash_handle_inst;
 Cell fail_inst;
 Cell trie_fail_inst;
@@ -277,6 +278,10 @@ static void init_flags(CTXTdecl)
 #endif
   flags[WRITE_DEPTH] = 64;
   //  flags[UNIFY_WITH_OCCURS_CHECK_FLAG] = 0;
+#ifndef MULTI_THREAD
+  // not (yet) tested with multi-threaded, so leave off if MT
+  flags[ANSWER_COMPLETION] = 1;
+#endif
 }
 
 /*==========================================================================*/
@@ -1599,6 +1604,7 @@ void init_symbols(CTXTdecl)
   tables_psc = pair_psc(insert_module(0, "tables"));		/* unloaded */
 
   tnot_psc = make_code_psc_rec(CTXTc "tnot", 1, tables_psc);
+  answer_completion_psc = make_code_psc_rec(CTXTc "answer_completion", 2, tables_psc);
 
   /* insert "[]"/0 into String Table */
   nil_string = string_find("[]", 1);

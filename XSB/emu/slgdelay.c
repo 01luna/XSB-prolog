@@ -446,7 +446,7 @@ xsbBool is_failing_delay_element(CTXTdeclc VariantSF subgoal, NODEptr ANS) {
  * block.  A new block will be allocated if necessary.
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-static DE intern_delay_element(CTXTdeclc Cell delay_elem)
+static DE intern_delay_element(CTXTdeclc Cell delay_elem, VariantSF par_subgoal)
 {
   DE de;
   CPtr cptr = (CPtr) cs_val(delay_elem);
@@ -468,6 +468,7 @@ static DE intern_delay_element(CTXTdeclc Cell delay_elem)
   tmp_cell = cell(cptr + 3);
 
   //  fprintf(stddbg,"DE: ");print_delay_element(CTXTc stddbg, delay_elem);fprintf(stddbg,"\n");
+  //    subg_needs_answer_completion(par_subgoal);
   /*
    * cell(cptr + 3) can be one of the following:
    *   1. integer 0 (NEG_DELAY), for a negative DE;
@@ -482,6 +483,8 @@ static DE intern_delay_element(CTXTdeclc Cell delay_elem)
   }
 
   if (!was_simplifiable(CTXTc subgoal, ans_subst)) {
+    if (!(subg_is_completed(subgoal) && subg_is_answer_completed(subgoal)))
+      subg_needs_answer_completion(par_subgoal);
     new_entry(de,
 	      released_des_gl,
 	      next_free_de_gl,
@@ -513,7 +516,7 @@ static DE intern_delay_element(CTXTdeclc Cell delay_elem)
  * * * * * */
 
 #ifdef MULTI_THREAD
-static DE intern_delay_element_private(CTXTdeclc Cell delay_elem)
+static DE intern_delay_element_private(CTXTdeclc Cell delay_elem, VariantSF par_subgoal)
 {
   DE de;
   CPtr cptr = (CPtr) cs_val(delay_elem);
@@ -578,14 +581,14 @@ static DE intern_delay_element_private(CTXTdeclc Cell delay_elem)
  * necessary.
  */
 
-static DL intern_delay_list(CTXTdeclc CPtr dlist) /* assumes that dlist != NULL	*/
+static DL intern_delay_list(CTXTdeclc CPtr dlist, VariantSF subgoal) /* assumes that dlist != NULL */
 {
   DE head = NULL, de;
   DL dl = NULL;
 
   while (islist(dlist)) {
     dlist = clref_val(dlist);
-    if ((de = intern_delay_element(CTXTc cell(dlist))) != NULL) {
+    if ((de = intern_delay_element(CTXTc cell(dlist),subgoal)) != NULL) {
       de_next(de) = head;
       head = de;
     }
@@ -609,14 +612,14 @@ static DL intern_delay_list(CTXTdeclc CPtr dlist) /* assumes that dlist != NULL	
 }
 
 #ifdef MULTI_THREAD
-static DL intern_delay_list_private(CTXTdeclc CPtr dlist) /* assumes that dlist != NULL	*/
+static DL intern_delay_list_private(CTXTdeclc CPtr dlist, VariantSF subgoal) /* assumes that dlist != NULL	*/
 {
   DE head = NULL, de;
   DL dl = NULL;
 
   while (islist(dlist)) {
     dlist = clref_val(dlist);
-    if ((de = intern_delay_element_private(CTXTc cell(dlist))) != NULL) {
+    if ((de = intern_delay_element_private(CTXTc cell(dlist),subgoal)) != NULL) {
       de_next(de) = head;
       head = de;
     }
@@ -783,7 +786,7 @@ void do_delay_stuff_shared(CTXTdeclc NODEptr as_leaf, VariantSF subgoal, xsbBool
       //      print_delay_list(CTXTc stddbg,delayreg);fprintf(stddbg,"\n");
       SYS_MUTEX_LOCK( MUTEX_DELAY ) ;
       if (!sf_exists || is_conditional_answer(as_leaf)) {
-        if ((dl = intern_delay_list(CTXTc delayreg)) != NULL) {
+        if ((dl = intern_delay_list(CTXTc delayreg, subgoal)) != NULL) {
 	  mark_conditional_answer(as_leaf, subgoal, dl, smASI);
 	  //	  printf("marked conditional ans as_leaf %p asi %p\n",as_leaf,asi);
 	  record_de_usage(dl);
@@ -820,7 +823,7 @@ void do_delay_stuff_private(CTXTdeclc NODEptr as_leaf, VariantSF subgoal, xsbBoo
     DL dl = NULL;
 
     if (delayreg && (!sf_exists || is_conditional_answer(as_leaf))) {
-      if ((dl = intern_delay_list_private(CTXTc delayreg)) != NULL) {
+      if ((dl = intern_delay_list_private(CTXTc delayreg, subgoal)) != NULL) {
 	mark_conditional_answer(as_leaf, subgoal, dl, *private_smASI);
 	record_de_usage_private(CTXTc dl);
       }
@@ -863,8 +866,19 @@ void do_delay_stuff(CTXTdeclc NODEptr as_leaf, VariantSF subgoal, xsbBool sf_exi
 }
 
 /*----------------------------------------------------------------------*/
+/* test whether a subgoal call is ground; used for testing direct
+   positive recursion in residual program.  Maybe a better by looking
+   at template size in heap? See test in early completion. */
 
-xsbBool answer_is_unsupported(CTXTdeclc CPtr dlist)	  /* assumes that dlist != NULL */
+int is_ground_subgoal(VariantSF subg) {
+  BTNptr leaf;
+  for (leaf = subg_leaf_ptr(subg); leaf != NULL; leaf = Parent(leaf)) {
+    if (IsTrieVar(BTN_Symbol(leaf))) return FALSE;
+  }
+  return TRUE;
+}
+
+xsbBool answer_is_unsupported(CTXTdeclc CPtr dlist)  /* assumes that dlist != NULL */
 {
     CPtr    cptr;
     VariantSF subgoal;
@@ -1128,6 +1142,7 @@ static void handle_empty_dl_creation(CTXTdeclc DL dl)
 				 (CPtr) DynStk_Base(tstSymbolStack), callVars);
       if ( IsNonNULL(leaf) ) {
 	complete_subg( (VariantSF) Child(leaf));
+	// if calling simplify_neg_succeeds, must be unconditional, so
 	//	subg_asf_list_ptr( (VariantSF) Child(leaf)) = NULL;
 	//	fprintf(stderr,"hedc B\n");
 	simplify_neg_succeeds(CTXTc (VariantSF) Child(leaf));
@@ -1278,16 +1293,18 @@ void simplify_pos_unconditional(CTXTdeclc NODEptr as_leaf)
   PNDE pde;
   DE de;
   DL dl;
+  VariantSF subgoal;
 #ifdef MULTI_THREAD
   xsbBool isPrivate = IsPrivateSF(asi_subgoal(asi));
 #endif
+  subgoal = asi_subgoal(asi);
   release_all_dls(CTXTc asi);
   unmark_conditional_answer(as_leaf);
 
   //  print_pdes(asi_pdes(asi));
   while ((pde = asi_pdes(asi))) {
 
-    if (flags[CTRACE_CALLS] && !subg_forest_log_off(asi_subgoal(asi)))  {				
+    if (flags[CTRACE_CALLS] && !subg_forest_log_off(subgoal))  {				
       char buffera[MAXTERMBUFSIZE];			
       char bufferc[MAXTERMBUFSIZE];			
       memset(buffera,0,MAXTERMBUFSIZE);
@@ -1295,7 +1312,7 @@ void simplify_pos_unconditional(CTXTdeclc NODEptr as_leaf)
       //      memset(bufferb,0,MAXTERMBUFSIZE);
       //      memset(bufferd,0,MAXTERMBUFSIZE);
       sprintTriePath(CTXTc buffera, as_leaf);
-      sprint_subgoal(CTXTc forest_log_buffer_1,0, asi_subgoal(asi));
+      sprint_subgoal(CTXTc forest_log_buffer_1,0, subgoal);
       sprintTriePath(CTXTc bufferc, dl_asl(pnde_dl(pde)));
       sprint_subgoal(CTXTc forest_log_buffer_2,0, 
 		     asi_subgoal(Delay(dl_asl(pnde_dl(pde)))));
@@ -1320,6 +1337,10 @@ void simplify_pos_unconditional(CTXTdeclc NODEptr as_leaf)
    * free it and mark `as_leaf' as an unconditional answer.
    */
   Child(as_leaf) = NULL;
+  if (subg_answers(subgoal) == COND_ANSWERS) {
+    subg_answers(subgoal) = UNCOND_ANSWERS;
+    answer_complete_subg(subgoal);
+  }
 #ifdef MULTI_THREAD
   if (isPrivate)
     SM_DeallocateStruct(*private_smASI,asi)
@@ -1372,8 +1393,10 @@ void simplify_neg_fails(CTXTdeclc VariantSF subgoal)
     return;
   }
   in_simplify_neg_fails = 1;
-  //  while (simplify_neg_fails_stack_top > 0) {
-    //    subgoal = simplify_neg_fails_stack[--simplify_neg_fails_stack_top];
+
+  subg_answers(subgoal) = NO_ANSWERS; // mark as having no answers now. dsw
+  answer_complete_subg(subgoal);
+
   while (dyn_simplify_neg_fails_stack_index > 0) {
     subgoal = pop_neg_simpl;
     /*    printf("popped %p\n",subgoal);*/ 
@@ -1426,6 +1449,7 @@ static void simplify_neg_succeeds(CTXTdeclc VariantSF subgoal)
   NODEptr used_as_leaf;
 
   //  printf("in simplify neg succeeds: ");print_subgoal(stddbg,subgoal),printf("\n");
+  answer_complete_subg(subgoal);
 
   while ((nde = subg_nde_list(subgoal))) {
 
