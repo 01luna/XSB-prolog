@@ -1,0 +1,58 @@
+
+
+
+
+
+
+
+
+d(Var)
+d(Var)
+d(r1) - true
+d(r1) - true
+d(r2) - true
+d(r2) - true
+d(s1) - true
+d(s1) - true
+d(s2) - true
+d(s2) - true
+e(Var)
+e(r1) - true
+e(r2) - true
+e(r3) - true
+e(r4) - true
+e(r5) - true
+e(r6) - true
+e(s1) - true
+e(s2) - true
+e(s3) - true
+e(s4) - true
+e(s5) - true
+e(s6) - true
+f(Var)
+f(r1) - true
+f(r2) - true
+f(r3) - true
+f(r4) - true
+f(r5) - true
+f(r6) - true
+f(s1) - true
+f(s2) - true
+f(s3) - true
+f(s4) - true
+f(s5) - true
+f(s6) - true
+g(Var)
+g(p6) - undefined
+g(p7) - undefined
+g(p8) - undefined
+g(r6) - true
+g(s6) - true
+test_d1
+test_d2
+tnot e(p1)
+tnot e(p1) - true
+tnot e(s1)
+tnot e(s1) - failed
+top
+top - true
