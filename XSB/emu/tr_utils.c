@@ -5362,6 +5362,7 @@ xsbBool checkSupportedAnswer(BTNptr answer_leaf) {
 void resetStack() {
 }
 
+// this code is obsolete (dsw 8/2/15)
 void answer_completion(CTXTdeclc CPtr cs_ptr) {
   VariantSF compl_subg;
   CPtr ComplStkFrame = cs_ptr; 

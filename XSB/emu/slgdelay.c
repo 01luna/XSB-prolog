@@ -467,8 +467,6 @@ static DE intern_delay_element(CTXTdeclc Cell delay_elem, VariantSF par_subgoal)
   ans_subst = (NODEptr) addr_val(tmp_cell);
   tmp_cell = cell(cptr + 3);
 
-  //  fprintf(stddbg,"DE: ");print_delay_element(CTXTc stddbg, delay_elem);fprintf(stddbg,"\n");
-  //    subg_needs_answer_completion(par_subgoal);
   /*
    * cell(cptr + 3) can be one of the following:
    *   1. integer 0 (NEG_DELAY), for a negative DE;
@@ -483,8 +481,6 @@ static DE intern_delay_element(CTXTdeclc Cell delay_elem, VariantSF par_subgoal)
   }
 
   if (!was_simplifiable(CTXTc subgoal, ans_subst)) {
-    if (!(subg_is_completed(subgoal) && subg_is_answer_completed(subgoal)))
-      subg_needs_answer_completion(par_subgoal);
     new_entry(de,
 	      released_des_gl,
 	      next_free_de_gl,
@@ -1448,7 +1444,7 @@ static void simplify_neg_succeeds(CTXTdeclc VariantSF subgoal)
   ASI used_asi, de_asi;
   NODEptr used_as_leaf;
 
-  //  printf("in simplify neg succeeds: ");print_subgoal(stddbg,subgoal),printf("\n");
+  //  printf("in simplify neg succeeds: ");print_subgoal(stddbg,subgoal);printf("\n");
   answer_complete_subg(subgoal);
 
   while ((nde = subg_nde_list(subgoal))) {
@@ -1525,7 +1521,7 @@ void simplify_pos_unsupported(CTXTdeclc NODEptr as_leaf)
   ASI used_asi, de_asi;
   NODEptr used_as_leaf;
 
-  //  printf("in simplify pos unsupported... ");print_subgoal(stddbg,asi_subgoal(Delay(as_leaf)));;
+  //  printf("in simplify pos unsupported: ");print_subgoal(stddbg,asi_subgoal(Delay(as_leaf)));printf("\n");
 
   while ((pde = asi_pdes(asi))) {
 

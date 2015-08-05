@@ -234,11 +234,9 @@ static inline CPtr ProcessSuspensionFrames(CTXTdeclc CPtr cc_tbreg_in,
   VariantSF compl_subg;
   CPtr cc_tbreg = cc_tbreg_in;
   CPtr cur_breg = NULL; /* tail of chain of nsf's; used in ResumeCSFs */
-  int num_subgoals_in_scc = 0;
 
   /* check from leader up to the youngest subgoal */
   while (ComplStkFrame >= openreg) {
-    num_subgoals_in_scc++;
     compl_subg = compl_subgoal_ptr(ComplStkFrame);
     /* TLS: Explanation for the dull-witted (i.e. me).  If compl_subg
      * is early completed, this means it has an unconditional answer.
@@ -287,8 +285,6 @@ static inline CPtr ProcessSuspensionFrames(CTXTdeclc CPtr cc_tbreg_in,
     ComplStkFrame = next_compl_frame(ComplStkFrame);
   } /* while - for each subg in compl stack */
 
-  /* Heuristic: if only one goal in SCC, then it cannot need answer_completion */
-  if (num_subgoals_in_scc == 1) answer_complete_subg(compl_subgoal_ptr(cs_ptr));
   return cc_tbreg;
 }
 
@@ -297,11 +293,32 @@ static inline void CompleteSimplifyAndReclaim(CTXTdeclc CPtr cs_ptr)
   VariantSF compl_subg;
   SubConsSF pCons;
   CPtr ComplStkFrame = cs_ptr;
+  int simplification_required = 0;
 
   //printf("Child = %p\n",Child(ALN_Answer(subg_ans_list_ptr(compl_subgoal_ptr(ComplStkFrame)))));
 
   /* mark all SCC as completed and do simplification also, reclaim
      space for all but the leader */
+
+  while (ComplStkFrame >= openreg) {
+    if (neg_simplif_possible(compl_subgoal_ptr(ComplStkFrame))) {
+      simplification_required = 1;
+      break;
+    }
+    ComplStkFrame = next_compl_frame(ComplStkFrame);
+  }
+  ComplStkFrame = cs_ptr;
+
+  if (simplification_required) { // set all (non-ec'ed) to needing ac
+    while (ComplStkFrame >= openreg) {
+      compl_subg = compl_subgoal_ptr(ComplStkFrame);
+      if (!subg_is_completed(compl_subg)) { // not early completed, so
+	subg_needs_answer_completion(compl_subg);
+      }
+      ComplStkFrame = next_compl_frame(ComplStkFrame);
+    }
+  ComplStkFrame = cs_ptr;
+  }
 
   while (ComplStkFrame >= openreg) {
     compl_subg = compl_subgoal_ptr(ComplStkFrame);
