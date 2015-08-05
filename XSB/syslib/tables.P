@@ -529,8 +529,8 @@ change_attv_to_var1([V|Vs]) :-
 	change_attv_to_var1(Vs).	
 
 
-trie_get_return(_TableEntryHandle,_ReturnTemplate) :-
-	trie_get_return(_TableEntryHandle,_ReturnTemplate, 0).
+trie_get_return(TableEntryHandle,ReturnTemplate) :-
+	trie_get_return(TableEntryHandle,ReturnTemplate, 0).
 trie_get_return(_TableEntryHandle,_ReturnTemplate,_Delay) :-
 	'_$builtin'(TRIE_GET_RETURN).
 
@@ -1460,11 +1460,11 @@ ac_loop(SGF,Tmp) :-
 
 delete_answers_for_failing_calls :-
 	get_calls(eval_subgoal_in_residual(ASGF,ATmp),ESGF,ETmp),
-	\+ get_returns(ESGF,ETmp),
+	\+ trie_get_return(ESGF,ETmp,0),
 	get_returns(ASGF,ATmp,ALeaf),
-	delete_return(ASGF,ALeaf,1),
+	force_truth_value(ALeaf,false),
 	conset('_$AC_CHANGED',1),
-	%%writeln(userout,deleted(ASGF,ALeaf)),
+	%%writeln(userout,made_false(ASGF,ALeaf)),
 	fail.
 delete_answers_for_failing_calls.
 
