@@ -106,7 +106,8 @@ void build_delay_list(CTXTdeclc CPtr delay_list, DE de)
     //    printf("bdl: var_addr %p copy %p\n",var_addr,copy_of_var_addr);
     tail = hreg+1;
     bind_list(delay_list, hreg);
-    hreg = hreg + 3; 
+    hreg = hreg + 2; 
+    /* must build back-to-front so existential vars are handled consistently (?dsw)*/
     build_delay_list(CTXTc tail, de_next(de)); /* recursive call, BUG, gc may move heap,destroying oldhreg!! */
     head = hreg;
     subg = de_subgoal(de);
@@ -117,11 +118,11 @@ void build_delay_list(CTXTdeclc CPtr delay_list, DE de)
       new_heap_functor(head, tnot_psc);
       if (arity == 0) {
 	bind_string(head, get_name(psc));
-	hreg += 3;
+	hreg += 2;
       } else {
 	sreg = head+1;
 	follow(head++) = makecs(sreg);
-	hreg += arity+4; /* need arity(tnot)+2+arity(psc)+1 new cells */
+	hreg += arity+3; /* need arity(tnot)+1+arity(psc)+1 new cells */
 	new_heap_functor(sreg, psc);
 	for (j = 1; j <= arity; j++) {
 	  new_heap_free(sreg);
@@ -268,7 +269,6 @@ void build_delay_list(CTXTdeclc CPtr delay_list, DE de)
 	var_addr = tmp_var_addr;
       }
     }
-    hreg++;
   } else {
     bind_nil(delay_list);
   }
