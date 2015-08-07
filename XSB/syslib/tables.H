@@ -138,7 +138,7 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
 
 :- import numbervars/4, unnumbervars/2 from num_vars.
 
-:- import bagof/3, findall/3, setof/3, sort/2 from setof.
+ :- import bagof/3, findall/3, setof/3, sort/2, excess_vars/4 from setof.
 
 :- import
 	(=..)/2, abort/1, call/1,
@@ -147,7 +147,7 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
    from standard.
 :- import call_c/1,nl/0,write/1, tell/1, told/0, '\='/2, arg/3 from standard.
 :- import writeln/2 from standard.
-:- import conget/2, conset/2 from gensym.
+:- import is_most_general_term/1 from standard.
 
 :- import variant/2 from subsumes.
 :- import invalidate_table_for/2 from usermod.

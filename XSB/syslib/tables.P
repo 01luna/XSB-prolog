@@ -1438,24 +1438,25 @@ answers are returned from a completed table and the subgoal may need
 answer completion. */
 %% answer_completion(+LeaderSubGoalFrameAddr,+Template)
 answer_completion(SGF,Template) :-
-%%	writeln(userout,answer_completion(SGF,Template)),
-	ac_loop(SGF,Template), % iterate answer-completion
-	fail.
+	%%writeln(userout,answer_completion(SGF,Template)),
+	ac_loop(SGF,Template),	% iterate answer-completion
+	fail.			% not strictly nec since ac_loop will fail
 answer_completion(SGF,Template) :-
-	stat_set_flag(83,1),	% turn answer_completion back on,
+	stat_set_flag(83,1),	% turn ANSWER_COMPLETION back on,
 				% was turned off in C before entry
 	trie_get_return(SGF,Template,1).
 
 ac_loop(SGF,Tmp) :-
-%%	print_residual_pgm(SGF,Tmp),
+	%%print_residual_pgm(SGF,Tmp),
 	abolish_table_pred(eval_subgoal_in_residual(_,_),[abolish_tables_singly]),
+	stat_set_flag(103,0),  % reset SIMPLIFICATION_DONE
 	(eval_subgoal_in_residual(SGF,Tmp),fail ; true),
-	conset('_$AC_CHANGED',0),
 	delete_answers_for_failing_calls,
-	(conget('_$AC_CHANGED',1)
+	stat_flag(103,SimpFlg),
+	(SimpFlg =:= 1
 	 ->	%%writeln(userout,iterate),
 		ac_loop(SGF,Tmp)
-	 ;	mark_succeeding_calls_as_answer_completed
+	 ;	mark_succeeding_calls_as_answer_completed_and_fail
 	).
 
 delete_answers_for_failing_calls :-
@@ -1463,21 +1464,17 @@ delete_answers_for_failing_calls :-
 	\+ trie_get_return(ESGF,ETmp,0),
 	get_returns(ASGF,ATmp,ALeaf),
 	force_truth_value(ALeaf,false),
-	conset('_$AC_CHANGED',1),
 	%%writeln(userout,made_false(ASGF,ALeaf)),
 	fail.
 delete_answers_for_failing_calls.
 
-mark_succeeding_calls_as_answer_completed :-
+mark_succeeding_calls_as_answer_completed_and_fail :-
 	get_calls(eval_subgoal_in_residual(ASGF,ATmp),_,_),
 	once(get_returns(ASGF,ATmp)),
 	set_answer_completed(ASGF),
 	%writeln(userout,set_answer_completed(ASGF)),
 	fail.
-mark_succeeding_calls_as_answer_completed.
 
-:- import is_most_general_term/1 from standard.
-:- import excess_vars/4 from setof.
 eval_dl_in_residual([]).
 eval_dl_in_residual([tnot G|Gs]) :- !,
 	get_call(G,SGF,Tmp),
@@ -1498,6 +1495,15 @@ eval_dl_in_residual([G|Gs]) :-
 	eval_subgoal_in_residual(SGF,Tmp),
 	eval_dl_in_residual(Gs).
 	
+/** if modify get_delaylist to return subgoal_call terms
+subgoal_call(SGF,Tmp) :-
+	(is_answer_completed(SGF)
+	 ->	true
+	 ;	get_returns_and_delayed_subgoal_calls(SGF,Tmp,Body),
+		call_c(Body)
+	).
+**/
+
 :- table eval_subgoal_in_residual/2.
 eval_subgoal_in_residual(Gs,Tmp) :-
 	(is_answer_completed(Gs)
