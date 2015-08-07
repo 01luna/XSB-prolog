@@ -302,6 +302,7 @@ static inline void CompleteSimplifyAndReclaim(CTXTdeclc CPtr cs_ptr)
 
   while (ComplStkFrame >= openreg) {
     if (neg_simplif_possible(compl_subgoal_ptr(ComplStkFrame))) {
+      flags[SIMPLIFICATION_DONE] = 1;
       simplification_required = 1;
       break;
     }

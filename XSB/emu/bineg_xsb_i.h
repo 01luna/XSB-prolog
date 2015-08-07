@@ -222,8 +222,8 @@ case IS_INCOMPLETE: {
       DL dl;
       DE de;
       BTNptr as_leaf;
-      Cell delay_lists;
-      CPtr dls_head, dls_tail = NULL;
+      CPtr delay_lists;
+      Cell dls_head;
 
 #ifdef DEBUG_DELAYVAR
       xsb_mesg(">>>> (at the beginning of GET_DELAY_LISTS");
@@ -243,10 +243,9 @@ case IS_INCOMPLETE: {
 #endif /* DEBUG_DELAYVAR */
 
       as_leaf = (NODEptr) ptoc_int(CTXTc 1);
-      delay_lists = ptoc_tag(CTXTc 2);
+      delay_lists = (CPtr)ptoc_tag(CTXTc 2); // should test is var
       if (is_conditional_answer(as_leaf)) {
 	int copy_of_var_addr_arraysz;
-	bind_list((CPtr)delay_lists, hreg);
 	{ /*
 	   * Make copy of trieinstr_vars & global_trieinstr_vars_num (after get_returns,
 	   * which calls trie_get_return).  (global_trieinstr_vars_num +
@@ -268,10 +267,6 @@ case IS_INCOMPLETE: {
 	}
 
 	for (dl = asi_dl_list((ASI) Delay(as_leaf)); dl != NULL; ) {
-	  dls_head = hreg;
-	  dls_tail = hreg+1;
-	  new_heap_free(hreg);
-	  new_heap_free(hreg);
 	  de = dl_de_list(dl);
 
 	  xsb_dbgmsg((LOG_DELAY, "orig_delayed_term("));
@@ -287,12 +282,14 @@ case IS_INCOMPLETE: {
 	   * copy_of_num_heap_term_vars at the end of build_delay_list().
 	   */
 	  copy_of_num_heap_term_vars = global_trieinstr_vars_num + 1;
-	  build_delay_list(CTXTc dls_head, de);  /* BUG may move heap, and so saved dls_tail destroyed */
-	  if ((dl = dl_next(dl)) != NULL) {
-	    bind_list(dls_tail, hreg);
-	  }
+	  dls_head = build_delay_list(CTXTc de);
+	  bind_list(delay_lists,hreg);
+	  follow(hreg) = dls_head;
+	  delay_lists = hreg + 1;
+	  hreg += 2;
+	  dl = dl_next(dl);
 	}
-	bind_nil(dls_tail);
+	bind_nil(delay_lists);
 	mem_dealloc(copy_of_var_addr,copy_of_var_addr_arraysz*sizeof(CPtr),OTHER_SPACE);
       } else {
 	bind_nil((CPtr)delay_lists);

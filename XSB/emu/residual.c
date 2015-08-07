@@ -88,27 +88,29 @@ int copy_of_num_heap_term_vars;
  * answer for the delayed subgoal.
  */
 
-void build_delay_list(CTXTdeclc CPtr delay_list, DE de)
+Cell build_delay_list(CTXTdeclc DE de)
 {
   Psc  psc;
   int  i, j, arity;
-  CPtr head, tail;
+  CPtr head;
+  Cell delay_list;
   VariantSF subg;
   BTNptr ans_subst;
 #ifdef DEBUG_DELAYVAR
   BTNptr subs_factp;
 #endif
   CPtr *tmp_var_addr;
-  CPtr oldhreg = hreg;
+  CPtr oldhreg;
  
   i = 0;
   if (de != NULL && !isnil(de)) {
     //    printf("bdl: var_addr %p copy %p\n",var_addr,copy_of_var_addr);
-    tail = hreg+1;
-    bind_list(delay_list, hreg);
-    hreg = hreg + 2; 
     /* must build back-to-front so existential vars are handled consistently (?dsw)*/
-    build_delay_list(CTXTc tail, de_next(de)); /* recursive call, BUG, gc may move heap,destroying oldhreg!! */
+    delay_list = build_delay_list(CTXTc de_next(de)); /* recursive call */
+    oldhreg = hreg;
+    follow(hreg+1) = delay_list;
+    hreg += 2; 
+
     head = hreg;
     subg = de_subgoal(de);
     psc = TIF_PSC(subg_tif_ptr(subg));
@@ -132,7 +134,7 @@ void build_delay_list(CTXTdeclc CPtr delay_list, DE de)
       }
     } else {					/* Positive DE */
       if (arity == 0) {
-	new_heap_string(oldhreg, get_name(psc));
+	bld_string(oldhreg, get_name(psc));
       } else {
 #ifdef DEBUG_DELAYVAR
 	/*
@@ -269,8 +271,9 @@ void build_delay_list(CTXTdeclc CPtr delay_list, DE de)
 	var_addr = tmp_var_addr;
       }
     }
+    return makelist(oldhreg);
   } else {
-    bind_nil(delay_list);
+    return makenil;
   }
 }
 

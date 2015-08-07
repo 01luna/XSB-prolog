@@ -153,6 +153,7 @@ interrupt flag
 #define EXCEPTION_ACTION         100
 #define CHARACTER_SET            101
 #define ERRORS_WITH_POSITION     102
+#define SIMPLIFICATION_DONE	 103  /* set when simplification done during completion.*/
 
 #define MAX_FLAGS		 120
 
