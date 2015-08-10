@@ -236,7 +236,7 @@ bench_h(K) :-
 	(h(_,_,K), fail ; true),
 	cputime(T1),
 	Time is T1-T0,
-	SRTime is 1000000*Time/ (K*K),
+	SRTime is 10000000*Time/ (K*K),
 	writeln(userout,['K'=K,cputime=Time,rootTime=SRTime]).
 
 :- table h/3.

@@ -19,7 +19,11 @@ test(C,D) :- C = r2(_,_), get_residual(C,D).
 test(C,D) :- C = app1(_,_,_), get_residual(C,D).
 test(C,D) :- C = reverse([_,_,_], _), get_residual(C,D).
 
-call_them :- p(_,_), p2(_,_), app1(_,_,_), reverse([_,_,_],_).
+%call_them :- p(_,_), p2(_,_), app1(_,_,_), reverse([_,_,_],_).
+call_them :- p(_,_).
+call_them :- p2(_,_).
+call_them :- app1(_,_,_).
+call_them :- reverse([_,_,_],_).
 
 write_body([]) :- writeln('].').
 write_body([H|T]) :- write(H), (T \== [] -> write(', ') ; true), write_body(T).
