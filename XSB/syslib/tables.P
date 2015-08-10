@@ -1504,7 +1504,7 @@ subgoal_call(SGF,Tmp) :-
 	).
 **/
 
-:- table eval_subgoal_in_residual/2.
+:- table eval_subgoal_in_residual/2 as variant,opaque.
 eval_subgoal_in_residual(Gs,Tmp) :-
 	(is_answer_completed(Gs)
 	 ->	true		%,writeln(userout,already_ac(Gs))
