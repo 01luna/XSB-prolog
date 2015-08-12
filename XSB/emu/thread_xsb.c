@@ -30,12 +30,12 @@
 #include "xsb_debug.h"
 #include "xsb_config.h"
 
-#ifndef WIN_NT
+#if !defined(WIN_NT)
 #include <unistd.h>
 #else
 #include <Windows.h>
 //#include <stdint.h>
-#include "stdint.h"
+#include "windows_stdint.h"
 #endif
 
 
