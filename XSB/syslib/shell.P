@@ -205,3 +205,4 @@ sys_filecopy(Source,Dest,Res)  :-  sys_syscall(SYS_filecopy, Res, Source, Dest).
 sys_fileappend(Source,Dest,Res)  :-  sys_syscall(SYS_fileappend, Res, Source, Dest).
 sys_create(Name,Res)      :-  sys_syscall(SYS_create, Res, Name, _).
 
+sys_main_memory(Memory_size):- sys_syscall(SYS_main_memory_size,_,Memory_size,_).
