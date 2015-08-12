@@ -120,8 +120,8 @@ SRCS =	auxlry.c biassert.c builtin.c call_xsb.c cinterf.c conc_compl.c \
 	ubi_BinTree.c ubi_SplayTree.c \
 	hashtable.c hashtable_itr.c \
 	sha1.c md5.c \
-	url_encode.c \
-	incr_xsb.c call_graph_xsb.c
+	url_encode.c getMemorySize.c \
+	incr_xsb.c call_graph_xsb.c 
 
 
 ORASRCS = $(SRCS) orastuff.c
@@ -144,7 +144,7 @@ OBJS =	auxlry.o biassert.o builtin.o call_xsb.o cinterf.o conc_compl.o \
 	ubi_BinTree.o ubi_SplayTree.o \
 	hashtable.o hashtable_itr.o \
 	sha1.o md5.o \
-	url_encode.o \
+	url_encode.o getMemorySize.o \
 	incr_xsb.o call_graph_xsb.o 
 
 # if emuMakefile.h exists, include it. Assume that it contains the var OTHEROBJS
