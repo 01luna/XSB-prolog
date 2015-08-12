@@ -70,6 +70,7 @@
 #include "thread_xsb.h"
 
 extern void get_statistics(CTXTdecl);
+extern size_t getMemorySize();
 
 static int xsb_spawn (CTXTdeclc char *prog, char *arg[], int callno,
 		      int pipe1[], int pipe2[], int pipe3[],
@@ -212,6 +213,11 @@ int sys_syscall(CTXTdeclc int callno)
     ftime(&time_epoch);
     ctop_int(CTXTc 3,(Integer)(time_epoch.time));
     ctop_int(CTXTc 4,(Integer)(time_epoch.millitm));
+    break;
+  }
+  case SYS_main_memory_size: {
+    size_t memory_size = getMemorySize();
+    ctop_int(CTXTc 3,(UInteger)memory_size);
     break;
   }
   default: xsb_abort("[SYS_SYSCALL] Unknown system call number, %d", callno);
