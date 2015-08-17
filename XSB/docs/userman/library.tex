@@ -1188,70 +1188,15 @@ For instance, {\tt $\sim$john///doe/dir1//../foo.bar} will be parsed into:
 {\tt /home/john/doe/}, {\tt foo}, and {\tt bar} (where we assume that    
 {\tt /home/john} is what {\tt $\sim$john} expands into).  
 
-\ouroldmoditem{sleep(+Seconds)}{shell}
-\index{\texttt{sleep/1}}
-Put XSB to sleep for a given number of seconds.  
-
-{\bf Error Cases}
-\bi
-\item 	{\tt Seconds} is a variable
-\bi
-\item 	{\tt instantiation\_error}.
-\ei
-\item 	{\tt Seconds} is not an integer
-\bi
-\item 	{\tt type\_error(integer, Seconds)}.
-\ei
-\ei
-
-\ouroldmoditem{sys\_pid(-Pid)}{shell}
-\index{\texttt{pid/1}}
+\ourmoditem{sys\_pid(-Pid)}{pid/1}{shell}
+%
 Get Id of the current process.
 
-\ouroldmoditem{getenv(+VarName,-VarVal}{machine} 
-\index{\texttt{getenv/2}}
+\ourmoditem{sys\_main\_memory(-RamInBytes)}{sys\_main\_memory/1}{shell}
 %
-Unifies {\tt VarVal} with the value of {\tt VarName} in the current
-shell.  If {\tt VarName} is not an environment varible, the predicate
-fails.
-
-{\em Example:}
-\begin{verbatim}
-:- import getenv/2 from machine.
-
-yes
-| ?- getenv('HOSTTYPE',F).
-
-F = intel-pc
-\end{verbatim}
-
-\ouroldmoditem{putenv(+String)}{machine} 
-\index{\texttt{putenv/3}}
-%
-If {\tt String} is of the form {\tt VarName=Value}, inserts or resets
-the environment variable {\tt VarName}.  If {\tt VarName} does not
-exist, it is inserted with {\tt VarVal}.  If the {\tt VarName} does
-exist, it is reset to {\tt VarVal}.  {\tt putenv/2} always succeeds.
-
-Exceptions:
-    \begin{description}
-    \item[{\tt instantiation\_error}] {\tt String} is
-      not instantiated at the time of call.
-    \item[{\tt type\_error}]
-        {\tt VarName} or {\tt VarVal} is not an atom or a list of atoms.
-    \end{description}
-
-\ouroldmoditem{epoch\_seconds(-Seconds)}{machine} 
-\ouroldmoditem{epoch\_milliseconds(-Seconds,-Milliseconds)}{machine} 
-\index{\texttt{epoch\_seconds/1}}
-\index{\texttt{epoch\_milliseconds/2}}
-%
-Returns the number of seconds since the beginning of the UNIX/POSIX
-epoch (January 1, 1970)~\footnote{Uses the Posix call {\tt time(0)},
-  so the number of seconds will be returned on non-Unix platforms,
-  such as Microsoft.}.  May cause overflow on 32-bit platforms.
-\texttt{epoch\_milliseconds/2} returns both the number of seconds and
-the number of additional milliseconds since the last whole second.
+Provides a platform-independent way to return the amount of RAM for
+the current machine, in bytes.~\footnote{Based on code by David Robert
+  Nadeau under the Creative Commons license.}
 
 \end{description}
 
@@ -1269,22 +1214,6 @@ Remove file.
     in the system's current directory if it can do so.  If so, it succeeds.
     It is the same as {\tt shell('ls -F', 0)}.  
 
-\ouritem{cd(+Dir)}\index{\texttt{cd/1}}
-    Under UNIX and Windows, this predicate changes the interpreter's
-    working directory to {\tt Dir}.  If the directory specified does
-    not exist or is not a directory, or the user does not have execute
-    permission for that directory, predicate {\tt cd/1} simply fails
-    raising no permission error.
-
-    Exceptions:
-    \begin{description}
-    \item[{\tt instantiation\_error}]
-        {\tt Dir} is not instantiated at the time of call.
-    \item[{\tt type\_error}]
-        {\tt Dir} is not an atom.
-    \end{description}
-
-\ouritem{edit(+Module)}\index{\texttt{edit/1}}
     Provided that the environment variable {\tt EDITOR} has been set,
     and the system is executing under UNIX, 
     a call to {\tt edit(foo)} will call the default editor on the file

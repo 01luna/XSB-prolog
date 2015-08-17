@@ -336,16 +336,21 @@ l([a|X]):- l(X).          l([a]).
   }
 
 \index{Prolog flags!{\tt max\_memory}}
-\item {\tt max\_memory} The maximum amount of memory {\em in
-  kilobytes} that an XSB thread (in the single-threaded engine) or all
-  XSB threads (in the multi threaded engine) can use for their
-  combined execution stacks, program space, tables, or any other
-  purpose.  If a query exceeds this amount, XSB will abort the query
-  with a resource exception and then try to reclaim space used by the
-  query.  As with other flags, this flag can be set during an XSB
-  session.  The value of 0 effectively disables the flag, allowing XSB
-  to allocate as much memory as the underlying OS will grant.  The
-  default value is 0, so that the flag is disabled.
+\item {\tt max\_memory} The maximum amount of memory that an XSB
+  thread (in the single-threaded engine) or all XSB threads (in the
+  multi threaded engine) can use for their combined execution stacks,
+  program space, tables, or any other purpose.  If a query exceeds
+  this amount, XSB will abort the query with a resource exception and
+  then try to reclaim space used by the query.  As with other flags,
+  this flag can be set during an XSB session.
+
+  The maximum amount can be set in two ways.  If given a floating
+  point number $F$, the maximum will be set to $F$ times the total
+  amount of RAM for the machine on which XSB is executing.  If given
+  an integer $I$, the maximum will be set to $I$ kilobytes.  The value
+  of 0 effectively disables the flag, allowing XSB to allocate as much
+  memory as the underlying OS will grant.  The default value is 0, so
+  that the flag is disabled by default.
 
 \index{Prolog flags!{\tt unify\_with\_occurs\_check}}
 \index{occurs check}

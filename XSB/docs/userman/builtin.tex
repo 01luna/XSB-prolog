@@ -2274,10 +2274,10 @@ control, along with interprocess communication.
 %
 Calls the operating system with the atom {\tt SystemCall} as argument,
 using the {\tt libc} function {\tt system()}.  The predicate succeeds
-if {\tt SystemCall} is executed successfully, otherwise it fails.  As
-a notational convenience, the user can also supply {\tt SystemCall}
-either as a list.  In this case, elements of the list will be
-concatenated together to form the system call.
+if {\tt SystemCall} is executed successfully; otherwise it fails.  As
+a convenience, the user can also supply {\tt SystemCall} either as an
+atom or as a list of atoms.  If a list of atoms is used, elements of
+the list will be concatenated together to form the system call.
 
     For example, the call:
 
@@ -2317,14 +2317,13 @@ concatenated together to form the system call.
 
 \standarditem{shell(+SystemCall, -Result)}{shell/2}
 %
-Calls the operating system with the atom {\tt SystemCall} as argument,
-using the {\tt libc} function {\tt system()}.  As a notational
-convenience, the user can also supply {\tt SystemCall} as a list.  In
-in this case, elements of the list will be concatenated together to
-form the system call.  {\tt shell/2} always succeeds instantiating
-{\tt Result} to the exit code of {\tt system()}.  Thus {\tt Result}
-will be 0 if {\t SystemCall} executed properly, and non-0 otherwise:
-the specific return values of {\tt system()} may be platform-dependent.
+As with {\tt shell/1}, this predicate calls the operating system with
+the atom {\tt SystemCall} as argument, using the {\tt libc} function
+{\tt system()} using the same forms of input.  {\tt shell/2} always
+succeeds instantiating {\tt Result} to the exit code of {\tt
+  system()}.  Thus {\tt Result} will be 0 if {\t SystemCall} executed
+properly, and non-0 otherwise: the specific return values of {\tt
+  system()} may be platform-dependent.
 
 {\bf Error Cases}
 \bi
@@ -2356,9 +2355,9 @@ Behaves as {\tt shell/2} in its 1st and 4th arguments, and like {\tt
 lists of lists: each element of the outer list corresponds to a line
 of output from {\tt SystemCall}, while each element of an inner list
 corresponds to a token in that line.  {\tt shell\_to\_list/3} is thus
-a sort of Prolog analog of the shell command \verb|`SystemCall`|.
+a sort of Prolog analog of the shell command designated by \verb|SystemCall|.
 
-Examples:
+Examples (from OSx):
 \begin{verbatim}
   ?- shell_to_list(sw_vers,Stdout,Ret).
 
@@ -2401,6 +2400,78 @@ Example:
 \ourmoditem{local\_datime(?Date)}{local\_datime/1}{standard}
 %
 Acts as {\tt datime/1}, but returns the local, rather than the UTC date.
+
+\ourrepeatmoditem{epoch\_seconds(-Seconds)}{epoch\_seconds/1}{machine} 
+\ourmoditem{epoch\_milliseconds(-Seconds,-Milliseconds)}{epoch\_milliseconds/2}{machine} 
+%
+Returns the number of seconds since the beginning of the POSIX/UNIX
+epoch (January 1, 1970)~\footnote{Uses the Posix call {\tt time(0)},
+  so the number of seconds will be returned on non-Unix platforms,
+  such as Microsoft.}.  May cause overflow on 32-bit platforms.
+\texttt{epoch\_milliseconds/2} returns both the number of seconds and
+the number of additional milliseconds since the last whole second.
+
+\ourmoditem{sleep(+Seconds)}{sleep/1}{shell}
+\noindent
+Put XSB to sleep for a given number of seconds.  
+
+{\bf Error Cases}
+\bi
+\item 	{\tt Seconds} is a variable
+\bi
+\item 	{\tt instantiation\_error}.
+\ei
+\item 	{\tt Seconds} is not an integer
+\bi
+\item 	{\tt type\_error(integer, Seconds)}.
+\ei
+\ei
+
+\standarditem{cd(+Dir)}{cd/1}
+    Under UNIX and Windows, this predicate changes the interpreter's
+    working directory to {\tt Dir}.  If the directory specified does
+    not exist or is not a directory, or the user does not have execute
+    permission for that directory, predicate {\tt cd/1} simply fails
+    raising a permission error.
+
+{\bf Error Cases}
+    \begin{description}
+    \item[{\tt instantiation\_error}]
+        {\tt Dir} is not instantiated at the time of call.
+    \item[{\tt type\_error}]
+        {\tt Dir} is not an atom.
+    \end{description}
+
+\ourmoditem{getenv(+VarName,-VarVal)}{getenv/2}{machine} 
+\noindent
+Unifies {\tt VarVal} with the value of {\tt VarName} in the current
+shell.  If {\tt VarName} is not an environment varible, the predicate
+fails.
+
+{\em Example:}
+\begin{verbatim}
+:- import getenv/2 from machine.
+
+yes
+| ?- getenv('HOSTTYPE',F).
+
+F = intel-pc
+\end{verbatim}
+
+\ourmoditem{putenv(+String)}{putenv/2}{machine} 
+\noindent
+If {\tt String} is of the form {\tt VarName=Value}, inserts or resets
+the environment variable {\tt VarName}.  If {\tt VarName} does not
+exist, it is inserted with {\tt VarVal}.  If the {\tt VarName} does
+exist, it is reset to {\tt VarVal}.  {\tt putenv/2} always succeeds.
+
+Exceptions:
+    \begin{description}
+    \item[{\tt instantiation\_error}] {\tt String} is
+      not instantiated at the time of call.
+    \item[{\tt type\_error}]
+        {\tt VarName} or {\tt VarVal} is not an atom or a list of atoms.
+    \end{description}
 
 \end{description}
 

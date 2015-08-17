@@ -10,15 +10,15 @@
 \begin{quote}
 Day-to-day care and feeding of XSB including bug fixes, ports, and
 configuration management is currently done by David Warren and
-Terrance Swift with the help of Michael Kifer and others.  In the past
+Theresa Swift with the help of Michael Kifer and others.  In the past
 Kostis Sagonas, Prasad Rao, Steve Dawson, Juliana Freire, Ernie
 Johnson, Baoqiu Cui, Bart Demoen and Luis F.  Castro have provided
 tremendous help.
 
 In \version, the core engine development of the SLG-WAM has been
-mainly implemented by Terrance Swift, David Warren, Kostis Sagonas,
+mainly implemented by Theresa Swift, David Warren, Kostis Sagonas,
 Prasad Rao, Juliana Freire, Ernie Johnson, Luis Castro and Rui
-Marques.  The breakdown, very roughly, was that Terrance Swift wrote
+Marques.  The breakdown, very roughly, was that Theresa Swift wrote
 the initial tabling engine, the SLG-WAM, and its built-ins; and leads
 the current development of the tabling subsystem.  Prasad Rao
 reimplemented the engine's tabling subsystem to use tries for
@@ -34,31 +34,31 @@ SLG-WAM.  Rui Marques was responsible for the concurrency control
 algorithms used for shared tables, and mainly responsible for making
 the XSB engine multi-threaded.  The incremental table maintenance
 subsystem was designed and first implemented by Diptikalyan Saha, and
-its design and development has been continued by Terrance Swift.
-Answer subsumption was written by David Warren and Terrance Swift.
+its design and development has been continued by Theresa Swift.
+Answer subsumption was written by David Warren and Theresa Swift.
 David Warren implemented hash-consed, or ``interned'' tables.  Call
 abstraction and answer abstraction (restraint) were written by
-Terrance Swift.
+Theresa Swift.
 
 Other engine work includes the following.  Memory expansion code for
 WAM stacks was written by Ernie Johnson, Bart Demoen and David
 S. Warren.  Heap garbage collection was written by Luis de Castro,
 Kostis Sagonas and Bart Demoen.  Atom space garbage collection was
 written by David Warren; table garbage collection was written by
-Terrance Swift based in part on space reclamation code written by
+Theresa Swift based in part on space reclamation code written by
 Prasad Rao.  Rui Marques rewrote much of the engine to make it
 compliant with 64-bit architectures.  Assert and retract code was
 based on code written by Jiyang Xu; it significantly revised by David
 S. Warren, who added alternative, multiple, and star indexing and by
-Terrance Swift who implemented dynamic clause garbage collection. Trie
+Theresa Swift who implemented dynamic clause garbage collection. Trie
 assert/retract code, and trie interning code was written by Prasad
-Rao.  Neng-fa Zhou, Terrance Swift and David Warren upgraded XSB from
+Rao.  Neng-fa Zhou, Theresa Swift and David Warren upgraded XSB from
 ASCII to the character sets UTF-8, C1253, and LATIN-1.  The current
 version of {\tt findall/3} was re-written from scratch by Bart Demoen,
 as was XSB's original throw and catch mechanism.  64-bit floats were
 added by Charles Rojo.  The interface from C to Prolog and DLL
 interface were implemented by David Warren and extended to
-multi-threading by Terrance Swift; the interface from Prolog to C
+multi-threading by Theresa Swift; the interface from Prolog to C
 (foreign language interface) was developed by Jiyang Xu, Kostis
 Sagonas, Steve Dawson and David Warren.
 
@@ -66,15 +66,15 @@ In terms of core system Prolog code, Kostis Sagonas was responsible
 for HiLog compilation and associated built-ins as well as coding or
 revising many standard predicates.  Steve Dawson implemented
 Unification Factoring.  The revision of XSB's I/O into ISO-compatible
-streams was done by Michael Kifer and Terrance Swift.  The {\tt
+streams was done by Michael Kifer and Theresa Swift.  The {\tt
   auto\_table} and {\tt suppl\_table} directives were written by
 Kostis Sagonas.  The DCG expansion module was written by Kostis
 Sagonas for non-tabled code and by Baoqiu Cui, David Warren and
-Terrance Swift for tabled code.  The handling of the {\tt multifile}
+Theresa Swift for tabled code.  The handling of the {\tt multifile}
 directive was written by Baoqiu Cui and David
 Warren. C.R. Ramakrishnan wrote the mode analyzer for XSB.  Michael
 Kifer implemented the {\tt storage} module.  The multi-threaded API
-was written by Terrance Swift and Rui Marques.  Walter Wilson has
+was written by Theresa Swift and Rui Marques.  Walter Wilson has
 written several of XSB's library predicates for tabling.  Paulo Moura
 has added several predicates to make XSB more consistent with other
 Prologs.  
