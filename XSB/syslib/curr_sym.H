@@ -40,7 +40,7 @@
 :- import '_$op'/3, '_$trie_asserted'/1, '_$index'/3 from file_op.
 :- import '_$hilog_symbol'/1 from hilogsym.
 :- import libpath/1 from loader.
-:- import atom_codes/2, number_codes/2 from standard.
+   :- import atom_codes/2, number_codes/2 from standard.
 :- import functor/3, warning/1, abort/1, number/1, integer/1, atom/1 from standard.
 :- import standard_symbol/3, standard_metapredicate_template/3 from std_xsb.
 :- import psc_name/2, psc_arity/2, psc_prop/2, psc_mod/2, psc_type/2, term_psc/2,
@@ -50,6 +50,7 @@
 	  str_cat/3, intern_string/2, slash/1, psc_shared/2
      from machine.
 :- import xsb_configuration/2 from xsb_configuration.
+:- import sys_main_memory/1 from shell.
 :- import fmt_write_string/3, is_valid_stream/2 from file_io.
 :- import check_nonvar/3, 
    %check_number/3,
@@ -60,5 +61,4 @@
 :- import psc_get_incr/2 from machine.
 :- import reinitialize_undefineds/0 from xsbbrat.
 %:- import ensure_loaded/1 from consult.
-
 /* ----------------- end of file current_sym.H -------------------- */

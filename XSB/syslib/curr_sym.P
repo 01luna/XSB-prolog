@@ -1,5 +1,5 @@
 /* File:      curr_sym.P
-** Author(s): Kostis F. Sagonas
+** Author(s): Sagonas/Swift/Warren/Moura
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 1986, 1993-1998
@@ -1196,8 +1196,13 @@ set_xsb_flag_1(unify_with_occurs_check, OnOff) :-!,
 	 ;  stat_set_flag(UNIFY_WITH_OCCURS_CHECK_FLAG, 0)).
 set_xsb_flag_1(max_memory,Max):-!,
 	(integer(Max),Max >= 0 -> 
-	    stat_set_flag(MAX_MEMORY,Max)
-	 ;  domain_error(positive_integer,Max,set_prolog_flag/2,2,max_memory_clause) ).
+	     stat_set_flag(MAX_MEMORY,Max)
+	 ; real(Max),Max >= 0 -> 
+	     sys_main_memory(Mem),
+	     Ram1 is Max * Mem,
+	     Ram is floor(Ram1),
+	     stat_set_flag(MAX_MEMORY,Ram)
+	 ;  domain_error(positive_number,Max,set_prolog_flag/2,2,max_memory_clause) ).
 set_xsb_flag_1(exception_pre_action, Mode) :- !,
          (Mode = print_incomplete_tables-> 
 	  stat_set_flag(EXCEPTION_PRE_ACTION, PRINT_INCOMPLETE_ON_ABORT)
