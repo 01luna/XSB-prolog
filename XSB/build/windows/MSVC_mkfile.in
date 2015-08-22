@@ -178,7 +178,8 @@ DLL_LINK_OBJS= \
 	"$(OBJDIR)/string_xsb.obj" \
 	"$(OBJDIR)/varstring.obj" \
 	"$(OBJDIR)/ubi_BinTree.obj" \
-	"$(OBJDIR)/ubi_SplayTree.obj"
+	"$(OBJDIR)/ubi_SplayTree.obj" \
+	"$(OBJDIR)/getMemorySize.obj"
 
 # DLLs don't use main_xsb.c
 !IF  "$(DLL)" == "no"
