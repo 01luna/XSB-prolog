@@ -217,5 +217,7 @@ extern byte *check_interrupts_restore_insts_addr;
      }								\
    }
 
+#define STACK_USER_MEMORY_LIMIT_OVERFLOW(oldSize, newSize)			\
+  (flags[MAX_MEMORY] && (pspace_tot_gl/1024 - oldSize + newSize > flags[MAX_MEMORY]))
 
 #endif /* _MEMORY_XSB_H_ */
