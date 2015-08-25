@@ -26,6 +26,9 @@
 //#define mem_dbg(M) printf M
 #define mem_dbg(M) 
 
+// increment is in k-byte
+#define MIN_TCP_STACK_INCREMENT(CURRENT_SIZE) (CURRENT_SIZE/4)
+
 /*======================================================================*/
 /* This module provides abstractions of memory management functions	*/
 /* for the abstract machine.  The following interface routines are	*/
@@ -375,15 +378,12 @@ void mem_dealloc(void *addr, size_t size, int category)
  * to "new_size" K-byte blocks.
  */
 
-#define STACK_USER_MEMORY_LIMIT_OVERFLOW(oldSize, newSize)			\
-  (flags[MAX_MEMORY] && (pspace_tot_gl/1024 - oldSize + newSize > flags[MAX_MEMORY]))
-
 void tcpstack_realloc(CTXTdeclc size_t new_size) {
 
   byte *cps_top,         /* addr of topmost byte in old CP Stack */
        *trail_top;       /* addr of topmost frame (link field) in old Trail */
 
-  byte *new_trail;        /* bottom of new trail area */
+  byte *new_trail = 0;        /* bottom of new trail area */
   byte *new_cps;          /* bottom of new choice point stack area */
 
   size_t trail_offset,      /* byte offsets between the old and new */
@@ -428,18 +428,29 @@ Please use -c N or cpsize(N) to start with a larger choice point stack"
      *   from where it was moved and push it to the high end of the newly
      *   allocated region.
      */
-    if (!STACK_USER_MEMORY_LIMIT_OVERFLOW(tcpstack.size, new_size))
+    while (STACK_USER_MEMORY_LIMIT_OVERFLOW(tcpstack.size, new_size) 
+	   && (new_size-tcpstack.size >= MIN_TCP_STACK_INCREMENT(tcpstack.size)) ) {
+      new_size = tcpstack.size + (new_size-tcpstack.size)/2;
+      //      printf("ulimit problem; trying new_size %ld (user limit = %ld)\n",new_size,flags[MAX_MEMORY]);
+    }
+    if (new_size - tcpstack.size < MIN_TCP_STACK_INCREMENT(tcpstack.size)) {
+      xsb_throw_memory_error(encode_memory_error(TCP_SPACE,USER_MEMORY_LIMIT));
+    }
+    while (!new_trail && (new_size-tcpstack.size >= MIN_TCP_STACK_INCREMENT(tcpstack.size)) ) {
       new_trail = (byte *)realloc(tcpstack.low, new_size * K);
+      if (!new_trail) {
+	new_size = tcpstack.size + (new_size-tcpstack.size)/2;
+	//	printf("hard limit problem; trying new_size %ld\n",new_size);
+      }
+    }
+    if (!new_trail) {
+      xsb_throw_memory_error(encode_memory_error(TCP_SPACE,USER_MEMORY_LIMIT));
+    }
     else {
-      //      printf("new size would be %"Intfmt"\n",pspace_tot_gl + (new_size - tcpstack.size)*K);
-      xsb_throw_memory_error(encode_memory_error(TCP_SPACE,USER_MEMORY_LIMIT));
-      return;
+#ifdef NON_OPT_COMPILE
+      printf("reallocing TCP from %ld to %ld\n",tcpstack.size,new_size);
+#endif
     }
-    if ( IsNULL(new_trail) ) {
-      xsb_throw_memory_error(encode_memory_error(TCP_SPACE,USER_MEMORY_LIMIT));
-    }
-      //      xsb_memory_error("memory","Cannot Expand Trail and Choice Point Stacks");
-      //      xsb_exit("Not enough core to resize the Trail and Choice Point Stack!");
     new_cps = new_trail + new_size * K;
 
 #if defined(GENERAL_TAGGING)
@@ -696,4 +707,5 @@ void complstack_realloc (CTXTdeclc size_t new_size) {
   xsb_dbgmsg((LOG_DEBUG, "\tNew Bottom:\t%p\t\tNew Size: %ldK",
 	     complstack.low, complstack.size));
   xsb_dbgmsg((LOG_DEBUG, "\tNew Top:\t%p\n", complstack.high));
+
 }

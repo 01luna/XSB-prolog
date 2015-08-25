@@ -402,6 +402,9 @@ static size_t slide_buf_size = 0;
 */
 /*----------------------------------------------------------------------*/
 
+// increment is in k-byte
+#define MIN_GL_STACK_INCREMENT(CURRENT_SIZE) (CURRENT_SIZE/4)
+
 /* Dont initialize glstack.high: cf. stack_boundaries  */
 void initialize_glstack(CPtr from, CPtr to)
 {
@@ -411,10 +414,6 @@ void initialize_glstack(CPtr from, CPtr to)
     p++;
   }
 }
-
-// flags[MAX_MEMORY] is in kbytes
-#define USER_MEMORY_LIMIT_EXHAUSTED(newSize)				\
-  (flags[MAX_MEMORY] && (pspace_tot_gl/K - glstack.size + newSize > flags[MAX_MEMORY]))
 
 xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
 {
@@ -432,8 +431,10 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
   double   expandtime ;
 
 #ifdef NON_OPT_COMPILE
-  printf("Reallocating the Heap and Local Stack data area from %d to %d\n",(int) glstack.size,(int) new_size);
+  printf("Reallocating the Heap and Local Stack data area from %ld to %ld\n", glstack.size, new_size);
 #endif
+
+  if (pflags[STACK_REALLOC] == FALSE) xsb_basic_abort(local_global_exception);
 
   if (new_size <= glstack.size) { // asked to shrink
     // new_size is space needed + half of init_size, rounded to K
@@ -475,29 +476,34 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
     new_ls_bot = new_heap_bot + new_size_in_cells - 1 ;
     local_offset = new_ls_bot - ls_bot ;
   } else { // expanding
-    if (!USER_MEMORY_LIMIT_EXHAUSTED(new_size)) 
-      new_heap_bot = (CPtr)realloc(heap_bot, new_size_in_bytes);
+      while (STACK_USER_MEMORY_LIMIT_OVERFLOW(glstack.size, new_size) 
+	   && (new_size-glstack.size >= MIN_GL_STACK_INCREMENT(tcpstack.size)) ) {
+      new_size = glstack.size + (new_size-glstack.size)/2;
+      //      printf("ulimit problem for gl; trying new_size %ld (user limit = %ld)\n",new_size,flags[MAX_MEMORY]);
+    }
+    if (new_size - glstack.size < MIN_GL_STACK_INCREMENT(glstack.size)) {
+      //      return 1;  /* return an error output -- will be picked up later */
+      xsb_throw_memory_error(encode_memory_error(GL_SPACE,USER_MEMORY_LIMIT));
+    }
+    new_heap_bot = (CPtr)realloc(heap_bot, new_size_in_bytes);
     if (new_heap_bot == NULL) {
-      if (2*glstack.size == new_size) { /* if trying to double, try backing off, may not help */
+      //      if (2*glstack.size == new_size) { /* if trying to double, try backing off, may not help */
 	size_t increment = new_size;
-	while (new_heap_bot == NULL && increment > 40) {
+	while (new_heap_bot == NULL && increment > MIN_GL_STACK_INCREMENT(glstack.size)) {
 	  increment = increment/2;
 	  new_size = glstack.size + increment;
 	  new_size_in_bytes = new_size*K ;
 	  new_size_in_cells = new_size_in_bytes/sizeof(Cell) ;
-	  if (!USER_MEMORY_LIMIT_EXHAUSTED(new_size))
+	  //  if (!USER_MEMORY_LIMIT_EXHAUSTED(new_size))
 	    new_heap_bot = (CPtr)realloc(heap_bot, new_size_in_bytes);
 	}
 	if (new_heap_bot == NULL) {
 	  //	  xsb_error("Not enough core to resize the Heap/Local Stack! (current: %"Intfmt"; resize %"Intfmt")",
 	  //   glstack.size*K,new_size_in_bytes);
-	  return 1; /* return an error output -- will be picked up later */
+	  //return 1; /* return an error output -- will be picked up later */
+	  xsb_throw_memory_error(encode_memory_error(GL_SPACE,SYSTEM_MEMORY_LIMIT));
 	}
-      } else {
-	xsb_error("Not enough core to resize the Heap and Local Stack! (%" Intfmt ")",new_size_in_bytes);
-	return 1; /* return an error output -- will be picked up later */
-      }
-    }
+    } 
     //    printf("realloced heap %d -> %d\n",glstack.size,new_size);
     heap_offset = new_heap_bot - heap_bot ;
     new_ls_bot = new_heap_bot + new_size_in_cells - 1 ;
@@ -511,7 +517,7 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
     memmove(ls_top + local_offset,             /* move to */
 	    ls_top + heap_offset,              /* move from */
 	    (ls_bot - ls_top + 1)*sizeof(Cell) );      /* number of bytes */
-  }
+}
 
   initialize_glstack(heap_top + heap_offset,ls_top+local_offset);
 
@@ -899,10 +905,10 @@ void glstack_ensure_space(CTXTdeclc size_t extra, int arity) {
     xsb_basic_abort("\nFatal ERROR:  -- "
 		    "Local Stack clobbered Heap --\n");
   } else {
-    if (pflags[STACK_REALLOC] == FALSE) xsb_basic_abort(local_global_exception);
     if (pflags[GARBAGE_COLLECT] != NO_GC && arity < 255) {
       gc_heap(CTXTc arity,FALSE);
     }
+    //    if (pflags[STACK_REALLOC] == FALSE) xsb_basic_abort(local_global_exception);
     if ((pb)top_of_localstk < (pb)top_of_heap + OVERFLOW_MARGIN + extra) {
       glstack_realloc(CTXTc resize_stack(glstack.size,extra+OVERFLOW_MARGIN),arity);
     }

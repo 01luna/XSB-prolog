@@ -1388,7 +1388,9 @@ contcase:     /* the main loop */
       {
 #endif
         if (gc_heap(CTXTc (int)op1,FALSE)) { /* garbage collection potentially modifies hreg */
-	  if (heap_local_overflow((Integer)op2)) {
+	  if (heap_local_overflow((Integer)op2)) {	
+	    glstack_realloc(CTXTc resize_stack(glstack.size,(op2*sizeof(Cell))),(int)op1);
+	    /*
 	    if (pflags[STACK_REALLOC]) {
 	      if (glstack_realloc(CTXTc resize_stack(glstack.size,(op2*sizeof(Cell))),(int)op1) != 0) {
 		xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
@@ -1398,6 +1400,7 @@ contcase:     /* the main loop */
 	      xsb_warn(CTXTc "Reallocation is turned OFF !");
 	      xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	    }
+	    */
 	  }
 	}	/* are there any localy cached quantities that must be reinstalled ? */
       } else if (force_string_gc) {
@@ -2499,6 +2502,8 @@ argument positions.
       Op1((lpcreg[-1]));  // already advanced pc, so look back
       if (gc_heap(CTXTc (int)op1,FALSE)) { // no regs, garbage collection potentially modifies hreg 
 	if (heap_local_overflow(OVERFLOW_MARGIN)) {
+	  glstack_realloc(CTXTc resize_stack(glstack.size,OVERFLOW_MARGIN),(int)op1);
+	  /*
 	  if (pflags[STACK_REALLOC]) {
 	    if (glstack_realloc(CTXTc resize_stack(glstack.size,OVERFLOW_MARGIN),(int)op1) != 0) {
 	      xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
@@ -2507,6 +2512,7 @@ argument positions.
 	    xsb_warn(CTXTc "Reallocation is turned OFF !");
 	    xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	  }
+	  */
 	}
       }
     }
@@ -2525,6 +2531,8 @@ argument positions.
     if (heap_local_overflow(OVERFLOW_MARGIN)) { 
       if (gc_heap(CTXTc 0,FALSE)) { // no regs, garbage collection potentially modifies hreg 
 	if (heap_local_overflow(OVERFLOW_MARGIN)) {
+	  glstack_realloc(CTXTc resize_stack(glstack.size,OVERFLOW_MARGIN),0);
+	  /*
 	  if (pflags[STACK_REALLOC]) {
 	    if (glstack_realloc(CTXTc resize_stack(glstack.size,OVERFLOW_MARGIN),0) != 0) {
 	      xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
@@ -2533,6 +2541,7 @@ argument positions.
 	    xsb_warn(CTXTc "Reallocation is turned OFF !");
 	    xsb_memory_error("memory","Cannot Expand Local and Global Stacks");
 	  }
+	  */
 	}
       }
     }

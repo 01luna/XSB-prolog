@@ -2923,7 +2923,9 @@ case WRITE_OUT_PROFILE:
   case COPY_TERM_3:
     return copy_term_3(CTXT);
 
+    // Does not appear to be used
   case EXP_HEAP: glstack_realloc(CTXTc glstack.size + 1,0) ; return TRUE ;
+
   case MARK_HEAP: {
     size_t tmpval;
     mark_heap(CTXTc (int)ptoc_int(CTXTc 1),&tmpval);
