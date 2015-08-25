@@ -3240,11 +3240,11 @@ case WRITE_OUT_PROFILE:
 #ifndef MULTI_THREAD
     Integer selection = ptoc_int(CTXTc 1);
     if (selection == START_SLEEPER_THREAD) {
-      printf("starting sleeper thread\n");
+      //printf("starting sleeper thread\n");
       startSleeperThread(CTXTc (int)ptoc_int(CTXTc 2));
     }
     else if (selection == CANCEL_SLEEPER_THREAD) {
-      printf("cancelling sleeper thread\n");
+      //printf("cancelling sleeper thread\n");
       cancelSleeperThread(CTXT);
     }
     else
