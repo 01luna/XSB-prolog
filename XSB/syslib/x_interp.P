@@ -389,6 +389,7 @@ execute_messages_on_signale_queue:-
 :- import get_timed_call_index/1 from standard.
 
 '_$timer_int'(One,_Two) :-
+%	writeln(timer_int),
         get_timed_call_index(Index),
         '_$timed_call_rep_handler'(Index,Handler,Interval),!,
         call_handler(Handler),
@@ -416,6 +417,9 @@ execute_messages_on_signale_queue:-
               start_sleeper_thread(Rep_interval)	
 	  ; true),!,
 	call_c(One).
+'_$timer_int'(_One,_Two):- 
+%	writeln((_One,_Two)),
+	call_c(_One).
 %'_$timer_int'(One,_Two) :- 
 %	call_c(One).
 
