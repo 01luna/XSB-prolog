@@ -345,8 +345,8 @@ This hook is called by the command-line interpreter when printing out
 the value of each variable in a top-level query.  When a printing out
 an attributed variable, any appropriate handlers are called to portray
 the constraints represented by the attribute.  As an example, the {\tt
-  bounds} package (Section~\ref{sec:bounds}) uses a hook to print out
-the bounds of variables:
+  bounds} package (cf. Volume II: Constraints Packages) uses a hook to
+print out the bounds of variables:
 %
 \begin{small}
 \begin{verbatim}
@@ -382,8 +382,9 @@ and then call {\tt Handler}.
 For some constraint packages, it may not be particularly useful to
 associate constraints with variables: instead, the projection of
 global constraints onto the variables of the top-level query may be
-more useful.  This is the case in the CLP(R) package
-(Section~\ref{sec:clpr}), where the command-line interaction may look as follows:
+more useful.  This is the case in the CLP(R) package (cf. Volume II
+Constraints Packages), where the command-line interaction may look as
+follows:
 %
 {\small
 \begin{verbatim}
@@ -444,10 +445,10 @@ variables of the goal which are then passed on to {\tt Handler}
 XSB supports constraint logic programming through its engine-level
 support of attributed variables
 (Section~\ref{sec:attributed-variables}), and its support for
-constraint handling rules (CHR) (Chapter~\ref{chr}).  The {\tt
-constraintLib} library includes routines for delaying and examining
-bindings that are commonly used to implement CHR and other constraint
-libraries.
+constraint handling rules (CHR) (cf. Volume II: Constraint Handling
+Rules).  The {\tt constraintLib} library includes routines for
+delaying and examining bindings that are commonly used to implement
+CHR and other constraint libraries.
 
 When processing constraints, it is often useful to delay a goal based
 on the instantiation level of a term or set of terms.  For instance a
