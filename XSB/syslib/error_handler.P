@@ -640,6 +640,7 @@ memory_type(INCR_TABLE_SPACE,' (currently expanding incremental tabling space)')
 memory_type(ODBC_SPACE,' (currently expanding odbc space)').
 % These next are not categories at the C level
 memory_type(TCP_SPACE,' (currently expanding trail/choice point stack space)').
+memory_type(GL_SPACE,' (currently expanding global/local stack space)').
 memory_type(COMPL_SPACE,' (currently expanding completion stack space)').
 
 %-------------

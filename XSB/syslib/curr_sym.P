@@ -1200,7 +1200,7 @@ set_xsb_flag_1(max_memory,Max):-!,
 	 ; real(Max),Max >= 0 -> 
 	     sys_main_memory(Mem),
 	     Ram1 is Max * Mem,
-	     Ram is floor(Ram1),
+	     Ram is floor(Ram1/1024),
 	     stat_set_flag(MAX_MEMORY,Ram)
 	 ;  domain_error(positive_number,Max,set_prolog_flag/2,2,max_memory_clause) ).
 set_xsb_flag_1(exception_pre_action, Mode) :- !,
