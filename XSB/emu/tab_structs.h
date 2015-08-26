@@ -649,7 +649,6 @@ typedef struct subgoal_frame {
     CPtr compl_stack_ptr;	  /* Pointer to subgoal's completion stack frame (pre-compl) */
     long visitors;};
   CPtr compl_suspens_ptr; /* SLGWAM: CP stack ptr (pre-compl)  */
-  Integer calls_ans_ctr; 
 #ifdef MULTI_THREAD
   Thread_T tid;	  /* Thread id of the generator thread for this sg */
 #endif
@@ -660,12 +659,16 @@ typedef struct subgoal_frame {
   byte grabbed; 	  /* Subgoal is marked to be computed for leader in
 			     deadlock detection */
 #endif
-#ifndef BITS_64
-  long callsto_number;    /* if 64 bits double-use call_ans_ctr */
-#endif
-
  /* The following field is added for incremental evaluation: */
   callnodeptr callnode;
+#ifdef BITS64
+  unsigned int callsto_number:32;
+  unsigned int ans_ctr:32;
+#else
+  Integer callsto_number;    /* if 64 bits double-use call_ans_ctr */
+  Integer ans_ctr; 
+#endif
+
 
 } variant_subgoal_frame;
 
@@ -691,12 +694,13 @@ typedef struct subgoal_frame {
 #define subg_compl_stack_ptr(b)	( ((VariantSF)(b))->compl_stack_ptr )
 #define subg_compl_susp_ptr(b)	( ((VariantSF)(b))->compl_suspens_ptr )
 #define subg_nde_list(b)	( ((VariantSF)(b))->nde_list )
-#define subg_call_ans_ctr(b)	( ((VariantSF)(b))->calls_ans_ctr )
+#define subg_call_ans_ctr(b)	( ((VariantSF)(b))->call_ans_ctr )
 
 #define subg_tid(b)		( ((VariantSF)(b))->tid )
 #define subg_tag(b)		( ((VariantSF)(b))->tag )
 #define subg_grabbed(b)		( ((VariantSF)(b))->grabbed )
 #define subg_callsto_number(b)		( ((VariantSF)(b))->callsto_number )
+#define subg_ans_ctr(b)		( ((VariantSF)(b))->ans_ctr )
 #define subg_visitors(b)		( ((VariantSF)(b))->visitors )
 
 /* The subgoal visited field can be used for both marking during GC
@@ -730,21 +734,9 @@ typedef struct subgoal_frame {
 #define subg_is_ec_scheduled(SUBG_PTR)		(subg_is_complete(SUBG_PTR) & 2)
 #define schedule_ec(SUBG_PTR)                   subg_is_complete(SUBG_PTR) |= 2
 
-
-#ifdef BITS64
-#define SUBG_INCREMENT_CALLSTO_SUBGOAL(subgoal)  \
-  subg_call_ans_ctr(subgoal) =  subg_call_ans_ctr(subgoal) + 0x100000000
-#define get_subgoal_callsto_number(subgoal) (subg_call_ans_ctr(subgoal_frame) >> 32)
-#define INIT_SUBGOAL_CALLSTO_NUMBER(pNewSF)  subg_call_ans_ctr(pNewSF) = 0x100000000
-#define get_subgoal_answer_number(subgoal) (subg_call_ans_ctr(subgoal) & 0xffffffff)
-#else
 #define SUBG_INCREMENT_CALLSTO_SUBGOAL(subgoal)  (subgoal -> callsto_number)++
-#define get_subgoal_callsto_number(subgoal) (subgoal -> callsto_number)
 #define INIT_SUBGOAL_CALLSTO_NUMBER(subgoal) subg_callsto_number(subgoal)  = 1
-#define get_subgoal_answer_number(subgoal) subg_call_ans_ctr(subgoal)
-#endif
-
-#define SUBG_INCREMENT_ANSWER_CTR(subgoal) subg_call_ans_ctr(subgoal)++
+#define SUBG_INCREMENT_ANSWER_CTR(subgoal) subg_ans_ctr(subgoal)++
 
 
 /* Subsumptive Producer Subgoal Frame

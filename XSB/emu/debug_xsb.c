@@ -1992,19 +1992,18 @@ void quick_print_trail(CTXTdecl)	/* trail grows up */
 static void fprint_cp_cell(FILE * output,char *addrtype, CPtr addr, Cell term)
 {
   if ((ref_val(term) != NULL) && (cell_tag(term) == term)) {
-    fprintf(output, "NULL cell in %s %p: tag=%" Intfmt ", value=0x%p\n",
-	    addrtype, addr, cell_tag(term), ref_val(term));
+    fprintf(output, "NULL cell in %s %p: tag=%"UIntfmt", value=0x%p\n",
+	    addrtype, addr, (UInteger) cell_tag(term), ref_val(term));
   } else {
     switch (cell_tag(term)) {
     case XSB_REF:
     case XSB_REF1:
-      fprintf(output, "%s %p: XSB_REF (tag=%du), value=0x%p\n",
+      fprintf(output, "%s %p: XSB_REF (tag=%"UIntfmt", value=0x%p\n",
 	      addrtype, addr, cell_tag(term), ref_val(term));
       break;
     case XSB_ATTV:
-      fprintf(output, "%s %p: XSB_ATTV (tag=%du), value=0x%p\n",
-	      addrtype, (CPtr)dec_addr(cell(addr)),
-	      cell_tag(term), ref_val(term));
+      fprintf(output, "%s %p: XSB_ATTV (tag=%"UIntfmt", value=0x%p\n",
+	      addrtype, (CPtr)dec_addr(cell(addr)),cell_tag(term), ref_val(term));
       break;
     case XSB_STRUCT:
             fprintf(output, "%s %p: XSB_STRUCT, value=0x%p, hexval=0x%p (%s/%d)\n",
@@ -2032,7 +2031,7 @@ static void fprint_cp_cell(FILE * output,char *addrtype, CPtr addr, Cell term)
 	      addrtype, addr, ref_val(term));
       break;
     default:
-      fprintf(output, "%s %p: tag=%du, value=0x%p\n",
+      fprintf(output, "%s %p: tag=%"UIntfmt", value=0x%p\n",
 	      addrtype, addr, cell_tag(term), ref_val(term));
       break;
     }

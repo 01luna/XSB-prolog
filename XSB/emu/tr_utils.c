@@ -5665,6 +5665,10 @@ int hello_world(void) {
   return TRUE;
 }
 
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+
 int table_inspection_function( CTXTdecl ) {
   switch (ptoc_int(CTXTc 1)) {
 
@@ -5756,14 +5760,14 @@ int table_inspection_function( CTXTdecl ) {
   case GET_CALLSTO_NUMBER: {
     VariantSF subgoal_frame;
     subgoal_frame = (VariantSF) ptoc_int(CTXTc 2);
-    ctop_int(CTXTc 3, get_subgoal_callsto_number(subgoal_frame));
+    ctop_int(CTXTc 3, subg_callsto_number(subgoal_frame));
     break;
   }
 
   case GET_ANSWER_NUMBER: {
     VariantSF subgoal_frame;
     subgoal_frame = (VariantSF) ptoc_int(CTXTc 2);
-    ctop_int(CTXTc 3, get_subgoal_answer_number(subgoal_frame));
+    ctop_int(CTXTc 3, subg_ans_ctr(subgoal_frame));
     break;
   }
 
@@ -5778,7 +5782,7 @@ int table_inspection_function( CTXTdecl ) {
     subgoal = (VariantSF)(tcp_subgoal_ptr(tcp));
     //    subgoal = (VariantSF) ptoc_int(CTXTc 2);
     //    printf("san %d\n",get_subgoal_answer_number(subgoal));
-    if ( get_subgoal_answer_number(subgoal) +1 >= ptoc_int(CTXTc 3) &&
+    if ( subg_ans_ctr(subgoal) +1 >= ptoc_int(CTXTc 3) &&
 	 !subg_is_completed(subgoal)) {
        schedule_ec(subgoal); 
        //       printf("scheduling ec\n");
