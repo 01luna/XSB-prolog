@@ -78,7 +78,7 @@
 #include "storage_xsb.h"
 #include "orient_xsb.h"
 #include "token_defs_xsb.h"
-
+#include "trace_xsb.h"
 /*-----------------------------------------------------------------------*/   
 
 /* Sizes of the Data Regions in K-byte blocks
@@ -119,6 +119,8 @@ extern FILE *fdopen(int fildes, const char *type);
 #if defined(GENERAL_TAGGING)
 extern void extend_enc_dec_as_nec(void *,void *);
 #endif
+
+extern int max_interned_tries_glc;
 
 UInteger pspacesize[NUM_CATS_SPACE] = {0};	/* actual space dynamically allocated by loader.c */
 
@@ -168,12 +170,6 @@ Cell halt_inst;
 Cell proceed_inst;
 Cell completed_trie_member_inst;
 byte *check_interrupts_restore_insts_addr;
-
-extern void reset_stat_total(void); 
-extern void perproc_reset_stat(void); 
-
-extern double realtime_count_gl;
-extern int max_interned_tries_glc;
 
 /* these three are from orient_xsb.c */
 extern char *xsb_config_file_gl; /* configuration.P */
@@ -586,6 +582,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 #endif
 
   /* init_open_files needs this flag set. */
+
 #ifdef WIN_NT
   flags[CHARACTER_SET] = CP1252;  //LATIN_1;
 #else
@@ -594,12 +591,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
   
   init_open_files();
 
-  /* init statistics. structures */
-  perproc_reset_stat();
-
-#ifndef MULTI_THREAD
-  reset_stat_total();
-#endif
+  init_statistics();
 
   max_interned_tries_glc = MAX_INTERNED_TRIES; 
 #ifdef MULTI_THREAD
@@ -979,8 +971,6 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 
   /* Other basic initializations
      --------------------------- */
-  realtime_count_gl = real_time();
-
   /* Multi Threaded Data Structure Initializations */
 #ifdef MULTI_THREAD
   init_system_mutexes() ;

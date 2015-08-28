@@ -84,21 +84,17 @@
 #include "struct_intern.h"
 #include "cell_xsb_i.h"
 
+extern void debug_call(CTXTdeclc Psc);
+
 /*======================================================================*/
 extern xsbBool quotes_are_needed(char *string);
 
 /*======================================================================*/
 
-double realtime_count_gl;
-
 #ifndef MULTI_THREAD
 extern int asynint_val;	/* 0 - no interrupt (or being processed) */
 extern int asynint_code;	/* 0 means keyboard interrupt */
 #endif
-
-extern void print_mutex_use(void);
-
-extern void dis(xsbBool), debug_call(CTXTdeclc Psc);
 
 #ifdef LINUX
 static struct sigaction int_act, int_oact;
@@ -410,89 +406,6 @@ xsbBool are_identical_terms(Cell term1, Cell term2) {
     } else return FALSE;
   }
   else return FALSE;
-}
-
-/*======================================================================*/
-/*  Print statistics and measurements.					*/
-/*======================================================================*/
-
-/*
- * Called through builtins statistics/1 and statistics/0.
- * ( statistics :- statistics(1). )
- */
-void print_statistics(CTXTdeclc int amount) {
-
-  switch (amount) {
-
-  case STAT_RESET:		    /* Reset Statistical Parameters */
-#ifndef MULTI_THREAD
-    realtime_count_gl = real_time();
-    perproc_reset_stat();	/* reset op-counts, starting time, and 'tds'
-				   struct variable (all 0's) */
-    reset_stat_total(); 	/* reset 'ttt' struct variable (all 0's) */
-    xsb_mesg("Statistics is reset.");
-    break;
-#else
-    realtime_count_gl = real_time();
-    break;
-#endif
-
-  case STAT_DEFAULT:		    /* Default use: Print Stack Usage and CPUtime: */
-    perproc_stat();		/* move max usage into 'ttt' struct variable */
-    total_stat(CTXTc real_time()-realtime_count_gl);   /* print */
-    reset_stat_total(); 	/* reset 'ttt' struct variable (all 0's) */
-    break;
-
-  case STAT_TABLE:		    /* Print Detailed Table Usage */
-    print_detailed_tablespace_stats(CTXT);
-    break;
-
-  case 3:		    /* Print Detailed Table, Stack, and CPUtime */
-#ifndef MULTI_THREAD
-    perproc_stat();
-    total_stat(CTXTc real_time()-realtime_count_gl);
-    reset_stat_total();
-    print_detailed_tablespace_stats(CTXT);
-    print_detailed_subsumption_stats();
-    break;
-#else
-    fprintf(stdwarn,"statistics(3) not yet implemented for MT engine\n");
-    break;
-#endif
-  case STAT_MUTEX:                  /* mutex use (if PROFILE_MUTEXES is defined) */
-    print_mutex_use();
-    print_mem_allocs();
-    break;
-  case 5:
-    dis(0); 
-    break;		/* output memory image - data only; for debugging */
-  case 6:
-    dis(1); 
-    break;		/* output memory image - data + text; for debugging */
-#ifdef CP_DEBUG
-  case 7:
-    print_cp_backtrace();
-    break;
-#endif
-  case STAT_ATOM:              /* print symbol/string statistics */
-    symbol_table_stats();
-    string_table_stats();
-    break;
-  }
-}
-
-
-
-/*======================================================================*/
-/*  Memory statistics.					*/
-/*======================================================================*/
-/*
- * Called through builtin statistics/2.
- */
-void statistics_inusememory(CTXTdeclc int type) {
-  perproc_stat();		/* move max usage into 'ttt' struct variable */
-    stat_inusememory(CTXTc real_time()-realtime_count_gl,type);   /* collect */
-  reset_stat_total(); 	/* reset 'ttt' struct variable (all 0's) */
 }
 
 /*======================================================================*/

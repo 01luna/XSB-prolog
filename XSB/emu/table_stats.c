@@ -686,11 +686,11 @@ struct {
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-void reset_maximum_tablespace_stats() {
-
-  maxTableSpaceUsage.tsi = maxTableSpaceUsage.alns = 0;
-  maxTableSpaceUsage.total_bytes = 0;
-}
+//void reset_maximum_tablespace_stats() {
+//
+//  maxTableSpaceUsage.tsi = maxTableSpaceUsage.alns = 0;
+//  maxTableSpaceUsage.total_bytes = 0;
+//}
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 

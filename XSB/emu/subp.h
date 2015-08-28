@@ -27,8 +27,6 @@
 
 extern void intercept(CTXTdeclc Psc);
 extern void init_interrupt(void);
-extern void print_statistics(CTXTdeclc int);
-extern void statistics_inusememory(CTXTdeclc int);
 extern void print_qatom(FILE *, int, char *);
 extern void print_aqatom(FILE *, int, char *);
 extern void print_dqatom(FILE *, int, char *);

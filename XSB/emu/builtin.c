@@ -92,6 +92,7 @@
 #include "rw_lock.h"
 #include "deadlock.h"
 #include "struct_intern.h"
+#include "trace_xsb.h"
 #ifdef ORACLE
 #include "oracle_xsb.h"
 #endif

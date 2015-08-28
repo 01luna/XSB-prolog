@@ -55,47 +55,25 @@
 #include "tr_utils.h"
 #include "loader_xsb.h"
 #include "call_graph_xsb.h"
+#include "hash_xsb.h"
+
+extern void print_mutex_use(void);
+extern void dis(xsbBool);
 
 /*======================================================================*/
 /* Process-level information: keep this global */
 
-double time_start;      /* time from which stats started being collected */
-static double last_cpu = 0;      /* time from which stats started being collected */
-static double last_wall = 0;      /* time from which stats started being collected */
+double time_start_gl;      /* time from which stats started being collected */
+double realtime_count_gl;
 
 #ifndef MULTI_THREAD
-struct trace_str tds;			/* trace datastructure */
-struct trace_str ttt;			/* trace total */
-struct trace_str trace_init = {		/* initial value for a trace str */
-0
-   };
+double cputime_count_gl;
 #else 
 double time_count = 0;
 #endif
 
-/*======================================================================*/
-/* perproc_stat()							*/
-/*======================================================================*/
-
-/*
- * Moves values from 'tds' into 'ttt' for reporting in total_stat().
- * (Since 'ttt' is always reset when the builtin statistics/1
- *  (statistics/0 calls statistics(1)) is called, 'ttt' always gets *
- *  what's in 'tds'.  
- */
-
-#ifndef MULTI_THREAD
-void perproc_stat(void)
-{
-  tds.time_count = cpu_time() - time_start;
-  ttt.time_count += tds.time_count;
-}
-#else
-void perproc_stat(void)
-{
-  time_count = cpu_time() - time_start;
-}
-#endif
+static double last_cpu = 0;      /* time from which stats started being collected */
+static double last_wall = 0;      /* time from which stats started being collected */
 
 #ifndef MULTI_THREAD
 void print_abolish_table_statistics() {
@@ -123,12 +101,6 @@ int count_sccs(CTXTdecl) {
   return ctr;
 }
     
-/*
- * Prints current memory usage info, operational counts, and, if the
- * "-s" option was given to xsb at invocation, maximum usage from the
- * time of 'time_start'.
- */
-
 char *pspace_cat[NUM_CATS_SPACE] =
   {"atom        ","string      ","asserted    ","compiled    ",
    "foreign     ","table       ","findall     ","profile     ",
@@ -136,8 +108,19 @@ char *pspace_cat[NUM_CATS_SPACE] =
    "interprolog ","thread      ","read canon  ","leaking...  ",
    "special     ","other       ","incr table  ","odbc        "};
 
+extern void stat_inusememory(CTXTdeclc double,int);
+
+/*
+ * Called through builtin statistics/2.
+ */
+void statistics_inusememory(CTXTdeclc int type) {
+#ifndef MULTI_THREAD
+  cputime_count_gl = (cpu_time() - time_start_gl);
+#endif
+  stat_inusememory(CTXTc real_time()-realtime_count_gl,type);   /* collect */
+}
 /*======================================================================*/
-/* total_stat()								*/
+/*  Memory statistics.					*/
 /*======================================================================*/
 
 #ifndef MULTI_THREAD
@@ -200,6 +183,10 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
   gl_avail = (top_of_localstk - top_of_heap - 1) * sizeof(Cell);
   tc_avail = (top_of_cpstack - (CPtr)top_of_trail - 1) * sizeof(Cell);
 
+    switch(type) {
+
+    case TOTALMEMORY: {
+
   pspacetot = 0;
   for (i=0; i<NUM_CATS_SPACE; i++) 
     if (i != TABLE_SPACE && i != INCR_TABLE_SPACE) pspacetot += pspacesize[i];
@@ -212,9 +199,7 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
     (glstack.size * K - gl_avail) + (tcpstack.size * K - tc_avail) +
     de_space_used + dl_space_used;
 
-    switch(type) {
 
-    case TOTALMEMORY: {
       ctop_int(CTXTc 4, total_alloc);
       ctop_int(CTXTc 5, total_used);
       break;
@@ -266,6 +251,7 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
     }
     }
 }
+
 
 //-----------------------------------------------------------------------------------------------
 void total_stat(CTXTdeclc double elapstime) {
@@ -389,10 +375,10 @@ void total_stat(CTXTdeclc double elapstime) {
 	   pspacesize[INCR_TABLE_SPACE]);
   printf("\n");
 
-  if (flags[MAX_USAGE]) {
-    /* Report Maximum Usages
-       --------------------- */
-    update_maximum_tablespace_stats(&tbtn,&tbtht,&varsf,&prodsf,&conssf,
+    if (flags[MAX_USAGE]) {
+      /* Report Maximum Usages
+         --------------------- */
+      update_maximum_tablespace_stats(&tbtn,&tbtht,&varsf,&prodsf,&conssf,
 				    &aln,&tstn,&tstht,&tsi,&asi);
     printf("  Maximum table space used:  %" Intfmt " bytes\n",
 	   maximum_total_tablespace_usage());
@@ -450,7 +436,8 @@ void total_stat(CTXTdeclc double elapstime) {
   printf("\n");  print_gc_statistics();
 
   printf("Time: %.3f sec. cputime,  %.3f sec. elapsetime\n",
-	 ttt.time_count, elapstime);
+	 cputime_count_gl, elapstime);
+
 }
 
 /**********************************************************************/
@@ -919,22 +906,21 @@ void total_stat(CTXTdeclc double elapstime) {
  */
 
 #ifndef MULTI_THREAD
-void perproc_reset_stat(void)
+void reset_stat_counters(void)
 {
-   tds = trace_init;
    reset_subsumption_stats();
-   reset_maximum_tablespace_stats();
+   //   reset_maximum_tablespace_stats();
    ans_chk_ins = ans_inserts = 0;
    subg_chk_ins = subg_inserts = 0;
    abol_subg_ctr = abol_pred_ctr = abol_all_ctr = 0;   
-   time_start = cpu_time();
+   time_start_gl = cpu_time();
 }
 #else
-void perproc_reset_stat(void)
+void reset_stat_counters(void)
 {
    ans_chk_ins = ans_inserts = 0;
    subg_chk_ins = subg_inserts = 0;
-   time_start = cpu_time();
+   time_start_gl = cpu_time();
 #ifdef SHARED_COMPL_TABLES
    num_suspends = 0;
    num_deadlocks = 0;
@@ -947,17 +933,86 @@ void perproc_reset_stat(void)
 /*======================================================================*/
 
 #ifndef MULTI_THREAD
-void reset_stat_total(void)
+void init_statistics(void)
 {
-   ttt = trace_init;
+  realtime_count_gl = real_time();
+  reset_stat_counters();   /* init statistics. structures */
+  cputime_count_gl = 0;
 }
 #else
-void reset_stat_total(void)
+void init_statistics(void)
 {
-  time_start = 0;
+  realtime_count_gl = real_time();
+  reset_stat_counters();   /* init statistics. structures */
+  time_start_gl = 0;
 }
 
 #endif
+
+/*======================================================================*/
+/*  Print statistics and measurements.					*/
+/*======================================================================*/
+/*
+ * Called through builtins statistics/1 and statistics/0.
+ * ( statistics :- statistics(1). )
+ */
+void print_statistics(CTXTdeclc int choice) {
+
+  switch (choice) {
+
+  case STAT_RESET:		   
+#ifndef MULTI_THREAD
+    realtime_count_gl = real_time();
+    reset_stat_counters();	/* reset op-counts */
+    break;
+#else
+    realtime_count_gl = real_time();
+    break;
+#endif
+
+  case STAT_DEFAULT:		    /* Default use: Print Stack Usage and CPUtime: */
+#ifndef MULTI_THREAD
+    cputime_count_gl = (cpu_time() - time_start_gl);
+#endif
+    total_stat(CTXTc real_time()-realtime_count_gl);   /* print */
+    break;
+
+  case STAT_TABLE:		    /* Print Detailed Table Usage */
+    print_detailed_tablespace_stats(CTXT);
+    break;
+
+  case 3:		    /* Print Detailed Table, Stack, and CPUtime */
+#ifndef MULTI_THREAD
+    cputime_count_gl += (cpu_time() - time_start_gl);
+    total_stat(CTXTc real_time()-realtime_count_gl);
+    print_detailed_tablespace_stats(CTXT);
+    print_detailed_subsumption_stats();
+    break;
+#else
+    fprintf(stdwarn,"statistics(3) not yet implemented for MT engine\n");
+    break;
+#endif
+  case STAT_MUTEX:                  /* mutex use (if PROFILE_MUTEXES is defined) */
+    print_mutex_use();
+    print_mem_allocs();
+    break;
+  case 5:
+    dis(0); 
+    break;		/* output memory image - data only; for debugging */
+  case 6:
+    dis(1); 
+    break;		/* output memory image - data + text; for debugging */
+#ifdef CP_DEBUG
+  case 7:
+    print_cp_backtrace();
+    break;
+#endif
+  case STAT_ATOM:              /* print symbol/string statistics */
+    symbol_table_stats();
+    string_table_stats();
+    break;
+  }
+}
 
 /*======================================================================*/
 
@@ -977,8 +1032,6 @@ void  get_statistics(CTXTdecl) {
     tot_cpu = cpu_time();
     incr_cpu = tot_cpu - last_cpu;
     last_cpu = tot_cpu;
-    //    tds.time_count = incr_cpu - time_start;
-    //    reset_stat_total(); 	/* reset 'ttt' struct variable (all 0's) */
 
     ctop_float(CTXTc 4, tot_cpu);
     ctop_float(CTXTc 5, incr_cpu);
@@ -1011,6 +1064,19 @@ void  get_statistics(CTXTdecl) {
     ctop_int(CTXTc 4,current_call_node_count_gl);
     ctop_int(CTXTc 5,current_call_edge_count_gl);
     break;
+  }
+
+  case TABLE_OPS: {
+    UInteger ttl_ops = ans_chk_ins + NumSubOps_AnswerCheckInsert,
+	 	 ttl_ins = ans_inserts + NumSubOps_AnswerInsert;
+    ctop_int(CTXTc 4,NumSubOps_CallCheckInsert);
+    ctop_int(CTXTc 5,NumSubOps_ProducerCall);
+    ctop_int(CTXTc 6,subg_chk_ins);
+    ctop_int(CTXTc 7,subg_inserts);
+    ctop_int(CTXTc 8,ttl_ops);
+    ctop_int(CTXTc 9,ttl_ins);
+
+
   }
   default: {
       statistics_inusememory(CTXTc type);
