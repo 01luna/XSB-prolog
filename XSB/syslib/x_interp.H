@@ -25,6 +25,7 @@
 
 
 :- export break/0.
+:- export handle_timed_calls/0, reinvoke_timed_calls/0.
 
 :- import [] / 0 from usermod.	% just to make usermod typed "module"
 :- import assert/1, retract/1 from assert.
