@@ -1866,7 +1866,7 @@ check_statistics_input(X,_):-
 	domain_error(statisticsInputDomain,X,statistics/1,1).
 
 :- export statistics/2.
-:- import sys_syscall/5 from machine.
+:- import sys_syscall/5,sys_syscall/9 from machine.
 
 statistics_2_trans(runtime,RUNTIME):- !.
 statistics_2_trans(walltime,WALLTIME):- !.
@@ -1885,6 +1885,7 @@ statistics_2_trans(incomplete_tables,OPENTABLECOUNT):- !.
 statistics_2_trans(open_tables,OPENTABLECOUNT):- !.
 statistics_2_trans(atoms,ATOMMEM):- !.
 statistics_2_trans(idg,IDG_COUNTS):- !.
+statistics_2_trans(table_ops,TABLE_OPS):- !.
 statistics_2_trans(X,_):-
 	domain_error(statisticsInputDomain,X,statistics/2,1).
 
@@ -1923,6 +1924,8 @@ statistics_1(ATOMMEM,R1):-
 :- import idg/2 from usermod.
 statistics_1(IDG_COUNTS,idg(R1,R2)):- 
 	sys_syscall(STATISTICS_2,_RES,IDG_COUNTS,R1,R2).
+statistics_1(TABLE_OPS,[SubsGoalChkIns,SubsGoalUniq,VarGoalChkIns,VarGoalUniq,AnsChkIns,AnsUniq]):- 
+	sys_syscall(STATISTICS_2,_RES,TABLE_OPS,SubsGoalChkIns,SubsGoalUniq,VarGoalChkIns,VarGoalUniq,AnsChkIns,AnsUniq).
 
 %%	time(+Goal)
 %

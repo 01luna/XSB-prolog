@@ -195,6 +195,7 @@ getenv(EnvVar, Value) :- getenv(EnvVar, Value).
 putenv(_PutEnvString) :- '_$builtin'(PUTENV).
 crypto_hash(_Type,_Input,_Out) :- '_$builtin'(CRYPTO_HASH).
 
+sys_syscall(_CallNo, _Res, _A0,_A1, _A2,_A3,_A4,_A5,_A6) :- '_$builtin'(SYS_SYSCALL).
 sys_syscall(_CallNo, _Res, _A1, _A2,_A3) :- '_$builtin'(SYS_SYSCALL).
 sys_syscall(_CallNo, _Res, _A1, _A2) :- '_$builtin'(SYS_SYSCALL).
 sys_system(CallNo, Command, _Arg1,_Arg2,_Arg3,_Arg4,_Arg5) :-
