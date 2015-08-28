@@ -1635,6 +1635,30 @@ with
  currently in the incremental dependency graph (IDG) and {\tt Edges}
  the number of edges.
 %
+\item {\tt table\_ops} which instantiates {\tt Result} to a list
+ containing the following elements (in order):
+\begin{itemize}
+\item The total number of check/insert operations for tables using call subsumption.
+
+\item The number of distinct tables created for tables using call subsumption.
+
+\item The total number of check/insert operations for tables using call variance.
+
+\item The number of distinct tables created for tables using call variance.
+
+\item The total number of check/insert operations for all answers
+ (whether they are in subsumptive or variant tables).
+
+\item The number of distinct answers added (whether they are in
+ subsumptive or variant tables).
+\end{itemize}
+
+
+
+ {\tt idg(+Nodes,+Edges)} where {\tt Nodes} is the number of nodes
+ currently in the incremental dependency graph (IDG) and {\tt Edges}
+ the number of edges.
+%
 \ei
 
 {\bf Example}

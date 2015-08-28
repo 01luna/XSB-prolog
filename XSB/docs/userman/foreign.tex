@@ -381,9 +381,9 @@ functions between Prolog and C should be declared before the
 corresponding functions are used.  This is done by including the {\tt
   "cinterf.h"} header file.  Under Unix, the XSB foreign C interface
 automatically finds this file in the {\tt XSB/emu} directory. Under
-Windows (including Cygwin), the user must compile and create the DLL
+Windows, the user must compile and create the DLL
 out of the C file manually, so the compiler option
-`\verb|/I...\XSB\emu|' is necessary.
+`\verb|/I...\XSB\emu|' is necessary.\footnote{The foreign interface does not Cygwin.}
 
 The following C functions are used to convert basic types between
 Prolog and C.
