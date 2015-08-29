@@ -1917,8 +1917,8 @@ statistics_1(TRAILMEM,R1):-
 	sys_syscall(STATISTICS_2,_RES,TRAILMEM,R1,_R2).
 statistics_1(LOCALMEM,R1):- 
 	sys_syscall(STATISTICS_2,_RES,LOCALMEM,R1,_R2).
-statistics_1(OPENTABLECOUNT,R1):- 
-	sys_syscall(STATISTICS_2,_RES,OPENTABLECOUNT,R1,_R2).
+statistics_1(OPENTABLECOUNT,[R1,R2]):- 
+	sys_syscall(STATISTICS_2,_RES,OPENTABLECOUNT,R1,R2).
 statistics_1(ATOMMEM,R1):- 
 	sys_syscall(STATISTICS_2,_RES,ATOMMEM,R1,_R2).
 :- import idg/2 from usermod.
