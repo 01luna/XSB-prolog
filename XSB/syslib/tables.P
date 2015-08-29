@@ -1258,7 +1258,25 @@ get_functor(T,F/Outarg):-
 get_functor(T,F/Arg):-
         functor(T,F,Arg).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Analysis of Current State
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- export get_incomplete_subgoal_info/2,get_incomplete_subgoal_info_1/2.
+
+get_incomplete_subgoal_info(SF,Rest):- 
+	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,SF,NewSF,_,_,_,_),
+	writeln(table_inspection_function(INCOMPLETE_SUBGOAL_INFO,SF,NewSF,_,_,_,_)),
+	(NewSF = 0 -> 
+	    Rest = []
+	  ; Rest = [NewSF|Rest1],get_incomplete_subgoal_info(NewSF,Rest1)).
+
+get_incomplete_subgoal_info_1(SF,NewSF):- 
+	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,SF,NewSF,_,_,_,_).
+
+
 %--------------------------------------------------------------------------------
+
 :- export get_residual_sccs/3.
 get_residual_sccs(Call,Answer,Scc):-
 	get_answer_leaf(Call,Answer,AnsLeaf),
