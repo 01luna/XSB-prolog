@@ -1620,20 +1620,26 @@ with
  stack of the calling thread.
 %
 \index{tabled subgoals!incomplete}
-\item {\tt incomplete\_tables} which instantiates {\tt Result} to the
- number of incomplet tables in XSB's completion stack.  In the
- multi-threaded engine, this number refers to the completion stack of
- the calling thread, which may contain both thread-private and
- thread-shared tables.
+\item {\tt incomplete\_tables} which instantiates {\tt Result} to a
+ list containing the following elements (in order):-
+\bi
+\item The number of incomplete tables in XSB's completion stack, i.e.,
+ the number of subgoals currently under evaluation.
+%
+\item The number of SCCs currently under evaluation in XSB's
+ completion stack.  
+\ei 
+In the multi-threaded engine, both of these numbers refer to the
+ completion stack of the calling thread, which may contain both
+ thread-private and thread-shared tables.
 %
 \item {\tt atoms} which instantiates {\tt Result} to the number of
  bytes taken by atoms in the atom table.
 %
 \index{Incremental Dependency Graph (IDG)}
-\item {\tt idg} which instantiates {\tt Result} to a structure {\tt
- idg(+Nodes,+Edges)} where {\tt Nodes} is the number of nodes
- currently in the incremental dependency graph (IDG) and {\tt Edges}
- the number of edges.
+\item {\tt idg} which instantiates {\tt Result} to a a list containing
+ (in order) the number of nodes and the number of edges currently in
+ the incremental dependency graph (IDG).
 %
 \item {\tt table\_ops} which instantiates {\tt Result} to a list
  containing the following elements (in order):
