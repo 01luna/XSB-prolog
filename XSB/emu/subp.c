@@ -1028,7 +1028,7 @@ xsbBool cancelSleeperThread(void) {
 #else
   if (executing_sleeper_thread) { // previous sleeper
     int killrc;
-    printf("cancelling sleeper\n");
+    //printf("cancelling sleeper\n");
     if ((killrc = pthread_cancel(executing_sleeper_thread))) {
 	xsb_warn(CTXTc "could not kill sleeper thread: error %d\n",killrc);
     }
