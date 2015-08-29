@@ -88,8 +88,9 @@ int count_sccs(CTXTdecl) {
   int last_scc = 0;
   CPtr csf = openreg;
 
-  //    printf("open %x COMPL %x\n",openreg,COMPLSTACKBOTTOM);
+  //  printf("open %x COMPL %x\n",openreg,COMPLSTACKBOTTOM);
   while (csf < COMPLSTACKBOTTOM) {
+    //    printf("comp level %d\n",compl_level(csf));
     if (compl_level(csf) != last_scc) {
       ctr++;
       last_scc = compl_level(csf);
@@ -241,8 +242,8 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
       break;
     }
     case OPENTABLECOUNT: {
-      ctop_int(CTXTc 4, (COMPLSTACKBOTTOM - top_of_complstk) / 
-	       sizeof(struct completion_stack_frame));
+      ctop_int(CTXTc 4, ((size_t)COMPLSTACKBOTTOM - (size_t)top_of_complstk) /   sizeof(struct completion_stack_frame));
+      ctop_int(CTXTc 5, count_sccs(CTXT));
       break;
     }
     case ATOMMEM: {
@@ -629,6 +630,7 @@ void stat_inusememory(CTXTdeclc double elapstime, int type) {
     case OPENTABLECOUNT: {
       ctop_int(CTXTc 4, ((size_t)COMPLSTACKBOTTOM - (size_t)top_of_complstk) / 
 	       sizeof(struct completion_stack_frame));
+      ctop_int(CTXTc 5, count_sccs(CTXT));
       break;
     }
     case SHARED_TABLESPACE: {
