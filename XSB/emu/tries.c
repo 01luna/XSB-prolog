@@ -749,11 +749,12 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
 
 #define macro_make_heap_term(ataddr,ret_val,dummy_addr) {		\
   int mArity,mj;							\
-  pop_Term_Stack(xtemp2,xtemp2_mod);						\
+  pop_Term_Stack(xtemp2,xtemp2_mod);					\
   switch( TrieSymbolType(xtemp2) ) {					\
   case XSB_TrieVar: {							\
     int index = DecodeTrieVar(xtemp2);					\
     if (IsNewTrieVar(xtemp2)) { /* diff with CHAT - Kostis */		\
+      /*printf("first occ, var[%d]\n",index);*/				\
       safe_assign(var_addr,index,ataddr,var_addr_arraysz);		\
       num_heap_term_vars++;						\
     }									\
@@ -766,6 +767,7 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
       hreg++;								\
       rec_macro_make_heap_term(dummy_addr);				\
     }									\
+    /*printf("get var[%d] as %p\n",index,var_addr[index]);*/		\
     ret_val = (Cell) var_addr[index];					\
   }									\
   break;								\
@@ -816,6 +818,7 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
 #define recvariant_trie(flag,TrieType) {				\
   int  j;								\
 									\
+  /*printf("ent recvariant_trie\n");*/					\
   while (!pdlempty ) {							\
     xtemp1 = (CPtr) pdlpop;						\
     XSB_CptrDeref(xtemp1);						\
@@ -826,11 +829,13 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
       if (! IsStandardizedVariable(xtemp1)) {				\
 	StandardizeAndTrailVariable(xtemp1,ctr);			\
 	item = EncodeNewTrieVar(ctr);					\
+	/*printf("1st occ var: %p to %p, %p\n",xtemp1,*xtemp1,EncodeNewTrieVar(ctr));*/ \
 	one_btn_chk_ins(flag, item, CZero, TrieType);			\
 	ctr++;								\
       } else {								\
 	item = IndexOfStdVar(xtemp1);					\
 	item = EncodeTrieVar(item);					\
+	/*printf("sub occ var: %p, %p\n",xtemp1,item);*/		\
 	one_btn_chk_ins(flag, item, CZero, TrieType);				\
       }									\
       break;								\
@@ -1040,6 +1045,7 @@ static int *depth_stack;
 #define recvariant_trie_ans_subsf(flag,TrieType) {			\
   int  j;								\
 									\
+  /*printf("ent recvariant_trie_ans_subsf\n");*/			\
   while (!pdlempty ) {							\
     /*    printf("rv ");  pdlprint;				*/	\
     xtemp1 = (CPtr) pdlpop;						\
@@ -1195,6 +1201,7 @@ BTNptr variant_answer_search(CTXTdeclc int sf_size, int attv_num, CPtr cptr,
   byte interning_terms;
   Integer termsize;
 
+  //  printf("ent variant_answer_search\n");
   interning_terms = TIF_Interning(subg_tif_ptr(subgoal_ptr));
 
   if (TIF_AnswerDepth(subg_tif_ptr(subgoal_ptr))) 
@@ -1209,6 +1216,11 @@ BTNptr variant_answer_search(CTXTdeclc int sf_size, int attv_num, CPtr cptr,
 #if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
   ans_chk_ins++; /* Counter (answers checked & inserted) */
 #endif
+
+  /* dswdsw test */
+  if (VarEnumerator_trail_top != (CPtr *)(& VarEnumerator_trail[0]) - 1)
+    printf("var_ans_search: VarEnumerator_trail_top not reset, left at: %d\n",
+	   VarEnumerator_trail_top-VarEnumerator_trail);
 
   VarEnumerator_trail_top = ((CPtr *)(& VarEnumerator_trail[0])) - 1;
   //  printf(">>>>VAS VET %p\n",  VarEnumerator_trail_top);
@@ -1407,9 +1419,11 @@ BTNptr variant_answer_search(CTXTdeclc int sf_size, int attv_num, CPtr cptr,
    *
    * Notice that undo_answer_bindings in pre-1.9 version of XSB
    * has been removed here, because all the variable bindings of this
-   * answer will be used in do_delay_stuff() immediatly after the
-   * return of vas() when we build the delay list for this answer.
+   * answer will be used in do_delay_stuff() immediately after the
+   * return of vas() when we build the delay list for this answer,
+   * and head variable numbers must be used in body.
    */
+
   if (ctr == 0)
     bld_int(ans_var_pos_reg, 0);
   else	
@@ -1525,12 +1539,14 @@ BTNptr delay_chk_insert(CTXTdeclc int arity, CPtr cptr, CPtr *hook)
       case XSB_REF1:
 	if (! IsStandardizedVariable(xtemp1)) {
           StandardizeAndTrailVariable(xtemp1,ctr);
+	  //	  printf("1st occ var: %p to %p, %p\n",xtemp1,*xtemp1,EncodeNewTrieVar(ctr));
           one_btn_chk_ins(flag,EncodeNewTrieVar(ctr), CZero,
 			   DELAY_TRIE_TT);
           ctr++;
 	  //	  fprintf(stddbg,"  standardized ");printterm(stddbg,(unsigned int)xtemp1,25);fprintf(stddbg,"\n");
         }
         else {
+	  //	  printf("sub occ var: %p, %p\n",xtemp1,EncodeTrieVar(IndexOfStdVar(xtemp1)));
           one_btn_chk_ins(flag,
 			   EncodeTrieVar(IndexOfStdVar(xtemp1)), CZero,
 			   DELAY_TRIE_TT);
@@ -1862,6 +1878,7 @@ int vcs_tnot_call = 0;
 
 #define CHECK_CALL_TERM_DEPTH(xtemp1)					\
   if (--depth_ctr <= 0) {                                               \
+    /*printf("ent CHECK_CALL_TERM_DEPTH\n");*/				\
     if (flags[MAX_TABLE_SUBGOAL_ACTION] == XSB_ABSTRACT && can_abstract == TRUE \
 	&& !vcs_tnot_call) {								\
       Cell newElement;                                                  \
@@ -1935,6 +1952,7 @@ int vcs_tnot_call = 0;
 #define recvariant_call(flag,TrieType,xtemp1) {				\
   int  j;								\
 									\
+  /*printf("ent recvariant_call\n");*/					\
   while (!pdlempty) {							\
     CPtr xtemp_bak;							\
     xtemp1 = (CPtr) pdlpop;						\
@@ -1947,7 +1965,8 @@ int vcs_tnot_call = 0;
     case XSB_REF1:							\
       if (! IsStandardizedVariable(xtemp1)) {				\
 	*(--SubsFactReg) = (Cell) xtemp1;				\
-	StandardizeVariable(xtemp1,ctr);				\
+	/*StandardizeVariable(xtemp1,ctr);*/				\
+	StandardizeAndTrailVariable(xtemp1,ctr);				\
 	one_btn_chk_ins(flag,EncodeNewTrieVar(ctr), CZero,TrieType);	\
 	ctr++;								\
       } else{								\
@@ -1999,7 +2018,8 @@ int vcs_tnot_call = 0;
       /* Now xtemp1 can only be the first occurrence of an attv */	\
       *(--SubsFactReg) = (Cell) xtemp1;					\
       xtemp1 = clref_val(xtemp1); /* the VAR part of the attv */	\
-      StandardizeVariable(xtemp1, ctr);					\
+      /*StandardizeVariable(xtemp1, ctr);*/				\
+      StandardizeAndTrailVariable(xtemp1, ctr);					\
       one_btn_chk_ins(flag, EncodeNewTrieAttv(ctr), CZero, TrieType);		\
       attv_ctr++; ctr++;						\
       pdlpush(cell(xtemp1+1));	/* the ATTR part of the attv */		\
@@ -2087,6 +2107,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
   byte interning_terms;
   Integer termsize;
 
+  //  printf("ent variant_call_search\n");
 #if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
   subg_chk_ins++;
 #endif
@@ -2165,7 +2186,8 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
 	 * changes bindings of heap variables that point into it.
          */
 	*(--SubsFactReg) = (Cell) call_arg;	
-	StandardizeVariable(call_arg,ctr);
+	//	StandardizeVariable(call_arg,ctr);
+	StandardizeAndTrailVariable(call_arg,ctr);
 	one_btn_chk_ins(flag,EncodeNewTrieVar(ctr),CZero,
 			 CALL_TRIE_TT);
 	ctr++;
@@ -2235,7 +2257,8 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
        * later occurrences of this attv will look like a regular variable
        * (after dereferencing).
        */
-      StandardizeVariable(call_arg, ctr);	
+      //      StandardizeVariable(call_arg, ctr);	
+      StandardizeAndTrailVariable(call_arg, ctr);	
       one_btn_chk_ins(flag, EncodeNewTrieAttv(ctr), CZero, CALL_TRIE_TT);
       attv_ctr++; ctr++;
       pdlpush(cell(call_arg+1));	/* the ATTR part of the attv */
@@ -2285,6 +2308,8 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
    * attv point to itself.  The actual value in SubsFactReg (i.e. the
    * of a substitution factor) doesn't change in either case.
    */     
+
+    //dsw try using full reset  TESTING*******
   while (--tSubsFactReg > SubsFactReg) {
     //    printf("vc untrail %p/%p\n",tSubsFactReg,*tSubsFactReg);
     if (isref(*tSubsFactReg))	/* a regular variable */
@@ -2292,8 +2317,11 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
     else			/* an XSB_ATTV */
       ResetStandardizedVariable(clref_val(*tSubsFactReg));
   }
-
-  //  printf("end untrail ");printterm(stddbg,reg[1],8);printf("\n");  
+  // BUT THIS DIDN"T RESET EMBEDDED VARIABLES SET IN recvariant_call!!!!!
+    // CHECK THAT ATTV's ARE HANDLED CONSISTENTLY
+  undo_answer_bindings;
+  //  VarEnumerator_trail_top = VarEnumerator_trail-1; // DSW reset top
+  //  printf("untrailed for variant_call_search\n");
 
   CallLUR_Leaf(*results) = Paren;
   CallLUR_Subsumer(*results) = CallTrieLeaf_GetSF(Paren);
@@ -2353,6 +2381,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
 #define recvariant_trie_intern(flag,TrieType) {				\
   int  j;								\
 									\
+  /*printf("ent recvariant_trie_intern\n");*/				\
   while (!pdlempty ) {							\
     xtemp1 = (CPtr) pdlpop;						\
     XSB_CptrDeref(xtemp1);						\
@@ -2454,6 +2483,7 @@ BTNptr trie_intern_chk_ins(CTXTdeclc Cell term, BTNptr *hook, int *flagptr, int 
     BTNptr Paren, *ChildPtrOfParen;
     Cell depth_ctr,list_depth_ctr;
 
+    //    printf("ent trie_intern_chk_ins\n");
     if ( IsNULL(*hook) )
       *hook = newBasicTrie(CTXTc EncodeTriePSC(get_intern_psc()),INTERN_TRIE_TT);
     Paren = *hook;
@@ -2572,6 +2602,7 @@ BTNptr trie_assert_chk_ins(CTXTdeclc CPtr termptr, BTNptr root, int *flagptr)
   BTNptr Paren, *ChildPtrOfParen;
   byte interning_terms = 0;  /* never intern ground terms in delay lists */
 
+  //  printf("ent trie_assert_chk_ins\n");
   psc = term_psc((prolog_term)termptr);
   arity = get_arity(psc);
   cptr = (CPtr)cs_val(termptr);
