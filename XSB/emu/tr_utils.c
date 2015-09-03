@@ -313,6 +313,24 @@ Cell build_ret_term(CTXTdeclc int arity, Cell termVector[]) {
   }
 }
 
+Cell build_ret_term_reverse(CTXTdeclc int arity, Cell termVector[]) {
+
+  Psc sym_psc;
+  CPtr ret_term;
+  int  i;
+
+  if ( arity == 0 )
+    return makestring(get_ret_string());  /* return as a term */
+  else {
+    ret_term = hreg;  /* pointer to where ret(..) will be built */
+    sym_psc = get_ret_psc((byte)arity);
+    new_heap_functor(hreg, sym_psc);
+    for ( i = arity-1; i >= 0; i-- )
+      nbldval_safe(termVector[i]);
+    return makecs(ret_term);  /* return as a term */
+  }
+}
+
 /*----------------------------------------------------------------------*/
 
 /*
@@ -1321,7 +1339,7 @@ void delete_return(CTXTdeclc BTNptr leaf, VariantSF sg_frame,int eval_method)
   //    ans_deletes++;
 
     // already simplified this return away
-    if (subg_ans_root_ptr(sg_frame) == NULL) return;
+    if (!has_answer_code(sg_frame)) return;
 
     /* deleting an answer makes it false, so we have to deal with 
        delay lists */

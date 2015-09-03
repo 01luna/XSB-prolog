@@ -313,7 +313,8 @@ static inline void CompleteSimplifyAndReclaim(CTXTdeclc CPtr cs_ptr)
   if (simplification_required) { // set all (non-ec'ed) to needing ac
     while (ComplStkFrame >= openreg) {
       compl_subg = compl_subgoal_ptr(ComplStkFrame);
-      if (!subg_is_completed(compl_subg)) { // not early completed, so
+      if (!subg_is_completed(compl_subg) && subg_ans_root_ptr(compl_subg)) { // not early completed, so
+	//	printf("set AC for (%d): ",(Integer)compl_subg); print_subgoal(stddbg,compl_subg); printf("\n");
 	subg_needs_answer_completion(compl_subg);
       }
       ComplStkFrame = next_compl_frame(ComplStkFrame);

@@ -77,6 +77,7 @@ extern SubProdSF get_subsumer_sf(CTXTdeclc Cell, TIFptr, Cell *);
 extern BTNptr get_trie_root(BTNptr);
 extern VariantSF get_call(CTXTdeclc Cell, Cell *);
 extern Cell build_ret_term(CTXTdeclc int, Cell[]);
+extern Cell build_ret_term_reverse(CTXTdeclc int, Cell[]);
 extern void construct_answer_template(CTXTdeclc Cell, SubProdSF, Cell[]);
 extern void breg_retskel(CTXTdecl);
 extern void delete_predicate_table(CTXTdeclc TIFptr,xsbBool);

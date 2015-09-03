@@ -44,12 +44,12 @@
 
 #define setup_to_return_completed_answers(SGF,tsize)			\
   do {									\
-    if (flags[ANSWER_COMPLETION] && !subg_is_answer_completed(SGF)) {	\
+    if (!subg_is_answer_completed(SGF) && flags[ANSWER_COMPLETION]) {	\
       flags[ANSWER_COMPLETION] = 0;					\
       reg[1] = makeint(SGF);						\
-      reg[2] = build_ret_term(CTXTc tsize, trieinstr_unif_stk);		\
+      reg[2] = build_ret_term_reverse(CTXTc tsize, trieinstr_unif_stk);	\
+      /*      lpcreg = (byte *) subg_ans_root_ptr(SGF);	*/		\
       lpcreg = (pb)get_ep(answer_completion_psc);			\
-      /*lpcreg = (pb)call_answer_completion_inst_addr;*/		\
     } else {								\
       lpcreg = (byte *) subg_ans_root_ptr(SGF);				\
     }									\

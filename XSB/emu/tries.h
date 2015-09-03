@@ -470,8 +470,13 @@ extern counter subg_chk_ins, subg_inserts, ans_chk_ins, ans_inserts;
 
 #define undo_answer_bindings		\
     while (VarEnumerator_trail_top >= VarEnumerator_trail) {	\
-	untrail(*VarEnumerator_trail_top);		\
-	VarEnumerator_trail_top--;			\
+      /*printf("reset %p=VarEnum[%d]\n",*VarEnumerator_trail_top,VarEnumerator_trail_top-VarEnumerator_trail);*/ \
+      if (isref(*VarEnumerator_trail_top))				\
+	ResetStandardizedVariable(*VarEnumerator_trail_top);		\
+      else								\
+	ResetStandardizedVariable(clref_val(*VarEnumerator_trail_top));	\
+      /*untrail(*VarEnumerator_trail_top);*/				\
+      VarEnumerator_trail_top--;					\
     }	
 
 typedef struct SL_node_t *SL_node_ptr;
