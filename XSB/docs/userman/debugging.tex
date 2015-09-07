@@ -462,7 +462,7 @@ above.
   involved in a loop through negation, and $N$ is in a tree for $S_T$,
   a fact of the form {\tt dly(L,$S_T$,Counter)} is logged.
 
-\index{strongly donnected components (SCCs)}
+\index{strongly connected components (SCCs)}
 \item {\em Subgoal completion}
 \bi
 \item When a set $\cS$ of subgoals is determined to be completely
@@ -1021,3 +1021,69 @@ pre-existing library need not clutter up the log.
 %%% TeX-master: "manual1"
 %%% End: 
 
+%-----------------------------------------------------------------------------
+
+\section{Understanding the State of a Tabled Computation} \label{sec:forest-trace}
+
+{\bf Draft -- code is still being tested and is subject to change}
+
+These calls should be made while the current computation is suspended.
+
+\index{Subgoal Dependency Graph (SDG)}
+\begin{description}
+\ourmoditem{get\_incomplete\_subgoal\_info(-SDG)}{get\_incomplete\_subgoal\_info/1}{tables}
+
+\index{Subgoal Dependency Graph (SDG)}
+For a suspended computation, returns information about the {\em
+  Subgoal Dependency Graph} (SDG)~(cf. e.g. \cite{Swif99b,SwiW12}).
+The vertices of the SDG are the tabled subgoals that are
+incomplete, and a directed edge $(S_1,S_2)$ indicates that answers to
+$S_1$ are directly used to compute $S_2$ (i.e., $S_1$ directly affects
+$S_2$).  The SDG is represented using an adjacency list that contains
+extra information about each subgoal.  Specifically, on success {\tt
+  SDG} will be instantiated to a list of terms of the form:
+
+{\tt subgoal(Subgoal,SCCIndex,TableEntryHandle,CallsTo,Answers)} 
+
+such that:
+
+\bi
+\item {\tt Subgoal} is an incomplete subgoal in the suspended computation
+\item {\tt SCCIndex} is the index of the SCC to which the subgoal
+  belongs.  For local evaluation, if $SCCInxex_1 < SCCInxex_2$, then
+  subgoals in $SCCInxex_2$ affect subgoals in $SCCInxex_1$.
+\item {\tt TableEntryHandle} is the handle to the table entry, and
+  uniquely identifies {\tt Subgoal} 
+\item {\tt CallsTo} is the number of calls that have been made to the
+  subgoal so far.  This number represents calls from both producer and
+  consumer subgoals.
+\item {\tt Answers} is the number of answers that {\tt Subgoal} has so far.
+\item {\tt Edges} is the atom {\tt unavailable} if {\tt Subgoal} is
+  not incrementally tables, otherwise it is a list of
+  TableEntryHandles for incomplete subgoals that {\tt Subgoal}
+  directly affects.\footnote{This predicate is currently being
+    extended to return this information for non-incremental tables as
+    well.}
+
+\ei
+
+\item \ourmoditem{get\_incomplete\_scc\_info(+SDG,-ListOut)}{get\_incomplete\_scc\_info/2}{tables}
+
+Given the SDG representation produced by {\tt
+  get\_incomplete\_subgoal\_info/1} this predicate returns information
+about the SCCs that are currently under evaluation.  Upon success {\tt
+  ListOut} will contain a term
+
+{\tt scc(SCCIndex,NumSubgoals,NumAnswers,NumEdges)}
+
+for each SCC under evaluation, such that:
+
+\bi
+\item {\tt SCCIndex} is the index of the SCC
+\item {\tt NumSubgoals} is the number of subgoals in the SCC
+\item {\tt NumAnswers} is the total number of answers for all subgoals in the SCC
+\item {\tt NumEdges} is the total number of edges within the SCC.
+  \ei
+
+
+\end{description}

@@ -25,21 +25,21 @@ bibliography.
 
 \subsubsection*{Tables and Table Entries}
 
-Abstractly, at a subgoal-level table can be seen as a set of entry
-triples $\langle S,\cA,Status \rangle$ where $S$ is a subgoal, $\cA$
-is its associated answer set, and $Status$ its status~---~whether it
-is \texttt{complete} or \texttt{incomplete}, along with tabling
-properties it uses (e.g., incremental or non-incremental, cf. Chapter
-\ref{chap:TablingOverview} for a discussion of tabling properties).
-%In terms of
-%implementation, ``the table'' is actually a set of mini-tables, each
-%one containing entries for a particular predicate.  
-However, we also refer to a predicate-level table. which contains the
-set of all subgoal-level tables for some (tabled) predicate
-\code{p/n}.  
-%Further recall that a particular predicate may be
-%evaluated according to either a variant or subsumptive strategy as
-%chosen by the user.  
+\index{TableEntryHandle}
+\index{ReturnHandle}
+Abstractly, at a subgoal-level a table $\cT$ can be seen as a set of
+entry triples $\langle S,\cA,Status \rangle$ where $S$ is a subgoal,
+$\cA$ is its associated answer set, and $Status$ its
+status~---~whether it is \texttt{complete} or \texttt{incomplete},
+along with tabling properties it uses (e.g., incremental or
+non-incremental, cf. Chapter \ref{chap:TablingOverview} for a
+discussion of tabling properties).  XSB's table inspection built-ins
+sometimes use a {\em TableEntryHandle} to efficiently access $\cT$ and
+a {\em ReturnHandle} to access $\cA$.  Often is is useful to access or
+manipulate the set of all subgoal-level tables for some (tabled)
+predicate \code{p/n}.  We thus sometimes abuse terminology slightly by
+referring to this set as a {\em predicate-level} table.
+
 At execution time, invocation of a tabled subgoal $S$ leads to the
 classification $S$ according to the properties associated with its
 predicate, as well as its possible creation of a table for $S$.  Each
@@ -64,7 +64,7 @@ classified as either (a) a \emph{generator}, of answers or (b) a
 \index{answer substitution}
 \index{substitution factor}
 %
-Given a table entry $(S,\cA,Status)$, the set of variables in $S$ is
+Given a table entry $(S,\cA,Status)$, the vector of variables in $S$ is
 sometimes called the {\em substitution factor} of $S$.  The order of
 arguments in the substitution factor corresponds to the order of
 distinct variables in a left-to-right traversal of $S$.  Each answer
@@ -124,7 +124,7 @@ from the principal functor of the term, so that skeletons from the
 terms \code{f(1,2)} and \code{f(A,B)} are the same.  A \emph{return
   skeleton} is a specific application of this notion to answers.  From
 it, one may discern the size of the template for a given subgoal.
-Finally, we assume that a predicate specification for a predicate
+Below, we assume that a predicate specification for a predicate
 \code{p} and arity \code{n}, represented as \code{PredSpec} below, can
 be given either using the notation \code{p/n} or as a skeleton,
 \code{p($t_1$,\ldots,$t_n$)}.
@@ -721,7 +721,7 @@ only skeletal information is used from the first argument.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\ourstandarditem{get\_returns(+TableEntryHandle,\#ReturnTemplate)}{get\_returns/2}{Tabling}
+\ourstandarditem{get\_returns(+TableEntryHandlex,\#ReturnTemplate)}{get\_returns/2}{Tabling}
 %
 Backtracks through the answers for the subgoal whose table entry is
 referenced through the first argument, \code{TableEntryHandle}, and
@@ -1280,9 +1280,13 @@ where all elements are as before.  Finally $Status$ is
 \ei
 \ei
 
-%\ourrepeatmoditem{print\_incomplete\_tables(+Stream\_or\_alias)}{print\_incomplete\_tables/1}{tables}
+\index{\texttt{get\_incomplete\_subgoal\_info/1}}
+
 \ourmoditem{print\_incomplete\_tables}{print\_incomplete\_tables/0}{tables}
 %
+{\bf {\em This predicate is obsolescent, and will eventually be
+    replaced by {\tt get\_incomplete\_subgoals/1} and its extensions.}}
+
 These predicates, which can be useful for debugging, print out each
 incomplete subgoal in the current state of the evaluation, followed by
 the ordinal number of the SCC to which that subgoal belongs.  This
