@@ -35,6 +35,7 @@
 #include "heap_defs_xsb.h"
 #include "psc_defs.h"
 #include "flag_defs_xsb.h"
+#include "incr_xsb_defs.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -423,7 +424,7 @@ were instantiated and so it subsumes the call in the table.
 
 get_calls(CallTerm, Handle, Template) :-
 %   writeln(get_calls(CallTerm, Handle, Template)),
-	(CallTerm = M:Goal -> term_new_mod(M,Goal,NewGoal) ; CallTerm = NewGoal),
+	(nonvar(CallTerm),CallTerm = M:Goal -> term_new_mod(M,Goal,NewGoal) ; CallTerm = NewGoal),
 	findall('_$get_calls'(NewGoal,Handle,Template),
 		'_$$get_calls'(NewGoal,Handle,Template),
 		List),
@@ -453,7 +454,11 @@ get_calls_for_table(PredSpec,Call) :-
 	get_calls(Call, _CallStr, _RetSkel).
 
 
-
+%get_call_from_sf(+SF,-Call):- 
+:- export get_call_from_sf/2.
+get_call_from_sf(SF,Call):- 
+	table_inspection_function(GET_CALL_FROM_SF,SF,Call,_,_).
+			      
 /*
  * get_returns(+TableEntryHandle,#ReturnTemplate)
  * get_returns(+TableEntryHandle,#ReturnTemplate,-ReturnHandle)
@@ -1262,18 +1267,54 @@ get_functor(T,F/Arg):-
 %% Analysis of Current State
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- export get_incomplete_subgoal_info/2,get_incomplete_subgoal_info_1/2.
+% get inlinks
+% get ecs
+:- export get_incomplete_subgoal_info/2.
+:- export get_compl_stack_info/2.
+:- export get_incomplete_scc_info/2.
 
-get_incomplete_subgoal_info(SF,Rest):- 
-	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,SF,NewSF,_,_,_,_),
-	writeln(table_inspection_function(INCOMPLETE_SUBGOAL_INFO,SF,NewSF,_,_,_,_)),
-	(NewSF = 0 -> 
-	    Rest = []
-	  ; Rest = [NewSF|Rest1],get_incomplete_subgoal_info(NewSF,Rest1)).
+get_compl_stack_info(SubgList,SCCList):- 
+	get_incomplete_subgoal_info(0,SubgList),
+	writeln(SubgList),
+        get_incomplete_scc_info(SubgList,SCCList).
+	
+get_incomplete_subgoal_info(CSF,Rest):- 
+	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsIncr),
+%	Subgoal = p(_,_),
+	get_call_from_sf(SF,Subgoal),
+%	(get_calls(Subgoal, SF1,_),SF1 = SF -> true ; true),
+	writeln(table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,Subgoal,IsIncr)),
+	(IsIncr == INCREMENTAL -> 
+	   incr_eval_builtin(IMMED_AFFECTS_PTRLIST, SF, SFList,_)
+	 ; SFList = unavailable ),
+	(NewCSF = 0 -> 
+	    Rest = [subgoal(Subgoal,Level,SF,CallsTo,Answers,SFList)]
+	  ; Rest = [subgoal(Subgoal,Level,SF,CallsTo,Answers,SFList)|Rest1],
+	    get_incomplete_subgoal_info(NewCSF,Rest1)).
 
-get_incomplete_subgoal_info_1(SF,NewSF):- 
-	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,SF,NewSF,_,_,_,_).
+incr_eval_builtin(_BuiltinNo, _A, _B, _C) :-
+	'_$builtin'(INCR_EVAL_BUILTIN).
 
+get_incomplete_scc_info([],[]).
+get_incomplete_scc_info([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
+	                          [scc(Level,NumSubgoals,NumAnswers,NumCallsto)|Rest1]):- 
+	get_incomplete_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
+	                                   Level,0,0,0,NumSubgoals,NumAnswers,NumCallsto1,ListMid),
+	NumCallsto is NumCallsto1 - 1,
+	writeln(calling(get_incomplete_scc_info(ListMid,Rest1))),
+	get_incomplete_scc_info(ListMid,Rest1).
+
+get_incomplete_scc_info_1([],_SCCNum,Subgoals,Answers,Callsto,Subgoals,Answers,Callsto,[]).
+get_incomplete_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
+	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut):- 
+writeln(get_incomplete_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
+	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)),
+	(Level \== SCCNum -> 
+	    ListOut = [subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
+	    InSubgoals = OutSubgoals,InAnswers = OutAnswers,InCallsto = OutCallsto1,
+	    writeln(succeeded(ListOut))
+	  ; MidSubgoals is InSubgoals+1,MidAnswers is InAnswers + Answers,MidCallsto is InCallsto+1,
+  	    get_incomplete_scc_info_1(Rest,SCCNum,MidSubgoals,MidAnswers,MidCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)).
 
 %--------------------------------------------------------------------------------
 
