@@ -1282,11 +1282,11 @@ get_incomplete_subgoal_info(List):-
 	get_incomplete_subgoal_info(0,List).
 
 get_incomplete_subgoal_info(CSF,Rest):- 
-%	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsIncr),
+	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsIncr),
 %	Subgoal = p(_,_),
 	get_call_from_sf(SF,Subgoal),
 %	(get_calls(Subgoal, SF1,_),SF1 = SF -> true ; true),
-	writeln(gisi(CSF,NewCSF,Level,SF,CallsTo,Answers,Subgoal,IsIncr)),
+%	writeln(gisi(CSF,NewCSF,Level,SF,CallsTo,Answers,Subgoal,IsIncr)),
 	(IsIncr == INCREMENTAL -> 
 	   incr_eval_builtin(IMMED_AFFECTS_PTRLIST, SF, SFList,_)
 	 ; SFList = unavailable ),
