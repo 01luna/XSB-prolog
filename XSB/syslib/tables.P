@@ -1267,10 +1267,8 @@ get_functor(T,F/Arg):-
 %% Analysis of Current State
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% get inlinks
-% get ecs
-:- export get_incomplete_subgoal_info/2.
 :- export get_compl_stack_info/2.
+:- export get_incomplete_subgoal_info/1.
 :- export get_incomplete_scc_info/2.
 
 get_compl_stack_info(SubgList,SCCList):- 
@@ -1278,6 +1276,11 @@ get_compl_stack_info(SubgList,SCCList):-
 	writeln(SubgList),
         get_incomplete_scc_info(SubgList,SCCList).
 	
+:- export get_incomplete_subgoal_info/1.
+
+get_incomplete_subgoal_info(List):- 
+	get_incomplete_subgoal_info(0,List).
+
 get_incomplete_subgoal_info(CSF,Rest):- 
 	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsIncr),
 %	Subgoal = p(_,_),
