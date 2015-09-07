@@ -240,7 +240,12 @@ examine_open_options([eof_action(Action)|T],Aliases,[eof_action(Action)|Eof]):- 
 	warning('Eof actions are currently ignored in XSB.'),
 	examine_open_options(T,Aliases,Eof).
 examine_open_options([alias(A)|T],[A|Aliases],Eof):- !,
-	examine_open_options(T,Aliases,Eof).
+	(atom(A)
+	 ->	examine_open_options(T,Aliases,Eof)
+	 ; var(A)
+	 ->	instantiation_error(open/4,4)
+	 ;	domain_error(stream_option,alias(A),open/4,4)
+	).
 examine_open_options([Option|_],_,_):- 
 	domain_error(stream_option,Option,open/4,4).
 examine_open_options(Option,_,_):- 
