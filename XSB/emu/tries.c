@@ -1687,6 +1687,7 @@ static void bottomupunify(CTXTdeclc Cell term, BTNptr Leaf)
   int  i, heap_needed;
 
 
+  //  printTriePath(CTXTc stdout, Leaf, 0);
   num_heap_term_vars = 0;     
   heap_needed = follow_par_chain(CTXTc Leaf);    /* side-effect: fills termstack */
   if (glstack_overflow(heap_needed*sizeof(Cell))) {
@@ -1769,15 +1770,7 @@ void handle_heap_overflow_trie(CTXTdeclc CPtr *cptr, int arity, int heap_needed)
 /*
  * `TriePtr' is a leaf in the answer trie, and `cptr' is a vector of
  * variables for receiving the substitution.
- * 
- * TLS: 09/11/15
- * In addition to providing space to hold an answer, we need to ensure space to 
- * delay the predicate if needed.  I'm taking a guess: we need up to 255 words to hold
- * the variables of the predicate, plus a few words for the delay element.  Rounding it up, 
- * and multipling by 8 bytes per word (in case we're in 64-bit mode) moves it up to 2400
- * 
  */
-//#define DELAYING_FUDGE_FACTOR 2400
 
 void load_solution_trie(CTXTdeclc int arity, int attv_num, CPtr cptr, BTNptr TriePtr) {
   CPtr xtemp;  int heap_needed;

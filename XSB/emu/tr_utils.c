@@ -6158,6 +6158,50 @@ case CALL_SUBS_SLG_NOT: {
 
     return abolish_nonincremental_tables(CTXTc (int)ptoc_int(CTXTc 2));
   }
+
+  case INCOMPLETE_SUBGOAL_INFO: {
+    CPtr newcsf;
+    CPtr csf = (CPtr) ptoc_int(CTXTc 2);
+    if (csf == NULL) csf = openreg;
+    newcsf = prev_compl_frame(csf);
+    if (newcsf >= COMPLSTACKBOTTOM) newcsf = NULL;
+    ctop_int(CTXTc 3,(Integer)newcsf);
+    if (csf != NULL) {
+      ctop_int(CTXTc 4,compl_level(csf));
+      ctop_int(CTXTc 5,(Integer)compl_subgoal_ptr(csf));
+      ctop_int(CTXTc 6,subg_callsto_number(compl_subgoal_ptr(csf)));
+      ctop_int(CTXTc 7,subg_ans_ctr(compl_subgoal_ptr(csf)));
+      ctop_int(CTXTc 8,get_incr(TIF_PSC(subg_tif_ptr(compl_subgoal_ptr(csf)))));
+    }
+    return TRUE;
+	     
+  }
+  case GET_CALL_FROM_SF:  {
+    TIFptr tif; Psc psc; int arity,j;
+    VariantSF subgoal = (VariantSF) ptoc_int(CTXTc 2);
+    CPtr  call_return = (CPtr) ptoc_tag(CTXTc 3);
+
+    tif = (TIFptr) subgoal->tif_ptr;
+    psc = TIF_PSC(tif);
+    arity = get_arity(psc);
+    check_glstack_overflow(4,pcreg,2+(sizeof(Cell)*trie_path_heap_size(CTXTc subg_leaf_ptr(subgoal)))); 
+    if(arity>0){
+      sreg = hreg;
+      follow(call_return) = makecs(sreg);
+      hreg += arity + 1;
+      new_heap_functor(sreg, psc);
+      for (j = 1; j <= arity; j++) {
+	new_heap_free(sreg);
+	cell_array1[arity-j] = cell(sreg-1);
+      }
+      load_solution_trie_no_heapcheck(CTXTc arity, 0, &cell_array1[arity-1], subg_leaf_ptr(subgoal));
+	    //    build_subgoal_args(arity,cell_array1,subgoal);		
+    } else{
+         follow(call_return) = makestring(get_name(psc));
+    }
+    return TRUE;
+  }
+
   case PRINT_LS: print_ls(CTXTc 1) ; return TRUE ;
   case PRINT_TR: print_tr(CTXTc 1) ; return TRUE ;
   case PRINT_HEAP: print_heap(CTXTc 0,2000,1) ; return TRUE ;
