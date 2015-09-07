@@ -1269,7 +1269,7 @@ get_functor(T,F/Arg):-
 
 :- export get_compl_stack_info/2.
 :- export get_incomplete_subgoal_info/1.
-:- export get_incomplete_scc_info/2.
+:- export get_incomplete_scc_info/1.
 
 get_compl_stack_info(SubgList,SCCList):- 
 	get_incomplete_subgoal_info(0,SubgList),
@@ -1282,11 +1282,11 @@ get_incomplete_subgoal_info(List):-
 	get_incomplete_subgoal_info(0,List).
 
 get_incomplete_subgoal_info(CSF,Rest):- 
-	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsIncr),
+%	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsIncr),
 %	Subgoal = p(_,_),
 	get_call_from_sf(SF,Subgoal),
 %	(get_calls(Subgoal, SF1,_),SF1 = SF -> true ; true),
-	writeln(table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,Subgoal,IsIncr)),
+	writeln(gisi(CSF,NewCSF,Level,SF,CallsTo,Answers,Subgoal,IsIncr)),
 	(IsIncr == INCREMENTAL -> 
 	   incr_eval_builtin(IMMED_AFFECTS_PTRLIST, SF, SFList,_)
 	 ; SFList = unavailable ),
