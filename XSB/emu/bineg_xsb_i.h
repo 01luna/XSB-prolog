@@ -246,6 +246,7 @@ case IS_INCOMPLETE: {
       delay_lists = (CPtr)ptoc_tag(CTXTc 2); // should test is var
       if (is_conditional_answer(as_leaf)) {
 	int copy_of_var_addr_arraysz;
+	int i;
 	{ /*
 	   * Make copy of trieinstr_vars & global_trieinstr_vars_num (after get_returns,
 	   * which calls trie_get_return).  (global_trieinstr_vars_num +
@@ -255,7 +256,6 @@ case IS_INCOMPLETE: {
 	   * So, copy_of_var_addr[] is the substitution factor of the
 	   * answer for the head predicate.
 	   */
-	  int i;
 	  if (var_addr_arraysz < global_trieinstr_vars_num+1) 
 	    trie_expand_array(CPtr,var_addr,var_addr_arraysz,global_trieinstr_vars_num+1,"var_addr");
 	  copy_of_var_addr_arraysz = var_addr_arraysz;
@@ -282,6 +282,8 @@ case IS_INCOMPLETE: {
 	   * copy_of_num_heap_term_vars at the end of build_delay_list().
 	   */
 	  copy_of_num_heap_term_vars = global_trieinstr_vars_num + 1;
+	  for (i = copy_of_num_heap_term_vars; i<copy_of_var_addr_arraysz; i++)
+	    copy_of_var_addr[i] = 0; // init in case lost first-occ var
 	  dls_head = build_delay_list(CTXTc de);
 	  bind_list(delay_lists,hreg);
 	  follow(hreg) = dls_head;

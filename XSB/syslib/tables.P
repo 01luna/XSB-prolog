@@ -1526,7 +1526,7 @@ delete_answers_for_failing_calls :-
 	\+ trie_get_return(ESGF,ETmp,0),
 	get_returns(ASGF,ATmp,ALeaf),
 	force_truth_value(ALeaf,false),
-	%%writeln(userout,made_false(ASGF,ALeaf)),
+	%%writeq(userout,made_false(ASGF,ALeaf)),nl(userout),
 	fail.
 delete_answers_for_failing_calls.
 
@@ -1540,7 +1540,6 @@ mark_succeeding_calls_as_answer_completed_and_fail :-
 eval_dl_in_residual([]).
 eval_dl_in_residual([tnot G|Gs]) :- !,
 	get_call(G,SGF,Tmp),
-	%%writeln(userout,goal_n(G,SGF,Tmp)),
 	tnot eval_subgoal_in_residual(SGF,Tmp),
 	eval_dl_in_residual(Gs).
 eval_dl_in_residual([G|Gs]) :-
@@ -1557,23 +1556,14 @@ eval_dl_in_residual([G|Gs]) :-
 	eval_subgoal_in_residual(SGF,Tmp),
 	eval_dl_in_residual(Gs).
 	
-/** if modify get_delaylist to return subgoal_call terms
-subgoal_call(SGF,Tmp) :-
-	(is_answer_completed(SGF)
-	 ->	true
-	 ;	get_returns_and_delayed_subgoal_calls(SGF,Tmp,Body),
-		call_c(Body)
-	).
-**/
-
 :- table eval_subgoal_in_residual/2 as variant,opaque.
 eval_subgoal_in_residual(Gs,Tmp) :-
 	(is_answer_completed(Gs)
 	 ->	true		%,writeln(userout,already_ac(Gs))
 	 ;	get_returns_and_dls(Gs,Tmp,DelayLists),
-		%%writeln(userout,dl(Gs,DelayLists)),
+		%%writeq(userout,dl(Gs,DelayLists)),nl(userout),
 		(DelayLists == []
-		 ->	writeln(userout,'MISSING DELAY LIST? '(Gs,Tmp))
+		 ->	true  %,writeln(userout,'MISSING DELAY LIST? '(Gs,Tmp))
 		 ;	member(DL,DelayLists),
 			eval_dl_in_residual(DL)
 		)
@@ -1592,20 +1582,34 @@ is_answer_completed(SGF) :-
 answer_completion_ops(_Op,_SGF,_Res) :-
 	'_$builtin'(ANSWER_COMPLETION_OPS).
 
-/***print_residual_pgm(SGF,Tmp) :-
+/*************
+:- import nl/1, writeq/2 from standard.
+:- import write/2 from standard.
+:- import append/3 from basics.
+
+print_residual_pgm(Goal) :-
+	abolish_table_pred(print_residual_pgm(_,_,_)),
+	writeln(userout,''),
+	writeln(userout,'Residual Program:'),
+	get_calls(Goal,SGF,Tmp),
+	print_residual_pgm(Goal,SGF,Tmp).
+print_residual_pgm(_Goal) :- writeln(userout,end_of_pgm).
+
+print_residual_pgm(SGF,Tmp) :-
 	abolish_table_pred(print_residual_pgm(_,_,_)),
 	writeln(userout,''),
 	writeln(userout,'Residual Program:'),
 	print_residual_pgm(unknown,SGF,Tmp).
-print_residual_pgm(_SGF,_Tmp).
+print_residual_pgm(_SGF,_Tmp) :- writeln(userout,end_of_pgm).
 
-:- table print_residual_pgm/3.
+:- table print_residual_pgm/3 as variant, opaque.
 print_residual_pgm(Goal,SGF,Tmp) :-
 	get_returns_and_dls(SGF,Tmp,DelayLists),
+	nl(userout),
 	(DelayLists == []
-	 ->	writeln(userout,([Goal,SGF,Tmp] :- true))
+	 ->	print_clause([Goal,SGF,Tmp])
 	 ;	(member(DL,DelayLists),
-		 writeln(userout,([Goal,SGF,Tmp] :- DL)),
+		 print_clause(([Goal,SGF,Tmp] :- DL)),
 		 fail
 		 ;
 		 true
@@ -1616,12 +1620,37 @@ print_residual_pgm(Goal,SGF,Tmp) :-
 		  ->	 true
 		  ;	 SGoal = Goal0
 		 ),
-		 get_call(SGoal,SSGF,STmp),
-		 print_residual_pgm(SGoal,SSGF,STmp),
-		 fail
+		 (get_call(SGoal,SSGF,STmp)
+		  ->	 true
+		  ; excess_vars(SGoal,[],[],Vars), % must be more general
+		    get_calls(SGoal,SSGF,STmp),
+		    is_most_general_term(Vars)
+		  ->	 true
+		  ;	 fail
+		 ),
+		 print_residual_pgm(SGoal,SSGF,STmp)
 		)
+	),
+	fail.
+
+print_clause((Head:-Body)) :- !,
+	writeq(userout,Head),
+	writeln(userout,' :- '),
+	(append(_,[Goal|Goals],Body),
+	 write(userout,'    '),
+	 writeq(userout,Goal),
+	 (Goals == []
+	  ->	 writeln(userout,'.')
+	  ;	 writeln(userout,',')
+	 ),
+	 fail
+	 ;
+	 true
 	).
-***/
+print_clause(Head) :-
+	writeq(userout,Head),
+	writeln(userout,'.').
+*************/
 end_of_file.
 
 :- export explain_u_val/4.
