@@ -300,20 +300,22 @@ extern DL released_dls_gl;	/* the list of released DLs */
  */
 
 #define remove_pnde(PNDE_HEAD, PNDE_ITEM, PNDE_FREELIST) {	\
-  PNDE *pnde_head_ptr;					\
-  PNDE next;						\
-							\
-  pnde_head_ptr = &(PNDE_HEAD);				\
-  next = pnde_next(PNDE_ITEM);				\
-  if (*pnde_head_ptr == PNDE_ITEM)			\
-    *pnde_head_ptr = next;				\
-  else {						\
-    pnde_next(pnde_prev(PNDE_ITEM)) = next;		\
-    if (next)						\
-      pnde_prev(next) = pnde_prev(PNDE_ITEM);		\
-  }							\
-  release_entry(PNDE_ITEM, PNDE_FREELIST, pnde_next);	\
-}
+    PNDE *pnde_head_ptr;					\
+    PNDE next;							\
+    pnde_head_ptr = &(PNDE_HEAD);				\
+    next = pnde_next(PNDE_ITEM);				\
+    if (*pnde_head_ptr == PNDE_ITEM) {				\
+      *pnde_head_ptr = next;					\
+    } else {							\
+      if (pnde_prev(PNDE_ITEM)) {				\
+	pnde_next(pnde_prev(PNDE_ITEM)) = next;			\
+      }								\
+      if (next) {						\
+	pnde_prev(next) = pnde_prev(PNDE_ITEM);			\
+      }								\
+    }								\
+    release_entry(PNDE_ITEM, PNDE_FREELIST, pnde_next);		\
+  }
 
 
 /*---------------------- end of file slgdelay.h ------------------------*/

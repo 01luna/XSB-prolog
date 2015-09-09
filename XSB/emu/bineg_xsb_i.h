@@ -247,23 +247,34 @@ case IS_INCOMPLETE: {
       if (is_conditional_answer(as_leaf)) {
 	int copy_of_var_addr_arraysz;
 	int i;
+	int num_vars_in_anshead = global_trieinstr_vars_num+1;
 	{ /*
 	   * Make copy of trieinstr_vars & global_trieinstr_vars_num (after get_returns,
 	   * which calls trie_get_return).  (global_trieinstr_vars_num +
 	   * 1) is the number of variables left in the answer
 	   * (substitution factor of the answer)
 	   *
-	   * So, copy_of_var_addr[] is the substitution factor of the
-	   * answer for the head predicate.
+	   * So, copy_of_var_addr[] starts as the substitution factor of the
+	   * answer for the head predicate.  It will accumulate the variables in 
+	   * body of the residual rule.
 	   */
-	  if (var_addr_arraysz < global_trieinstr_vars_num+1) 
-	    trie_expand_array(CPtr,var_addr,var_addr_arraysz,global_trieinstr_vars_num+1,"var_addr");
+	  if (var_addr_arraysz < num_vars_in_anshead) 
+	    trie_expand_array(CPtr,var_addr,var_addr_arraysz,num_vars_in_anshead,"var_addr");
 	  copy_of_var_addr_arraysz = var_addr_arraysz;
 	  copy_of_var_addr = (CPtr *)mem_calloc(copy_of_var_addr_arraysz, sizeof(CPtr),OTHER_SPACE);
-	  for( i = 0; i <= global_trieinstr_vars_num; i++)
+	  for( i = 0; i < num_vars_in_anshead; i++)
 	    copy_of_var_addr[i] = trieinstr_vars[i];
 	  
-	  copy_of_num_heap_term_vars = global_trieinstr_vars_num + 1;
+	  /* copy_of_addr_var[] will accumulate the variables across
+	     the delay-elements (i.e., body subgoals in the residual
+	     rule.)  copy_of_num_heap_term_vars will accumulate the
+	     max number of vars in copy_of_var_addr so we can reset
+	     them to 0.  The entries in copy_of_var_addr[], other than
+	     for the answer variables, must be 0, since the 1st
+	     occurrence mark for variables in the delay list cant be
+	     depended on, due to possible deletion of
+	     delay-elements. */
+	  copy_of_num_heap_term_vars = num_vars_in_anshead;
 	}
 
 	for (dl = asi_dl_list((ASI) Delay(as_leaf)); dl != NULL; ) {
@@ -272,19 +283,15 @@ case IS_INCOMPLETE: {
 	  xsb_dbgmsg((LOG_DELAY, "orig_delayed_term("));
 	  dbg_print_subgoal(LOG_DELAY, stddbg, de_subgoal(de)); 
 	  xsb_dbgmsg((LOG_DELAY, ").\n"));
-	  /*
-	   * This answer may have more than one delay list.  We have to
-	   * restore copy_of_num_heap_term_vars for each of them.  But,
-	   * among delay elements of each delay list, it is not necessary
-	   * to restore this value.
-	   *
-	   * Note that global_trieinstr_vars_num is always set back to
-	   * copy_of_num_heap_term_vars at the end of build_delay_list().
-	   */
-	  copy_of_num_heap_term_vars = global_trieinstr_vars_num + 1;
-	  for (i = copy_of_num_heap_term_vars; i<copy_of_var_addr_arraysz; i++)
-	    copy_of_var_addr[i] = 0; // init in case lost first-occ var
+
 	  dls_head = build_delay_list(CTXTc de);
+
+	  /* Answer may have more than one delay list, so must re-init
+	     rest of vars used back to 0; head vars are unchanged. */
+	  while (copy_of_num_heap_term_vars > num_vars_in_anshead) {
+	    copy_of_var_addr[--copy_of_num_heap_term_vars] = 0;
+	  }
+
 	  bind_list(delay_lists,hreg);
 	  follow(hreg) = dls_head;
 	  delay_lists = hreg + 1;

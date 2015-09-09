@@ -693,6 +693,8 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
     switch( TrieSymbolType(xtemp2) ) {					\
     case XSB_TrieVar: {							\
       int index = DecodeTrieVar(xtemp2);				\
+      if (copy_of_num_heap_term_vars <= index)				\
+	copy_of_num_heap_term_vars = index+1;				\
       if (IsNewTrieVar(xtemp2)) {					\
 	safe_assign(var_addr,index,Macro_addr,var_addr_arraysz);	\
 	num_heap_term_vars++;						\
@@ -754,6 +756,8 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
   switch( TrieSymbolType(xtemp2) ) {					\
   case XSB_TrieVar: {							\
     int index = DecodeTrieVar(xtemp2);					\
+    if (copy_of_num_heap_term_vars <= index)				\
+      copy_of_num_heap_term_vars = index+1;				\
     if (IsNewTrieVar(xtemp2)) { /* diff with CHAT - Kostis */		\
       safe_assign(var_addr,index,ataddr,var_addr_arraysz);		\
       num_heap_term_vars++;						\
