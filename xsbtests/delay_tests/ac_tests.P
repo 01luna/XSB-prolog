@@ -9,6 +9,10 @@ My example from below, with Annie's suggestion for single scc.
 ******/
 :- compiler_options([spec_off]).
 :- import xwam_state/2 from machine.
+:- import get_returns_and_dls/3 from tables.
+:- import member/2 from basics.
+:- import numbervars/1 from num_vars.
+:- import excess_vars/4 from setof.
 
 
 test :- writeln(d('Var')),test(d(_P)), fail.
@@ -16,17 +20,25 @@ test :- abolish_all_tables,writeln(test_d1),test_d1, fail.
 test :- abolish_all_tables,writeln(test_d2),test_d2, fail.
 test :- writeln(d('Var')),test(d(_P)), fail.
 test :- writeln(e('Var')),test(e(_P)), fail.
-test :- writeln(top),test(top), fail.
-test :- writeln(tnot e(s1)),test(tnot e(s1)), fail.
-test :- writeln(tnot e(p1)),test(tnot e(p1)), fail.
+test :- writeln(top),test_noresid(top), fail.
+test :- writeln(tnot e(s1)),test_noresid(tnot e(s1)), fail.
+test :- writeln(tnot e(p1)),test_noresid(tnot e(p1)), fail.
 test :- writeln(f('Var')),test(f(_P)), fail.
 test :- writeln(g('Var')),test(g(_P)), fail.
+test :- writeln(p1('Var0','Var1')),test(p1(_,_)), fail.
+test :- writeln(p2),test(p2), fail.
+test :- writeln(p3),test(p3), fail.
+test :- writeln(p4),test(p4), fail.
+test :- writeln(p5('Var')),test(p5(_)), fail.
+test :- writeln(p6('Var')),test(p6(_)), fail.
+test :- writeln(p7('Var')),test(p7(_)), fail.
+
+
 %%test :- nl(userout),writeln(h('Var1','Var2',10)),test(h(_P,_I,10)),fail.
 
-test(Goal) :-
+test_noresid(Goal) :-
 	ground(Goal),
 	!,
-	nl,
 	write(Goal),
 	write(' - '),
 	(call(Goal)
@@ -37,10 +49,14 @@ test(Goal) :-
 		)
 	 ;      writeln(failed)
 	).
-test(Goal) :-
-	nl,
+test_noresid(Goal) :-
 	(call(Goal),
-	 write(Goal),
+	 (numbervars(Goal),
+	  write(Goal),
+	  fail
+	  ;
+	  true
+	 ),
 	 write(' - '),
 	 xwam_state(2,DelayReg),
 	 (DelayReg =:= 0
@@ -50,6 +66,66 @@ test(Goal) :-
 	 fail
 	 ;
 	 true
+	).
+
+test(Goal) :-
+	ground(Goal),
+	!,
+	(call(Goal),fail;true),
+	print_residual_pgm(Goal).
+test(Goal) :-
+	(call(Goal),
+	 (numbervars(Goal),
+	  write(Goal),
+	  fail
+	  ;
+	  true
+	 ),
+	 write(' - '),
+	 xwam_state(2,DelayReg),
+	 (DelayReg =:= 0
+	  ->	 writeln(true)
+	  ;	 writeln(undefined)
+	 ),
+	 fail
+	 ;
+	 true
+	),
+	print_residual_pgm(Goal).
+
+:- import nl/1, writeq/2 from standard.
+:- import write/2 from standard.
+:- import append/3 from basics.
+
+print_residual_pgm(Goal) :-
+	abolish_table_pred(print_residual_pgm(_,_,_)),
+	get_calls(Goal,SGF,Tmp),
+	print_residual_pgm(Goal,SGF,Tmp).
+print_residual_pgm(_Goal).
+
+:- table print_residual_pgm/3 as variant, opaque.
+print_residual_pgm(Goal,SGF,Tmp) :-
+	get_returns_and_dls(SGF,Tmp,DelayLists),
+	(numbervars((Goal,DelayLists)),
+	 writeln((Goal :- DelayLists)),
+	 fail
+	 ;
+	 member(DL,DelayLists),
+	 member(Goal0,DL),
+	 (Goal0 = tnot(SGoal)
+	  ->	 true
+	  ;	 SGoal = Goal0
+	 ),
+	 (get_call(SGoal,SSGF,STmp)
+	  ->	 true
+	  ;	 excess_vars(SGoal,[],[],Vars), % must be more general
+		 get_calls(SGoal,SSGF,STmp),
+		 is_most_general_term(Vars)
+	  ->	 true
+	  ;	 fail
+	 ),
+	 print_residual_pgm(SGoal,SSGF,STmp),
+	 fail
 	).
 
 :- table b/1.
@@ -262,3 +338,107 @@ bd(I,K) :-
 j(A,B,C,D) :- A=1,k(A,B,C,D).
 k(_,_,_,_) :- undefined.
 k(_,_,_,_) :- undefined.
+
+/* generate unusual variable patterns in dls */
+
+:- table dl1/3.
+dl1(a,X,Y) :- ud1(f(X),Z),ud2(Y,U),ud1(Z,g(U)),ud1(U,h(_V)),ud3(a,Z,X),X=b, Y = c.
+
+:- table ud1/2, ud2/2, ud3/3.
+ud1(_,_) :- undefined.
+ud2(X,X) :- undefined.
+ud3(_,_,_) :- undefined.
+
+:- table dlt/2, eee/2.
+%dlt(X,Y) :- eee(X,Y).
+dlt(X,X).
+dlt(X,Y) :- dlt(X,Z),eee(Z,Y).
+
+eee(a,b) :- undefined.
+eee(b,a) :- undefined.
+
+/*******************************************/
+
+:- table p1/2, p13a/3.
+p1(X,_Y) :- p13a(a,X,Z), Z=c.
+p1(X,_Y) :- p13a(f(b),X,Z), Z=f(c).
+p1(X,_Y) :- p13a(f(W),X,Z), Z=f(W).
+
+p13a(_,b,_) :- undefined.
+
+:- table p2/0, p23a/3.
+p2 :- p23a(f(Z),W,U),p23a(f(Z),V,U),V=W.
+p2 :- p23a(A,W,U),p23a(A,V,U),V=W,A=f(_Z).
+p2 :- p23a(V,W,U),p23a(V,V,U),V=W.
+p2 :- p23a(a,f(X),b),p23a(a,Z,b),Z=f(X).
+
+p23a(_,f(_),_) :- undefined.
+		
+:- table p3/0, p31a/1, p31b/1.
+
+p3 :- p31a(X),p31b(X).
+p3 :- p31b(X),p31a(X).
+p3 :- p31a(X),p31b(X),X=f(a).
+p3 :- p31b(X),p31a(X),X=f(a).
+p3 :- p31a(X),p31b(Y),X=Y.
+p3 :- p31b(X),p31a(Y),X=Y.
+p3 :- p31a(X),p31b(Y),X=Y,X=f(a).
+p3 :- p31b(X),p31a(Y),X=Y,X=f(a).
+p3 :- p31a(f(X)),p31b(f(X)).
+p3 :- p31b(f(X)),p31a(f(X)).
+p3 :- p31a(f(X)),p31b(f(X)),X=a.
+p3 :- p31b(f(X)),p31a(f(X)),X=a.
+p3 :- p31a(f(X)),p31b(Y),Y=f(X).
+p3 :- p31b(f(X)),p31a(Y),Y=f(X).
+p3 :- p31a(f(X)),p31b(Y),Y=f(X),X=a.
+p3 :- p31b(f(X)),p31a(Y),Y=f(X),X=a.
+p3 :- p31a(f(X)),p31b(Y),Y=f(X).
+p3 :- p31b(f(X)),p31a(Y),Y=f(X).
+
+p31a(f(_)) :- undefined.
+p31b(_) :- undefined.
+
+:- table p4/0, p41a/1, p41b/1.
+
+p4 :- p41a(X),p41b(X).
+p4 :- p41b(X),p41a(X).
+p4 :- p41a(X),p41b(X),X=f(a).
+p4 :- p41b(X),p41a(X),X=f(a).
+p4 :- p41a(X),p41b(Y),X=Y.
+p4 :- p41b(X),p41a(Y),X=Y.
+p4 :- p41a(X),p41b(Y),X=Y,X=f(a).
+p4 :- p41b(X),p41a(Y),X=Y,X=f(a).
+p4 :- p41a(f(X)),p41b(f(X)).
+p4 :- p41b(f(X)),p41a(f(X)).
+p4 :- p41a(f(X)),p41b(f(X)),X=a.
+p4 :- p41b(f(X)),p41a(f(X)),X=a.
+p4 :- p41a(f(X)),p41b(Y),Y=f(X).
+p4 :- p41b(f(X)),p41a(Y),Y=f(X).
+p4 :- p41a(f(X)),p41b(Y),Y=f(X),X=a.
+p4 :- p41b(f(X)),p41a(Y),Y=f(X),X=a.
+
+p41a(f(_)) :- undefined.
+p41b(f(_)) :- undefined.
+
+
+:- table p5/1, p51a/1, p51b/1.
+p5(B) :- p51a(X),X=f(_,B),p51b(Z),Z=f(B).
+p5(B) :- p51a(X),X=f(B,_),p51b(Z),Z=f(B).
+
+p51a(_X) :- undefined.
+p51b(_X) :- undefined.
+
+
+:- table p6/1,p6a/1,p6b/1.
+p6(W) :- p6a(X),p6b(Y),X=f(Z),Y=f(W,Z).
+
+p6a(f(_)) :- undefined.
+p6b(f(_,_)) :- undefined.
+
+
+:- table p7/1,p7a/1,p7b/1.
+p7(W) :- p7a(X),X=f(Z),p7b(Y),Y=g(W,Z).
+p7(W) :- p7a(X),X=f(Z),p7b(Y),Y=g(Z,W).
+
+p7a(f(_)) :- undefined.
+p7b(g(_,_)) :- undefined.
