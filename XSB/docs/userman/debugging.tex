@@ -410,9 +410,6 @@ correctness, to optimize performance and so on.  Because \ctrace{}
   evaluations with little overhead.
 \end{itemize}
 
-{\em We stress that the forest logging approch is under development and
-  its features are subject to change.}
-
 Currently, \ctrace{} captures the following actions.
 
 \bi
@@ -1023,25 +1020,24 @@ pre-existing library need not clutter up the log.
 
 %-----------------------------------------------------------------------------
 
-\section{Understanding the State of a Tabled Computation} \label{sec:forest-trace}
-
-{\bf Draft -- code is still being tested and is subject to change}
+\section{Understanding the State of a Tabled Computation} \label{sec:suspend-analyze}
 
 These calls should be made while the current computation is suspended.
 
 \index{Subgoal Dependency Graph (SDG)}
+\index{affects relation}
 \begin{description}
-\ourmoditem{get\_incomplete\_subgoal\_info(-SDG)}{get\_incomplete\_subgoal\_info/1}{tables}
-
-\index{Subgoal Dependency Graph (SDG)}
+\ourmoditem{get\_sdg\_info(-SDG)}{get\_sdg\_info/1}{tables}
+\index{Subgoal Dependency Graph (SDG)} 
+%
 For a suspended computation, returns information about the {\em
   Subgoal Dependency Graph} (SDG)~(cf. e.g. \cite{Swif99b,SwiW12}).
-The vertices of the SDG are the tabled subgoals that are
-incomplete, and a directed edge $(S_1,S_2)$ indicates that answers to
-$S_1$ are directly used to compute $S_2$ (i.e., $S_1$ directly affects
-$S_2$).  The SDG is represented using an adjacency list that contains
-extra information about each subgoal.  Specifically, on success {\tt
-  SDG} will be instantiated to a list of terms of the form:
+The vertices of the SDG are the tabled subgoals that are incomplete,
+and a directed edge $(S_1,S_2)$ indicates that answers to $S_1$ are
+directly called in evaluation of $S_2$ (i.e., $S_1$ directly affects
+$S_2$).  The SDG is represented using an adjacency list that contains annotated
+information about each subgoal.  Specifically, on success {\tt SDG}
+will be instantiated to a list of terms of the form:
 
 {\tt subgoal(Subgoal,SCCIndex,TableEntryHandle,CallsTo,Answers,Edges)} 
 
@@ -1050,27 +1046,169 @@ such that:
 \bi
 \item {\tt Subgoal} is an incomplete subgoal in the suspended computation
 \item {\tt SCCIndex} is the index of the SCC to which the subgoal
-  belongs.  For local evaluation, if $SCCInxex_1 < SCCInxex_2$, then
-  subgoals in $SCCInxex_2$ affect subgoals in $SCCInxex_1$.
+  belongs.  For local evaluation, if $SCCIndex_1 < SCCIndex_2$, then
+  subgoals in $SCCIndxex_2$ affect subgoals in $SCCIndex_1$ (although
+  the affects relation may not be direct).
 \item {\tt TableEntryHandle} is the handle to the table entry, and
   uniquely identifies {\tt Subgoal} 
 \item {\tt CallsTo} is the number of calls that have been made to the
-  subgoal so far.  This number represents calls from both producer and
-  consumer subgoals.
-\item {\tt Answers} is the number of answers that {\tt Subgoal} has so far.
+  subgoal so far.  
+\item {\tt Answers} is the number of distinct answers that {\tt
+  Subgoal} has so far.~\footnote{If the same answer was derived more
+  than once, it is counted only one time.}
 \item {\tt Edges} is the atom {\tt unavailable} if {\tt Subgoal} is
-  not incrementally tables, otherwise it is a list of
-  TableEntryHandles for incomplete subgoals that {\tt Subgoal}
+  not incrementally tabled, otherwise it is a list of
+  table entry handles for incomplete subgoals that {\tt Subgoal}
   directly affects.\footnote{This predicate is currently being
     extended to return this information for non-incremental tables as
-    well.}
-
+    well, and to separate out positive from negative edges.}
 \ei
 
-\item \ourmoditem{get\_incomplete\_scc\_info(+SDG,-ListOut)}{get\_incomplete\_scc\_info/2}{tables}
+This predicate has no error conditions.
+
+\begin{example} \rm \label{ex:get-sdg}
+Consider the goal {\tt ?- q(3,3)} to the program:
+
+\begin{verbatim}
+:- import get_sdg_info/1 from tables.
+:- import between/3 from basics.
+
+:- table q/2 as incremental.
+q(M,N):- between(1,N,X),
+         (M = N,N = X -> break ; true),q(X,N).
+\end{verbatim}
+Execution of this query creates a number of tabled subgoals, but
+breaks before the initial goal is completely evaluated.  The SDG at
+the time of the break is shown in Figure~\ref{fig:sdg-break-1}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.4\textwidth]{sdg-q-2}
+%%\mbox{
+%%{\epsfig{file=slg-forest-local,width=.99\textwidth}}}
+\caption{SDG for {\tt ?- q(3,3)} when the computation is suspended by {\tt break/0}} \label{fig:sdg-break-1}
+\end{figure}
+%
+This SDG can be produced as follows:
+\begin{small}
+\begin{verbatim}
+| ?- q(3,3).
+[ Break (level 1) ]
+
+1: ?- get_sdg_info(F).
+
+F = [subgoal(q(2,3),1,140253373671912,3,0,
+             [140253373671672,140253373671792,140253373671912]),
+     subgoal(q(1,3),1,140253373671792,3,0,
+             [140253373671792,140253373671672,140253373671912]),
+     subgoal(q(3,3),1,140253373671672,3,0,
+             [140253373671912,140253373671792])]
+\end{verbatim}
+\end{small}
+
+\end{example}
+
+\item  \ourmoditem{morph\_sdg(+SDGIn,+Morph,-SDGOut)}{morph\_sdg/3}{tables}
+%
+This predicate takes as input {\tt SDGIn}, an SDG in adjacency list
+format and returns its image, {\tt SDGOut}, under the graph
+homomorphism {\tt Morph}.  {\tt Morph} is a predicate symbol that
+identifies a 2-ary predicate, {\tt Morph(+In,-Out)} that is functional
+on {\tt In} and maps the Herbrand Base of the current program into
+itself.  The syntax of {\tt SDGIn} and {\tt SDGOut} are the same, so
+{\tt SDGOut} may be used for further morphisms; and accordingly {\tt
+  SDGIn} may have been produced by {\tt get\_sdg\_info/1} and zero or
+more applications of {\tt morph\_sdg/3}.
+
+To recall the definition of a graph homomorphism (cf. e.g.,
+~\cite{Hara69}) a functional notation is used for {\tt Morph/2}.  {\tt
+  SdgOut} is a graph such that the vertices of {\tt SDGOut},
+$vertices({\tt SDGOut})$ is the set:
+\[
+\{ morph(Subgoal) | Subgoal \in vertices({\tt SDGIn}) \}
+\]
+while the edges of {\tt SDGOut}, $edges({\tt SDGOut})$ is the set
+\[
+\{ <morph(Subgoal_1),morph(Subgoal_2)> | <Subgoal_1,Subgoal_2> \in edges({\tt SDGIn}) \}
+\]
+
+The power of {\tt morph\_sdg/3} arises when the numbers of vertices
+and edges of {\tt SdgIn} is large, and {\tt morph/2} ensures that
+numbers for {\tt SDG} are much smaller -- thus allowing recognizable
+patterns to emerge.  
+
+For efficiency reasons, a specual condition is assumed about {\tt
+  morph/2}: that if two elements of its range unify, then they must be
+identical.  For instance, a morphism $M_1$ that reduced the maximum
+depth of each non-variable argument of a term by 1 would not fit this
+condition.  For instance $M_1(f(a,g(h(b)))) = f(X_1,g(h(X_2)))$ while
+$M_1(f(a,g(b))) = f(X_1,g(X_2))$, which unify.  On the other hand, a
+morphism that abstracts each argument to have a maximal fixed depth
+would fulfill the condition.  As long as this condition is observed,
+{\tt morph/2} may instantiated by an abstraction function as used
+elsewhere in this manual: i.e., a function such that $morph(Term)$
+subsumes $Term$.  However, other morphisms may also be useful as
+demonstrated in Example~\ref{ex:morph-sdg} below.
+
+While the syntax of {\tt SdgOut} is the same as that of {\tt SDGIn},
+the meaning of the arguments differs slightly.  {\tt SdgOut} is a
+list of terms of the form:
+
+{\tt subgoal(MorphSubg,null,Key,CallsTo,Answers,KeyList)} 
+
+such that 
+
+\bi
+\item {\tt MorphSubg} is $morph({\tt Subgoal})$ for one or more subgoals
+  that are vertices of {\tt SDGIn}
+\item The second argument, which represents SCC information in the
+  original SDG, is the atom {\tt null} when a morphism is applied, since SCC
+  information is not preserved in general.
+\item {\tt Key} is an atom identifying {\tt MorphSubg}.  Note that
+  while each subgoal in {\tt SDGIn} corresponds to a tabled call, a
+  given subgoal image in {\tt SDGOut} may not correspond to a tabled
+  call in the current state.  Thus a table entry handle may not be
+  available, so generated keys are used in {\tt SDGOut}.
+\item {\tt CallsTo} is the sum of calls to every subgoal $S \in$ {\tt
+  SubgIn} such that $morph(S) = {\tt MorphSubg}$.
+\item {\tt Answers} is the sum of the number of answers for every
+  subgoal $S \in$ {\tt SubgIn} such that $morph(S) = {\tt MorphSubg}$.
+\item {\tt KeyList} is a list of the keys to those vertices adjacent
+  to {\tt MorphSubg} as described above.
+\ei
+
+If there are no incomplete tables in the current state, an empty list is returned.
+
+\begin{example} \rm \label{ex:morph-sdg}
+Continuing Example~\ref{ex:get-sdg}, let {\tt mymorph} identify the
+predicate
+
+\begin{verbatim}
+mymorph(Term,NewTerm):-
+        Term =.. [F,A1,A2],
+        map_arg_1(A1,NewA1),
+        NewTerm =.. [F,NewA1,A2].
+
+map_arg_1(2,1):- !.
+map_arg_1(X,X).
+\end{verbatim}
+Thus {\tt mymorph/2} maps {\tt q(2,1)} to {\tt q(1,1)} and maps
+both {\tt q(1,1)} and {\tt q(3,1)} to themselves.  Then if {\tt SdgIn}
+is instantiated to the SDG produced in Example~\ref{ex:get-sdg}, the
+goal {\tt ?- morph\_sdg(SdgIn,mymorph,SdgOut} would produce:
+
+\begin{verbatim}
+SdgOut = [subgoal(morph80,q(1,3),6,0,[morph80,morph81]),
+          subgoal(morph81,q(3,3),3,0,[morph80])
+\end{verbatim}
+\end{example}
+
+{\bf Error Cases}  Need to figure out.
+
+\item \ourmoditem{get\_sdg\_scc\_info(+SDG,-ListOut)}{get\_sdg\_scc\_info/2}{tables}
 
 Given the SDG representation produced by {\tt
-  get\_incomplete\_subgoal\_info/1} this predicate returns information
+  get\_sdg\_info/1} this predicate returns information
 about the SCCs that are currently under evaluation.  Upon success {\tt
   ListOut} will contain a term
 

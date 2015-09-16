@@ -1204,20 +1204,25 @@ specifier of the types above.
 \begin{description}
 
 \standarditem{break}{break/0}
-    Causes the current execution to be suspended at the beginning of the next 
-    call.  The interpreter then enters break level 1 and is ready to accept
-    input as if it were at top level.  If another call to {\tt break/0} is 
-    encountered, it moves up to break level 2, and so on.  While execution 
-    is done at break level $n>0$ the prompt changes to {\tt $n$: ?-}.
+%
+Causes the current execution to be suspended at the beginning of the
+next call.  The interpreter then suspends the current computation,
+enters break level 1 and is ready to accept input as if it were at top
+level.  If another call to {\tt break/0} is encountered, it moves down
+to break level 2, and so on.  As long as the current computation
+occurs at break level $n>0$ the prompt changes to {\tt $n$: ?-}.  
 
-    To close a break level and resume the suspended execution, the user can 
-    type the the atom {\tt end\_of\_file} or the end-of-file character 
-    applicable on the system (usually {\tt CTRL-d} on UNIX systems).  
-    Predicate {\tt break/0} 
-    then succeeds (note in the following example that the calls to {\tt break/0}
-    do not succeed), and the execution of the interrupted program is resumed.  
-    Alternatively, the suspended execution can be abandoned by calling the 
-    standard predicate {\tt abort/0}, which causes a return to the top level.
+To close a break level and resume the suspended execution, the user
+can type the the atom {\tt end\_of\_file} or the end-of-file character
+applicable on the system (usually {\tt CTRL-d} on UNIX systems).
+Predicate {\tt break/0} then succeeds (note in the following example
+that the calls to {\tt break/0} do not succeed), and the execution of
+the interrupted program is resumed.  Alternatively, the suspended
+execution can be abandoned by calling the standard predicate {\tt
+  abort/0}, which causes a return to the top level~\footnote{If only
+  the break-level computation should be aborted, the predicate {\tt
+    abort\_level/[0,1]} can be called.  This should rarely be needed,
+  except if a specialized intepreter is written using XSB.}.
 
     An example of {\tt break/0} 's use is the following:
 
@@ -1233,10 +1238,20 @@ specifier of the types above.
         \>   \>     1: ?-
     }
 
-    Entering a break closes all incomplete tables (those which may not have a 
-    complete set of answers).  Closed tables are unaffected, even if 
-    the tables were created during the computation for which the break was
-    entered.
+It is important to note that when XSB is interrupted via a ctrl-C, the
+current computation is suspended, and a new break level is entered.
+Any incomplete tables in the suspended computation can be examined,
+making break levels useful for for analyzing tabled computations under
+execution, as described in Section~\ref{sec:suspend-analyze}.
+However, it is also important to note that executing a tabled
+predicate during a break point throws an exception if there are
+incomplete tables that are suspended.
+
+
+%    Entering a break closes all incomplete tables (those which may not have a 
+%    complete set of answers).  Closed tables are unaffected, even if 
+%    the tables were created during the computation for which the break was
+%    entered.
 
 \isoitem{halt}{ISO}{halt/0}
 %
