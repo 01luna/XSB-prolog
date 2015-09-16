@@ -6162,6 +6162,10 @@ case CALL_SUBS_SLG_NOT: {
   case INCOMPLETE_SUBGOAL_INFO: {
     CPtr newcsf;
     CPtr csf = (CPtr) ptoc_int(CTXTc 2);
+    if (openreg == COMPLSTACKBOTTOM) { 
+      ctop_int(CTXTc 5,(Integer)NULL);
+      return TRUE;
+    }
     if (csf == NULL) csf = openreg;
     newcsf = prev_compl_frame(csf);
     if (newcsf >= COMPLSTACKBOTTOM) newcsf = NULL;
