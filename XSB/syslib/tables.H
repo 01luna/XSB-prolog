@@ -22,7 +22,6 @@
 ** 
 */
 
-
 :- export
    abolish_all_tables/0,
    abolish_table_subgoals/1,       abolish_table_subgoals/2, 
@@ -58,6 +57,7 @@
    log_all_forest_start/0, log_all_forest_start/1,
    log_all_forest_end/0, 
    log_forest/1, log_forest/2,
+   morph_sdg/3,
    print_incomplete_tables/0,print_incomplete_tables/1,
 print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks/0, 
            retract_table/1,          /* abolish/1 */
@@ -108,7 +108,7 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
 	t_assert_2/2
    from assert.
 
-:- import copy_term/2,length/2, member/2, memberchk/2
+:- import copy_term/2,flatten/2,length/2, member/2, memberchk/2
      from basics.
 
 :- import set_prolog_flag/2 from curr_sym.
@@ -116,9 +116,9 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
 :- import load_dync/2 from consult.
 
 :- import
-	domain_error/4, domain_error/5, check_nonvar/3, type_error/4, table_error/1, 
-	%%instantiation_error/2,
-	permission_error/4 , check_cyclic/3
+   domain_error/4, domain_error/5, check_nonvar/3, type_error/4, table_error/1, 
+   check_atom/3,check_var/3,
+   permission_error/4, check_cyclic/3, misc_error/1
    from error_handler.
 
 :- import check_open_stream_or_alias/5 from file_io.
@@ -148,8 +148,12 @@ print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks
 :- import call_c/1,nl/0,write/1, tell/1, told/0, '\='/2, arg/3 from standard.
 :- import writeln/2 from standard.
 :- import is_most_general_term/1 from standard.
+:- import call/3 from standard.
 
 :- import variant/2 from subsumes.
 :- import invalidate_table_for/2 from usermod.
+
+   :- import trie_interned/2,trie_intern/2,new_trie/1,delete_trie/1 from intern.
+:- import gensym/2 from gensym.
 
 /* ------------------- end of file tables.H --------------------------- */
