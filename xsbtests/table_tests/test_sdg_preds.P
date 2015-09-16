@@ -1,0 +1,56 @@
+:- compiler_options([spec_off]).
+
+:- import morph_sdg/3 from tables.
+:- import get_sdg_info/1 from tables.
+:- import between/3 from basics.
+:- import break/0 from x_interp.
+:- import xsb_error_get_tag/2 from error_handler.
+:- import prepare/1 from gensym.
+
+test:- prepare(400),fail.
+test:- catch(morph_sdg([],1,_),E,(xsb_error_get_tag(E,Tag),writeln(test_1(Tag)))),fail.
+test:- catch(morph_sdg([],morph_2,foo),E,(xsb_error_get_tag(E,Tag),writeln(test_2(Tag)))),fail.
+test:- catch(morph_sdg([foo],morph_2,_),E,(xsb_error_get_tag(E,Tag),writeln(test_3(Tag)))),fail.
+test:- q_1(3,3),fail.
+test:- q_2(3,3),fail.
+test.
+
+
+:- table p/1.
+p(0):- get_sdg_info(List),writeln(List).
+p(N):- get_sdg_info(List),writeln(List),N1 is N - 1 , p(N1).
+
+:- table q_1/2 as incremental.
+q_1(M,N):- between(1,N,X),
+         (M = N,N = X -> write_it(id_morph) ; true),q_1(X,N).
+
+:- table q_2/2 as incremental.
+q_2(M,N):- between(1,N,X),
+         (M = N,N = X -> write_it(morph_2) ; true),q_2(X,N).
+
+id_morph(T,T).
+
+morph_2(Term,NewTerm):- 
+	Term =.. [F,A1,A2],
+	map_arg_1(A1,NewA1),
+	NewTerm =.. [F,NewA1,A2].
+
+map_arg_1(2,1):- !.
+map_arg_1(X,X).
+
+write_it(Morph):- 
+	writeln('---------------'),
+	get_sdg_info(List),
+%	writeln(List),
+	morph_sdg(List,Morph,Listout),
+	writeln(Listout).
+
+:- table q/2 as incremental.
+q(M,N):- between(1,N,X),
+%	writeln(calling(q(M,N),q(X,N))),
+       (M = N,N = X -> break ; true),q(X,N).
+
+first_abstract(Term,NewTerm):- 
+	Term =.. [F,A1,_A2],
+	NewTerm =.. [F,A1,_].
+
