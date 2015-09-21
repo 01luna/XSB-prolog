@@ -3298,9 +3298,9 @@ case WRITE_OUT_PROFILE:
   }
 
   case CRYPTO_HASH:
-    /* Arg 1: type of hash - MD5 (not implemented) or SHA1
-       Arg 2: input - string or file(filename)
-       Arg 3: string - output
+    /* Arg 1: int: type of hash - 1 (MD5) or 2 (SHA1)
+       Arg 2: input string: - atom or file(filename)
+       Arg 3: output: atom
     */
     {
       Integer type = ptoc_int(CTXTc 1);
