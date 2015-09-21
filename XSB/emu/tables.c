@@ -111,7 +111,7 @@ Structure_Manager smALN    = SM_InitDecl(AnsListNode, ALNs_PER_BLOCK,
 #if !defined(WIN_NT)
 inline 
 #endif
-VariantSF NewProducerSF(CTXTdeclc BTNptr Leaf,TIFptr TableInfo) {   
+VariantSF NewProducerSF(CTXTdeclc BTNptr Leaf,TIFptr TableInfo,unsigned int is_negative_call) {   
     									
   void *pNewSF;							
 
@@ -147,6 +147,7 @@ VariantSF NewProducerSF(CTXTdeclc BTNptr Leaf,TIFptr TableInfo) {
    subg_compl_stack_ptr(pNewSF) = openreg - COMPLFRAMESIZE;		    
    INIT_SUBGOAL_CALLSTO_NUMBER(pNewSF);
    ((VariantSF) pNewSF)->visited = 0;
+   subg_negative_initial_call(pNewSF) = (unsigned int) is_negative_call;
 /* incremental evaluation start */
 if((get_incr(TIF_PSC(TableInfo))) &&(IsVariantPredicate(TableInfo))){
   //  sfPrintGoal(stdout,pNewSF,NO);printf(" is marked incr\n");

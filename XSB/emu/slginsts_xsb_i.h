@@ -315,8 +315,7 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
     /* New Producer
        ------------ */
     CPtr producer_cpf;
-    producer_sf = NewProducerSF(CTXTc CallLUR_Leaf(lookupResults),
-				 CallInfo_TableInfo(callInfo));
+    producer_sf = NewProducerSF(CTXTc CallLUR_Leaf(lookupResults),CallInfo_TableInfo(callInfo),is_neg_call);
     //    printf("new producer sf %p\n",producer_sf);
 
 #endif /* !SHARED_COMPL_TABLES */

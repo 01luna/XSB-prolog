@@ -629,8 +629,10 @@ enum SubgoalFrameType {
 typedef struct subgoal_frame {
   byte sf_type;		  /* The type of subgoal frame */
   byte is_complete;	  /* If producer, whether its answer set is complete */
-  byte is_reclaimed;	  /* Whether structs for supporting answer res from an
+  unsigned int  is_reclaimed:1;	  /* Whether structs for supporting answer res from an
 			     incomplete table have been reclaimed */
+  unsigned int negative_initial_call:7;
+  unsigned int unused:6;
   byte visited;
   TIFptr tif_ptr;	  /* Table of which this call is a part */
   BTNptr leaf_ptr;	  /* Handle for call in the CallTrie */
@@ -701,8 +703,8 @@ typedef struct subgoal_frame {
 #define subg_grabbed(b)		( ((VariantSF)(b))->grabbed )
 #define subg_callsto_number(b)		( ((VariantSF)(b))->callsto_number )
 #define subg_ans_ctr(b)		( ((VariantSF)(b))->ans_ctr )
-#define subg_visitors(b)		( ((VariantSF)(b))->visitors )
-
+#define subg_visitors(b)	( ((VariantSF)(b))->visitors )
+#define subg_negative_initial_call(b) 	( ((VariantSF)(b))->negative_initial_call )
 /* The subgoal visited field can be used for both marking during GC
    (the GC_MARK mask) and during table traversal to transitively remove
    depending subgoals (the VISITED mask).  */

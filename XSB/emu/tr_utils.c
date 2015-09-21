@@ -6175,7 +6175,8 @@ case CALL_SUBS_SLG_NOT: {
       ctop_int(CTXTc 5,(Integer)compl_subgoal_ptr(csf));
       ctop_int(CTXTc 6,subg_callsto_number(compl_subgoal_ptr(csf)));
       ctop_int(CTXTc 7,subg_ans_ctr(compl_subgoal_ptr(csf)));
-      ctop_int(CTXTc 8,get_incr(TIF_PSC(subg_tif_ptr(compl_subgoal_ptr(csf)))));
+      ctop_int(CTXTc 8,subg_negative_initial_call(compl_subgoal_ptr(csf)));
+      ctop_int(CTXTc 9,(Integer)tcp_ptcp(subg_cp_ptr(compl_subgoal_ptr(csf))));
     }
     return TRUE;
 	     
@@ -6206,6 +6207,58 @@ case CALL_SUBS_SLG_NOT: {
     return TRUE;
   }
 
+  case GET_POS_AFFECTS: {
+  CPtr oldhreg = NULL;
+  int count = 0;
+    VariantSF subgoal = (VariantSF) ptoc_int(CTXTc 2);
+    //    printf("sf %p: ",subgoal);
+    CPtr consumer_cpf = subg_pos_cons(subgoal);
+    reg[4] = makelist(hreg);
+    new_heap_free(hreg);
+    new_heap_free(hreg);
+    //    printf("initial negative call %d: %p\n",subg_negative_initial_call(subgoal),tcp_ptcp(subg_cp_ptr(subgoal)));
+ 
+    while (consumer_cpf != NULL) {
+      count++;
+      check_glstack_overflow(4,pcreg,2); 
+      oldhreg=hreg-2;
+      follow(oldhreg++) = makeint(nlcp_ptcp(consumer_cpf));
+      follow(oldhreg) = makelist(hreg);
+      new_heap_free(hreg);
+      new_heap_free(hreg);
+      consumer_cpf = nlcp_prevlookup(consumer_cpf);
+    }
+    if (count>0)
+      follow(oldhreg) = makenil;
+    else
+      reg[4] = makenil;
+    return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
+  }
+  case GET_NEG_AFFECTS: {
+  CPtr oldhreg = NULL;
+  int count = 0;
+    VariantSF subgoal = (VariantSF) ptoc_int(CTXTc 2);
+    CPtr consumer_cpf = subg_compl_susp_ptr(subgoal);
+    reg[4] = makelist(hreg);
+    new_heap_free(hreg);
+    new_heap_free(hreg);
+  
+    while (consumer_cpf != NULL) {
+      count++;
+      check_glstack_overflow(4,pcreg,2); 
+      oldhreg=hreg-2;
+      follow(oldhreg++) = makeint(csf_ptcp(consumer_cpf));
+      follow(oldhreg) = makelist(hreg);
+      new_heap_free(hreg);
+      new_heap_free(hreg);
+      consumer_cpf = csf_prevcsf(consumer_cpf);
+    }
+    if (count>0)
+      follow(oldhreg) = makenil;
+    else
+      reg[4] = makenil;
+    return unify(CTXTc reg_term(CTXTc 3),reg_term(CTXTc 4));
+  }
   case PRINT_LS: print_ls(CTXTc 1) ; return TRUE ;
   case PRINT_TR: print_tr(CTXTc 1) ; return TRUE ;
   case PRINT_HEAP: print_heap(CTXTc 0,2000,1) ; return TRUE ;

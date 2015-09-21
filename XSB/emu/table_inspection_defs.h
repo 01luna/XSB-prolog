@@ -52,6 +52,8 @@
 #define SET_FOREST_LOGGING_FOR_PRED              28
 #define INCOMPLETE_SUBGOAL_INFO                  29
 #define GET_CALL_FROM_SF                         30
+#define GET_POS_AFFECTS                          31
+#define GET_NEG_AFFECTS                          32
 
 /* added by Bart Demoen & Kostis Sagonas for debugging and convenience */
 #define PRINT_LS                240
