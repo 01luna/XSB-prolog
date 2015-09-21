@@ -1280,41 +1280,27 @@ get_sdg_info(List):-
 	get_sdg_info(0,List).
 
 get_sdg_info(CSF,Rest):- 
-	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsIncr),
+	table_inspection_function(INCOMPLETE_SUBGOAL_INFO,CSF,NewCSF,Level,SF,CallsTo,Answers,IsNegCall,GenParent),
 	(SF == 0 -> 
 	   Rest = []
 	;  get_call_from_sf(SF,Subgoal),
 %	   writeln(gisi(CSF,NewCSF,Level,SF,CallsTo,Answers,Subgoal,IsIncr)),
-	   (IsIncr == INCREMENTAL -> 
-	      incr_eval_builtin(IMMED_AFFECTS_PTRLIST, SF, SFList,_)
-	    ; SFList = unavailable ),
+	   table_inspection_function(GET_POS_AFFECTS,SF,PosSFList_1,_,_,_,_,_),
+	   (IsNegCall == 1 -> 
+	      remove_gencon_cp(PosSFList_1,GenParent,PosSFList_2)
+	    ; PosSFList_1 = PosSFList_2),
+	    sort(PosSFList_2,PosSFList),
+	    table_inspection_function(GET_NEG_AFFECTS,SF,NegSFList_1,_,_,_,_,_),
+	    sort(NegSFList_1,NegSFList) ),
 	   (NewCSF = 0 -> 
-	       Rest = [subgoal(Subgoal,Level,SF,CallsTo,Answers,SFList)]
-	     ; Rest = [subgoal(Subgoal,Level,SF,CallsTo,Answers,SFList)|Rest1],
-	       get_sdg_info(NewCSF,Rest1) ) ).
+	       Rest = [subgoal(Subgoal,Level,SF,CallsTo,Answers,PosSFList,NegSFList)]
+	     ; Rest = [subgoal(Subgoal,Level,SF,CallsTo,Answers,PosSFList,NegSFList)|Rest1],
+	       get_sdg_info(NewCSF,Rest1) ).
 
-%----------------
-
-get_scc_info([],[]).
-get_scc_info([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
-	                          [scc(Level,NumSubgoals,NumAnswers,NumCallsto)|Rest1]):- 
-	get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
-	                                   Level,0,0,0,NumSubgoals,NumAnswers,NumCallsto1,ListMid),
-	NumCallsto is NumCallsto1 - 1,
-	writeln(calling(get_scc_info(ListMid,Rest1))),
-	get_scc_info(ListMid,Rest1).
-
-get_scc_info_1([],_SCCNum,Subgoals,Answers,Callsto,Subgoals,Answers,Callsto,[]).
-get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
-	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut):- 
-writeln(get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
-	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)),
-	(Level \== SCCNum -> 
-	    ListOut = [subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
-	    InSubgoals = OutSubgoals,InAnswers = OutAnswers,InCallsto = OutCallsto1,
-	    writeln(succeeded(ListOut))
-	  ; MidSubgoals is InSubgoals+1,MidAnswers is InAnswers + Answers,MidCallsto is InCallsto+1,
-  	    get_scc_info_1(Rest,SCCNum,MidSubgoals,MidAnswers,MidCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)).
+remove_gencon_cp([],_Genparent,[]).
+remove_gencon_cp([SF|Rest],SF,Rest):- !.
+remove_gencon_cp([H|T],Genparent,[H|T1]):- 
+	remove_gencon_cp(T,Genparent,T1).
 
 %-------------
 
@@ -1330,33 +1316,31 @@ morph_sdg_1(SdgIn,Abstr,SFMapSubg,AbsMapSF,SdgOut):-
 	sort(Sdg1,Sdg2),
 	merge_sdg_nodes(Sdg2,SdgOut),
 	delete_trie(SFMapSubg),
-%	delete_trie(AbsMapSF),
+	delete_trie(AbsMapSF),
 	!.
 morph_sdg_1(SdgIn,_Abstr,SFMapSubg,AbsMapSF,_SdgOut):- 
 	delete_trie(SFMapSubg),delete_trie(AbsMapSF),
 	misc_error(['Improper form for input SDG: ',SdgIn]).
 
-morph_sdg_init_tries(Sdg,Abstr,SFMapAbs,AbsMapSF):-
-	morph_sdg_init_tries_1(Sdg,Abstr,SFMapAbs,AbsMapSF).
-
-morph_sdg_init_tries_1([],Abstr,_SFMapSubg,_AbsMapSF).
-morph_sdg_init_tries_1([subgoal(Subgoal,_Level,SF,_CallsTo,_Answers,_SFList)|Rest],Abstr,SFMapAbs,AbsMapSF):- 
+morph_sdg_init_tries([],_Abstr,_SFMapSubg,_AbsMapSF).
+morph_sdg_init_tries([subgoal(Subgoal,_Level,SF,_CallsTo,_Answers,_PosSFList,_NegSFList)|Rest],Abstr,SFMapAbs,AbsMapSF):- 
 	call(Abstr,Subgoal,AbsSubg),
 	trie_intern(p(SF,AbsSubg),SFMapAbs),
 	gensym(Abstr,Sym),
         trie_intern(p(AbsSubg,Sym),AbsMapSF),
-	morph_sdg_init_tries_1(Rest,Abstr,SFMapAbs,AbsMapSF).
+	morph_sdg_init_tries(Rest,Abstr,SFMapAbs,AbsMapSF).
 %	(trie_interned(p(AbsSubg,_,_),AbsMapSF) -> 
 %	    writeln(trie_interned(p(AbsSubg,SF),AbsMapSF))
 %	  ; gensym(abs,Sym),
 %	    trie_intern(p(AbsSubg,Sym),AbsMapSF) ),
 
 morph_sdg_nodes([],_SFMapAbs,_AbsMapSF,[]).
-morph_sdg_nodes([subgoal(_Subgoal,_Level,SF,_CallsTo,_Answers,SFList)|RestIn],SFMapAbs,AbsMapSF,
-	    [subgoal(Key,AbsSubg,_CallsTo,_Answers,KeyList)|RestOut]):- 
+morph_sdg_nodes([subgoal(_Subgoal,_Level,SF,_CallsTo,_Answers,PosSFList,NegSFList)|RestIn],SFMapAbs,AbsMapSF,
+	    [subgoal(AbsSubg,none,Key,_CallsTo,_Answers,PosKeyList,NegKeyList)|RestOut]):- 
 	cut_trie_interned(p(SF,AbsSubg),SFMapAbs),
 	cut_trie_interned(p(AbsSubg,Key),AbsMapSF),
-	rename_affects_edges(SFList,SFMapAbs,AbsMapSF,KeyList),
+	rename_affects_edges(PosSFList,SFMapAbs,AbsMapSF,PosKeyList),
+	rename_affects_edges(NegSFList,SFMapAbs,AbsMapSF,NegKeyList),
 	morph_sdg_nodes(RestIn,SFMapAbs,AbsMapSF,RestOut).
 
 /*
@@ -1376,29 +1360,54 @@ rename_affects_edges([SF|Rest],SFMapAbs,AbsMapSF,[Key|Rest1]):-
 	rename_affects_edges(Rest,SFMapAbs,AbsMapSF,Rest1).
 
 merge_sdg_nodes([],[]).
-merge_sdg_nodes([subgoal(Key,AbsSubg,CallsTo,Answers,KeyList)|RestIn],
-   	        [subgoal(Key,AbsSubg,CallsToOut,AnswersOut,KeyListOut)|RestOut]):- 
+merge_sdg_nodes([subgoal(AbsSubg,none,Key,CallsTo,Answers,PosKeyList,NegKeyList)|RestIn],
+   	        [subgoal(AbsSubg,none,Key,CallsToOut,AnswersOut,PosKeyListOut,NegKeyListOut)|RestOut]):- 
 	get_next_set(RestIn,Key,Set,RestMid),
-	merge(Set,CallsTo,CallsToOut,Answers,AnswersOut,KeyList,KeyListOut),
+	merge(Set,CallsTo,CallsToOut,Answers,AnswersOut,PosKeyList,PosKeyListOut,NegKeyList,NegKeyListOut),
 	merge_sdg_nodes(RestMid,RestOut).
 
-merge([],CallsTo,CallsTo,Answers,Answers,KeyList,KeyListOut):- 
-	flatten(KeyList,FlatList),
-	sort(FlatList,KeyListOut).
-merge([subgoal(_Key,_AbsSubg,CallsTo,Answers,KeyList)|RestIn],CallsToIn,CallsToOut,AnswersIn,AnswersOut,KeyListIn,KeyListOut):- 
+merge([],CallsTo,CallsTo,Answers,Answers,PosKeyList,PosKeyListOut,NegKeyList,NegKeyListOut):- 
+	flatten(PosKeyList,PosFlatList),sort(PosFlatList,PosKeyListOut),
+	flatten(NegKeyList,NegFlatList),sort(NegFlatList,NegKeyListOut).
+merge([subgoal(_AbsSubg,none,_Key,CallsTo,Answers,PosKeyList,NegKeyList)|RestIn],
+      CallsToIn,CallsToOut,AnswersIn,AnswersOut,PosKeyListIn,PosKeyListOut,NegKeyListIn,NegKeyListOut):- 
 	CallsToMid is CallsToIn + CallsTo,
 	AnswersMid is AnswersIn + Answers,
-	KeyListMid = [KeyListIn,KeyList],
-        merge(RestIn,CallsToMid,CallsToOut,AnswersMid,AnswersOut,KeyListMid,KeyListOut).
+	PosKeyListMid = [PosKeyListIn,PosKeyList],
+	NegKeyListMid = [NegKeyListIn,NegKeyList],
+        merge(RestIn,CallsToMid,CallsToOut,AnswersMid,AnswersOut,PosKeyListMid,PosKeyListOut,NegKeyListMid,NegKeyListOut).
 
 get_next_set([],_Key,[],[]).
-get_next_set([subgoal(Key,AbsSubg,CallsTo,Answers,KeyList)|RestIn],Key,
-	     [subgoal(Key,AbsSubg,CallsTo,Answers,KeyList)|RestSet],RestOut):- !,
+get_next_set([subgoal(AbsSubg,none,Key,CallsTo,Answers,KeyList,Neglist)|RestIn],Key,
+	     [subgoal(AbsSubg,none,Key,CallsTo,Answers,KeyList,Neglist)|RestSet],RestOut):- !,
 	get_next_set(RestIn,Key,RestSet,RestOut).
 get_next_set(List,_Key,[],List).
 
-incr_eval_builtin(_BuiltinNo, _A, _B, _C) :-
-	'_$builtin'(INCR_EVAL_BUILTIN).
+%----------------
+
+get_scc_info([],[]).
+get_scc_info([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
+	                          [scc(Level,NumSubgoals,NumAnswers,NumCallsto)|Rest1]):- 
+	get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
+	                                   Level,0,0,0,NumSubgoals,NumAnswers,NumCallsto1,ListMid),
+	NumCallsto is NumCallsto1 - 1,
+	writeln(calling(get_scc_info(ListMid,Rest1))),
+	get_scc_info(ListMid,Rest1).
+
+get_scc_info_1([],_SCCNum,Subgoals,Answers,Callsto,Subgoals,Answers,Callsto,[]).
+get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
+	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut):- 
+%writeln(get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
+%	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)),
+	(Level \== SCCNum -> 
+	    ListOut = [subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
+	    InSubgoals = OutSubgoals,InAnswers = OutAnswers,InCallsto = OutCallsto1
+%	    writeln(succeeded(ListOut))
+	  ; MidSubgoals is InSubgoals+1,MidAnswers is InAnswers + Answers,MidCallsto is InCallsto+1,
+  	    get_scc_info_1(Rest,SCCNum,MidSubgoals,MidAnswers,MidCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)).
+
+%incr_eval_builtin(_BuiltinNo, _A, _B, _C) :-
+%	'_$builtin'(INCR_EVAL_BUILTIN).
 
 %--------------------------------------------------------------------------------
 
