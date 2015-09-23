@@ -631,7 +631,7 @@ typedef struct subgoal_frame {
   byte is_complete;	  /* If producer, whether its answer set is complete */
   unsigned int  is_reclaimed:1;	  /* Whether structs for supporting answer res from an
 			     incomplete table have been reclaimed */
-  unsigned int negative_initial_call:7;
+  unsigned int negative_initial_call:1;
   unsigned int unused:6;
   byte visited;
   TIFptr tif_ptr;	  /* Table of which this call is a part */
