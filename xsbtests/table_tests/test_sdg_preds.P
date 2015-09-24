@@ -1,7 +1,6 @@
 :- compiler_options([spec_off]).
 
-:- import morph_sdg/3 from tables.
-:- import get_sdg_info/1 from tables.
+:- import get_sdg_info/1, morph_sdg/3, sdg_scc_info/2 from tables.
 :- import between/3 from basics.
 :- import break/0 from x_interp.
 :- import xsb_error_get_tag/2 from error_handler.
@@ -18,6 +17,7 @@ test:- q_3(3,3),fail.  % morph composition
 test:- q_5(3,3),fail.  % case of negative dependencies
 test:- q_6(3,3),fail.  % double dependencies 
 test:- q_7(3,3),fail.  % abstract_modes
+test:- q_8(3,3),fail.  % get_scc_info
 test.
 
 t4:- q_4(3,3),fail.
@@ -52,6 +52,10 @@ q_6(M,N):- between(1,N,X),
 q_7(M,N):- between(1,N,X),
          (M = N,N = X -> write_it(abstract_modes) ; true),q_7(X,N).
 
+:- table q_8/2.
+q_8(M,N):- between(1,N,X),
+         (M = N,N = X -> write_scc ; true),q_8(X,N).
+
 id_morph(T,T).
 
 morph_2_(Term,NewTerm):- 
@@ -67,6 +71,13 @@ write_it(Morph):-
 	get_sdg_info(List),
 %	writeln(List),
 	morph_sdg(List,Morph,Listout),
+	writeln(Listout).
+
+write_scc:- 
+	writeln('---------------'),
+	get_sdg_info(List),
+%	writeln(List),
+	get_scc_info(List,Listout),
 	writeln(Listout).
 
 double_morph:- 
