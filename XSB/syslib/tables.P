@@ -1267,9 +1267,6 @@ get_functor(T,F/Arg):-
 %% Analysis of Current State
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- export get_scc_info/2.
-:- export get_sdg_info/1.
-
 %%% :- export get_compl_stack_info/2.
 %%% get_compl_stack_info(SubgList,SCCList):- 
 %%% 	get_sdg_info(0,SubgList),
@@ -1385,26 +1382,26 @@ get_next_set(List,_Key,[],List).
 
 %----------------
 
-get_scc_info([],[]).
-get_scc_info([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
-	                          [scc(Level,NumSubgoals,NumAnswers,NumCallsto)|Rest1]):- 
-	get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
-	                                   Level,0,0,0,NumSubgoals,NumAnswers,NumCallsto1,ListMid),
-	NumCallsto is NumCallsto1 - 1,
-	writeln(calling(get_scc_info(ListMid,Rest1))),
-	get_scc_info(ListMid,Rest1).
+sdg_scc_info([],[]).
+sdg_scc_info([subgoal(Subgoal,Level,SF,_CallsTo,Answers,PosList,NegList)|Rest],
+             [scc(Level,NumSubgoals,NumAnswers,NumPosEdges,NumNegEdges)|Rest1]):- 
+	sdg_scc_info_1([subgoal(Subgoal,Level,SF,_CallsTo,Answers,PosList,NegList)|Rest],
+	                                   Level,0,0,0,0,NumSubgoals,NumAnswers,NumPosEdges,NumNegEdges,ListMid),
+	sdg_scc_info(ListMid,Rest1).
 
-get_scc_info_1([],_SCCNum,Subgoals,Answers,Callsto,Subgoals,Answers,Callsto,[]).
-get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
-	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut):- 
-%writeln(get_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],SCCNum,
-%	                                   InSubgoals,InAnswers,InCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)),
+sdg_scc_info_1([],_SCCNum,Subgoals,Answers,PosCount,NegCount,Subgoals,Answers,PosCount,NegCount,[]).
+sdg_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers,PosList,NegList)|Rest],SCCNum,
+                        InSubgoals,InAnswers,InPosCount,InNegCount,OutSubgoals,OutAnswers,OutPosCount,OutNegCount,ListOut):- 
+% writeln(sdg_scc_info_1([subgoal(Subgoal,Level,SF,CallsTo,Answers,PosList,NegList)|Rest],SCCNum,
+%                         InSubgoals,InAnswers,InPosCount,InNegCount,OutSubgoals,OutAnswers,OutPosCount,OutNegCount,ListOut)),
 	(Level \== SCCNum -> 
-	    ListOut = [subgoal(Subgoal,Level,SF,CallsTo,Answers)|Rest],
-	    InSubgoals = OutSubgoals,InAnswers = OutAnswers,InCallsto = OutCallsto1
-%	    writeln(succeeded(ListOut))
-	  ; MidSubgoals is InSubgoals+1,MidAnswers is InAnswers + Answers,MidCallsto is InCallsto+1,
-  	    get_scc_info_1(Rest,SCCNum,MidSubgoals,MidAnswers,MidCallsto,OutSubgoals,OutAnswers,OutCallsto1,ListOut)).
+	    ListOut = [subgoal(Subgoal,Level,SF,CallsTo,Answers,PosList,NegList)|Rest],
+	    InSubgoals = OutSubgoals,InAnswers = OutAnswers,InPosCount = OutPosCount,InNegCount = OutNegCount
+	  ; length(PosList,PosCount),MidPosCount is InPosCount+PosCount,
+	    length(NegList,NegCount),MidNegCount is InNegCount+NegCount,
+	    MidSubgoals is InSubgoals+1,MidAnswers is InAnswers + Answers,
+  	    sdg_scc_info_1(Rest,SCCNum,MidSubgoals,MidAnswers,MidPosCount,MidNegCount,
+	                  OutSubgoals,OutAnswers,OutPosCount,OutNegCount,ListOut)).
 
 %incr_eval_builtin(_BuiltinNo, _A, _B, _C) :-
 %	'_$builtin'(INCR_EVAL_BUILTIN).

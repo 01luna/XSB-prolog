@@ -49,6 +49,7 @@
    get_returns_and_dls/3, 
    get_returns_and_tvs/3,     /* table_dump */
    get_returns_for_call/2,
+   get_sdg_info/1,
    get_unifiable_returns/3,
    get_visitors_number/2,
    invalidate_tables_for/2,
@@ -61,6 +62,7 @@
    print_incomplete_tables/0,print_incomplete_tables/1,
 print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks/0, 
            retract_table/1,          /* abolish/1 */
+   sdg_scc_info/2, 
    sk_not/1,
 %      table_state/2,
    table_state/4,
