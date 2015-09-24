@@ -629,10 +629,10 @@ enum SubgoalFrameType {
 typedef struct subgoal_frame {
   byte sf_type;		  /* The type of subgoal frame */
   byte is_complete;	  /* If producer, whether its answer set is complete */
-  unsigned int  is_reclaimed:1;	  /* Whether structs for supporting answer res from an
+  byte is_reclaimed:1;	  /* Whether structs for supporting answer res from an
 			     incomplete table have been reclaimed */
-  unsigned int negative_initial_call:1;
-  unsigned int unused:6;
+  byte negative_initial_call:1;
+  byte unused:6;
   byte visited;
   TIFptr tif_ptr;	  /* Table of which this call is a part */
   BTNptr leaf_ptr;	  /* Handle for call in the CallTrie */
