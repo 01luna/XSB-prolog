@@ -148,7 +148,9 @@ CPtr print_inst(FILE *fd, CPtr inst_ptr)
     inst_cnt++;
     fprintf(fd,"inst("),
       //      fprintf(fd,"%lld, %lld, ", inst_cnt, (Integer)loc_pcreg);
-      fprintf(fd,"%" Intfmt ", %" Intfmt " ", inst_cnt, (Integer)loc_pcreg);
+      // TLS: 15/09 -- changed to print out address as %p so that it accords with ptrs.  did not check on 32-bit
+      //      fprintf(fd,"%" Intfmt ", %" Intfmt " ", inst_cnt, (Integer)loc_pcreg);
+    fprintf(fd,"%" Intfmt ", %p ", inst_cnt, loc_pcreg);
     instr = cell(loc_pcreg++) ;
 /* We want the instruction string printed out below.  
  * Someday we should ANSI-fy it. 
