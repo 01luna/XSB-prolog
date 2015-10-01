@@ -6249,7 +6249,7 @@ case "$canonical" in
 
                 $as_echo "#define FOREIGN_ELF 1" >>confdefs.h
 
-        	DYNMOD_LDFLAGS="-dynamiclib -single_module -nostartfiles"
+        	DYNMOD_LDFLAGS="-dynamiclib -single_module -nostartfiles -faltivec"
         	DYNMOD_SHAREDLIB_EXTENSION=jnilib
         ;;
     *sgi* )     $as_echo "#define FOREIGN_ELF 1" >>confdefs.h
