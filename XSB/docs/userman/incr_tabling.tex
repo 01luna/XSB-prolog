@@ -911,6 +911,11 @@ relation.  Error conditions are the same as {\tt
 \ourrepeatmoditem{get\_incr\_sccs(+SubgoalList,?SCCList)}{get\_incr\_sccs/2}{increval}
 \ourmoditem{get\_incr\_sccs\_with\_deps(+SubgoalList,?SCCList,?DepList)}{get\_incr\_sccs\_with\_deps/3}{increval}
 %
+
+{\bf {\em Warning: these predicates may be obsolescent, cf.
+    Section~\ref{sec:idg-info} for newer predicates that are more
+    powerful.}}
+
 Most linear algorithms for SCC detection over a graph use destructive
 assignment on a stack to maintain information about the connecteness
 of a component; as a result such algorithms are
@@ -967,7 +972,15 @@ number of edges in the dependency graph.  As a result, {\tt
 
 {\bf Error Cases}
 \bi
-\item {\tt SCCList} contains a predicate that is not tabled
+\item {\tt SubgoalList} is a variable
+\bi
+\item 	{\tt instantiation\_error}
+\ei
+\item {\tt SubgoalList} is not a list
+\bi
+\item 	{\tt type\_error}
+\ei
+\item {\tt SubgoalList} contains a predicate that is not tabled
 \bi
 \item 	{\tt permission\_error}
 \ei

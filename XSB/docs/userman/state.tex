@@ -1659,13 +1659,19 @@ In the multi-threaded engine, both of these numbers refer to the
 \item {\tt table\_ops} which instantiates {\tt Result} to a list
  containing the following elements (in order):
 \begin{itemize}
-\item The total number of check/insert operations for tables using call subsumption.
+\item The total number of calls to subgoals that are tabled using call
+ subsumption.
 
-\item The number of distinct tables created for tables using call subsumption.
+\item The total number of distinct tables created using call
+ subsumption (i.e., the total number of distinct calls to subgoals
+ that are tabled using call subsumption).
 
-\item The total number of check/insert operations for tables using call variance.
+\item The total number of calls to subgoals that are
+ tabled using call variance.
 
-\item The number of distinct tables created for tables using call variance.
+\item The total number of distinct tables created using call
+ variance (i.e., the total number of distinct calls to subgoals
+ that are tabled using call variance).
 
 \item The total number of check/insert operations for all answers
  (whether they are in subsumptive or variant tables).
