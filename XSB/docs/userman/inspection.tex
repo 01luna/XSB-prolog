@@ -726,7 +726,7 @@ to {\tt bounded\_rationality} (this ordering is not guaranteed).
 \end{example}
 \end{description}
 
-\subsubsection{Filtering, Manipulating, and Summarizing Information About Dependency Graphs} \label{sec:dependency-graph-manipulation}
+\subsubsection{Filtering, Manipulating, and Summarizing Dependency Graphs} \label{sec:dependency-graph-manipulation}
 
 \begin{description}
 \item  \ourmoditem{morph\_dep\_graph(+DGIn,+Morph,-DGOut)}{morph\_dep\_graph/3}{tables}
@@ -870,7 +870,7 @@ for each SCC under evaluation, such that:
 
 {\bf {\em TES: Add here or elsewhere sorting predicates for IDG}}
 
-\subsection{Summary: Inpsection Predicates}
+\subsection{Summary: Inspection Predicates}
 
 XSB provides a number of ways to inspect a tabled derivation,
 including directly through the tables, or through one of the
@@ -960,7 +960,7 @@ dependent tabled subgoals.  Depending on both the class of a tripwire
 and on how runtime settings are given for XSB, a tripwire may have
 different effects.  Any tripwire may be treated as an error so that it
 throws an exception just as any other error.  {\em Inspectable}
-tripwires may may additionally be considered as inspection points, and
+tripwires may additionally be considered as inspection points, and
 when hit may suspend the derivation and create a break
 point.~\footnote{Note that such a suspension makes available for
   inspection the state of the derivation at the point the tripwire was
@@ -1153,7 +1153,7 @@ dependencies determined.
     max\_table\_answer\_list\_depth} for lists, and {\tt
     max\_table\_answer\_depth} for other terms
   (cf. Section~\ref{sec:restraint}).  Second, XSB allows restraint to
-  be declared at a predicate-by-predocate basis.  In other words, when
+  be declared at a predicate-by-predicate basis.  In other words, when
   an answer, $A_{deep}$, is to be added to a table, and its depth is
   greater then the limit specified for its predicate, a tripwire is
   activated, and various actions can be specified.  In most cases, the
@@ -1213,3 +1213,8 @@ dependencies determined.
 \item {\tt max\_table\_answer\_list\_depth}
 
 \end{description}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual1"
+%%% End: 
