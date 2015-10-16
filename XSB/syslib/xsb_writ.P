@@ -116,10 +116,6 @@ write_double(Str,Num) :-
 	xsb_stream_unlock(Str).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-/*
-:- local '_$lwrite_depth_level'.
-:- conset('_$lwrite_depth_level', 64).
-*/
 
 dot_attributes(Var,Str):- 
 	get_attributes(Var,Atts),
@@ -166,7 +162,6 @@ portray_attributes_1([Mod,Attr|T],File):-
 
 l_write(File,T,Prec) :-
         stat_flag(WRITE_DEPTH,Level),
-%	conget('_$lwrite_depth_level',Level),
 	stat_flag(WRITE_ATTRIBUTES,AttrAct),
 	l_write(File,T,Prec,Level,AttrAct).
 
@@ -358,6 +353,8 @@ l_writearg(File, T, N, M, D,Flag) :-
 
 l_writetail(File, _, 0,_Flag) :-
 	!,
+	file_put(File,124),
+	file_puttoken(File, XSB_STRING, '...'),
 	file_put(File,93).
 %TLS: need to change
 l_writetail(File, Var, _D,_Flag) :- 
@@ -378,8 +375,9 @@ l_writetail(File, Var, _D,Flag) :-
 l_writetail(File, [X|Y], D,Flag) :- 
 	!, 
 	file_put(File, 44), 		% ','
+	D1 is D - 1, %% TES
 	l_write(File, X, 999, D,Flag), 
-	l_writetail(File, Y, D,Flag).
+	l_writetail(File, Y, D1,Flag).
 l_writetail(File, [], _D,_Flag) :- 
 	!, 
 	file_put(File, 93).		% ']'
