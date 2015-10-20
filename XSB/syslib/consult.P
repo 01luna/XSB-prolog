@@ -1073,3 +1073,7 @@ if_file_loaded(FileName) :-
 	).
 
 is_loaded(FilePath) :- consult_file_loaded(FilePath); load_dyn_file_loaded(FilePath,_).
+
+% Add currently loading file's directory to library_directory
+% Useful to pull related files in a location independent manner
+add_this_lib_dir :- current_loaded_file(F), parse_filename(F,D,_,_), add_lib_dir(D).
