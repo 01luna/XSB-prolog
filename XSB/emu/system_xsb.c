@@ -753,11 +753,14 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
       if (pipe_from_stderr != NULL) close(pipe_from_stderr[0]);
       
 #ifndef WIN_NT  /* Unix: must exec */
+      // don't let keyboard interrupts kill subprocesses
+      signal(SIGINT, SIG_IGN);
       execvp(progname, argv);
       /* if we ever get here, this means that invocation of the process has
 	 failed */
       exit(SUB_PROC_FAILED);
 #endif
+
     }
   } else { /* SHELL command */
     /* no separator */
