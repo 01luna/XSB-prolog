@@ -88,6 +88,10 @@ static int copy_file_chunk(CTXTdeclc FILE *, FILE *, size_t);
 #ifndef WIN_NT
 static char *xreadlink(CTXTdeclc const char *, int *);
 #endif
+#ifdef WIN_NT
+// MK: Not used. Leaving as an example for possible future use
+static BOOL ctrl_C_handler(DWORD dwCtrlType);
+#endif
 
 static struct proc_table_t {
   int search_idx;	       /* index where to start search for free cells */
@@ -733,7 +737,11 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
          break;
       }
     }
-    pid = (int)_spawnvp(P_NOWAIT, progname, argvQuoted); // should pid be Integer?
+    // MK: make the children ignore SIGINT
+    SetConsoleCtrlHandler(NULL, TRUE);
+    pid = (int)_spawnvp(P_NOWAIT, progname, argvQuoted);//should pid be Integer?
+    // MK: restore the normal processing of SIGINT in the parent
+    SetConsoleCtrlHandler(NULL, FALSE);
 #else
     pid = fork();
 #endif
@@ -752,7 +760,13 @@ static int xsb_spawn (CTXTdeclc char *progname, char *argv[], int callno,
       if (pipe_from_proc != NULL) close(pipe_from_proc[0]);
       if (pipe_from_stderr != NULL) close(pipe_from_stderr[0]);
       
-#ifndef WIN_NT  /* Unix: must exec */
+#ifdef WIN_NT
+      // MK: Not used. Leaving as an example for possible future use
+      //  The below call isn't used. We execute SetConsoleCtrlHandler(NULL,TRUE)
+      //  in the parent, which passes the handling (Ctrl-C ignore) to children.
+      //  Executing SetConsoleCtrlHandler in the child DOES NOT do much.
+      // SetConsoleCtrlHandler((PHANDLER_ROUTINE) ctrl_C_handler, TRUE);
+#else    /* Unix: must exec */
       // don't let keyboard interrupts kill subprocesses
       signal(SIGINT, SIG_IGN);
       execvp(progname, argv);
@@ -1356,5 +1370,20 @@ static char *xreadlink(CTXTdeclc const char *path, int *bufsize)
   buf[readsize] = '\0';
 
   return buf;
-}       
+}
+#endif
+
+#ifdef WIN_NT
+// MK:
+// This handler is not used. Instead, we call SetConsoleCtrlHandler(NULL,TRUE)
+// in the parent. Retained the handler below as an example for possible future
+// use
+BOOL ctrl_C_handler(DWORD dwCtrlType) {
+switch (dwCtrlType) {
+   case CTRL_C_EVENT:
+     return TRUE;
+   default:
+     return FALSE;
+   }
+}
 #endif
