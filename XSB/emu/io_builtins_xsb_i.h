@@ -208,7 +208,7 @@ inline static xsbBool file_function(CTXTdecl)
     SYS_MUTEX_LOCK( MUTEX_IO );
 
     if (isstring(pterm)) {
-      strcpy(string_mode,string_val(pterm));
+      strncpy(string_mode,string_val(pterm),3);
 
       switch ((string_mode)[0]) {
       case 'r': 
