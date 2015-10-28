@@ -11,7 +11,7 @@
 %:- attribute dom/1, name/2.
 
 /* tests 1 and 2 rely on get_calls.  */
-:- set_prolog_flag(max_table_subgoal_depth,20).
+:- set_prolog_flag(max_table_subgoal_size,20).
 
 test :- test1,
 	test2,
