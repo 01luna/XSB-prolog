@@ -77,7 +77,7 @@ write_scc:-
 	writeln('---------------'),
 	get_sdg_info(List),
 %	writeln(List),
-	get_scc_info(List,Listout),
+	sdg_scc_info(List,Listout),
 	writeln(Listout).
 
 double_morph:- 

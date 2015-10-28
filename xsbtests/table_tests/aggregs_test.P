@@ -9,7 +9,7 @@
 :- import numbervars/3, numbervars/1 from num_vars.
 
 % Don't abstract -- no finite model.
-?- set_prolog_flag(max_table_subgoal_depth,10).
+?- set_prolog_flag(max_table_subgoal_size,10).
 
 /***********************************************************************/
 :- import abolish_table_info/0 from machine.

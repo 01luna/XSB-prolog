@@ -8,13 +8,13 @@ test:-
 
 test_fail:- 
 	abolish_all_tables,
-	set_prolog_flag(max_table_subgoal_depth,4),
+	set_prolog_flag(max_table_subgoal_size,4),
 	set_prolog_flag(max_table_subgoal_action,failure),
 	p(_X).
 
 test_error:- 
 	abolish_all_tables,
-	set_prolog_flag(max_table_subgoal_depth,4),
+	set_prolog_flag(max_table_subgoal_size,4),
 	set_prolog_flag(max_table_subgoal_action,error),
 	p(_X).
 
