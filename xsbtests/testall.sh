@@ -145,6 +145,6 @@ for tst in $abstestlist ; do
     if test -f core ; then
 	rm -f core
     fi
-    ./atest.sh "$XEMU"  "-e segfault_handler(warn). --max_subgoal_action a --max_subgoal_depth 4  $options" $valgrind
+    ./atest.sh "$XEMU"  "-e segfault_handler(warn). --max_subgoal_action a --max_subgoal_size 4  $options" $valgrind
     cd ..
 done
