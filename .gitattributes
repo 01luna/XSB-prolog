@@ -119,6 +119,7 @@ XSB/packages/pcre/cc/bin64/pcreposix.exp svn_mime_002dtype=application%2Foctet-s
 XSB/packages/pcre/cc/bin64/pcreposix.lib svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/regmatch/cc/NMakefile64.mak svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/sgml/cc/NMakefile64.mak svn_mime_002dtype=application%2Foctet-stream
+XSB/packages/viewsys/doc/view_sys.pdf svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/xasp/doc/xnmr.doc svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/xasp/xasppkg.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/packages/xasp/xnmr.doc svn_mime_002dtype=application%2Foctet-stream
