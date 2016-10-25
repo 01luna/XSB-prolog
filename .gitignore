@@ -269,6 +269,7 @@ XSB/packages/dbdrivers/odbc/cc/odbc_driver.H
 XSB/packages/dbdrivers/odbc/cc/odbc_driver.def
 XSB/packages/dbdrivers/odbc/cc/odbc_driver.exp
 XSB/packages/dbdrivers/odbc/cc/odbc_driver.lib
+XSB/packages/dbdrivers/odbc/cc/odbc_driver.so
 XSB/packages/dbdrivers/odbc/config.*
 XSB/packages/dbdrivers/odbc/configure.lineno
 XSB/packages/dbdrivers/odbc/odbc_init.P
