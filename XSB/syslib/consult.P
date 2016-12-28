@@ -420,11 +420,11 @@ add_lib_dir(Path) :-
 	add_lib_dir1(Path).
 
 add_lib_dir1(a(Path)) :- !,
-	path_sysop(standardize,Path, FullPath),
+	standardize_pathname(Path, FullPath),
 	retractall(library_directory(FullPath)), % remove if it was there
 	asserta(library_directory(FullPath)).	 % put at front.
 add_lib_dir1(Path) :-
-	path_sysop(standardize,Path, FullPath),
+	standardize_pathname(Path, FullPath),
 	(library_directory(FullPath) ->	true
         ;  assert(library_directory(FullPath))
 	).
@@ -1112,7 +1112,7 @@ indexes_subsumed(Ispec,OIndex) :-
 %% entries from the stack
 push_loaded_file(File,Rand) :-
 	gensym('loadfile',Rand),
-	path_sysop(standardize,File,StandardizedFile),
+	standardize_pathname(File,StandardizedFile),
 	asserta(loading_stack(Rand,StandardizedFile)).
 
 
@@ -1148,26 +1148,30 @@ add_this_lib_dir :-
 
 record_file_consultloaded(F) :-
         atom(F),
-        path_sysop(standardize,F,StandardF),
+        standardize_pathname(F,StandardF),
         assert(consult_file_loaded(StandardF)).
 remove_file_consultloaded(F) :-
         atom(F),
-        path_sysop(standardize,F,StandardF),
+        standardize_pathname(F,StandardF),
         retractall(consult_file_loaded(StandardF)).
 file_is_consultloaded(F) :-
         atom(F),
-        path_sysop(standardize,F,StandardF),
+        standardize_pathname(F,StandardF),
         consult_file_loaded(StandardF).
 
 record_file_dynloaded(F,Time) :-
         atom(F),
-        path_sysop(standardize,F,StandardF),
+        standardize_pathname(F,StandardF),
         assert(load_dyn_file_loaded(StandardF,time(Time))).
 remove_file_dynloaded(F) :-
         atom(F),
-        path_sysop(standardize,F,StandardF),
+        standardize_pathname(F,StandardF),
         retractall(load_dyn_file_loaded(StandardF,_)).
 file_is_dynloaded(F,Time) :-
         atom(F),
-        path_sysop(standardize,F,StandardF),
+        standardize_pathname(F,StandardF),
         load_dyn_file_loaded(StandardF,time(Time)).
+
+standardize_pathname(F,StandardF) :-
+        %%path_sysop(standardize,F,StandardF).
+        expand_filename(F,StandardF).
