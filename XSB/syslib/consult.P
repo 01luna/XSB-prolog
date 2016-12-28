@@ -1173,5 +1173,5 @@ file_is_dynloaded(F,Time) :-
         load_dyn_file_loaded(StandardF,time(Time)).
 
 standardize_pathname(F,StandardF) :-
-        %%path_sysop(standardize,F,StandardF).
-        expand_filename(F,StandardF).
+        %%expand_filename(F,StandardF).
+        path_sysop(standardize,F,StandardF).
