@@ -350,12 +350,13 @@ real_search_module(ModName, Dir, Base, Ext) :-
 /*======================================================================*/
 
 load_exec(File, ModName, Directory) :-	
+        standardize_pathname(File,FullFile),
 	cputime(LoadStartTime),
-	code_load(File, Init, 1, ModName),	% use the changed C loader.
+	code_load(FullFile, Init, 1, ModName),	% use the changed C loader.
 	% jf: for Windows a valid segment pointer might be negative
 	( Init =\= 0			% load succeeded
 	; Init =:= 0,
-	  get_magic_num(File,[_One,_Two,_Three,Four]),\+ immutable(Four),
+	  get_magic_num(FullFile,[_One,_Two,_Three,Four]),\+ immutable(Four),
           abort(['Error in loading file ',File])
 	),
 	!,
@@ -374,7 +375,7 @@ load_exec(File, ModName, Directory) :-
 	(Init =\= 4			% Prolog byte code loaded
                                         % Do not check Init > 4 as valid segment pointers may be negative.
 	 ->     % push/pop_loaded_file: added by MK, 7/16/01
-		push_loaded_file(File,Rand),
+		push_loaded_file(FullFile,Rand),
 		cwd(OldCWD),	% set working directory to directory containing file being loaded. (dsw 11/30/16)
 		cd(Directory),
 		catch(
@@ -632,10 +633,12 @@ read_and_assert(_) :- conget(needs_restart,1), !.
 read_and_assert(Dir) :- read_and_assert(Dir).
 
 load_dync(File) :-
-	load_dync(File,1,usermod).	% assertz in usermod
+        standardize_pathname(File,FullFile),
+	load_dync(FullFile,1,usermod).	% assertz in usermod
 
 load_dync(File,DirIn) :-
-	load_dync(File,DirIn,usermod).
+        standardize_pathname(File,FullFile),
+	load_dync(FullFile,DirIn,usermod).
 
 load_dync(File,Dirin,Module) :-
 	check_one_thread(load,file,load_dync/[1,2,3]),
