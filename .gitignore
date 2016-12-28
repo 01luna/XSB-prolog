@@ -209,6 +209,7 @@ XSB/packages/chr/*.xwam
 XSB/packages/chr/ChangeLog
 XSB/packages/chr/cmd...
 XSB/packages/chr/o.diff
+XSB/packages/chr/timeConstraints.P
 XSB/packages/clpqr/*.xwam
 XSB/packages/curl/*.lineno
 XSB/packages/curl/*.log
@@ -713,6 +714,7 @@ xsbtests/neg_tests/CVS
 xsbtests/neg_tests/_*
 xsbtests/neg_tests/core
 xsbtests/neg_tests/temp
+xsbtests/nonmt_tests/*.xwam
 xsbtests/prolog_tests/#*
 xsbtests/prolog_tests/*$
 xsbtests/prolog_tests/*.BAK
