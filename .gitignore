@@ -715,6 +715,7 @@ xsbtests/neg_tests/_*
 xsbtests/neg_tests/core
 xsbtests/neg_tests/temp
 xsbtests/nonmt_tests/*.xwam
+xsbtests/nonmt_tests/*_new
 xsbtests/prolog_tests/#*
 xsbtests/prolog_tests/*$
 xsbtests/prolog_tests/*.BAK
