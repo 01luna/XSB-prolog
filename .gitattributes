@@ -156,6 +156,7 @@ XSB/syslib/increval.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/loader.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/machine.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/num_vars.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/open_url.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/push_io.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/setof.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/shell.xwam svn_mime_002dtype=application%2Foctet-stream
