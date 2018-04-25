@@ -520,6 +520,8 @@ int emuloop(CTXTdeclc byte *startaddr)
   xsb_segfault_message = xsb_default_segfault_msg;
   rreg = reg; /* for SUN (TLS ???) */
 
+  biarg = bioldarg; /* default builtin/foreign routines argument access array */
+
 #ifdef JUMPTABLE_EMULOOP
 
 #define XSB_INST(INum,Instr,Label,d1,d2,d3,d4) \
@@ -2425,6 +2427,7 @@ argument positions.
     Def1op
     Op1(get_xxxl);
     ADVANCE_PC(size_xxxX);
+    biarg = bioldarg; /* set argument access array */
 #ifdef MULTI_THREAD
     fp = (int(*)())op1;
     if (fp(CTXT))  /* call foreign function */
@@ -2768,8 +2771,14 @@ argument positions.
     biarg = lpcreg+sizeof(Cell)-1; // point to byte before second op of instr: regs to use (starting from r0!)
     ADVANCE_PC(size_xxxX);
     pcreg=lpcreg; 
-    if (builtin_call(CTXTc (byte)(op1))) {lpcreg=pcreg;}
-    else Fail1;
+    if (builtin_call(CTXTc (byte)(op1))) {
+      biarg = bioldarg;
+      lpcreg=pcreg;
+    }
+    else {
+      biarg = bioldarg;
+      Fail1;
+    }
   XSB_End_Instr()
 
 #define jump_cond_fail(Condition) \
