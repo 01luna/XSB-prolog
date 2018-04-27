@@ -48,7 +48,10 @@
 :- import (multifile)/1, op/3, arg/3, put_code/1,abort/1,
 %	display/1, 
 	writeq/1, functor/3, atom_codes/2,
-	set_output/1, current_output/1 from  usermod.
+	set_output/1 from standard.
+
+:- import current_output/1 from curr_sym.
+
 :- import portray/1 from usermod.
 
 display(Term):- write(Term).
