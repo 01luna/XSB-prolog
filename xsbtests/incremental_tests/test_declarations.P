@@ -68,40 +68,52 @@ test_bf:-  writeln('-----'),
 	write(prop(d3,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(d4(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(d4,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t1(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t1,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t1_1(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t1_1,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t1_2(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t1_2,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t1_3(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t1_3,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t2(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t2,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t3(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t3,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t4(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t4,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t5(_X),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t5,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t6(_,_),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t6,P)),writeln('.'),fail.
 % not ready
 test_bf:-  writeln('-----'),
 	predicate_property(t7(_),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t7,P)),writeln('.'),fail.
 test_bf:-  writeln('-----'),
 	predicate_property(t8(_),P),
+        P \= private,   % want ST and MT tests to be the same 
 	write(prop(t8,P)),writeln('.'),fail.
 test_bf.
 

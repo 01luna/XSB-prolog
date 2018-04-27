@@ -46,3 +46,8 @@ options=$2
 #--------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_recomputable "test."
 #--------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_set_pp "test."
+#--------------------------------------------------
+../gentest.sh "$XEMU $options" test_memory_ovrflw_1 "first_test."
+#------------------------------------------------------------------------
+../gentest.sh "$XEMU $options" test_memory_ovrflw_2 "second_test."

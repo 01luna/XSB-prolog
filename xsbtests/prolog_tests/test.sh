@@ -136,9 +136,9 @@ rm -f varcond.xwam
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" test_sprint_term "test."
 #------------------------------------------------------------------------
-../gentest.sh "$XEMU $options" test_memory_ovrflw_1 "first_test."
+#../gentest.sh "$XEMU $options" test_memory_ovrflw_1 "first_test."
 #------------------------------------------------------------------------
-../gentest.sh "$XEMU $options" test_memory_ovrflw_2 "second_test."
+#../gentest.sh "$XEMU $options" test_memory_ovrflw_2 "second_test."
 
 #------------------------------------
 # test call/n
