@@ -177,7 +177,6 @@ struct th_context
   byte *_cpreg;		/* return point register        */
   byte *_pcreg;		/* program counter              */
   CPtr _ebreg;		/* breg into environment stack	*/
-
   CPtr _efreg;
   CPtr _bfreg;
   CPtr _hfreg;
@@ -190,6 +189,7 @@ struct th_context
   CPtr _root_address;
 
   byte *_biarg;  /* builtin argument indexes */
+  byte _bioldarg[20];
 
   CPtr _ptcpreg;
   CPtr _delayreg;
@@ -581,9 +581,9 @@ typedef struct th_context th_context ;
 #define neg_delay		(th->_neg_delay)
 #define xwammode		(th->_xwammode)
 #define level_num		(th->_level_num)
+#define biarg			((th)->_biarg)
+#define bioldarg		((th)->_bioldarg)
 #define root_address		(th->_root_address)
-
-#define biarg			(th->_biarg)
 
 #define ptcpreg			(th->_ptcpreg)
 #define delayreg		(th->_delayreg)

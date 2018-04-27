@@ -29,7 +29,6 @@
 #include "binding.h"
 #include "error_xsb.h"
 
-extern byte *biarg;
 /*
  *  Returns the still-tagged value (a Cell) at the end of the deref chain
  *  leading from `regnum'.
@@ -38,7 +37,7 @@ static inline Cell ptoc_tag(CTXTdeclc int argnum)
 {
   /* reg is global array in register.h */
   register Cell addr;
-  addr = cell(reg+ *(biarg+argnum));
+  addr = cell(reg+ *((biarg)+argnum));
 
   XSB_Deref(addr);
   return addr;
