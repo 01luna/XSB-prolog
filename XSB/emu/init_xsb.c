@@ -86,13 +86,12 @@
    ------------------------------------------ */
 #ifdef BITS64
 #ifdef SHARED_COMPL_TABLES
-#define PDL_DEFAULT_SIZE         (8*2)
-#define GLSTACK_DEFAULT_SIZE    (96*2)
-#define TCPSTACK_DEFAULT_SIZE   (96*2)
-#define COMPLSTACK_DEFAULT_SIZE  (8*2)
+#define PDL_DEFAULT_SIZE         (64*2)
+#define GLSTACK_DEFAULT_SIZE    (K*8)
+#define TCPSTACK_DEFAULT_SIZE   (K*8)
+#define COMPLSTACK_DEFAULT_SIZE  (64*2)
 #else /* SEQUENTIAL OR CONC_COMPL */
 #define PDL_DEFAULT_SIZE         (64*2)
-//#define GLSTACK_DEFAULT_SIZE    (K*2)
 #define GLSTACK_DEFAULT_SIZE    (K*8)
 #define TCPSTACK_DEFAULT_SIZE   (K*2)
 #define COMPLSTACK_DEFAULT_SIZE  (64*2)
@@ -1022,7 +1021,8 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 
 void init_thread_structures(CTXTdecl)
 {
-
+  int i;
+  
   asynint_code = 0;
   asynint_val = 0;
 
@@ -1256,6 +1256,9 @@ void init_thread_structures(CTXTdecl)
   pthread_cond_init( &th->cond_var, NULL );
 #endif
   th->cond_var_ptr = NULL;
+
+  for (i = 0;i <= 20;i++) 
+    bioldarg[i] = i;
 
 }
 

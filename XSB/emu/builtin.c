@@ -234,7 +234,7 @@ extern int gc_dynamic(CTXTdecl);
 extern int sha1_string(prolog_term, char *);
 extern int md5_string(prolog_term, char *);
 
-extern byte *biarg;
+							 //extern byte *biarg;
 
 /* ------- variables also used in other parts of the system -----------	*/
 
@@ -1595,7 +1595,7 @@ int builtin_call(CTXTdeclc byte number)
       break;
     }
     if (islist(term)) { // a list is a list is a list
-      return unify(term, ptoc_tag(CTXTc 3));
+      return unify(CTXTc term, ptoc_tag(CTXTc 3));
     }
     termpsc = term_psc(term);
     modname = ptoc_string(CTXTc 1);
