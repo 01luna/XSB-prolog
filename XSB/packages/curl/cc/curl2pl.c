@@ -35,6 +35,7 @@
 #include <assert.h>
 #include "load_page.h"
 #include "error_term.h"
+#include "curl/curl.h"
 
 #ifndef WIN_NT
 #include <sys/stat.h>
@@ -94,7 +95,6 @@ DllExport int call_conv curl_finalize_warn()
 
 DllExport int call_conv pl_load_page()
 {
-
   prolog_term head, tail, result = 0;
 
   char *functor, *url = NULL, *data = NULL;
@@ -148,45 +148,49 @@ DllExport int call_conv pl_load_page()
 
 	while(is_list(term_options)){
 
-		term_option = p2p_car(term_options);
-		if(!strcmp(p2c_functor(term_option), "redirect")) {
-			if(!strcmp(p2c_string(p2p_arg(term_option, 1)), "true"))
-				options.redir_flag = 1;
-			else
-				options.redir_flag = 0;
-		}
-		else if(!strcmp(p2c_functor(term_option), "secure")){
-			if(!strcmp(p2c_string(p2p_arg(term_option, 1)), "false"))
-				options.secure.flag = 0;
-			else
-				options.secure.crt_name = p2c_string(p2p_arg(term_option, 1));
-		}
-		else if(!strcmp(p2c_functor(term_option), "auth")){
-			username = p2c_string(p2p_arg(term_option, 1));
-			password = p2c_string(p2p_arg(term_option, 2));
-			options.auth.usr_pwd = (char *) malloc ((strlen(username) + strlen(password) + 2) * sizeof(char));
-			strcpy(options.auth.usr_pwd, username);
-			strcat(options.auth.usr_pwd, ":");
-			strcat(options.auth.usr_pwd, password);			
-		}
-		else if(!strcmp(p2c_functor(term_option), "timeout")){
-		  options.timeout = (int)p2c_int(p2p_arg(term_option, 1));
-		}
-		else if(!strcmp(p2c_functor(term_option), "url_prop")){
-			options.url_prop = options.redir_flag;
-		}
-		else if(!strcmp(p2c_functor(term_option), "user_agent")){
-			options.user_agent = p2c_string(p2p_arg(term_option, 1));
-		}
-		else if(!strcmp(p2c_functor(term_option), "post")){
-			options.post_data = p2c_string(p2p_arg(term_option, 1));
-		}
-		term_options = p2p_cdr(term_options);
+          term_option = p2p_car(term_options);
+          if(!strcmp(p2c_functor(term_option), "redirect")) {
+            if(!strcmp(p2c_string(p2p_arg(term_option, 1)), "true"))
+              options.redir_flag = 1;
+            else
+              options.redir_flag = 0;
+          }
+          else if(!strcmp(p2c_functor(term_option), "secure")){
+            if(!strcmp(p2c_string(p2p_arg(term_option, 1)), "false"))
+              options.secure.flag = 0;
+            else
+              options.secure.crt_name = p2c_string(p2p_arg(term_option, 1));
+          }
+          else if(!strcmp(p2c_functor(term_option), "auth")){
+            username = p2c_string(p2p_arg(term_option, 1));
+            password = p2c_string(p2p_arg(term_option, 2));
+            options.auth.usr_pwd = (char *) malloc ((strlen(username) + strlen(password) + 2) * sizeof(char));
+            strcpy(options.auth.usr_pwd, username);
+            strcat(options.auth.usr_pwd, ":");
+            strcat(options.auth.usr_pwd, password);			
+          }
+          else if(!strcmp(p2c_functor(term_option), "timeout")){
+            options.timeout = (int)p2c_int(p2p_arg(term_option, 1));
+          }
+          else if(!strcmp(p2c_functor(term_option), "url_prop")){
+            options.url_prop = options.redir_flag;
+          }
+          else if(!strcmp(p2c_functor(term_option), "user_agent")){
+            options.user_agent = p2c_string(p2p_arg(term_option, 1));
+          }
+          else if(!strcmp(p2c_functor(term_option), "header")){
+            options.header = curl_slist_append(options.header,p2c_string(p2p_arg(term_option,1)));
+          }
+          else if(!strcmp(p2c_functor(term_option), "put_data")){
+            options.put_data = p2c_string(p2p_arg(term_option, 1));
+          }
+          else if(!strcmp(p2c_functor(term_option), "post_data")){
+            options.post_data = p2c_string(p2p_arg(term_option, 1));
+          }
+          term_options = p2p_cdr(term_options);
 	}
-
       }
       else if(!strcmp(functor,"document")){
-
 	result = p2p_arg(head, 1);
       }
       else if(!strcmp(functor,"properties")){

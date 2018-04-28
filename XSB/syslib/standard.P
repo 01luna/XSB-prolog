@@ -281,9 +281,11 @@ close(user_output,_) :- !.
 close(user_error,_) :- !.
 
 close(url(Atom),Options) :- 
+        close(url(Atom),Options,_ReturnResult,_Warnings).
+close(url(Atom),Options,ReturnResult,Warnings) :- 
 	curl:get_us_pair(Atom, Mode, S_or_A), 
-	close(S_or_A, Options), 
-	curl:post_data(Atom, Mode), 
+	close(S_or_A), 
+	curl:post_data(Atom, Mode, ReturnResult,Warnings,Options), 
 	!.
 
 close(url(Atom),_) :- 

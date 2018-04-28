@@ -27,7 +27,6 @@
 
 typedef struct opt
 {
-
   int redir_flag;
 
   struct sec
@@ -48,8 +47,9 @@ typedef struct opt
   char *user_agent;
 
   char *post_data;
-
-}curl_opt;
+  char *put_data;
+  struct curl_slist *header;
+} curl_opt;
 
 typedef struct ret
 {

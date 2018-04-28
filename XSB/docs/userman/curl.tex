@@ -82,6 +82,13 @@ The {\it Options} parameter is a list that controls loading. Members of that lis
 
   \item[{\bf user\_agent}{\bf (}{\it Agent}{\bf )}]\mbox{}\\Sets the User-Agent: header in the http request sent to the remote server.
 
+  \item[{\bf header}{\bf (}{\it String}{\bf )}]\mbox{}\\This allows one
+    to specify an HTTP header. Several \texttt{header(...)} options can be
+    specified in the same list. Specifying the headers is useful mostly
+    when closing
+    Web pages that are open for writing, which corresponds to POST HTTP
+    requests.
+
   \end{description}
 
 
@@ -91,17 +98,31 @@ The {\it Options} parameter is a list that controls loading. Members of that lis
 
 Web documents opened by the predicates {\bf see/1}, {\bf open/3}, and {\bf
   open/4} above must be closed by the predicates {\bf close/2} or {\bf
-  close/3}. The data written to the stream is first posted to the URL.
-If that succeeds, the stream is closed. ???? And if it does not suceed????
+  close/4}. The stream corresponding to the URL is closed. If the stream
+was open for writing, the data written to the stream is POSTed
+to the URL, which corresponds to HTTP POST.
+If writing is unsuccessful for some reason,
+a list of warnings is returned.
 
 \begin{description}
 
-  \index{\texttt{close/3}}
-\item[close({\it +Stream, +Source})]\mbox{}
+  \index{\texttt{close/2}}
+\item[close({\it +Source, +Options})]\mbox{}
   \index{\texttt{close/4}}
-\item[close({\it +Stream, +Source, +Options})]\mbox{}
+\item[close({\it +Source, +Options, -Response, -Warnings})]\mbox{}
   \\
-{\it Source} can be of the form {\tt url({\it {url}})}. Stream is a file stream. {\it Options} is a list of options supported normally for close.
+These versions of \texttt{close} are typically used for sources that
+are open for writing. URL-streams open for reading can be closed using the
+usual \texttt{close/1} predicate. 
+{\it Source} is of the form {\tt url({\it {url-string}})},
+where \emph{url-string} must be an atom. {\it Options} is a list
+of options like those for the open predicate above.
+If the HTTP server returns a response, the \emph{Response} variable is
+bound to that string. \emph{Warnings} is a list of possible warnings. If
+everything is fine, this list is empty.  
+Closing often requires the \texttt{header(...)} option because it
+is often necessary to specify \texttt{Content-Type} and other header
+attributes when posting to a Web site. 
 
 \end{description}
 
@@ -112,7 +133,7 @@ This section describes additional predicates provided by the {\tt
   curl} packages, which extend the functionality provided by the file I/O
 integration.
 
-\subsection{Loading web documents}
+\subsection{Loading Web Documents}
 
 Web documents are loaded by the predicate {\bf load\_page/5}, which has
 many options. The parameters of this predicate are described below.
@@ -122,8 +143,7 @@ many options. The parameters of this predicate are described below.
   \index{\texttt{load\_page/5}}
 \item[load\_page({\it +Source, +Options, -Properties, -Content, -Warn})]\mbox{}
   \\
-  {\it Source} can be of the form {\tt url({\it {url}})} or an atom
-  \emph{url} (check!!!). 
+  {\it Source} is of the form {\tt url({\it {url}})}.
   The document is returned in {\it Content}.
   {\it Warn} is bound to a (possibly empty) list of warnings generated during the process.
 
@@ -139,9 +159,40 @@ many options. The parameters of this predicate are described below.
   The \emph{Options} parameter is the same as in the URL opening
   predicates. 
 
+  \texttt{load\_page} has additional options that can appear in the
+  \emph{Options} list:
+  \begin{description}
+  \item[{\tt post\_data}{\bf (}{\it String}{\bf )}]\mbox{}\\
+    This allows one to post data (HTTP POST)
+    to a web page and is an alternative to
+    posting by opening-writing-closing URLs, which was described above.
+
+    If several \texttt{post\_data(...)} options are given, only the last one is
+    used. This option often goes with the \texttt{header(...)} option because it
+    is often necessary to specify \texttt{Content-Type} and other header
+    attributes.  
+
+    If this option is specified with an \texttt{open/4} predicate, it is
+    ignored.  If it is specified in the \texttt{close/2} or 
+    \texttt{close/4}   predicate, \emph{String} is posted instead of what was
+    written to the closed stream. This goes to say that the \texttt{post\_data}
+    option in \texttt{open} and \texttt{close} predicates makes little sense. 
+    \item[{\tt put\_data}{\bf (}{\it String}{\bf )}]\mbox{}\\
+    This allows one to put data (HTTP PUT) to a web page.
+
+    If several \texttt{put\_data(...)} options are given, only the last one is
+    used. This option often goes with the \texttt{header(...)} option because it
+    is often necessary to specify \texttt{Content-Type} and other header
+    attributes.  
+
+    If this option is specified with an \texttt{open/4},
+    \texttt{close/2}, or \texttt{close/4} predicate, it is
+    ignored.
+  \end{description}
+
 \end{description}
 
-\subsection{Retrieve the properties of a web document}
+\subsection{Retrieving Properties of a Web Document}
 
 The properties of a web document are loaded by the predicates {\bf
   url\_properties/3} and {\bf url\_properties/2}. 
@@ -158,7 +209,7 @@ The properties of a web document are loaded by the predicates {\bf
 
 \end{description}
 
-\subsection{Encode Url}
+\subsection{Encoding URLs}
 
 Sometimes it is necessary to convert a URL string into something that can
 be used, for example, as a file name. This is done by the following
@@ -168,8 +219,8 @@ predicate.
   \index{\texttt{encode\_url/2}}
 \item[encode\_url({\it +Source, -Result})]\mbox{}
   \\
-{\it Source} has the form {\it url(url)} or an atom \emph{url}, where
-\emph{url} is an atom.   (check!!!)
+{\it Source} has the form {\it url(url-string)}, where
+\emph{url-string} is an atom.
 {\it Properties} is bound to a list of properties of the URL:
 the encoded {\it Directory Name}, the encoded {\it File Name}, and the {\it
   Extension} of the URL.
@@ -195,15 +246,15 @@ the following predicate:
 The {\tt curl} package of XSB requires that the {\tt libcurl} package is
 installed.  For Windows, the {\tt libcurl} library files are included with
 the installation. For Linux and Mac, the {\tt libcurl} and {\tt
-  libcurl-dev} packages need to be installed using the distribution's
-package manager. In some Linux distributions, {\tt libcurl-dev} might be
+  libcurl-dev} packages need to be installed using a suitable
+package manager (e.g., deb or rpm in Linux, Homebrew in Mac). In some
+systems, {\tt libcurl-dev} might be
 called {\tt libcurl-gnutls-dev} or {\tt libcurl-openssl-dev}.  In addition,
-the release number might be attached. For instance, {\tt libcurl4} and {\tt
+the release number might be attached, as in {\tt libcurl4} and {\tt
   libcurl4-openssl-dev}.
 
-If a particular Linux distribution does not include the above packages and
-for other Unix variants, the {\tt libcurl} package must be downloaded and
-built manually. See
+The {\tt libcurl} package can also be downloaded and
+built manually from
 %% 
 \begin{quote}
   \url{http://curl.haxx.se/download.html} 
