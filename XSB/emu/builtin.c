@@ -233,6 +233,8 @@ extern int gc_dynamic(CTXTdecl);
 
 extern int sha1_string(prolog_term, char *);
 extern int md5_string(prolog_term, char *);
+extern int base64_encode(prolog_term, prolog_term);
+extern int base64_decode(prolog_term, prolog_term);
 
 /* ------- variables also used in other parts of the system -----------	*/
 
@@ -3486,6 +3488,36 @@ case WRITE_OUT_PROFILE:
       }
       }
       return retcode && atom_unify(CTXTc makestring(string_find(Result,1)),Output);
+    }
+
+    case BASE64_OPS:
+    /* Arg 1: int: type of op - 1 (BASE64_ENC) or 2 (BASE64_DEC)
+       Arg 2: input term - Enc (prolog_term): atom, file(filename), list(chars)
+                           Dec (prolog_term): atom
+       Arg 3: output - Enc (prolog_term): atom
+                       Dec (prolog_term): atom, file(filename), list(chars)
+    */
+    {
+      Integer type = ptoc_int(CTXTc 1);
+      prolog_term InputTerm = reg_term(CTXTc 2);
+      prolog_term Output = reg_term(CTXTc 3);
+      int retcode;
+
+      switch (type) {
+      case BASE64_ENC: {
+	retcode = base64_encode(InputTerm,Output);
+	break;
+      }
+      case BASE64_DEC: {
+	retcode = base64_decode(InputTerm,Output);
+	break;
+      }
+      default: {
+	xsb_error("base64: unknown operation type");
+	return FALSE;
+      }
+      }
+      return retcode;
     }
 
   default:

@@ -2,6 +2,8 @@
 
 SOURCE=$(INTDIR)\auxlry.c
 "$(OBJDIR)\auxlry.obj" : $(SOURCE) ..\build\windows\xsb_config.h ..\build\windows\xsb_config_aux.h xsb_time.h
+SOURCE=$(INTDIR)\base64_enc.c
+"$(OBJDIR)\base64_enc.obj" : $(SOURCE) ..\build\windows\xsb_config.h ..\build\windows\xsb_config_aux.h auxlry.h basicdefs.h basictypes.h cell_def_xsb.h cell_xsb.h box_defines.h celltags_xsb.h error_xsb.h setjmp_xsb.h export.h context.h flag_defs_xsb.h hashtable_xsb.h conc_compl.h psc_xsb.h psc_defs.h incr_xsb_defs.h builtin.h cinterf.h varstring_xsb.h cinterf_defs.h
 SOURCE=$(INTDIR)\biassert.c
 "$(OBJDIR)\biassert.obj" : $(SOURCE) ..\build\windows\xsb_config.h ..\build\windows\xsb_config_aux.h ..\build\windows\xsb_debug.h debugs\debug_biassert.h setjmp_xsb.h auxlry.h basicdefs.h basictypes.h cell_def_xsb.h context.h flag_defs_xsb.h hashtable_xsb.h conc_compl.h cell_xsb.h box_defines.h celltags_xsb.h psc_xsb.h psc_defs.h incr_xsb_defs.h export.h error_xsb.h cinterf.h varstring_xsb.h cinterf_defs.h memory_xsb.h memory_defs.h heap_xsb.h heap_defs_xsb.h register.h flags_xsb.h deref.h inst_xsb.h token_xsb.h token_defs_xsb.h loader_xsb.h trie_internals.h struct_manager.h tries.h thread_xsb.h thread_defs_xsb.h choice.h tab_structs.h debug_xsb.h table_status_defs.h slgdelay.h debugs\debug_delay.h tr_utils.h trassert.h biassert_defs.h struct_intern.h term_psc_xsb_i.h ptoc_tag_xsb_i.h binding.h cell_xsb_i.h table_inspection_defs.h cut_xsb.h
 SOURCE=$(INTDIR)\builtin.c

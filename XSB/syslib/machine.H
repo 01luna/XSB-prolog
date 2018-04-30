@@ -58,6 +58,7 @@
 	term_set_arg/4, 
 	term_hash/3,
 	crypto_hash/3,
+        base64_ops/3,
 	conget/2,
 	conset/2,
 	stat_flag/2, 

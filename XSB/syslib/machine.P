@@ -20,7 +20,6 @@
 ** along with XSB; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 **
-** $Id: machine.P,v 1.105 2009/10/19 16:56:42 dwarren Exp $
 ** 
 */
 
@@ -217,9 +216,11 @@ load_obj(FileName, Mod, LdOption, InitAddr) :-
 getenv(EnvVar, Value) :- getenv(EnvVar, Value).
 putenv(_PutEnvString) :- '_$builtin'(PUTENV).
 
-crypto_hash(sha1,Input,Output):- !,crypto_hash(SHA1,Input,Output).
-crypto_hash(md5,Input,Output):- !,crypto_hash(MD5,Input,Output).
+crypto_hash(sha1,Input,Output):- !, crypto_hash(SHA1,Input,Output).
+crypto_hash(md5,Input,Output):-  !, crypto_hash(MD5,Input,Output).
 crypto_hash(_Type,_Input,_Out) :- '_$builtin'(CRYPTO_HASH).
+
+base64_ops(_Type,_In,_Out) :- '_$builtin'(BASE64_OPS).
 
 sys_syscall(_CallNo, _Res, _A0,_A1, _A2,_A3,_A4,_A5,_A6) :- '_$builtin'(SYS_SYSCALL).
 sys_syscall(_CallNo, _Res, _A1, _A2,_A3) :- '_$builtin'(SYS_SYSCALL).
