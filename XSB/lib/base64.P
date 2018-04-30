@@ -41,8 +41,7 @@ b64_enc(In,Out) :-
         !,
         base64_ops(BASE64_ENC,In,Out).
 b64_enc(In,_Out) :-
-        nonvar(In),
-        In = list(_),
+        is_list(In),
         !,
         abort('b64_enc: lists as input are not implemented yet').
 b64_enc(In,_Out) :-

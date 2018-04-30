@@ -61,7 +61,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
   char *Result;
   int unify_code;
 
-  if (isstring(InputTerm)) {
+  if (isstring(InputTerm) && !is_list(InputTerm)) {
     InStr = (unsigned char *) string_val(InputTerm);
     Result = base64_encode_string(InStr, strlen((char *)InStr), &out_size);
     unify_code = p2p_unify(makestring(string_find(Result,1)),Output);
@@ -117,7 +117,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
     //base64_cleanup();
     return unify_code;
 
-  } else if (isconstr(InputTerm) && strcmp(p2c_functor(InputTerm),"list")==0) {
+  } else if (is_list(InputTerm)) {
     // unimplemented
     return FALSE;
   }
