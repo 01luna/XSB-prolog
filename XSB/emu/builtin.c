@@ -1475,6 +1475,7 @@ int builtin_call(CTXTdeclc byte number)
   case PSC_MOD: {	/* R1: +PSC; R2: -term */
 			/* prop: as a buffer pointer */
     Psc psc = (Psc)ptoc_addr(1);
+    Psc mod;
     
     //    if ((get_type(psc) == T_PRED || get_type(psc) == T_DYNA) && get_env(psc) != T_IMPORTED) {
     //      char str[100];
@@ -1484,7 +1485,9 @@ int builtin_call(CTXTdeclc byte number)
     //      return FALSE;
     //      ctop_int(CTXTc 2, (Integer)global_mod);  // global mod
     //    } 
-      ctop_int(CTXTc 2, (Integer)(get_mod_for_psc(psc)));
+    mod = get_mod_for_psc(psc);
+    if (mod == NULL) mod = global_mod;
+    ctop_int(CTXTc 2, (Integer)mod);
     break;
   }
   case PSC_SET_PROP: {	       /* R1: +PSC; R2: +int */
