@@ -403,7 +403,9 @@ computations.
 
 \begin{description}
 
-\ourmoditem{generate\_new\_instance(ViewSys,VInst)}{generate\_new\_instance/2}{view\_sys}
+\ourmoditem{generate\_new\_instance(ViewSys,VInst)}
+%%{generate\_new\_instance/2}
+{view\_sys}
 %
 {\tt generate\_new\_instance(+ViewSys,+VInst)} creates a brand new
 instance of the view system {\tt ViewSys} named {\tt VInst}.  It
@@ -413,17 +415,22 @@ derived) according to the file templates defined in the {\tt
 be a list of instance names, in which case initial instances are
 created for each one.
 
-\ourmoditem{update\_instance(ViewSys,VInst)}{update\_instance/2}{view\_sys}
+\ourmoditem{update\_instance(ViewSys,VInst)}
+%%{update\_instance/2}
+{view\_sys}
 {\tt update\_instance(+ViewSys,+VInst)} updates an instance of the
 view system {\tt ViewSys} named VInst.  It is similar to
 {\tt generate\_new\_instance/2} but doesn't change existing instance
 records.  It generates a new {\tt viewInst/5} (or
 {\tt consViewInst/5}) fact for every view (base and derived) that
-doesn't already exist in the {\tt viewsys\_instance\_info.P} file.  It
+does not already exist in the \\
+{\tt viewsys\_instance\_info.P} file.  It
 doesn't change instances that already exisit, thus preserving their
 statuses and process times.  
 
-\ourmoditem{delete\_instance(ViewSys,VInst)}{delete\_instance/2}{view\_sys}
+\ourmoditem{delete\_instance(ViewSys,VInst)}
+%%{delete\_instance/2}
+{view\_sys}
 %
 {\tt delete\_instance(+ViewSys,+VInst)} removes an entire instance
 from the view system.  Any files of view contents that have been
@@ -431,7 +438,9 @@ generated remain; only information concerning this instance in the
 {\tt viewsys\_instance\_info.P} file is removed, so these view
 instances are no longer maintained.
 
-\ourmoditem(update\_views{ViewSys,ViewInstList,ProcName,NProcs)}{update\_views/2}{view\_sys}
+\ourmoditem{update\_views(ViewSys,ViewInstList,ProcName,NProcs)}
+%%{update\_views/2}
+{view\_sys}
 {\tt update\_views(+ViewSys, +ViewInstList, +ProcName, +NProcs)} is
 the predicate that runs the shell commands of view instances to create
 view instance contents.  It ensures that most recent versions of the
@@ -450,7 +459,9 @@ invocation.  {\tt reset\_unfinished/2} uses the name to identify the
 view instances that a particular invocation of this process is
 responsible for.  
 
-\ourmoditem{start\_available\_procs(ViewSys,ViewInstList,ExecutingPids,ProcName,NProcs,Slp,OStr)}{start\_available\_procs/7}{view\_sys}
+\ourmoditem{start\_available\_procs(ViewSys,ViewInstList,ExecutingPids,ProcName,NProcs,Slp,OStr)}
+%%{start\_available\_procs/7}
+{view\_sys}
 {\tt start\_available\_procs(+ViewSys, +ViewInstList, +ExecutingPids,
   +ProcName, +NProcs, +Slp, +OStr)} is an internal predicate that
 supports the {\tt view\_update/4} processing.  It finds all views that
@@ -474,7 +485,7 @@ generated.
 
 \item {\tt ExecutingPids} are pid records of the currently running
 processes that have been spawned.  A pid record is of the form:
-{\tt pid(Pid,ShCmd,SStr,FileOut,Datime,View,File,Inst)}, where
+{\tt pid(Pid,ShCmd,SStr,FileOut,Datime, \linebreak[2] View,File,Inst)}, where
 
 \begin{itemize}
 
@@ -517,7 +528,9 @@ when processes start and complete.
 
 \end{enumerate}
 
-\ourmoditem{monitor\_running\_procs(Pids,NProcs,ViewSys,VInstList,ProcName,Slp,OStr)}{monitor\_running\_procs/7}{view\_sys}
+\ourmoditem{monitor\_running\_procs(Pids,NProcs,ViewSys,VInstList,ProcName,Slp,OStr)}
+%%{monitor\_running\_procs/7}
+{view\_sys}
 %
 {\tt monitor\_running\_procs(+Pids, +NProcs, +ViewSys, +VInstList,
   +ProcName, +Slp, +OStr)} is an internal predicate that monitors
@@ -573,19 +586,25 @@ available for starting.
 
 \end{enumerate}
 
-\ourmoditem{generate\_file\_from\_template(+FileTempl,+View,+Inst,-FileName)}{generate\_file\_from\_template/4}{view\_sys}
+\ourmoditem{generate\_file\_from\_template(+FileTempl,+View,+Inst,-FileName)}
+%%{generate\_file\_from\_template/4}
+{view\_sys}
 %
 {\tt generate\_file\_from\_template(+FileTempl,+View,+Inst,-FileName)}
 takes a file template string (with embedded \$\$ variable names), a view
 name, {\tt View}, an instance name, {\tt Inst}, and replaces the
 variable names with their values, returnning {\tt FileName}.
 
-\ourmoditem{invalidate\_all\_instances(ViewSys)}{invalidate\_all\_instances/1}{view\_sys}
+\ourmoditem{invalidate\_all\_instances(ViewSys)}
+%%{invalidate\_all\_instances/1}
+{view\_sys}
 {\tt invalidate\_all\_instances(+ViewSys)} invalidates all views, so a
 subsequent invocation of {\tt update\_views/4} would recompute them
 all.  ).
 
-\ourmoditem{invalidate\_view\_instances(ViewSys,ViewInstList)}{invalidate\_view\_instances/2}{view\_sys}
+\ourmoditem{invalidate\_view\_instances(ViewSys,ViewInstList)}
+%%{invalidate\_view\_instances/2}
+{view\_sys}
 {\tt invalidate\_view\_instances(+ViewSys,+ViewInstList)} invalidates a
 set of view instances indicated by {\tt ViewInstList}.  If
 {\tt ViewInstList} is the atom 'all', this invalidates all instances
@@ -606,7 +625,9 @@ new instance.  It can be used if the contents of a view instance are
 found not to be correct, and the generating process has been modified
 to fix it.
 
-\ourmoditem{reset\_unfinished(ViewSys,ProcName)}{reset\_unfinished/2)}{view\_sys}
+\ourmoditem{reset\_unfinished(ViewSys,ProcName)}
+%%{reset\_unfinished/2)}
+{view\_sys}
 {\tt reset\_unfinished(+ViewSys,+ProcName)} resets view instances that
 are unfinished due to some abort, i.e., that are marked as
 {\tt being\_generated(ProcName)} after the {\tt view\_update} process
@@ -617,12 +638,16 @@ instances will be reset to {\tt not\_generated}.  After this, the next
 applicable {\tt update\_views/4} will try to recreate these view
 instances.
 
-\ourmoditem{show\_failed(VSDir,VInst)}{show\_failed(VSDir,VInst)}{view\_sys}
+\ourmoditem{show\_failed(VSDir,VInst)}
+%%{show\_failed(VSDir,VInst)}
+{view\_sys}
 {\tt show\_failed(+VSDir,+VInst)} displays each failed view
 instance and consistency view instance, with file information to help
 a user track down why the generation, or check, of the view failed.
 
-\ourmoditem{reset\_failed(ViewSys,VInst)}{reset\_failed/2}{view\_sys}
+\ourmoditem{reset\_failed(ViewSys,VInst)}
+%%{reset\_failed/2}
+{view\_sys}
 {\tt reset\_failed(+ViewSys,+VInst)} resets view instances with name
 {\tt VInst} that had failed, i.e., that are marked as
 {\tt generation\_failed}.  Their status will be reset to
@@ -630,23 +655,31 @@ a user track down why the generation, or check, of the view failed.
 {\tt update\_views/4} will try to regenerate the view.  If {\tt VInst}
 is 'all', then views of all instances will be reset.  ).
 
-\ourmoditem{check\_viewsys(ViewDir)}{check\_viewsys/1}{view\_sys}
+\ourmoditem{check\_viewsys(ViewDir)}
+%%{check\_viewsys/1}
+{view\_sys}
 %
   {\tt check\_viewsys(+ViewDir)} checks the contents of the {\tt
     viewsys\_view\_info.P} file of the {\tt ViewDir} viewsys directory
   for consistency and completeness.
 
-\ourmoditem{viewsys\_view\_status(+ViewDir,+View:Inst,-Status)}{viewsys\_view\_status/3}{view\_sys}
+\ourmoditem{viewsys\_view\_status(+ViewDir,+View:Inst,-Status)}
+%%{viewsys\_view\_status/3}
+{view\_sys}
 {\tt viewsys\_view\_status(+ViewDir,+View:Inst,-Status)} returns the
 Status of the indicated view in the indicated view instance.
 
-\ourmoditem{viewsys\_status(+ViewDir)}{viewsys\_status/1}{view\_sys}
+\ourmoditem{viewsys\_status(+ViewDir)}
+%%{viewsys\_status/1}
+{view\_sys}
 %
 {\tt viewsys\_status(+ViewDir)} prints out the status of the view
 system indicated in {\tt ViewDir} for all the options in {\tt
   viewsys\_status/2}.
 
-\ourmoditem{viewsys\_status(+ViewDir,+Option)}{viewsys\_status/2}{view\_sys}
+\ourmoditem{viewsys\_status(+ViewDir,+Option)}
+%%{viewsys\_status/2}
+{view\_sys}
 %
   {\tt viewsys\_status(+ViewDir,+Option)} prints out a particular list
   of view instance statuses as indicated by the value of {\tt option}
@@ -710,7 +743,10 @@ status a long-running invocation of {\tt update\_views/4}.
 directory name.  For example if we have a large library file
 structure, in subdirectories of {\tt C:/XSBSYS/XSBLIB}, the many
 loaded files (in an {\tt XSB\_LOGFILE}) will start with this prefix,
-for example, {\tt C:/XSBSYS/XSBLIB/apps/app\_1/proc\_code.xwam}.  By
+for example,\\
+{\tt C:/XSBSYS/XSBLIB/apps/app\_1/proc\_code.xwam}.
+\\
+By
 using the substitution, {\tt s('\$DIR\$','C:/XSBCVS/XSBLIB')}, that
 file name will be abstracted to: {\tt '\$DIR\$/apps/app\_1'} in the
 {\tt viewsys\_required\_file/1} fact.  Then {\tt
@@ -738,7 +774,9 @@ So, for example, after running three steps in a workflow, setting flag
 \noindent which would print out facts for all directories for files in
 those LOGFILEs, each with the root directory abstracted.
 
-\ourmoditem{copy\_required\_files(+VSDir,+FromToSubs)}{copy\_required\_files/2}{view\_sys}
+\ourmoditem{copy\_required\_files(+VSDir,+FromToSubs)}
+%%{copy\_required\_files/2}
+{view\_sys}
 %
 This predicate can be used (perhaps with configuration help from {\tt
   generate\_required\_dirs/2}) to copy and deploy view systems and the
@@ -771,3 +809,8 @@ file templates were rooted with {\tt $DIR$}
 
 
 \end{description}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual2"
+%%% End: 
