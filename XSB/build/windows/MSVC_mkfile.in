@@ -118,6 +118,7 @@ DLL_LINK_OBJS= \
 	"$(OBJDIR)/auxlry.obj" \
 	"$(OBJDIR)/builtin.obj" \
 	"$(OBJDIR)/biassert.obj" \
+	"$(OBJDIR)/base64_enc.obj" \
 	"$(OBJDIR)/call_graph_xsb.obj" \
 	"$(OBJDIR)/call_xsb.obj" \
 	"$(OBJDIR)/cinterf.obj" \
