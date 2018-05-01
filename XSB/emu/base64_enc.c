@@ -163,6 +163,11 @@ int base64_decode(prolog_term InputTerm, prolog_term Output)
   unsigned char *Result;
   int unify_code;
 
+  if (!isstring(InputTerm)) {
+    xsb_warn("b64_dec: Argument #1 must be an atom.");
+    return FALSE;
+  }
+
   InStr = string_val(InputTerm);
 
   if (isstring(Output) || is_var(Output)
