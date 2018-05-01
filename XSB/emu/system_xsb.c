@@ -301,6 +301,11 @@ xsbBool sys_system(CTXTdeclc int callno)
       return TRUE;
     }
 
+  case GET_TMP_FILENAME:
+    ctop_string(CTXTc 2,tempnam(NULL,NULL));
+    return TRUE;
+#if 0
+    // This alternative implementation of tempnam is WRONG!!! - MK
 #ifdef WIN_NT
   case GET_TMP_FILENAME:
     {
@@ -328,6 +333,7 @@ xsbBool sys_system(CTXTdeclc int callno)
 	xsb_abort("[GET_TMP_FILENAME] Unable to get temporary filename");
       }
     }
+#endif
 #endif
    case IS_PLAIN_FILE:
   case IS_DIRECTORY:
