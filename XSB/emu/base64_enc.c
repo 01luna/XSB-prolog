@@ -88,7 +88,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
 
     retcode = stat(filename, &stat_buff);
     if (retcode != 0) {
-      fprintf(stderr, "b64_enc: can't get size of file %s\n", filename);
+      xsb_warn("b64_enc: can't get size of file %s\n", filename);
       return FALSE;
     }
     in_size = stat_buff.st_size;
@@ -96,7 +96,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
     InStr = malloc(in_size);
 
     if (!(fp = fopen(filename,"rb"))) {
-      fprintf(stderr, "b64_enc: unable to open file %s\n", filename);
+      xsb_warn("b64_enc: unable to open file %s\n", filename);
       return FALSE;
     }
     // alloc array of file_size
@@ -118,11 +118,43 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
     return unify_code;
 
   } else if (is_list(InputTerm)) {
-    // unimplemented
-    return FALSE;
-  }
+    prolog_term list = InputTerm, list_head;
+    int pos = 0;
+
+    // This scans lists twice: to find the size and then to scan it.
+    // Could do better, but not worth the trouble.
+    in_size = 0;
+    while (is_list(list)) {
+        if (is_nil(list)) break;
+        in_size++;
+        list_head = p2p_car(list);
+        if (!is_int(list_head)) {
+          xsb_warn("b64_enc: character list is expected in argument #1");
+          return FALSE;
+        }
+        list = p2p_cdr(list);
+    }
+    // now we know the buffer size, can allocate it
+    InStr = malloc(in_size);
+    list = InputTerm;
+    // now create the string
+    while (is_list(list)) {
+        if (is_nil(list)) break;
+        list_head = p2p_car(list);
+        InStr[pos++] = (char) int_val(list_head);
+        list = p2p_cdr(list);
+    }
+
+    Result = base64_encode_string(InStr, in_size, &out_size);
+    unify_code = p2p_unify(makestring(string_find(Result,1)),Output);
+
+    free(Result);
+    free(InStr);
+    //base64_cleanup();
+    return unify_code;
+  } // end the case when InputTerm is a list
   return FALSE; // to pacify the compiler
-}
+} // end base64_encode
 
 int base64_decode(prolog_term InputTerm, prolog_term Output)
 {
@@ -156,7 +188,7 @@ int base64_decode(prolog_term InputTerm, prolog_term Output)
     int pos = 0;
 
     if (!(fp = fopen(filename,"wb"))) {
-      fprintf(stderr, "b64_dec: unable to open file %s\n", filename);
+      xsb_warn("b64_dec: unable to open file %s\n", filename);
       return FALSE;
     }
 

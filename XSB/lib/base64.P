@@ -36,18 +36,17 @@
         b64_dec/2.
 
 %% b64_enc(+In,?Out)
+%% In can be a charlist (of byte-sized chars), atom, or file(filename)
 b64_enc(In,Out) :-
-        (atom(In) ; (nonvar(In), In = file(FN), atom(FN))),
+        (atom(In) ; is_list(In) ; (nonvar(In), In = file(FN), atom(FN))),
         !,
         base64_ops(BASE64_ENC,In,Out).
-b64_enc(In,_Out) :-
-        is_list(In),
-        !,
-        abort('b64_enc: lists as input are not implemented yet').
 b64_enc(In,_Out) :-
         abort(['b64_enc: invalid argument #1, ', In]).
 
 %% b64_dec(+In,?Out)
+%% Out can be atom, Var, or file(filename)
+%% In the future, possibly: list(list-or-var)
 b64_dec(In,Out) :-
         atom(In),
         (atom(Out) ; var(Out) ; (Out = file(FN), atom(FN))),
