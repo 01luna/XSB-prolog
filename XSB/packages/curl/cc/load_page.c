@@ -120,8 +120,16 @@ load_page (char *source, curl_opt options, curl_ret *ret_vals)
   curl_easy_setopt(curl, CURLOPT_USERAGENT, options.user_agent);
 
   /* Post Data */
-  if(strlen(options.post_data)>0)
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, options.post_data);
+  if (options.header) {
+    curl_easy_setopt (curl, CURLOPT_HTTPHEADER, options.header); 
+  }
+  if(strlen(options.post_data)>0) {
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, options.post_data);
+  }
+  if(strlen(options.put_data)>0) {
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, options.post_data);
+  }
 
   /* Allow curl to perform the action */
   curl_easy_perform (curl);
@@ -209,6 +217,8 @@ curl_opt init_options() {
   options.url_prop = 0;
   options.user_agent = "http://xsb.sourceforge.net/";
   options.post_data = "";
+  options.put_data = "";
+  options.header = NULL;
 
   return options;
 }

@@ -38,6 +38,7 @@ ALL = 	aggregs${OBJEXT} array${OBJEXT} assoc_xsb${OBJEXT} \
 	xsb_ciao${OBJEXT} xnmr${OBJEXT} justifyLP${OBJEXT} \
 	xsb_profiling${OBJEXT} xsb_lint_impexp${OBJEXT} \
 	dump_table${OBJEXT} \
+	base64${OBJEXT} \
 	globalvar${OBJEXT} pairlist${OBJEXT} pretty_print${OBJEXT} \
 	prolog_db${OBJEXT} range_trees$(OBJEXT)
 
