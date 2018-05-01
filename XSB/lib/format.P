@@ -33,10 +33,17 @@
 
 %:- import write/1, nl/0,writeln/1 from standard.
 
-:- import  put_code/2, nl/1, write/2, writeq/2, print/2,
-	write_canonical/2, current_output/1, %%'C'/3, % C/2 used in -->
-	atom_codes/2, xsb_configuration/2
-	from usermod.
+:- import  put_code/2, nl/1, write/2, writeq/2, 
+	write_canonical/2, atom_codes/2
+	from standard.
+
+:- import xsb_configuration/2 from xsb_configuration.
+
+:- import current_output/1 %%'C'/3, % C/2 used in -->
+    from curr_sym.
+
+:- import print/2 from usermod.
+
 :- import 'C'/3 from dcg.
 
 :-  import throw/1 from standard.
