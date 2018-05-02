@@ -45,19 +45,16 @@ b64_enc(In,_Out) :-
         abort(['b64_enc: invalid argument #1, ', In]).
 
 %% b64_dec(+In,?Out)
-%% Out can be atom, Var, or file(filename)
-%% In the future, possibly: list(list-or-var)
+%% Out can be atom, Var, file(filename), or list(list-or-var)
 b64_dec(In,Out) :-
         atom(In),
-        (atom(Out) ; var(Out) ; (Out = file(FN), atom(FN))),
+        (atom(Out)
+        ; var(Out)
+        ; (Out = file(FN), atom(FN))
+        ; Out = list(FN)
+        ),
         !,
         base64_ops(BASE64_DEC,In,Out).
-b64_dec(In,Out) :-
-        atom(In),
-        nonvar(Out),
-        Out = list(_),
-        !,
-        abort('b64_dec: lists as output are not implemented yet').
 b64_dec(In,Out) :-
         abort(['b64_dec: invalid argument #1, ', In,
                '; or argument #2 ', Out]).

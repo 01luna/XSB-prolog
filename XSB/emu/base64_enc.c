@@ -212,8 +212,18 @@ int base64_decode(prolog_term InputTerm, prolog_term Output)
     return TRUE;
 
   } else if (isconstr(Output) && strcmp(p2c_functor(Output),"list")==0) {
-    // unimplemented
-    return FALSE;
+    prolog_term OutTerm = p2p_arg(Output,1);
+    prolog_term list = p2p_new(CTXT);
+
+    Result = base64_decode_string(InStr, strlen(InStr), &out_size);
+    c_bytes_to_p_charlist((char *)Result, out_size, list,
+                          4 /* regs to protect */,
+                          "b64_dec", "argument #2");
+    unify_code = p2p_unify(list,OutTerm);
+
+    free(Result);
+    //base64_cleanup();
+    return unify_code;
   }
   return FALSE; // to pacify the compiler
 }

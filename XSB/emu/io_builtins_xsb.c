@@ -584,7 +584,7 @@ xsbBool fmt_read(CTXTdecl)
   if (isconstr(AnsTerm))
     Arity = get_arity(get_str_psc(AnsTerm));
   else if (isref(AnsTerm)) {
-    /* assume that only one input val is reuired */
+    /* assume that only one input val is required */
     prolog_term TmpAnsTerm=p2p_new(CTXT), TmpArg;
 
     Arity = 1;
