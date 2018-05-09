@@ -66,3 +66,4 @@
 :- import odbc_open/2, odbc_close/1, odbc_sql/4 from odbc_call.
 :- import xsb_configuration/2 from xsb_configuration.
 :- import take_upto/3 from lists.
+:- import read_json_pterm/2 from json.

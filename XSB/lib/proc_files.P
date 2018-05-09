@@ -167,7 +167,7 @@ load_dsv(FileName,PSpec,Options0) :-
       ;	 true
      ),
      call_cleanup(delim_file_record(IStr,NumFields,Options,_RecNum,ArgsPatched),
-		  load_dsv_cleanup(T0,FileName,IStr)),
+		  load_dsv_cleanup(T0,FileName,IStr,Options)),
      (Reverse =:= 0
       -> assertz(Spec),
 	 fail
@@ -176,10 +176,13 @@ load_dsv(FileName,PSpec,Options0) :-
      )
     ).
 
-load_dsv_cleanup(T0,FileName,IStr) :-
+load_dsv_cleanup(T0,FileName,IStr,Options) :-
     close(IStr),
-    conget('__recsread',RecsRead),
-    time_message(T0,(FileName,' loaded (delimited) ',RecsRead,' records')).
+    (member(quiet,Options)
+     ->	true
+     ;	conget('__recsread',RecsRead),
+	time_message(T0,(FileName,' loaded (delimited) ',RecsRead,' records'))
+    ).
 
 
 null_after([],_).
@@ -584,13 +587,16 @@ load_with_header(FileNameList,Options) :-
      ),
      
      open(FileName,read,InStream),
-     write(userout,'Loading '),write(userout,FileName),write(userout,'...'),
+     (member(quiet,Options)
+      -> true
+      ;	 write(userout,'Loading '),write(userout,FileName),write(userout,'...')
+     ),
      conset('__rec_cnt',0),
      retractall(file_header(PredName,_,_,_)),
      Term =.. [PredName|Fields],
      
      call_cleanup(delim_file_record(InStream,0,Options,_RecNum,Fields),
-		  load_with_headers_cleanup(InStream)),
+		  load_with_headers_cleanup(InStream,Options)),
      (file_header(PredName,_,_,_)
       -> coninc('__rec_cnt'),
 	 assertz(Term),
@@ -606,10 +612,13 @@ load_with_header(FileNameList,Options) :-
      writeln(userout,'Completed.')
     ).
 
-load_with_headers_cleanup(InStream) :-
+load_with_headers_cleanup(InStream,Options) :-
     close(InStream),
-    conget('__rec_cnt',NumRecs),
-    write(userout,NumRecs), writeln(userout,' records').
+    (member(quiet,Options)
+     ->	true
+     ;	conget('__rec_cnt',NumRecs),
+	write(userout,NumRecs), writeln(userout,' records')
+    ).
 
 flat_member(X,X) :- atomic(X),!, X \== [].
 flat_member(X,[L1|_L2]) :- flat_member(X,L1).
@@ -723,6 +732,7 @@ find_file(FileName,Format,AbsFileName) :-
 default_suffix(read,'P').
 default_suffix(canonical,'P').
 default_suffix(dsv(_),'txt').
+default_suffix(json,'json').
 
 read_file_records(read,IStr,RecTerm) :-
     repeat,
@@ -741,6 +751,8 @@ read_file_records(canonical,IStr,RecTerm) :-
 read_file_records(dsv(Opts),IStr,RecFields) :-
     length(RecFields,NumFields),
     delim_file_record(IStr,NumFields,Opts,_RecNum,RecFields).
+read_file_records(json,IStr,RecTerm) :-
+    read_json_pterm(IStr,RecTerm).
 
 get_opt_params(Options,Sep,Delim,Titles,Types,Returns) :-
     ((member(separator=Sep0,Options) ; member(separator(Sep0),Options))

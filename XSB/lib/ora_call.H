@@ -33,7 +33,8 @@
 :- export '$ora_err$'/1, '$show_query$'/1. %, '$cursor_table$'/1.
 
 :- import table_arity/2, ','/2, (:-)/2 from usermod.
-:- import str_cat/3, oracle_query/7 from machine.
+:- import oracle_query/7 from machine.
+:- import str_cat/3 from string.
 :- import conset/2, conget/2 from gensym.
 :- import (dynamic)/1, assert/1, asserta/1, retract/1,
    retractall/1 from assert.
