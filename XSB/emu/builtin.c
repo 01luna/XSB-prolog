@@ -233,8 +233,8 @@ extern int gc_dynamic(CTXTdecl);
 
 extern int sha1_string(prolog_term, char *);
 extern int md5_string(prolog_term, char *);
-extern int base64_encode(prolog_term, prolog_term);
-extern int base64_decode(prolog_term, prolog_term);
+extern int base64_encode(CTXTdeclc prolog_term, prolog_term);
+extern int base64_decode(CTXTdeclc prolog_term, prolog_term);
 
 							 //extern byte *biarg;
 
@@ -3523,11 +3523,11 @@ case WRITE_OUT_PROFILE:
 
       switch (type) {
       case BASE64_ENC: {
-	retcode = base64_encode(InputTerm,Output);
+	retcode = base64_encode(CTXTc InputTerm,Output);
 	break;
       }
       case BASE64_DEC: {
-	retcode = base64_decode(InputTerm,Output);
+	retcode = base64_decode(CTXTc InputTerm,Output);
 	break;
       }
       default: {
