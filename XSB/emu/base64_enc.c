@@ -52,7 +52,7 @@ void base64_cleanup();
 void build_decoding_table();
 
 
-int base64_encode(prolog_term InputTerm, prolog_term Output)
+int base64_encode(CTXTdeclc prolog_term InputTerm, prolog_term Output)
 {
   size_t out_size = 0, in_size= 0, result_size = 0;
   int retcode;
@@ -64,14 +64,14 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
   if (isstring(InputTerm) && !is_list(InputTerm)) {
     InStr = (unsigned char *) string_val(InputTerm);
     Result = base64_encode_string(InStr, strlen((char *)InStr), &out_size);
-    unify_code = p2p_unify(makestring(string_find(Result,1)),Output);
+    unify_code = p2p_unify(CTXTc makestring(string_find(Result,1)),Output);
 
     result_size = strlen(Result);
     if (result_size < out_size) {
       // It is impossible to know the true size of InStr if it is an atom that
       // has a null character like in 'abcd\x0\67'.
       // So this condition is never true. Keeping it in case we figure it out.
-      xsb_warn("b64_enc: Input string has a null-symbol\n\tand cannot be losslessly encoded as an atom.\n\tLossless encoding is supported only for file content.");
+      xsb_warn(CTXTc "b64_enc: Input string has a null-symbol\n\tand cannot be losslessly encoded as an atom.\n\tLossless encoding is supported only for file content.");
       fprintf(stderr, "\tFull encoded size: %d; actually encoded: %d\n",
               (int)out_size, (int)result_size);
     }
@@ -88,7 +88,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
 
     retcode = stat(filename, &stat_buff);
     if (retcode != 0) {
-      xsb_warn("b64_enc: can't get size of file %s\n", filename);
+      xsb_warn(CTXTc "b64_enc: can't get size of file %s\n", filename);
       return FALSE;
     }
     in_size = stat_buff.st_size;
@@ -96,7 +96,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
     InStr = malloc(in_size);
 
     if (!(fp = fopen(filename,"rb"))) {
-      xsb_warn("b64_enc: unable to open file %s\n", filename);
+      xsb_warn(CTXTc "b64_enc: unable to open file %s\n", filename);
       return FALSE;
     }
     // alloc array of file_size
@@ -110,7 +110,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
     fclose(fp);
 
     Result = base64_encode_string(InStr, in_size, &out_size);
-    unify_code = p2p_unify(makestring(string_find(Result,1)),Output);
+    unify_code = p2p_unify(CTXTc makestring(string_find(Result,1)),Output);
 
     free(Result);
     free(InStr);
@@ -129,7 +129,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
         in_size++;
         list_head = p2p_car(list);
         if (!is_int(list_head)) {
-          xsb_warn("b64_enc: character list is expected in argument #1");
+          xsb_warn(CTXTc "b64_enc: character list is expected in argument #1");
           return FALSE;
         }
         list = p2p_cdr(list);
@@ -146,7 +146,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
     }
 
     Result = base64_encode_string(InStr, in_size, &out_size);
-    unify_code = p2p_unify(makestring(string_find(Result,1)),Output);
+    unify_code = p2p_unify(CTXTc makestring(string_find(Result,1)),Output);
 
     free(Result);
     free(InStr);
@@ -156,7 +156,7 @@ int base64_encode(prolog_term InputTerm, prolog_term Output)
   return FALSE; // to pacify the compiler
 } // end base64_encode
 
-int base64_decode(prolog_term InputTerm, prolog_term Output)
+int base64_decode(CTXTdeclc prolog_term InputTerm, prolog_term Output)
 {
   size_t out_size = 0, result_size = 0;
   char *InStr;
@@ -164,7 +164,7 @@ int base64_decode(prolog_term InputTerm, prolog_term Output)
   int unify_code;
 
   if (!isstring(InputTerm)) {
-    xsb_warn("b64_dec: Argument #1 must be an atom.");
+    xsb_warn(CTXTc "b64_dec: Argument #1 must be an atom.");
     return FALSE;
   }
 
@@ -173,11 +173,11 @@ int base64_decode(prolog_term InputTerm, prolog_term Output)
   if (isstring(Output) || is_var(Output)
       || (isconstr(Output) && strcmp(p2c_functor(Output),"atom")==0)) {
     Result = base64_decode_string(InStr, strlen(InStr), &out_size);
-    unify_code = p2p_unify(makestring(string_find((char *)Result,1)),Output);
+    unify_code = p2p_unify(CTXTc makestring(string_find((char *)Result,1)),Output);
 
     result_size = strlen((char *)Result);
     if (result_size < out_size) {
-      xsb_warn("b64_dec: Decoded string has a null-symbol\n\tand cannot be losslessly decoded as an atom.\n\tLossless decoding is supported only for file output.");
+      xsb_warn(CTXTc "b64_dec: Decoded string has a null-symbol\n\tand cannot be losslessly decoded as an atom.\n\tLossless decoding is supported only for file output.");
       fprintf(stderr, "\tFull decoded size: %d; actually decoded: %d\n",
               (int)out_size, (int)result_size);
     }
@@ -193,7 +193,7 @@ int base64_decode(prolog_term InputTerm, prolog_term Output)
     int pos = 0;
 
     if (!(fp = fopen(filename,"wb"))) {
-      xsb_warn("b64_dec: unable to open file %s\n", filename);
+      xsb_warn(CTXTc "b64_dec: unable to open file %s\n", filename);
       return FALSE;
     }
 
@@ -216,10 +216,10 @@ int base64_decode(prolog_term InputTerm, prolog_term Output)
     prolog_term list = p2p_new(CTXT);
 
     Result = base64_decode_string(InStr, strlen(InStr), &out_size);
-    c_bytes_to_p_charlist((char *)Result, out_size, list,
+    c_bytes_to_p_charlist(CTXTc (char *)Result, out_size, list,
                           4 /* regs to protect */,
                           "b64_dec", "argument #2");
-    unify_code = p2p_unify(list,OutTerm);
+    unify_code = p2p_unify(CTXTc list,OutTerm);
 
     free(Result);
     //base64_cleanup();
