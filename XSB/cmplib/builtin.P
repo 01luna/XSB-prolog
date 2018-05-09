@@ -68,15 +68,24 @@ is_builtin_instr(Pred,Arity,Sym) :-
      ;	sym_prop(im(Mod),Sym)
     ).
 
-%% declaring a builtin an inline_predicate makes compiler use bi_instr instruction
+%% Declaring a builtin an inline_predicate makes compiler use bi_instr
+%% instruction.  A builtin can use a builtin_instr only if its only
+%% access to registers is through the ptoc_* and ctop-*
+%% macros/functions and only its argument registers are accessed.  So
+%% builtins like code_call cannot be so declared.  Also, only builtins
+%% with 0 to 4 arguments can be instructions.
 
-%builtin_instr(abolish_table_info,0,machine). %% cannot inline now dont handle 0-ary
+builtin_instr(abolish_table_info,0,machine).
+builtin_instr(assert_code_to_buff,1,machine).
 %%builtin_instr(code_load,4,machine).
 builtin_instr(conget,2,gensym).
 builtin_instr(conset,2,gensym).
+builtin_instr(conget,2,machine).
+builtin_instr(conset,2,machine).
+builtin_instr(file_function,3,machine).
 %%builtin_instr(get_delay_lists,2,tables).
 builtin_instr(getenv,2,machine).
-%%builtin_instr(incr_eval_builtin,3,increval).  if add to builtin_inline
+%%builtin_instr(incr_eval_builtin,3,increval).  NO, uses many registers
 %%builtin_instr(load_obj,4,machine).
 builtin_instr(parsort,4,machine).
 builtin_instr(psc_name,2,machine).
@@ -94,8 +103,8 @@ builtin_instr(psc_insertmod_inline,3,machine).
 builtin_instr(psc_import,3,machine).
 builtin_instr(psc_import_as,2,machine).
 builtin_instr(putenv,1,machine).
-%%builtin_instr(stat_flag,2,machine).
-%%builtin_instr(stat_set_flag,2,machine).
+builtin_instr(stat_flag,2,machine).
+builtin_instr(stat_set_flag,2,machine).
 builtin_instr(stat_sta,1,machine).
 builtin_instr(stat_cputime,1,machine). 
 builtin_instr(stat_walltime,1,machine).
@@ -113,8 +122,10 @@ builtin_instr(term_hash,3,machine).
 builtin_instr(unload_seg,1,machine).
 
 
-%% builtins for which to generate a bi_instr instruction
-%% following are standard predicates (so mod doesnt matter, or get from standard_symbol)
+%% builtins for which to generate a bi_instr instruction: these are
+%% standard predicates (so mod doesnt matter, or is gotten from the
+%% standard_symbol). 
+
 builtin_instr(functor,3,_).
 builtin_instr(=..,2,_).
 builtin_instr(acyclic_term,1,_).
@@ -132,14 +143,18 @@ builtin_instr(is_charlist,2,_).
 builtin_instr(keysort,2,_).
 builtin_instr(number_chars,2,_).
 builtin_instr(number_codes,2,_).
+builtin_instr(number_digits,2,standard).
 builtin_instr(parse_filename,4,_).
+builtin_instr(psc_init_info,1,machine).
 builtin_instr(put,1,_).
 builtin_instr(segfault_handler,1,_).
+builtin_instr(slash,1,machine).
 builtin_instr(sort,2,_).
 builtin_instr(str_cat,3,_).
 builtin_instr(str_length,2,_).
 builtin_instr(string_substitute,4,_).
 builtin_instr(substring,4,_).
+builtin_instr(tab,1,standard).
 builtin_instr(term_depth,2,_).
 builtin_instr(term_size,2,_).
 builtin_instr(term_size_limit,2,_).

@@ -38,7 +38,8 @@ putvarinst(VPrag, N, Pil, Pilr, Tabled) :-
         vprag_occ(VPrag, Occ),
         ( ( Occ == v ) -> putvoid(Typ,Loc,N,Pil,Pilr)
         ; ( Occ == f) -> putvar_f(Typ,Loc,N,Pil,Pilr)
-        ; ( Occ == l ; Occ == s ) -> putvar_s(Typ,Loc,N,Tabled,Pil,Pilr)
+        ; Occ == s -> putvar_s(Typ,Loc,N,Tabled,Pil,Pilr)
+        ; Occ == l -> putvar_l(Typ,Loc,N,Tabled,Pil,Pilr)
         ).
 
 /** Previous is Bart's suggested fix of a bug arising from nonglobalization
@@ -76,8 +77,16 @@ putvar_s(t,Loc,N,_Tabd,Pil,Pilr) :-
 	( Loc =:= N -> Pil = Pilr ; Pil = [movreg(Loc,N)|Pilr] ).
 putvar_s(p,Loc,N,_Tabd,[putpval(Loc,N)|Pil],Pil).
 putvar_s(u,Loc,N,Tab,[Inst|Pil],Pil):-
-	Tab =:= 1 -> Inst = putpval(Loc,N) ; Inst = putuval(Loc,N).
+	(Tab =:= 1 -> Inst = putpval(Loc,N) ; Inst = putdval(Loc,N)).
 putvar_s(d,Loc,N,Tab,[Inst|Pil],Pil):-
+	Tab =:= 1 -> Inst = putpval(Loc,N) ; Inst = putdval(Loc,N).
+
+putvar_l(t,Loc,N,_Tabd,Pil,Pilr) :-
+	( Loc =:= N -> Pil = Pilr ; Pil = [movreg(Loc,N)|Pilr] ).
+putvar_l(p,Loc,N,_Tabd,[putpval(Loc,N)|Pil],Pil).
+putvar_l(u,Loc,N,Tab,[Inst|Pil],Pil):-
+	(Tab =:= 1 -> Inst = putpval(Loc,N) ; Inst = putuval(Loc,N)).
+putvar_l(d,Loc,N,Tab,[Inst|Pil],Pil):-
 	Tab =:= 1 -> Inst = putpval(Loc,N) ; Inst = putdval(Loc,N).
 
 univarinst(VPrag, Pil, Pilr, Tin, Tout) :-
