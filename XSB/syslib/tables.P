@@ -912,11 +912,11 @@ check_table_option(dynamic,Options,PredCList,_Override) :- !,
         (comma_member(incremental,Options) -> 
 	    table_error(('Cannot declare ',PredCList,
 	           ' as tabled with options dynamic and incremental'))
-	 ;  true),
-        (comma_member(opaque,Options) -> 
-	    table_error(('Cannot declare ',PredCList,
-	           ' as tabled with options dynamic and opaque'))
 	 ;  true).
+%        (comma_member(opaque,Options) -> 
+%	    table_error(('Cannot declare ',PredCList,
+%	           ' as tabled with options dynamic and opaque'))
+%	 ;  true).
 check_table_option(dyn,Options,PredCList,_Override) :- !,
 	check_table_option(dynamic,Options,PredCList,_HasDyn).
 % Assuming that we''ll have subsumptive and opaque soon.
@@ -1003,10 +1003,10 @@ check_table_option(opaque,Options,PredCList,Override) :- !,
 	    table_error(('Cannot declare ',PredCList,
 	           ' as tabled with options opaque and nonincremental'))
 	 ;  true),
-        (comma_member(dyn,Options) -> 
-	    table_error(('Cannot declare ',PredCList,
-	           ' as tabled with options opaque and dynamic'))
-	 ;  true),
+%        (comma_member(dyn,Options) -> 
+%	    table_error(('Cannot declare ',PredCList,
+%	           ' as tabled with options opaque and dynamic'))
+%	 ;  true),
         (comma_member(dynamic,Options) -> 
 	    table_error(('Cannot declare ',PredCList,
 	           ' as tabled with options opaque and dynamic'))
