@@ -4078,17 +4078,19 @@ xsbBool dynamic_code_function( CTXTdecl )
       addr = iso_ptoc_callable_arg(CTXTc 2, 4,5);
       psc = term_psc(addr);
       termType = get_type(psc);
-      if ( termType == T_DYNA ) {		
+      //      printf("Term Type %d\n",termType);
+      if ( termType == T_DYNA || termType == T_ORDI) {		
 	//	printf("ep %p %x %p %x \n",get_ep(psc),*get_ep(psc),dynpredep_to_prref(CTXTc get_ep(psc)),
-	//     *(pb) dynpredep_to_prref(CTXTc get_ep(psc)));
+	//%	     *(pb) dynpredep_to_prref(CTXTc get_ep(psc)));
 	if (*(pb) dynpredep_to_prref(CTXTc get_ep(psc)) == fail) 
 	  ctop_int(CTXTc 3,FALSE);
 	else 	  
 	  ctop_int(CTXTc 3,TRUE);
       }
-      else //if (termType == T_PRED) 
+      else { //if (termType == T_PRED) 
 	xsb_permission_error(CTXTc "access","non_dynamic",ptoc_tag(CTXTc 2),
 			     ptoc_string(CTXTc 4),(int)ptoc_int(CTXTc 5));
+      }
       //      else return FALSE;
       break;
   }
