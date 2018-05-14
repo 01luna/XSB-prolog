@@ -1639,7 +1639,16 @@ int return_scc_list(CTXTdeclc SCCNode * nodes, Integer num_nodes){
       load_solution_trie_no_heapcheck(CTXTc arity, 0, &incr_heap_cell_array[arity-1], subg_leaf_ptr(subgoal));
       //      build_subgoal_args(arity,incr_heap_cell_array,subgoal);		
     } else{
-      follow(oldhreg++) = makestring(get_name(psc));
+      //      follow(oldhreg++) = makestring(get_name(psc));
+      sreg = hreg;
+      follow(oldhreg++) = makecs(sreg);      
+      new_heap_functor(sreg,get_ret_psc(2)); //  car pts to ret/2  psc
+      hreg += 3;                             //  hreg pts past ret/2
+      sreg = hreg;
+      follow(hreg-1) = makeint(nodes[cur_node].component);  // arg 2 of ret/2 pts to component
+      follow(hreg-2) = makecs(sreg);         
+      new_heap_functor(sreg, psc);           //  arg 1 of ret/2 pts to goal psc
+      hreg ++;
     }
     follow(oldhreg) = makelist(hreg);        // cdr points to next car
     new_heap_free(hreg); new_heap_free(hreg);
