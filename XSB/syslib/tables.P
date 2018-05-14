@@ -1661,8 +1661,6 @@ get_sdg_info(CSF,Rest):-
 %--------
 get_idg_info(Graph,LeafGraph):- 
     get_incr_sccs_with_deps(SccList,_Deplist),
-%    writeln(SccList),
-%    writeln(Deplist),
     idg_scclist_to_adj_graph(SccList,Graph),
     get_idg_leaf_info(LeafGraph).
 
@@ -1670,7 +1668,6 @@ idg_scclist_to_adj_graph([],[]).
 idg_scclist_to_adj_graph([ret(Subgoal,SCC)|R],[Term|Graph]):-
     Term = subgoal(Subgoal,SCC,Callnode,CallsTo,Answers,PosCallnodeList,[]),
     get_call(Subgoal, SF, _ReturnTemplate,Callnode),
-%	   writeln(get_call(Subgoal, SF, _ReturnTemplate,Callnode)),
     get_callsto_number(SF,CallsTo),
     get_answer_number(SF,Answers),
     immed_affects_ptr_set(Callnode,PosCallnodeList),
@@ -1907,13 +1904,17 @@ idg_print_each_leaf([subgoal(Subgoal,_Level,_SF,_CallsTo,_Answers,PosSFList,NegS
 	    format("        Affects negatively ",[]),
 	    print_subgoal_list(NegSubgList),nl),
 	idg_print_each_leaf(R,AVL).
+%idg_print_each_leaf(List,_Avl):-
+%    writeln(could_not_print_out(List)).
 
 %---
 	   
 get_subgoal_list([],_AVL,[]).
 get_subgoal_list([Key|KR],AVL,[Subg|SR]):- 
-	get_assoc(Key,AVL,Subg),
-	get_subgoal_list(KR,AVL,SR).
+    (get_assoc(Key,AVL,Subg) ->
+	 true
+      ;  Subg = '!!!subgoal_not_in_avl'(Key)),
+    get_subgoal_list(KR,AVL,SR).
 
 print_subgoal_list([Subg]):- !,writeq(Subg).
 print_subgoal_list([Subg|R]):- !,writeq(Subg),write(' ; '),print_subgoal_list(R).
@@ -1932,7 +1933,6 @@ get_kvs([subgoal(Subgoal,_Level,SF,_CallsTo,_Answers,_PosSFList,_NegSFList)|R],[
 
 print_sdg_subgoal_info:-
         get_sdg_subgoal_info(Subgoals),
-	writeln(about_to_copy),
         print_sdg_subgoal_info(Subgoals).
 
 print_sdg_subgoal_info(SDG):-
