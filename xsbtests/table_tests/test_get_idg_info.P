@@ -35,14 +35,16 @@ init:- t8(_F),fail.
 init:- s_1(_F),fail.
 init:- ni_1(_F),fail.
 init:- d8_2(_F),fail.
+init:- t8_0,fail.
 init.
    
-:- table t8_1/1, t8_11/1 as incremental.
+:- table t8_1/1, t8_11/1,t8_0/0 as incremental.
 t8(_):- t8_1(_),t8_11(_).
 t8_1(_):- d8_2(_).
 t8_1(_):- d8_3(_).
 t8_11(_):- d8_12(_).
 t8_11(_):- d8_13(_).
+t8_0:- t8(_).
 
 :- dynamic d8_2/1, d8_3/1, d8_12/1, d8_13/1 as incremental.
 d8_2(_).
