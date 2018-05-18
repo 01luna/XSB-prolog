@@ -2022,6 +2022,7 @@ int vcs_tnot_call = 0;
   }
 
 #define THROW_ERROR_ON_SUBGOAL {					\
+    /*    printf("can abstract %d vcs_tnot_call %d\n",can_abstract,vcs_tnot_call); */ \
     clean_up_subgoal_table_structures_for_throw;			\
     if (is_cyclic(CTXTc (Cell)call_arg)) {				\
       abort_on_cyclic_subgoal;						\
@@ -2171,7 +2172,7 @@ int vcs_tnot_call = 0;
     if (--subgoal_size_ctr <= 0) {					\
       subgoal_cyclic_term_check(xtemp_nonderef);				\
     } /* subgoal_size_ctr reset above */				\
-    if (subgoal_size_ctr <= 0) {					\
+    if (subgoal_size_ctr <= 0 && can_abstract) {					\
       HANDLE_SUBGOAL_SIZE_LIST(xtemp_nonderef,xtemp1,TrieType);		\
     } else {								\
       ADD_LIST_TO_SUBGOAL_TRIE(xtemp1,TrieType);			\
@@ -2182,7 +2183,7 @@ int vcs_tnot_call = 0;
   if (--subgoal_size_ctr <= 0) {					\
     subgoal_cyclic_term_check(xtemp_nonderef);				\
   } /* subgoal_size_ctr reset above */					\
-  if (subgoal_size_ctr <= 0) {						\
+  if (subgoal_size_ctr <= 0 && can_abstract) {						\
     HANDLE_SUBGOAL_SIZE_STRUCTURE(xtemp_nonderef,xtemp1,TrieType);		\
     } else {								\
     ADD_STRUCTURE_TO_SUBGOAL_TRIE(xtemp1,TrieType);			\
