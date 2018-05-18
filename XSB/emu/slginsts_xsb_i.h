@@ -1031,7 +1031,7 @@ XSB_End_Instr()
 	/*	printf("Entered thread cancel: proceed\n");	*/	\
         synint_proc(CTXTc true_psc, THREADSIG_CANCEL);			\
         lpcreg = pcreg;							\
-        asynint_val = 0;						\
+        asynint_val = asynint_val & ~THREADINT_MARK;			\
         asynint_code = 0;						\
       } else if (asynint_val & KEYINT_MARK) {				\
 		printf("Entered keyb handle: new_answer_dealloc\n");  \
@@ -1043,15 +1043,13 @@ XSB_End_Instr()
 	/*	printf("Entered timer handle: new_answer_dealloc\n"); */ \
 	synint_proc(CTXTc true_psc, TIMER_INTERRUPT);			\
         lpcreg = pcreg;							\
-        asynint_val = 0;						\
+        asynint_val = asynint_val & ~TIMER_MARK;			\
         asynint_code = 0;						\
       } else {								\
-	lpcreg = pcreg;							\
-        asynint_code = 0;						\
+	Fail1;								\
       }									\
     }									\
-  }								
-
+  }
 
 XSB_Start_Instr(new_answer_dealloc,_new_answer_dealloc) 
   Def2ops
@@ -1238,7 +1236,7 @@ if (wasRederived) {
     }
 #ifdef LOCAL_EVAL
    check_new_answer_interrupt;
-    //    Fail1;	/* and do not return answer to the generator */
+   //   Fail1;	/* and do not return answer to the generator */
     xsb_dbgmsg((LOG_DEBUG,"Failing from new answer %x to %x (inst %x)\n",
 		breg,tcp_pcreg(breg),*tcp_pcreg(breg)));
 
