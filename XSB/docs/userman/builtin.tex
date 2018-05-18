@@ -5054,47 +5054,47 @@ to {\tt tfindall/3} is apparently non-stratified~footnote{Detection of
   evaluation.}.  Other behavior for tabled aggregation is provided by
 answer subsumption as discussed in Section~\ref{sec:table-aggregation}
 
-Other differences between predicates {\tt findall/3} and {\tt
-  tfindall/3} can be seen from the following example:
-
-    {\footnotesize
-    \begin{verbatim}
-            | ?- [user].
-            [Compiling user]
-            :- table p/1.
-            p(a).
-            p(b).
-            [user compiled, cpu time used: 0.639 seconds]
-            [user loaded]
-
-            yes
-            | ?- p(X), findall(Y, p(Y), L).
-
-            X = a
-            Y = _922928
-            L = [a];
-
-            X = b
-            Y = _922820
-            L = [a,b];
-
-            no
-            | ?- abolish_all_tables.
-
-            yes
-            | ?- p(X), tfindall(Y, p(Y), L).
-
-            X = b
-            Y = _922820
-            L = [b,a];
-
-            X = a
-            Y = _922820
-            L = [b,a];
-
-            no
-    \end{verbatim}
-    }
+% Other differences between predicates {\tt findall/3} and {\tt
+%   tfindall/3} can be seen from the following example:
+% 
+%     {\footnotesize
+%     \begin{verbatim}
+%             | ?- [user].
+%             [Compiling user]
+%             :- table p/1.
+%             p(a).
+%             p(b).
+%             [user compiled, cpu time used: 0.639 seconds]
+%             [user loaded]
+% 
+%             yes
+%             | ?- p(X), findall(Y, p(Y), L).
+% 
+%             X = a
+%             Y = _922928
+%             L = [a];
+% 
+%             X = b
+%             Y = _922820
+%             L = [a,b];
+% 
+%             no
+%             | ?- abolish_all_tables.
+% 
+%             yes
+%             | ?- p(X), tfindall(Y, p(Y), L).
+% 
+%             X = b
+%             Y = _922820
+%             L = [b,a];
+% 
+%             X = a
+%             Y = _922820
+%             L = [b,a];
+% 
+%             no
+%     \end{verbatim}
+%     }
 
 Error cases include those of {\tt findall/3} (see above), along with 
     \begin{description}
