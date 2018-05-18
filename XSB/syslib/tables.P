@@ -895,11 +895,23 @@ print_incomplete_tables(Stream):-
 get_scc_dumpfile(F):- 
 	table_inspection_function(GET_SCC_DUMPFILE,F,_,_,_).
 
-check_variant(Term):- 
-	table_inspection_function(CHECK_VARIANT,Term,0,_,_).
-
+check_variant(Term):-
+    (file_op:'_$trie_asserted'(Term) ->
+	 true
+     ;   type_error('trie-indexed predicate',Term,check_variant/1,1) ),
+    table_inspection_function(CHECK_VARIANT,Term,0,_,_).
+    
 check_variant(Term,DontCares):- 
-	table_inspection_function(CHECK_VARIANT,Term,DontCares,_,_).
+    (file_op:'_$trie_asserted'(Term) ->
+	 true
+     ;   type_error('trie-indexed predicate',Term,check_variant/2,1) ),
+    table_inspection_function(CHECK_VARIANT,Term,DontCares,_,_).
+
+%check_variant_1(Term):- 
+%    table_inspection_function(CHECK_VARIANT,Term,0,_,_).
+
+check_variant_1(Term,DontCares):- 
+    table_inspection_function(CHECK_VARIANT,Term,DontCares,_,_).
 
 %-----------------------
 
@@ -1402,7 +1414,7 @@ total_subgoals(0).
 total_noncompleted_subgoals(N):- 
 	cmp_defined,
 	setof(Ctr1,S1^S2^_SCC^_Ctr2^((tc(S1,S2,new,Ctr1) ; nc(S1,S2,new,Ctr1)),
-	                 \+ check_variant(cmp(S1,_SCC,_Ctr2),2)),GoalList),!,
+	                 \+ check_variant_1(cmp(S1,_SCC,_Ctr2),2)),GoalList),!,
 	length(GoalList,N).
 total_noncompleted_subgoals(N):- 
 	\+ cmp(_,_,_),
@@ -1466,7 +1478,7 @@ count_delays(Scc,Len):-
 
 scc_has_delay(Scc):- 
 	del(_Called,Caller,_Ctr),
-	check_variant(cmp(Caller,Scc,_Ctr1),1).
+	check_variant_1(cmp(Caller,Scc,_Ctr1),1).
 
 analyze_an_scc(Scc,File,Abstraction_in):-
 	functor(Abstraction_in,F,A),
@@ -1494,9 +1506,9 @@ count_backlinks_in_scc(SCC,Lnum,Nnum):-
 	length(Ninks,Nnum).
 
 backlink_in_scc(T1,Scc):- 
-	(tc(T1,_T2,incmp,_) ; nc(T1,_T2,incmp,_)),check_variant(cmp(T1,Scc,_),1).
+	(tc(T1,_T2,incmp,_) ; nc(T1,_T2,incmp,_)),check_variant_1(cmp(T1,Scc,_),1).
 negbacklink_in_scc(T1,Scc):- 
-	nc(T1,_T2,State,_),State \== cmp, check_variant(cmp(T1,Scc,_),1).
+	nc(T1,_T2,State,_),State \== cmp, check_variant_1(cmp(T1,Scc,_),1).
 
 %----------------
 
@@ -1571,15 +1583,15 @@ report_links_1(Occs,File):-
 
 count_links_1(S,(F1/A1,F2/A2)):- 
 	(tc(T1,T2,State,_Ctr),State \= cmp ; nc(T1,T2,State,_Ctr),State \= cmp),
-	check_variant(cmp(T1,S,_),1),
-	check_variant(cmp(T2,S,_),1),
+	check_variant_1(cmp(T1,S,_),1),
+	check_variant_1(cmp(T2,S,_),1),
 	get_functor(T1,F1/A1),
 	get_functor(T2,F2/A2).
 
 count_links_1(S,(Abstr1,Abstr2),Module,Abstraction):- 
 	(tc(T1,T2,State,_Ctr),State \= cmp ; nc(T1,T2,State,_Ctr),State \= cmp),
-	check_variant(cmp(T1,S,_),1),
-	check_variant(cmp(T2,S,_),1),
+	check_variant_1(cmp(T1,S,_),1),
+	check_variant_1(cmp(T2,S,_),1),
 	copy_term(Abstraction,Abstraction1),
 	copy_term(Abstraction,Abstraction2),
 	abstract_term(T1,Abstr1,Module,Abstraction1),

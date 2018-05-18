@@ -572,7 +572,7 @@ predicate_property(Term, Property) :-	% This takes care of global
 		term_psc(Term, PSC),term_new(PSC,Skel),
 		predicate_property_1(PSC,Skel, Search_prop)
 	 ; Type =:= 5 ->  
-	        warning(('predicate_property/2 called on term of type T_FILE: ',Term)),
+%	        warning(('predicate_property/2 called on term of type T_FILE: ',Term)),
 		conpsc(Term, PSC),
 		predicate_property_1(PSC,Term, Search_prop)
 	; psc_scan_in_hash_table(0, PSC),
