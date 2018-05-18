@@ -6089,6 +6089,7 @@ case CALL_SUBS_SLG_NOT: {
     int dont_cares;
     PrRef prref;
     BTNptr Paren, leaf;
+    CPtr ta_clref;
     term = ptoc_tag(CTXTc 2);
     dont_cares = (int)ptoc_int(CTXTc 3);
     if (isconstr(term)) {
@@ -6099,8 +6100,11 @@ case CALL_SUBS_SLG_NOT: {
       return 0; /* purely to quiet compiler */
     }
     prref = get_prref(CTXTc psc);
+    ta_clref = trie_asserted_clref((CPtr) prref);
+    if ( !ta_clref ) return FALSE;
+    //    printf("tac %p\n",trie_asserted_clref((CPtr) prref));
     // prref points to a clref which *then* points to the root of the trie.
-    Paren = (BTNptr)*(trie_asserted_clref((CPtr) prref) + 3);
+    Paren = (BTNptr)*(ta_clref + 3);
     //    printf("new psc %p, prref %p parent %p\n",psc,get_prref(CTXTc psc),Paren);
     //    val = (CPtr) *(reg+2);
     //    XSB_Deref_with_address(val,addr);
