@@ -2234,14 +2234,14 @@ max_scc_subgoals_handler:-
 max_scc_subgoals_handler:- 
    max_scc_subgoals_default_handler.
 
-max_scc_subgoals_default_handler:- 
+max_scc_subgoals_default_handler:-
 %	      break_for_tripwires([tables:max_scc_subgoals_header]).
 	      break_for_tripwires([max_scc_subgoals_header()]).
 
 max_scc_subgoals_header:- 
   current_prolog_flag(max_scc_subgoals,Max),
-%  format("~n          WARNING!! XSB-oriented math-talk to follow.~n~n~n",[]),
   scc_subg_analysis_info(NumSubgoals,TotEdges,NumAnswers),
+%  writeln(scc_subg_analysis_info(NumSubgoals,TotEdges,NumAnswers)),
   format("A recursive component containing ~d incomplete tabled subgoals is currently under evaluation.~n",
 	 [NumSubgoals]), 
   format("The size of this recursive component exceeds the limit of ~d set by the flag 'max_scc_subgoals'.~n",[Max]),
@@ -2249,17 +2249,20 @@ max_scc_subgoals_header:-
   format("and the total number of answers for all subgoals in this component is ~d~n",[NumAnswers]),
   format("~n  * To continue, reset the flag and then type Ctrl-d~n",[]),
   format("  * To abort, enter the command 'abort/0'~n",[]),
-  format("  * To inspect the incomplete tabled subgoals, enter the command 'show_incomplete_subgoals'~n",[]).
+   format("  * To inspect the incomplete tabled subgoals, enter the command 'show_incomplete_subgoals'~n",[]),!.
+   max_scc_subgoals_header.
+   
 
 scc_subg_analysis_info(NumSubgoals,TotEdges,NumAnswers):- 
-	get_sdg_info(SDG), %writeln(SDG),
-	sdg_scc_info(SDG,SCCs), %writeln(SCCs),
-        get_last(SCCs,ThisSCC),
+	get_sdg_info(SDG),
+	sdg_scc_info(SDG,SCCs),
+        SCCs = [ThisSCC|_],
+%        get_last(SCCs,ThisSCC),
 	ThisSCC =  scc(_Level,NumSubgoals,NumAnswers,NumPosEdges,NumNegEdges),
 	TotEdges is NumPosEdges + NumNegEdges + NumSubgoals -1.  % not counting generator nodes
 
-get_last([Elt],Elt):- !.
-get_last([_A|B],Elt):- get_last(B,Elt).
+%get_last([Elt],Elt):- !.
+%get_last([_A|B],Elt):- get_last(B,Elt).
 
 format(Msg):- format(Msg,[]).
 
