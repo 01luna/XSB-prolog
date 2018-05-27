@@ -128,7 +128,7 @@ load_page (char *source, curl_opt options, curl_ret *ret_vals)
   }
   if(strlen(options.put_data)>0) {
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, options.post_data);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, options.put_data);
   }
 
   /* Allow curl to perform the action */

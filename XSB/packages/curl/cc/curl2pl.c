@@ -147,7 +147,6 @@ DllExport int call_conv pl_load_page()
 	prolog_term term_option;
 
 	while(is_list(term_options)){
-
           term_option = p2p_car(term_options);
           if(!strcmp(p2c_functor(term_option), "redirect")) {
             if(!strcmp(p2c_string(p2p_arg(term_option, 1)), "true"))
