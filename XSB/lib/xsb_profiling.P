@@ -110,9 +110,12 @@ dump_profile([],Total,OPSC,OMPSC,OCnt,ACnt) :-
 	 ->	OPName = 'Garbage Collecting', OPArity = ('')
 	 ;	psc_name(OPSC,OPName),psc_arity(OPSC,OPArity)
 	),
-	Percent is (OCnt*200+Total) // (2*Total),
-	tab(20), write(Percent),write('%'),write(' '(OCnt)),tab(2),
-	write(OPName),write('/'),writeln(OPArity),
+	(OCnt * 1000 >= Total  % print only if >= .1% of total
+	 -> Percent is (OCnt*200+Total) // (2*Total),
+	    tab(20), write(Percent),write('%'),write(' '(OCnt)),tab(2),
+	    write(OPName),write('/'),writeln(OPArity)
+	 ;  true
+	),
 	MPercent is (ACnt*200+Total) // (2*Total),
 	write(MPercent),write('%'),write(' '(ACnt)),tab(2),
 	(OMPSC =:= 0
@@ -128,9 +131,12 @@ dump_profile([p(PSC,MPSC,Cnt)|STuples],Total,OPSC,OMPSC,OCnt,ACnt) :-
 	 ->	OPName = 'Garbage Collecting', OPArity = ('')
 	 ;	psc_name(OPSC,OPName),psc_arity(OPSC,OPArity)
 	),
-	Percent is (OCnt*200+Total) // (2*Total),
-	tab(20), write(Percent),write('%'),write(' '(OCnt)),tab(2),
-	write(OPName),write('/'),writeln(OPArity),
+	(OCnt * 1000 >= Total  % print only if >= .1% of total
+	 -> Percent is (OCnt*200+Total) // (2*Total),
+	    tab(20), write(Percent),write('%'),write(' '(OCnt)),tab(2),
+	    write(OPName),write('/'),writeln(OPArity)
+	 ;  true
+	),
 	(MPSC =\= OMPSC
 	 ->	MPercent is (ACnt*200+Total) // (2*Total),
 		write(MPercent),write('%'),write(' '(ACnt)),tab(2),
