@@ -1351,6 +1351,8 @@ void init_builtin_table(void)
   set_builtin_table(THREAD_REQUEST, "thread_request");
   set_builtin_table(MT_RANDOM_REQUEST, "mt_random_request");
 
+  set_builtin_table(XSB_PROFILE,"xsb_profile");
+  set_builtin_table(XSB_BACKTRACE,"xsb_backtrace");
   set_builtin_table(COPY_TERM_3,"copy_term_3");
   set_builtin_table(MARK_HEAP, "mark_heap");
   set_builtin_table(GC_STUFF, "gc_stuff");
@@ -2204,6 +2206,8 @@ int builtin_call(CTXTdeclc byte number)
       write_string_code(fptr,charset,(byte *)ptoc_string(CTXTc 3));
       break;
     case XSB_FLOAT  : fprintf(fptr, "%2.4f", ptoc_float(CTXTc 3)); break;
+      //    case XSB_FLOAT  : fprintf(fptr, "%1.16g", ptoc_float(CTXTc 3)); break;
+      // but would need ".0" appended if would be printed as an integer
     case TK_INT_0  : {
       int tmp = (int) ptoc_int(CTXTc 3);
       fix_bb4((byte *)&tmp);
@@ -2528,7 +2532,7 @@ int builtin_call(CTXTdeclc byte number)
 #if defined(PROFILE) && !defined(MULTI_THREAD)
     {
       int i;
-      for (i = 0 ; i <= BUILTIN_TBL_SZ ; i++) {
+      for (i = 0 ; i < BUILTIN_TBL_SZ ; i++) {
 	inst_table[i][5] = 0;
 	builtin_table[i][1] = 0;
 	subinst_table[i][1] = 0;
@@ -3564,12 +3568,17 @@ typedef struct psc_profile_count_struct {
    got more. */
 
 static psc_profile_count *psc_profile_count_table = NULL;
-static int psc_profile_count_max = 0;
-static int psc_profile_count_num = 0;
+static Integer psc_profile_count_max = 0;
+static Integer psc_profile_count_num = 0;
 #define initial_psc_profile_count_size 100
 
 void add_to_profile_count_table(Psc apsc, int count) {
-  int i;
+  Integer i;
+  for (i=psc_profile_count_num-1; i>=0; i--)
+    if (psc_profile_count_table[i].psc == apsc) {
+      psc_profile_count_table[i].prof_count += count;
+      return;
+    }
   if (psc_profile_count_num >= psc_profile_count_max) {
     if (psc_profile_count_table == NULL) {
       psc_profile_count_max = initial_psc_profile_count_size;
@@ -3583,11 +3592,6 @@ void add_to_profile_count_table(Psc apsc, int count) {
 		    psc_profile_count_max*sizeof(psc_profile_count),PROFILE_SPACE);
     }
   }
-  for (i=0; i<psc_profile_count_num; i++)
-    if (psc_profile_count_table[i].psc == apsc) {
-      psc_profile_count_table[i].prof_count += count;
-      return;
-    }
   psc_profile_count_table[psc_profile_count_num].psc = apsc;
   psc_profile_count_table[psc_profile_count_num].prof_count = count;
   psc_profile_count_num++;

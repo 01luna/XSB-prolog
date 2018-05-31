@@ -84,7 +84,7 @@ int base64_encode(CTXTdeclc prolog_term InputTerm, prolog_term Output)
     char *filename = string_val(p2p_arg(InputTerm,1));
     FILE *fp;                // File pointer for reading files
     unsigned char c;         // Character read from file
-    int pos = 0;
+    size_t pos = 0;
 
     retcode = stat(filename, &stat_buff);
     if (retcode != 0) {
@@ -190,7 +190,7 @@ int base64_decode(CTXTdeclc prolog_term InputTerm, prolog_term Output)
     char *filename = string_val(p2p_arg(Output,1));
     FILE *fp;                // File pointer for reading files
     unsigned char c;         // Character read from file
-    int pos = 0;
+    size_t pos = 0;
 
     if (!(fp = fopen(filename,"wb"))) {
       xsb_warn(CTXTc "b64_dec: unable to open file %s\n", filename);
@@ -239,7 +239,7 @@ char *base64_encode_string(const unsigned char *data,
   char *encoded_data = malloc(1+*output_length);
   if (encoded_data == NULL) return NULL;
  
-  for (int i = 0, j = 0; i < input_length;) {
+  for (size_t i = 0, j = 0; i < input_length;) {
  
     uint32_t octet_a = i < input_length ? (unsigned char)data[i++] : 0;
     uint32_t octet_b = i < input_length ? (unsigned char)data[i++] : 0;
@@ -279,7 +279,7 @@ unsigned char *base64_decode_string(const char *data,
   unsigned char *decoded_data = malloc(1+*output_length);
   if (decoded_data == NULL) return NULL;
   
-  for (int i = 0, j = 0; i < input_length;) {
+  for (size_t i = 0, j = 0; i < input_length;) {
     
     uint32_t sextet_a =
       data[i] == '=' ? 0 & i++ : decoding_table[(int)data[i++]];

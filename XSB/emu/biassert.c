@@ -1443,9 +1443,16 @@ xsbBool assert_buff_to_clref_p(CTXTdeclc prolog_term Head,
 	     IC_CELLS(NI) + ((asrtBuff->Size+0x7)&~0x7)/sizeof(Cell) ) ;
 
   XSB_Deref(Head);
-  if (xsb_profiling_enabled)
-    add_prog_seg(get_str_psc(Head),(byte *)Clause,ClRefSize(Clause));
-
+  if (xsb_profiling_enabled) {
+    int new;
+    Psc apsc;
+    if (isstring(Head)) {
+      apsc = insert(string_val(Head),0,(Psc)flags[CURRENT_MODULE],&new)->psc_ptr;
+    } else {
+      apsc = get_str_psc(Head);
+    }
+    add_prog_seg(apsc,(byte *)Clause,ClRefSize(Clause));
+  }
   //  printf("asserting clause for: %s/%d at %x\n",
   // get_name(get_str_psc(Head)),get_arity(get_str_psc(Head)),Clause);
 
