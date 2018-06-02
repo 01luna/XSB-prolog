@@ -24,8 +24,9 @@ open_url(url(Atom),read,Stream,Options,Warn) :-
 	!, 
 	load_page(url(Atom), Options, [DirEnc,FileBase,Suffix,_,_], Doc, Warn), 
 	(Doc == '' -> 
-		permission_error(open,file,url(Atom),open/4); 
-		true
+            permission_error(open,file,url(Atom),open/4)
+        ; 
+            true
 	), 
 	www_cache_filename(Options,FileBase,Suffix,FileUnEnc), 
 	set_tmp_file(DirEnc, FileUnEnc, TmpFile), 

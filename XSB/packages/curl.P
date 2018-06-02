@@ -86,7 +86,8 @@ load_page_warn(Source, Opt, _Props, Document, _Warn) :-
 
 load_page_warn(Source, Options, [Size, Time], Doc, Warn) :-
 	curl_allocate_error_term(Error, Warn),
-	examine_open_options(open, Options, ValidOptions), 
+	%%examine_open_options(open, Options, ValidOptions), 
+	examine_open_options(Options, ValidOptions), 
         pl_load_page([options(ValidOptions), source(Source), document(DocTmp), properties(SizeTmp, TimeTmp)]), 
 	handle_html_redir(ValidOptions, DocTmp, SizeTmp, TimeTmp, Doc, Size, Time), 
 	throw_error(Error).
@@ -246,11 +247,11 @@ stream_to_string(X, Y) :-
 stream_to_string_sub(X, Y) :- file_read_line(X, Y1), !, stream_to_string_sub(X, Y2), str_cat(Y1, Y2, Y).
 stream_to_string_sub(_, '').
 
-validatedir('', 'NULL'(_)) :- !.
+validatedir('', '__null__') :- !.
 validatedir(Name, Name). 
-validatefile('', 'NULL'(_)) :- !.
+validatefile('', '__null__') :- !.
 validatefile(Name, Name). 
-validatesuffix('', 'NULL'(_)) :- !.
+validatesuffix('', '__null__') :- !.
 validatesuffix(Name, Name). 
 
 www_cache_filename(Options, FileBase, Suffix, FileName) :-
