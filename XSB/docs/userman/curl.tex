@@ -147,8 +147,8 @@ many options. The parameters of this predicate are described below.
   The document is returned in {\it Content}.
   {\it Warn} is bound to a (possibly empty) list of warnings generated during the process.
 
-  {\it Properties} is bound to a list of properties of the document. They
-  include {\it Directory name}, {\it File name}, {\it File suffix}, {\it
+  {\it Properties} is bound to a \emph{list} of properties of the document. They
+  are {\it Directory name}, {\it File name}, {\it File extension}, {\it
     Page size}, and {\it Page time}.
   The {\tt load\_page/5}  predicate caches a copy of the Web page that it
   fetched from the Web in a local file, which is specified by the above
@@ -201,11 +201,14 @@ The properties of a web document are loaded by the predicates {\bf
   \index{\texttt{url\_properties/3}}
 \item[url\_properties({\it +Url, +Options, -Properties})]\mbox{}
   \\
-  The {\it Options} and {\it Properties} are same as in {\bf load\_page/5}.
+  The {\it Options} and {\it Properties} are same as in {\bf load\_page/5}:
+  a \emph{list} of properties of the document, which
+  are {\it Directory name}, {\it File name}, {\it File extension}, {\it
+    Page size}, and {\it Page time} in that order.
   \index{\texttt{url\_properties/2}}
 \item[url\_properties({\it +Url, -Properties})]\mbox{}
   \\
-  What are the default options???
+  This uses the default options (\texttt{secure(false)}, \texttt{redirect(true)}). 
 
 \end{description}
 
@@ -221,7 +224,7 @@ predicate.
   \\
 {\it Source} has the form {\it url(url-string)}, where
 \emph{url-string} is an atom.
-{\it Properties} is bound to a list of properties of the URL:
+{\it Result} is bound to a list of properties of the URL:
 the encoded {\it Directory Name}, the encoded {\it File Name}, and the {\it
   Extension} of the URL.
 

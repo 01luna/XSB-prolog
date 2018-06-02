@@ -246,11 +246,11 @@ stream_to_string(X, Y) :-
 stream_to_string_sub(X, Y) :- file_read_line(X, Y1), !, stream_to_string_sub(X, Y2), str_cat(Y1, Y2, Y).
 stream_to_string_sub(_, '').
 
-validatedir('', 'tmpdir') :- !.
+validatedir('', 'NULL'(_)) :- !.
 validatedir(Name, Name). 
-validatefile('', 'tmpfile') :- !.
+validatefile('', 'NULL'(_)) :- !.
 validatefile(Name, Name). 
-validatesuffix('', 'tmp') :- !.
+validatesuffix('', 'NULL'(_)) :- !.
 validatesuffix(Name, Name). 
 
 www_cache_filename(Options, FileBase, Suffix, FileName) :-

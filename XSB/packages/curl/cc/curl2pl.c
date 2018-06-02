@@ -157,8 +157,10 @@ DllExport int call_conv pl_load_page()
           else if(!strcmp(p2c_functor(term_option), "secure")){
             if(!strcmp(p2c_string(p2p_arg(term_option, 1)), "false"))
               options.secure.flag = 0;
-            else
+            else {
+              options.secure.flag = 1;
               options.secure.crt_name = p2c_string(p2p_arg(term_option, 1));
+            }
           }
           else if(!strcmp(p2c_functor(term_option), "auth")){
             username = p2c_string(p2p_arg(term_option, 1));

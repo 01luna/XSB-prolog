@@ -210,7 +210,7 @@ curl_opt init_options() {
 
   curl_opt options;
   options.redir_flag = 1;
-  options.secure.flag = 1;
+  options.secure.flag = 0;
   options.secure.crt_name = "";
   options.auth.usr_pwd = "";
   options.timeout = 0;
