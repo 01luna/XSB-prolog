@@ -149,7 +149,7 @@ many options. The parameters of this predicate are described below.
 
   {\it Properties} is bound to a \emph{list} of properties of the document. They
   are {\it Directory name}, {\it File name}, {\it File extension}, {\it
-    Page size}, and {\it Page time}.
+    Page size}, and {\it Page last modification time}.
   The {\tt load\_page/5}  predicate caches a copy of the Web page that it
   fetched from the Web in a local file, which is specified by the above
   properties \emph{Directory name}, \emph{File name}, and \emph{File
@@ -204,7 +204,7 @@ The properties of a web document are loaded by the predicates {\bf
   The {\it Options} and {\it Properties} are same as in {\bf load\_page/5}:
   a \emph{list} of properties of the document, which
   are {\it Directory name}, {\it File name}, {\it File extension}, {\it
-    Page size}, and {\it Page time} in that order.
+    Page size}, and {\it Page last modification time} in that order.
   \index{\texttt{url\_properties/2}}
 \item[url\_properties({\it +Url, -Properties})]\mbox{}
   \\
