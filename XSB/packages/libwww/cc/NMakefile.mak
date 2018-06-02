@@ -11,6 +11,7 @@ LIBWWW_LIBS_DIR = ..\..\..\..\libwww\bin
 CPP=cl.exe
 OUTDIR=.
 INTDIR=.
+ARCHDIR    =$(XSBDIR)\config\x86-pc-windows
 
 ALL : "$(OUTDIR)\$(MYPROGRAM).dll"
 
@@ -27,19 +28,19 @@ CPP_PROJ=/nologo /MT /W3 /EHsc /O2 /I "$(XSBDIR)\config\x86-pc-windows" \
 	
 
 SOURCE=$(MYPROGRAM).c
-"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)" $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 SOURCE=libwww_parse_html.c
-"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)" $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 SOURCE=libwww_parse_xml.c
-"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)" $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 SOURCE=libwww_parse_rdf.c
-"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)" $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 LINK32=link.exe

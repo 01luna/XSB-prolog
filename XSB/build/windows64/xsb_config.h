@@ -81,6 +81,8 @@
 
 /* #undef CONC_COMPL */
 
+/* #undef XSB_STDCALL */
+
 /* Define if you have the gethostbyname function.  */
 #define HAVE_GETHOSTBYNAME 1
 

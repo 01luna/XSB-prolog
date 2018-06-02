@@ -85,6 +85,7 @@ xsb_configuration(compile_mode, '@compile_mode@').
 xsb_configuration(scheduling_strategy, '(@xsb_scheduling_strategy@)').
 xsb_configuration(engine_mode, '@engine_mode@').
 xsb_configuration(word_size, '32').
+xsb_configuration(call_scheme, '@call_scheme@').
 
 %%%%% DON'T EDIT BELOW HERE!!!!
 %%

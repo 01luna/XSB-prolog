@@ -630,6 +630,7 @@ INTERPROLOGSRC
 ODBC_CFLAGS
 ODBCOBJ
 ODBCSRC
+call_scheme
 word_size
 engine_mode
 xsb_full_version_name
@@ -788,6 +789,7 @@ with_odbc
 with_iodbc
 with_smodels
 with_itkwish
+with_stdcall
 enable_no_cygwin
 enable_general_tagging
 enable_debug
@@ -1444,7 +1446,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-no-cygwin           Compile with the gss option -mno-cygwin (default: disabled)
-                                The latest Cygwins don't support this flag
+                                Cygwins don't support this flag since many years ago
   --enable-general-tagging     When this option is enabled XSB will determine
                                which bits in the address to tag during
                                runtime. This option is the last resort, if
@@ -1527,6 +1529,8 @@ Optional Packages:
                                 path is the path where smodels has
                                 been installed and compiled
   --with-itkwish=DIR		DIR where the itkwish shell is located
+  --with-stdcall		use the __stdcall call convention for DLLs in Windows
+                                Affects Win32 only. Ignored in Win64.
   --with-pita=DIR       compile XSB with PITA, with CUDD in directory DIR
 
 Some influential environment variables:
@@ -2803,6 +2807,13 @@ fi
 
 
 
+# Check whether --with-stdcall was given.
+if test "${with_stdcall+set}" = set; then :
+  withval=$with_stdcall;
+fi
+
+
+
 # Check whether --enable-no-cygwin was given.
 if test "${enable_no_cygwin+set}" = set; then :
   enableval=$enable_no_cygwin; enable_no_cygwin=yes
@@ -2953,10 +2964,14 @@ do
 		--with-gcc | --with-cc* | --with-cilk | --with-acc | \
 		--with-bits64 | --with-bits32 | --with-aout | \
                 --with-cflags* | \
-		--with-optimization* | --with-config-tag* | --with-site-prefix* | --with-includes* | \
-		--with-static-libraries* | --with-dynamic-libraries* | --with-xpath* | \
+		--with-optimization* | --with-config-tag* | \
+                --with-site-prefix* | --with-includes* | \
+		--with-static-libraries* | --with-dynamic-libraries* | \
+                --with-xpath* | \
 		--with-curl* | --with-pcre* | --with-mysql* | \
-		--with-dbdrivers | --with-oracle | --with-odbc* | --with-iodbc* | \
+		--with-dbdrivers | --with-oracle | --with-odbc* | \
+                --with-iodbc* | \
+                --with-stdcall | \
 		--with-smodels* | --with-itkwish* | --with-pita* )
 		    ;;
 	    *)
@@ -5888,6 +5903,13 @@ if test "${with_oracle+set}" = "set" ; then
     with_oracle=yes
 fi
 
+call_scheme="__cdecl"
+if test "${with_stdcall+set}" = "set" ; then
+    call_scheme="__stdcall"
+    $as_echo "#define XSB_STDCALL 1" >>confdefs.h
+
+fi
+
 #if test "${with_oracle+set}" = "set" ; then
 #	cat <<EOT
 #
@@ -7064,6 +7086,8 @@ fi
 
 
 
+
+# call_scheme is ignored in Win 64 and non-windoze systems
 
 
 

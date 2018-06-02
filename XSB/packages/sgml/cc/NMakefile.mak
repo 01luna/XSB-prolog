@@ -50,11 +50,11 @@ CPP_PROJ=/nologo /MD /W3 /EHsc /O2 /I "$(ARCHDIR)" \
 	 /Fo"$(ARCHOBJDIR)\\" /Fd"$(ARCHOBJDIR)\\" /c 
 	
 SOURCE="$(CURLDIR)\load_page.c"
-"$(ARCHOBJDIR)\load_page.obj" : $(SOURCE) "$(INTDIR)"
+"$(ARCHOBJDIR)\load_page.obj" : $(SOURCE) "$(INTDIR)"  $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 SOURCE=charmap.c error.c fetch_file.c model.c parser.c sgml2pl.c utf8.c sgmlutil.c xmlns.c
-"$(ARCHOBJDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)"
+"$(ARCHOBJDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)" $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 LINK_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib \

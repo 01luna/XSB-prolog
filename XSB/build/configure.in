@@ -162,10 +162,14 @@ AC_ARG_WITH(smodels,
 AC_ARG_WITH(itkwish,
 [  --with-itkwish=DIR		DIR where the itkwish shell is located])
 
+AC_ARG_WITH(stdcall,
+[  --with-stdcall		use the __stdcall call convention for DLLs in Windows
+                                Affects Win32 only. Ignored in Win64.])
+
 
 AC_ARG_ENABLE(no-cygwin,
 [  --enable-no-cygwin           Compile with the gss option -mno-cygwin (default: disabled)
-                                The latest Cygwins don't support this flag],
+                                Cygwins don't support this flag since many years ago],
 				enable_no_cygwin=yes,
                             	enable_no_cygwin=no)
 AC_ARG_ENABLE(general-tagging,
@@ -261,10 +265,14 @@ do
 		--with-gcc | --with-cc* | --with-cilk | --with-acc | \
 		--with-bits64 | --with-bits32 | --with-aout | \
                 --with-cflags* | \
-		--with-optimization* | --with-config-tag* | --with-site-prefix* | --with-includes* | \
-		--with-static-libraries* | --with-dynamic-libraries* | --with-xpath* | \
+		--with-optimization* | --with-config-tag* | \
+                --with-site-prefix* | --with-includes* | \
+		--with-static-libraries* | --with-dynamic-libraries* | \
+                --with-xpath* | \
 		--with-curl* | --with-pcre* | --with-mysql* | \
-		--with-dbdrivers | --with-oracle | --with-odbc* | --with-iodbc* | \
+		--with-dbdrivers | --with-oracle | --with-odbc* | \
+                --with-iodbc* | \
+                --with-stdcall | \
 		--with-smodels* | --with-itkwish* | --with-pita* )
 		    ;;
 	    *)
@@ -1099,6 +1107,12 @@ if test "${with_oracle+set}" = "set" ; then
     with_oracle=yes
 fi
 
+call_scheme="__cdecl"
+if test "${with_stdcall+set}" = "set" ; then
+    call_scheme="__stdcall"
+    AC_DEFINE(XSB_STDCALL)
+fi
+
 #if test "${with_oracle+set}" = "set" ; then
 #	cat <<EOT
 #
@@ -1823,6 +1837,8 @@ AC_SUBST(xsb_release_date)
 AC_SUBST(xsb_full_version_name)
 AC_SUBST(engine_mode)
 AC_SUBST(word_size)
+# call_scheme is ignored in Win 64 and non-windoze systems
+AC_SUBST(call_scheme)
 
 AC_SUBST(ODBCSRC)
 AC_SUBST(ODBCOBJ)

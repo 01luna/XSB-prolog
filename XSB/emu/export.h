@@ -27,12 +27,15 @@
 
 #include "xsb_config.h"
 
-#ifdef XSB_DLL
+#ifdef XSB_STDCALL
+#define XSB_CALLCONV  __stdcall
+#else
+#define XSB_CALLCONV  __cdecl
+#endif
+
+#if (defined(XSB_DLL) || defined(XSB_DLL_C))
 #define DllExport __declspec(dllexport)
-#define call_conv __stdcall
-#elif defined(XSB_DLL_C)
-#define DllExport __declspec(dllexport)
-#define call_conv __cdecl
+#define call_conv XSB_CALLCONV
 #else
 #define DllExport
 #define call_conv
