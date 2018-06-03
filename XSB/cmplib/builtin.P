@@ -130,8 +130,8 @@ builtin_instr(functor,3,_).
 builtin_instr(=..,2,_).
 builtin_instr(acyclic_term,1,_).
 builtin_instr(arg,3,_).
-builtin_instr(atom_codes,2,_).
-builtin_instr(atom_chars,2,_).
+%builtin_instr(atom_codes,2,_).
+%builtin_instr(atom_chars,2,_).
 builtin_instr(copy_term,2,_).
 builtin_instr(expand_filename,2,_).
 builtin_instr(get_producer_call,3,_).
@@ -178,8 +178,8 @@ inline_builtin(almost_search_module, 5, ALMOST_SEARCH_MODULE).
 inline_builtin(arg, 3, ARG).
 inline_builtin(assert_buff_to_clref, 6, ASSERT_BUFF_TO_CLREF).
 inline_builtin(assert_code_to_buff, 1, ASSERT_CODE_TO_BUFF).
-inline_builtin(atom_chars, 2, ATOM_CHARS).
-inline_builtin(atom_codes, 2, ATOM_CODES).
+%inline_builtin(atom_chars, 2, ATOM_CHARS).
+%inline_builtin(atom_codes, 2, ATOM_CODES).
 % inline_builtin(breg_retskel, 4, BREG_RETSKEL). % do not inline!
 inline_builtin(buff_alloc, 2, BUFF_ALLOC).
 inline_builtin(buff_byte, 3, BUFF_BYTE).
