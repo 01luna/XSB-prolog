@@ -87,7 +87,7 @@ builtin_instr(file_function,3,machine).
 builtin_instr(getenv,2,machine).
 %%builtin_instr(incr_eval_builtin,3,increval).  NO, uses many registers
 %%builtin_instr(load_obj,4,machine).
-builtin_instr(parsort,4,machine).
+%builtin_instr(parsort,4,machine).
 builtin_instr(psc_name,2,machine).
 builtin_instr(psc_arity,2,machine).
 builtin_instr(psc_type,2,machine).
@@ -140,7 +140,7 @@ builtin_instr(hilog_arg,3,_).
 %%builtin_instr(is_acyclic,1,_). breaks prolog_tests/large_arity_prolog
 builtin_instr(is_charlist,2,_).
 %%builtin_instr(is_cyclic,1,_). breaks prolog_tests/test_cycle.P
-builtin_instr(keysort,2,_).
+%builtin_instr(keysort,2,_).
 builtin_instr(number_chars,2,_).
 builtin_instr(number_codes,2,_).
 builtin_instr(number_digits,2,standard).
@@ -149,7 +149,7 @@ builtin_instr(psc_init_info,1,machine).
 builtin_instr(put,1,_).
 builtin_instr(segfault_handler,1,_).
 builtin_instr(slash,1,machine).
-builtin_instr(sort,2,_).
+%builtin_instr(sort,2,_).
 builtin_instr(str_cat,3,_).
 builtin_instr(str_length,2,_).
 builtin_instr(string_substitute,4,_).
@@ -228,7 +228,7 @@ inline_builtin(is_acyclic, 1, IS_ACYCLIC).
 inline_builtin(is_cyclic, 1, IS_CYCLIC).
 %% inline_builtin(is_incomplete, 2, IS_INCOMPLETE). % Should not be inlined -- Kostis !!
 inline_builtin(is_xwammode, 1, IS_XWAMMODE).
-inline_builtin(keysort, 2, KEYSORT).
+%inline_builtin(keysort, 2, KEYSORT).
 inline_builtin(load_obj, 4, LOAD_OBJ).
 inline_builtin(lrd_success, 2, LRD_SUCCESS).
 inline_builtin(mark_heap, 1, MARK_HEAP).
@@ -268,8 +268,8 @@ inline_builtin(segfault_handler, 1, SEGFAULT_HANDLER).
 inline_builtin(set_tabled_eval, 2, SET_TABLED_EVAL).
 inline_builtin(slash, 1, SLASH_BUILTIN).
 inline_builtin(slg_not, 1, SLG_NOT).
-inline_builtin(sort, 2, SORT).
-inline_builtin(parsort, 4, PARSORT).
+%inline_builtin(sort, 2, SORT).
+%inline_builtin(parsort, 4, PARSORT).
 inline_builtin(stat_cputime, 1, STAT_CPUTIME).
 inline_builtin(stat_flag, 2,  STAT_FLAG).
 inline_builtin(stat_set_flag, 2, STAT_SET_FLAG).
