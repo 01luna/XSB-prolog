@@ -414,7 +414,7 @@ inline static xsbBool atom_to_list(CTXTdeclc int call_type)
 	}
       } else {
 	/* check that there is enough space on the heap! */  
-	check_glstack_overflow(2, pcreg, 2*len*sizeof(Cell)) ;
+	check_glstack_overflow(2, pcreg, 2*len*sizeof(Cell)+OVERFLOW_MARGIN) ;
 	list = ptoc_tag(CTXTc 2);   /* in case it changed */
 
 	new_list = makelist(hreg);
