@@ -115,9 +115,11 @@ excess_vars(_Term,_Tmpl,_PVars,_IfExist,_Vars) :- '_$builtin'(EXCESS_VARS).
 /*	Sorting now is implemented in C via qsort(). 			*/
 /* -------------------------------------------------------------------- */
 
-sort(List, SortedList) :- sort(List, SortedList).
+%sort(List, SortedList) :- sort(List, SortedList).
+sort(_List, _SortedList) :- '_$builtin'(SORT).
 
-keysort(List, SortedList) :- keysort(List, SortedList).
+%keysort(List, SortedList) :- keysort(List, SortedList).
+keysort(_List, _SortedList) :- '_$builtin'(KEYSORT).
 
 /*======================================================================*/
 
