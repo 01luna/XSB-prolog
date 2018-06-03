@@ -820,8 +820,10 @@ hilog_arglist(X, [Y|Z], I, N) :- K is I - 1, J is N - K,
 atom_length(A, N) :-  file_function(ATOM_LENGTH, A, N).
 
 
-atom_chars(A, L) :- atom_chars(A, L).
-atom_codes(A, L) :- atom_codes(A, L).
+%atom_chars(A, L) :- atom_chars(A, L).
+atom_chars(_A, _L) :- '_$builtin'(ATOM_CHARS).
+%atom_codes(A, L) :- atom_codes(A, L).
+atom_codes(_A, _L) :- '_$builtin'(ATOM_CODES).
 
 number_chars(T, L) :- number_chars(T, L).
 number_codes(T, L) :- number_codes(T, L).
