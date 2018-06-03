@@ -39,9 +39,9 @@ prop(p3,dynamic).
 prop(p3,exported).
 prop(p3,multifile).
 prop(setof,built_in).
-prop(setof,imported_from(setof)).
+prop(setof,exported).
 prop(setof,(meta_predicate *,0,*)).
-prop(setof,unloaded).
+prop(setof,static).
 prop(t1_1,answer_abstract = 7).
 prop(t1_1,imported_from(usermod)).
 prop(t1_1,static).

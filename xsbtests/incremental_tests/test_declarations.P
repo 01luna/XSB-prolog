@@ -1,4 +1,5 @@
 :- import numbervars/1 from num_vars.
+:- import setof/3 from setof.
 
 test:- test_bf,fail.
 test:- test_fb,fail.
@@ -43,6 +44,7 @@ p2(2).
 :- multifile p3/1.
 p3(2).
 
+test_bf:- setof(_X,true,_F),fail.
 test_bf:- writeln('-----'),
 	predicate_property(setof(_,_,_),P),
 	write(prop(setof,P)),writeln('.'),fail.
