@@ -134,16 +134,20 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
     name = get_name(search_ptr->psc_ptr);
 #ifndef WIN64
 #ifdef XSB_DLL
-    tempname[0] = '_';
-    /*    tempname[1] = '_'; */
-    strcpy(tempname+1,name);
-    tempsize=strlen(tempname);
-    tempname[tempsize++] = '@';
+    if (XSB_CALLCONV_STR == "__cdecl") {
+      strcpy(tempname,name);
+      tempsize=strlen(tempname);
+    } else {
+      tempname[0] = '_';
+      strcpy(tempname+1,name);
+      tempsize=strlen(tempname);
+      tempname[tempsize++] = '@';
 #ifndef MULTI_THREAD
-    tempname[tempsize++] = '0';
+      tempname[tempsize++] = '0';
 #else
-    tempname[tempsize++] = '4';
+      tempname[tempsize++] = '4';
 #endif
+    }
     tempname[tempsize++] = '\0';
     name = tempname;
 #endif

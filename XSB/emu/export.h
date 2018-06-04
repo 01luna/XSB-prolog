@@ -29,8 +29,10 @@
 
 #ifdef XSB_STDCALL
 #define XSB_CALLCONV  __stdcall
+#define XSB_CALLCONV_STR  "__stdcall"
 #else
 #define XSB_CALLCONV  __cdecl
+#define XSB_CALLCONV_STR  "__cdecl"
 #endif
 
 #if (defined(XSB_DLL) || defined(XSB_DLL_C))

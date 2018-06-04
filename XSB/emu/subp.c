@@ -999,7 +999,7 @@ pthread_t executing_sleeper_thread = (pthread_t) NULL;
 // I'm using a global.
 void
 #ifdef WIN_NT
-_stdcall  // since no parameters, does not matter it seems.
+__stdcall  // since no parameters, does not matter it seems.
 #endif
 executeSleeperThread(void * interval) {
   //  long *i1;
