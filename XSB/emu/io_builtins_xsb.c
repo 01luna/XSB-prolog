@@ -1810,7 +1810,7 @@ void write_quotedname(FILE *file, int charset, char *string)
 #define wcan_buff tsgSBuff1
 
 char *cvt_float_to_str(CTXTdeclc Float floatval) {
-  sprintf(wcan_buff->string,"%1.17g",floatval);
+  sprintf(wcan_buff->string,"%#1.16g",floatval);
   wcan_buff->length = (int)strlen(wcan_buff->string);
   if (!strchr(wcan_buff->string,'.')) {
     char *eloc = strchr(wcan_buff->string,'e');
