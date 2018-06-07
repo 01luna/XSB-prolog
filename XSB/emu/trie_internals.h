@@ -158,7 +158,12 @@
 
 #define TN_UpgradeInstrTypeToSUCCESS(pTN,SymbolTag)	\
    if ( SymbolTag == XSB_STRING || SymbolTag == XSB_INT	\
-	|| SymbolTag == XSB_FLOAT )			\
+	|| SymbolTag == XSB_FLOAT ) \
+     TN_Instr(pTN) += 0x4
+
+#define TN_UpgradeInstrTypeToSUCCESS_wi(pTN,SymbolTag)	\
+   if ( SymbolTag == XSB_STRING || SymbolTag == XSB_INT	\
+	|| SymbolTag == XSB_FLOAT || (interning_terms && isinternstr(TN_Symbol(pTN))) ) \
      TN_Instr(pTN) += 0x4
 
 
