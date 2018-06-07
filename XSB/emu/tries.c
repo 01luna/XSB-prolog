@@ -1503,7 +1503,7 @@ BTNptr variant_answer_search(CTXTdeclc int ans_sf_size, int attv_num, CPtr ans_s
    */
   if ( found_flag == 0 ) {
     MakeLeafNode(Paren);
-    TN_UpgradeInstrTypeToSUCCESS(Paren,tag);
+    TN_UpgradeInstrTypeToSUCCESS_wi(Paren,tag);
 #if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
     ans_inserts++;
 #endif
@@ -2488,7 +2488,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
     //    subg_inserts++;
     //#endif
     MakeLeafNode(Paren);
-    TN_UpgradeInstrTypeToSUCCESS(Paren,tag);
+    TN_UpgradeInstrTypeToSUCCESS_wi(Paren,tag);
   }
 
   if (vcs_tnot_call && ctr > 0) {
