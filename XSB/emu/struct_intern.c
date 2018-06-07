@@ -162,8 +162,13 @@ int is_interned_rec(Cell term) {
   UInteger hashindex; 
   struct hc_block_rec *hc_blk_ptr;
 
-  if (islist(term)) {areaindex = LIST_INDEX; reclen = 2; }
-  else {areaindex = get_arity(get_str_psc(term)); reclen = areaindex + 1; }
+  if (islist(term)) {
+    areaindex = LIST_INDEX;
+    reclen = 2;
+  } else if (isstr(term)) {
+    areaindex = get_arity(get_str_psc(term));
+    reclen = areaindex + 1;
+  } else return FALSE;
 
   if (areaindex > 256) areaindex = get_big_arity_index(areaindex);
   hc_blk_ptr = hc_block[areaindex];
