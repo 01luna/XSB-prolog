@@ -1092,7 +1092,7 @@ int ptoc_term(CTXTdeclc char *fmt, char *c_dataptr, reg_num regnum)
 **
 */
 
-int c2p_term(CTXTdeclc char *fmt, char *c_dataptr, prolog_term variable)
+DllExport int call_conv c2p_term(CTXTdeclc char *fmt, char *c_dataptr, prolog_term variable)
 {
     int my_errno;
     char *subformat[10];
@@ -1107,7 +1107,7 @@ int c2p_term(CTXTdeclc char *fmt, char *c_dataptr, prolog_term variable)
 **
 */
 
-int p2c_term(CTXTdeclc char *fmt, char *c_dataptr, prolog_term variable)
+DllExport int call_conv p2c_term(CTXTdeclc char *fmt, char *c_dataptr, prolog_term variable)
 {
     int my_errno;
     char *subformat[10];
@@ -1864,7 +1864,7 @@ DllExport int call_conv xsb_query_string(CTXTdeclc char *goal)
 /*                                                                      */
 /************************************************************************/
 
-int call_conv xsb_query_string_string(CTXTdeclc char *goal,
+DllExport int call_conv xsb_query_string_string(CTXTdeclc char *goal,
 				      VarString *ans, char *sep)
 {
   int rc;
@@ -1889,7 +1889,7 @@ static XSB_StrDefine(last_answer_lc);
 #define last_answer (&last_answer_lc)
 #endif
 
-int call_conv xsb_query_string_string_b(CTXTdeclc
+DllExport int call_conv xsb_query_string_string_b(CTXTdeclc
 	     char *goal, char *buff, int buflen, int *anslen, char *sep)
 {
   int rc;

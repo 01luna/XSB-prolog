@@ -287,8 +287,8 @@ DllExport extern xsbBool call_conv is_functor(prolog_term);
 DllExport extern xsbBool call_conv is_charlist(prolog_term,int*);
 DllExport extern xsbBool call_conv is_attv(prolog_term);
 
-extern int   c2p_term(CTXTdeclc char*, char*, prolog_term);
-extern int   p2c_term(CTXTdeclc char*, char*, prolog_term);
+DllExport extern int call_conv c2p_term(CTXTdeclc char*, char*, prolog_term);
+DllExport extern int call_conv p2c_term(CTXTdeclc char*, char*, prolog_term);
 
 /*======================================================================*/
 /* Other utilities							*/
