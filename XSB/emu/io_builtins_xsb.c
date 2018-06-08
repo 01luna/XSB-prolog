@@ -97,6 +97,7 @@ struct next_fmt_state {
 
 void next_format_substr(CTXTdeclc char*, struct next_fmt_state*, struct fmt_spec *, int, int);
 char *p_charlist_to_c_string(CTXTdeclc prolog_term, VarString*, char*, char*);
+char *cvt_float_to_str_with_fmt(CTXTdeclc Float, char *);
 
 /* type is a char: 's', 'i', 'f' */
 #define TYPE_ERROR_CHK(ch_type, Label) \
@@ -1810,7 +1811,11 @@ void write_quotedname(FILE *file, int charset, char *string)
 #define wcan_buff tsgSBuff1
 
 char *cvt_float_to_str(CTXTdeclc Float floatval) {
-  sprintf(wcan_buff->string,"%1.17g",floatval);
+  return cvt_float_to_str_with_fmt(CTXTdeclc floatval, "%1.17.g");
+}
+
+char *cvt_float_to_str_with_fmt(CTXTdeclc Float floatval, char *format) {
+  sprintf(wcan_buff->string,format,floatval);
   wcan_buff->length = (int)strlen(wcan_buff->string);
   if (!strchr(wcan_buff->string,'.')) {
     char *eloc = strchr(wcan_buff->string,'e');

@@ -675,6 +675,11 @@ xsbtests/flora_tests/pending_bugs/*.xwam
 xsbtests/flora_tests/pending_bugs/temp
 xsbtests/flora_tests/pending_bugs/temp1
 xsbtests/flora_tests/temp
+xsbtests/foreign_tests/*.exe
+xsbtests/foreign_tests/*.o
+xsbtests/foreign_tests/*.so
+xsbtests/foreign_tests/*.xwam
+xsbtests/foreign_tests/*_new
 xsbtests/incremental_tests/*.xwam
 xsbtests/incremental_tests/*_new
 xsbtests/io_tests/#*
@@ -737,6 +742,8 @@ xsbtests/prolog_tests/.#a
 xsbtests/prolog_tests/CVS
 xsbtests/prolog_tests/_*
 xsbtests/prolog_tests/core
+xsbtests/prolog_tests/parmod_tests/*.xwam
+xsbtests/prolog_tests/parmod_tests/pm_subdir/*.xwam
 xsbtests/prolog_tests/second_foreign.exp
 xsbtests/prolog_tests/second_foreign.lib
 xsbtests/prolog_tests/temp

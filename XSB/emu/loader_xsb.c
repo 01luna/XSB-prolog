@@ -122,7 +122,7 @@ extern char *expand_filename(char *filename);
 #define get_obj_word_bb(x)  \
   {Integer dummy; dummy = get_obj_word(x) ; fix_bb(x) ; \
     SQUASH_LINUX_COMPILER_WARN(dummy) ; }
-#define get_obj_word_bbsig(x) {get_obj_word(x) ; fix_bb4(x) ;\
+#define get_obj_word_bbsig(x) {dummy = get_obj_word(x) ; fix_bb4(x) ;\
 			       *(Cell *)(x) = makeint(*(int *)(x));}
 #define get_obj_word_bbsig_notag(x) \
   {Integer dummy; dummy = get_obj_word(x) ; fix_bb4(x) ;      \
@@ -480,7 +480,7 @@ static int load_text(FILE *fd, int seg_num, size_t text_bytes, int *current_tab)
 	inst_addr += 2;
 	break;
       case RRRR:
-	get_obj_word(inst_addr);
+	dummy = get_obj_word(inst_addr);
 	inst_addr ++;
 	break;
       case B:                       // boxed integer

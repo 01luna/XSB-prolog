@@ -64,6 +64,7 @@
 #endif
 
 char *cvt_float_to_str(CTXTdeclc Float);
+char *cvt_float_to_str_with_fmt(CTXTdeclc Float, char *);
 
 /*
   This was the old test for being a kosher Prolog string
@@ -1212,7 +1213,9 @@ DllExport void call_conv print_pterm(CTXTdeclc prolog_term term, int toplevel,
     sprintf(tempstring,"%d", (int) p2c_int(term));
     XSB_StrAppend(straddr,tempstring);
   } else if (is_float(term)) {
-    XSB_StrAppend(straddr,cvt_float_to_str(CTXTc ofloat_val(term)));
+    XSB_StrAppend(straddr,cvt_float_to_str_with_fmt(CTXTc ofloat_val(term),"%1.16g"));
+    // This is the old call; the new one is above
+    //XSB_StrAppend(straddr,cvt_float_to_str(CTXTc ofloat_val(term)));
   } else if (is_nil(term)) {
     XSB_StrAppend(straddr,"[]");
   } else if (is_string(term)) {
