@@ -1907,7 +1907,7 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
 	 char *eloc = strchr(wcan_buff->string,'e');
 	 if (!eloc) XSB_StrAppend(wcan_buff,".0");
 	 else {	
-	   char exp[5],fstr[30];
+	   char exp[500],fstr[MAX_SPRINTF_STRING_SIZE];
 	   strcpy(exp,eloc);
 	   eloc[0] = 0;
 	   strcpy(fstr,wcan_buff->string);
