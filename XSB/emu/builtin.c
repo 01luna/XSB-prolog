@@ -160,6 +160,7 @@ extern Integer intern_term_size(CTXTdeclc Cell);
 
 int is_cyclic(CTXTdeclc Cell);
 int ground_cyc(CTXTdeclc Cell, int);
+char *cvt_float_to_str_with_fmt(CTXTdeclc Float, char *);
 
 #ifdef WIN_NT
 extern xsbBool startInterruptThread(SOCKET intSocket);
@@ -2205,9 +2206,12 @@ int builtin_call(CTXTdeclc byte number)
     case XSB_STRING :
       write_string_code(fptr,charset,(byte *)ptoc_string(CTXTc 3));
       break;
-    case XSB_FLOAT  : fprintf(fptr, "%2.4f", ptoc_float(CTXTc 3)); break;
-      //    case XSB_FLOAT  : fprintf(fptr, "%1.16g", ptoc_float(CTXTc 3)); break;
-      // but would need ".0" appended if would be printed as an integer
+    case XSB_FLOAT  : 
+      fprintf(fptr, "%s", cvt_float_to_str_with_fmt(CTXTdeclc ptoc_float(CTXTc 3), "%1.16g"));
+      //case XSB_FLOAT  : fprintf(fptr, "%2.4f",  ptoc_float(CTXTc 3));
+      //case XSB_FLOAT  : fprintf(fptr, "%1.16g", ptoc_float(CTXTc 3));
+      //   but would need ".0" appended if would be printed as an integer
+      break;
     case TK_INT_0  : {
       int tmp = (int) ptoc_int(CTXTc 3);
       fix_bb4((byte *)&tmp);
