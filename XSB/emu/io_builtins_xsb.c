@@ -1815,13 +1815,15 @@ char *cvt_float_to_str(CTXTdeclc Float floatval) {
 }
 
 char *cvt_float_to_str_with_fmt(CTXTdeclc Float floatval, char *format) {
+  //XSB_StrEnsureSize(wcan_buff,MAX_SPRINTF_STRING_SIZE);
   sprintf(wcan_buff->string,format,floatval);
   wcan_buff->length = (int)strlen(wcan_buff->string);
   if (!strchr(wcan_buff->string,'.')) {
     char *eloc = strchr(wcan_buff->string,'e');
-    if (!eloc) XSB_StrAppend(wcan_buff,".0");
-    else {	
-      char exp[5],fstr[30];
+    if (!eloc) {
+      XSB_StrAppend(wcan_buff,".0");
+    } else {	
+      char exp[500],fstr[MAX_SPRINTF_STRING_SIZE];
       //	  printf("massage float %s\n", wcan_buff->string);
       strcpy(exp,eloc);
       eloc[0] = 0;
@@ -1994,7 +1996,7 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
 DllExport void call_conv write_canonical_term(CTXTdeclc Cell prologterm, int letter_flag)
 {
   XSB_StrSet(wcan_string,"");
-  XSB_StrEnsureSize(wcan_buff,40);
+  XSB_StrEnsureSize(wcan_buff,MAX_SPRINTF_STRING_SIZE);
   if (write_canonical_term_rec(CTXTc prologterm, letter_flag)) return;
   else xsb_abort("[WRITE_CANONICAL_TERM] Illegal Prolog term: %s",wcan_string->string);
 }
@@ -2002,7 +2004,7 @@ DllExport void call_conv write_canonical_term(CTXTdeclc Cell prologterm, int let
 /* return a string containing the Prolog term in presented in canonical form */
 char *canonical_term(CTXTdeclc Cell prologterm, int letter_flag) {
   XSB_StrSet(wcan_string,"");
-  XSB_StrEnsureSize(wcan_buff,40);
+  XSB_StrEnsureSize(wcan_buff,MAX_SPRINTF_STRING_SIZE);
   write_canonical_term_rec(CTXTc prologterm, letter_flag);
   return wcan_string->string;
 }
