@@ -68,7 +68,11 @@ int main(int argc, char *argv[])
   th_context *th = xsb_get_main_thread();
 #endif
 
-  /* Create command to consult clprtest.P */
+  if (xsb_command_string(CTXTc "consult('cprtelst.P').") == XSB_ERROR)
+    printf("++Caught consulting cprtelst.P: %s/%s\n",xsb_get_error_type(CTXT),
+	    xsb_get_error_message(CTXT));
+
+    /* Create command to consult clprtest.P */
   if (xsb_command_string(CTXTc "consult('clprtest.P').") == XSB_ERROR)
     fprintf(stderr,"++Error consulting clprtest.P: %s/%s\n",xsb_get_error_type(CTXT),
 	    xsb_get_error_message(CTXT));
