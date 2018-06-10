@@ -12,11 +12,18 @@
 The {\tt curl} package is an interface to the {\tt libcurl}  library,
 which provides access to most of the standard Web protocols.
 The supported protocols include
-FTP, FTPS, HTTP, HTTPS, SCP, SFTP, TFTP, TELNET, DICT, LDAP, LDAPS, FILE, IMAP, SMTP, POP3 and RTSP. Libcurl supports SSL certificates, HTTP POST, HTTP PUT, FTP uploading, HTTP form based upload, proxies, cookies, user+password authentication (Basic, Digest, NTLM, Negotiate, Kerberos4), file transfer resume, http proxy tunneling etc. 
+FTP, FTPS, HTTP, HTTPS, SCP, SFTP, TFTP, TELNET, DICT, LDAP, LDAPS, FILE,
+IMAP, SMTP, POP3 and RTSP. Libcurl supports SSL certificates, HTTP
+GET/POST/PUT/DELETE, FTP uploading, HTTP form based upload, proxies,
+cookies, user+password authentication (Basic, Digest, NTLM, Negotiate,
+Kerberos4), file transfer resume, HTTP proxy tunneling etc. 
+The \texttt{curl} package of XSB supports a subset of that functionality,
+as described below. 
 
 
 The {\tt curl} package accepts input in the form of URLs and Prolog
-atoms. To load the {\tt curl} package, the user should type
+atoms. To load the {\tt curl} package, execute the following query in the
+XSB shell or loaded file:
 %%
 \begin{verbatim}
  ?- [curl].  
@@ -35,7 +42,7 @@ can be opened as any other file.Once a Web page is opened, it can be read
 or written just like the a normal file.
 
 
-\subsection{Opening a Web Document}
+\subsection{Opening a Web Document}\label{sec-web-open}
 
 Web documents are opened by the usual predicates {\bf see/1}, {\bf open/3},
 {\bf open/4}.
@@ -55,7 +62,7 @@ Web documents are opened by the usual predicates {\bf see/1}, {\bf open/3},
 {\it Url} is an atom that specifies a URL.
 \emph{Stream} is the file stream of the open file.
 {\it Mode} can be
-\paragraph{read} to create an input stream or
+\textbf{read}, to create an input stream, or
 {\bf write},  to create an output stream.
 For reading, the contents of the Web page are cached in a temporary file.
 For writing, a temporary empty file is created. This file is posted to the
@@ -116,7 +123,7 @@ are open for writing. URL-streams open for reading can be closed using the
 usual \texttt{close/1} predicate. 
 {\it Source} is of the form {\tt url({\it {url-string}})},
 where \emph{url-string} must be an atom. {\it Options} is a list
-of options like those for the open predicate above.
+of options like those for the open predicate of Section~\ref{sec-web-open}.
 If the HTTP server returns a response, the \emph{Response} variable is
 bound to that string. \emph{Warnings} is a list of possible warnings. If
 everything is fine, this list is empty.  
@@ -148,20 +155,19 @@ many options. The parameters of this predicate are described below.
   {\it Warn} is bound to a (possibly empty) list of warnings generated during the process.
 
   {\it Properties} is bound to a \emph{list} of properties of the document. They
-  are {\it Directory name}, {\it File name}, {\it File extension}, {\it
-    Page size}, and {\it Page last modification time}.
+  are {\it Page size}, {\it Page last modification time}, and \emph{Redirection
+  URL}.  
   The {\tt load\_page/5}  predicate caches a copy of the Web page that it
-  fetched from the Web in a local file, which is specified by the above
-  properties \emph{Directory name}, \emph{File name}, \emph{File
-    suffix}, and \emph{Redirection URL}. The next two parameters indicate
-  the size and the last
+  fetched from the Web in a local file, which is identified by the URL's
+  directory, file name portion, and  its file
+    extension. The first two parameters indicate the size and the last
   modification time of the fetched Web page.
-  The last parameter, \emph{Redirection URL} is the source URL, if no
+  The last parameter, \emph{Redirection URL}, is the source URL, if no
   redirection happened or, if the original URL was redirected then this
   parameter shows the final URL.
   The directory and the file name 
-  The \emph{Options} parameter is the same as in the URL opening
-  predicates. 
+  The \emph{Options} parameter is the same as in
+  Section~\ref{sec-web-open}.
 
   \texttt{load\_page} has additional options that can appear in the
   \emph{Options} list:
@@ -209,10 +215,11 @@ The properties of a web document are loaded by the predicates {\bf
   \\
   The {\it Options} and {\it Properties} are same as in {\bf load\_page/5}:
   a \emph{list} of properties of the document, which
-  are {\it Directory name}, {\it File name}, {\it File extension}, {\it
-    Page size}, {\it Page last modification time}, \emph{RedirectionURL} 
+  are {\it Page size}, {\it Page last modification time}, \emph{RedirectionURL} 
   in that order. If the original page has no redirection then
   \emph{RedirectionURL} is the same as \emph{Url}. 
+  Some Web servers will not report page sizes or modification times (or
+  both) in which case they appear as -1.
   \index{\texttt{url\_properties/2}}
 \item[url\_properties({\it +Url, -Properties})]\mbox{}
   \\
@@ -232,8 +239,8 @@ predicate.
   \\
 {\it Source} has the form {\it url(url-string)}, where
 \emph{url-string} is an atom.
-{\it Result} is bound to a list of properties of the URL:
-the encoded {\it Directory Name}, the encoded {\it File Name}, and the {\it
+{\it Result} is bound to a list of components of the URL:
+the URL-encoded {\it Directory Name}, the URL-encoded {\it File Name}, and the {\it
   Extension} of the URL.
 
 \end{description}

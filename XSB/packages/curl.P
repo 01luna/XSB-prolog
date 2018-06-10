@@ -69,12 +69,12 @@
 
 
 %% load_page(+Source,+Options,-Properties,-Document,-Warnings)
-load_page(Source, Options, [DirEnc, FileBase, Suffix, Size, Time, FinalURL], Document, Warn) :- 
+load_page(Source, Options, [Size, Time, FinalURL], Document, Warn) :- 
         check_installation,
 	load_page_warn(Source, Options, [Size, Time, FinalURL], Document, Warn),
-	encode_url(Source, [DirEnc, FileBase, Suffix]), 
 	curl_finalize_warn(Warn).
 
+%% Properties: [PageSize,PageLastMod,RedirectionURL]
 load_page_warn(Source, Opt, _Props, Document, _Warn) :-
         select(post(true),Opt,OtherOpts),
 	!, 
@@ -86,11 +86,10 @@ load_page_warn(Source, Opt, _Props, Document, _Warn) :-
 	open(TmpFile, read, RStream),
 	stream_to_string(RStream, Str), 
 	close(RStream), 
-        pl_load_page([options([post_data(Str)|OtherOpts]), source(Source), document(Document), properties(_, _, _, _, _)]).
+        pl_load_page([options([post_data(Str)|OtherOpts]), source(Source), document(Document), properties(_, _, _)]).
 
 load_page_warn(Source, Options, [Size, Time, FinalURL], Doc, Warn) :-
 	curl_allocate_error_term(Error, Warn),
-	%%examine_open_options(open, Options, ValidOptions), 
 	examine_open_options(Options, ValidOptions), 
         pl_load_page([options(ValidOptions), source(Source), document(DocTmp), properties(SizeTmp, TimeTmp, FinalURL)]), 
         %% This redirection handling business is very shaky.
@@ -121,12 +120,14 @@ encode_url(url(Url), [DirEnc, FileUnEnc, Suffix]) :-
 	validatefile(File, FileUnEnc), 
 	validatesuffix(Suf, Suffix).
 
-%% to squash warnings
-:- export examine_open_options/3.
+/*
+%% Unused: examine_open_options/3.
 examine_open_options(open, Options, ValidOptions):-
 	examine_open_options(Options, Options1), 
 	remove(url_prop(true), Options1, ValidOptions).
+*/
 
+%% examine_open_option/2.
 examine_open_options([], []).
 examine_open_options([redirect(Bool)|T], [redirect(Bool)|Options]):-
         ((Bool == true ; Bool == false) -> true
@@ -288,6 +289,8 @@ www_cache_filename(_, FileBase, Suffix, FileName) :-
 	str_cat(FileBase, '.', FileBaseRedir), 
 	str_cat(FileBaseRedir, Suffix, FileName). 
 	
+/*
+%% called by the unused examine_open_options/3.
 remove(_, [], []).
 remove(X, [X|T1], T2):-
 	!, 
@@ -295,6 +298,7 @@ remove(X, [X|T1], T2):-
 remove(X, [H|T1], [H|T2]):-
 	!, 
 	remove(X, T1, T2).
+*/
 
 throw_error(Error) :- var(Error), !.
 throw_error(Error) :- throw(Error).
