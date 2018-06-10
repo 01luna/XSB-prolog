@@ -195,6 +195,8 @@ rm -f aggregs_test_2.xwam
 ../gentest.sh "$XEMU -l $options" test_get_idg_info "test."
 #-------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_maxans_decl "test."
+#-------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_not3_wcs "test."
 
 #VALGRIND
 if test "$valgrind" = "true"; then
