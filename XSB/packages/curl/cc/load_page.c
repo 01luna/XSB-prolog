@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 #include "load_page.h"
+#include "basicdefs.h"
 
 struct result_t
 {
@@ -130,6 +131,11 @@ load_page (char *source, curl_opt options, curl_ret *ret_vals)
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, options.put_data);
   }
+  if(options.delete) {
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+    // MAYBE also indicate that there is no returned data
+    //curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+  }
 
   /* Allow curl to perform the action */
   curl_easy_perform (curl);
@@ -219,6 +225,7 @@ curl_opt init_options() {
   options.post_data = "";
   options.put_data = "";
   options.header = NULL;
+  options.delete = FALSE;
 
   return options;
 }

@@ -41,13 +41,13 @@ typedef struct opt
   }auth;
 
   int timeout;
-
   int url_prop;
 
   char *user_agent;
-
   char *post_data;
   char *put_data;
+
+  int  delete;
   struct curl_slist *header;
 } curl_opt;
 

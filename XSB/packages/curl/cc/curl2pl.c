@@ -23,7 +23,6 @@
 
 #include "nodeprecate.h"
 
-
 #include "xsb_config.h"
 #ifdef WIN_NT
 #define XSB_DLL
@@ -188,6 +187,9 @@ DllExport int call_conv pl_load_page()
           else if(!strcmp(p2c_functor(term_option), "post_data")){
             options.post_data = p2c_string(p2p_arg(term_option, 1));
           }
+          else if(!strcmp(p2c_functor(term_option), "delete")){
+            options.delete = TRUE;
+          }
           term_options = p2p_cdr(term_options);
 	}
       }
@@ -217,6 +219,7 @@ DllExport int call_conv pl_load_page()
 	      c2p_string(CTXTc (char *) ctime(&ret_vals.modify_time),
 		         p2p_arg(head, 2));
 	*/
+	c2p_string(CTXTc (char *) ret_vals.url_final, p2p_arg(head,3));
       }
     }
     else{

@@ -28,7 +28,11 @@
         member/2, append/3
    from basics.
 :- import file_seek/4, path_sysop/2 from file_io.
-:- import str_match/5, substring/4, str_cat/3 from string.
+:- import
+        %%str_match/5,
+        %%substring/4,
+        str_cat/3
+   from string.
 :- import slash/1 from machine.
 :- import xsb_configuration/2 from xsb_configuration.
 
@@ -49,7 +53,7 @@
 	encode_url/2,
 	www_cache_filename/4,
 	set_tmp_file/3,
-	get_redir_url/2, 
+	%%get_redir_url/2, 
 	post_data/2, 
 	post_data/4, 
 	post_data/5, 
@@ -65,9 +69,9 @@
 
 
 %% load_page(+Source,+Options,-Properties,-Document,-Warnings)
-load_page(Source, Options, [DirEnc, FileBase, Suffix, Size, Time], Document, Warn) :- 
+load_page(Source, Options, [DirEnc, FileBase, Suffix, Size, Time, FinalURL], Document, Warn) :- 
         check_installation,
-	load_page_warn(Source, Options, [Size, Time], Document, Warn),
+	load_page_warn(Source, Options, [Size, Time, FinalURL], Document, Warn),
 	encode_url(Source, [DirEnc, FileBase, Suffix]), 
 	curl_finalize_warn(Warn).
 
@@ -84,12 +88,16 @@ load_page_warn(Source, Opt, _Props, Document, _Warn) :-
 	close(RStream), 
         pl_load_page([options([post_data(Str)|OtherOpts]), source(Source), document(Document), properties(_, _, _, _, _)]).
 
-load_page_warn(Source, Options, [Size, Time], Doc, Warn) :-
+load_page_warn(Source, Options, [Size, Time, FinalURL], Doc, Warn) :-
 	curl_allocate_error_term(Error, Warn),
 	%%examine_open_options(open, Options, ValidOptions), 
 	examine_open_options(Options, ValidOptions), 
-        pl_load_page([options(ValidOptions), source(Source), document(DocTmp), properties(SizeTmp, TimeTmp)]), 
-	handle_html_redir(ValidOptions, DocTmp, SizeTmp, TimeTmp, Doc, Size, Time), 
+        pl_load_page([options(ValidOptions), source(Source), document(DocTmp), properties(SizeTmp, TimeTmp, FinalURL)]), 
+        %% This redirection handling business is very shaky.
+        %% Needs reconsideration - not used
+	%%handle_html_redir(ValidOptions, DocTmp, SizeTmp, TimeTmp, Doc, Size, Time), 
+        Size = SizeTmp, Time = TimeTmp, Doc = DocTmp,
+        %% No-op, if var(Error)
 	throw_error(Error).
 
 url_properties(Url, Properties) :-
@@ -113,6 +121,8 @@ encode_url(url(Url), [DirEnc, FileUnEnc, Suffix]) :-
 	validatefile(File, FileUnEnc), 
 	validatesuffix(Suf, Suffix).
 
+%% to squash warnings
+:- export examine_open_options/3.
 examine_open_options(open, Options, ValidOptions):-
 	examine_open_options(Options, Options1), 
 	remove(url_prop(true), Options1, ValidOptions).
@@ -163,6 +173,10 @@ examine_open_options([put_data(Data)|T], [put_data(Data)|Options]):-
         ),
 	!,
 	examine_open_options(T, Options).
+%% translate delete to delete(_) because the curl adaptor expects terms here
+examine_open_options([delete|T], [delete(_)|Options]):-
+	!,
+	examine_open_options(T, Options).
 examine_open_options([user_agent(Agent)|T], [user_agent(Agent)|Options]):-
         atom(Agent),
 	!,
@@ -170,6 +184,8 @@ examine_open_options([user_agent(Agent)|T], [user_agent(Agent)|Options]):-
 examine_open_options([_|T], Options):- 
 	examine_open_options(T, Options).
 
+/*
+%% Shaky stuff - remove or revisit
 handle_html_redir(ValidOptions, Doc, Size, Time, Doc, Size, Time) :-
 	member(redirect(false), ValidOptions), 
 	!.
@@ -180,11 +196,11 @@ handle_html_redir(ValidOptions, DocTmp, _, _, Doc, Size, Time) :-
 handle_html_redir(_, Doc, Size, Time, Doc, Size, Time) :-
 	!.
 
+%% Shaky stuff - revisit
 get_redir_url(url(Url), UrlNew) :-
 	!, 
 	load_page_warn(url(Url), [redirect(false)], _Props, Doc, _Warn), 
 	get_redir_url(Doc, UrlNew).
-
 get_redir_url(file(File), UrlNew) :-
 	!, 
 	open(file(File), read, X), 
@@ -192,6 +208,8 @@ get_redir_url(file(File), UrlNew) :-
 	get_redir_url(Doc, UrlNew).
 
 get_redir_url(Doc, Url) :-
+        %% Head can be uppercase!!!!
+        %% Redirection is not always using http-equiv!!
 	str_match('<head>', Doc, forward, XHead, _), 
 	str_match('</head>', Doc, forward, _, YHead), 
 	substring(Doc, XHead, YHead, Head1), 
@@ -199,7 +217,8 @@ get_redir_url(Doc, Url) :-
 	substr_remove(Head2, '\n', Head3), 
 	substr_remove(Head3, '\t', Head), 
 	get_meta_redir(Head, Meta), 
-	get_url_frm_meta(Meta, Url). 
+	get_url_frm_meta(Meta, Url), 
+        !.
 
 get_meta_redir(Head, Meta) :-
 	str_match('<meta', Head, forward, XMeta, _),
@@ -240,11 +259,16 @@ substr_remove(S1, SubStr, S2) :-
 	str_cat(S1Beg, S1End, S2).
 
 substr_remove(S, _, S).
+*/
 
 stream_to_string(X, Y) :- 
 	file_seek(X, 0, 0, _), 
 	stream_to_string_sub(X, Y).
-stream_to_string_sub(X, Y) :- file_read_line(X, Y1), !, stream_to_string_sub(X, Y2), str_cat(Y1, Y2, Y).
+stream_to_string_sub(X, Y) :-
+        file_read_line(X, Y1),
+        !,
+        stream_to_string_sub(X, Y2),
+        str_cat(Y1, Y2, Y).
 stream_to_string_sub(_, '').
 
 validatedir('', '__null__') :- !.

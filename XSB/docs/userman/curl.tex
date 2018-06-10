@@ -152,9 +152,13 @@ many options. The parameters of this predicate are described below.
     Page size}, and {\it Page last modification time}.
   The {\tt load\_page/5}  predicate caches a copy of the Web page that it
   fetched from the Web in a local file, which is specified by the above
-  properties \emph{Directory name}, \emph{File name}, and \emph{File
-    suffix}. The remaining two parameters indicate the size and the last
+  properties \emph{Directory name}, \emph{File name}, \emph{File
+    suffix}, and \emph{Redirection URL}. The next two parameters indicate
+  the size and the last
   modification time of the fetched Web page.
+  The last parameter, \emph{Redirection URL} is the source URL, if no
+  redirection happened or, if the original URL was redirected then this
+  parameter shows the final URL.
   The directory and the file name 
   The \emph{Options} parameter is the same as in the URL opening
   predicates. 
@@ -204,7 +208,9 @@ The properties of a web document are loaded by the predicates {\bf
   The {\it Options} and {\it Properties} are same as in {\bf load\_page/5}:
   a \emph{list} of properties of the document, which
   are {\it Directory name}, {\it File name}, {\it File extension}, {\it
-    Page size}, and {\it Page last modification time} in that order.
+    Page size}, {\it Page last modification time}, \emph{RedirectionURL} 
+  in that order. If the original page has no redirection then
+  \emph{RedirectionURL} is the same as \emph{Url}. 
   \index{\texttt{url\_properties/2}}
 \item[url\_properties({\it +Url, -Properties})]\mbox{}
   \\
@@ -230,19 +236,20 @@ the encoded {\it Directory Name}, the encoded {\it File Name}, and the {\it
 
 \end{description}
 
-\subsection{Obtaining the Redirection URL}
 
-If the originally specified URL was redirected, the URL of the page that
-was actually fetched by {\tt load\_page/5} can be found with the help of
-the following predicate: 
-
-\begin{description}
-  \index{\texttt{get\_redir\_url/2}}
-\item[get\_redir\_url({\it +Source, -UrlNew})]\mbox{}
-  \\
-  {\it Source} can be of the form {\tt url({\it {url}})}, {\tt file({\it {filename}})} or a string.
-
-\end{description}
+%%\subsection{Obtaining the Redirection URL}
+%%
+%%If the originally specified URL was redirected, the URL of the page that
+%%was actually fetched by {\tt load\_page/5} can be found with the help of
+%%the following predicate: 
+%%
+%%\begin{description}
+%%  \index{\texttt{get\_redir\_url/2}}
+%%\item[get\_redir\_url({\it +Source, -UrlNew})]\mbox{}
+%%  \\
+%%  {\it Source} can be of the form {\tt url({\it {url}})}, {\tt file({\it {file%%name}})} or a string.
+%%
+%%\end{description}
 
 \section{Installation and configuration}
 
