@@ -89,6 +89,14 @@ tv_answer_set_status_code(UNDEFINED_ANSWER_SET,  non_tabled_subgoal).
 tv_answer_set_status_code(COMPLETED_ANSWER_SET,  complete).
 tv_answer_set_status_code(INCOMPLETE_ANSWER_SET, incomplete_subgoal).
 
+:- export not3/1. 
+not3(Term) :-
+    truth_value(Term,TV),
+%    writeln(TV),
+    (TV=true  -> fail
+     ; (TV=undefined -> Term
+     ; true)).
+    
 /*----------------------------------------------------------------------*/
 % table_state   
 /*
@@ -154,10 +162,7 @@ tfindall(T, Call, Result) :-
 	; abort(['Illegal (untabled?) subgoal to tfindall/3: ', Call])
 	).
 
-:- export not3/1. 
-not3(Term) :- (truth_value(Term,TV),TV=true,!,fail ; Term).
-    
-:- export 't not'/1.
+    :- export 't not'/1.
 't not'(Goal):- tnot(Goal).
 
 /* Need to Handle module calls (not sure if done properly before) */
