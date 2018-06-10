@@ -2791,7 +2791,6 @@ the nearest integer to {\tt Number} if {\tt Number} is a float, and
 %\newcommand{\ourstandarditem}[3]{\item[{\mbox{\tt #1}}  ] \index[pred]{\texttt{#2}} \index{\texttt{#2}} \hspace*{\fill}{\mbox{\sf #3}}\ \\}
 %\ourstandarditem{\mbox{ \verb|^| }(+Expr1,+Expr2)}{\verb|^|/2}{Evaluable Functor (ISO)}
 
-%@@
 \item \verb|^/2| \index[pred]{\^\ /2} \index{\^\ /2} \hspace*{\fill}{\mbox{\sf Evaluable Functor (ISO)}} \\
 %
 If {\tt Expr1} and {\tt Expr2} both evaluate to numbers, the infix
@@ -5313,6 +5312,26 @@ Error cases are the same as those for {\tt call/1} with the addition
 \item {\tt permission\_error(obtain\_models\_truth\_value,incomplete\_subgoal,{\tt Goal})}
 \ei
 \ei
+
+\ourmoditem{not3(\#Goal)}{not3/1}{tables}
+% 
+{\tt not3(Goal)} determines the truth value of an atomic {\tt Goal};
+it succeeds unconditionally if the truth value of {\tt Goal} is false
+and fails if the truth value of {\tt Goal} is true.  If {\tt Goal}
+succeeds conditionally with delay set {\em D} (i.e., {\tt Goal} is
+undefined in the well founded semantics or completion semantics), {\tt
+  not3(Goal)} also succeeds conditionally with delay set {\em D}.
+
+{\tt not3/1} should be used in program that exploit 3-valued
+reasoning, such as the well-founded semantics or the (weak) completion
+semantics, {\em and} if {\tt Goal} may be non-tabled.  Using {\tt
+  not/1} or {\tt $\backslash$+/1} in such a case will give incorrect
+answers.  On the other hand, if evaluation of {\tt Goal} produces a
+positive or negative loop, an exception will be thrown.  For this
+reason, if {\tt Goal} is known to be tabled, it is better to use {\tt
+  not\_exists/1} or {\tt tnot/1}, and {\tt not3/1} should not be seen
+as a replacement for these predicates.
+
 
 \isoitem{once(\#X)}{once/1}
 %

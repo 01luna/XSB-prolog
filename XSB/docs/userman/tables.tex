@@ -2576,9 +2576,9 @@ as:
 \end{verbatim}
 \noindent
 and we'd like to assign {\em undefined} or {\em unknown} to {\tt
-  clean\_the\_garage}.\footnote{Actually, many wives would
-  go ahead and assign {\em false} to this statement, but we are
-  modeling an optimistic wife.}
+  clean\_the\_garage}.\footnote{Actually, many wives would go ahead
+  and assign {\em false} to this statement, but we are modeling an
+  optimistic (or possibly delusional) wife.}
 
 Although this example is somewhat fanciful, it turns out that this
 interpretation accords with the results of cognitive science
@@ -2611,7 +2611,7 @@ humans would treat the unknown predicate {\tt s} as in fact {\em
   unknown} or {\em undefined}.  More generally, if (sub-)goal $G$
 refers to an undefined predcate,the {\em weak} completion semantics
 (WCS) also assigns {\em undefined} to $G$, rather than {\em false} as
-WFS does, or throwing an error (as XSB also does by default)z.
+WFS does, or throwing an error (as XSB also does by default).
 
 %Practically speaking in XSB, as in Prolog, by default the goal $G$
 %raises an exception, so if goals like $G$ should fail, a Prolog flag
@@ -2627,7 +2627,7 @@ These features can be set globally either separately or together:
     default).
 \item Setting the Prolog flag {\tt alt\_semantics} to {\tt cs} causes
   XSB to globally evaluate the completion semantics.
-\item Setting the Prolog flag {\tt alt\_semantics} to {\tt wcs} causes
+\item Setting the Prolog flag {\tt alt\_semantics} to {\tt weak\_cs} causes
   XSB to globally evaluate the weak completion semantics, and is
   equivalent to setting the {\tt alt\_semantics} flag to {\tt cs} and
   the ISO flag {\tt unknown} to {\tt undefined}.
