@@ -15,7 +15,12 @@ test1:-
 	write_term('$VAR'(0),[numbervars(true)]).
 test1:- 
 	write_term('$VAR'(26),[numbervars(true)]).
-test:- 
-	write_term([1,2,3,4,5],[max_depth(3)]).
-test:- 
-	write_term((a,b),[priority(300)]).
+test1:- 
+      write_term('$VAR'(seven('MyVar')),[numbervars(true)]).
+test1:- 
+	write_term('$VAR'(eight("MyVar")),[numbervars(true)]).
+test1:- 
+	write_term(nine([1,2,3,4,5]),[max_depth(3)]).
+test1:- 
+	write_term(ten((a,b)),[priority(300)]).
+     
