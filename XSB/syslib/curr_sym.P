@@ -39,6 +39,7 @@
 #include "basicdefs.h"
 #include "table_status_defs.h"
 #include "psc_defs.h"
+#include "io_defs_xsb.h"
 
 /* ===== current_atom/1 ====================================== */
 
@@ -1186,6 +1187,16 @@ xsb_flag(alt_semantics,Mode):-
 xsb_flag(errors_with_position,Mode):- 
 	stat_flag(ERRORS_WITH_POSITION, Flag),
 	( Flag =:= 0 -> Mode = off ; Mode = on ).
+xsb_flag(float_display_precision,Num):- 
+    file_function(GET_FLOAT_DISPLAY_PRECISION,P,_),
+    atom_codes(P,[_,_,_|R]),
+    remove_last(R,NumL),
+    atom_codes(Num,NumL).
+
+
+remove_last([_],[]):- !.
+remove_last([H|T],[H|T1]):- 
+    remove_last(T,T1).
 
 %:- import writeln/1 from standard.
 set_xsb_flag(Type,Val):- 
@@ -1472,12 +1483,19 @@ set_xsb_flag_1(errors_with_position,Mode):- !,
 	( Mode = on -> 
 	    stat_set_flag(ERRORS_WITH_POSITION, 1)
 	 ;  (Mode = off, stat_set_flag(ERRORS_WITH_POSITION, 0))).
+set_xsb_flag_1(float_display_precision,P):- 
+    integer(P),P >= 1,P =< 17,!,
+    number_codes(P,PList),append([37,49,46],PList,L1),append(L1,[103],Flist),
+    atom_codes(Format,Flist),
+%    concat_atom(['%1.',P,g],Format),
+    file_function(PUT_FLOAT_DISPLAY_PRECISION,Format,_).
 set_xsb_flag_1(Type, _) :-
 	(	iso_flag(Type)
 	;	prolog_commons_flag(Type)
 	),
 	permission_error(modify,flag,Type,set_prolog_flag/2).
-set_xsb_flag_1(Type, _) :-  
+set_xsb_flag_1(Type, _) :-
+   writeln(foo),
 	domain_error(prolog_flag,Type,set_prolog_flag/2,1).
 
 /* ==================================================================== */

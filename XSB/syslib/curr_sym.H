@@ -32,7 +32,7 @@
 :- export current_input_port/1, current_output_port/1.
 
 :- import retractall/1, (dynamic)/1, asserta/1 from assert.
-:- import member/2 from basics.
+:- import member/2,append/3 from basics.
 :- import check_nonvar/3, check_ground/3,
           domain_error/5, type_error/4, permission_error/4,misc_error/1,
           instantiation_error/3, domain_error/4 from error_handler.
@@ -46,7 +46,8 @@
 	  psc_env/2, psc_spy/2,dereference_the_bucket/2,
 	  pair_psc/2, pair_next/2, next_bucket/2, conpsc/2,
 	  str_cat/3, intern_string/2, slash/1, psc_ep/2, psc_insertmod/3,
-%	  psc_get_incr/2, psc_shared/2, psc_tabled/2, 
+%	  psc_get_incr/2, psc_shared/2, psc_tabled/2,
+	  file_function/3,
 	  term_new_mod/3 from machine.
 :- import atom_codes/2, number_codes/2,catch/3,(index)/2 from standard.
 :- import functor/3, warning/1, abort/1, integer/1, atom/1, structure/1 from standard.
