@@ -2,7 +2,7 @@
 ** Author(s): Rohan Shirwaikar
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
-** Copyright (C) The Research Foundation of SUNY, 2004
+** Copyright (C) The Research Foundation of SUNY, 2004-2018
 ** 
 ** XSB is free software; you can redistribute it and/or modify it under the
 ** terms of the GNU Library General Public License as published by the Free
@@ -18,8 +18,6 @@
 ** along with XSB; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 **
-** $Id: xpathconfig.P,v 1.12 2012-10-23 21:09:33 kifer Exp $
-** 
 */
 
 
@@ -79,8 +77,8 @@
     xsb_configuration(config_libdir, ConfigLibDir),
     xsb_configuration(compiler, CC),
     xsb_configuration(config_dir, ConfigDir),
-    xsb_configuration(config_bindir, ConfigBinDir),
     xpath_info(ccflags, CCflags),
+    xsb_configuration(config_bindir, ConfigBinDir),
 
     %% These construct the files where the included Windows copy of
     %% libxml2, iconv, etc., is sitting

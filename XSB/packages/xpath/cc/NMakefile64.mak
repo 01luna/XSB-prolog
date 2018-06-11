@@ -26,20 +26,20 @@ CPP_PROJ=/nologo /MD /W3 /EHsc /O2 /I "$(ARCHDIR)" \
 	/I "$(XSBDIR)\packages\curl\cc" \
 	/I "$(XSBDIR)\packages\xpath\cc"\
 	/I ".\include" \
-	 /D "WIN_NT" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" \
-	 /Fo"$(ARCHOBJDIR)\\" /Fd"$(ARCHOBJDIR)\\" /c 
+	/D "WIN64" /D "WIN_NT" /D "_WINDOWS" /D "_MBCS" \
+	/Fo"$(ARCHOBJDIR)\\" /Fd"$(ARCHOBJDIR)\\" /c 
 	
 SOURCE="$(CURLDIR)\load_page.c"
-"$(ARCHOBJDIR)\load_page.obj" : $(SOURCE) "$(INTDIR)"
+"$(ARCHOBJDIR)\load_page.obj" : $(SOURCE) "$(INTDIR)"  $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 SOURCE=fetch_file.c xpathparser.c 
-"$(ARCHOBJDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)"
+"$(ARCHOBJDIR)\$(MYPROGRAM).obj" : $(SOURCE) "$(INTDIR)" $(ARCHDIR)\xsb_config.h
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 LINK_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib \
 	advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib \
-	odbc32.lib odbccp32.lib xsb.lib wsock32.lib libxml2.lib \
+	odbc32.lib odbccp32.lib xsb.lib wsock32.lib libxml2-2.lib \
 	libcurl.lib curl2pl.lib\
 	/nologo /dll \
 	/machine:x64 /out:"$(OUTDIR)\$(MYPROGRAM).dll" \
