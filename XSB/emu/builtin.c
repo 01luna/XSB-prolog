@@ -2206,8 +2206,10 @@ int builtin_call(CTXTdeclc byte number)
     case XSB_STRING :
       write_string_code(fptr,charset,(byte *)ptoc_string(CTXTc 3));
       break;
-    case XSB_FLOAT  : 
-      fprintf(fptr, "%s", cvt_float_to_str_with_fmt(CTXTdeclc ptoc_float(CTXTc 3), "%1.16g"));
+    case XSB_FLOAT  :
+      fprintf(fptr, "%s",
+	      cvt_float_to_str_with_fmt(CTXTc ptoc_float(CTXTc 3),(char *)flags[FLOAT_DISPLAY_PRECISION]));
+      //      fprintf(fptr, "%s", cvt_float_to_str_with_fmt(CTXTdeclc ptoc_float(CTXTc 3), "%1.16g"));
       // fprintf(fptr, "%2.4f",  ptoc_float(CTXTc 3));
       // fprintf(fptr, "%1.16g", ptoc_float(CTXTc 3));
       //   but would need ".0" appended if would be printed as an integer

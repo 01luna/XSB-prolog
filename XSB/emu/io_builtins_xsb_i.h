@@ -1076,6 +1076,30 @@ inline static xsbBool file_function(CTXTdecl)
     break;
   }
 
+  case GET_FLOAT_DISPLAY_PRECISION: {
+    //    printf("flag: %s\n",(char *)flags[FLOAT_DISPLAY_PRECISION]);
+    ctop_string(CTXTc 2,(char *)flags[FLOAT_DISPLAY_PRECISION]);
+    break;
+  }
+
+  case PUT_FLOAT_DISPLAY_PRECISION: {
+    //    printf("before %s\n",    flags[FLOAT_DISPLAY_PRECISION]);
+    flags[FLOAT_DISPLAY_PRECISION] = (Cell) ptoc_string(CTXTc 2);
+    //    printf("after %s\n",    flags[FLOAT_DISPLAY_PRECISION]);
+    break;
+  }
+
+  case WRITE_FLOAT_VAR_PRECISION: {
+    FILE* fptr;
+    int io_port = (int)ptoc_int(CTXTc 2);
+    SET_FILEPTR(fptr, io_port);
+    char format[] = "%1.16g";
+    sprintf(&format[3],"%dg",(int) ptoc_int(CTXTc 4));
+    //    printf("wfvp %s\n",format);
+    fprintf(fptr,"%s",cvt_float_to_str_with_fmt(CTXTc ptoc_float(CTXTc 3),format));
+    break;
+  }
+	    
   default:
     xsb_abort("[FILE_FUNCTION]: Invalid file operation, %d\n", ptoc_int(CTXTc 1));
   }

@@ -703,7 +703,7 @@ inline static xsbBool sort(CTXTdecl)
       else xsb_type_error(CTXTc "list",list,"sort/2",1);
     }
   } while(1);
-  check_glstack_overflow(3, pcreg, (2*len)*sizeof(Cell)) ;
+  check_glstack_overflow(3, pcreg, (2*len)*sizeof(Cell)+OVERFLOW_MARGIN) ;
   list = ptoc_tag(CTXTc 1); /* reset in case moved */
   if (len > 0) {
     term2 = list;
@@ -771,7 +771,7 @@ inline static xsbBool keysort(CTXTdecl)
       return FALSE;	/* fail */
     }
   } while(1);
-  check_glstack_overflow(3, pcreg, (2*len)*sizeof(Cell)) ;
+  check_glstack_overflow(3, pcreg, (2*len)*sizeof(Cell)+OVERFLOW_MARGIN) ;
   list = ptoc_tag(CTXTc 1);  /* reset in case moved */
   term = ptoc_tag(CTXTc 2);
   if (len > 0) {
@@ -907,7 +907,7 @@ inline static xsbBool parsort(CTXTdecl)
     }
   } while(1);
 
-  check_glstack_overflow(4, pcreg, (2*len)*sizeof(Cell)) ;
+  check_glstack_overflow(4, pcreg, (2*len)*sizeof(Cell)+OVERFLOW_MARGIN) ;
   list = ptoc_tag(CTXTc 1);  /* reset in case moved */
   term = ptoc_tag(CTXTc 4);
   if (len > 0) {
