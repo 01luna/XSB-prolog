@@ -239,7 +239,6 @@ static void parameter_error(char * param) {
 }
 
 /*==========================================================================*/
-
 /* Initialize System Flags
    ----------------------- */
 static void init_flags(CTXTdecl)
@@ -1613,6 +1612,7 @@ void init_symbols(CTXTdecl)
   true_psc = make_code_psc_rec(CTXTc "true", 0, standard_psc);
   true_string = get_name(true_psc);
   cut_string = string_find("!",1);
+  flags[FLOAT_DISPLAY_PRECISION] = (Cell)  string_find("%1.16g", 1);
   cyclic_string = (char *) string_find("<cyclic>",1);
 
   visited_psc = make_code_psc_rec(CTXTc "_$visited", 0, standard_psc);
