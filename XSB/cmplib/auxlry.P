@@ -33,7 +33,11 @@
 /*============================================================*/
 
 message(Message) :- ttywritenl(Message, STDMSG).
+messagenonl(Message) :- ttywrite(Message, STDMSG).
 
+ttywrite((X,Y), File) :- !, ttywrite(X, File), ttywrite(Y, File).
+ttywrite(T, File) :- file_write(File, T).
+   
 :- import warning/2 from standard.
 warning(Message) :-
 	(current_compiled_module(Module)
@@ -260,11 +264,15 @@ option(X) :- conget(X, 1).
 /*  time_message(+StartTime, +Message)					*/
 /*	Display the Message and the elapsed cpu time.			*/
 /*================================================================*/
+:- import write_term/3 from write_term.
 
 time_message(StartTime, Message) :- 
 	cputime(Time),
+	messagenonl(('[', Message, ', cpu time used: ')),
+%        message(('[', Message, ', cpu time used: ', Laps, ' seconds]')).
 	Laps is Time - StartTime,
-	message(('[', Message, ', cpu time used: ', Laps, ' seconds]')).
+        write_term(STDMSG,Laps,[float_display_precision(6)]),
+        message(' seconds]').
 
 verbo_time_message(StartTime, Message) :- 
 	( option(verbo) -> time_message(StartTime, Message) ; true ).

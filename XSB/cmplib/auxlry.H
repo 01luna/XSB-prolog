@@ -44,7 +44,7 @@
 :- import term_psc/2, term_type/2, psc_arity/2, term_arg/3
         from machine.
 :- import misc_error/1 from error_handler.
-
+   :- import file_write/2 from xsb_writ.
 :- import
 	unset_preprocessing_done/0,
 	enqueue_preprocessor/1
