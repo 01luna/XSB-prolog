@@ -27,18 +27,18 @@
 :- compiler_options([ciao_directives,sysmod,optimize,xpp_on]).
 
 #include "thread_defs_xsb.h"
-
+#include "io_defs_xsb.h"
+ 
 :- export write_term/2, write_term/3, write_option/1,code_class/2.
 
-:- import current_infixop/4, current_postfixop/3, current_prefixop/3
-								from xsb_ciao. 
+:- import xsb_stream_lock/1, xsb_stream_unlock/1 from file_io.
 :- import check_nonvar/3, instantiation_error/3,
 	  type_error/4,domain_error/4 from error_handler.
-
-:- import write/1 from standard.
-
+:- import file_function/7 from machine.
+:- import write/1,float/1 from standard.
 :- import xsb_sys_mutex_lock/1, xsb_sys_mutex_unlock/1 from thread.
-:- import xsb_stream_lock/1, xsb_stream_unlock/1 from file_io.
+:- import current_infixop/4, current_postfixop/3, current_prefixop/3
+								from xsb_ciao. 
 
 %:- import get_atts/2 from atts.
 
@@ -65,7 +65,7 @@ write_term(Stream, Term, OptList) :-
 	xsb_stream_lock( Stream ),
         current_output(Curr),
         set_output(Stream),
-        Default = options(false,false,false,false,1000000),
+        Default = options(false,false,false,false,1000000,16),
         compute_options(OptList, 3, OptList, Default, 1200, Options, Priority),
         write_out(Term, Options, Priority, 0, 0, '(', 2'100, _),
 	set_output(Curr),
@@ -74,7 +74,7 @@ write_term(Stream, Term, OptList) :-
 write_term(Term,OptList):- 
         current_output(Curr),
 	xsb_sys_mutex_lock( Curr ),
-        Default = options(false,false,false,false,1000000),
+        Default = options(false,false,false,false,1000000,16),
         compute_options(OptList, 2, OptList, Default, 1200, Options, Priority),
         write_out(Term, Options, Priority, 0, 0, '(', 2'100, _),
 	xsb_sys_mutex_unlock( Curr ).
@@ -145,18 +145,22 @@ compute_options(_Opts, N, OL, _, _, _, _) :-
 
 one_opt(V, N, _, _, _, _) :- var(V), !,
 	check_nonvar(V,write_term/N,N).
-one_opt(quoted(Qt),     _, options(_ ,IO,NV,Pr,Li), Prio,
-                           options(Qt,IO,NV,Pr,Li), Prio) :- boolean(Qt), !.
-one_opt(ignore_ops(IO), _, options(Qt,_ ,NV,Pr,Li), Prio,
-                           options(Qt,IO,NV,Pr,Li), Prio) :- ignore_ops_flag(IO), !.
-one_opt(numbervars(NV), _, options(Qt,IO,_, Pr,Li), Prio,
-                           options(Qt,IO,NV,Pr,Li), Prio) :- boolean(NV), !.
-one_opt(portrayed(Pr),  _, options(Qt,IO,NV,_, Li), Prio,
-                           options(Qt,IO,NV,Pr,Li), Prio) :- boolean(Pr), !.
-one_opt(max_depth(MD),  _, options(Qt,IO,NV,Pr,_ ), Prio,
-                           options(Qt,IO,NV,Pr,Li), Prio) :-
+one_opt(quoted(Qt),     _, options(_ ,IO,NV,Pr,Li,Prec), Prio,
+                           options(Qt,IO,NV,Pr,Li,Prec), Prio) :- boolean(Qt), !.
+one_opt(ignore_ops(IO), _, options(Qt,_ ,NV,Pr,Li,Prec), Prio,
+                           options(Qt,IO,NV,Pr,Li,Prec), Prio) :- ignore_ops_flag(IO), !.
+one_opt(numbervars(NV), _, options(Qt,IO,_, Pr,Li,Prec), Prio,
+                           options(Qt,IO,NV,Pr,Li,Prec), Prio) :- boolean(NV), !.
+one_opt(portrayed(Pr),  _, options(Qt,IO,NV,_, Li,Prec), Prio,
+                           options(Qt,IO,NV,Pr,Li,Prec), Prio) :- boolean(Pr), !.
+one_opt(max_depth(MD),  _, options(Qt,IO,NV,Pr,_ ,Prec), Prio,
+                           options(Qt,IO,NV,Pr,Li,Prec), Prio) :-
                            integer(MD), MD >= 0, !,
                            (MD = 0 -> Li = 1000000; Li = MD).
+one_opt(float_display_precision(Prec),  _, options(Qt,IO,NV,Pr,Li,_DefPrec), Prio,
+                           options(Qt,IO,NV,Pr,Li,PrecOut), Prio) :-
+                           integer(Prec), Prec >= 0, Prec =< 17,!,
+                           (Prec = 0 -> PrecOut = 17; PrecOut = Prec).
 one_opt(priority(Prio), _, Opts, _, Opts, Prio) :-
         integer(Prio), Prio >= 1, Prio =< 1200, !.
 one_opt(Opt, N, _, _, _, _) :-
@@ -265,31 +269,31 @@ portray(_) :- fail.
 %
 /* TLS: need to handle this in some reasonable way.
 
-get_attribute(Var,Atts):- get_atts(Var,Atts).
+%get_attribute(Var,Atts):- get_atts(Var,Atts).
 
-write_out(Term, Options,  _, _, _, _, _, 2'000) :-
-	get_attribute(Term,M),
-        Options = options(_,_,_,true,_),
-	( \+ portray_attribute(M,Term) ->
-              fail		 % portray_attribute might bind variables
-        ; true
-        ),
-        !.
+%write_out(Term, Options,  _, _, _, _, _, 2'000) :-
+%	get_attribute(Term,M),
+%        Options = options(_,_,_,true,_),
+%	( \+ portray_attribute(M,Term) ->
+%              fail		 % portray_attribute might bind variables
+%        ; true
+%        ),
+%        !.
 */
 write_out(Term, _, _, _, _, _, Ci, 2'000) :-
 	var(Term), !,
 	maybe_space(Ci, 2'000),
 	displayq(Term).
 write_out(_, Options, _, _, Depth, _, Ci, 2'010) :-
-        Options = options(_,_,_,_,Limit),
+        Options = options(_,_,_,_,Limit,_Prec),
 	Depth >= Limit, !,
 	maybe_space(Ci, 2'010),
 	display(...).
 write_out('$VAR'(N), Options, _, _, _, _, Ci, Co) :-
-        Options = options(_,_,true,_,_),
+        Options = options(_,_,true,_,_,_Prec),
 	write_VAR(N, Ci, Co), !.
 write_out(Term, Options, _, _, _, _, _, 2'000) :-
-        Options = options(_,_,_,true,_),
+        Options = options(_,_,_,true,_,_Prec),
 	(   \+ portray(Term) ->
 	    fail		 % portray might bind variables
         ;   true
@@ -299,13 +303,21 @@ write_out(Atom, Options, _, PrePrio, _, Lpar, _, 2'100) :-
 	current_prefixop(Atom, P, _),
 	P =< PrePrio, !,
 	display(Lpar),
-        Options = options(Quote,_,_,_,_),
+        Options = options(Quote,_,_,_,_,_Prec),
 	write_atom(Quote, Atom, 2'100, _),
 	put_code(0')).
 write_out(Atom, Options, _, _, _, _, Ci, Co) :-
 	atom(Atom), !,
-        Options = options(Quote,_,_,_,_),
+        Options = options(Quote,_,_,_,_,_Prec),
 	write_atom(Quote, Atom, Ci, Co).
+write_out(N,Options, _, _, _, _, Ci, 2'000) :-
+	float(N), !,
+        Options = options(_Quote,_,_,_,_,Prec), 
+	(   N < 0 -> maybe_space(Ci, 2'010)
+	;   maybe_space(Ci, 2'000)
+	),
+	current_output(Str),
+	file_function(WRITE_FLOAT_VAR_PRECISION,Str,N,Prec,_,_,_).
 write_out(N, _, _, _, _, _, Ci, 2'000) :-
 	number(N), !,
 	(   N < 0 -> maybe_space(Ci, 2'010)
@@ -313,7 +325,7 @@ write_out(N, _, _, _, _, _, Ci, 2'000) :-
 	),
 	displayq(N).
 write_out(Term, Options, _, _, Depth, _, Ci, 2'100) :-
-        Options = options(Quote,true,_,_,_), % Ignore lists and operators
+        Options = options(Quote,true,_,_,_,_Prec), % Ignore lists and operators
 	functor(Term, Atom, Arity), !,
 	write_atom(Quote, Atom, Ci, _),
 	Depth1 is Depth+1,
@@ -338,7 +350,7 @@ write_out([Head|Tail], Options, _, _, Depth, _, _, 2'100) :- !,
 	write_out(Head, Options, 999, 0, Depth1, '(', 2'100, _),
 	write_tail(Tail, Options, Depth1).
 write_out(Term, Options, _, _, Depth, _, Ci, 2'100) :-
-        Options = options(Quote,ops,_,_,_), % Ignore operators
+        Options = options(Quote,ops,_,_,_,_Prec), % Ignore operators
 	functor(Term, Atom, Arity), !,
 	write_atom(Quote, Atom, Ci, _),
 	Depth1 is Depth+1,
@@ -354,7 +366,7 @@ write_out((A,B), Options, Prio, _, Depth, Lpar, Ci, Co) :- !,
 write_out(Term, Options, Prio, PrePrio, Depth, Lpar, Ci, Co) :-
 	functor(Term, F, N),
 	Depth1 is Depth+1,
-        Options = options(Quote,_,_,_,_),
+        Options = options(Quote,_,_,_,_,_Prec),
 	write_out_(N, F, Term, Quote, Options, Prio, PrePrio, Depth1, Lpar, Ci, Co).
 
 write_out_(1, F, Term, Quote, Options, Prio, _, Depth, Lpar, Ci, Co) :-
@@ -432,7 +444,7 @@ write_atom(true, Atom, Ci, Co) :-
 %   all told in SynStyle, LexStyle, given that DoneSoFar have already been written.
 
 write_args(0, _, _, Options, Depth) :-
-        Options = options(_,_,_,_,Limit),
+        Options = options(_,_,_,_,Limit,_Prec),
         Depth >= Limit, !,
         put_code(0'(), display(...),	put_code(0')).
 write_args(N, N, _, _, _) :- !,
@@ -460,7 +472,7 @@ write_tail(Var, _, _) :-			%  |var]
 write_tail([], _, _) :- !,			%  ]
 	put_code(0']).
 write_tail(_, Options, Depth) :-
-        Options = options(_,_,_,_,Limit),
+        Options = options(_,_,_,_,Limit,_Prec),
 	Depth >= Limit, !,
 	put_code(0'|),
 	display(...),
@@ -484,7 +496,7 @@ write_string_tail(Var, _, _, 2'000) :-
 write_string_tail([], _, _, 2'100) :- !,
 	put_code(0'").
 write_string_tail(_, Options, Depth, 2'010) :-
-        Options = options(_,_,_,_,Limit),
+        Options = options(_,_,_,_,Limit,_Prec),
 	Depth >= Limit, !,
         put_code(0'"),  % end string with '"'
 	put_code(0'|),
