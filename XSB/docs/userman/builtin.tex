@@ -1430,34 +1430,34 @@ additional errors that may arise in stream checking.
 
 \isoitem{write\_term(?Term,+Options)}{write\_term/2}
 %
-Outputs {\tt +Term} to the current output stream.
-{\tt Stream} ({\tt write\_term/3}) according to the list of write
-options, {\tt Options}.  The current set of write options which form a
-superset of the ISO-standard write options, are as follows:
+Outputs {\tt +Term} to the current output stream according to the list
+of write options, {\tt Options}.  The current set of write options
+which form a superset of the ISO-standard write options, are as
+follows:
 %
 \begin{itemize}
 %
 \item {\tt quoted(+Bool)}.  If {\tt Bool = true}, then atoms and
-    functors that can't be read back by {\tt read/1} are quoted, if
-    {\tt Bool = false}, each atom and functor is written as its
-    unquoted name. Default value is {\tt false}.
+  functors that can't be read back by {\tt read/1} are quoted;[ if {\tt
+    Bool = false}, each atom and functor is written as its unquoted
+  name. Default value is {\tt false}.
 %
-\item {\tt ignore\_ops(+Bool)}. If {\tt Bool = true} each compound term
-is output in functional notation; curly brackets and list braces are
-ignored, as are all explicitly defined operators.  If {\tt Bool =
-false}, curly bracketed notation and list notation is enabled when
-outputting compound terms, and all other operator notation is
-enabled.  Default value is {\tt false}.
+\item {\tt ignore\_ops(+Bool)}. If {\tt Bool = true} each compound
+  term is output in functional notation, regardless of what operators
+  have been declared.  For instance, curly braces are written as a
+  prefix {\tt \{\}(...)} and list brackets are written using dot
+  notation.  If {\tt Bool = false}, output takes account of infix and
+  other operators.  Default value is {\tt false}.
 %
  \item {\tt numbervars(+Bool)}.  If {\tt Bool = true}, a term of the
-form {\tt '\$VAR'(N)} where {\tt N} is an integer, is output as a
-variable name consisting of a capital letter possibly followed by an
-integer.  A term of the form {\tt '\$VAR'(Atom)} where {\tt Atom} is an
-atom, is output as itself (without quotes).  Finally, a term of the
-form {\tt '\$VAR'(String)} where {\tt String} is a character string, is
-output as the atom corresponding to this character string.  If
-{\tt bool} is {\tt false} this cases are not treated in any special
-way.  Default value is {\tt false}.
+   form {\tt '\$VAR'(N)} where {\tt N} is an integer, is output as a
+   variable name consisting of a capital letter possibly followed by
+   an integer.  A term of the form {\tt '\$VAR'(Atom)} where {\tt
+     Atom} is an atom, is output as itself (without quotes).  Finally,
+   a term of the form {\tt '\$VAR'(String)} where {\tt String} is a
+   character string, is output as that character string.  If {\tt
+     bool} is {\tt false} terms of the form {\tt '\$VAR'(N)} are not
+   treated in any special way.  Default value is {\tt false}.
 %
 % TLS: need predicate portray attribute, if we dont have it.
 %
@@ -1484,6 +1484,11 @@ terms. If {\tt Depth} is zero, there is no limit. Default value is
 1200.  If the term to be printed has higher priority than {\tt Prio},
 it will be printed parenthesized.  Default value is 1200 (no term
 parenthesized).
+%
+\item {\tt float\_display\_precision(+Prec)}.  {\tt Prec} must be an
+  integer between 1 and 17, and this number determines the precision
+  with which a floating point number is displayed, (excluding trailing
+  zeros).  The default value is 17.
 \end{itemize}
 
 From the following examples it can be seen that {\tt
@@ -1511,6 +1516,15 @@ yes
                 [quoted(true),ignore_ops(true),numbervars(true),priority(1000)]).
 f(+(1,2),'A','.'(115,'.'(116,'.'(114,'.'(105,'.'(110,'.'(103,[])))))),D,Temp,multifile(foo))
 yes
+
+| ?- _X is pi, write_term(_X,[]).
+3.141592653589793
+
+yes
+| ?- _X is pi, write_term(_X,[float_display_precision(4)]).
+3.142
+
+yes
 \end{verbatim}
 }
 
@@ -1535,8 +1549,8 @@ nor a write option.
 \ei
 \ei
 
-\compatibility In \version{}, {\tt write\_term/[2,3]} do not properly
-handle operators.
+\compatibility In \version{}, {\tt write\_term/[2,3]} do not always
+properly handle operators.
 
 \isoitem{write\_term(+Stream\_or\_alias,?Term,+Options)}{write\_term/3}
 % 
