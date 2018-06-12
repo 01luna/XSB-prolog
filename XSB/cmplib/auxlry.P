@@ -264,14 +264,18 @@ option(X) :- conget(X, 1).
 /*  time_message(+StartTime, +Message)					*/
 /*	Display the Message and the elapsed cpu time.			*/
 /*================================================================*/
-:- import write_term/3 from write_term.
+%% write_term/3 no good: it is in lib/, which causes build problems.
+%%:- import write_term/3 from write_term.
+:- import fmt_write/3 from file_io.
 
 time_message(StartTime, Message) :- 
 	cputime(Time),
 	messagenonl(('[', Message, ', cpu time used: ')),
 %        message(('[', Message, ', cpu time used: ', Laps, ' seconds]')).
 	Laps is Time - StartTime,
-        write_term(STDMSG,Laps,[float_display_precision(6)]),
+        %% DON'T use write_term/3 - build problems
+        %%write_term(STDMSG,Laps,[float_display_precision(6)]),
+        fmt_write(STDMSG,'%1.3f',Laps),
         message(' seconds]').
 
 verbo_time_message(StartTime, Message) :- 
