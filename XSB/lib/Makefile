@@ -34,7 +34,7 @@ ALL = 	aggregs${OBJEXT} array${OBJEXT} assoc_xsb${OBJEXT} \
 	ordsets${OBJEXT} ora_call${OBJEXT} \
 	packaging${OBJEXT} random${OBJEXT} scrptutl${OBJEXT} \
 	socket${OBJEXT} storage${OBJEXT} swi${OBJEXT} \
-	ugraphs${OBJEXT} wrapping${OBJEXT} write_term${OBJEXT} \
+	ugraphs${OBJEXT} wrapping${OBJEXT} \
 	xsb_ciao${OBJEXT} xnmr${OBJEXT} justifyLP${OBJEXT} \
 	xsb_profiling${OBJEXT} xsb_lint_impexp${OBJEXT} \
 	dump_table${OBJEXT} \
