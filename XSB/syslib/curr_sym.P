@@ -1187,8 +1187,8 @@ xsb_flag(alt_semantics,Mode):-
 xsb_flag(errors_with_position,Mode):- 
 	stat_flag(ERRORS_WITH_POSITION, Flag),
 	( Flag =:= 0 -> Mode = off ; Mode = on ).
-xsb_flag(float_display_precision,Num):- 
-    file_function(GET_FLOAT_DISPLAY_PRECISION,P,_),
+xsb_flag(float_display_format,Num):- 
+    file_function(GET_FLOAT_DISPLAY_FORMAT,P,_),
     atom_codes(P,[_,_,_|R]),
     remove_last(R,NumL),
     atom_codes(Num,NumL).
@@ -1483,12 +1483,12 @@ set_xsb_flag_1(errors_with_position,Mode):- !,
 	( Mode = on -> 
 	    stat_set_flag(ERRORS_WITH_POSITION, 1)
 	 ;  (Mode = off, stat_set_flag(ERRORS_WITH_POSITION, 0))).
-set_xsb_flag_1(float_display_precision,P):- 
+set_xsb_flag_1(float_display_format,P):- 
     integer(P),P >= 1,P =< 17,!,
     number_codes(P,PList),append([37,49,46],PList,L1),append(L1,[103],Flist),
     atom_codes(Format,Flist),
 %    concat_atom(['%1.',P,g],Format),
-    file_function(PUT_FLOAT_DISPLAY_PRECISION,Format,_).
+    file_function(PUT_FLOAT_DISPLAY_FORMAT,Format,_).
 set_xsb_flag_1(Type, _) :-
 	(	iso_flag(Type)
 	;	prolog_commons_flag(Type)

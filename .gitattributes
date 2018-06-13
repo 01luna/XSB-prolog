@@ -157,6 +157,7 @@ XSB/syslib/tables.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/term_exp.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/thread.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/unix.xwam svn_mime_002dtype=application%2Foctet-stream
+XSB/syslib/write_term.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/x_interp.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/xcallxsb.xwam svn_mime_002dtype=application%2Foctet-stream
 XSB/syslib/xsb_hook.xwam svn_mime_002dtype=application%2Foctet-stream
