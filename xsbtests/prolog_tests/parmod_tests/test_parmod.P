@@ -3,7 +3,7 @@
 
 % force all recompile
 test :- shell('rm *.xwam'),fail.
-test :- shell('rm pm_subdir/*.xwam'),fail.
+test :- shell('rm -f pm_subdir/*.xwam'),fail.  % TES -- added -f to get rid of message for new downloads.
 
 test :- write('testing: '),my_writeln(join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in):out(_A,_B)),fail.
 test :- join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in):out(A,B),my_writeln(out(A,B)),fail.
