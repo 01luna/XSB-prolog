@@ -167,7 +167,7 @@ interrupt flag
 #define MAX_TABLE_ANSWER_VAR_NUM        110
 #define MAX_MEMORY_ACTION               111
 #define ALTERNATE_SEMANTICS             112
-#define FLOAT_DISPLAY_PRECISION              113
+#define FLOAT_DISPLAY_FORMAT            113
 #define MAX_FLAGS		 120
 
 #define MAXTOINDEX 20              /* maximum depth in term to go when using deep indexing; 

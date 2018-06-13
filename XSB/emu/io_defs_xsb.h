@@ -61,9 +61,9 @@
 #define FILE_PEEK_CHAR     32
 #define ATOM_LENGTH        33
 #define FILE_SET_CHARACTER_SET 34
-#define GET_FLOAT_DISPLAY_PRECISION 35
-#define PUT_FLOAT_DISPLAY_PRECISION 36
-#define WRITE_FLOAT_VAR_PRECISION 37
+#define GET_FLOAT_DISPLAY_FORMAT 35
+#define PUT_FLOAT_DISPLAY_FORMAT 36
+#define WRITE_FLOAT_VAR_FORMAT 37
 
 /* This sequence is for stream properties */
 #define STREAM_FILE_NAME              0

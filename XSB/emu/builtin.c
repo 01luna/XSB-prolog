@@ -2208,7 +2208,7 @@ int builtin_call(CTXTdeclc byte number)
       break;
     case XSB_FLOAT  :
       fprintf(fptr, "%s",
-	      cvt_float_to_str_with_fmt(CTXTc ptoc_float(CTXTc 3),(char *)flags[FLOAT_DISPLAY_PRECISION]));
+	      cvt_float_to_str_with_fmt(CTXTc ptoc_float(CTXTc 3),(char *)flags[FLOAT_DISPLAY_FORMAT]));
       //      fprintf(fptr, "%s", cvt_float_to_str_with_fmt(CTXTdeclc ptoc_float(CTXTc 3), "%1.16g"));
       // fprintf(fptr, "%2.4f",  ptoc_float(CTXTc 3));
       // fprintf(fptr, "%1.16g", ptoc_float(CTXTc 3));

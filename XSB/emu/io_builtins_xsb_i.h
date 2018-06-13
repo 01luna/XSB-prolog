@@ -1076,20 +1076,20 @@ inline static xsbBool file_function(CTXTdecl)
     break;
   }
 
-  case GET_FLOAT_DISPLAY_PRECISION: {
-    //    printf("flag: %s\n",(char *)flags[FLOAT_DISPLAY_PRECISION]);
-    ctop_string(CTXTc 2,(char *)flags[FLOAT_DISPLAY_PRECISION]);
+  case GET_FLOAT_DISPLAY_FORMAT: {
+    //    printf("flag: %s\n",(char *)flags[FLOAT_DISPLAY_FORMAT]);
+    ctop_string(CTXTc 2,(char *)flags[FLOAT_DISPLAY_FORMAT]);
     break;
   }
 
-  case PUT_FLOAT_DISPLAY_PRECISION: {
-    //    printf("before %s\n",    flags[FLOAT_DISPLAY_PRECISION]);
-    flags[FLOAT_DISPLAY_PRECISION] = (Cell) ptoc_string(CTXTc 2);
-    //    printf("after %s\n",    flags[FLOAT_DISPLAY_PRECISION]);
+  case PUT_FLOAT_DISPLAY_FORMAT: {
+    //    printf("before %s\n",    flags[FLOAT_DISPLAY_FORMAT]);
+    strcpy(float_format,ptoc_string(CTXTc 2));
+    //    printf("after %s\n",    flags[FLOAT_DISPLAY_FORMAT]);
     break;
   }
 
-  case WRITE_FLOAT_VAR_PRECISION: {
+  case WRITE_FLOAT_VAR_FORMAT: {
     FILE* fptr;
     int io_port = (int)ptoc_int(CTXTc 2);
     SET_FILEPTR(fptr, io_port);
