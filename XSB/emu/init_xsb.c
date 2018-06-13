@@ -1541,6 +1541,8 @@ Psc make_code_psc_rec(CTXTdeclc char *name, int arity, Psc mod_psc) {
 
 /*==========================================================================*/
 
+ char cyclic_string_array[10];
+ 
 /* Initialize Standard PSC Records and Thread Attributes
    ------------------------------- */
 void init_symbols(CTXTdecl)
@@ -1611,11 +1613,13 @@ void init_symbols(CTXTdecl)
 
   true_psc = make_code_psc_rec(CTXTc "true", 0, standard_psc);
   true_string = get_name(true_psc);
-  cut_string = string_find("!",1);
-  //  flags[FLOAT_DISPLAY_FORMAT] = (Cell)  string_find("%1.16g", 1);
   strcpy(float_format,"%1.16g");
   flags[FLOAT_DISPLAY_FORMAT] = (Cell) float_format;
-  cyclic_string = (char *) string_find("<cyclic>",1);
+  strcpy(cyclic_string_array,"<cyclic>");
+  cyclic_string = cyclic_string_array;
+  cut_string = string_find("!",1);
+  //  flags[FLOAT_DISPLAY_FORMAT] = (Cell)  string_find("%1.16g", 1);
+  //  cyclic_string = (char *) string_find(,"<cyclic>"1);
 
   visited_psc = make_code_psc_rec(CTXTc "_$visited", 0, standard_psc);
 
