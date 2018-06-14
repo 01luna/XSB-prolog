@@ -61,7 +61,7 @@ extern int ground(Cell);
 extern void printterm(FILE *, Cell, long);
 extern int compare(CTXTdeclc const void *, const void *);
 
-#define clean_addr(ptr) ((void *)((UInteger)(ptr) & 0xfffffffffffffffe))
+#define clean_addr(ptr) ((void *)((UInteger)(ptr) & ~intern_mark_bit))
 
 /*  Finds the size of noninterned part of a term prior to interning.
 Argument term must have been dereferenced. */
@@ -454,7 +454,8 @@ void reclaim_internstr_recs() {
       while (block_ptr) {
 	rec_ptr = &(block_ptr->recs);
 	while (((CPtr)rec_ptr < (CPtr)block_ptr+1+hc_num_in_block*reclen)
-	       && IsNonNULL(rec_ptr->intterm_psc)) {
+	       && IsNonNULL(rec_ptr->intterm_psc)
+	       && IsNonNULL(rec_ptr->next)) {
 	  if (!((UInteger)rec_ptr->next & intern_mark_bit)) { // unmarked, so free
 	    hashindex = it_hash(hc_blk_ptr->hashtab_size,
 				reclen-1,(CPtr)&(rec_ptr->intterm_psc));
@@ -472,8 +473,7 @@ void reclaim_internstr_recs() {
 	      prec_ptr = lrec_ptr;
 	      lrec_ptr = clean_addr(lrec_ptr->next);
 	    }
-	  }
-	  rec_ptr->next = clean_addr(rec_ptr->next);
+	  } else rec_ptr->next = clean_addr(rec_ptr->next); // reset mark
 	  rec_ptr = (struct intterm_rec *)(((CPtr)rec_ptr) + reclen);  // to next rec in this block
 	}
 	block_ptr = block_ptr->nextblock;  // to next block
