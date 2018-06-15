@@ -667,6 +667,7 @@ arch_install_config_prefix
 arch_config_prefix
 LD
 CROSS_SIMULATOR
+force_dynmodule
 mt_mode
 topdir
 full_config_name
@@ -6198,6 +6199,9 @@ DYNMOD_SHAREDLIB_EXTENSION=so
 # do not work right with symlinks. So, for CYGWIN we use cp -pf
 config_ln_command="ln -s "
 
+# Normally we also run makexsb dynmodule - except for Cygwin
+force_dynmodule="yes"
+
 # Set OS-specific variables for XSB
 case "$canonical" in
     *alpha*)    $as_echo "#define FOREIGN_ELF 1" >>confdefs.h
@@ -6385,6 +6389,7 @@ case "$canonical" in
                 fi
 
                 config_ln_command="cp -fp "
+                force_dynmodule="no"
         ;;
 
      *-mingw*)  $as_echo "#define MINGW 1" >>confdefs.h
@@ -7022,6 +7027,7 @@ else
 fi
 
 ### Specify what will be substituted into Makefile, xsb_config.h, etc.
+
 
 
 

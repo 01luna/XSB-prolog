@@ -1337,6 +1337,9 @@ DYNMOD_SHAREDLIB_EXTENSION=so
 # do not work right with symlinks. So, for CYGWIN we use cp -pf
 config_ln_command="ln -s "
 
+# Normally we also run makexsb dynmodule - except for Cygwin
+force_dynmodule="yes"
+
 # Set OS-specific variables for XSB
 case "$canonical" in
     *alpha*)    AC_DEFINE(FOREIGN_ELF)
@@ -1502,6 +1505,7 @@ case "$canonical" in
                 fi
 
                 config_ln_command="cp -fp "
+                force_dynmodule="no"
         ;;
 
      *-mingw*)  AC_DEFINE(MINGW)
@@ -1777,6 +1781,7 @@ AC_SUBST(full_config_name)
 AC_SUBST(topdir)
 AC_SUBST(prefix)
 AC_SUBST(mt_mode)
+AC_SUBST(force_dynmodule)
 
 AC_SUBST(CROSS_SIMULATOR)
 AC_SUBST(LD)

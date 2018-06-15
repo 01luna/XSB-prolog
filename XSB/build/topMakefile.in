@@ -154,10 +154,7 @@ emumake_goal=@emumake_goal@
 # Normal user
 all: prepare emulator xsbmod xsbdll gpp_exe remake_dot_O_files emu_clean
 
-# Developer who just checked out or updated CVS copy
-devel: prepare emulator xsbmod xsbdll gpp_exe remake_dot_O_files emu_clean
-
-superdevel: prepare emulator xsbmod xsbdll gpp_exe remake_dot_O_files_force packages emu_clean
+devel: prepare emulator xsbmod xsbdll gpp_exe remake_dot_O_files_force packages emu_clean
 
 # Developer who needs a quick re-make of the executable, don't make .O files
 fast: prepare emulator gpp_exe do_cleaning
