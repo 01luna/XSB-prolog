@@ -807,7 +807,7 @@ current_prolog_flag(Flag, Value) :-
 	(	var(Flag) ->
 		true
 	;	\+ atom(Flag),\+ (Flag = tripwire(_)) ->
-		type_error(atom,Flag,current_prolog_flag/2,1)
+		type_error(atom_or_variable,Flag,current_prolog_flag/2,1)
 	;	\+ iso_flag(Flag),\+ (Flag = tripwire(_)),\+ xsb_flag(Flag),\+ prolog_commons_flag(Flag) ->
 		domain_error(prolog_flag,Flag,current_prolog_flag/2,1)
 	;	true
@@ -1505,7 +1505,10 @@ current_xsb_param(Flag, Value) :-
 	(	var(Flag) ->
 		true
 	;	\+ atom(Flag) ->
-     	        type_error(atom,Flag,current_prolog_flag/2,1) ),
+     	            type_error(atom_or_variable,Flag,current_prolog_flag/2,1) ),
+	(var(Value) ->
+	   true
+	 ; type_error(var,Value,current_xsb_param/2,2) ),
 	current_xsb_param_1(Flag,Value).
 
 current_xsb_param_1(float_display_format, Value) :- 
@@ -1536,7 +1539,7 @@ set_xsb_param(Flag, Value) :-
 	(	var(Flag) ->
 		true
 	;	\+ atom(Flag) ->
-		type_error(atom,Flag,current_prolog_flag/2,1)
+		type_error(atom,Flag,current_xsb_param/2,1)
 	;	set_xsb_param_1(Flag,Value)
 	 ),!.
 set_xsb_param(Type, _) :-
