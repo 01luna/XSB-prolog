@@ -5,7 +5,7 @@ test:- writeln(first(3.5)),fail.
 test:- X is pi,writeln(second(X)),fail.
 test:- X is pi,write_term(third(X),[]),nl,fail.
 test:- X is pi,write_term(fourth(X),[float_display_format(4)]),nl,fail.
-test:- set_prolog_flag(float_display_format,4),fail.
+test:- set_xsb_param(float_display_format,[precision(4)]),fail.
 test:- X is pi,writeln(fifth(X)),fail.
 
 %test:- X is 100**100,write(third(X)),fail.
