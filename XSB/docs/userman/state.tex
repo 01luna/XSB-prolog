@@ -417,10 +417,13 @@ the syntax error message.
 %
 \paragraph*{Tripwire Flags}
 The following flags that pertain to tripwires
-(cf. Setion~\ref{sec:tripwire}) are not currently implemented in the
+(cf. Section~\ref{sec:tripwire}) are not currently implemented in the
 multi-threaded engine.  Each tripwire has one flag that sets a limit
 on some aspect of derivation along with an action of what to do in
 such a case.
+
+{\em Note: {\tt current\_xsb\_param/2} and {\tt set\_xsb\_param/2}
+provide a simpler interface for tripwires than using Prolog flags.}
 
 \begin{itemize}
 
@@ -670,13 +673,173 @@ The following flags affect only the multi-threaded engine.
   command-line argument, and has no effect in the
   single-threaded engine.
 
-\item {\tt float\_display\_precision} Designates the precision with
-  which floating point numbers are displayed (excluding trailing
-  zeros). This value can be set to any integer between 1 and 17.  The
-  default is 16.
+%\item {\tt float\_display\_precision} Designates the precision with
+%  which floating point numbers are displayed (excluding trailing
+%  zeros). This value can be set to any integer between 1 and 17.  The
+%  default is 16.
 
 \end{itemize}
     
+\index{tripwires}
+\index{term size}
+\index{termination!subgoal abstraction}
+\index{termination!radial restraint}
+\index{XSB Parameters!{\tt max\_table\_subgoal\_size}}
+\index{XSB Parameters!{\tt max\_table\_answer\_size}}
+\index{XSB Parameters!{\tt max\_incomplete\_subgoals}}
+\index{XSB Parameters!{\tt max\_scc\_subgoals}}
+\index{XSB Parameters!{\tt max\_answers\_for\_subgoal}}
+\index{XSB Parameters!{\tt max\_memory}}
+
+\standarditem{current\_xsb\_param(?Parameter,?Values)}{current\_xsb\_param/2}
+%
+While Prolog flags control a number of aspects of XSB's behavior,
+there are a few features of XSB that are controlled by multiple
+parameters: for instance each XSB tripwire has both a settable limit
+and a settable action.  {\tt current\_xsb\_param/2} and {\tt
+  set\_xsb\_param/2} provide a means to view or set multiple
+parameters together, or separately.~\footnote{The values of tripwire
+  parameters can also be set as Prolog flags in XSB, cf. {\tt
+    current\_prolog\_flag/2} and {\tt set\_prolog\_flag/2}.  The
+  following parameters that pertain to tripwires
+  (cf. Setion~\ref{sec:tripwire}) are not currently implemented in the
+  multi-threaded engine.}
+
+\begin{itemize}
+\item {\tt max\_table\_subgoal\_size}.  This tripwire parameter passes
+ back a list of the form {\tt [limit(L), action(A)]}, where {\tt L} is a
+ limit on the size of a subgoal argument that can be added to a table:
+ if the limit is reached, an action {\tt A} is taken.
+
+ To understand the use of these parameters, consider that if a
+ predicate such as
+\begin{verbatim}
+p(X):- p(f(X)).
+\end{verbatim}
+  is tabled, it can create subgoals of unbounded size.  {\tt L} is a
+ non-negative integer, while {\tt A} can have the value {\tt
+ abstract}, {\tt error}, {\tt suspend} or {\tt custom}.  When the
+ limit is set to 0, this tripwire is disabled.  The default limit is
+ {\tt 0} and the default action is {\tt error}.
+
+\item {\tt max\_table\_answer\_size}.  This tripwire parameter passes
+ back a list of the form {\tt [limit(L), action(A)]}, where {\tt L} is a
+ limit on the size of an answer argument that can be added to a table:
+ if the limit is reached, an action {\tt A} is taken.
+
+To understand the use of this flag, consider the program fragment:
+\begin{verbatim}
+:- table p/1.
+p(f(X)):- p(X).          p(a).
+\end{verbatim}
+  is tabled, the model for the goal {\tt ?- p(X)} is infinite, so that
+  this program will not terminate.  
+%
+{\tt L} is a non-negative integer, while {\tt A} can have the value
+ {\tt abstract}, {\tt error}, {\tt suspend} or {\tt custom}.  When the
+ limit is set to 0, this tripwire is disabled.  The default limit is
+ {\tt 0} and the default action is {\tt error}.
+
+\item {\tt max\_incomplete\_subgoals} This tripwire parameter passes
+ back a list of the form {\tt [limit(L), action(A)]}, where {\tt L} is a
+ limit on the maximum number of tabled subgoals that can be incomplete
+ at one time; if the limit is reached, an action {\tt A} is taken.
+ Note that subgoals are usually completed during the course of a
+ derivation, so a large number of incomplete subgoals may indicate
+ unfounded recursion or some other mis-specification in a program.
+
+{\tt L} is a non-negative integer, while {\tt A} can have the value
+ {\tt error}, {\tt suspend} or {\tt custom}.  When the limit is set to
+ 0, this tripwire is disabled.  The default limit is {\tt 0} and the
+ default action is {\tt error}.
+
+\item {\tt max\_sccs\_subgoals} This tripwire parameter passes back a
+ list of the form {\tt [limit(L), action(A)]}, where {\tt L} is a limit
+ on the maximum number of tabled subgoals that be in the same SCC at
+ one time; if the limit is reached, an action {\tt A} is taken.  Note
+ that a large number of mutually recursive subgoals may indicate a
+ mis-specification in a program, such as an unintended expansion of
+ the search space via meta-predicates or HiLog.
+
+{\tt L} is a non-negative integer, while {\tt A} can have the value
+ {\tt error}, {\tt suspend} or {\tt custom}.  When the limit is set to
+ 0, this tripwire is disabled.  The default limit is {\tt 0} and the
+ default action is {\tt error}.
+
+\item {\tt max\_answers\_for\_subgoal} This tripwire parameter passes
+ back a list of the form {\tt [limit(L), action(A)]}, where {\tt L} is a
+ limit on the maximum umber of answers that any single tabled subgoal
+ should have; if the limit is reached, an action {\tt A} is taken.
+  Note that in a program with a large number of constant or functor
+  symbols, it is possible to construct many answers of a
+  fixed size; and if too many such answers are added for a given
+  subgoal, it may indicate a program mis-specification.  
+
+{\tt L} is a non-negative integer, while {\tt A} can have the value
+ {\tt abstract}, {\tt error}, {\tt suspend} or {\tt custom}.  When the
+ limit is set to 0, this tripwire is disabled.  The default limit is
+ {\tt 0} and the default action is {\tt error}.
+
+\index{Prolog flags!{\tt max\_memory}}
+\item {\tt max\_memory} This tripwire parameter passes back a list of
+ the form {\tt [limit(L), action(A)]}.  The parameter {\tt L} is the
+ maximum amount of memory that an XSB thread (in the single-threaded
+ engine) or all XSB threads (in the multi threaded engine) can use for
+ their combined execution stacks, program space, tables, or any other
+ purpose.  If the memory taken during an XSB session approaches this
+ amount, XSB will take a specified action, which can be {\tt error},
+ {\tt suspend} or {\tt custom}.  XSB tries to leave a small amount of
+ memory available for the action; therefore custom actions should be
+ simple actions that do not require a great deal of memory, as should
+ queries from the command-line interpreter during a suspension.
+
+ The memory limit can be set in two ways.  If given a floating point
+ number $F, 0 \le F \leq 1$, the maximum will be set to $F$ times the
+ total amount of RAM for the machine on which XSB is executing.  If
+ given an integer $I$, the maximum will be set to $I$ kilobytes.  The
+ value of 0 effectively disables the flag, allowing XSB to allocate as
+ much memory as the underlying OS will grant.  The default value is 0,
+ so that the flag is disabled by default.
+
+\item {\tt float\_display\_format} This parameter passes back parameters
+  that are used to configure XSB's printing of floating point numbers.
+  Specifically, a list is passed back whose members are {\tt
+    width(W)}, {\tt precision(P)} and {\tt specifier(S)}.  {\tt W} and
+  {\tt P} both must be integers between 1 and 30, while {\tt S} must
+  be {\tt 'g'},{\tt 'G'},{\tt 'f'} or {\tt 'F'}.  For instance, {\tt W
+    = 1},{\tt P = 15} and {\tt S = g} translates to the format {\tt
+    1.15g}.  For details of floating point formats, see C
+  documentation for the {\em printf()} function.
+
+\end{itemize}
+{\bf Error Cases}
+\bi
+\item 	{\tt Parameter} is neither a variable nor an atom.
+\bi
+\item 	{\tt domain\_error(atom\_or\_variable,Parameter)}
+\ei
+\ei
+
+\isoitem{set\_xsb\_param(?Param, ?Value)}{set\_xsb\_param/2}
+%
+{\tt set\_xsb\_param/2} allows the user to change parameters for
+tripwires and other features.  Details of dynamic XSB parameters are
+described in {\tt current\_xsb\_param/2}.
+
+{\bf Error Cases}
+\bi
+\item 	{\tt Param} or {\tt Value} is a variable.
+\bi
+\item 	{\tt instantiation\_error}
+\ei
+%
+\item {\tt Param} is not the name of a recognized XSB parameter, or
+  {\tt Value} is not a recognized value for {\tt Param}
+\bi
+\item 	{\tt domain\_error(xsb\_param,Param)}
+\ei
+\ei
+
 \predref{xsb\_configuration/2}.  
 %
 Note that the above non-ISO flags are used only for dynamic XSB
@@ -1527,6 +1690,8 @@ specifier of the types above.
     This predicate has exactly the same behaviour as {\tt current\_op/3}
     with the only difference that {\tt Type} can only have the values
     {\tt hx} and {\tt hy}.
+
+
 \end{description}
 
 
@@ -1534,6 +1699,10 @@ specifier of the types above.
 %%% mode: latex
 %%% TeX-master: "manual1"
 %%% End: 
+
+
+
+
 
 %======================================================
 
@@ -2100,24 +2269,26 @@ After = [36.0652,1.0001]
 \item 	{\tt domain\_error(statisticsInputDomain,Key))}
 \ei
 \ei
+
+
 \comment{ 
-\standarditem{cputime(-CPU\_Time)}{cputime/1}
+%\standarditem{cputime(-CPU\_Time)}{cputime/1}
 %
-\standarditem{walltime(-Time)}{cputime/1}
+%\standarditem{walltime(-Time)}{cputime/1}
 %
-Returns the \texttt{Time}, in seconds, since execution started, or
-since the last call to \texttt{statistics(0)} by any thread.
+%Returns the \texttt{Time}, in seconds, since execution started, or
+%since the last call to \texttt{statistics(0)} by any thread.
 
-Returns the (process-level) {\tt CPU\_Time} at the time of the call in
-seconds.  The difference between results of successive calls to this
-predicate can measure the time spent in specific predicates.  Note
-that in the multi-threaded engine, {cputime/1} measures the time for
-all threads.
+%Returns the (process-level) {\tt CPU\_Time} at the time of the call in
+%seconds.  The difference between results of successive calls to this
+%predicate can measure the time spent in specific predicates.  Note
+%that in the multi-threaded engine, {cputime/1} measures the time for
+%all threads.
 
-\standarditem{walltime(-Time)}{cputime/1}
-%
-Returns the \texttt{Time}, in seconds, since execution started, or
-since the last call to \texttt{statistics(0)} by any thread.
+%\standarditem{walltime(-Time)}{cputime/1}
+%%
+%Returns the \texttt{Time}, in seconds, since execution started, or
+%since the last call to \texttt{statistics(0)} by any thread.
 }
 
 \standarditem{time(+Goal)}{time/1}
