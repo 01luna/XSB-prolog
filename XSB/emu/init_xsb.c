@@ -1613,7 +1613,7 @@ void init_symbols(CTXTdecl)
 
   true_psc = make_code_psc_rec(CTXTc "true", 0, standard_psc);
   true_string = get_name(true_psc);
-  strcpy(float_format,"%1.16g");
+  strcpy(float_format,DEFAULT_FLOAT_DISPLAY_FORMAT);
   flags[FLOAT_DISPLAY_FORMAT] = (Cell) float_format;
   strcpy(cyclic_string_array,"<cyclic>");
   cyclic_string = cyclic_string_array;
