@@ -183,10 +183,13 @@ xsbmod:: $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ}
 	@@LD@ @MEMFLAG@ -o $(LIB_OBJECTS) $(XSBMOD_LDFLAGS) -r $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ} ${OTHEROBJS}
 	@cp $(LIB_OBJECTS) $(arch_config_objlibdir) 2> /dev/null || echo ""
 
+## On the Mac, create both .jnilib and .dylib, for compatibility
 xsbdynmod::
 	@echo "Making XSB Shared Library $(bindir)/libxsb.$(SHAREDLIB_EXTENSION)"
 	@@LD@ -o libxsb.$(SHAREDLIB_EXTENSION) $(DYNMOD_LDFLAGS)  -fPIC $(XSBMOD_LDFLAGS)  $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ} -lm
 	@mv libxsb.$(SHAREDLIB_EXTENSION) $(bindir) 2>/dev/null || echo ""
+	@(test "$(SHAREDLIB_EXTENSION)" = jnilib && \
+		cp $(bindir)/libxsb.jnilib $(bindir)/libxsb.dylib) || echo ""
 
 # same as xsbmod, but with oracle support
 xsboramod:: $(ORAOBJS)

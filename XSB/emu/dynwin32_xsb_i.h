@@ -47,6 +47,7 @@
 #define BUFFEXTRA 1024
 
 extern char *xsb_config_file_gl;
+DllExport extern char *call_conv strip_names_from_path(char*, int);
 
 /*----------------------------------------------------------------------*/
 
@@ -61,19 +62,19 @@ xsbBool dummy()
 // construct a path to config\bin\cfile_name.dll by removing "lib\xsb_configuration.P"
 // from xsb_config_file location and appending "bin\cfile_name.dll"
 static char *create_bin_dll_path(char *xsb_config_file_location, char *dll_file_name, size_t *dirlen){
-  char *xsb_bin_dir;
+  char *xsb_bin_dll;
   size_t char_count;
   char_count = strlen(xsb_config_file_location)-strlen("lib")-1-strlen("xsb_configuration.P");
   *dirlen = sizeof(char)*(char_count+strlen(dll_file_name)+5); // 5 stands for bin\\ + null
-  xsb_bin_dir = mem_alloc(*dirlen,FOR_CODE_SPACE);
-  strncpy(xsb_bin_dir, xsb_config_file_location,char_count);
-  xsb_bin_dir[char_count]='\0';
-  strcat(xsb_bin_dir, "bin");
+  xsb_bin_dll = mem_alloc(*dirlen,FOR_CODE_SPACE);
+  strncpy(xsb_bin_dll, xsb_config_file_location,char_count);
+  xsb_bin_dll[char_count]='\0';
+  strcat(xsb_bin_dll, "bin");
   char_count += 3;
-  xsb_bin_dir[char_count]=SLASH;
-  xsb_bin_dir[char_count+1]='\0';
-  strcat(xsb_bin_dir, dll_file_name);
-  return xsb_bin_dir;
+  xsb_bin_dll[char_count]=SLASH;
+  xsb_bin_dll[char_count+1]='\0';
+  strcat(xsb_bin_dll, dll_file_name);
+  return xsb_bin_dll;
 }
 
 static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_option)
@@ -92,6 +93,7 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
   char  *file_extension_ptr;
   xsbBool	dummy();
   char *basename_ptr;
+  char *xsb_bin_dll;
   char *xsb_bin_dir;
   size_t dirlen;
   
@@ -102,6 +104,11 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
   file_extension_ptr = xsb_strrstr(sofilename, XSB_OBJ_EXTENSION_STRING);
   /* replace the OBJ file suffix with the so suffix */
   strcpy(file_extension_ptr+1, "dll");
+
+  xsb_bin_dir = strip_names_from_path(executable_path_gl,1);
+  // SetDllDirectory ensures that all the DLLs in the config/.../bin/ dir
+  // will be found during linking.
+  SetDllDirectory(xsb_bin_dir);
   
   /* (2) open the needed object */
   if (( handle = LoadLibrary(sofilename)) == 0 ) {
@@ -111,15 +118,15 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
     basename_ptr = strrchr(sofilename, SLASH); // get \file.dll
     if(basename_ptr != NULL){
       basename_ptr = basename_ptr + 1;
-      xsb_bin_dir = create_bin_dll_path(xsb_config_file_gl, basename_ptr,&dirlen);
-      if(( handle = LoadLibrary(xsb_bin_dir)) == 0 ){
+      xsb_bin_dll = create_bin_dll_path(xsb_config_file_gl, basename_ptr,&dirlen);
+      if(( handle = LoadLibrary(xsb_bin_dll)) == 0 ){
 	if (( handle = LoadLibrary(basename_ptr)) == 0 ) {
-	  mem_dealloc(xsb_bin_dir,dirlen,FOR_CODE_SPACE);
+	  mem_dealloc(xsb_bin_dll,dirlen,FOR_CODE_SPACE);
 	  xsb_warn(CTXTc "Cannot load library %s or %s; error #%d",basename_ptr,sofilename,GetLastError());
 	  return 0;
 	}
       }
-      mem_dealloc(xsb_bin_dir,dirlen,FOR_CODE_SPACE);
+      mem_dealloc(xsb_bin_dll,dirlen,FOR_CODE_SPACE);
     }
   }
   
