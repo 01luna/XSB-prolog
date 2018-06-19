@@ -378,7 +378,8 @@ load_exec(File, ModName, Directory) :-
 	    (LoadStartTime =:= LoadFinishTime
 	     ->	    file_write0(STDMSG, ' loaded]')
 	     ;	    file_write0(STDMSG, ' loaded, cpu time used: '),
-		    file_write0(STDMSG, LoadTime),
+		    %%file_write0(STDMSG, LoadTime),
+                    file_io:fmt_write(STDMSG, '%1.3f', a(LoadTime)),
 		    file_write0(STDMSG, ' seconds]')
 	    ),
 	    file_nl(STDMSG)
