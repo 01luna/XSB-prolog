@@ -1265,6 +1265,17 @@ DllExport void call_conv print_pterm(CTXTdeclc prolog_term term, int toplevel,
       XSB_StrAppend(straddr, ")");
   }
 }
+
+
+#define StrArgBuf (*tsgSBuff2)
+DllExport char * call_conv print_pterm_fun(CTXTdeclc prolog_term term)
+{
+  XSB_StrSet(&StrArgBuf,"");
+  print_pterm(term, FALSE, &StrArgBuf);
+  return StrArgBuf.string;
+}
+
+
 /************************************************************************/
 /*                                                                      */
 /*	xsb_answer_string copies an answer from reg 2 into ans.		*/
