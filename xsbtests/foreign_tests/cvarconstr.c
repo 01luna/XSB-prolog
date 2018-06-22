@@ -87,6 +87,11 @@ int main(int argc, char *argv[])
  if (rc == XSB_ERROR) 
    fprintf(stderr,"++Query Error: %s/%s\n",xsb_get_error_type(CTXT),xsb_get_error_message(CTXT));
 
-  xsb_close(CTXT);      /* Close connection */
+ if (xsb_command_string(CTXTc "throw(my_error(abcde,mycontext(1))).") == XSB_ERROR) {
+    printf("++Caught explicit throw: %s/%s\n",xsb_get_error_type(CTXT),
+	    xsb_get_error_message(CTXT));
+ }
+
+ xsb_close(CTXT);      /* Close connection */
   return(0);
 }
