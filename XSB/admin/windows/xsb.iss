@@ -10,7 +10,8 @@
 #define MyAppUrlName "XSB Web Site.url"
 
 #define XSB_DIR "{reg:HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment,XSB_DIR|{pf}\XSB}"
-;#define MyBaseDir "C:\XSBSYS\XSBENV\XSB"
+#define MyBaseDir "C:\XSBSYS\XSBENV\XSB"
+#define MyBaseDir "H:\XSB\XSB"
 #define MyBaseDir "C:\XSB"
 
 [Setup]
