@@ -1271,7 +1271,7 @@ DllExport void call_conv print_pterm(CTXTdeclc prolog_term term, int toplevel,
 DllExport char * call_conv print_pterm_fun(CTXTdeclc prolog_term term)
 {
   XSB_StrSet(&StrArgBuf,"");
-  print_pterm(term, FALSE, &StrArgBuf);
+  print_pterm(term, TRUE, &StrArgBuf);
   return StrArgBuf.string;
 }
 
