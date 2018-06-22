@@ -89,6 +89,7 @@ extern "C" {
 **  		p2c_int:	prolog_term -> prolog_int
 **  		p2c_float:	prolog_term -> prolog_float
 **  		p2c_string:	prolog_term -> string
+**  		p2c_varnum:	prolog_term -> int
 **  		p2c_functor:	prolog_term -> string
 **  		p2c_arity:	prolog_term -> int
 **  	    Prolog to Prolog:

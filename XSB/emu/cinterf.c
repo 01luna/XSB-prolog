@@ -329,6 +329,19 @@ DllExport char* call_conv p2c_string(prolog_term term)
     return string_val(t);
 }
 
+DllExport Integer call_conv p2c_varnum(prolog_term term)
+{
+    Cell t = (Cell)term;
+    XSB_Deref(t);
+    if ((CPtr)t >= (CPtr)glstack.low && (CPtr)t <= (CPtr)top_of_heap)
+      // positive if heap variable
+      return ((Integer)t - (Integer)glstack.low)/sizeof(void *);
+    else if ((CPtr)t >= top_of_localstk && (CPtr)t <= (CPtr)glstack.high)
+      // negative if local stack variable
+      return ((Integer)((CPtr)t - (CPtr)glstack.high - 1))/sizeof(CPtr);
+    else return (Integer)t;   /* Should never happen */
+}
+
 DllExport char* call_conv p2c_functor(prolog_term term)
 {
     Cell t = (Cell)term;
