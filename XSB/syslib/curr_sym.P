@@ -1502,10 +1502,11 @@ set_xsb_flag_1(Type, _) :-
 :- import atom_chars/2 from standard.
 
 current_xsb_param(Flag, Value) :- 
-	(	var(Flag) ->
-		true
-	;	\+ atom(Flag) ->
-     	            type_error(atom_or_variable,Flag,current_prolog_flag/2,1) ),
+	(var(Flag) ->
+	  true
+	; \+ atom(Flag) ->
+	  type_error(atom_or_variable,Flag,current_prolog_flag/2,1)
+	 ; true ),
 	(var(Value) ->
 	   true
 	 ; type_error(var,Value,current_xsb_param/2,2) ),
@@ -1514,7 +1515,7 @@ current_xsb_param(Flag, Value) :-
 current_xsb_param_1(float_display_format, Value) :- 
     file_function(GET_FLOAT_DISPLAY_FORMAT,Param,_),
     parse_float(Param,Width,Prec,Spec),
-    Value = [width(Width),precision(Prec),speficifer(Spec)].
+    Value = [width(Width),precision(Prec),specifier(Spec)].
 current_xsb_param_1(max_table_subgoal_size, [limit(Max),action(Action)]) :- 
     xsb_flag(max_table_subgoal_size,Max),
     xsb_flag(max_table_subgoal_size_action, Action).
