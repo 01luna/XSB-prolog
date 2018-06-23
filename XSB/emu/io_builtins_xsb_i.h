@@ -1093,9 +1093,12 @@ inline static xsbBool file_function(CTXTdecl)
     FILE* fptr;
     int io_port = (int)ptoc_int(CTXTc 2);
     SET_FILEPTR(fptr, io_port);
-    char format[] = "%1.16g";
-    sprintf(&format[3],"%dg",(int) ptoc_int(CTXTc 4));
-    //    printf("wfvp %s\n",format);
+    char format[] = "%          ";
+    //    printf("prec %d\n",(int) ptoc_int(CTXTc 4));
+    //    printf("width %d\n",(int) ptoc_int(CTXTc 5));
+    //    printf("spec %c\n",(int) ptoc_int(CTXTc 6));
+    sprintf(&format[1],"%d.%d%c",(int) ptoc_int(CTXTc 5),ptoc_int(CTXTc 4),ptoc_int(CTXTc 6));
+    //printf("wfvp %s\n",format);
     fprintf(fptr,"%s",cvt_float_to_str_with_fmt(CTXTc ptoc_float(CTXTc 3),format));
     break;
   }
