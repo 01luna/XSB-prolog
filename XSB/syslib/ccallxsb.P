@@ -54,7 +54,8 @@ c_callloop_query_loop(Regs) :-
 c_callloop_query_loop0(Regs) :-
 %	set_xsb_ready,
  	set_inthandler('_$attv_int'(_,_), MYSIG_ATTV),
-	set_thread_interrupt,
+	conset('_$break_level', 0),
+        set_thread_interrupt,
 	set_inthandler('_$timer_int'(_,_), TIMER_INTERRUPT),
 	set_inthandler('_$lazy_reeval_int'(_,_), LAZY_REEVAL_INTERRUPT),
 	repeat,

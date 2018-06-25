@@ -33,6 +33,7 @@
 
 :- import (dynamic)/1, assert/1, retract/1, retractall/1 from assert.
 :- import ccall_error_handler/1 from error_handler.
+:- import conset/2 from gensym.
 :- import set_inthandler/2 from loader.
 :- import excess_vars/4 from setof.
 :- import call/1, call_c/1, call_expose/1, (index)/2, catch/3,
