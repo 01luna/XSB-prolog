@@ -74,7 +74,7 @@ write_term(Stream, Term, OptList) :-
         L = [width(W),precision(P),specifier(S)],
 	atom_codes(W,Lw),number_codes(W1,Lw),
 	atom_codes(P,Lp),number_codes(P1,Lp),
-        Default = options(false,false,false,false,1000000,P1,W1,S,_),
+        Default = options(false,false,false,false,1000000,P1,W1,S,decimal),
         compute_options(OptList, 3, OptList, Default, 1200, Options, Priority),
         write_out(Term, Options, Priority, 0, 0, '(', 2'100, _),
 	set_output(Curr),
@@ -87,7 +87,7 @@ write_term(Term,OptList):-
         L = [width(W),precision(P),specifier(S)],
 	atom_codes(W,Lw),number_codes(W1,Lw),
 	atom_codes(P,Lp),number_codes(P1,Lp),
-        Default = options(false,false,false,false,1000000,P1,W1,S,_),
+        Default = options(false,false,false,false,1000000,P1,W1,S,decimal),
         compute_options(OptList, 2, OptList, Default, 1200, Options, Priority),
         write_out(Term, Options, Priority, 0, 0, '(', 2'100, _),
 	xsb_sys_mutex_unlock( Curr ).
@@ -179,11 +179,15 @@ one_opt(float_width(Width),  _,
 	                   options(Qt,IO,NV,Pr,Li,Prec,_DefWidth,Spec,Radix), Prio,
                            options(Qt,IO,NV,Pr,Li,Prec,WidthOut,Spec,Radix), Prio) :-
                            integer(Width), Width >= 0, Width =< 30,!,
-                           (Width = 0 -> WidthOut = 30; WidthOut = Prec).
+                           (Width = 0 -> WidthOut = 2; WidthOut = Prec).
 one_opt(float_specifier(Spec),  _,
 	                   options(Qt,IO,NV,Pr,Li,Prec,Width,_DefSpec,Radix), Prio,
                            options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :-
                            member(Spec,[f,g,'F','G']),!.
+one_opt(radix(Radix),  _,
+	                   options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,_DefRadix), Prio,
+                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :-
+                           member(Radix,[decimal,octal,hex]),!.
 one_opt(priority(Prio), _, Opts, _, Opts, Prio) :-
         integer(Prio), Prio >= 1, Prio =< 1200, !.
 one_opt(Opt, N, _, _, _, _) :-
@@ -343,12 +347,18 @@ write_out(N,Options, _, _, _, _, Ci, 2'000) :-
 	current_output(Str),
 %	writeln(file_function(WRITE_FLOAT_VAR_FORMAT,Str,N,Prec,Width,Char,_)),
 	file_function(WRITE_FLOAT_VAR_FORMAT,Str,N,Prec,Width,Char,_).
-write_out(N, _, _, _, _, _, Ci, 2'000) :-
+write_out(N,Options, _, _, _, _, Ci, 2'000) :-
+        Options = options(_Quote,_,_,_,_,_Prec,_Width,_Spec,Radix), % Ignore lists and operators
 	number(N), !,
 	(   N < 0 -> maybe_space(Ci, 2'010)
 	;   maybe_space(Ci, 2'000)
 	),
-	displayq(N).
+	current_output(Str),
+        (Radix = decimal ->
+ 	   displayq(N)
+	 ; Radix = hex ->
+	     file_function(WRITE_RADIX,Str,N,XSB_HEXIDECIMAL,_,_,_)	       
+           ; file_function(WRITE_RADIX,Str,N,XSB_OCTAL,_,_,_) ).
 write_out(Term, Options, _, _, Depth, _, Ci, 2'100) :-
         Options = options(Quote,true,_,_,_,_Prec,_Width,_Spec,_Radix), % Ignore lists and operators
 	functor(Term, Atom, Arity), !,
