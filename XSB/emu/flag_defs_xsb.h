@@ -214,4 +214,4 @@ interrupt flag
 #define NAF_CS               2
 #define WEAK_CS              3
 
-#define DEFAULT_FLOAT_DISPLAY_FORMAT "%1.15g"
+#define DEFAULT_FLOAT_DISPLAY_FORMAT "%2.15g"
