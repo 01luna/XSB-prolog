@@ -23,4 +23,8 @@ test1:-
 	write_term(nine([1,2,3,4,5]),[max_depth(3)]).
 test1:- 
 	write_term(ten((a,b)),[priority(300)]).
+test1:- 
+	write_term(eleven(123),[radix(hex)]).
+test1:- 
+	write_term(twelve(123),[radix(octal)]).
      

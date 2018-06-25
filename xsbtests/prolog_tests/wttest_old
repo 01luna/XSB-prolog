@@ -4,7 +4,9 @@
 [1,2,3]
 A
 A1
+eleven(7b)
 nine([1,2|...])
 ten((a,b))
+twelve(173)
 $VAR(eight("MyVar"))
 $VAR(seven(MyVar))
