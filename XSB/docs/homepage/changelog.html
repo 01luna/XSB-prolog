@@ -17,7 +17,28 @@
 </div>
 
 <h1>ChangeLog</h1>
+ up to about 9259
 
+<h2> Version 3.8.1 (Three-Buck Chuck)</h2> 
+<ul>
+<li><b> Enhancements </b></li>
+<ul>
+<li> XSB now allows specification of the display precision of floating
+point numbers both through a Prolog flag and through an option of <tt>write_term/[1,2]</tt></li>
+<li> XSB now supports a predicate, <tt>not3/1</tt> which properly
+handles negation of Prolog predicates within a 3-valued
+semantics.</li>
+<li>User-defined types to <tt>proc_file</tt>, better error messages, </li>
+<li>summarize_idg, leaf nodes in get_idg and other inspection predicates for incremental tabling</li>
+<li>added subgoal_property/2 and variant_subgoal_property/2</li>
+<li>fix to make programs that use a large number of atoms run much faster</li>
+<li>predicate_property, set_predicate_property</li>
+<li>fixed bug with declaring tabled predicates as dynamic</li>
+<li> Custom option for tripwires
+<li></li>
+* Fix bug where callnode->recomputable was not reset to
+COMPUTE_DEPENDENCIES_FIRST when no change was propagated.  Incremental tabling works when called from C.
+</ul>
 <h2> Version 3.8 (Three-Buck Chuck)</h2> 
 
 Many of the changes for Version 3.8 of XSB have been motivated by the

@@ -1485,10 +1485,28 @@ terms. If {\tt Depth} is zero, there is no limit. Default value is
 it will be printed parenthesized.  Default value is 1200 (no term
 parenthesized).
 %
-\item {\tt float\_display\_format(+Prec)}.  {\tt Prec} must be an
-  integer between 1 and 17, and this number determines the precision
-  with which a floating point number is displayed, (excluding trailing
-  zeros).  The default value is 17.
+\item {\tt float\_precision(+Prec)}.  {\tt Prec} must be an integer
+  between 1 and 17, and this number determines the precision with
+  which a floating point number is displayed, (excluding trailing
+  zeros).  The default value is 15.
+%
+\item {\tt float\_width(+Width)}.  {\tt Width} must be an integer
+  between 1 and 17, and this number determines the minimum width
+  precision with which a floating point number is displayed.  For
+  instance, a width of 2 ensures that a floating point number is
+  always displayed with a decimal value.  The default value is 2.
+%
+\item {\tt float\_specifier(+Spec)}.  Floats in XSB are printed using
+  underlying C routines.  In C a floating point specifier of {\tt f}
+  or {\tt F} means that a floating point number is always printed with
+  a certain precision, while a specifier of {\tt g} or {\tt G}
+  truncates trailing zeros.  The allowed values are {\tt g},{\tt
+    G},{\tt f} and {\tt F}.  The default value if {\tt g}.
+%
+\item {\tt radix(+Radix)}. Ensures that integers are printed with
+  radix {\tt Radix}.  {\tt Radix} can be {\tt decimal}, {\tt hex} or
+  {\tt octal}.  The default is {\tt decimal}.
+%
 \end{itemize}
 
 From the following examples it can be seen that {\tt
