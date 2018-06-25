@@ -1073,6 +1073,17 @@ inline static xsbBool file_function(CTXTdecl)
     io_port = (int)ptoc_int(CTXTc 2);
     //printf("Setting port %d to charset %d\n",io_port,charset);
     open_files[io_port].charset = charset;
+#ifdef WIN_NT
+    if (io_port == 0) {
+      if (charset == UTF_8) SetConsoleCP(65001);
+      else SetConsoleCP(1252);
+      printf("set console input %d\n",charset);
+    } else if (io_port == 1) {
+      if (charset == UTF_8) SetConsoleOutputCP(65001);
+      else SetConsoleOutputCP(1252);
+      printf("set console output %d\n",charset);
+    }
+#endif
     break;
   }
 
@@ -1097,7 +1108,7 @@ inline static xsbBool file_function(CTXTdecl)
     //    printf("prec %d\n",(int) ptoc_int(CTXTc 4));
     //    printf("width %d\n",(int) ptoc_int(CTXTc 5));
     //    printf("spec %c\n",(int) ptoc_int(CTXTc 6));
-    sprintf(&format[1],"%d.%d%c",(int) ptoc_int(CTXTc 5),ptoc_int(CTXTc 4),ptoc_int(CTXTc 6));
+    sprintf(&format[1],"%d.%d%c",(int) ptoc_int(CTXTc 5),(int)ptoc_int(CTXTc 4),(int)ptoc_int(CTXTc 6));
     //printf("wfvp %s\n",format);
     fprintf(fptr,"%s",cvt_float_to_str_with_fmt(CTXTc ptoc_float(CTXTc 3),format));
     break;
