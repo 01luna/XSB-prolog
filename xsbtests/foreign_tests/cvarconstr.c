@@ -92,6 +92,11 @@ int main(int argc, char *argv[])
 	    xsb_get_error_message(CTXT));
  }
 
+ if (xsb_command_string(CTXTc "abort(test).") == XSB_ERROR) {
+    printf("++Caught abort: %s/%s\n",xsb_get_error_type(CTXT),
+	    xsb_get_error_message(CTXT));
+ }
+
  xsb_close(CTXT);      /* Close connection */
   return(0);
 }
