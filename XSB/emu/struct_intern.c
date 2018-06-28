@@ -63,6 +63,16 @@ extern int compare(CTXTdeclc const void *, const void *);
 
 #define clean_addr(ptr) ((void *)((UInteger)(ptr) & ~intern_mark_bit))
 
+/*** for debugging **
+void log_irec(int reclen, void **rec_ptr) {
+  int i;
+  xsb_log(" %p:",rec_ptr);
+  for (i = 0; i < reclen; i++) {
+    xsb_log(" %p,",*(rec_ptr+i));
+  }
+  xsb_log("\n");
+  } ***/
+
 /*  Finds the size of noninterned part of a term prior to interning.
 Argument term must have been dereferenced. */
 
@@ -247,6 +257,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
   for (i=0; i<reclen; i++) {
     cell(hc_term+i) = cell(termrec+i);
   }
+  //  xsb_log("alloc intern: "); log_irec(reclen,recptr);
   return hc_term;
 }
 
@@ -454,13 +465,13 @@ void reclaim_internstr_recs() {
       while (block_ptr) {
 	rec_ptr = &(block_ptr->recs);
 	while (((CPtr)rec_ptr < (CPtr)block_ptr+1+hc_num_in_block*reclen)
-	       && IsNonNULL(rec_ptr->intterm_psc)
-	       && IsNonNULL(rec_ptr->next)) {
+	       && IsNonNULL(rec_ptr->intterm_psc)) {
 	  if (!((UInteger)rec_ptr->next & intern_mark_bit)) { // unmarked, so free
 	    hashindex = it_hash(hc_blk_ptr->hashtab_size,
 				reclen-1,(CPtr)&(rec_ptr->intterm_psc));
 	    lrec_ptr = (struct intterm_rec *)&hc_blk_ptr->hashtab[hashindex];
-	    while (lrec_ptr) {
+	    //	    xsb_log("free intern: ");  log_irec(reclen,rec_ptr);
+	    while (lrec_ptr) { // find in hash chain to delete
 	      if (lrec_ptr == rec_ptr) {
 		if ((UInteger)(prec_ptr->next) & intern_mark_bit) {
 		  prec_ptr->next = (struct intterm_rec *)
@@ -473,14 +484,32 @@ void reclaim_internstr_recs() {
 	      prec_ptr = lrec_ptr;
 	      lrec_ptr = clean_addr(lrec_ptr->next);
 	    }
+	    if (!lrec_ptr) xsb_error("ERROR: (internal) Intern record not found!\n");
 	  } else rec_ptr->next = clean_addr(rec_ptr->next); // reset mark
 	  rec_ptr = (struct intterm_rec *)(((CPtr)rec_ptr) + reclen);  // to next rec in this block
 	}
 	block_ptr = block_ptr->nextblock;  // to next block
       }
+      /**** check for debugging...*
+      block_ptr = hc_blk_ptr->base;
+      while (block_ptr) {
+	rec_ptr = &(block_ptr->recs);
+	while (((CPtr)rec_ptr < (CPtr)block_ptr+1+hc_num_in_block*reclen)) {
+	  if ((UInteger)rec_ptr->next & intern_mark_bit)
+	    printf("Error: Intern node in block should not be marked!\n");
+	  rec_ptr = (struct intterm_rec *)(((CPtr)rec_ptr) + reclen);  // to next rec in this block
+	}
+	block_ptr = block_ptr->nextblock;  // to next block
+      }
+      rec_ptr = hc_blk_ptr->freechain;
+      while (rec_ptr) {
+	if ((struct intterm_rec *)((UInteger)rec_ptr->next & intern_mark_bit))
+	  printf("ERROR intern freechain entry should not be marked\n");
+	rec_ptr = rec_ptr->next;
+      }****/
     }
   }
-    return;
+  return;
 }
 
 /* hashstring is string that begins with }]]}, followed by hex that is

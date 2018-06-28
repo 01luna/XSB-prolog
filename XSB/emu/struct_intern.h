@@ -83,3 +83,5 @@ prolog_term stringhash_to_term(CTXTdeclc char *hashstring);
 
 extern int gc_strings;
 void mark_interned_term(CTXTdeclc Cell interned_term);
+
+// void log_irec(int reclen, struct intterm_rec *rec_ptr);
