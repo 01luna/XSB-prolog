@@ -9,12 +9,6 @@ directory, and running:
 % xsb
 | ?- [xsbdoc], xsbdoc(prolog_db_format,pdf).
 
-To do:
-
-1. Add smaller_db(+DB1,+DB2,-DB3,-Size) that given two DBs returns the
-one that is smaller and the count of clauses it contains.  (in time
-proportional to the size of the smaller.)
-
 ************/
 
 :- comment(title,"Trie Terms for Sets and Prolog Databases").
@@ -32,68 +26,55 @@ same set of clauses is always represented by the same trie term, no
 matter how it is constructed.
 
 These trie terms can be used to represent a set of Prolog clauses
-(a.k.a., a Prolog Database.)  We call a set of clauses a ``trie-term
-database.''  Operations are provided to assert clauses to and retract
-clauses from a given trie-term database to generate a new one
-reflecting the change.  Also there is an operation to evaluate a goal
-using the clauses of a given trie-term database.  Trie-terms do not
-support duplicates or clause order, so cuts (and duplicate clauses)
-cannot be used in trie-term databases.  Trie-term databases can
-support Prolog meta-programming in a pure way, since trie-terms are
-simply Prolog terms and so earlier trie-term database states are
-automatically recovered on backtracking (unlike with Prolog's built-in
-assert and retract operations).
+(a.k.a., a Prolog Database, pr PDB.)  We call a set of clauses in this
+representation a ``trie-term database.''  Operations are provided to
+assert clauses to and retract clauses from a given trie-term database
+to generate a new one reflecting the change.  Also there is an
+operation to evaluate a goal using the clauses of a given trie-term
+database.  Trie-terms do not support duplicates or clause order, so
+cuts (and duplicate clauses) cannot be used in trie-term databases.
+Trie-term databases can support Prolog meta-programming in a pure way,
+since trie-terms are simply Prolog terms and so earlier trie-term
+database states are automatically recovered on backtracking (unlike
+with Prolog's built-in assert and retract operations).
 	   
-Trie terms can be used to represent sets of ground Prolog terms, or
-sets of relations over Prolog terms.  Operations are provided for
-adding elements to sets/relations generating new sets/relations, and
-for deleting and lookup.  Also several set operations, e.g. union,
-intersection, and difference, are provided.  These operations take
-advantage of the indexed structure of a trie-term to sometimes provide
-much better performance than more naive tuple-at-a-time
-implementations.  This module also provides several restricted
-relational operators that can take advantage of the indexed data
-structure.
+Trie terms can be used to represent sets of ground Prolog terms, which
+can be interpreted as sets of relations over Prolog terms.  Operations
+are provided for adding elements to sets/relations generating new
+sets/relations, and for deleting and lookup.  Also several set
+operations, e.g. union, intersection, and difference, are provided.
+These operations take advantage of the indexed structure of a
+trie-term to sometimes provide much better performance than more naive
+tuple-at-a-time implementations.  This module also provides several
+restricted relational operators that can take advantage of the indexed
+data structure.
 
 The complexity of adding, deleting, and looking up single elements in
 a trie-term is, in general, log of the the number of symbols in the
 trie-term.
 	   
-Since trie terms are ground, they can be interned (a.k.a.
-hash-cons-ed) in which case they are copied to a global space and all
-subterms are represented only once.  In this case the interned trie
-terms are represented in Prolog as specially named atoms, which in
-fact encode pointers to the global term representations.  For every
-predicate that manipulates these trie terms, there is a corresponding
-predicate that manipulates the interned form of the trie terms.  Most
-applications will want to use these interned versions.  One can think
-of the interned versions as passing around ``names'' of the clause sets,
-instead of the clause sets themselves.  The interned trie terms can be
-efficiently tabled since only the atomic name of a trie term will be
-copied to a table.  Also since these trie terms are canonical, two
-trie-term names are equal if and only if the sets they name are equal.
-Also using answer subsumption with the subset operation on interned
-trie terms may prove useful for some applications.
-
-In the implementation, every trie term is wrapped with a functor
-symbol that indicates whether the representation is a regular trie
-term or an interned trie term.  All predicates take either form and
-produce a result in the same form.  The predicate @pred{new_db/1}
-returns an empty database in regular Prolog term form;
-@pred{new_dbi/1} returns an empty database in interned form.  One of
-the predicates must be used to create an initial empty database.
-(There is also @pred{assert_in_dbi(+ClauseList,-DB)}, which takes a
-list of clauses and returns a database, in interned form, containing
-just those clauses; also @pred{load_in_dbi(+FileName,-DB)}, which
-reads clauses from a file to initiate a database in interned form.)
-").
+Since trie terms are ground, they can be (and are) interned (a.k.a.
+hash-cons-ed). I.e., they are copied to a global space and all
+subterms are represented only once.  With this representation, an
+interned trie term is represented in Prolog as a specially named atom,
+which in fact encodes a pointer to the global explicit term
+representations.  Every predicate that manipulates trie terms converts
+the name to the pointer (or a pointer back to a name) whenever it uses
+(or generates) a trie-term.  So a program that uses these trie-terms
+passes around ``names'' of the clause sets, instead of the clause sets
+themselves.  These interned trie terms can be efficiently tabled since
+only the atomic name of a trie term will be copied to a table.  Also
+since these trie terms are canonical, two trie-term names are equal if
+and only if the sets they name are equal.  Also using answer
+subsumption with the subset operation on interned trie terms may prove
+useful for some applications.  ").
 
 :- comment(module," The @tt{prolog_db} module defines a data type that
 supports a very general facility for manipulating sets of Prolog
-clauses represented as a single Prolog term that can be useful for a
-variety of purposes.  We will describe the module's functionality
-though a series of examples that use progressively more complicated
-aspects of the data type.
+clauses represented as a single Prolog (interned) term that can be
+useful for a variety of purposes.  We will describe the module's
+functionality though a series of examples that use progressively more
+complicated aspects of the data type.
 
 @section{Sets of Atoms (or Terms)}
 
@@ -108,12 +89,12 @@ then list equality implements set equality.  This works well for small
 sets but, when sets get larger than a few 10's of items, performance
 can suffer signicantly.  This can be avoided by using the
 @tt{prolog_db} data type.  A new empty set, @var{Set0}, is initialized
-with @pred{new_dbi(Set0)}; an element, say 'George', is added to it
+with @pred{new_db(Set0)}; an element, say 'George', is added to it
 with @pred{assert_in_db('George',Set0,Set1)} creating the set with
 'George' added in @var{Set1}.  For example,
 
 @begin{verbatim}
-| ?- new_dbi(_S0),assert_in_db('George',_S0,_S1),dump_db(_S1,userout).
+| ?- new_db(_S0),assert_in_db('George',_S0,_S1),dump_db(userout,_S1).
 'George'.
 @end{verbatim}
 
@@ -124,9 +105,9 @@ Sets can be compared for identity with the Prolog operation @pred{==}
 (or @pred{=}.)
 
 @begin{verbatim}
-| ?- new_dbi(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S1,_S2),
+| ?- new_db(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S1,_S2),
      assert_in_db('Mary',_S0,_S1B),assert_in_db('George',_S1B,_S2B),
-     _S2 == _S2B, dump_db(_S2,userout).
+     _S2 == _S2B, dump_db(userout,_S2).
 'Mary'.
 'George'.
 @end{verbatim}
@@ -140,7 +121,7 @@ A set can be checked to see if it contains a constant 'George' using
 @pred{fact_in_db('George',Set1)}.
 
 @begin{verbatim}
-| ?- new_dbi(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S1,_S2),
+| ?- new_db(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S1,_S2),
    (fact_in_db('George',_S2) -> writeln('contains George') ; writeln(oops)),
    (fact_in_db('William',_S2) -> writeln(oops) ; writeln('but not William')).
 contains George
@@ -151,7 +132,7 @@ but not William
 @pred{subset_db(Set1,Set2)}.  For example,
 
 @begin{verbatim}
-| ?- new_dbi(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S1,_S2),
+| ?- new_db(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S1,_S2),
    (subset_db(_S1,_S2) -> writeln('correctly subset') ; writeln(oops)),
    (subset_db(_S2,_S0) -> writeln('oops') ; writeln('correctly not subset')).
 correctly subset
@@ -162,8 +143,8 @@ The union of sets @var{Set1} and @var{Set2} can be computed into
 @var{Set3} using @pred{union_db(Set1,Set2,Set3)}.  For example,
 
 @begin{verbatim}
-| ?- new_dbi(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S0,_S2),
-     union_db(_S1,_S2,_S3),dump_db(_S3,userout).
+| ?- new_db(_S0),assert_in_db('George',_S0,_S1),assert_in_db('Mary',_S0,_S2),
+     union_db(_S1,_S2,_S3),dump_db(userout,_S3).
 'Mary'.
 'George'.
 @end{verbatim}
@@ -171,62 +152,38 @@ The union of sets @var{Set1} and @var{Set2} can be computed into
 Other similar set operations are also provided.  See the
 @em{Documentation of exports} section below for details.  The time and
 space complexities of all these operations are at or near optimal.
-Note also that if we use the interned trie form (as we showed here by
-the use of @pred{new_dbi(Set0)}), then ``names'' of sets, rather than
-the explicit trie terms themselves, become the values of the Prolog
-set variables.  This means that they can be efficiently tabled, since
-only the names are copied into and out of a table, rather than the
-explicit trie-terms themselves.  To see the names of the sets, we can
-remove the underscores that prefix the set variable names in our
-previous queries.  So repeating the union query above, we get:
+Note that ``names'' of sets, rather than the explicit trie terms
+themselves, become the values of the Prolog set variables.  This means
+that they can be efficiently tabled, since only the names are copied
+into and out of a table, rather than the explicit trie-terms
+themselves.  To see the names of the sets, we can remove the
+underscores that prefix the set variable names in our previous
+queries.  So repeating the union query above, we get:
 
 @begin{verbatim}
-| ?- new_dbi(S0),assert_in_db('George',S0,S1),assert_in_db('Mary',S0,S2),
-     union_db(S1,S2,S3),dump_db(S3,userout).
+| ?- new_db(S0),assert_in_db('George',S0,S1),assert_in_db('Mary',S0,S2),
+     union_db(S1,S2,S3),dump_db(userout,S3).
 'Mary'.
 'George'.
 
-S0 = $TRIETERMI([])
-S1 = $TRIETERMI(}]]}00000204151FDC71)
-S2 = $TRIETERMI(}]]}00000204151FDCC1)
-S3 = $TRIETERMI(}]]}00000204151FDC99)
+S0 = []
+S1 = }]]}0000028A1F52C2A1
+S2 = }]]}0000028A1F52C2C9
+S3 = }]]}0000028A1F567C11
 @end{verbatim}
 
-@noindent We see that a named set is represented as a term whose main
-functor symbol is @tt{'$TRIETERMI'}, indicating a trie-term that is
-interned.  The single subfield of that term is a string whose name
+@noindent We see that a named set is represented as an atom whose name
 encodes the address of the trie term structure in interned space.
 (The prefix '}]]}' is to try to avoid name conflicts with user
 strings.)  The empty set is a special case, since it is not a
 structured term, but just the constant [ ].
 
-We could also have used the explicit trie-term representation, by
-using @pred{new_db(S0)} to create the explicit trie representation for
-the empty set:
-
-@begin{verbatim}
-| ?- new_db(S0),assert_in_db('George',S0,S1),assert_in_db('Mary',S0,S2),
-     union_db(S1,S2,S3),dump_db(S3,userout).
-'Mary'.
-'George'.
-
-S0 = $TRIETERM([])
-S1 = $TRIETERM(rtl(George,[true],[]))
-S2 = $TRIETERM(rtl(Mary,[true],[]))
-S3 = $TRIETERM(rt([],rtl(Mary,[true],[]),[],rtl(George,[true],[])));
-@end{verbatim}
-
-@noindent We see the explicit trie-term representation, now wrapped
-with functor symbol @tt{'$TRIETERM'} (without the trailing 'I') and we
-see the explicit atoms 'Mary' and 'George' down in the trie-term
-representation.
-
 Of course, elements can be deleted from sets.  This is done using
 @tt{retractall_in_db(Atom,Set0,Set)}.  For example:
 
 @begin{verbatim}
-| ?- new_dbi(_S0),assert_in_db(['George','Mary'],_S0,_S1),dump_db(_S1,userout),
-     retractall_in_db('George',_S1,_S2),nl,dump_db(_S2,userout).
+| ?- new_db(_S0),assert_in_db(['George','Mary'],_S0,_S1),dump_db(userout,_S1),
+     retractall_in_db('George',_S1,_S2),nl,dump_db(userout,_S2).
 'Mary'.
 'George'.
 
@@ -245,14 +202,14 @@ Since for a set of atoms, there is no trie.
 
 @subsection{Example: Paths in Graphs}
 
-We can use @tt{prolog_db} term sets to collect path edges when
+We can use @tt{prolog_db} trie-term sets to collect path edges when
 computing paths in a graph.  Consider the following program:
 
 @begin{verbatim}
-:- import subset_db/2, assert_in_db/3, assert_in_dbi/2, dump_db/2 from prolog_db.
+:- import subset_db/2, assert_in_db/3, assert_in_db/2, dump_db/2 from prolog_db.
 
 :- table path(_,_,po(subset_db(_,_))).
-path(X,Y,S) :- edge(X,Y), assert_in_dbi((X->Y),S).
+path(X,Y,S) :- edge(X,Y), assert_in_db((X->Y),S).
 path(X,Y,S) :- path(X,Z,S1),edge(Z,Y),assert_in_db((Z->Y),S1,S).
 
 edge(a,b).    edge(e,f).
@@ -271,7 +228,7 @@ them, e.g., those containing no loops.  As an example, to find the
 minimal paths from @tt{a} to @tt{d} in the indicated graph, we can do:
 
 @begin{verbatim}
-| ?- X=a,Y=d,path(X,Y,S),nl,writeln((X-->Y)),prolog_db:dump_db(S,userout),fail.
+| ?- X=a,Y=d,path(X,Y,S),nl,writeln((X-->Y)),prolog_db:dump_db(userout,S),fail.
 
 (a --> d)
 ->(a,c).
@@ -300,8 +257,8 @@ using @pred{size_db/2}), we could compute just the shortest path(s).
 grammars which for some input strings have many distinct parses,
 exponentially many in the length of the input string.  If we are not
 careful, in trying to compute the parses, we may take exponential time
-constructing parses for substrings of the input string when the input
-string is not itself in the language.  
+constructing parses for substrings of the input string when the full
+input string is not itself in the language.
 
 Consider the grammar:
 @begin{verbatim}
@@ -327,18 +284,18 @@ thus a(P1,P2), the parse of the full string, would take on @tt{m * n}
 different values.
 
 We can short-circuit this combinatoric explosion by, instead of
-representing the parses explicitly, representing the set of parses at
-a position, and using that set in larger parses, and thus avoiding the
-multiplication that causes the combinatorial explosion.  In this
-representation, in the above program @var{P1} and @var{P2} would
-take on as values @em{names} of sets of terms.
+representing the parses explicitly, representing, as a trie-term, the
+set of parses at a position, and using that set in larger parses, and
+thus avoiding the multiplication that causes the combinatorial
+explosion.  In this representation, in the above program @var{P1} and
+@var{P2} would take on as values @em{names} of sets of terms.
 
 We can use answer subsumption to carry this out.  Consider the
 following program:
 @begin{verbatim}
-:- import assert_in_db/3, new_dbi/1, is_db/1, fact_in_db/2 from prolog_db.
+:- import assert_in_db/3, new_db/1, is_db/1, fact_in_db/2 from prolog_db.
 
-:- table a(fold(collect/3,new_dbi/1),_,_).
+:- table a(fold(collect/3,new_db/1),_,_).
 a(a(P1,P2)) --> a(P1), a(P2).
 a(a) --> [a].
 
@@ -361,7 +318,7 @@ expand_list([T|Ts],[ET|ETs]) :-
     expand_list(Ts,ETs).
 @end{verbatim}
 
-@noindent The answer subsumptive aggregation predicate is
+@noindent The answer-subsumptive aggregation predicate is
 @pred{collect/3}, which simply adds a newly computed parse to the
 current set.  The predicate @pred{expand(+Term,-ETerm)} takes a term,
 @var{Term}, that may contain named trie terms as subcomponents, and
@@ -398,19 +355,18 @@ terms were they to be asserted into Prolog's clause database.
 For example, one can create a term containing two r/2 tuples and three
 q/3 tuples in @var{_DB} with
 @begin{verbatim}
-| ?- new_dbi(_DB0),assert_in_db([r(a,b),r(b,c),q(a,2,3),q(b,3,4),q(b,4,5)],_DB0,_DB),
-     dump_db(_DB,userout).
+| ?- assert_in_db([r(a,b),r(b,c),q(a,2,3),q(b,3,4),q(b,4,5)],_DB),
+     dump_db(userout,_DB).
 q(a,2,3).
 q(b,4,5).
 q(b,3,4).
 r(a,b).
 r(b,c).
 @end{verbatim}
-Given a database term (or name, since we here again used
-@pred{new_dbi/1} to generate an empty database and return its name), we can
-ask queries of that database.  For example,
+Given a database name, we can ask queries of that database.  For
+example,
 @begin{verbatim}
-| ?- new_dbi(_DB0),assert_in_db([r(a,b),r(b,c),q(a,2,3),q(b,3,4),q(b,4,5)],_DB0,_DB),
+| ?- assert_in_db([r(a,b),r(b,c),q(a,2,3),q(b,3,4),q(b,4,5)],_DB),
      call_in_db(q(b,X,Y),_DB).
 
 X = 4
@@ -423,13 +379,13 @@ no
 | ?- 
 @end{verbatim}
 
-@noindent creates the desired database trie name and then
-evaluates the query @pred{q(b,X,Y)} in the indicated database and
-nondeterministically return two pairs as seen.  
+@noindent creates the desired trie database name and then evaluates
+the query @pred{q(b,X,Y)} in the indicated database and
+nondeterministically returns the two pairs as seen.
 	   
 We can also ask more complex queries, as seen with the following join:
 @begin{verbatim}
-| ?- new_dbi(_DB0),assert_in_db([r(a,b),r(b,c),q(a,2,3),q(b,3,4),q(b,4,5)],_DB0,_DB),
+| ?- assert_in_db([r(a,b),r(b,c),q(a,2,3),q(b,3,4),q(b,4,5)],_DB),
      call_in_db((r(a,Y),q(Y,Z,W)),_DB).
 
 Y = b
@@ -461,20 +417,20 @@ advantage of, the structure of the tries that represent sets of
 (tuples of) terms for their efficient implementation.
 
 Just as the data type contains set operations on full databases, it
-contains set operations on tables in a single database.  So, for
+contains set operations on tables within a single database.  So, for
 example:
 
 @begin{verbatim}
-| ?- assert_in_dbi([r(a,b),r(b,c),s(1,2),s(2,3)],_DB1),
-     union_in_db(r/2,s/2,t/2,_DB1,_DB), dump_db(_DB,userout).
-r(a,b).
-r(b,c).
-s(1,2).
-s(2,3).
+| ?- assert_in_db([r(a,b),r(b,c),s(1,2),s(2,3)],_DB1),
+     union_in_db(r/2,s/2,t/2,_DB1,_DB), dump_db(userout,_DB).
 t(1,2).
 t(a,b).
 t(2,3).
 t(b,c).
+r(a,b).
+r(b,c).
+s(1,2).
+s(2,3).
 @end{verbatim}
 
 @noindent initializes a @var{DB1} with tables @pred{r/2} and
@@ -488,23 +444,23 @@ had been in DB1, it would have been replaced with the new definition.
 
 We'll introduce several other single database operators that are
 supported by the @tt{prolog_db} abstract data type with the following
-more complicated example.  We will assume we have a trie-term
-relational database that contains an edge relation @pred{e/2}.  We
-want to compute the (converse of the) transitive closure of this
-@pred{e/2} relation into a new relation @pred{p/2}.  It turns out that
-with the operations we have, the converse of the transitive closure is
-easier to compute directly.
+more complicated example.  Assume we have a trie-term relational
+database that contains an edge relation @pred{e/2}.  We want to
+compute the (converse of the) transitive closure of this @pred{e/2}
+relation into a new relation @pred{p/2}.  It turns out that with the
+operations we have, the converse of the transitive closure is easier
+to compute directly.
 
 Consider the program:
 @begin{verbatim}
-:- import retractall_in_db/3, reorder_in_db/4, difference_in_db/5, is_empty_in_db/2,
+:- import retractall_in_db/3, reorder_in_db/4, difference_in_db/5, is_empty_in_db/3,
     union_in_db/5, join_in_db/6, project_in_db/5 from prolog_db.
-:- import assert_in_dbi/2, dump_db/2 from prolog_db.
+:- import assert_in_db/2, dump_db/2 from prolog_db.
 
 test(Edges) :-
-    assert_in_dbi(Edges,DB0),
+    assert_in_db(Edges,DB0),
     transclose(DB0,DB),
-    dump_db(DB,userout).
+    dump_db(userout,DB).
 
 
 transclose -->
@@ -522,8 +478,6 @@ transclose_loop -->
         retractall_in_db(delta(_,_,_)),
         transclose_loop
     ).
-
-is_empty_in_db(Pref,DB,DB) :- is_empty_in_db(Pref,DB).
 @end{verbatim}
 
 The imports give us access to the @tt{prolog_db} predicates we
@@ -558,23 +512,22 @@ iteration to get a new set of pairs in the transitive closure of
 @pred{e/2}.  So the @pred{difference_in_db(delta/2,p/2,delta/2)}
 transform removes from @pred{delta/2} those pairs that are already in
 the transitive closure, since we want to continue with @pred{delta/2}
-containing only new ones.  Then if there are no new ones, the
-computation has converged and it returns the current DB.  (Note that
-we need a rule to define @pred{is_empty_in_db/3} using the
-@tt{prolog_db} predicate @pred{is_empty_in_db/2}, so that it could be
-used as an identity DB transformer in the DCG rule.)  But if there are
-new tuples in @pred{delta/2}, we union (accumulate) them into
-@pred{p/2}.  Then we perform a join of those tuples with the
-@pred{e/2} tuples to create the new @pred{delta} tuples.  The
-@pred{join_in_db/6} predicate takes two tables to join and performs an
-equi-join on them using an initial sequence of their arguments (here,
-just 1) and produces a table with one copy of the join argument(s) and
-all the other arguments of the input tables.  This is a very
-restricted form of join and it is supported because, with this form of
-join, the join algorithm can take advantage of the trie-term data
-structure to perform efficiently.  Other join forms (and sometimes
-even this one) can be more efficiently implemented using
-@pred{call_in_db/2}.  After the join, the
+containing only new pairs.  Then if there are no new pairs, the
+computation has converged and it returns the current DB.  Note that we
+import @pred{is_empty_in_db/3}, which is defined in @tt{prolog_db} as
+@pred{is_empty_in_db/2} as an identity DB transformer for use in a DCG
+rule.  But if there are new tuples in @pred{delta/2}, we union
+(accumulate) them into @pred{p/2}.  Then we perform a join of those
+tuples with the @pred{e/2} tuples to create the new @pred{delta}
+tuples.  The @pred{join_in_db/6} predicate takes two tables to join
+and performs an equi-join on them using an initial sequence of their
+arguments (here, just 1) and produces a table with one copy of the
+join argument(s) and all the other arguments of the input tables.
+This is a very restricted form of join and it is supported because,
+with this form of join, the join algorithm can take advantage of the
+trie-term data structure to perform efficiently.  Other join forms
+(and sometimes even this one) can be more efficiently implemented
+using @pred{call_in_db/2}.  After the join, the
 @pred{project_in_db(delta/3,1,delta/2)} projects out the first
 argument of the @pred{delta/3} table generating the new @pred{delta/2}
 table.  Finally the @pred{delta/3} table is deleted, and the loop is
@@ -612,7 +565,7 @@ databases.  But one can add rules to these databases as well.
 Consider the following example:
 
 @begin{verbatim}
-| ?- assert_in_dbi([e(1,2),e(2,3),e(3,4),e(3,1)],DB0),
+| ?- assert_in_db([e(1,2),e(2,3),e(3,4),e(3,1)],DB0),
      assert_in_db([(p(X,Y) :- e(X,Y)), (p(X,Y) :- table(p(X,Z)),e(Z,Y))],DB0,DB1),
      call_in_db(table(p(X,Y)),DB1),writeln(p(X,Y)),fail.
 p(3,3)
@@ -654,7 +607,7 @@ set of same-sized blocks in a configuration on a table, with some of
 the blocks perhaps stacked on top of others in towers.  The problem
 is: given an initial state of the blocks configuration and a final
 state, what are the operations of moving the blocks that can turn the
-initial state into the final state.  A block configuration is described
+initial state into the final state?  A block configuration is described
 by a set of facts using the predicates: @pred{on(X,Y)} indicating
 block @var{X} is immediately on top of block @var{Y}; @pred{onTable(X)}
 indicating that block @var{X} is resting directly on the table;
@@ -669,28 +622,28 @@ unstack a block from the top of another block.
 Consider the following program:
 
 @begin{verbatim}
-:- import call_in_db/2, assert_in_db/3, retractall_in_db/3
-    dump_db/2, assert_in_dbi/2 from prolog_db.
+:- import call_in_db/3, assert_in_db/3, retractall_in_db/3,
+    dump_db/3, assert_in_db/2 from prolog_db.
 
 pickup(X) -->
     call_in_db((clear(X),onTable(X),handEmpty)),
     assert_in_db([holds(X)]),
-    retractall_in_db([handEmpty,clear(X),onTable(X)]).
+    retractall_in_db([clear(X),onTable(X)]).
 
 putdown(X) -->
     call_in_db((holds(X))),
-    assert_in_db([handEmpty,clear(X),onTable(X)]),
+    assert_in_db([clear(X),onTable(X)]),
     retractall_in_db([holds(X)]).
 
 stack(X,Y) -->
     call_in_db((holds(X),clear(Y))),
-    assert_in_db([clear(X),on(X,Y),handEmpty]),
+    assert_in_db([clear(X),on(X,Y)]),
     retractall_in_db([clear(Y),holds(X)]).
 
 unstack(X,Y) -->
     call_in_db((clear(X),on(X,Y),handEmpty)),
     assert_in_db([clear(Y),holds(X)]),
-    retractall_in_db([clear(X),on(X,Y),handEmpty]).
+    retractall_in_db([clear(X),on(X,Y)]).
 
 action --> pickup(_X).
 action --> putdown(_X).
@@ -698,16 +651,12 @@ action --> stack(_X,_Y).
 action --> unstack(_X,_Y).
 
 :- table action_sequence/2.
-action_sequence --> action, dump.
-action_sequence --> action_sequence, action, dump.
-
-call_in_db(G,DB,DB) :- call_in_db(G,DB).
-
-dump(DB,DB) :- dump_db(DB,userout),nl.
+action_sequence --> action, dump_db(userout).
+action_sequence --> action_sequence, action, dump_db(userout).
 
 test(Source,Target) :-
-    assert_in_dbi([(handEmpty :- \+ holds(_))|Source],SDB),
-    assert_in_dbi([(handEmpty :- \+ holds(_))|Target],TDB),
+    assert_in_db([(handEmpty :- \+ holds(_))|Source],SDB),
+    assert_in_db([(handEmpty :- \+ holds(_))|Target],TDB),
     action_sequence(SDB,TDB).
 @end{verbatim}
 
@@ -937,19 +886,24 @@ a clause, @var{Clause}, (or a sequence of clauses, if @var{Clause} is
 a list of clauses) to @var{DB0} to generate @var{DB}. @var{DB} will be
 of the same form as @var{DB0}, regular or interned. ").
 
-:- index assert_in_db/3-2.
-assert_in_db(Clauses,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    assert_in_db_b(Clauses,DB0,DB).
-assert_in_db(Clauses,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
-    assert_in_db_b(Clauses,DB0,DB),
-    intern_termhash(DB,H).
-assert_in_db(Clauses,module,module) :-
-    (Clauses = [Clause|MClauses]
-     ->	assert(Clause),
-	assert_list(MClauses)
-     ;	assert(Clauses)
+assert_in_db(Clauses,H0,H) :-
+    (H0 == module
+     ->	H = H0,
+	(Clauses = [Clause|MClauses]
+	 -> assert(Clause),
+	    assert_list(MClauses)
+	 ;  assert(Clauses)
+	)
+     ;  tab_intern_termhash(DB0,H0),
+	assert_in_db_b(Clauses,DB0,DB),
+	tab_intern_termhash(DB,H)
     ).
+
+%% bug if do this, for very large metainterp??
+%%:- import (table)/1 from standard.
+%%:- table tab_intern_termhash/2 as intern.
+tab_intern_termhash(DB0,H0) :-
+    intern_termhash(DB0,H0).
 
 assert_list([]).
 assert_list([Clause|Clauses]) :-
@@ -973,13 +927,10 @@ the ``clause'' to be asserted is itself a list, and so interpreting it
 as a list of clauses would be incorrect. The form of @var{DB} will be
 the same as the form of @var{DB0}, regular or interned. ").
 
-:- index assert1_in_db/3-2.
-assert1_in_db(Clause,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    assert1_in_db_b(Clause,DB0,DB).
-assert1_in_db(Clause,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+assert1_in_db(Clause,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     assert1_in_db_b(Clause,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 assert1_in_db_b(Clause,DB0,DB) :-
     (Clause = (Head :- Body)
@@ -994,18 +945,10 @@ clause, @var{Clause}, (or a sequence of clauses, if @var{Clause} is a
 list) to the empty DB to generate @var{DB}. @var{DB} will be a regular
 DB trie term.").
 
-assert_in_db(Clauses,DB) :-
+assert_in_db(Clauses,H) :-
     new_db(DB0),
-    assert_in_db(Clauses,DB0,DB).
-
-:- comment(assert_in_dbi/2, "@pred{assert_in_dbi(+Clause,?DB)} adds a
-clause, @var{Clause}, (or a sequence of clauses, if @var{Clause} is a
-list) to the empty DB to generate @var{DB}.  @var{DB} will be an
-interned DB trie term.").
-
-assert_in_dbi(Clauses,DB) :-
-    new_dbi(DB0),
-    assert_in_db(Clauses,DB0,DB).
+    assert_in_db(Clauses,DB0,DB),
+    tab_intern_termhash(DB,H).
 
 add_to_trie(Head,Body,Trie0,Trie) :-
     (ground([Head|Body])
@@ -1149,22 +1092,21 @@ add_pair(14,/*3,2*/NRTL,ORTL,rt([],[],ORTL,NRTL)).
 unifies, in turn, @var{Head} and @var{Body} with the head and body of
 rules in @var{DB}.  @var{DB} may be either regular or interned.").
 
-:- index clause_in_db/3-3.
-clause_in_db(Head,Body,'$TRIETERM'(DB)) :-
-    clause_in_db_b(Head,Body,DB).
-clause_in_db(Head,Body,'$TRIETERMI'(H)) :-
-    intern_termhash(DB,H),
-    clause_in_db_b(Head,Body,DB).
-clause_in_db(Head,Body,module) :-
-    clause(Head,Body).
+clause_in_db(Head,Body,H) :-
+    (H == module
+     ->	clause(Head,Body)
+     ;	tab_intern_termhash(DB,H),
+	clause_in_db_b(Head,Body,DB)
+    ).
 
 :- comment(fact_in_db/2, "@pred{fact_in_db(?Fact,+DB)} unifies, in
 turn, @var{Fact} with each fact in DB, @var{DB}.  The order of
 returned facts is indeterminate.  @var{DB} may be either regular or
 interned.").
 
-fact_in_db(Head,DB) :-
-    clause_in_db(Head,true,DB).
+fact_in_db(Head,H) :-
+    tab_intern_termhash(DB,H),
+    clause_in_db_b(Head,true,DB).
 
 
 clause_in_db_b(Head,Body,Trie) :-
@@ -1193,7 +1135,6 @@ find_tuple_in_trie(Terms,Body,Vars,Trie) :- Terms = [Term|RTerms],
 
 
 varno(Var) :- Var = '_$Var$'(VNo), integer(VNo).
-%%varno('_$Var$'(VNo)) :- integer(VNo). % _$Var$ in head not handled by these routines!
 
 varno(Var,VNo) :- Var = '_$Var$'(VNo), integer(VNo).
 
@@ -1264,18 +1205,16 @@ retracts all clauses whose heads unify with @var{Goal} (or a term in
 @var{DB1}.  The form of @var{DB} will be the same as the form
 of @var{DB0}. ").
 
-:- index retractall_in_db/3-2.
-retractall_in_db(Clauses,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    retractall_in_db_b(Clauses,DB0,DB).
-retractall_in_db(Clauses,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
-    retractall_in_db_b(Clauses,DB0,DB),
-    intern_termhash(DB,H).
-retractall_in_db(Clauses,module,module) :-
-    (Clauses = [Clause|MClauses]
-     ->	retractall(Clause),
-	retractall_list(MClauses)
-     ;	retractall(Clauses)
+retractall_in_db(Clauses,H0,H) :-
+    (H0 == module
+     ->	(Clauses = [Clause|MClauses]
+	 -> retractall(Clause),
+	    retractall_list(MClauses)
+	 ;  retractall(Clauses)
+	)
+     ;	tab_intern_termhash(DB0,H0),
+	retractall_in_db_b(Clauses,DB0,DB),
+	tab_intern_termhash(DB,H)
     ).
 
 retractall_list([]).
@@ -1449,13 +1388,11 @@ predicates, and completely independent of the size (i.e., the number
 of tuples) of the predicates.  The form of all the DBs must be the
 same. ").
 
-union_db('$TRIETERM'(DB1),'$TRIETERM'(DB2),'$TRIETERM'(DB)) :-
-    union_db_b(DB1,DB2,DB).
-union_db('$TRIETERMI'(H1),'$TRIETERMI'(H2),'$TRIETERMI'(H)) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+union_db(H1,H2,H) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     union_db_b(DB1,DB2,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 union_db_b(DB1,DB2,DB3) :-
     union_tries(DB1,DB2,0,DB3).
@@ -1620,29 +1557,6 @@ copy_in_db(PrefI,PrefO,DB0,DB) :-
     cvt_pa(PrefI,PrefO,PrefIs,PrefOs),
     reorder_in_db(PrefIs,PrefOs,DB0,DB).
 
-/**
-:- index copy_in_db/4-3.
-copy_in_db(PrefI,PrefO,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    copy_in_db_b(PrefI,PrefO,DB0,DB).
-copy_in_db(PrefI,PrefO,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
-    copy_in_db_b(PrefI,PrefO,DB0,DB),
-    intern_termhash(DB,H).
-
-copy_in_db_b(PrefI,PrefO,DB0,DB) :-
-    cvt_pa(PrefI,PrefIa),
-    cvt_pa(PrefO,PrefOa),
-    (find_subtrie_for_prefix([PrefIa],DB0,TL,HT1)
-     ->	true
-     ;	HT1 = [],
-	check_prefix_term([PrefIa],TL,'copy_in_db/4')
-    ),
-    (update_subtrie_for_prefix([PrefOa],HT1,_,TL,DB0,DB)
-     ->	true
-     ;	misc_error(('[prolog_in_db:copy_in_db/4] Predicate selection pattern: ',PrefOa,
-		    ' is illegal or inconsistent with other patterns.'))
-    ).
-**/
 /**********************************************************/
 
 :- comment(move_in_db/4, " @pred{move_in_db(+Pref1,+Pref2,+DB0,-DB)}
@@ -1661,15 +1575,13 @@ succeeds if the relation determined by prefix term @var{Pref} in
 database @var{DB} is empty.  It fails otherwise.  @var{DB} may be of
 either regular or interned form. ").
 
-is_empty_in_db(Pref,'$TRIETERM'(DB)) :-
-    is_empty_in_db_b(Pref,DB).
-is_empty_in_db(Pref,'$TRIETERMI'(H)) :-
-    intern_termhash(DB,H),
-    is_empty_in_db_b(Pref,DB).
-
-is_empty_in_db_b(Pref,DB) :-
+is_empty_in_db(Pref,H) :-
+    tab_intern_termhash(DB,H),
     cvt_pa(Pref,Prefa),
     \+ find_subtrie_for_prefix([Prefa],DB,_TL,_HT).
+
+is_empty_in_db(Pref,H,H) :-
+    is_empty_in_db(Pref,H).
 
 /**********************************************************/
 
@@ -1706,10 +1618,8 @@ count_in_db(Pref,DB,Count) :-
 :- comment(size_db/2," @pred{size_db(+DB,-Count)} returns the number
 of clauses in @var{DB} in @var{Count}.  ").
 
-size_db('$TRIETERM'(DB),Cnt) :-
-    size_db_b(DB,Cnt).
-size_db('$TRIETERMI'(H),Cnt) :-
-    intern_termhash(DB,H),
+size_db(H,Cnt) :-
+    tab_intern_termhash(DB,H),
     size_db_b(DB,Cnt).
 
 size_db_b(DB,Cnt) :-
@@ -1747,13 +1657,11 @@ predicates, and completely independent of the size (i.e., the number
 of tuples) of the predicates.  The forms of all the DBs must be the
 same. ").
 
-intersect_db('$TRIETERM'(DB1),'$TRIETERM'(DB2),'$TRIETERM'(DB)) :-
-    intersect_db_b(DB1,DB2,DB).
-intersect_db('$TRIETERMI'(H1),'$TRIETERMI'(H2),'$TRIETERMI'(H)) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+intersect_db(H1,H2,H) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     intersect_db_b(DB1,DB2,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 :- comment(intersect_in_db/5,
 "@pred{intersect_in_db(+P1,+P2,+P3,+DB0,?DB)} intersects two subtries
@@ -1893,13 +1801,11 @@ databases contain the same sets of tuples, the difference immediately
 detects that and returns the empty database.  The forms of all the DBs
 must be the same. ").
 
-difference_db('$TRIETERM'(DB1),'$TRIETERM'(DB2),'$TRIETERM'(DB)) :-
-    difference_db_b(DB1,DB2,DB).
-difference_db('$TRIETERMI'(H1),'$TRIETERMI'(H2),'$TRIETERMI'(H)) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+difference_db(H1,H2,H) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     difference_db_b(DB1,DB2,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 :- comment(difference_in_db/5,
 "@pred{difference_in_db(+P1,+P2,+P3,+DB0,?DB)} computes the set
@@ -2031,11 +1937,9 @@ terms in prolog DB @var{DB1} are a subset of the terms in prolog DB
 @pred{DB2}, and fails otherwise. The form of both DBs must be the
 same. ").
 
-subset_db('$TRIETERM'(DB1),'$TRIETERM'(DB2)) :-
-    subset_db_b(DB1,DB2).
-subset_db('$TRIETERMI'(H1),'$TRIETERMI'(H2)) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+subset_db(H1,H2) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     subset_db_b(DB1,DB2).
 
 :- comment(subset_in_db/3, "@pred{subset_in_db(+Pref1,+Pref2,+DB)}
@@ -2158,13 +2062,11 @@ trie to share subterms with the input tries, and to perhaps avoid
 traversing large portions of the input tries.  The form of all the DBs
 must be the same. ").
 
-sym_diff_db('$TRIETERM'(DB1),'$TRIETERM'(DB2),'$TRIETERM'(DB)) :-
-    sym_diff_db_b(DB1,DB2,DB).
-sym_diff_db('$TRIETERMI'(H1),'$TRIETERMI'(H2),'$TRIETERMI'(H)) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+sym_diff_db(H1,H2,H) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     sym_diff_db_b(DB1,DB2,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 :- comment(sym_diff_in_db/5,
 "@pred{sym_diff_in_db(+P1,+P2,+P3,+DB0,?DB)} computes the symmetric
@@ -2296,11 +2198,9 @@ sym_diff_tries_ind_recur_r(rt(RT1,RT2,RT3,RT4),RT,D,rt(RT1,RT2,RT3,ST),3) :-
 the prolog databases @var{DB1} and @var{DB2} are disjoint.  @var{DB1}
 and @var{DB2} must be of the same form.  ").
 
-disjoint_db('$TRIETERM'(DB1),'$TRIETERM'(DB2)) :-
-    disjoint_db_b(DB1,DB2).
-disjoint_db('$TRIETERMI'(H1),'$TRIETERMI'(H2)) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+disjoint_db(H1,H2) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     disjoint_db_b(DB1,DB2).
 
 :- comment(disjoint_in_db/3, "@pred{disjoint_in_db(+Pref1,+Pref2,+DB)}
@@ -2441,12 +2341,10 @@ bodies.)  The complexity of this operation is the size of the
 essentially extended with a pointer to the @var{Pref2} trie.  The form of
 @var{DB} will be the same as that of @var{DB0}. ").
 
-xprod_in_db(Pref1,Pref2,Pref3,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    xprod_in_db_b(Pref1,Pref2,Pref3,DB0,DB).
-xprod_in_db(Pref1,Pref2,Pref3,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+xprod_in_db(Pref1,Pref2,Pref3,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     xprod_in_db_b(Pref1,Pref2,Pref3,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 xprod_in_db_b(Pref1,Pref2,Pref3,DB0,DB) :-
     cvt_pa(Pref1,Pref2,Pref1a,Pref2a),
@@ -2496,13 +2394,10 @@ xprod_tries_extend(rtl(K,V,RTL),RTB,rtl(K,NV,NRTL)) :-
 will be in the goal @var{PrefI}.  The form of @var{DB} will be the
 same as that of @var{DB0}. ").
 
-:- index materialize_in_db/4-3.
-materialize_in_db(PrefI,PrefO,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    materialize_in_db_b(PrefI,PrefO,DB0,DB).
-materialize_in_db(PrefI,PrefO,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+materialize_in_db(PrefI,PrefO,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     materialize_in_db_b(PrefI,PrefO,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 materialize_in_db_b(PrefI,PrefO,DB0,DB) :-
     cvt_pa(PrefI,PrefO,PrefIa,PrefOa),
@@ -2521,11 +2416,9 @@ instances of @var{DB1} is a subset of the set of ground instances of
 attempted by comparing individual rules.  The databases must be of the
 same form.  ").
 
-subsumed_db('$TRIETERM'(DB1),'$TRIETERM'(DB2)) :-
-    subsumed_db_b(DB1,DB2).
-subsumed_db('$TRIETERMI'(H1),'$TRIETERMI'(H2)) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+subsumed_db(H1,H2) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     subsumed_db_b(DB1,DB2).
 
 /* Note: This implementation of subsumed_db requires call_in_db_b, and
@@ -2609,13 +2502,10 @@ by the target prefix term, creating a new database @var{DB}.  (The
 target prefix term will be added if it is not in the input database,
 @var{DB0}.)  ").
 
-:- index apply_op_in_db/6-5.
-apply_op_in_db(Lambda,Pref1,Pref2,Pref3,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    apply_op_in_db_b(Lambda,Pref1,Pref2,Pref3,DB0,DB).
-apply_op_in_db(Lambda,Pref1,Pref2,Pref3,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+apply_op_in_db(Lambda,Pref1,Pref2,Pref3,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     apply_op_in_db_b(Lambda,Pref1,Pref2,Pref3,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 apply_op_in_db_b(lambda(HT1,HT2,HT3,Op),Pref1,Pref2,Pref3,DB0,DB) :-
     cvt_pa(Pref1,Pref2,Pref1a,Pref2a),
@@ -2648,10 +2538,8 @@ succeeds or fails accordingly.  This is an internal predicate.
 whose arguments are those varaibles.  The goal must define the desired
 relational operator on subtries.  ").
 
-apply_rel_op_in_db(Lambda,Pref1,Pref2,'$TRIETERM'(DB)) :-
-    apply_rel_op_in_db_b(Lambda,Pref1,Pref2,DB).
-apply_rel_op_in_db(Lambda,Pref1,Pref2,'$TRIETERMI'(H)) :-
-    intern_termhash(DB,H),
+apply_rel_op_in_db(Lambda,Pref1,Pref2,H) :-
+    tab_intern_termhash(DB,H),
     apply_rel_op_in_db_b(Lambda,Pref1,Pref2,DB).
 
 apply_rel_op_in_db_b(lambda(HT1,HT2,Op),Pref1,Pref2,DB) :-
@@ -2960,13 +2848,15 @@ my_tab_functor(Term,Mod,Fun,Ari) :-
 for each instance of @var{Goal} that is proved.  @var{DB} may be
 either regular or interned.").
 
-:- index call_in_db/2-2.
-call_in_db(Goal,'$TRIETERM'(DB)) :-
-    call_in_db_b(Goal,DB).
-call_in_db(Goal,'$TRIETERMI'(H)) :-
-    intern_termhash(DB,H),
-    call_in_db_b(Goal,DB).
-call_in_db(Goal,module) :- call(Goal).
+call_in_db(Goal,H) :-
+    (H == module
+     ->	call(Goal)
+     ;	tab_intern_termhash(DB,H),
+	call_in_db_b(Goal,DB)
+    ).
+
+call_in_db(Goal,H,H) :-
+    call_in_db(Goal,H).
 
 call_in_db_b(true,_DB) :- !.
 call_in_db_b((A,B),DB) :- !, call_in_db_b(A,DB), call_in_db_b(B,DB).
@@ -2990,18 +2880,19 @@ db_table_call(DB,Goal) :-
     call_in_db_b(Goal,DB).
 
 
-:- comment(dump_db/2,"@var{dump_db(+DB,+Filename)} writes the clauses
+:- comment(dump_db/2,"@var{dump_db(+Filename,+DB)} writes the clauses
 in DB, @var{DB}, to the file @var{Filename}.  If @var{Filename} is
 'userout', the clauses will be written to userout.  @var{DB} may be
 either regular or interned.").
 
-dump_db('$TRIETERM'(DB),FileName) :-
-    dump_db_b(DB,FileName).
-dump_db('$TRIETERMI'(H),FileName) :-
-    intern_termhash(DB,H),
-    dump_db_b(DB,FileName).
+dump_db(FileName,H) :-
+    tab_intern_termhash(DB,H),
+    dump_db_b(FileName,DB).
 
-dump_db_b(DB,Filename) :-
+dump_db(FileName,H,H) :-
+    dump_db(FileName,H).
+
+dump_db_b(Filename,DB) :-
     (Filename == userout
      ->	OStr = userout
      ;	open(Filename,write,OStr)
@@ -3015,7 +2906,7 @@ dump_db_b(DB,Filename) :-
      writeln(OStr,'.')
     ),
     (Filename == userout
-     ->	true
+     ->	nl(userout)
      ;	close(OStr)
     ).
 
@@ -3024,12 +2915,12 @@ same functionality as @pred{call_in_db(G,DB)}, but it is implemented
 without cuts, so it can be used when this file is loaded into a DB by
 @pred{load_in_db/2}.  @var{DB} may be either regular or interned.").
 
-:- index pure_call_in_db/2-2.
-pure_call_in_db(G,'$TRIETERM'(DB)) :-
-    pure_call_in_db_b(G,DB).
-pure_call_in_db(G,'$TRIETERMI'(H)) :-
-    intern_termhash(DB,H),
-    pure_call_in_db_b(G,DB).
+pure_call_in_db(G,H) :-
+    (H == module
+     ->	call(G)
+     ;	tab_intern_termhash(DB,H),
+	pure_call_in_db_b(G,DB)
+    ).
 
 pure_call_in_db_b(G,DB) :-
     (ctrl_str(G)
@@ -3061,47 +2952,20 @@ pure_ctrl_call_in_db_b(M:G,_DB) :- call(M:G).
 empty trie-term database, @var{DB}, represented as a Prolog trie
 term.").
 
-new_db('$TRIETERM'([])).
-
-:- comment(new_dbi/1, "@pred{new_db(?DB)} generates (or tests for) and
-empty interned trie-term database, @var{DB}, represented in interned
-form.").
-
-new_dbi('$TRIETERMI'([])).
-
-:- comment(new_db_like/2, "@pred{new_db_like(+DB0,-DB)} generates an
-empty database in @var{DB} in the same form as the input database
-@var{DB0}. ").
-
-new_db_like('$TRIETERM'(_),'$TRIETERM'([])).
-new_db_like('$TRIETERMI'(_),'$TRIETERMI'([])).
-
-:- comment(is_empty_db/1, "@pred{is_empty_db(+DB)} is true if @var{DB}
-represents an empty database (of either regular or interned form.) ").
-
-is_empty_db('$TRIETERM'([])).
-is_empty_db('$TRIETERMI'([])).
-
-is_empty_db_b([]).
-
-:- comment(cvt_db_to_i/2, "@pred{cvt_db_to_i(+DB,-H)} converts a
-regular database @var{DB} to an interned database @var{H}. ").
-
-cvt_db_to_i('$TRIETERM'(DB),'$TRIETERMI'(H)) :-
-    intern_termhash(DB,H).
-
-:- comment(cvt_db_from_i/2, "@pred{cvt_db_to_i(+H,-DB)} converts an
-interned database @var{H} to a regular term database @var{H}. ").
-
-cvt_db_from_i('$TRIETERMI'(H),'$TRIETERM'(DB)) :-
-    intern_termhash(DB,H).
+new_db([]).
 
 :- comment(is_db/1, "@pred{is_db(+DB)} succeeds if @var{DB} has the
-form of a valid database term, of either regular or interned form."  ).
-
-is_db('$TRIETERM'(_)).
-is_db('$TRIETERMI'(_)).
-
+	   form of a valid database term, of either regular or interned form."
+	  ).
+	   
+is_db(H) :-
+    atom(H),
+    (H == []
+     ->	true
+     ;	tab_intern_termhash(DB,H),
+	DB \== H
+    ).
+	       
 :- comment(load_in_db/2, "@pred{load_in_db(+FileName,-DB)} reads the
 clauses in @file{FileName} and creates the database @var{DB} that
 contains them.  @var{DB} will be of regular term form.").
@@ -3110,25 +2974,15 @@ load_in_db(FileName,DB) :-
     new_db(DB0),
     load_in_db(FileName,DB0,DB).
 
-:- comment(load_in_dbi/2, "@pred{load_in_dbi(+FileName,-DB)} reads the
-clauses in @file{FileName} and creates the database @var{DB} that
-contains them.  @var{DB} will be of interned form.").
-
-load_in_dbi(FileName,H) :-
-    new_dbi(H0),
-    load_in_db(FileName,H0,H).
-
 :- comment(load_in_db/3, "@pred{load_in_db(+FileName,+DB0,-DB)} reads
 the clauses in @file{FileName} and adds them to the database
 @var{DB0}, creating a new database @var{DB}.  @var{DB} will be of the
 same form as @var{DB0}.  ").
 
-load_in_db(FileName,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    load_in_db_b(FileName,DB0,DB).
-load_in_db(FileName,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+load_in_db(FileName,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     load_in_db_b(FileName,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 :- comment(load_in_db/4, "
 @pred{load_in_db(+FileName,+ExclSet,+DB0,?DB)} reads the clauses in
@@ -3137,16 +2991,14 @@ load_in_db(FileName,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
 most common use of the @var{ExclSet} is to avoid adding unwanted
 directives.  ").
 
-load_in_db(FileName,'$TRIETERM'(Excl),'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    load_in_db_b(FileName,Excl,DB0,DB).
-load_in_db(FileName,'$TRIETERMI'(HExcl),'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
-    intern_termhash(EDB,HExcl),
+load_in_db(FileName,HExcl,H0,H) :-
+    tab_intern_termhash(DB0,H0),
+    tab_intern_termhash(EDB,HExcl),
     load_in_db_b(FileName,EDB,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 load_in_db_b(FileName,DB0,DB) :-
-    is_empty_db_b(EDB),
+    new_db(EDB),
     load_in_db_b(FileName,EDB,DB0,DB).
 
 load_in_db_b(FileName,Excludes,DB0,DB) :-
@@ -3226,13 +3078,10 @@ The p/3 clauses must be ground facts. (q/4 could have rules with
 non-empty bodies, but I don't see any application for this.)  The form
 of @var{DB} will be the same as that of @var{DB0}. ").
 
-:- index join_in_db/6-5.
-join_in_db(Pref1,Pref2,NJoin,Pref3,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    join_in_db_b(Pref1,Pref2,NJoin,Pref3,DB0,DB).
-join_in_db(Pref1,Pref2,NJoin,Pref3,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+join_in_db(Pref1,Pref2,NJoin,Pref3,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     join_in_db_b(Pref1,Pref2,NJoin,Pref3,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 join_in_db_b(Pref1,Pref2,NJoin,Pref3,DB0,DB) :-
     cvt_pa(Pref1,Pref1a),
@@ -3366,12 +3215,10 @@ Note that reordering can bring a later argument to the beginning so it
 would be available for use in a call to @pred{join_in_db/6}.  The form
 of @var{DB} will be the same as that of @var{DB0}. ").
 
-reorder_in_db(PrefI,PrefO,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    reorder_in_db_b(PrefI,PrefO,DB0,DB).
-reorder_in_db(PrefI,PrefO,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+reorder_in_db(PrefI,PrefO,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     reorder_in_db_b(PrefI,PrefO,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 reorder_in_db_b(PrefI,PrefO,DB0,DB) :-
     cvt_pa(PrefI,PrefIa),
@@ -3448,12 +3295,10 @@ which projects away the first two arguments of the @tt{p/4} relation
 in @var{DB0} to generate the @tt{q/2} relation in @var{DB}.  The form
 of @var{DB} will be the same as that of @var{DB0}.  ").
 
-project_in_db(PrefI,NArgs,PrefO,'$TRIETERM'(DB0),'$TRIETERM'(DB)) :-
-    project_in_db_b(PrefI,NArgs,PrefO,DB0,DB).
-project_in_db(PrefI,NArgs,PrefO,'$TRIETERMI'(H0),'$TRIETERMI'(H)) :-
-    intern_termhash(DB0,H0),
+project_in_db(PrefI,NArgs,PrefO,H0,H) :-
+    tab_intern_termhash(DB0,H0),
     project_in_db_b(PrefI,NArgs,PrefO,DB0,DB),
-    intern_termhash(DB,H).
+    tab_intern_termhash(DB,H).
 
 project_in_db_b(PrefI,NArgs,PrefO,DB0,DB) :-
     cvt_pa(PrefI,PrefIa),
@@ -3504,18 +3349,16 @@ in @var{DB3} and the larger in @var{DB4}.  Size is the number of
 elements in the smaller DB.  @var{DB1} and @var{DB2} must be of the
 same form (intern or regular) and @var{DB3} and @var{DB4} will be
 returned in that same form.  Often operations on two sets can be done
-more efficiently if one know which set is the small one.  This
+more efficiently if one know which set is the smaller one.  This
 predicate can be used to determine the smaller set.  It runs in time
 proportional to the size of the smaller set. " ).
 
-order_by_size_db('$TRIETERM'(DB1),'$TRIETERM'(DB2),'$TRIETERM'(DB3),'$TRIETERM'(DB4),Size) :-
-    smaller_db_b(DB1,DB2,DB3,DB4,Size).
-order_by_size_db('$TRIETERMI'(H1),'$TRIETERMI'(H2),'$TRIETERMI'(H3),'$TRIETERMI'(H4),Size) :-
-    intern_termhash(DB1,H1),
-    intern_termhash(DB2,H2),
+order_by_size_db(H1,H2,H3,H4,Size) :-
+    tab_intern_termhash(DB1,H1),
+    tab_intern_termhash(DB2,H2),
     smaller_db_b(DB1,DB2,DB3,DB4,Size),
-    intern_termhash(DB3,H3),
-    intern_termhash(DB4,H4).
+    tab_intern_termhash(DB3,H3),
+    tab_intern_termhash(DB4,H4).
 
 smaller_db_b(DB1,DB2,DB3,DB4,Size) :-
     find_smaller([DB1],0,Cnt1,[DB2],0,Cnt2,Which),
@@ -3547,28 +3390,28 @@ process_next_tree_comp(_T,OTS,OTS,CC,NCC) :- NCC is CC + 1.
 
 /********************************************************/
 
-:- comment(findall_dbi/3, "@pred{findall_dbi(Template,Goal,DB) is like
+:- comment(findall_db/3, "@pred{findall_db(Template,Goal,DB) is like
 Prolog's findall/3 except it returns the found answers in an internal
 prolog_db, DB.  ").
 
-findall_dbi(Template,Goal,DB) :-
+findall_db(Template,Goal,DB) :-
     copy_term((Template,Goal),(NTemplate,NGoal)), % protect incoming vars
-    (findall_dbi0(NTemplate,NGoal,DB0)
-     ->	abolish_table_pred(findall_dbi0(_,_,_)),
+    (findall_db0(NTemplate,NGoal,DB0)
+     ->	abolish_table_pred(findall_db0(_,_,_)),
 	DB = DB0
-     ;	abolish_table_pred(findall_dbi0(_,_,_)),
-	new_dbi(DB)
+     ;	abolish_table_pred(findall_db0(_,_,_)),
+	new_db(DB)
     ).
     
-:- table findall_dbi0(_,_,fold(add_to_db(_,_,_),0)).
-findall_dbi0(Template,Goal,NTemplate) :-
+:- table findall_db0(_,_,fold(add_to_db(_,_,_),0)).
+findall_db0(Template,Goal,NTemplate) :-
     copy_term((Template,Goal),(NTemplate,NGoal)), % need copy to call
     numbervars((Template,Goal),0,_), % aggr doesnt handle vars in group-by vars
     call(NGoal).
 
 add_to_db(DB0,Ans,DB) :-
     (DB0 == 0
-     ->	new_dbi(IDB), assert1_in_db(Ans,IDB,DB)
+     ->	new_db(IDB), assert1_in_db(Ans,IDB,DB)
      ;	assert1_in_db(Ans,DB0,DB)
     ).
 
@@ -3592,7 +3435,7 @@ interned.  ").
 gdb(DB) :-
     ('_$global_db'(DB)
      ->	true
-     ;	new_dbi(DB)
+     ;	new_db(DB)
     ).
 
 
