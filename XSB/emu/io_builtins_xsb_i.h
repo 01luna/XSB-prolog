@@ -1108,12 +1108,22 @@ inline static xsbBool file_function(CTXTdecl)
     //    printf("prec %d\n",(int) ptoc_int(CTXTc 4));
     //    printf("width %d\n",(int) ptoc_int(CTXTc 5));
     //    printf("spec %c\n",(int) ptoc_int(CTXTc 6));
-    sprintf(&format[1],"%d.%d%c",(int) ptoc_int(CTXTc 5),(int)ptoc_int(CTXTc 4),(int)ptoc_int(CTXTc 6));
+    sprintf(&format[1],"%d.%d%c",(int) ptoc_int(CTXTc 5),(int) ptoc_int(CTXTc 4),(int) ptoc_int(CTXTc 6));
     //printf("wfvp %s\n",format);
     fprintf(fptr,"%s",cvt_float_to_str_with_fmt(CTXTc ptoc_float(CTXTc 3),format));
     break;
   }
-	    
+  case WRITE_RADIX: {
+    FILE* fptr;
+    int io_port = (int)ptoc_int(CTXTc 2);
+    SET_FILEPTR(fptr, io_port);
+    if (ptoc_int(CTXTc 4) == XSB_HEXIDECIMAL) 
+      fprintf(fptr,"%lx",ptoc_int(CTXTc 3));
+    else	      
+      fprintf(fptr,"%lo",ptoc_int(CTXTc 3));
+    break;
+  }
+
   default:
     xsb_abort("[FILE_FUNCTION]: Invalid file operation, %d\n", ptoc_int(CTXTc 1));
   }
