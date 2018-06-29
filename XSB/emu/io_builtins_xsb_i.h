@@ -1118,9 +1118,9 @@ inline static xsbBool file_function(CTXTdecl)
     int io_port = (int)ptoc_int(CTXTc 2);
     SET_FILEPTR(fptr, io_port);
     if (ptoc_int(CTXTc 4) == XSB_HEXIDECIMAL) 
-      fprintf(fptr,"%lx",ptoc_int(CTXTc 3));
+      fprintf(fptr,"%" Intxfmt,ptoc_int(CTXTc 3));
     else	      
-      fprintf(fptr,"%lo",ptoc_int(CTXTc 3));
+      fprintf(fptr,"%" Intofmt,ptoc_int(CTXTc 3));
     break;
   }
 

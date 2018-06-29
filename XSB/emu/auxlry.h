@@ -101,16 +101,19 @@ extern void gdb_dummy(void);
 #define Intfmt "lld"
 #define UIntfmt "lld"
 #define Intxfmt "llx"
+#define Intofmt "llo"
 #define Cellfmt "llu"
 #elif defined(BITS64)
 #define Intfmt "ld"
 #define UIntfmt "lu"
 #define Intxfmt "lx"
+#define Intofmt "lo"
 #define Cellfmt "lu"
 #else 
 #define Intfmt "d"
 #define UIntfmt "u"
 #define Intxfmt "x"
+#define Intxfmt "lo"
 #define Cellfmt "lu"
 #endif
 
