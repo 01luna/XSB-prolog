@@ -7,7 +7,7 @@
 ----
 ----
 ----
-caught((Cannot declare ,t1(A), as tabled with options subsumptive and subgoal_abstract))
+caught((Cannot declare ,t1(A), as tabled with options ,subsumptive, and ,subgoal_abstract(7)))
 caught(permission_error(set_incremental_tabling,predicate_with_tables,t4(A)))
 t1_after(answer_abstract(7))
 t1_after(subgoal_abstract(7))
