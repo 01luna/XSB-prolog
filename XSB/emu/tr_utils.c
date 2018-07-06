@@ -6186,6 +6186,8 @@ case CALL_SUBS_SLG_NOT: {
 	ctop_int(CTXTc 4,TIF_AnswerSubsumption(tip));
       else if (property == TIF_MAX_ANSWERS)
 	ctop_int(CTXTc 4,TIF_MaxAnswers(tip));
+      else if (property == TIF_ALTERNATE_SEMANTICS)
+	ctop_int(CTXTc 4,TIF_AlternateSemantics(tip));
     }
     else  /* cant find tip */
       return FALSE;

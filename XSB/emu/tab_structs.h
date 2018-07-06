@@ -302,7 +302,8 @@ typedef struct Table_Info_Frame {
   unsigned int incr_dyn_leaf:1;
   unsigned int intern_strs:1;
   unsigned int answer_subsumption:1;
-  unsigned int unused:11;
+  unsigned int alternate_semantics:1;   // right now, on = compl_sem, off = wfs (default)
+  unsigned int unused:10;
   //  byte intern_strs;		/* (bit) to indicate if variant table interns ground terms */
   DelTFptr del_tf_ptr;          /* pointer to first deletion frame for pred */
   BTNptr call_trie;		/* pointer to the root of the call trie */
@@ -347,6 +348,7 @@ typedef struct Table_Info_Frame {
 #define	TIF_SubgoalDepth(pTIF)      ( (pTIF)->subgoal_size )
 #define TIF_AnswerDepth(pTIF)       ( (pTIF)->answer_size )
 #define TIF_MaxAnswers(pTIF)       ( (pTIF)->max_answers )
+#define TIF_AlternateSemantics(pTIF)       ( (pTIF)->alternate_semantics )
 
 #define	gc_mark_tif(pTIF)   TIF_Mark(pTIF) = 0x1
 #define	gc_unmark_tif(pTIF)   TIF_Mark(pTIF) = 0x0

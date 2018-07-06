@@ -967,6 +967,7 @@ inline TIFptr New_TIF(CTXTdeclc Psc pPSC) {
    TIF_SubgoalDepth(pTIF) = 0;						
    TIF_AnswerDepth(pTIF) = 0;						
    TIF_MaxAnswers(pTIF) = 0;
+   TIF_AlternateSemantics(pTIF) = 0;
 #ifdef MULTI_THREAD
    /* The call trie lock is also initialized for private TIFs,
       just in case they ever change to shared */
