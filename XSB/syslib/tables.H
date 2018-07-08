@@ -91,7 +91,7 @@
 :- export get_residual_sccs/5.
 :- export get_tabling_options/2.
 
-:- export add_alt_semantics/2.
+%:- export add_alt_semantics/2.
 :- export truth_value/2.
 :- export check_table_option/4.
 
@@ -159,7 +159,7 @@
 
 :- import abolish_table_info/0, delete_attributes/1, 
    ground_and_acyclic/1,
-   psc_set_incr/2, psc_set_tabled/2, psc_tabled/2, psc_type/2,psc_set_alt_semantics/2,
+   psc_set_incr/2, psc_set_tabled/2, psc_tabled/2, psc_type/2, %psc_set_alt_semantics/2,
    psc_get_incr/2,psc_shared/2,
    table_inspection_function/5, table_inspection_function/7,table_inspection_function/8,
    table_inspection_function/9,

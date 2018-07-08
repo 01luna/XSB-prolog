@@ -926,9 +926,9 @@ check_variant_1(Term,DontCares):-
 check_table_option(ans_subsumption,Options,PredCList,_Override) :- !,
 	table_opts_intersect([answer_abstract(_),approximate(_),dynamic,dyn,
 	                      incremental,intern,opaque,subsumptive,subgoal_abstract(_),
-			      weak_cs],ans_subsumption,Options,PredCList).
+			      compl_semantics],ans_subsumption,Options,PredCList).
 check_table_option(answer_abstract(_),Options,PredCList,_Override) :- !,
-	table_opts_intersect([ans_subsumption,intern,weak_cs],
+	table_opts_intersect([ans_subsumption,intern,compl_semantics],
 			      answer_abstract(_),Options,PredCList).
 check_table_option(approximate(_),Options,PredCList,_Override) :- !,
 	table_opts_intersect([incremental,subsumptive],
@@ -943,19 +943,19 @@ check_table_option(incremental,Options,PredCList,Override) :- !,
 	   true
          ; table_opts_intersect([approximate(_),dynamic,dyn,intern,
 	                      nonincremental,opaque,shared,subsumptive,
-			      weak_cs],incremental,Options,PredCList)).
+			      compl_semantics],incremental,Options,PredCList)).
 check_table_option(intern,Options,PredCList,_Override) :- !,
 	table_opts_intersect([ans_subsumption,answer_abstract(_),approximate(_),incremental,
-	                      subgoal_abstract(_),subsumption,weak_cs],
+	                      subgoal_abstract(_),subsumption,compl_semantics],
 			      intern,Options,PredCList).
 check_table_option(max_answers(_),Options,PredCList,_Override) :- !,
-	table_opts_intersect([subsumptive,weak_cs],
+	table_opts_intersect([subsumptive,compl_semantics],
 			      max_answers(_),Options,PredCList).
 check_table_option(nonincremental,Options,PredCList,Override) :- !,
 	(Override = yes -> 
 	   true
          ; table_opts_intersect([incremental,opaque],nonincremental,Options,PredCList)).
-% TES: will be allowing subsumptive/opaque & weak_cs/opaque
+% TES: will be allowing subsumptive/opaque & compl_semantics/opaque
 check_table_option(opaque,Options,PredCList,Override) :- !,
 	(Override = yes -> 
 	   true
@@ -963,14 +963,14 @@ check_table_option(opaque,Options,PredCList,Override) :- !,
 check_table_option(private,Options,PredCList,_Override) :- !,
 	table_opts_intersect([shared],private,Options,PredCList).
 check_table_option(shared,Options,PredCList,_Override) :- !,
-	table_opts_intersect([incremental,opaque,private,subsumptive,weak_cs],
+	table_opts_intersect([incremental,opaque,private,subsumptive,compl_semantics],
 	                     shared,Options,PredCList).
 check_table_option(subgoal_abstract(_),Options,PredCList,_Override) :- !,
 	table_opts_intersect([subsumptive],subgoal_abstract(_),Options,PredCList).
 % Assuming that we''ll have subsumptive and opaque soon.
 check_table_option(subsumptive,Options,PredCList,Override) :- !,
 	table_opts_intersect([incremental,intern,max_answers(_),opaque,shared,
-	                      subgoal_abstract(_),weak_cs],subsumptive,Options,PredCList),
+	                      subgoal_abstract(_),compl_semantics],subsumptive,Options,PredCList),
 	(Override = yes -> 
 	   true
          ; table_opts_intersect([variant],subsumptive,Options,PredCList) ).
@@ -978,10 +978,10 @@ check_table_option(variant,Options,PredCList,Override) :- !,
 	(Override = yes -> 
 	   true
          ; table_opts_intersect([subsumptive],variant,Options,PredCList)).
-check_table_option(weak_cs,Options,PredCList,_Override) :- !,
+check_table_option(compl_semantics,Options,PredCList,_Override) :- !,
 	table_opts_intersect([ans_subsumption,answer_abstract(_),approximate(_),dynamic,dyn,
 	                      incremental,intern,opaque,subsumptive,subgoal_abstract(_)],
-			      weak_cs,Options,PredCList).
+			      compl_semantics,Options,PredCList).
 check_table_option(Option,_Options,_PredCList,_Override) :- !,
 	domain_error(table_option,Option,(table)/1,1,
 	['must be one of ',
@@ -1060,17 +1060,6 @@ add_incr_table(Spec,Mode) :-
 	(predicate_has_tables(Psc) ->
 	   permission_error(add_incremental_tabling,predicate_with_tables,Spec,(table)/1) 
 	 ; psc_set_incr(Psc,Mode)).
-
-add_alt_semantics(Spec,Mode) :-
-	mpa_to_skel(Spec,Call),
-	term_psc(Call,Psc),	
-	(predicate_has_tables(Psc) ->
-	   permission_error(add_alt_semantics,predicate_with_tables,Spec,(table)/1) 
-	 ; alt_semantics(Mode,C_Mode),
-	   psc_set_alt_semantics(Psc,C_Mode)).
-
-alt_semantics(weak_cs,WEAK_CS):- !.
-alt_semantics(wfs_semantics,WFS_SEMANTICS).
 
 :- export set_psc_table_property/2.
 :- export set_tif_property/3, get_tif_property/3.
@@ -2646,3 +2635,14 @@ table_state(Call, State) :-
 * 	    ;   Option = (Property=Value) ) ) ).
 * */
    
+* add_alt_semantics(Spec,Mode) :-
+* 	mpa_to_skel(Spec,Call),
+* 	term_psc(Call,Psc),	
+	* (predicate_has_tables(Psc) ->
+* 	   permission_error(add_alt_semantics,predicate_with_tables,Spec,(table)/1) 
+* 	 ; alt_semantics(Mode,C_Mode),
+* 	   psc_set_alt_semantics(Psc,C_Mode)).
+* 
+* alt_semantics(compl_semantics,COMPL_SEMANTICS):- !.
+* alt_semantics(wfs_semantics,WFS_SEMANTICS).
+

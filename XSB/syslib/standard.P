@@ -1287,6 +1287,9 @@ exec_table_option(variant,Pred) :- !,
 exec_table_option(subgoal_abstract(Val),PredSpec) :- !,
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,subgoal_size,Val).
+exec_table_option(ans_subsumption,PredSpec) :- !,
+	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
+	set_tif_property(Term,answer_subsumption,1).
 exec_table_option(answer_abstract(Val),PredSpec) :- !,
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,answer_size,Val).
@@ -1299,9 +1302,6 @@ exec_table_option(nonincremental,Pred) :- !,
  	add_incr_table(Pred,NONINCREMENTAL).
 exec_table_option(opaque,Pred) :- !,
  	add_incr_table(Pred,OPAQUE).
-exec_table_option(ans_subsumption,PredSpec) :- !,
-	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
-	set_tif_property(Term,answer_subsumption,1).
 exec_table_option(private,Pred) :- !,
 	thread_private(Pred).
 exec_table_option(shared,Pred) :- !,
@@ -1309,6 +1309,9 @@ exec_table_option(shared,Pred) :- !,
 exec_table_option(intern,PredSpec) :- !,
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,intern,1).
+exec_table_option(compl_semantics,PredSpec) :- !,
+	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
+	set_tif_property(Term,compl_semantics,1).
 exec_table_option(Option,_Pred) :- !,
 	domain_error(table_option,Option,(table)/1,1,
 	['must be one of ',
