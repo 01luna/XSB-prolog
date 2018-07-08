@@ -17,7 +17,7 @@
 **
 ** You should have received a copy of the GNU Library General Public License
 ** along with XSB; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+** Inc., 59 Temple Place - Suite 330, Boston, MA 111-1307, USA.
 **
 **
 ** $Id: flag_defs_xsb.h,v 1.52 2013-02-14 22:03:54 tswift Exp $
@@ -214,4 +214,4 @@ interrupt flag
 #define NAF_CS               2
 #define WEAK_CS              3
 
-#define DEFAULT_FLOAT_DISPLAY_FORMAT "%2.15g"
+#define DEFAULT_FLOAT_DISPLAY_FORMAT "%1.15g"

@@ -6151,6 +6151,10 @@ case CALL_SUBS_SLG_NOT: {
 	TIF_AnswerSubsumption(tip) = val;
       else if (property == TIF_MAX_ANSWERS)
 	TIF_MaxAnswers(tip) = val;
+      else if (property == TIF_ALTERNATE_SEMANTICS) {
+	TIF_AlternateSemantics(tip) = val;
+	flags[ALTERNATE_SEMANTICS] = NAF_CS;
+      }
     }
     else  /* cant find tip */
       xsb_permission_error(CTXTc "set property","tif",term,
