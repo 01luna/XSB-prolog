@@ -2,7 +2,8 @@
 :- import numbervars/1 from num_vars.
 
 %?- start_forest_view(userout).
-:- set_prolog_flag(alt_semantics,weak_cs).
+%:- set_prolog_flag(alt_semantics,weak_cs).
+:- set_prolog_flag(unknown,undefined).
 
 test:- test1,fail.
 test:- abolish_table_pred(t1/1),fail.
@@ -29,28 +30,28 @@ test5:- test(t5(a)).
 test6:- test(t6(_X)).
 test7:- test(t7(_X)).
 
-:- table t1/1.
+:- table t1/1 as compl_semantics.
 t1(X):- t1(X).
-:- table t2/1.
+:- table t2/1 as compl_semantics.
 t2(X):- t2(X),p(X).
-:- table t3/1.
+:- table t3/1 as compl_semantics.
 t3(X):- t3(X),t3(X).
 
-:- table t4/1.
+:- table t4/1 as compl_semantics.
 t4(X):- t4(X),tnot(t4(X)).
-:- table t5/1.
+:- table t5/1 as compl_semantics.
 t5(X):- t5(X),tnot(t5(X)),t5(X).
 
-:- table t6/1.
+:- table t6/1 as compl_semantics.
 t6(X):- p(X).
 t6(X):- t6(X).
 
 p(a).
 
-:- table n1/1.
+:- table n1/1 as compl_semantics.
 n1(X):- tnot(n1(X)).
 
-:- table t7/1.
+:- table t7/1 as compl_semantics.
 t7(X):- t7(X),t7(X),t7(X).
 
 test(Goal):- functor(Goal,F,A),abolish_table_pred(F/A),Goal,fail.

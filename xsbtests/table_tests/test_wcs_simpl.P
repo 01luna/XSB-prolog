@@ -8,7 +8,7 @@ test uncond success
 :- import variant/2 from subsumes.
 
 %?- start_forest_view(userout).
-:- set_prolog_flag(alt_semantics,cs).
+:- set_prolog_flag(unknown,undefined).
 
 test:- atest_cf_1,fail.
 test:- atest_cf_2,fail.
@@ -30,7 +30,7 @@ atest_cf_1:- autotest_fail(cf_1_2),fail.
 atest_cf_1:- autotest_fail(cf_1_3),fail.
 atest_cf_1:- autotest_fail(cf_1_4),fail.
 
-:- table cf_1_1/0,cf_1_2/0,cf_1_3/0,cf_1_4/0.
+:- table cf_1_1/0,cf_1_2/0,cf_1_3/0,cf_1_4/0  as compl_semantics.
 cf_1_1:- cf_1_2.
 cf_1_2:- cf_1_3.
 cf_1_3:- cf_1_4,fail.
@@ -43,7 +43,7 @@ test_cf_1:- test(cf_1_4),fail.
 test_cf_1.
 
 %---------------------------
-:- table cf_2_1/0,cf_2_2/0,cf_2_3/0,cf_2_4/0.
+:- table cf_2_1/0,cf_2_2/0,cf_2_3/0,cf_2_4/0  as compl_semantics.
 cf_2_1:- cf_2_2,cf_2_3.
 cf_2_2:- cf_2_3,cf_2_4.
 cf_2_3:- cf_2_4,cf_2_1,fail.
@@ -72,7 +72,7 @@ answer(cf_2_4,cf_2_4,[l3_undef,l3_undef])
 */
 
 %---------------------------
-:- table cf_3_1/0,cf_3_2/0,cf_3_3/0,cf_3_4/0.
+:- table cf_3_1/0,cf_3_2/0,cf_3_3/0,cf_3_4/0 as compl_semantics.
 cf_3_1:- cf_3_2,tnot(cf_3_3).
 cf_3_2:- cf_3_3,tnot(cf_3_4).
 cf_3_3:- cf_3_4,tnot(cf_3_1),fail.
@@ -91,7 +91,7 @@ atest_cf_3:- autotest_fail(cf_3_4),fail.
 
 %---------------------------
 
-:- table cs_1_1/0,cs_1_2/0,cs_1_3/0,cs_1_4/0.
+:- table cs_1_1/0,cs_1_2/0,cs_1_3/0,cs_1_4/0 as compl_semantics.
 cs_1_1:- cs_1_2.
 cs_1_2:- cs_1_3.
 cs_1_3:- cs_1_4.
@@ -110,7 +110,7 @@ atest_cs_1:- autotest(cs_1_4,F),tcompare(cs_1_4,F,[(cs_1_4,cs_1_4,[cs_1_1])]),fa
 
 %---------------------------
 
-:- table cs_2_1/0,cs_2_2/0,cs_2_3/0,cs_2_4/0.
+:- table cs_2_1/0,cs_2_2/0,cs_2_3/0,cs_2_4/0 as compl_semantics.
 cs_2_1:- cs_2_2,cs_2_3.
 cs_2_2:- cs_2_3.
 cs_2_3:- cs_2_4.
@@ -134,7 +134,7 @@ test_cs_3:- test(cs_3_2),fail.
 test_cs_3:- test(cs_3_3),fail.
 test_cs_3:- test(cs_3_4),fail.
 
-:- table cs_3_1/0,cs_3_2/0,cs_3_3/0,cs_3_4/0.
+:- table cs_3_1/0,cs_3_2/0,cs_3_3/0,cs_3_4/0 as compl_semantics.
 cs_3_1:- tnot(cs_3_2),cs_3_1.
 cs_3_2:- tnot(cs_3_3),cs_3_4.
 cs_3_3:- tnot(cs_3_4),cs_3_3.
@@ -152,7 +152,7 @@ test_cs_4:- test(cs_4_2),fail.
 test_cs_4:- test(cs_4_3),fail.
 test_cs_4:- test(cs_4_4),fail.
 
-:- table cs_4_1/0,cs_4_2/0,cs_4_3/0,cs_4_4/0.
+:- table cs_4_1/0,cs_4_2/0,cs_4_3/0,cs_4_4/0 as compl_semantics.
 cs_4_1:- tnot(cs_4_2),cs_4_4.
 cs_4_2:- cs_4_4,tnot(cs_4_3).
 cs_4_3:- tnot(cs_4_4),cs_4_3.
@@ -172,7 +172,7 @@ test_vf_1:- test(vf_1_3(_X)),fail.
 test_vf_1:- test(vf_1_4(_X)),fail.
 test_vf_1.
 
-:- table vf_1_1/1,vf_1_2/1,vf_1_3/1,vf_1_4/1.
+:- table vf_1_1/1,vf_1_2/1,vf_1_3/1,vf_1_4/1 as compl_semantics.
 vf_1_1(X):- vf_1_2(X).
 vf_1_2(X):- vf_1_3(X).
 vf_1_3(X):- vf_1_4(X),fail.
@@ -188,7 +188,7 @@ test_vf_2:- test(vf_2_1(_X)),fail.
 test_vf_2:- test(vf_2_2(_X)),fail.
 test_vf_2.
 
-:- table vf_2_1/1,vf_2_2/1.
+:- table vf_2_1/1,vf_2_2/1 as compl_semantics.
 vf_2_1(X):- vf_2_2(X),X = a.
 vf_2_2(X):- vf_2_1(X),X = b.
 
@@ -198,7 +198,7 @@ atest_vf_2:- autotest_fail(vf_2_2(_X)),fail.
 %---------------------------
 test_vs_1:- test(vs_1(_X)).
 
-:- table vs_1/1.
+:- table vs_1/1 as compl_semantics.
 vs_1(X):- vs_1(X).
 
 test_vs_1:- test(vs_1(_X)).
@@ -210,7 +210,7 @@ test_vs_2:- test(vs_2_1(_X)),fail.
 test_vs_2:- test(vs_2_2(_X)),fail.
 test_vs_2.
 
-:- table vs_2_1/1,vs_2_2/1.
+:- table vs_2_1/1,vs_2_2/1 as compl_semantics.
 vs_2_1(X):- vs_2_2(X),X = a.
 vs_2_2(X):- vs_2_1(X),X = a.
 
@@ -229,7 +229,7 @@ test_m_1:- test(m_1_2(_X)),fail.
 test_m_1:- test(m_1_3(_X)),fail.
 test_m_1:- test(m_1_4(_X)),fail.
 
-:- table m_1_1/1,m_1_2/1,m_1_3/1,m_1_4/1.
+:- table m_1_1/1,m_1_2/1,m_1_3/1,m_1_4/1 as compl_semantics.
 m_1_1(X):- m_1_2(X).
 m_1_1(a):- m_1_2(a).
 m_1_2(X):- m_1_3(X).
@@ -250,7 +250,7 @@ test_m_2:- test(m_2_1(_X)),fail.
 test_m_2:- test(m_2_2).
 test_m_2.
 
-:- table m_2_1/1,m_2_2/0.
+:- table m_2_1/1,m_2_2/0 as compl_semantics.
 m_2_1(_X):- m_2_2.
 
 m_2_2:- m_2_1(_).
@@ -260,11 +260,11 @@ atest_m_2:- autotest(m_2_1(_),F),tcompare(m_2_1,F,[(m_2_1(_A),m_2_1(_B),[])]),fa
 atest_m_2:- autotest(m_2_2,F),tcompare(m_2_2,F,[(m_2_2,m_2_2,[])]),fail.
 
 %----------------------------------------
-:- table foo/1.
+:- table foo/1 as compl_semantics.
 foo(X):- undefined(X),X=a.
 foo(a):- undefined(a).
 
-:- table undefined/1.
+:- table undefined/1 as compl_semantics.
 undefined(_X):- undefined.
 
 % ?- foo(X).
@@ -322,26 +322,26 @@ test4_1:- test(t4(a)).
 test5:- test(t5(a)).
 test6:- test(t6(_X)).
 
-:- table t1/1.
+:- table t1/1 as compl_semantics.
 t1(X):- t1(X).
-:- table t2/1.
+:- table t2/1 as compl_semantics.
 t2(X):- t2(X),p(X).
-:- table t3/1.
+:- table t3/1 as compl_semantics.
 t3(X):- t3(X),t3(X).
 
-:- table t4/1.
+:- table t4/1 as compl_semantics.
 t4(X):- t4(X),tnot(t4(X)).
-:- table t5/1.
+:- table t5/1 as compl_semantics.
 t5(X):- t5(X),tnot(t5(X)),t5(X).
 
-:- table t6/1.
+:- table t6/1 as compl_semantics.
 t6(X):- p(X).
 t6(X):- t6(X).
 
 
 p(a).
 
-:- table n1/1.
+:- table n1/1 as compl_semantics.
 n1(X):- tnot(n1(X)).
 
 
