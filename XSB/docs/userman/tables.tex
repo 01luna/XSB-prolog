@@ -2446,97 +2446,6 @@ information about why a literal is undefined.
 \input{incr_tabling}
 %--------------------------------------------------------------------
 
-\index{tabling!call subsumption}
-\index{tabling!call variance}
-\index{tabling!answer subsumption}
-\index{tabling!incremental}
-
-\section{Compatibility of Tabling Modes and Predicate Attributes} \label{sec:tabling-compatibility}
-%
-As discussed in this chapter, there are several choices for how to
-table a predicate. Either call subsumption or call variance may be
-used, incremental tabling might or might not be used, and answer
-subsumption might or might not be used.  Furthermore, a tabled
-predicate, like any other predicate, may be static or dynamic and
-thread shared or thread private.  Together, there are 48 different
-combinations, not all of which are supported in \version\ of XSB.  To
-analyze further, all combinations are supported for call-variance and
-for thread private predicates.  However, call subsumption has not been
-fully integrated with dynamic code or thread shared predicates, and
-cannot currently be combined with incremental tabling or with answer
-subumption.  Similarly incremental tabling is not yet supported in the
-multi-threaded engine (it is supported for ``thread private''
-computations only in the sequential engine).  The compatibilities are
-listed in Table~\ref{table:table}.  Further combinations will be
-supported in future versions of XSB as resources allow.
-
-The combinations in Table~\ref{table:table} allow full well-founded
-computation, constrained variables in calls and answers (including the
-residual program), and safe space reclamation, with the following
-exceptions.  Answer subsumption does support non lrd-stratified
-programs; and call subsumption does not yet support attributed
-variables in calls.  \index{attributed variables}
-
-\begin{table}
-\begin{center}
-{\footnotesize
-\begin{tabular}{llllll}\hline \hline
-%variant/subsumptive & dynamic/static & shared/private & incremental/opaque  & answer subsumption  \\
-variant &	    static & 	   private &	  nonincremental &      no answer subsumption  &  yes \\
-variant &	    static &	   private &	  nonincremental &      answer subsumption     &  yes \\
-variant	&	    static &	   private &      opaque &             no answer subsumption  &  yes \\
-variant &	    static &	   private &	  opaque &	      answer subsumption &	no \\
-variant &	    static &	   private &	  incremental &         no answer subsumption &	yes \\
-variant &	    static &	   private &      incremental &         answer subsumption &	no \\
-variant &	    static &	   shared &	  nonincremental &      no answer subsumption &	yes \\
-variant &	    static &	   shared &	  nonincremental &      answer subsumption &	yes \\
-variant &	    static &	   shared &	  opaque &	      no answer subsumption &	no \\
-variant &	    static &	   shared &	  opaque &	      answer subsumption &	no \\
-variant &	    static &	   shared &	  incremental &       no answer subsumption &	no \\
-variant &	    static &	   shared &	  incremental &          answer subsumption &	no \\
-variant &	    dynamic &	   private &	  nonincremental &      no answer subsumption &	yes \\
-variant &	    dynamic &	   private &	  nonincremental &      answer subsumption &	yes \\
-variant &	    dynamic &	   private &	  opaque &	      no answer subsumption &	no \\
-variant &	    dynamic &	   private &	  opaque &	      answer subsumption &	no \\
-variant &	    dynamic &	   private &	  incremental &         no answer subsumption &	no \\
-variant &	    dynamic &	   private &	  incremental &         answer subsumption &	no \\
-variant &	    dynamic &	   shared &	  nonincremental &      no answer subsumption &	yes \\
-variant &	    dynamic &	   shared &	  nonincremental &      answer subsumption &	yes \\
-variant &	    dynamic &	   shared &	  opaque &	      no answer subsumption &	no \\
-variant &	    dynamic &	   shared &	  opaque &	      answer subsumption &	no \\
-variant &	    dynamic &	   shared &	  incremental &         no answer subsumption &	no \\
-variant &	    dynamic &	   shared &	  incremental &         answer subsumption &	no \\
-subsumptive &	    static &	   private &	  nonincremental &      no answer subsumption &	yes \\
-subsumptive &	    static &	   private &	  nonincremental &      answer subsumption &	yes \\
-subsumptive &	    static &	   private &	  opaque &	      no answer subsumption &	no \\
-subsumptive &	    static &	   private &	  opaque &	      answer subsumption &	no \\
-subsumptive &	    static &	   private &	  incremental &         no answer subsumption &	no \\
-subsumptive &	    static &	   private &	  incremental &         answer subsumption &	no \\
-subsumptive &	    static &	   shared &	  nonincremental &      no answer subsumption &	no \\
-subsumptive &	    static &	   shared &	  nonincremental &      answer subsumption &	no \\
-subsumptive &	    static &	   shared &	  opaque &	      no answer subsumption &	no \\
-subsumptive &	    static &	   shared &	  opaque &	      answer subsumption &	no \\
-subsumptive &	    static &	   shared &	  incremental &       no answer subsumption &	no \\
-subsumptive &	    static &	   shared &	  incremental &          answer subsumption &	no \\
-subsumptive &	    dynamic &	   private &	  nonincremental &      no answer subsumption &	yes \\
-subsumptive &	    dynamic &	   private &	  nonincremental &      answer subsumption &	yes \\
-subsumptive &	    dynamic &	   private &	  opaque &	      no answer subsumption &	no \\
-subsumptive &	    dynamic &	   private &	  opaque &	      answer subsumption &	no \\
-subsumptive &	    dynamic &	   private &	  incremental &         no answer subsumption &	no \\
-subsumptive &	    dynamic &	   private &   	  incremental &         answer subsumption &	no \\
-subsumptive &	    dynamic &	   shared &	  nonincremental &      no answer subsumption &	no \\
-subsumptive &	    dynamic &	   shared &	  nonincremental &      answer subsumption &	no \\
-subsumptive &	    dynamic &	   shared &	  opaque &	      no answer subsumption &	no \\
-subsumptive &	    dynamic &	   shared &	  opaque &	      answer subsumption &	no \\
-subsumptive &	    dynamic &	   shared &	  incremental &         no answer subsumption &	no \\
-subsumptive &  	    dynamic &	   shared &	  incremental &         answer subsumption &	no \\ \hline \hline 
-\end{tabular}
-}
-\end{center}
-\caption{Support for different tabling modes in XSB \version}
-\label{table:table}
-\end{table}
-
 \section{A Weaker Semantics for Tabling}
 %
 \index{completion semantics}
@@ -2654,6 +2563,11 @@ This flag can also be set to the standard ISO values,
 %  throw an error when encountering an unknown predicate.
 %\end{itemize}
 
+(W)CS and WFS can be mixed on a per-predicate basis.  If a goal
+$G_{WFS}$ to a predicate declared to use WFS is involved in a loop
+with a goal $G_{CS}$ declared to use CS, then $G_{WFS}$ is evaluated
+according to the (W)CS.
+
 \paragraph{Examples}
 
 As a simple example, consider the program:
@@ -2683,3 +2597,96 @@ does not include this edge.  Due to the first clause of {\tt
 derivations that do not include this edge succeed.  Thus the only
 answer to {\tt m\_1\_1(X)} has {\tt X = a} with truth value {\em
   undefined} (and a single delay list of {\tt [m\_1\_2(a)]}.
+
+
+\index{tabling!call subsumption}
+\index{tabling!call variance}
+\index{tabling!answer subsumption}
+\index{tabling!incremental}
+
+\section{Compatibility of Tabling Modes and Predicate Attributes} \label{sec:tabling-compatibility}
+%
+As discussed in this chapter, there are several choices for how to
+table a predicate. Either call subsumption or call variance may be
+used, incremental tabling might or might not be used, and answer
+subsumption might or might not be used.  Furthermore, a tabled
+predicate, like any other predicate, may be static or dynamic and
+thread shared or thread private.  Together, there are 48 different
+combinations, not all of which are supported in \version\ of XSB.  To
+analyze further, all combinations are supported for call-variance and
+for thread private predicates.  However, call subsumption has not been
+fully integrated with dynamic code or thread shared predicates, and
+cannot currently be combined with incremental tabling or with answer
+subumption.  Similarly incremental tabling is not yet supported in the
+multi-threaded engine (it is supported for ``thread private''
+computations only in the sequential engine).  The compatibilities are
+listed in Table~\ref{table:table}.  Further combinations will be
+supported in future versions of XSB as resources allow.
+
+The combinations in Table~\ref{table:table} allow full well-founded
+computation, constrained variables in calls and answers (including the
+residual program), and safe space reclamation, with the following
+exceptions.  Answer subsumption does support non lrd-stratified
+programs; and call subsumption does not yet support attributed
+variables in calls.  \index{attributed variables}
+
+\begin{table}
+\begin{center}
+{\footnotesize
+\begin{tabular}{llllll}\hline \hline
+%variant/subsumptive & dynamic/static & shared/private & incremental/opaque  & answer subsumption  \\
+variant &	    static & 	   private &	  nonincremental &      no answer subsumption  &  yes \\
+variant &	    static &	   private &	  nonincremental &      answer subsumption     &  yes \\
+variant	&	    static &	   private &      opaque &             no answer subsumption  &  yes \\
+variant &	    static &	   private &	  opaque &	      answer subsumption &	no \\
+variant &	    static &	   private &	  incremental &         no answer subsumption &	yes \\
+variant &	    static &	   private &      incremental &         answer subsumption &	no \\
+variant &	    static &	   shared &	  nonincremental &      no answer subsumption &	yes \\
+variant &	    static &	   shared &	  nonincremental &      answer subsumption &	yes \\
+variant &	    static &	   shared &	  opaque &	      no answer subsumption &	no \\
+variant &	    static &	   shared &	  opaque &	      answer subsumption &	no \\
+variant &	    static &	   shared &	  incremental &       no answer subsumption &	no \\
+variant &	    static &	   shared &	  incremental &          answer subsumption &	no \\
+variant &	    dynamic &	   private &	  nonincremental &      no answer subsumption &	yes \\
+variant &	    dynamic &	   private &	  nonincremental &      answer subsumption &	yes \\
+variant &	    dynamic &	   private &	  opaque &	      no answer subsumption &	no \\
+variant &	    dynamic &	   private &	  opaque &	      answer subsumption &	no \\
+variant &	    dynamic &	   private &	  incremental &         no answer subsumption &	no \\
+variant &	    dynamic &	   private &	  incremental &         answer subsumption &	no \\
+variant &	    dynamic &	   shared &	  nonincremental &      no answer subsumption &	yes \\
+variant &	    dynamic &	   shared &	  nonincremental &      answer subsumption &	yes \\
+variant &	    dynamic &	   shared &	  opaque &	      no answer subsumption &	no \\
+variant &	    dynamic &	   shared &	  opaque &	      answer subsumption &	no \\
+variant &	    dynamic &	   shared &	  incremental &         no answer subsumption &	no \\
+variant &	    dynamic &	   shared &	  incremental &         answer subsumption &	no \\
+subsumptive &	    static &	   private &	  nonincremental &      no answer subsumption &	yes \\
+subsumptive &	    static &	   private &	  nonincremental &      answer subsumption &	yes \\
+subsumptive &	    static &	   private &	  opaque &	      no answer subsumption &	no \\
+subsumptive &	    static &	   private &	  opaque &	      answer subsumption &	no \\
+subsumptive &	    static &	   private &	  incremental &         no answer subsumption &	no \\
+subsumptive &	    static &	   private &	  incremental &         answer subsumption &	no \\
+subsumptive &	    static &	   shared &	  nonincremental &      no answer subsumption &	no \\
+subsumptive &	    static &	   shared &	  nonincremental &      answer subsumption &	no \\
+subsumptive &	    static &	   shared &	  opaque &	      no answer subsumption &	no \\
+subsumptive &	    static &	   shared &	  opaque &	      answer subsumption &	no \\
+subsumptive &	    static &	   shared &	  incremental &       no answer subsumption &	no \\
+subsumptive &	    static &	   shared &	  incremental &          answer subsumption &	no \\
+subsumptive &	    dynamic &	   private &	  nonincremental &      no answer subsumption &	yes \\
+subsumptive &	    dynamic &	   private &	  nonincremental &      answer subsumption &	yes \\
+subsumptive &	    dynamic &	   private &	  opaque &	      no answer subsumption &	no \\
+subsumptive &	    dynamic &	   private &	  opaque &	      answer subsumption &	no \\
+subsumptive &	    dynamic &	   private &	  incremental &         no answer subsumption &	no \\
+subsumptive &	    dynamic &	   private &   	  incremental &         answer subsumption &	no \\
+subsumptive &	    dynamic &	   shared &	  nonincremental &      no answer subsumption &	no \\
+subsumptive &	    dynamic &	   shared &	  nonincremental &      answer subsumption &	no \\
+subsumptive &	    dynamic &	   shared &	  opaque &	      no answer subsumption &	no \\
+subsumptive &	    dynamic &	   shared &	  opaque &	      answer subsumption &	no \\
+subsumptive &	    dynamic &	   shared &	  incremental &         no answer subsumption &	no \\
+subsumptive &  	    dynamic &	   shared &	  incremental &         answer subsumption &	no \\ \hline \hline 
+\end{tabular}
+}
+\end{center}
+\caption{Support for different tabling modes in XSB \version}
+\label{table:table}
+\end{table}
+
