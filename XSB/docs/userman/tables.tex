@@ -2539,8 +2539,10 @@ subsumptive &  	    dynamic &	   shared &	  incremental &         answer subsump
 
 \section{A Weaker Semantics for Tabling}
 %
+\index{completion semantics}
+\index{completion semantics!weak}
 Recall that the well-founded semantics (WFS) is weaker than, say,
-stable model semantics.  For instance a program like
+the Stable model semantics.  For instance a program like
 %
 \begin{verbatim}
 p:- not q.            q:- not p.
@@ -2613,34 +2615,50 @@ refers to an undefined predcate,the {\em weak} completion semantics
 (WCS) also assigns {\em undefined} to $G$, rather than {\em false} as
 WFS does, or throwing an error (as XSB also does by default).
 
-%Practically speaking in XSB, as in Prolog, by default the goal $G$
-%raises an exception, so if goals like $G$ should fail, a Prolog flag
-%must be set to change the behavior.  $G$ should be undefined, a simi
-
-These features can be set globally either separately or together:
-
 \begin{itemize}
+\item For one or more tabled predicates ro use the comploetion semantics,
+use the declaration
+
+\noindent
+{\tt \mif{} table {\em PredSpec} as compl\_semantics.}
+
 \item Setting the ISO Prolog flag {\tt unknown} to {\tt undefined}
   makes calls to unknown predicates return the truth value {\em
-    undefined}.  This flag can also be set to the standard ISO values,
+    undefined}.  E.g., 
+\begin{verbatim}
+?- set_prolog_flag(unknown,undefined).
+\end{verbatim}
+This flag can also be set to the standard ISO values,
   {\tt fail}. {\tt warning} or {\tt error} (the last of which is the
     default).
-\item Setting the Prolog flag {\tt alt\_semantics} to {\tt cs} causes
-  XSB to globally evaluate the completion semantics.
-\item Setting the Prolog flag {\tt alt\_semantics} to {\tt weak\_cs} causes
-  XSB to globally evaluate the weak completion semantics, and is
-  equivalent to setting the {\tt alt\_semantics} flag to {\tt cs} and
-  the ISO flag {\tt unknown} to {\tt undefined}.
-\item Setting the Prolog flag {\tt alt\_semantics} to {\tt wfs} turns
-  causes XSB to behave in its default mode.  I.e., to globally
-  evaluate queries according to the well-founded semantics, and to
-  throw an error when encountering an unknown predicate.
+
+\item The various forms of tabled negation work well with the
+  completion semantics; however if mixing tabled and non-tabled
+  predicates it is best to use {\tt not3/1} (cf. pg. \pageref{not3})
+  rather than the SLD operators {\tt not/1} or \verb|\+/1|.
 \end{itemize}
+
+%\noindent
+%These features can be set globally either separately or together:
+
+%\begin{itemize}
+%\item \item Setting the Prolog flag {\tt alt\_semantics} to {\tt cs} causes
+%  XSB to globally evaluate the completion semantics.
+%\item Setting the Prolog flag {\tt alt\_semantics} to {\tt weak\_cs} causes
+%  XSB to globally evaluate the weak completion semantics, and is
+%  equivalent to setting the {\tt alt\_semantics} flag to {\tt cs} and
+%  the ISO flag {\tt unknown} to {\tt undefined}.
+%\item Setting the Prolog flag {\tt alt\_semantics} to {\tt wfs} turns
+%  causes XSB to behave in its default mode.  I.e., to globally
+%  evaluate queries according to the well-founded semantics, and to
+%  throw an error when encountering an unknown predicate.
+%\end{itemize}
 
 \paragraph{Examples}
 
 As a simple example, consider the program:
 \begin{verbatim}
+:- table simple_loop/1 as compl_semantics.
 simple_loop(X):- simple_loop(X).     simple_loop(X):- p(X).
 p(a).
 \end{verbatim}
@@ -2649,7 +2667,7 @@ The query {\tt ?- simple\_loop(X)} returns two answers: {\tt X = a} as
 
 For a more complex example, consider the program:
 \begin{verbatim}
-:- table m_1_1/1,m_1_2/1,m_1_3/1,m_1_4/1.
+:- table m_1_1/1,m_1_2/1,m_1_3/1,m_1_4/1 as compl_semantics.
 m_1_1(X):- m_1_2(X).         m_1_1(a):- m_1_2(a).
 m_1_2(X):- m_1_3(X).         m_1_2(a):- m_1_3(a).         
 m_1_3(X):- m_1_4(X),fail.    m_1_3(a):- m_1_4(a).
