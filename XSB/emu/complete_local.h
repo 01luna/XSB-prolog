@@ -270,6 +270,17 @@ static inline CPtr ProcessSuspensionFrames(CTXTdeclc CPtr cc_tbreg_in,
   return cc_tbreg;
 }
 
+static inline check_SCC_for_compl_sems(CTXTdecl CPtr cs_ptr) {
+  CPtr ComplStkFrame = cs_ptr;
+
+  while (ComplStkFrame >= openreg) {
+    if (TIF_AlternateSemantics(subg_tif_ptr(compl_subgoal_ptr(ComplStkFrame))))
+      return TRUE;
+    else ComplStkFrame = next_compl_frame(ComplStkFrame);
+  }
+  return FALSE;
+}
+
 static inline CPtr ProcessCSReturns(CTXTdeclc CPtr cs_ptr) {
   CPtr ComplStkFrame = cs_ptr;
   VariantSF compl_subg;

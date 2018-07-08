@@ -185,8 +185,12 @@ XSB_Start_Instr(check_complete,_check_complete)
       altsem_dbg(("got through suspension frames for negation\n"));
 
       if (flags[ALTERNATE_SEMANTICS] == NAF_CS) {
-	FailIfAnswersFound(ProcessCSReturns(CTXTc cs_ptr));
-	PerformCSSimplification(CTXTc cs_ptr);
+	if (check_SCC_for_compl_sems(CTXTc cs_ptr)) {
+	  altsem_dbg(("ComplSem SCC\n"));
+	  FailIfAnswersFound(ProcessCSReturns(CTXTc cs_ptr));
+	  PerformCSSimplification(CTXTc cs_ptr);
+	}
+	else altsem_dbg(("WFS SCC\n"));
       }
 
       CompleteSimplifyAndReclaim(CTXTc cs_ptr);
