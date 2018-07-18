@@ -211,7 +211,7 @@ l_write(File, T, Prec, D,Flag) :- 	% functor(T, OP, N),
 		; '_$op'(Opprec, yf, OP) ->
 			l_writepostop(File, Name, T, Prec, Opprec, Opprec, D,Flag)
 		; Name == {} ->
-			l_write_curly(File, T, D,Flag)
+			l_write_curly(File, T, D1,Flag)
 		; l_writestr(File, Name, N, T, D1,Flag)
 		)
 	; N=:=2 ->
@@ -563,31 +563,36 @@ l_writetail_prolog(File, X) :-
 file_write_quoted(File, Term) :- 
 	xsb_stream_lock(File),
 %	xsb_sys_mutex_lock(MUTEX_IO),
-	l_write_quoted(File, Term, 999), 
+        stat_flag(WRITE_DEPTH,Level),
+	l_write_quoted(File, Term, 999,Level), 
 %	xsb_sys_mutex_unlock(MUTEX_IO),
 	xsb_stream_unlock(File),
 	fail.
 file_write_quoted(_, _).
 
-
-l_write_quoted(File, Var, _) :-
+l_write_quoted(File,_,_,Level) :-
+        Level =< 0,		       
+	!,
+	file_puttoken(File, XSB_STRING, '...').
+l_write_quoted(File, Var, _,_Level) :-
 	term_type(Var, Type),
 	(Type =:= XSB_FREE; Type =:= XSB_ATTV),
 	!,
 	file_puttoken(File, Type, Var).
-l_write_quoted(File, '$VAR'(N), _) :- 
+l_write_quoted(File, '$VAR'(N), _,_Level) :- 
 	!,
 	l_writevar_prolog(File, N, 1).
-l_write_quoted(File, [], _) :-
+l_write_quoted(File, [], _,_Level) :-
 	!,
 	file_put(File, CH_LBRACKET),     % [
 	file_put(File, CH_RBRACKET).     % ]
-l_write_quoted(File, [X|Y], _) :-
+l_write_quoted(File, [X|Y], _,Level) :-
 	!, 
 	file_put(File, CH_LBRACKET), 	% [
-	l_write_quoted(File, X, 999), 
-	l_writetail_quoted(File, Y).
-l_write_quoted(File, Atom, _) :-	% This takes care of all atoms but []
+	L1 is Level - 1,
+	l_write_quoted(File, X, 999,L1), 
+	l_writetail_quoted(File, Y,L1).
+l_write_quoted(File, Atom, _,_Level) :-	% This takes care of all atoms but []
 	term_type(Atom, Type),
 	Type =:= TK_ATOM,
 	!,
@@ -597,153 +602,155 @@ l_write_quoted(File, Atom, _) :-	% This takes care of all atoms but []
 		file_put(File, CH_RPAREN)
 	 ;	file_writequoted(File, Atom)
 	).
-l_write_quoted(File, T, Prec) :- 	% functor(T, OP, N),
+l_write_quoted(File, T, Prec,Level) :- 	% functor(T, OP, N),
 	term_type(T, Type), 
 	Type =:= XSB_STRUCT, !,	
 	term_psc(T, PSC), 
 	psc_arity(PSC, N),
 	psc_name(PSC, Name),
 	OP = Name,
+	L1 is Level - 1,
 	( N=:=0 -> file_writequoted(File, Name)
 		   ,file_put(File,CH_LPAREN),file_put(File,CH_RPAREN) % e.g. p()?
 	; N=:=1 ->
 		( '_$op'(Opprec, fx, OP) ->
 			Nprec is Opprec-1, 
-			l_writeqpreop(File, Name, T, Prec, Opprec, Nprec)
+			l_writeqpreop(File, Name, T, Prec, Opprec, Nprec,L1)
 		; '_$op'(Opprec, fy, OP) ->
-			l_writeqpreop(File, Name, T, Prec, Opprec, Opprec)
+			l_writeqpreop(File, Name, T, Prec, Opprec, Opprec,L1)
 		; '_$op'(Opprec, xf, OP) ->
 			Nprec is Opprec-1, 
-			l_writeqpostop(File, Name, T, Prec, Opprec, Nprec)
+			l_writeqpostop(File, Name, T, Prec, Opprec, Nprec,L1)
 		; '_$op'(Opprec, yf, OP) ->
-			l_writeqpostop(File, Name, T, Prec, Opprec, Opprec)
+			l_writeqpostop(File, Name, T, Prec, Opprec, Opprec,L1)
 		; Name == {} ->
-			l_write_curly_quoted(File, T)
-		; l_writestr_quoted(File, Name, N, T)
+			l_write_curly_quoted(File, T,L1)
+	; l_writestr_quoted(File, Name, N, T,L1)
 		)
 	; N=:=2 ->
 		( '_$op'(Opprec, xfx, OP) ->
 			Nprec is Opprec-1,
-			l_writeqbinop(File, Name, T, Prec, Opprec, Nprec, Nprec)
+			l_writeqbinop(File, Name, T, Prec, Opprec, Nprec, Nprec,L1)
 		; '_$op'(Opprec, xfy, OP) ->
 			Nprec is Opprec-1,
-			l_writeqbinop(File, Name, T, Prec, Opprec, Nprec, Opprec)
+			l_writeqbinop(File, Name, T, Prec, Opprec, Nprec, Opprec,L1)
 		; '_$op'(Opprec, yfx, OP) ->
 			Nprec is Opprec-1,
-			l_writeqbinop(File, Name, T, Prec, Opprec, Opprec, Nprec)
+			l_writeqbinop(File, Name, T, Prec, Opprec, Opprec, Nprec,L1)
 		; Name == apply ->
-			l_hilog_writestr_quoted(File, N, T) 
-		; l_writestr_quoted(File, Name, N, T)
+			l_hilog_writestr_quoted(File, N, T,L1) 
+		; l_writestr_quoted(File, Name, N, T,L1)
 		)
 	; ( Name == apply -> 
-              l_hilog_writestr_quoted(File, N, T)
-	  ; l_writestr_quoted(File, Name, N, T)
+              l_hilog_writestr_quoted(File, N, T,L1)
+	  ; l_writestr_quoted(File, Name, N, T,L1)
 	  )
 	).
-l_write_quoted(File, T, _) :- 
+l_write_quoted(File, T, _,_Level) :- 
 	term_type(T, Type),
 	file_puttoken(File, Type, T).
 
-l_writestr_quoted(File, Name, N, Term) :-
+l_writestr_quoted(File, Name, N, Term,Level) :-
 	file_writequoted(File, Name), 
 	file_put(File, CH_LPAREN),		% (
 	term_arg(Term, 1, X),
-	l_write_quoted(File, X, 999),
-        l_writearg_quoted(File, Term, N, 1), 
+	l_write_quoted(File, X, 999,Level),
+        l_writearg_quoted(File, Term, N, 1,Level), 
 	file_put(File, CH_RPAREN).		% )
 
-l_write_curly_quoted(File, Term) :- 
+l_write_curly_quoted(File, Term,Level) :- 
 	file_put(File, CH_LBRACE),	% {
 	term_arg(Term, 1, Arg),
-	l_write_quoted(File, Arg, 999),
+	l_write_quoted(File, Arg, 999,Level),
 	file_put(File, CH_RBRACE).	% }
 
-l_hilog_writestr_quoted(File, N, Term) :-
+l_hilog_writestr_quoted(File, N, Term,Level) :-
 	term_arg(Term, 1, HiLogFunctor),
-        l_write_quoted(File, HiLogFunctor, 999),
+        l_write_quoted(File, HiLogFunctor, 999,Level),
 	term_arg(Term, 2, FirstArg),
 	file_put(File, CH_LPAREN),	% (
-	l_write_quoted(File, FirstArg,999), % write the first of the HiLog args
-	l_writearg_quoted(File, Term, N,2), % write the rest  of the HiLog args
+	l_write_quoted(File, FirstArg,999,Level), % write the first of the HiLog args
+	l_writearg_quoted(File, Term, N,2,Level), % write the rest  of the HiLog args
 	file_put(File, CH_RPAREN).	% )
 
-l_writeqbinop(File, Op, Term, Oldp, Curp, Newlp, Newrp) :- 
+l_writeqbinop(File, Op, Term, Oldp, Curp, Newlp, Newrp,Level) :- 
 	term_arg(Term, 1, Arg1),
 	term_arg(Term, 2, Arg2),
 	(Curp > Oldp -> 
 	    file_put(File, CH_LPAREN),	% (
-	    'write binop quoted'(File, Arg1, Op, Arg2, Newlp, Newrp),
+	    'write binop quoted'(File, Arg1, Op, Arg2, Newlp, Newrp,Level),
 	    file_put(File, CH_RPAREN)	% )
 	;
-	    'write binop quoted'(File, Arg1, Op, Arg2, Newlp, Newrp)
+	    'write binop quoted'(File, Arg1, Op, Arg2, Newlp, Newrp,Level)
 	).
 
-'write binop quoted'(File, Arg1, Op, Arg2, Newlp, Newrp) :-
-	l_write_quoted(File, Arg1, Newlp),
+'write binop quoted'(File, Arg1, Op, Arg2, Newlp, Newrp,Level) :-
+	l_write_quoted(File, Arg1, Newlp,Level),
 %	file_put(File, CH_SPACE),
 	file_puttoken(File, TK_INOP, Op),
 %	file_put(File, CH_SPACE),
-	l_write_quoted(File, Arg2, Newrp).
+	l_write_quoted(File, Arg2, Newrp,Level).
 
-l_writeqpreop(File, Op, Term, Oldp, Curp, Newp) :- 
+l_writeqpreop(File, Op, Term, Oldp, Curp, Newp,Level) :- 
 	term_arg(Term, 1, Arg),
 	(Curp > Oldp -> 
 	    file_put(File, CH_LPAREN),	    % (
 	    file_puttoken(File, TK_PREOP, Op),
-	    l_write_quoted_chk_min(File, Arg, Newp, Op),
+	    l_write_quoted_chk_min(File, Arg, Newp, Op,Level),
 	    file_put(File, CH_RPAREN)	    % )
 	;
 	    file_puttoken(File, TK_PREOP, Op),
-	    l_write_quoted_chk_min(File, Arg, Newp, Op)
+	    l_write_quoted_chk_min(File, Arg, Newp, Op,Level)
 	).
 
 % special case for, e.g.,  - (111)
-l_write_quoted_chk_min(File, Arg, Newp, Op) :-
+l_write_quoted_chk_min(File, Arg, Newp, Op,Level) :-
 	(Op == (-),number(Arg)
 	 ->	file_put(File, CH_LPAREN),
-		l_write_quoted(File, Arg, Newp),
+		l_write_quoted(File, Arg, Newp,Level),
 		file_put(File, CH_RPAREN)
 	 ;	%file_put(File, CH_SPACE),
-		l_write_quoted(File, Arg, Newp)
+		l_write_quoted(File, Arg, Newp,Level)
 	).
 
-l_writeqpostop(File, Op, Term, Oldp, Curp, Newp) :- 
+l_writeqpostop(File, Op, Term, Oldp, Curp, Newp,Level) :- 
 	term_arg(Term, 1, Arg),
 	(Curp > Oldp -> 
 	    file_put(File, CH_LPAREN),	% (
-	    l_write_quoted(File, Arg, Newp),
+	    l_write_quoted(File, Arg, Newp,Level),
 	    file_puttoken(File, TK_POSTOP, Op),
 	    file_put(File, CH_RPAREN)	% )
 	;   
-	    l_write_quoted(File, Arg, Newp),
+	    l_write_quoted(File, Arg, Newp,Level),
 	    file_puttoken(File, TK_POSTOP, Op)
 	).
 
 
-l_writearg_quoted(_File, _T, N, N) :- !.
-l_writearg_quoted(File, T, N, M) :- 
+l_writearg_quoted(_File, _T, N, N,_Level) :- !.
+l_writearg_quoted(File, T, N, M,Level) :- 
 	L is M + 1, 
 	file_put(File, CH_COMMA),	% ','
 	term_arg(T, L, X),
-        l_write_quoted(File, X, 999), 
-	l_writearg_quoted(File, T, N, L).
+        l_write_quoted(File, X, 999,Level), 
+	l_writearg_quoted(File, T, N, L,Level).
 
-l_writetail_quoted(File, Var) :-
+l_writetail_quoted(File, Var,_Level) :-
 	term_type(Var, Type),
 	(Type =:= XSB_FREE; Type =:= XSB_ATTV),
 	!, 
 	file_put(File, CH_BAR),		% |
 	file_puttoken(File, Type, Var), 
 	file_put(File, CH_RBRACKET).	% ']'
-l_writetail_quoted(File, [X|Y]) :- !, 
+l_writetail_quoted(File, [X|Y],Level) :- !, 
 	file_put(File, CH_COMMA),	% ','
-	l_write_quoted(File, X, 999), 
-	l_writetail_quoted(File, Y).
-l_writetail_quoted(File, []) :- 
+	L1 is Level - 1,
+	l_write_quoted(File, X, 999,L1), 
+	l_writetail_quoted(File, Y,L1).
+l_writetail_quoted(File, [],_Level) :- 
 	!, file_put(File, CH_RBRACKET).		% ]
-l_writetail_quoted(File, X) :- 
+l_writetail_quoted(File, X,Level) :- 
 	file_put(File, CH_BAR), 	% |
-	l_write_quoted(File, X, 999), 
+	l_write_quoted(File, X, 999,Level), 
 	file_put(File, CH_RBRACKET).	% ]
 
 
