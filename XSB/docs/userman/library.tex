@@ -2568,6 +2568,9 @@ load\_dsv} acts as {\tt load\_csv/2}.)  The options are:
 \item[{\tt separator=''Sep''}] (or separator(''Sep'')) which indicates
   that the character(s) {\tt Sep} will be used as the field separator.
   There may be one or more characters.
+
+  {\tt Example: } To load a tab-separated file (tsv) use 
+    \verb|separator="\t"| in the options list.
 \item[{\tt delimiter=''C''}] (or delimiter(''C'')) which indicates
   that the single character {\tt C} will be used as the field
   delimiter, the default being the double quote, ``'''''' (and I've
@@ -2587,9 +2590,9 @@ load\_dsv} acts as {\tt load\_csv/2}.)  The options are:
   situations and process such fields correctly.  If a newline (or
   return) is detected in a field, it will be replaced with the string
   {\tt C} in the output field.
-\item[{reverse}] causes asserta to be used to assert the input terms,
-  so the predicate will contain the file records in reverse order.
-  This can significantly improve performanc if indexing is
+\item[{\tt reverse}] causes asserta to be used to assert the input
+  terms, so the predicate will contain the file records in reverse
+  order.  This can significantly improve performanc if indexing is
   particularly weak.
 \item[{\tt pad=$N$}] (or {\tt pad($N$)}, where $N$ is a (positive or
   negative) integer.  If $N$ is negative, then the asserted predicate
