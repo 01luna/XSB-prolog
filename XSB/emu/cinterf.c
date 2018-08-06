@@ -63,7 +63,6 @@
 #endif
 #endif
 
-char *cvt_float_to_str(CTXTdeclc Float);
 char *cvt_float_to_str_with_fmt(CTXTdeclc Float, char *);
 
 /*

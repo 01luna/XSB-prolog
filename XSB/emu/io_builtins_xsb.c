@@ -1811,7 +1811,7 @@ void write_quotedname(FILE *file, int charset, char *string)
 #define wcan_buff tsgSBuff1
 
 char *cvt_float_to_str(CTXTdeclc Float floatval) {
-  return cvt_float_to_str_with_fmt(CTXTdeclc floatval, "%1.17g");
+  return cvt_float_to_str_with_fmt(CTXTdeclc floatval,(char *)flags[FLOAT_DISPLAY_FORMAT]);
 }
 
 char *cvt_float_to_str_with_fmt(CTXTdeclc Float floatval, char *format) {
@@ -1901,22 +1901,24 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
      }
      else if (isboxedfloat(prologterm))
      {
-       sprintf(wcan_buff->string,"%1.17g",boxedfloat_val(prologterm));
-       wcan_buff->length = (int)strlen(wcan_buff->string);
-       if (!strchr(wcan_buff->string,'.')) {
-	 char *eloc = strchr(wcan_buff->string,'e');
-	 if (!eloc) XSB_StrAppend(wcan_buff,".0");
-	 else {	
-	   char exp[500],fstr[MAX_SPRINTF_STRING_SIZE];
-	   strcpy(exp,eloc);
-	   eloc[0] = 0;
-	   strcpy(fstr,wcan_buff->string);
-	   XSB_StrSet(wcan_buff,fstr);
-	   XSB_StrAppend(wcan_buff,".0");
-	   XSB_StrAppend(wcan_buff,exp);
-	 }
-       }
-       XSB_StrAppend(wcan_string,wcan_buff->string);
+       XSB_StrAppend(wcan_string, cvt_float_to_str(CTXTc boxedfloat_val(prologterm)));
+       //       sprintf(wcan_buff->string,"%1.17g",boxedfloat_val(prologterm));
+       //       XSB_StrA(wcan_buff->string, cvt_float_to_str(CTXTc boxedfloat_val(prologterm)));
+       //       wcan_buff->length = (int)strlen(wcan_buff->string);
+       //       if (!strchr(wcan_buff->string,'.')) {
+       //	 char *eloc = strchr(wcan_buff->string,'e');
+       //	 if (!eloc) XSB_StrAppend(wcan_buff,".0");
+       //	 else {	
+       //	   char exp[500],fstr[MAX_SPRINTF_STRING_SIZE];
+       //	   strcpy(exp,eloc);
+       //	   eloc[0] = 0;
+       //	   strcpy(fstr,wcan_buff->string);
+       //	   XSB_StrSet(wcan_buff,fstr);
+       //	   XSB_StrAppend(wcan_buff,".0");
+       //	   XSB_StrAppend(wcan_buff,exp);
+       //	 }
+       //       }
+       //       XSB_StrAppend(wcan_string,wcan_buff->string);
        break;         
      }        
       if (letter_flag && (get_str_psc(prologterm) == dollar_var_psc)) {
