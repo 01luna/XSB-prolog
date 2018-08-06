@@ -113,7 +113,7 @@ extern void gdb_dummy(void);
 #define Intfmt "d"
 #define UIntfmt "u"
 #define Intxfmt "x"
-#define Intxfmt "lo"
+#define Intofmt "lo"
 #define Cellfmt "lu"
 #endif
 
