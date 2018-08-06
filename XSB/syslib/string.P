@@ -288,7 +288,9 @@ term_to_codes(Term,Structure,Var0,Var,Codes0,Codes) :-
 		extern_atom_codes(Term,Structure,Codes0,Codes)
 	 ;	float(Term)
 	 ->	Var = Var0,
-		extern_float_codes(Term,Codes0,Codes)
+%		extern_float_codes(Term,Codes0,Codes)
+		number_codes(Term,FloatCodes),
+		append(FloatCodes,Codes,Codes0)
 	 ;	is_list(Term)
          ->	Term=[Term1|Terms],
 	        get_listcode(Term1,Terms,Structure,Var0,Var,Codes0,Codes)
@@ -395,52 +397,52 @@ copy_double_quote([C|Cs],[C|Cs0],Cs1) :-
 	).
 
 %TLS: changed to avoid calling log(0) below.
-extern_float_codes(Float,Codes0,Codes) :-
-	(Float < 0.0
-	 ->	PFloat is -Float,
-		Codes0 = [0'-'|Codes1],
-		extern_float_codes1(PFloat,Codes1,Codes)
-	 ;	(Float =:= 0.0 -> 
-	           Codes0 = [48,46,48,48,48,48,48,48,48,48|Codes]
-	 	 ; extern_float_codes1(Float,Codes0,Codes) )
-	).
-
-extern_float_codes1(Float,Codes0,Codes) :-
-	Log10 is log(10),
-	Exp is floor(log(Float)/Log10-8), % to get 6 or 7 digits, Put . Exp to left from end
-	DigitsInt is floor(Float/exp(Exp*Log10)),
-	number_codes(DigitsInt,Digits),
-	length(Digits,Length),
-	Dist is Length+Exp,
-	(Dist > 0
-	 ->	place_decimal(Digits,Dist,Codes0,Codes)
-	 ;	Codes0 = [0'0,0'.|Codes1],
-		prefix_decimal(Digits,Dist,Codes1,Codes)
-	).
-
-place_decimal([],Dist,Codes0,Codes) :-
-	(Dist > 0
-	 ->	Dist1 is Dist - 1,
-		Codes0 = [0'0|Codes1],
-		place_decimal([],Dist1,Codes1,Codes)
-	 ;	Codes0 = [0'.,0'0|Codes]
-	).
-place_decimal([D|Digits],Dist,Codes0,Codes) :-
-	(Dist > 0
-	 ->	Dist1 is Dist - 1,
-		Codes0 = [D|Codes1],
-		place_decimal(Digits,Dist1,Codes1,Codes)
-	 ; 	append([0'.,D|Digits],Codes,Codes0)
-	).
-		
-prefix_decimal(Digits,Dist,Codes0,Codes) :-
-	(Dist =:= 0
-	 ->	append(Digits,Codes,Codes0)
-	 ;	Dist1 is Dist + 1,
-		Codes0 = [0'0|Codes1],
-		prefix_decimal(Digits,Dist1,Codes1,Codes)
-	).
-
+%extern_float_codes(Float,Codes0,Codes) :-
+%	(Float < 0.0
+%	 ->	PFloat is -Float,
+%		Codes0 = [0'-'|Codes1],
+%		extern_float_codes1(PFloat,Codes1,Codes)
+%	 ;	(Float =:= 0.0 -> 
+%	           Codes0 = [48,46,48,48,48,48,48,48,48,48|Codes]
+%	 	 ; extern_float_codes1(Float,Codes0,Codes) )
+%	).
+%
+%extern_float_codes1(Float,Codes0,Codes) :-
+%	Log10 is log(10),
+%	Exp is floor(log(Float)/Log10-8), % to get 6 or 7 digits, Put . Exp to left from end
+%	DigitsInt is floor(Float/exp(Exp*Log10)),
+%	number_codes(DigitsInt,Digits),
+%	length(Digits,Length),
+%	Dist is Length+Exp,
+%	(Dist > 0
+%	 ->	place_decimal(Digits,Dist,Codes0,Codes)
+%	 ;	Codes0 = [0'0,0'.|Codes1],
+%		prefix_decimal(Digits,Dist,Codes1,Codes)
+%	).
+%
+%place_decimal([],Dist,Codes0,Codes) :-
+%	(Dist > 0
+%	 ->	Dist1 is Dist - 1,
+%		Codes0 = [0'0|Codes1],
+%		place_decimal([],Dist1,Codes1,Codes)
+%	 ;	Codes0 = [0'.,0'0|Codes]
+%	).
+%place_decimal([D|Digits],Dist,Codes0,Codes) :-
+%	(Dist > 0
+%	 ->	Dist1 is Dist - 1,
+%		Codes0 = [D|Codes1],
+%		place_decimal(Digits,Dist1,Codes1,Codes)
+%	 ; 	append([0'.,D|Digits],Codes,Codes0)
+%	).
+%		
+%prefix_decimal(Digits,Dist,Codes0,Codes) :-
+%	(Dist =:= 0
+%	 ->	append(Digits,Codes,Codes0)
+%	 ;	Dist1 is Dist + 1,
+%		Codes0 = [0'0|Codes1],
+%		prefix_decimal(Digits,Dist1,Codes1,Codes)
+%	).
+%
 
 /***************************************************************/
 /*                                                             */

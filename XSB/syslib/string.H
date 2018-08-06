@@ -35,7 +35,7 @@
         read_atom_to_term/3,
         read_atom_to_term/2.
 
-:- import append/3, memberchk/2, copy_term/2, length/2, ith/3 from basics.
+:- import append/3, memberchk/2, copy_term/2, ith/3 from basics.
 :- import str_len/2 from machine.
 :- import
         atom/1, atom_codes/2, number/1, integer/1, structure/1,
