@@ -1901,24 +1901,25 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
      }
      else if (isboxedfloat(prologterm))
      {
-       XSB_StrAppend(wcan_string, cvt_float_to_str(CTXTc boxedfloat_val(prologterm)));
-       //       sprintf(wcan_buff->string,"%1.17g",boxedfloat_val(prologterm));
-       //       XSB_StrA(wcan_buff->string, cvt_float_to_str(CTXTc boxedfloat_val(prologterm)));
-       //       wcan_buff->length = (int)strlen(wcan_buff->string);
-       //       if (!strchr(wcan_buff->string,'.')) {
-       //	 char *eloc = strchr(wcan_buff->string,'e');
-       //	 if (!eloc) XSB_StrAppend(wcan_buff,".0");
-       //	 else {	
-       //	   char exp[500],fstr[MAX_SPRINTF_STRING_SIZE];
-       //	   strcpy(exp,eloc);
-       //	   eloc[0] = 0;
-       //	   strcpy(fstr,wcan_buff->string);
-       //	   XSB_StrSet(wcan_buff,fstr);
-       //	   XSB_StrAppend(wcan_buff,".0");
-       //	   XSB_StrAppend(wcan_buff,exp);
-       //	 }
-       //       }
-       //       XSB_StrAppend(wcan_string,wcan_buff->string);
+       /* TES: If we ever want to make write_canonical flag-based, replace the rest of this block with 
+          the following line (modulo break) */
+       //       XSB_StrAppend(wcan_string, cvt_float_to_str(CTXTc boxedfloat_val(prologterm)));
+       sprintf(wcan_buff->string,"%1.17g",boxedfloat_val(prologterm));
+       wcan_buff->length = (int)strlen(wcan_buff->string);
+       if (!strchr(wcan_buff->string,'.')) {
+       	 char *eloc = strchr(wcan_buff->string,'e');
+       	 if (!eloc) XSB_StrAppend(wcan_buff,".0");
+       	 else {	
+       	   char exp[500],fstr[MAX_SPRINTF_STRING_SIZE];
+	   strcpy(exp,eloc);
+       	   eloc[0] = 0;
+	   strcpy(fstr,wcan_buff->string);
+       	   XSB_StrSet(wcan_buff,fstr);
+       	   XSB_StrAppend(wcan_buff,".0");
+       	   XSB_StrAppend(wcan_buff,exp);
+       	 }
+       }
+       XSB_StrAppend(wcan_string,wcan_buff->string);
        break;         
      }        
       if (letter_flag && (get_str_psc(prologterm) == dollar_var_psc)) {
