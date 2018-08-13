@@ -1705,8 +1705,11 @@ static SOBRef new_SOBblock(int ThisTabSize, int Ind, Psc psc )
    return NewSOB ;
 }
 
+#define LONG_HASHCHAIN_LENGTH 30000
+static int long_hashchain_warning_given = 0;
+
 static void addto_hashchain( int AZ, Integer Hashval, SOBRef SOBrec, CPtr NewInd,
-			     int Arity )
+			     int Arity, prolog_term Head )
 {
     CPtr *Bucketaddr = (CPtr *) (ClRefHashTable(SOBrec) + Hashval);
     CPtr OldInd = *Bucketaddr ;
@@ -1737,8 +1740,16 @@ static void addto_hashchain( int AZ, Integer Hashval, SOBRef SOBrec, CPtr NewInd
       if (cell_opcode(OldInd) == dynnoop)
       {  dbgen_inst_ppvw_safe(dyntrymeelse,Arity,NewInd,OldInd,&Loc); }
       else {
-        while (cell_opcode(OldInd) != dyntrustmeelsefail)
+	Integer hct = 0;
+        while (cell_opcode(OldInd) != dyntrustmeelsefail) {
+	  hct++;
           OldInd = IndRefNext(OldInd);
+	}
+	if (!long_hashchain_warning_given && hct > LONG_HASHCHAIN_LENGTH) {
+	  long_hashchain_warning_given = 1;
+	  fprintf(stdwarn, "Warning: In assert to %s/%d, an index hash chain is very long; consider using asserta, multi or no index.\n",
+		  get_name(get_str_psc(Head)),get_arity(get_str_psc(Head)));
+	}
         dbgen_inst_ppvw_safe(dynretrymeelse,Arity,NewInd,OldInd,&Loc);
       }
       IndRefPrev(NewInd) = OldInd ;
@@ -1802,7 +1813,7 @@ static void db_addbuff_i(byte Arity, ClRef Clause, PrRef Pred, int AZ,
       db_addbuff(Arity,SOBbuff,Pred,AZ,TRUE,Inum);
     }
     Pred = ClRefPrRef(SOBbuff) ; /* fake a prref */
-    addto_hashchain(AZ, Hashval, SOBbuff, ClRefIndPtr(Clause,Inum), Arity);
+    addto_hashchain(AZ, Hashval, SOBbuff, ClRefIndPtr(Clause,Inum), Arity, Head);
   }
   addto_allchain( AZ, Clause, SOBbuff, Arity ) ;
 }
