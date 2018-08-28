@@ -1,3 +1,4 @@
+:- encoding(latin_1).
 % TLS: took out some tests that either wouldnt compile with previous version, or 
 % wrote out symbols that sort couldn't handle (e.g., format).
 

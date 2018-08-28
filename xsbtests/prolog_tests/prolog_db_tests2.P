@@ -18,12 +18,12 @@ testdbu1 :-
 %%     prolog_db:dump_db(_DB,userout),
 %%     term_size(_DB,DBSize), writeln(userout,size=DBSize),
 %%     size_db(_DB,DBCnt), writeln(userout,cnt=DBCnt),
-     prolog_db:call_in_db((new_db(_DB0),
+     prolog_db:in_db((new_db(_DB0),
 		 assert_in_db(app([],_L,_L),_DB0,_DB1),
 		 assert_in_db((app([_X|_L1],_L2,[_X|_L3]):-app(_L1,_L2,_L3)),_DB1,_DB2),
 		 assert_in_db(nrev([],[]),_DB2,_DB3),
 		 assert_in_db((nrev([_X|_LL],_RR) :- nrev(_LL,_RR1),app(_RR1,[_X],_RR)),_DB3,_DB4),
-			   pure_call_in_db((cputime(_T0),
+			   pure_in_db((cputime(_T0),
 				  (nrev([a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z],REV),writeln(test4(REV)),fail ; true),
 				  cputime(_T1),_Time is _T1-_T0 %% ,writeln(time(_Time))
 				 ),_DB4)

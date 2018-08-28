@@ -1,4 +1,4 @@
-
+:- encoding(latin_1).
 ?- set_prolog_flag(character_set,latin_1).
 
 test:- 

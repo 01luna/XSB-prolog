@@ -1,5 +1,6 @@
-:- import new_db/1, assert_in_db/2, assert_in_db/3, call_in_db/2 from prolog_db.
-:- import load_in_db/2, pure_call_in_db/2 from prolog_db.
+:- import new_db/1, assert_in_db/2, assert_in_db/3, in_db/2 from prolog_db.
+:- import load_in_db/2, pure_in_db/2 from prolog_db.
+:- import compare_size_db/3 from prolog_db.
 :- import union_db/3, intersect_db/3, difference_db/3, subset_db/2, disjoint_db/2,
     clause_in_db/3, dump_db/2, retractall_in_db/3, sym_diff_db/3
     from prolog_db.
@@ -33,6 +34,7 @@ test :- testdb,fail.
 test :- testretract,fail.
 test :- testdbops,fail.
 test :- testindbops,fail.
+test :- test_size,fail.
 test :- test_tc,fail.
 test :- testdbu,fail.
 test :- testbig,fail.
@@ -44,7 +46,7 @@ testdb :-
      new_db(_DB0),
      assert_in_db(app([],_L,_L),_DB0,_DB1),
      assert_in_db((app([_X|_L1],_L2,[_X|_L3]):-app(_L1,_L2,_L3)),_DB1,_DB2),
-     call_in_db(app(XX,YY,[a,b,c]),_DB2),
+     in_db(app(XX,YY,[a,b,c]),_DB2),
      writeln(test1(app(XX,YY,[a,b,c])))
     ),
     fail.
@@ -56,7 +58,7 @@ testdb :-
      assert_in_db((app([_X|_L1],_L2,[_X|_L3]):-app(_L1,_L2,_L3)),_DB1,_DB2),
      assert_in_db(nrev([],[]),_DB2,_DB3),
      assert_in_db((nrev([_X|_LL],_RR) :- nrev(_LL,_RR1),app(_RR1,[_X],_RR)),_DB3,_DB4),
-     pure_call_in_db((cputime(_T0),
+     pure_in_db((cputime(_T0),
 		      (nrev([a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z],REV),writeln(test2(REV)),fail ; true),
 		      cputime(_T1),_Time is _T1-_T0
 		     ),
@@ -69,7 +71,7 @@ testdb :-
      new_db(_DB2),
      assert_in_db(nrev([],[]),_DB2,_DB3),
      assert_in_db((nrev([_X|_LL],_RR) :- nrev(_LL,_RR1),basics:append(_RR1,[_X],_RR)),_DB3,_DB4),
-     pure_call_in_db((cputime(_T0),
+     pure_in_db((cputime(_T0),
 		      (nrev([a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z],REV),writeln(test3(REV)),fail ; true),
 		      cputime(_T1),_Time is _T1-_T0
 		     ),
@@ -226,7 +228,7 @@ naive_union_db(DB1,DB2,DB3) :-
     assert_in_db(Clauses,DB2,DB3).
 
 naive_intersect_db(DB1,DB2,DB3) :-
-	findall((H:-B),(clause_in_db(H,B,DB1),clause_in_db(H,B,DB2)),Rules),
+    findall((H:-B),(clause_in_db(H,B,DB1),clause_in_db(H,B,DB2)),Rules),
 	new_db(DB0),
 	assert_in_db(Rules,DB0,DB3).
 
@@ -511,7 +513,7 @@ test_tc :-
      ;	
      nl,writeln('Testing rule-based transitive closure on a tree:'),
      assert_in_db([(p(X,Y):-e(X,Y)),(p(X,Y):-table(p(X,Z)),e(Z,Y))],DB0,DB1),
-     findall(p(A,B),call_in_db(p(A,B),DB1),Ps),
+     findall(p(A,B),in_db(p(A,B),DB1),Ps),
      assert_in_db(Ps,DB1,DB),
      count_in_db(p/2,DB,Cnt),
      writeln(rule_based_tc_count(K,Cnt))
@@ -533,7 +535,7 @@ test_tc :-
      ;	
      nl,writeln('Testing rule-based transitive closure on a cycle:'),
      assert_in_db([(p(X,Y):-e(X,Y)),(p(X,Y):-table(p(X,Z)),e(Z,Y))],DB0,DB1),
-     findall(p(A,B),call_in_db(p(A,B),DB1),Ps),
+     findall(p(A,B),in_db(p(A,B),DB1),Ps),
      assert_in_db(Ps,DB1,DB),
      count_in_db(p/2,DB,Cnt),
      writeln(rule_based_tc_count(K,Cnt))
@@ -620,3 +622,32 @@ mk_list(N,T,L) :-
 	L = [T|L1],
 	mk_list(N1,T,L1)
     ).
+
+test_size :-
+    nl,writeln(start_size),
+    pdb([[1,5,1],[3,5,1]],p(_,_),LDB),
+    pdb([[1,3,1],[3,6,1]],q(_,_),SDB),
+    pdb([[1,15,1]],r(_),LDB2),
+    pdb([[2,16,1]],r(_),LDB3),
+    compare_size_db(LDB,SDB,S1),
+    (S1 =\= 1
+     ->	writeln(smaller_test1(failed))
+     ;	writeln(smaller_test1(succeeded))
+    ),
+    compare_size_db(SDB,LDB,S2),
+    (S2 =:= -1
+     ->	writeln(smaller_test2(succeeded))
+     ;	writeln(smaller_test2(failed))
+    ),
+    compare_size_db(LDB,LDB2,S3),
+    (S3 =:= 0
+     ->	writeln(smaller_test3(succeeded))
+     ;	writeln(smaller_test2(failed))
+    ),
+    compare_size_db(LDB2,LDB3,S4),
+    (S4 =:= 0
+     ->	writeln(smaller_test3(succeeded))
+     ;	writeln(smaller_test2(failed))
+    ).
+
+    

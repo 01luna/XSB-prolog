@@ -1,3 +1,4 @@
+:- encoding(latin_1).  % dsw??
 ?- set_prolog_flag(character_set,latin_1).
 
 % TLS: in this file, I don't use puts as the character codes break
