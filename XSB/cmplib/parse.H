@@ -52,7 +52,7 @@
    from assert.
 
 :- import check_file_compiler_options/1, 
-	error/1, message/1, option/1, setoptions1/1, warning/1
+	error/1, message/1, option/1, setoptions1/1, warning/1, valid_charset/1
    from auxlry.
 
 :- import append/3, memberchk/2, log_ith/3, member/2, copy_term/2 from basics.
@@ -76,7 +76,8 @@
 
 :- import
 	file_size/2,
-	fmt_write_string/3
+	fmt_write_string/3,
+	file_set_character_set/2
    from file_io.
 
 :- import mpa_to_skel/2 from file_op.
@@ -105,8 +106,9 @@
 	  open/3,
 	  close/1,
 	  call/1, compound/1,
-	  is_most_general_term/1, number/1, atom_codes/2
-     from standard.
+	  is_most_general_term/1, number/1, atom_codes/2,
+	  seeing/1
+   from standard.
 
 :- import file_read/3 from xsb_read.
 

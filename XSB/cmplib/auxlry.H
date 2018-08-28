@@ -31,6 +31,7 @@
               check_file_compiler_options/1,
 	  numbervars_cmplib/3.
 :- export current_xsb_compiler_option/1.
+:- export valid_charset/1.
 
 :- import current_compiled_module/1 from compile.
 :- import load_dyn_module/1 from consult.

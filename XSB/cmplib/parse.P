@@ -93,6 +93,8 @@ parse1(Modname, File, Module) :-
 		    filestack_pop(_),
 		    filename_pop(_),
 		    parsing_file(PFile), see(PFile),
+		    seeing(Str),
+		    file_set_character_set(Str,utf_8),
 %%%		    standard:writeln(needs_restart(OFile,PFile)),
 		    fail
 		;   ! % doesn't need a restart so cut away 2nd parse1 cls.
@@ -141,6 +143,7 @@ open_or_xpp_file(File,XPP_process) :-
 	(\+xpp_is_on, \+xpp_is_off -> set_xpp_off ; true), %% clear out xpp
 	(xpp_is_off -> 
 	    open(File,read,Istr),
+	    file_set_character_set(Istr,utf_8),
 	    filestack_push(Istr),
 	    see(Istr),
 	    XPP_process = skip
@@ -694,7 +697,14 @@ parse_directive(else, QrList,SymTab,ModName,ModStruct):- !,
 	parse_directive(elseif(true), QrList,SymTab,ModName,ModStruct).
 parse_directive(endif, _QrList,_SymTab,_ModName,_ModStruct):- !,
 	conset(conditional_compile,0).
-parse_directive(module(ModIn,X,_Dialect), _QrList,SymTab,ModName,_ModStruct) :- !, 	
+parse_directive(encoding(Charset),_,_,_,_) :- !,
+    (atom(Charset),
+     valid_charset(Charset)
+     ->	seeing(Str),
+	file_set_character_set(Str,Charset)
+     ;	warning((Charset,' is an illegal file encoding identifier, ignored !'))
+    ).
+parse_directive(module(ModIn,X,_Dialect), _QrList,SymTab,ModName,_ModStruct) :- !,
 	parse_directive(module(ModIn,X), _QrList,SymTab,ModName,_ModStruct).
 parse_directive(module(ModIn,X), _QrList,SymTab,ModName,_ModStruct) :- !, 	
 	(functor(ModName,ModIn,_) -> 

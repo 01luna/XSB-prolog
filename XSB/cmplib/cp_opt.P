@@ -632,7 +632,7 @@ subsumption_modes_trans_pred(Sym,Pscs,Oth,Modes,[pred(Sym1,Pscs,Oth)|NewClList],
 	parse_preddef_closed(NewTerm,true,[pred(Sym1,_,_)],SymTab), % add to symtab
 	ensure_imported(table_error/1,error_handler,SymTab).
 
-/*** for when debugging **
+/*** for when debugging 
 print_rule(Label,Head,Body) :-
 	(do_all
 	 num_vars:numbervars(p(Head,Body)),
@@ -693,7 +693,7 @@ table_index_trans_pred(Sym,Pscs,Oth,Indexes,ClList,SymTab) :-
 
 	gen_sel_clause(Pred,Arity,IndPerms,(SelHead:-SelBody)),
 	ClList = [pred(Sym1,Pscs,Oth)|NewClList],
-	%%print_rule(sel_rule,SelHead,SelBody),
+	%%print_rule(sel_rule,SelHead,SelBody), % dsw
 	parse_preddef_closed(SelHead,SelBody,NewClList,SymTab),
 	tail_var(NewClList,NewClList1),
 
@@ -713,7 +713,7 @@ table_index_trans_pred(Sym,Pscs,Oth,Indexes,ClList,SymTab) :-
 		       (BaseCallHead:-BaseCallBody)),
 	functor(BaseCallHead,BPred,Arity),
 	sym_insert(BPred,Arity,[tabled,use_subsumptive_tabling],SymTab,_),
-	%%print_rule(base_rule,BaseCallHead,BaseCallBody),
+	%%print_rule(base_rule,BaseCallHead,BaseCallBody), %dsw
 	parse_preddef_closed(BaseCallHead,BaseCallBody,NewClList1,SymTab),
 	tail_var(NewClList1,NewClList2),
 
@@ -732,7 +732,7 @@ gen_ind_clauses([IOrd|IOrds],BaseOrd,Pred,Arity,NonAbsPoss,OrdPred,ClList,SymTab
 	functor(HeadCopy,IPred,Arity),
 	parse_preddef_closed(HeadCopy,true,_,SymTab), % add to symtab	
 	sym_insert(IPred,Arity,[tabled,use_subsumptive_tabling],SymTab,_),
-	%%print_rule(ind_rule,Head,Body),
+	%%print_rule(ind_rule,Head,Body), % dsw
 	parse_preddef_closed(Head,Body,ClList,SymTab),
 	tail_var(ClList,ClList1),	
 	gen_ind_clauses(IOrds,BaseOrd,Pred,Arity,NonAbsPoss,OrdPred,ClList1,SymTab).
@@ -780,7 +780,7 @@ gen_sel_clause(Pred,Arity,IndPerms,(Head:-Body)) :-
 
 gen_tests([IndPerm],Pred,HeadArgs,Condition) :- !,
 	gen_test_call(IndPerm,Pred,HeadArgs,Test,Call),
-	(fail,Test == true
+	(Test == true
 	 ->	Condition = Call
 	 ;	length(HeadArgs,Arity),
 		concat_atom(['Illegal Mode in call to ',Pred,'/',Arity],Msg),
