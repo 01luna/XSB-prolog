@@ -614,7 +614,13 @@ load_dyn1(Rfname,Dirctry,Dir,Base,Module) :-
 	current_input_port(XPPport), %% port from process, if it was launched
 	(   catch(read_and_assert(Dir,Base,Module),Ball,close_and_throw(XPP_process,XPPport,Ball))
 	%% If needs restart, close old file and skip to the second load_dyn1
-	->  ( conget(needs_restart,1) -> seen, see(OldFile), fail ; true)
+	 -> ( conget(needs_restart,1)
+	     ->	seen, see(OldFile),
+		seeing(Str),
+		file_set_character_set(Str,utf_8),
+		fail
+	     ; true
+	    )
 	;   conset(needs_restart, 0), conset(xpp_on,0)
 	),
 	!,
@@ -1027,6 +1033,14 @@ set_retracted(Head,Arity,OPsc,Psc,Prref,Index,Hashsize) :-
 	asserta(load_dyn_retracted(OPsc,Prref,NArity,Index,Hashsize)),
 	load_dyn_file(Filename),
 	asserta(load_dyn_pred_loaded(Filename,Head,Index,Hashsize)).
+
+proc_directive(encoding,[Charset],_) :- !,
+    (atom(Charset),
+     valid_charset(Charset)
+     ->	seeing(Str),
+	file_set_character_set(Str,Charset)
+     ;	warning((Charset,' is an illegal file encoding identifier, ignored !'))
+    ).
 
 proc_directive(export,[_],_RMod) :- !, % should have been handled above
 	warning('export directive ignored.').

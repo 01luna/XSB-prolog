@@ -62,7 +62,7 @@
 :- import domain_error/5 from error_handler.
 :- import asserta/1, (dynamic)/1, retractall/1, assert/1, retract/1, t_assert/2
      from assert.
-:- import check_file_compiler_options/1, setoptions1/1 from auxlry.
+:- import check_file_compiler_options/1, setoptions1/1, valid_charset/1 from auxlry.
 :- import warning/1, time_message/2, current_xsb_compiler_option/1 from auxlry.
 :- import xpp_is_off/0 from parse.
 :- import banner_control/1 from banner.
@@ -72,7 +72,7 @@
 :- import default_assert_size/1 from config.
 :- import check_open_stream_or_alias/5, 
 	path_sysop/3,
-	file_close/1,file_get/2, file_open/3, file_time/2 from file_io.
+   file_close/1,file_get/2, file_open/3, file_time/2, file_set_character_set/2 from file_io.
 :- import '_$index'/3, '_$trie_asserted'/1, mpa_to_skel/2 from file_op.
 :- import compile_cH/6 from foreign.
 :- import conset/2, conget/2, coninc/1, coninc/2, gensym/2  from gensym.
