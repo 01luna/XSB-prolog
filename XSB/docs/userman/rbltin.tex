@@ -66,7 +66,7 @@ important.
 XSB does not at this time fully support dynamic predicates defined
 within compiled code.  The only way to generate dynamic code is by
 explicitly asserting it, or by using the standard predicate {\tt
-  load\_dyn/1} to read clauses from a file and assert them (see the
+  load\_dyn/1} (or friends) to read clauses from a file and assert them (see the
 section {\it Asserting Dynamic Code} in Volume 2).  There is a {\tt
   dynamic/1} predicate (see page~\pageref{dynamic/1}) that declares a
 predicate within the system so that if the predicate is called when no
@@ -767,7 +767,7 @@ operations~\footnote{In \version{}, loading code dynamically can also
 be useful when the clauses contain atoms whose length is more than 255
 that cannot be handled by the XSB compiler.}.  
 
-Each of the predicates in this section allow loading from files with
+Each of the predicates in this section allows loading from files with
 proper prolog extensions, and makes use of the XSB library paths.  See
 Sections~\ref{LibPath} and~\ref{sec:filenames} for details.
 
@@ -852,6 +852,11 @@ backward compatibility, {\tt 0} and {\tt 1} are also allowed.}:
 \item 	{\tt misc\_error}
 \ei
 \ei
+
+\standarditem{load\_dyn(+FileName,+Dir,+Module)}
+{load\_dyn/3}\label{load_dyn/3}
+Acts as {\tt load\_dyn/2}, but loads the named file into the module named
+{\tt Module}.
 
 \standarditem{load\_dync(+FileName)}{load\_dync/1}
 \index{canonical format}
@@ -950,6 +955,11 @@ backward compatibility, {\tt 0} and {\tt 1} are also allowed.}:
 \item 	{\tt misc\_error}
 \ei
 \ei
+
+\standarditem{load\_dync(+FileName,+Dir,+Module)}
+{load\_dync/3}\label{load_dync/3}
+Acts as {\tt load\_dync/2}, but loads the named file into the module named
+{\tt Module}.
 
 \standarditem{ensure\_loaded(+FileName,+Action)}{ensure\_loaded/2}
 %
