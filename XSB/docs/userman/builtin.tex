@@ -266,17 +266,23 @@ points to UTF-8 byte sequences.
 default for most Windows systems.
 \end{itemize}
 
-Other character sets, in particular, UTF-16, may be supported in the
+Other character sets, in particular UTF-16, may be supported in the
 future.
 
 In the current version of XSB, UTF-8 is the default character set when
 XSB is configured on UNIX-style systems such as Linux and Mac OSX.
-CP1252 is the the default character set on Windows-style systems.  The
+CP1252 is the default character set on Windows-style systems.  The
 character set may be changed at any time via the Prolog flag {\tt
   character\_set}, whose value must be one of {\tt utf\_8}, {\tt
-  cp1252}, or {\tt latin\_1}.  The character set in effect at the time
-of opening a stream is the character set that will be used to read (or
-write) the stream.
+  cp1252}, or {\tt latin\_1}.  The character set that is in effect at
+the time of opening a stream is the character set that will be used to
+read (or write) the stream.  When XSB source code files are read by
+the compiler (or by {\tt load\_dyn}), their encoding is assumed to
+{\tt utf\_8} for all operating systems.  Note, however, that the {\tt
+  encoding/1} directive (\ref{other-directives}) can be placed in a
+source file to change the encoding used by the compiler to read the
+(remainder of the) file.
+
 
 \subsection{Predicates for ISO Streams}
 
@@ -3691,7 +3697,7 @@ as arguments, or if {\tt X} is an atom. (It fails if X is a cons node.)
 \bi
 \item    {\tt instantiation\_error}
 \ei
-\item 	{\tt Term} neither a variable nor a compound term
+\item 	{\tt Term} is neither a variable nor a compound term
 \bi
 \item    {\tt type\_error(integer,Index)}
 \ei

@@ -970,21 +970,24 @@ static and dynamic loading.
 \subsection{The multifile directive}
 \index{declarations!\texttt{multifile/2}}
 The default action upon loading a file or module is to delete all
-previous byte-code for predicates defined in the file.  If this is not
+previous byte-code for predicates defined in the file being loaded.  If this is not
 the desired behavior, the user may add to the file a declaration
 \begin{center}
 {\tt :- multifile Predicate\_List .} \\
 \end{center}
 where {\tt Predicate\_List} is a list of predicates in {\em
-  functor/arity\/} form.  The effect of this declaration is to delete
+  functor/arity\/} form.  The effect of this declaration is, on loading, to delete
 {\em only\/} those clauses of {\tt predicate/arity} that were defined
-in the file itself.  {\em If a predicate $P$ is to be treated as
+in the file itself, but not that defined from other files.
+{\em If a predicate $P$ is to be treated as
   multifile, the {\tt multifile/1} directive for $P$ must appear in
   all files that contain clause definitions for $P$.}  If $P$ is
 dynamic, this means that the multifile declaration for $P$ must appear
 in files defining $P$ whether they are compiled and consulted, or
 dynamically loaded via {\tt load\_dyn/[1,2]} or {\tt
   load\_dync/[1,2]}.
+Note that predicates declared as {\tt multifile} can be defined only
+in usermod.  
 
 \section{The Compiler} \label{the_compiler} \index{compiler}
 %========================================================
@@ -2193,10 +2196,19 @@ compiler option (see Section~\ref{sec:CompilerOptions}).
 XSB has other directives not found in other Prolog systems.
 
 \begin{description}
+\desc{:- encoding($Charset$).}
+        Indicates that the remainder of the source file will be read
+        using the character set indicated by $Charset$.
+        (See \ref{sec-charsets} for a description of character sets.)
+        All source code files are initially assumed
+        to use the UTF-8 encoding.  This directive can be put at the
+        beginning of a source file to change that assumption.  The remainder
+        of the file, after the directive, will be read assuming the
+        encoding given by $Charset$.
 \desc{:- hilog $atom_1, \ldots, atom_n$.}
 	Declares symbols $atom_1$ through $atom_n$ as HiLog symbols.
 	The {\tt hilog} declaration should appear {\em before} any use of
-	the symbols.  See Chapter~\ref{Syntax} for a purpose of this
+	the symbols.  See Chapter~\ref{Syntax} for the purpose of this
  	declaration.
 \desc{:- ldoption($Options$).}
         This directive is only recognized in the header file ({\tt .H} file) 
