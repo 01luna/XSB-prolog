@@ -207,7 +207,7 @@ XSB value (term, variable, atom, \ldots). Any variable has at most one
 attribute for a particular attribute module.  Attribute modules are
 distinct from XSB modules: although it is most efficient to keep each
 handlers for each attribute module in their own XSB module.
-c
+
 Attributes can be manipulated with the following three predicates
 (\texttt{get\_attr/3}, \texttt{put\_attr/3} and \texttt{del\_attr/2})
 defined in the module \texttt{machine}.
@@ -538,7 +538,7 @@ X = p(f(1),g(2),r([a]))
 \bi
 \item    {\tt instantiation\_error}
 \ei
-\item 	{\tt Term} neither a variable nor a compound term
+\item 	{\tt Term} is neither a variable nor a compound term
 \bi
 \item    {\tt type\_error(compound,Term)}
 \ei
@@ -2902,90 +2902,97 @@ constants) by the option {\tt all\_symbol\_uses}.
 currently equivalent to {\tt checkImpExps([],FileNameList)}.
 \end{description}
 
-\section{``Pure'' Meta-programming and Set Processing in XSB with prolog\_db.P}
+\section{Set Processing and Meta-programming with prolog\_db}
 \index{Code authors!Warren, David S.}
 
 The {\tt prolog\_db} library provides predicates that support a form
 of ``pure'' meta-programming in XSB.  A programmer can create a term
 data structure that represents a Prolog database (i.e., a set of
-rules, and herein called a {\em Prolog DB}), and then ask for a goal
-to be proved in such a Prolog DB.  A Prolog DB can also be used to
-manipulate sets of facts (or rules), as it provides efficient set
-operations of union, intersection, subset, etc.
+rules, and herein called a {\em Prolog DB} (PDB)), and then ask for a
+goal to be proved in such a PDB.  Since a PDB is a Prolog term, it is
+the value of a Prolog variable that is restored on backtracking,
+unlike other XSB facilities for storing program clauses.  A Prolog DB
+can also be used to manipulate sets of facts (or rules), as it
+provides efficient set operations of union, intersection, subset, etc.
 
-A Prolog DB is kept as a trie, which is a ground Prolog term.  Each
-level in the trie is implemented by a hash table, and hash tables are
-expanded and contracted as necessary.  A set of clauses is canonically
-represented, i.e., no matter what sequence of {\tt assert\_in\_db}'s
-and {\tt retractall\_in\_db}'s one uses to construct a particular set
-of clauses, the resulting Prolog DBs (i.e. Prolog terms) are identical.
+A PDB is stored as a trie, which is a ground Prolog term.  Each
+branching point in the trie is implemented by a variant of a radix
+tree.  A set of clauses is canonically represented, i.e., no matter
+what sequence of operations, such as {\tt assert\_in\_db}'s, {\tt
+  retractall\_in\_db}'s, or {\tt union\_db}'s, that one uses to
+construct a particular set of clauses, the resulting PDBs (i.e.,
+Prolog terms) are identical.~\footnote{Since a Prolog DB is a term and
+  must be passed as an argument through the predicates that use it, it
+  differs from other implementations of tries in XSB, such as interned
+  tries (cf. Chapter~\ref{chap:tries}), or trie-indexed facts
+  (cf. Section~\ref{sec:assert}), which are persistent.}
 
-A Prolog DB represents an unordered set of clauses.  The order in
-which clauses are returned from {\tt clause\_in\_db} (and thus for
-{\tt call\_in\_db}) is indeterminate, and may change from one call to
-the next (due to possible expansion or contraction of a hash table in
-the representation of a Prolog DB.)
+A PDB term is automatically interned (or hash-consed) by all
+predicates operating on this data type, i.e., it is copied to a global
+space where all sub-terms are stored only once.  PDBs are then
+accessed through their ``names,'' which are Prolog atoms that encode
+the terms addresses in the global space.  (See {\tt term\_name/2}.)
+Only these atomic names are passed through the Prolog program that
+uses these PDBs, so they can be tabled efficiently.
 
-A Prolog DB that is obtained from another Prolog DB by adding or
-deleting a single clause differs from it in only log subterms (unless
-a hash table has been resized).  This means that it is efficient to
-intern these DB's, and to table them (as intern), or to use {\tt
-  intern\_termhash/2} explicitly with them.
+A PDB represents an unordered set of clauses.  The order in which
+clauses are returned from {\tt clause\_in\_db} (and thus for {\tt
+  call\_in\_db}) is indeterminate.
 
-Prolog DB's, as sets of terms, can be combined with the binary set
-operations of union, intersection, and set difference, and they can be
-compared for subset and disjointness.  These operations take advantage
-of the trie structure of the DB representation, using common
-substructures of the input DB's where possible, to be quite efficient.
-Thus it can be effictive to maintain distinct databases and then
-combine them with set union, intersection, or difference.  Also this
-is a good represention for sets of terms where an efficient subset
-operation is required, perhaps with aggregation and answer
-subsumption, when compbined with {\tt intern\_termhash/2}.
+PDB's, understood as representing sets of clauses, can be combined
+using the binary set operations of union, intersection, and set
+difference, and they can be compared for subset, size, and
+disjointness.  These operations take advantage of the trie (and radix
+tree) structure of the PDB representation, using common substructures
+of the input PDB's where possible, to be quite efficient.  Thus it can
+be effective to maintain distinct databases and then combine them with
+set union, intersection, or difference.  Also this is a good
+represention for sets of terms where an efficient subset operation is
+required, for example for use with aggregation and answer subsumption.
 
-The predicates provided by the Prolog DB interface are as follows:
+The most important predicates provided by the {\tt prolog\_db}
+interface are described next.  More extensive documentation, including
+examples and other useful predicates, is available in the file
+distributed as:
+<XSB\_INSTALL\_DIR>/lib/prolog\_db\_doc/prolog\_db.pdf.)
+
 \begin{description}
 \ourmoditem{empty\_db(-EmptyPrologDB)}{empty\_db/1}{prolog\_db} {\tt
-  empty\_db/1} returns an empty Prolog DB.  It is used to create an
-initial Prolog DB to pass to the other in\_db
-predicates.~\footnote{Since a Prolog DB is a term and must be passed
-  as an argument, it differs from other implementations of tries in
-  XSB, such as interned tries (cf. Chapter~\ref{chap:tries}), or
-  trie-indexed facts (cf. Section~\ref{sec:assert}), which are
-  persistent.}
+  empty\_db/1} returns an empty PDB.  It is used to create an initial
+PDB to pass to other in\_db predicates.
 
 \ourmoditem{assert\_in\_db(+Clause,+DB0,-DB)}{assert\_in\_db/3}{prolog\_db}
-{\tt assert\_in\_db/3} adds the clause, {\tt Clause}, to the Prolog
-DB, {\tt DB0}, and returns a new Prolog DB, {\tt DB}.  {\tt Clause}
-may be a list of clauses, in which case they will all be added.  A
-Prolog DB is a {\em set} of clauses, so asserting a clause that is
-already in {\tt DB0} just returns that same database.  No ordering of
-clauses is preserved, so cuts do not make sense and cannot be used in
-clauses.  (The if-then else ('->'/3) should be used instead.)
+{\tt assert\_in\_db/3} adds the clause, {\tt Clause}, to the PDB, {\tt
+  DB0}, and returns a new PDB, {\tt DB}.  {\tt Clause} may be a list
+of clauses, in which case they will all be added.  A PDB is a {\em
+  set} of clauses, so asserting a clause that is already in {\tt DB0}
+just returns that same database.  No ordering of clauses is preserved,
+so cuts do not make sense and cannot be used in clauses.  (The if-then
+else ('->'/3) should be used instead.)
 
 \ourmoditem{retractall\_in\_db(+ClauseHead,+DB0,-DB)}{retractall\_in\_db/3}{prolog\_db}
 {\tt retractall\_in\_db/3} removes all clauses whose heads unify with
-{\tt ClauseHead} from {\tt DB0} returning {\tt DB}.  If no clauses in
-{\tt DB0} unify, then {\tt DB0} is returned unchanged. {\tt
-  ClauseHead} may be a list of clause heads, in which case they will
-each be used in turn to remove clauses from {\tt DB0}.
+{\tt ClauseHead} from {\tt DB0}, returning the result in {\tt DB}.  If
+no clauses in {\tt DB0} unify, then {\tt DB} is simply {\tt DB0}
+unchanged. {\tt ClauseHead} may be a list of clause heads, in which
+case they each in turn will be used to remove clauses from {\tt DB0}.
 
 \ourmoditem{clause\_in\_db(?ClauseHead,?ClauseBody,+DB)}{clause\_in\_db/3}{prolog\_db}
 {\tt clause\_in\_db/3} returns all clauses in {\tt DB} whose heads and
 bodies unify with {\tt ClauseHead} and {\tt ClauseBody}, respectively.
-(Note that, unlike {\tt clause/2} in Prolog, {\tt clause\_in\_db} can
-be called with {\tt ClauseHead} as a variable.)  Note also that the
+Note that, unlike {\tt clause/2} in Prolog, {\tt clause\_in\_db} can
+be called with {\tt ClauseHead} as a variable.  Note also that the
 order of clauses is not preserved and is indeterminate.
 
 \ourmoditem{call\_in\_db(?Goal,+DB)}{call\_in\_db/2}{prolog\_db}
 {\tt call\_in\_db/2} calls {\tt Goal} in {\tt DB} and returns all
-instances of {\tt Goal} provable by rules in {\tt DB}.  Clauses must
-not contain cuts (!).  They can contain most Prolog constructs,
-including and, or, if-then-else, \textbackslash+, calls to standard predicates, and
-calls explicitly modified by a module name. Such calls will be
-satisfied by calling the goal in the indicated module. So in this case
-one can think of a Prolog DB as being extended by the code in any
-module.
+instances of {\tt Goal} provable by rules and facts in {\tt DB}.
+Clauses must not contain cuts (!).  They can contain most Prolog
+constructs, including and, or, if-then-else, \textbackslash+, calls to
+standard predicates, and calls explicitly modified by a module
+name. Such calls will be satisfied by calling the goal in the
+indicated module. So in this case one can think of a PDB as
+being extended by the code in any available module.
 
 \ourmoditem{load\_in\_db(+FileName,+DB0,-DB)}{load\_in\_db/3}{prolog\_db}
 {\tt load\_in\_db/3} reads the clauses from the file named {\tt
@@ -3006,13 +3013,20 @@ other {\tt DB} (and not even look at its contents.)
 
 \ourmoditem{intersect\_db(+DB1,+DB2,?DB3)}{intersect\_db/3}{prolog\_db}
 {\tt intersect\_db/3} returns in {\tt DB3} the intersection of the
-sets of clauses in {\tt DB1} and {\tt DB2}.  Again, the result shares
-representations where possible.
+sets of clauses in {\tt DB1} and {\tt DB2}.  Again, the algorithm
+looks at only required portions of the input tries, and the result
+shares representations where possible.
 
 \ourmoditem{difference\_db(+DB1,+DB2,?DB3)}{difference\_db/3}{prolog\_db}
 {\tt difference\_db/3} returns in {\tt DB3} the set difference of the
 sets of clauses in {\tt DB1} and {\tt DB2}.  I.e., the result set
 contains clauses in {\tt DB1} but not in {\tt DB2}.
+
+\ourmoditem{sym\_diff\_db(+DB1,+DB2,?DB3)}{sym\_diff\_db/3}{prolog\_db}
+{\tt sym\_diff\_db/3} returns in {\tt DB3} the symetric difference of
+the sets of clauses in {\tt DB1} and {\tt DB2}.  I.e., the result set
+contains clauses in {\tt DB1} but not in {\tt DB2} and clauses in {\tt
+  DB2} but not in {\tt DB1}.
 
 \ourmoditem{subset\_db(+DB1,+DB2)}{subset\_db/2}{prolog\_db}
 {\tt subset\_db/2} succeeds if every clause in {\tt DB1} is in {\tt
@@ -3020,9 +3034,9 @@ contains clauses in {\tt DB1} but not in {\tt DB2}.
 {\tt DB2}.
 
 \ourmoditem{disjoint\_db(+DB1,+DB2)}{disjoint\_db/2}{prolog\_db}
-{\tt disjoint\_db/2} succeeds if no clause in both {\tt DB1} and {\tt
-  DB2}, i.e., considered as sets of clauses, {\tt DB1} and {\tt DB2}
-are disjoint sets.
+{\tt disjoint\_db/2} succeeds if no clause is in both {\tt DB1} and
+{\tt DB2}, i.e., considered as sets of clauses, {\tt DB1} and {\tt
+  DB2} are disjoint sets.
 
 \end{description}
 

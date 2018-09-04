@@ -1037,7 +1037,7 @@ ground list of compiler options.  Since options can be set globally
 via the predicate {\tt set\_global\_compiler\_options/1}, each option
 in {\tt OptionsList} can optionally be prefixed by \verb|+| or
 \verb|-|, indicating that the option is to be turned on, or off,
-respectively.  (No prefix turns the option on.)
+respectively.  (The lack of any prefix turns the option on.)
 
 \demo{$|$ ?- compile(Files).} 
 
@@ -1197,6 +1197,13 @@ The following options are currently recognized by the compiler:
   phase will also be slightly longer.  For these reasons, the use of
   the {\tt optimize} option may not be suitable for the development
   phase, but is recommended once the code has been debugged.
+%
+\item[{\tt character\_set/1}] \index{compiler
+  options!\texttt{character\_set/1}} The compiler option of {\tt
+  character\_set(+CharSet)} causes the remainder of the file being
+  compiled to be read using the character set indicated by {\tt
+    CharSet}.  Valid character sets are (currently) {\tt cp1252}, {\tt
+    utf\_8}, and {\tt latin\_1}.
 %
 \item[{\tt allow\_redefinition}] \index{standard predicates}
 	By default the compiler refuses to compile a file that
