@@ -776,6 +776,7 @@ char    badradix[]      = "radix not 0 or 2..36";
 
     -- If encounters the EOF, then return -2. (Baoqiu, 2/16/1997)
 */
+#define MAX_CODEPOINT 1114111
  
 static int read_character(CTXTdeclc register FILE *card,
 			  register STRFILE *instr, int charset,
@@ -858,6 +859,11 @@ READ_ERROR:
 		    c = GetCode(charset,card,instr);
 		  }
 		  if (c < 0) goto READ_ERROR;
+		  if (n > MAX_CODEPOINT) {
+		    xsb_warn(CTXTc "[TOKENIZER] \\xHex\\ constant in atom too large;"
+			     " max code-point assumed");
+		    n = MAX_CODEPOINT;
+		  }
 		  if (c != '\\') {
 		    unGetC(c, card, instr);
 		    //  xsb_warn(CTXTc "Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
