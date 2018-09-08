@@ -98,7 +98,7 @@ void endc(void)
   free(probs);
 }
 
-double ret_probc(int node)
+double ret_probc(long node)
 {
   DdNode * node_in;
   double out;
@@ -138,7 +138,7 @@ int add_varc(int nVal,prolog_term probabilities)
   return  nVars-1;
 }
 
-int equalityc(int varIndex, int value)
+long equalityc(int varIndex, int value)
 {
   int i;
   variable v;
@@ -164,33 +164,33 @@ int equalityc(int varIndex, int value)
     Cudd_Ref(node);
     Cudd_RecursiveDeref(mgr,tmp);
   }
-  return (int) node;
+  return (long) node;
 }
 
-int onec(void)
+long onec(void)
 {
   DdNode * node;
 
   node =  Cudd_ReadOne(mgr);
   Cudd_Ref(node);
-  return (int) node;
+  return (long) node;
 }
 
-int zeroc(void)
+long zeroc(void)
 {
   DdNode * node;
 
   node=Cudd_ReadLogicZero(mgr);
   Cudd_Ref(node);
-  return (int) node;
+  return (long) node;
 }
 
-int bdd_notc(int node)
+long bdd_notc(long node)
 {
-  return (int) Cudd_Not((DdNode *)node);
+  return (long) Cudd_Not((DdNode *)node);
 }
 
-int andc(int nodea, int nodeb)
+long andc(long nodea, long nodeb)
 {
   DdNode * node1, *node2,*nodeout;
 
@@ -198,10 +198,10 @@ int andc(int nodea, int nodeb)
   node2=(DdNode *)nodeb;
   nodeout=Cudd_bddAnd(mgr,node1,node2);
   Cudd_Ref(nodeout);
-  return (int)nodeout;
+  return (long)nodeout;
 }
 
-int orc(int nodea, int nodeb)
+long orc(long nodea, long nodeb)
 {
   DdNode * node1,*node2,*nodeout;
 
@@ -209,10 +209,10 @@ int orc(int nodea, int nodeb)
   node2=(DdNode *)nodeb;
   nodeout=Cudd_bddOr(mgr,node1,node2);
   Cudd_Ref(nodeout);
-  return (int)nodeout;
+  return (long)nodeout;
 }
 
-void create_dotc(int node,prolog_term filenameatom)
+void create_dotc(long node,prolog_term filenameatom)
 {
   char * onames[]={"Out"};
   char ** inames;
