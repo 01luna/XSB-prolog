@@ -1077,11 +1077,11 @@ inline static xsbBool file_function(CTXTdecl)
     if (io_port == 0) {
       if (charset == UTF_8) SetConsoleCP(65001);
       else SetConsoleCP(1252);
-      printf("set console input %d\n",charset);
+      //printf("set console input %d\n",charset);
     } else if (io_port == 1) {
       if (charset == UTF_8) SetConsoleOutputCP(65001);
       else SetConsoleOutputCP(1252);
-      printf("set console output %d\n",charset);
+      //printf("set console output %d\n",charset);
     }
 #endif
     break;
