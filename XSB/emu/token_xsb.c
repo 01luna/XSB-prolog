@@ -859,8 +859,8 @@ READ_ERROR:
 		    c = GetCode(charset,card,instr);
 		  }
 		  if (c < 0) goto READ_ERROR;
-		  if (n > MAX_CODEPOINT) {
-		    xsb_warn(CTXTc "[TOKENIZER] \\xHex\\ constant in atom too large;"
+		  if (n > MAX_CODEPOINT || n < 0) {
+		    xsb_warn(CTXTc "[TOKENIZER] \\xHex\\ constant in atom not a code-point;"
 			     " max code-point assumed");
 		    n = MAX_CODEPOINT;
 		  }
