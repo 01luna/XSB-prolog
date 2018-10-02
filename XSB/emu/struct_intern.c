@@ -336,7 +336,9 @@ Integer ts_array_len = 0;
   }
 
 
-/* caller must ensure enough heap space (term_size(term)*sizeof(Cell)) */
+/* caller must ensure enough heap space (term_size(term)*sizeof(Cell))
+since intern_term uses heap for temp space to traverse term bottom up.
+*/
 prolog_term intern_term(CTXTdeclc prolog_term term) {
   Integer ti = 0;
   Cell arg, newterm, interned_term;

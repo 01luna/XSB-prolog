@@ -3207,7 +3207,14 @@ case WRITE_OUT_PROFILE:
     XSB_Deref(term);
     XSB_Deref(iterm);
 
-    if (isconstr(term) || islist(term)) { // forward
+    if (isstring(term)) {
+      return unify(CTXTc term,iterm);
+    } else if (isstring(iterm)) {
+      iiterm = stringhash_to_term(CTXTc string_val(iterm));
+      if (iiterm) return unify(CTXTc term,iiterm);
+      else if (ifHashIntern == 2) return FALSE;
+      else return unify(CTXTc term,iterm);
+    } else if (isconstr(term) || islist(term)) { // forward
       if (ifHashIntern && !ground(term)) {
 	//xsb_instantiation_error(CTXTc "intern_term/hash/2",1);
 	return FALSE;
@@ -3234,13 +3241,6 @@ case WRITE_OUT_PROFILE:
 	//printf("of\n");
 	return FALSE;
       }
-    } else if (isstring(term)) {
-      return unify(CTXTc term,iterm);
-    } else if (isstring(iterm)) {
-      iiterm = stringhash_to_term(CTXTc string_val(iterm));
-      if (iiterm) return unify(CTXTc term,iiterm);
-      else if (ifHashIntern == 2) return FALSE;
-      else return unify(CTXTc term,iterm);
     } else if (isref(term) && isref(iterm)) {
       xsb_instantiation_error(CTXTc "intern_term/hash/2", 1);
     } else xsb_type_error(CTXTc "Term to intern",term,"intern_termhash/2",1);

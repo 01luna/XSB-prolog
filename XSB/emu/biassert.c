@@ -1420,6 +1420,16 @@ xsbBool assert_buff_to_clref(CTXTdecl /*Head,Arity,Prref,AZ,Indexes,HashTabSize,
   return TRUE;
 }
 
+#define RETRACT_EXPERIMENT 1
+int gc_dynamic(CTXTdecl);
+
+#ifdef RETRACT_EXPERIMENT
+UInteger retract_num = 0;
+UInteger assert_num = 0;
+
+#define retract_time_to_dyngc	 !(retract_num & 0x7ff)
+#define assert_time_to_dyngc	 !(assert_num & 0x7ff)
+
 xsbBool assert_buff_to_clref_p(CTXTdeclc prolog_term Head,
 			       byte Arity,
 			       PrRef Pred,
@@ -1431,6 +1441,11 @@ xsbBool assert_buff_to_clref_p(CTXTdeclc prolog_term Head,
   ClRef Clause;
   int Location, *Loc, Inum;
   int Index[20], NI;
+
+  // try gc dynamic.  Now in another context than retracts,
+  // and cant do lots of retracts without asserts.
+  assert_num++;
+  if (assert_time_to_dyngc) gc_dynamic(CTXT);
 
   xsb_dbgmsg((LOG_ASSERT,"Now add clref to chain:"));
 
@@ -3028,19 +3043,15 @@ static void mark_for_deletion(CTXTdeclc ClRef Clause)
    we can actually delete the clause.  Otherwise, we make a frame on
    the delcf list. */
 
-#define RETRACT_EXPERIMENT 1
-
-#ifdef RETRACT_EXPERIMENT
-UInteger retract_num = 0;
-
-#define time_to_dyngc	 !(retract_num & 0xff)
 
 static void retract_clause(CTXTdeclc ClRef Clause, Psc psc ) { 
   PrRef prref; 
   int really_deleted = 0;
 
+  // may be that always in bad context so cant reclaim;
+  // so added similar test in assert_buff, so gets called in another context.
   retract_num++;
-  if (time_to_dyngc) gc_dynamic(CTXT);    // gc strategy -- dont know how good
+  if (retract_time_to_dyngc) gc_dynamic(CTXT);    // gc strategy -- dont know how good
 
   mark_for_deletion(CTXTc Clause);
 #ifdef MULTI_THREAD

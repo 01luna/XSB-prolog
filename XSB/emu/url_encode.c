@@ -31,7 +31,7 @@
 #include <ctype.h>
 
 #ifdef WIN_NT
-#ifndef XSB_DLL
+#if !defined(XSB_DLL) && !defined(XSB_DLL_C)
 #define XSB_DLL
 #endif
 #endif
