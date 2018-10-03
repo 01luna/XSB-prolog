@@ -54,7 +54,7 @@
          load_dyn_trie_retracted/1,
 	 load_dyn_file_loaded/2,
          load_dyn_pred_loaded/4,
-         load_dyn_file/1.
+         load_dyn_file/2.
 
 :- import check_one_thread/3,
    domain_error/4, existence_error/4,instantiation_error/2, permission_error/4,type_error/4,
@@ -99,7 +99,7 @@
 	  seeing/1, see/1, seen/0, call/1, goal_cut_trans/3,
 	  expand_term/2, read/1, op/3, (table)/1, (index)/3, (index)/2,
 	  (=..)/2, writeln/1, write_canonical/1, tell/1,
-	  told/0, telling/1, functor/3, cputime/1, %%(import)/1,
+	  told/0, telling/1, functor/3, functor/4, cputime/1, %%(import)/1,
 	  catch/3, throw/1, is_list/1, warning/2
      from standard.
 :- import '->'/2, ';'/2 from standard.

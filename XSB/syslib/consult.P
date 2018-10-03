@@ -656,7 +656,7 @@ close_and_throw(XPP_process,XPPport,Ball) :-
 :- dynamic load_dyn_retracted(_,_,_,_,_).
 :- dynamic load_dyn_file_loaded(_,_).
 :- dynamic load_dyn_pred_loaded(_,_,_,_).
-:- dynamic load_dyn_file(_).
+:- dynamic load_dyn_file(_,_).
 :- dynamic load_dyn_module(_).
 :- dynamic load_dyn_apply(_).  %arities of apply already seen
 
@@ -667,11 +667,25 @@ init_for_load(Filename,_Mod) :-
         record_file_dynloaded(Filename,Time),
 	retractall(load_dyn_trie_retracted(_)),
 	retractall(load_dyn_retracted(_,_,_,_,_)),
-	assert(load_dyn_file(Filename)),
+	get_mod_from_filename(Filename,PMod),
+	assert(load_dyn_file(Filename,PMod)),
 	retractall(load_dyn_pred_loaded(Filename,_,_,_)),
 	retractall(load_dyn_module(_)),
 	retractall(load_dyn_apply(_)),
 	init_in_mod.
+
+get_mod_from_filename(Filename,Mod) :-
+    atom_codes(Filename,Filecodes),
+    (llappend(FileNoSuff,[0'.|_Suff],Filecodes)
+     ->	true
+     ;	FileNoSuff = Filecodes
+    ),
+    (llappend(_Pre,[C|ModCodes],FileNoSuff),
+     (C =:= 0'/ ; C =:= 0'\\)
+      -> true
+      ;	 ModCodes = FileNoSuff
+     ),
+     atom_codes(Mod,ModCodes).
 
 init_in_mod :-
 	retractall(in_mod(_,_,_)),
@@ -681,7 +695,7 @@ cleanup_for_load :-
 	conset(needs_restart, 0), conset(xpp_on, 0), % Cleanup after XPP
 	retractall(load_dyn_trie_retracted(_)),
 	retractall(load_dyn_retracted(_,_,_,_,_)),
-	retractall(load_dyn_file(_)),
+	retractall(load_dyn_file(_,_)),
 	retractall(load_dyn_module(_)),
 	retractall(load_dyn_apply(_)).
 %%	retractall(in_mod(_,_,_)).
@@ -895,7 +909,7 @@ do_assert_and_fail(:-(Head0,Body0),Dir,_Base,Mod) :- !, % RULE
 	check_set_mod(RMod),
 	fix_head_term(Head0,RMod,Head),
 	(predicate_property(Head,built_in)
-	 ->	warning('Cannot assert to builtin'(Head)),fail
+	 ->	warning('Cannot assert to builtin '(Head)),fail
 	 ;	true
 	),
 	('_$multifile'(Head)
@@ -1002,7 +1016,7 @@ se_assert_code_to_buff(_).
 
 multifile_cvt_head(Head,MHead) :-
 	Head =.. [Pred|Args],
-	load_dyn_file(ModName),
+	load_dyn_file(_,ModName),
 	get_p_mod(Pred,ModName,LinkPred),
 	MHead =.. [LinkPred|Args].
 
@@ -1031,7 +1045,7 @@ set_retracted(Head,Arity,OPsc,Psc,Prref,Index,Hashsize) :-
 	),
 	db_get_prref(Psc,Prref),
 	asserta(load_dyn_retracted(OPsc,Prref,NArity,Index,Hashsize)),
-	load_dyn_file(Filename),
+	load_dyn_file(Filename,_),
 	asserta(load_dyn_pred_loaded(Filename,Head,Index,Hashsize)).
 
 proc_directive(encoding,[Charset],_) :- !,
@@ -1131,15 +1145,26 @@ add_to_in_mod(PSpec,Mod) :-
 	 ;	assert(in_mod(GTerm,Mod,known))
 	).
 
+/** old **
+multifile_cvt(Ps,Mod,Skel) :-
+       mpa_to_skel(Ps,Skel0),
+       ('_$multifile'(Skel0)
+        ->     load_dyn_file(Mod),
+               functor(Skel0,Pred,Arity),
+               get_p_mod(Pred,Mod,P_Mod),
+               functor(Skel,P_Mod,Arity)
+        ;      fix_head_term(Skel0,Mod,Skel)
+       ).
+**/
 multifile_cvt(Ps,Mod,Skel) :-
 	mpa_to_skel(Ps,Skel0),
 	('_$multifile'(Skel0)
-	 ->	load_dyn_file(Mod),
-		functor(Skel0,Pred,Arity),
-		get_p_mod(Pred,Mod,P_Mod),
-		functor(Skel,P_Mod,Arity)
-	 ;	fix_head_term(Skel0,Mod,Skel)
-	).
+	 -> load_dyn_file(_,PMod),
+	    functor(Skel0,Pred,Arity),
+	    get_p_mod(Pred,PMod,P_File),
+	    functor(Skel,Mod,P_File,Arity)
+	 ;  fix_head_term(Skel0,Mod,Skel)
+    ).
 
 proc_index((Pred, Preds),Mod) :- !,
 	proc_index(Pred,Mod),
@@ -1173,7 +1198,7 @@ proc_multifile((Spec1,Spec2)) :- !,
 proc_multifile(Spec) :-
 	mpa_to_skel(Spec,Spec1),
 	functor(Spec1,Pred,Arity),
-	load_dyn_file(ModName),
+	load_dyn_file(_,ModName),
 	get_p_mod(Pred,ModName,LinkPred),
 	functor(LinkSkel,LinkPred,Arity),
 	multifile([Pred/Arity,ModName,LinkSkel]).
