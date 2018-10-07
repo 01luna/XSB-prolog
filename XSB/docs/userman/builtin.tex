@@ -5392,7 +5392,7 @@ error checking, the predicate shall behave as being defined by
 
     Error cases are the same as {\tt call/1}.
 
-\ourstandarditem{table\_once(\#X)}{table\_once/1}{Tabling}
+\ourmoditem{table\_once(\#X)}{table\_once/1}{aggregs}
     {\tt table\_once/1} is a weaker form of {\tt once/1}, suitable for
     situations in which a single solution is desired for a
     subcomputation that may involve a call to a tabled predicate.  {\tt
@@ -5400,6 +5400,45 @@ error checking, the predicate shall behave as being defined by
     solutions to the subgoal {\tt Pred}.  However, it does not ``cut
     over'' the subcomputation started by the subgoal {\tt Pred},
     thereby ensuring the correct evaluation of tabled subgoals.
+
+The exceptions to {\tt table\_once(Goal)} are the same as those for
+{\tt call(Goal)}.
+
+{\em Warning:} since {\tt table\_once/1} uses a tabled meta-predicate,
+it must be explicitly abolished.  As an example, suppose {\tt Goal} is
+tabled, {\tt table\_once(Goal)} is called, and later the tabled
+subgoal {\tt Goal} is abolished.  Then the table {\tt
+  table\_once(Goal)} will persist until it is either explicitly
+abolished or is abolished through a general abolish predicate such as
+{\tt abolish\_all\_tables/0}.
+
+\ourmoditem{table\_random(\#Goal)}{table\_random/1}{aggregs} 
+%
+{\tt  table\_random/1} allows  one to  get a  random solution  to {\tt
+  Goal}: {\tt Goal} need not be  tabled, or even atomic.  Each call to
+{\tt  table\_random(Goal)}  will  succeed  with a  new,  independently
+chosen solution (as long as {\tt Goal} has at least one solution).
+
+From an operational perspective, {\tt table\_random/1} makes use of
+the tabled meta-call {\tt table\_random\_1/1}.  If {\tt
+  table\_random\_1(Goal)} has not been called, {\tt table\_random/1}
+first makes this meta-call.  Once the call has been made, an answer
+$A$ to {\tt table\_random\_1(Goal)} is chosen at random from its
+current (possibly incomplete) set of answers.  If $A$ is undefined
+with delay list $D$, then the solution to {\tt table\_random/1} will
+also be undefined with delay list $D$.
+
+The exceptions to {\tt table\_random(Goal)} are the same as those for
+{\tt call(Goal)}.
+
+{\em Warning:} since {\tt table\_random\_1/1} is a tabled
+meta-predicate, it must be explicitly abolished.  As an example,
+suppose {\tt Goal} is tabled, {\tt table\_random\_1(Goal)} is called
+(via {\tt table\_random(Goal)}), and later the tabled subgoal {\tt
+  Goal} is abolished.  Then the table {\tt table\_random\_1(Goal)} will
+persist until it is either explicitly abolished or is abolished
+through a general abolish predicate such as {\tt
+  abolish\_all\_tables/0}.
 
 \standarditem{call\_cleanup(\#Goal,\#Handler)}{call\_cleanup/2}
 %
