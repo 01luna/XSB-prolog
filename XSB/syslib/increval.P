@@ -374,13 +374,15 @@ scc_depends_2(SCC1,SCC2,depends(Ind1,Ind2)):-
 
 %--------
 
-summarize_idg:-
+summarize_idg:- summarize_idg(1).
+
+summarize_idg(Cutoff):-
     writeln('=============== Interior Nodes (Tabled Subgoals) =============='),
     summarize_idg_get_incr_subgoals(SubgoalList),
-    summarize_idg_print(SubgoalList),
+    summarize_idg_print(SubgoalList,Cutoff,idg),
     writeln('=============== Leaf Nodes (Calls to Dynamic Predicates) =============='),
     summarize_idg_get_incr_dyns(DynList),
-    summarize_idg_print(DynList).
+    summarize_idg_print(DynList,Cutoff,dyn).
 
 summarize_idg_get_incr_subgoals(List):-
     setof(PredSpec,summarize_idg_get_incr_subgoals_1(PredSpec),List).
@@ -396,18 +398,26 @@ summarize_idg_get_incr_dyns_1(Term):-
     predicate_property(Term,incremental),
     predicate_property(Term,dynamic).
 
-summarize_idg_print(List):-
+summarize_idg_print(List,Cutoff,Type):-
     member(Elt,List),
-    count_calls(Elt,Count),
+    count_calls(Elt,CallCount),
+    CallCount >= Cutoff,
     functor(Elt,F,A),
-    format("~a/~d : ~d~n",[F,A,Count]),
+    (Type = dyn -> 
+	 count_facts(Elt,FactCount),
+	 format("~a/~d : ~d idg_nodes, ~d facts~n",[F,A,CallCount,FactCount])
+       ; format("~a/~d : ~d idg_nodes~n",[F,A,CallCount]) ),
     fail.
-summarize_idg_print(_List).
+summarize_idg_print(_List,_,_).
 
 count_calls(Term,Count):-
     setof(Term,get_calls(Term),List),
     length(List,Count).
 
+:- import call_c/1 from standard.
+count_facts(Term,Count):-
+    findall(Term,call_c(Term),List),
+    length(List,Count).
 
 /*
 %incr_table_update :-
