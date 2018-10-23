@@ -17,7 +17,7 @@ nl AC_INIT()
 
 dnl --with-libwww=DIR
 glib_ld_flags="`pkg-config --libs glib-2.0`"
-ccflags="-I cudd-3.0.0/cudd `pkg-config --cflags glib-2.0` -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -g -O2"
+ccflags="-Icudd-3.0.0 -Icudd-3.0.0/cudd -Icudd-3.0.0/util `pkg-config --cflags glib-2.0` -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -g -O2"
 ldflags="-Lcudd-3.0.0/cudd/.libs/ -lcudd $glib_ld_flags -lm"
 
 AC_SUBST(ccflags)
