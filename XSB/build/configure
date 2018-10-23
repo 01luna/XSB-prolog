@@ -736,7 +736,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -862,7 +861,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1115,15 +1113,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1261,7 +1250,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1414,7 +1403,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1532,7 +1520,7 @@ Optional Packages:
   --with-itkwish=DIR		DIR where the itkwish shell is located
   --with-stdcall		use the __stdcall call convention for DLLs in Windows
                                 Affects Win32 only. Ignored in Win64.
-  --with-pita=DIR       compile XSB with PITA, with CUDD in directory DIR
+  --with-pita       compile XSB with PITA
 
 Some influential environment variables:
   CC          C compiler command
@@ -2973,7 +2961,7 @@ do
 		--with-dbdrivers | --with-oracle | --with-odbc* | \
                 --with-iodbc* | \
                 --with-stdcall | \
-		--with-smodels* | --with-itkwish* | --with-pita* )
+		--with-smodels* | --with-itkwish* | --with-pita )
 		    ;;
 	    *)
                     echo "configure: error: unrecognized option: $1"
@@ -5119,9 +5107,15 @@ fi
 if test -n "$with_pita" && test -d "$topdir/packages/pita"; then
     cd "$topdir/packages/pita"
     echo "***Configuring pita"
+    echo "***Configuring CUDD"
+    cd "cudd-3.0.0" && autoreconf && ./configure CFLAGS="-Wall -Wextra -g -O3 -fPIC"
+    echo "***Compiling CUDD"
+    make
+    cd ..
+    echo "***End configuring CUDD"
     echo `pwd`
     chmod 700 ./configure
-    ./configure  --with-pita="$with_pita"  > /dev/null
+    ./configure > /dev/null
     cd $build_dir
 fi
 

@@ -217,7 +217,7 @@ AC_ARG_ENABLE(profiling,
 AC_ARG_ENABLE(electric-fence,
 [  --enable-electric-fence      link with the electric fence malloc debugger (currently unsupported)])
 AC_ARG_WITH(pita,
-[  --with-pita=DIR       compile XSB with PITA, with CUDD in directory DIR])
+[  --with-pita       compile XSB with PITA])
 
 # TLS As far as I know, autoconf version 2.59 or so does check various
 # command line values, but if the values are of type --enable-*,
@@ -273,7 +273,7 @@ do
 		--with-dbdrivers | --with-oracle | --with-odbc* | \
                 --with-iodbc* | \
                 --with-stdcall | \
-		--with-smodels* | --with-itkwish* | --with-pita* )
+		--with-smodels* | --with-itkwish* | --with-pita )
 		    ;;
 	    *)
                     echo "configure: error: unrecognized option: $1"
@@ -908,13 +908,19 @@ if test -n "$with_includes"; then
 fi
 
 
-dnl --with-pita=DIR
+dnl --with-pita
 if test -n "$with_pita" && test -d "$topdir/packages/pita"; then
     cd "$topdir/packages/pita"
     echo "***Configuring pita"
+    echo "***Configuring CUDD"
+    cd "cudd-3.0.0" && autoreconf && ./configure CFLAGS="-Wall -Wextra -g -O3 -fPIC" 
+    echo "***Compiling CUDD"
+    make
+    cd ..
+    echo "***End configuring CUDD"
     echo `pwd`
     chmod 700 ./configure
-    ./configure  --with-pita="$with_pita"  > /dev/null
+    ./configure > /dev/null
     cd $build_dir
 fi
 

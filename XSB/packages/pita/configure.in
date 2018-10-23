@@ -13,20 +13,12 @@ AC_PREREQ(2.12)
 nl AC_INIT()
 
 
-AC_ARG_WITH(pita,
-[  --with-pita=DIR	   the CUDD library used for PITA is at DIR]
-   )
-
 
 
 dnl --with-libwww=DIR
-ccflags=
-ldflags=
-if test -n "$with_pita" ; then
-   glib_ld_flags="`pkg-config --libs glib-2.0`"
-   ccflags="-I $with_pita/include `pkg-config --cflags glib-2.0`"
-   ldflags="-L$with_pita/cudd -lcudd  -L$with_pita/mtr -lmtr  -L$with_pita/st -lst  -L$with_pita/util -lutil  -L$with_pita/epd -lepd $glib_ld_flags -lm"
-fi
+glib_ld_flags="`pkg-config --libs glib-2.0`"
+ccflags="-I cudd-3.0.0/cudd `pkg-config --cflags glib-2.0` -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -g -O2"
+ldflags="-Lcudd-3.0.0/cudd/.libs/ -lcudd $glib_ld_flags -lm"
 
 AC_SUBST(ccflags)
 AC_SUBST(ldflags)
