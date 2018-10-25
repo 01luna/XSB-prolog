@@ -340,6 +340,8 @@ DllExport extern int call_conv xsb_kill_thread(CTXTdecl);
 #endif
 
 DllExport extern void call_conv print_pterm(CTXTdeclc Cell, int, VarString*);
+DllExport extern char * call_conv print_pterm_fun(CTXTdeclc prolog_term term);
+
 DllExport extern char *p_charlist_to_c_string(CTXTdeclc prolog_term term, VarString *buf,
 					      char *in_func, char *where);
 DllExport extern void c_string_to_p_charlist(CTXTdeclc char *name, prolog_term list,
