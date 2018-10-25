@@ -6359,6 +6359,8 @@ case "$canonical" in
         ;;
     *-cygwin*)  $as_echo "#define CYGWIN 1" >>confdefs.h
 
+                $as_echo "#define FOREIGN_ELF 1" >>confdefs.h
+
                 real_host_os=cygwin
 
                 builtins_opt_level=-${with_optimization-"O3 -fno-strict-aliasing"}
@@ -6494,7 +6496,7 @@ if test "${do_debugging}" = "yes" ; then
     fi
 fi
 
-if test "${CC}" = "gcc" -a "${host_os}" != "windows"  ; then
+if test "${CC}" = "gcc" -a "${host_os}" != "windows" -a "${host_os}" != "cygwin" ; then
         LD=gcc
     XSBMOD_LDFLAGS="-nodefaultlibs -nostartfiles ${XSBMOD_LDFLAGS}"
 else
