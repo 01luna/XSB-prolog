@@ -24,6 +24,7 @@
 /*   Simple example file showing how to call XSB from C using the registers 
  *   To make this file, see the instructions in ./README */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
