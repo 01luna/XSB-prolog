@@ -16,15 +16,13 @@ nl AC_INIT()
 
 
 dnl --with-libwww=DIR
-glib_ld_flags="`pkg-config --libs glib-2.0`"
-ccflags="-Icudd-3.0.0 -Icudd-3.0.0/cudd -Icudd-3.0.0/util `pkg-config --cflags glib-2.0` -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -g -O2"
-ldflags="-Lcudd-3.0.0/cudd/.libs/ -lcudd $glib_ld_flags -lm"
+
+ccflags="-Icudd-3.0.0 -Icudd-3.0.0/cudd -Icudd-3.0.0/util -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -g -O2"
+ldflags="-Lcudd-3.0.0/cudd/.libs/ -lcudd -lm"
 
 AC_SUBST(ccflags)
 AC_SUBST(ldflags)
 LIBS="$ldflags"
-AC_SEARCH_LIBS([g_hash_table_new], [], [], [AC_MSG_ERROR([This package needs glib >=2.0.], [1])], [])
-AC_SEARCH_LIBS([Cudd_Init], [], [], [AC_MSG_ERROR([This package needs cudd.], [1])], [])
 
 AC_OUTPUT([pita_lib.H:pita_lib.H.in
 	pita_int.P:pita_int.P.in])

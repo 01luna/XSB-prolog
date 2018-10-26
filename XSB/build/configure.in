@@ -920,7 +920,7 @@ if test -n "$with_pita" && test -d "$topdir/packages/pita"; then
     echo "***End configuring CUDD"
     echo `pwd`
     chmod 700 ./configure
-    ./configure > /dev/null
+    ./configure 
     cd $build_dir
 fi
 

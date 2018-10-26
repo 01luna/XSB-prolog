@@ -29,14 +29,11 @@ for the relative license.
 */
 #include "util.h"
 #include "cudd.h"
-#include <glib.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cinterf.h"
 
-
-unsigned long dividend;
 
 
 typedef struct
@@ -45,30 +42,44 @@ typedef struct
     int firstBoolVar;
   } variable;
 
+typedef struct
+{
+  DdNode *key;
+  double value;
+} rowel;
+
+typedef struct
+{
+  int cnt;
+  rowel *row;
+} tablerow;
+
 
 void init_my_predicates(void);
 int compare(char *a, char *b);
-gint my_equal(gconstpointer v,gconstpointer v2);
-guint my_hash(gconstpointer key);
-void  dealloc(gpointer key,gpointer value,gpointer user_data);
 FILE *open_file (char *filename, const char *mode);
+
+tablerow* init_table(int varcnt);
+double * get_value(tablerow *tab,  DdNode *node);
+void add_or_replace_node(tablerow *tab, DdNode *node, double value);
+void add_node(tablerow *tab, DdNode *node, double value);
+void destroy_table(tablerow *tab,int varcnt);
+
 
 static variable * vars;
 double * probs;
 static DdManager * mgr;
 static int nVars;
 static int  boolVars;
-GHashTable  * nodes; /* hash table that associates nodes with their probability
- if already computed, it is defined in glib */
+
 int _debug = 0;
 
-double Prob(DdNode *node);
+double Prob(DdNode *node,  tablerow * table);
 
 
 
 void  initc(int reorder)
 {
-  int intBits;
 
   nVars=0;
   boolVars=0;
@@ -79,10 +90,6 @@ void  initc(int reorder)
 
   vars= (variable *) malloc(nVars * sizeof(variable));
   probs=(double *) malloc(0);
-  intBits=sizeof(unsigned int)*8;
-  dividend=-1;
-  /* dividend is a global variable used by my_hash 
-     it is equal to an unsigned int with binary representation 11..1 */ 
 }
 
 void reorderc(int method)
@@ -98,17 +105,34 @@ void endc(void)
   free(probs);
 }
 
-double ret_probc(long node)
+double ret_probc(long node_in)
 {
-  DdNode * node_in;
-  double out;
-  
-  node_in=(DdNode *) node;
-  nodes=g_hash_table_new(my_hash,my_equal);
-  out=Prob(node_in);
-  g_hash_table_foreach (nodes,dealloc,NULL);
-  g_hash_table_destroy(nodes);
-  return out;
+    double prob;
+    tablerow * table;
+    DdNode * node;
+
+    node=(DdNode *) node_in;
+if (!Cudd_IsConstant(node))
+  {
+    table=init_table(boolVars);
+    prob=Prob(node,table);
+    if (Cudd_IsComplement(node))
+      prob=1.0-prob;
+    destroy_table(table,boolVars);
+  }
+  else
+  {
+    if (node==Cudd_ReadOne(mgr))
+    {
+      prob=1.0;
+    }
+    else
+    {
+      prob=0.0;
+    }
+  }
+
+  return(prob);
 }
 
 int add_varc(int nVal,prolog_term probabilities)
@@ -212,24 +236,28 @@ long orc(long nodea, long nodeb)
   return (long)nodeout;
 }
 
-void create_dotc(long node,prolog_term filenameatom)
+
+void create_dotc(long bdd,prolog_term filenameatom)
 {
   char * onames[]={"Out"};
   char ** inames;
-  DdNode * array[1];
-  int i,b,index;
+  int i,b,index,nv;
   variable v;
-  char numberVar[10],numberBit[10];
+  char numberVar[11],numberBit[11];
   FILE * file;
   char * filename;
+  DdNode * array[1];
 
   filename=p2c_string(filenameatom);
+  file = open_file(filename, "w");
+  array[0]=(DdNode *)bdd;
   inames= (char **) malloc(sizeof(char *)*boolVars);
   index=0;
   for (i=0;i<nVars;i++)
   {
     v=vars[i];
-    for (b=0;b<v.nVal-1;b++)
+        nv=v.nVal-1;
+    for (b=0;b<nv;b++)
     {
       inames[b+index]=(char *) malloc(sizeof(char)*20);
       strcpy(inames[b+index],"X");
@@ -239,76 +267,61 @@ void create_dotc(long node,prolog_term filenameatom)
       sprintf(numberBit,"%d",b);
       strcat(inames[b+index],numberBit);
     }
-    index=index+v.nVal-1;
+    index=index+nv;
   }
-  array[0]=(DdNode *)node;
-  file = open_file(filename, "w");
-  
-  Cudd_DumpDot(mgr,1,array,inames,onames,file);
-  fclose(file);
+  Cudd_DumpDot(mgr,1,array,(const char * const *)inames,(const char * const *)onames,file);
   index=0;
   for (i=0;i<nVars;i++)
   {
     v=vars[i];
-    for (b=0;b<v.nVal-1;b++)
+      nv=v.nVal-1;
+    for (b=0;b<nv;b++)
+    {
       free(inames[b+index]);
-    index=index+v.nVal-1;
+    }
+    index=index+nv;
   }
   free(inames);
 }
-
-
-double Prob(DdNode *node )
-/* compute the probability of the expression rooted at node
-nodes is used to store nodes for which the probability has alread been computed
+double Prob(DdNode *node,  tablerow * table)
+/* compute the probability of the expression rooted at node.
+table is used to store nodeB for which the probability has alread been computed
 so that it is not recomputed
  */
 {
-  int comp;
   int index;
-  double res,resT,resF;
-  double p;
+  double res;
+  double p,pt,pf,BChild0,BChild1;
   double * value_p;
-  DdNode **key,*T,*F,*nodereg;
-  double *rp;
-
-  comp=Cudd_IsComplement(node);
+  DdNode *nodekey,*T,*F;
+  //comp=(comp && !comp_par) ||(!comp && comp_par);
   if (Cudd_IsConstant(node))
   {
-    if (comp)
-      return 0.0;
-    else
       return 1.0;
   }
   else
   {
-    nodereg=Cudd_Regular(node);  
-    value_p=g_hash_table_lookup(nodes,&node);
+    nodekey=Cudd_Regular(node);
+    value_p=get_value(table,nodekey);
     if (value_p!=NULL)
-    {
-      if (comp)
-        return 1-*value_p;
-      else
         return *value_p;
-    }
     else
     {
-      index=Cudd_NodeReadIndex(node);
+      index=Cudd_NodeReadIndex(node);  //Returns the index of the node. The node pointer can be either regular or complemented.
+      //The index field holds the name of the variable that labels the node. The index of a variable is a permanent attribute that reflects the order of creation.
       p=probs[index];
       T = Cudd_T(node);
       F = Cudd_E(node);
-      resT=Prob(T);
-      resF=Prob(F);
-      res=p*resT+(1-p)*resF;
-      key=(DdNode **)malloc(sizeof(DdNode *));
-      *key=nodereg;
-      rp=(double *)malloc(sizeof(double));
-      *rp=res;
-      g_hash_table_insert(nodes, key, rp);
-      if (comp)
-        return 1-res;
-      else
-        return res;
+      pf=Prob(F,table);
+      pt=Prob(T,table);
+      if (Cudd_IsComplement(F))
+        pf=1.0-pf;
+
+      BChild0=pf*(1-p);
+      BChild1=pt*p;
+      res=BChild0+BChild1;
+      add_node(table,nodekey,res);
+      return res;
     }
   }
 }
@@ -327,24 +340,71 @@ FILE * open_file(char *filename, const char *mode)
     return fp;
 }
 
-gint my_equal(gconstpointer v,gconstpointer v2)
-/* function used by GHashTable to compare two keys */
-{
-  DdNode *a,*b;
-  a=*(DdNode **)v;
-  b=*(DdNode **)v2;
-  return (a==b);
-}
-guint my_hash(gconstpointer key)
-/* function used by GHashTable to hash a key */
-{
-  unsigned int h;
-  h=(unsigned int)((unsigned long) *((DdNode **)key) % dividend);
-  return h;
-}
-void  dealloc(gpointer key,gpointer value,gpointer user_data)
-{
-  free(key);
-  free(value);
 
+tablerow* init_table(int varcnt) {
+  int i;
+  tablerow *tab;
+
+  tab = (tablerow *) malloc(sizeof(rowel) * varcnt);
+  for (i = 0; i < varcnt; i++)
+  {
+    tab[i].row = NULL;
+    tab[i].cnt = 0;
+  }
+  return tab;
+}
+
+
+void add_node(tablerow *tab, DdNode *node, double value) {
+  int index = Cudd_NodeReadIndex(node);
+
+  tab[index].row = (rowel *) realloc(tab[index].row,
+    (tab[index].cnt + 1) * sizeof(rowel));
+  tab[index].row[tab[index].cnt].key = node;
+  tab[index].row[tab[index].cnt].value = value;
+  tab[index].cnt += 1;
+}
+
+void add_or_replace_node(tablerow *tab, DdNode *node, double value)
+{
+  int i;
+  int index = Cudd_NodeReadIndex(node);
+  for(i = 0; i < tab[index].cnt; i++)
+  {
+    if (tab[index].row[i].key == node)
+    {
+      tab[index].row[i].value=value;
+      return;
+    }
+  }
+  tab[index].row = (rowel *) realloc(tab[index].row,
+    (tab[index].cnt + 1) * sizeof(rowel));
+  tab[index].row[tab[index].cnt].key = node;
+  tab[index].row[tab[index].cnt].value = value;
+  tab[index].cnt += 1;
+}
+
+double * get_value(tablerow *tab,  DdNode *node) {
+  int i;
+  int index = Cudd_NodeReadIndex(node);
+
+  for(i = 0; i < tab[index].cnt; i++)
+  {
+    if (tab[index].row[i].key == node)
+    {
+      return &tab[index].row[i].value;
+    }
+  }
+  return NULL;
+}
+
+void destroy_table(tablerow *tab,int varcnt)
+{
+  int i;
+
+  for (i = 0; i < varcnt; i++)
+  {
+    free(tab[i].row);
+  }
+  free(tab);
 }
