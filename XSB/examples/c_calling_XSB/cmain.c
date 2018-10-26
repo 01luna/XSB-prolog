@@ -53,6 +53,7 @@ was compiled.  */
 
 /* The following include is necessary to get the macros and routine
    headers */
+#include "xsb_config.h"
 
 #include "cinterf.h"
 extern char *xsb_executable_full_path(char *);
