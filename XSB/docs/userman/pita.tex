@@ -38,16 +38,15 @@ The first clause states that if we toss a coin that is not biased it has equal p
 PITA computes the probability of queries by tranforming the input program into a normal logic program and then calling a modified version of the query on the transformed programs.
 
 \subsection{Installation}
-PITA uses \href{http://www.gtk.org/}{GLib 2.0} and  \href{http://vlsi.colorado.edu/~fabio/CUDD/}{CUDD}.
-GLib is a standard GNU package 
+PITA uses \href{http://www.gtk.org/}{GLib 2.0},
+a standard GNU package 
 so it is easy to install it using the package management software of your Linux 
 distribution.
 
-To install CUDD, follow the instructions at  \url{http://vlsi.colorado.edu/~fabio/CUDD/} to get the package (or get directly from \url{ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz}), for example \texttt{cudd-2.4.2.tar.gz}.
-After decompressing, you will have a direcory \texttt{cudd-2.4.2} with various subdirectories.
-Compile CUDD following the included instructions.
 
-To install PITA with XSB, run XSB \texttt{configure} in the \texttt{build} directory with option \texttt{--with-pita=DIR} where \texttt{DIR} is the folder where CUDD is.
+To install PITA with XSB, run XSB \texttt{configure} in the \texttt{build} directory with option \texttt{--with-pita} and then run \texttt{makexsb} as usual.
+
+When compiling in cygwin, also build the cygwin dll with \texttt{makexsb cygdll}.
 
 
 \subsubsection{Syntax}
