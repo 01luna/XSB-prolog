@@ -1,4 +1,14 @@
-%% This compiles the examples below on Unix
+%% This compiles the examples below on Unix and Windows
+
+:- compiler_options([xpp_on]).
+
+%% If your XSB bibdir is different -- change
+#define XSBBIN     'h:/XSB/XSB/config/x64-pc-windows/bin'
+#define XSBBIN     'c:/XSBSYS/XSBENV/config/x64-pc-windows/bin'
+
+%% In case one does not need setvcvars, change the order of the next two lines
+#define ENVSCRIPT  ''
+#define ENVSCRIPT  'setvcvars &'
 
 :-
     xsb_configuration(os_type,OS),
@@ -47,9 +57,11 @@ loc_shell(Args) :-
 	shell(NArgs).
 
 make_windows :-
+#if  ENVSCRIPT != ''
     writeln(userout,'Be sure that setvcvars.bat is accessible through the'),
     writeln(userout,'PATH environment variable, to correctly set the environment'),
     writeln(userout,'for VC to compile for the correct windows system (32- or 64-bit).'),
+#endif
 
 %    xsb_configuration(compiler_flags,CFLAGS),
 %    xsb_configuration(loader_flags,LDFLAGS),
@@ -59,30 +71,44 @@ make_windows :-
 %    str_cat(CONFDIR, '/saved.o/', ObjDir),
 
     write('Compiling cregs.c ... '),
-    concat_atom(['cmd /c "setvcvars & ',Compiler, ' cregs.c /Fecretest.exe ',
-	   '/F8388608 /DWINDOWS_IMP C:/XSBSYS/XSBENV/XSB/config/x64-pc-windows/bin/xsb.lib ',
-		 '/I ""../../emu"" /I ""../../config/x64-pc-windows"""'],Cmd1),
+    concat_atom([ENVSCRIPT,
+                 Compiler, ' /nologo cregs.c /Fecretest.exe ',
+                 /*
+                    Note: enlarge loader stack so will be enough for xsb.dll
+                    DWINDOWS_IMP must be defined to link with varstring_xsb.c
+                 */
+                 '/F5000000 /DWINDOWS_IMP ',
+                 XSBBIN, '/xsb.lib ',
+		 '/I ""../../emu"" /I ""../../config/x64-pc-windows""'],
+                Cmd1),
     writeln(Cmd1),
     shell(Cmd1),
     writeln('You can find the executable in  ./cretest.exe'),
 
     write('Compiling cfixedstring.c ... '),
-    shell(['cmd /c "setvcvars & ',Compiler, ' ./cfixedstring.c /Fecfstest.exe ',
-	   '/F8388608 /DWINDOWS_IMP C:/XSBSYS/XSBENV/XSB/config/x64-pc-windows/bin/xsb.lib ',
+    shell([ENVSCRIPT,
+           Compiler, ' /nologo ./cfixedstring.c /Fecfstest.exe ',
+	   '/F5000000 /DWINDOWS_IMP ',
+           XSBBIN, '/xsb.lib ',
 	   '/I ""../../emu"" /I ""../../config/x64-pc-windows""']),
     writeln('You can find the executable in  ./cfstest.exe'),
 
     write('Compiling cvarstring.c ... '),
-    shell(['cmd /c "setvcvars & ',Compiler, ' ./cvarstring.c /Fecvstest.exe ',
-	   '/F8388608 /DWINDOWS_IMP C:/XSBSYS/XSBENV/XSB/config/x64-pc-windows/bin/xsb.lib ',
+    shell([ENVSCRIPT,
+           Compiler, ' /nologo ./cvarstring.c /Fecvstest.exe ',
+	   '/F5000000 /DWINDOWS_IMP ',
+           XSBBIN, '/xsb.lib ',
 	   '/I ""../../emu"" /I ""../../config/x64-pc-windows""']),
     writeln('You can find the executable in  ./cvstest.exe'),
 
     nl,writeln('Testing: cregs'),
-    shell('cretest.exe'),
+    shell(['set PATH=', XSBBIN, ';%PATH% & ',
+           'cretest.exe']),
     nl,writeln('Testing: cfixedstring'),
-    shell('cfstest.exe'),
+    shell(['set PATH=', XSBBIN, ';%PATH% & ',
+           'cfstest.exe']),
     nl,writeln('Testing: cvarstring'),
-    shell('cvstest.exe').
+    shell(['set PATH=', XSBBIN, ';%PATH% & ',
+           'cvstest.exe']).
     
 

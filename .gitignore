@@ -93,7 +93,9 @@ XSB/examples/XSB_calling_c/*.o
 XSB/examples/XSB_calling_c/*.pdb
 XSB/examples/XSB_calling_c/*.stackdump
 XSB/examples/XSB_calling_c/*.xwam
+XSB/examples/c_calling_XSB/*.exe
 XSB/examples/c_calling_XSB/*.o
+XSB/examples/c_calling_XSB/*.obj
 XSB/examples/c_calling_XSB/*.xwam
 XSB/examples/c_calling_XSB/*mytest*
 XSB/examples/c_calling_XSB/cfstest
