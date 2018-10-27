@@ -2,13 +2,9 @@
 
 :- compiler_options([xpp_on]).
 
-%% If your XSB bibdir is different -- change
-#define XSBBIN     'h:/XSB/XSB/config/x64-pc-windows/bin'
-#define XSBBIN     'c:/XSBSYS/XSBENV/config/x64-pc-windows/bin'
-
 %% In case one does not need setvcvars, change the order of the next two lines
 #define ENVSCRIPT  ''
-#define ENVSCRIPT  'setvcvars &'
+#define ENVSCRIPT  'setvcvars & '
 
 :-
     xsb_configuration(os_type,OS),
@@ -63,10 +59,7 @@ make_windows :-
     writeln(userout,'for VC to compile for the correct windows system (32- or 64-bit).'),
 #endif
 
-%    xsb_configuration(compiler_flags,CFLAGS),
-%    xsb_configuration(loader_flags,LDFLAGS),
-%    xsb_configuration(config_dir,CONFDIR),
-%    xsb_configuration(emudir,Emudir),
+    xsb_configuration(config_bindir,XSBBIN),
     xsb_configuration(compiler,Compiler),
 %    str_cat(CONFDIR, '/saved.o/', ObjDir),
 
@@ -79,7 +72,7 @@ make_windows :-
                  */
                  '/F5000000 /DWINDOWS_IMP ',
                  XSBBIN, '/xsb.lib ',
-		 '/I ""../../emu"" /I ""../../config/x64-pc-windows""'],
+		 '/I "../../emu" /I "../../config/x64-pc-windows"'],
                 Cmd1),
     writeln(Cmd1),
     shell(Cmd1),
