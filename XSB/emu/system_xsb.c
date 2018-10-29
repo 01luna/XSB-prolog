@@ -301,13 +301,18 @@ xsbBool sys_system(CTXTdeclc int callno)
       return TRUE;
     }
 
+    /*
   case GET_TMP_FILENAME:
     ctop_string(CTXTc 2,tempnam(NULL,NULL));
     return TRUE;
-#if 0
-    // This alternative implementation of tempnam is WRONG!!! - MK
+    */
 #ifdef WIN_NT
   case GET_TMP_FILENAME:
+    ctop_string(CTXTc 2,tempnam(NULL,NULL));
+    return TRUE;
+    /*
+    // this one is suitable for GET_TMP_FILE kind of builtin - one that
+    // actually creates the tempfile.
     {
       char tempdir[MAXFILENAME+1];
       char tempfile[MAXFILENAME+1];
@@ -321,12 +326,17 @@ xsbBool sys_system(CTXTdeclc int callno)
       ctop_string(CTXTc 2,tempfile);
       return TRUE;
     }
+    */
 #else
   case GET_TMP_FILENAME:
     {
       char s[] = P_tmpdir "/xsbXXXXXX";
       int fd = mkstemp(s);
       if (fd != -1 && close(fd) == 0) {
+        // unlink: for compatibility with tempnam()
+        // Also, Interprolog assumes (or, assumed in the past) that
+        // the temp file is not created.
+        unlink(s);
 	ctop_string(CTXTc 2,s);
 	return TRUE;
       } else {
@@ -334,8 +344,7 @@ xsbBool sys_system(CTXTdeclc int callno)
       }
     }
 #endif
-#endif
-   case IS_PLAIN_FILE:
+  case IS_PLAIN_FILE:
   case IS_DIRECTORY:
   case STAT_FILE_TIME:
   case STAT_FILE_SIZE:
