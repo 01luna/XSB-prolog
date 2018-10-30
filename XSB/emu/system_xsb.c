@@ -311,8 +311,11 @@ xsbBool sys_system(CTXTdeclc int callno)
     ctop_string(CTXTc 2,tempnam(NULL,NULL));
     return TRUE;
     /*
-    // this one is suitable for GET_TMP_FILE kind of builtin - one that
+    // This one is suitable for GET_TMP_FILE kind of builtin - one that
     // actually creates the tempfile.
+    // Interprolog used to have trouble with this version because it used to
+    // assume that the actual temp file is not created by the GET_TMP_FILENAME
+    // function. But now it seems to be ok with it.
     {
       char tempdir[MAXFILENAME+1];
       char tempfile[MAXFILENAME+1];
@@ -334,8 +337,9 @@ xsbBool sys_system(CTXTdeclc int callno)
       int fd = mkstemp(s);
       if (fd != -1 && close(fd) == 0) {
         // unlink: for compatibility with tempnam()
-        // Also, Interprolog assumes (or, assumed in the past) that
-        // the temp file is not created.
+        // Interprolog used to have trouble with this version because it used to
+        // assume that the actual temp file is not created by GET_TMP_FILENAME.
+        // But now it seems to be ok with it.
         unlink(s);
 	ctop_string(CTXTc 2,s);
 	return TRUE;
