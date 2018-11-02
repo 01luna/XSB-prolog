@@ -26,7 +26,7 @@
 */
 :- compiler_options([ciao_directives,sysmod,optimize,xpp_on]).
 %:- compiler_options([ciao_directives,sysmod,xpp_on]).
-:- import writeln/1 from standard.
+%:- import writeln/1 from standard.
 
 #include "thread_defs_xsb.h"
 #include "io_defs_xsb.h"
