@@ -163,7 +163,7 @@ default_sys_error_handler_main(_Error,_Message,BT,Backtrace):-
 
 %-----
 :- import functor/3 from standard.
-:- import writeln/1 from standard.
+%:- import writeln/1 from standard.
 /* TLS: for now ignoring backtraces in Ccall; Ignoring Mt engine.
          Note that for ISO errors we get a comma-list that may have
          terms in it.  Im handling that specially, to make it look
