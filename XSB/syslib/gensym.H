@@ -28,6 +28,7 @@
 
 :- export conlength/2, conset/2, conget/2, coninc/1, coninc/2.
 :- export newcounter/1, inccounter/1, getcounter/1.
+:- export call_every/3.
 
 :- import psc_set_prop/2, 
 	%% conpsc/2,
@@ -35,5 +36,5 @@
 	str_len/2, str_cat/3, psc_set_type/2, term_psc/2
      from machine.
 :- import number_codes/2, atom_codes/2, arg/3,
-	integer/1, atom/1, abort/1
+   integer/1, atom/1, abort/1, call/1
      from standard.

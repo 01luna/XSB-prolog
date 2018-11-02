@@ -102,33 +102,36 @@ unnumbervars(TermIn,FirstN,TermOut) :-
 	unnumbervars(TermIn,FirstN,TermOut,_Vars).
 
 unnumbervars(TermIn,FirstN,TermOut,Vars) :-
-	term_type(TermIn,Type),
-	(Type =:= XSB_STRUCT
-         ->     (TermIn = '$VAR'(I)
-                 ->     (I >= FirstN
-	                 ->     log_ith(I,Vars,TermOut)
-		         ;      TermOut = TermIn
-		        )
-                 ;      term_psc(TermIn,PSC),
-		        term_new(PSC,TermOut),
-			psc_arity(PSC,Arity),
-			unnumbervars(1,Arity,TermIn,FirstN,TermOut,Vars)
-		)
-         ; Type =:= XSB_LIST
-         ->     TermIn = [A1|A2],
-	        TermOut = [B1|B2],
-		unnumbervars(A1,FirstN,B1,Vars),
-		unnumbervars(A2,FirstN,B2,Vars)
-         ;      TermOut = TermIn
-        ).
+    term_type(TermIn,Type),
+    (Type =:= XSB_STRUCT
+     ->	(TermIn = '$VAR'(I), integer(I)
+	 -> (I >= FirstN
+	     ->	log_ith(I,Vars,TermOut)
+	     ;	TermOut = TermIn
+	    )
+	    ;  term_psc(TermIn,PSC),
+	    term_new(PSC,NTermOut),
+	    NTermOut = TermOut,
+	    psc_arity(PSC,Arity),
+	    unnumbervars(TermIn,FirstN,TermOut,Vars,1,Arity)
+	)
+     ;	Type =:= XSB_LIST
+     ->	TermIn = [A1|A2],
+	TermOut = [B1|B2],
+	unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) % avoid allocate
+     ;	TermOut = TermIn
+    ).
 
+unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) :-
+    unnumbervars(A1,FirstN,B1,Vars),
+    unnumbervars(A2,FirstN,B2,Vars).
 
-unnumbervars(I,Arity,TermIn,FirstN,TermOut,Vars) :-
+unnumbervars(TermIn,FirstN,TermOut,Vars,I,Arity) :-
 	(I =< Arity
          ->     term_arg(TermIn,I,ArgIn),
 		term_arg(TermOut,I,ArgOut),
 	        unnumbervars(ArgIn,FirstN,ArgOut,Vars),
 		I1 is I+1,
-		unnumbervars(I1,Arity,TermIn,FirstN,TermOut,Vars)
+		unnumbervars(TermIn,FirstN,TermOut,Vars,I1,Arity)
 	 ;      true
         ).
