@@ -364,6 +364,17 @@ DllExport prolog_term call_conv p2p_arg(prolog_term term, int argno)
     return (prolog_term)t;
 }
 
+/* Returns the dereferenced variable part of the attvar.  
+   Used to assert attvars, and probably not for more general use. */
+DllExport prolog_term call_conv p2p_attvar(prolog_term term)
+{
+    Cell t = (Cell)term;
+    XSB_Deref(t);
+    t = get_str_arg(t,0);
+    XSB_Deref(t);
+    return (prolog_term)t;
+}
+
 DllExport prolog_term call_conv p2p_car(prolog_term term)
 {
     Cell t = (Cell)term;

@@ -195,6 +195,7 @@ extern "C" {
 #define extern_p2c_string(term) p2c_string(term)
 
 #define extern_p2p_arg(term,argno) p2p_arg(term,argno)
+#define extern_p2p_attvar(term) p2p_attvar(term)
 #define extern_p2p_car(term) p2p_car(term)
 #define extern_p2p_cdr(term) p2p_cdr(term)
 #define extern_p2p_deref(term) p2p_deref(term)
@@ -269,6 +270,7 @@ DllExport extern int      call_conv p2c_arity(prolog_term);
 DllExport extern char*    call_conv p2c_chars(CTXTdeclc prolog_term,char *,int);
 
 DllExport extern prolog_term call_conv p2p_arg(prolog_term, int);
+DllExport extern prolog_term call_conv p2p_attvar(prolog_term);
 DllExport extern prolog_term call_conv p2p_car(prolog_term);
 DllExport extern prolog_term call_conv p2p_cdr(prolog_term);
 DllExport extern prolog_term call_conv p2p_new(CTXTdecl);

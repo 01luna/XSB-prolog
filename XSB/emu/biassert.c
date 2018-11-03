@@ -830,7 +830,7 @@ static void db_gentopinst(CTXTdeclc prolog_term T0, int Argno, RegStat Reg)
     inst_queue_init(flatten_queue);
     inst_queue_push(CTXTc flatten_queue, Argno, T0, 0);
     if (isattv(T0)) {
-      T0 = p2p_arg(T0, 0);		/* the VAR part of the attv */
+      T0 = p2p_attvar(T0);		/* the VAR part of the attv */
       freeze_var(CTXTc T0,Argno,Reg);
     }      
     db_genterms(CTXTc 1, flatten_queue, Reg); /* gen uni's */
@@ -952,7 +952,7 @@ static void db_geninst(CTXTdeclc int unibld, prolog_term Sub, int isLast,
     }
     inst_queue_add(CTXTc flatten_queue, Rt, Sub, 0);
       
-    Sub = p2p_arg(Sub, 0);		/* the VAR part of the attv */
+    Sub = p2p_attvar(Sub);		/* the VAR part of the attv */
     freeze_var(CTXTc Sub,Rt,Reg);
   } else {
     Rt = reg_get(CTXTc Reg, TVAR);
@@ -1024,7 +1024,7 @@ static void db_genaput(CTXTdeclc prolog_term T0, int Argno,
     Rt = reg_get(CTXTc Reg, RVAR);
     inst_queue_push(CTXTc inst_queue, movreg, Rt, Argno);
 
-    T1 = p2p_arg(T0, 0);		/* the VAR part of the attv */
+    T1 = p2p_attvar(T0);		/* the VAR part of the attv */
     freeze_var(CTXTc T1,Rt,Reg);
 
     inst_queue_init(flatten_queue);
