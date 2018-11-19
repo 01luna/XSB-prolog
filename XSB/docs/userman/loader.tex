@@ -33,8 +33,8 @@ User-supplied library directories are searched by the dynamic loader
 {\em before} searching the default library directories.
 
 The default search path of the dynamic loader can easily be changed
-by having a file named {\verb|.xsbrc.P|} in the user's home directory.  
-The {\verb|.xsbrc.P|} file, which is automatically consulted by the
+by having a file named {\verb|./xsb/xsbrc.P|} in the user's home directory.  
+The {\verb|./xsb/xsbrc.P|} file, which is automatically consulted by the
  \ourprolog\ interpreter, must be a module (see section~\ref{Modules}),
 and might look like the following:
 \begin{verbatim}
@@ -53,11 +53,11 @@ library directories ({\tt lib, syslib}, and {\tt cmplib}), will now
 be searched {\em after} searching the user's, {\tt my\_friend}'s 
 and the {\tt "/usr/lib/sbprolog/"} directory.
 
-In \version\ the {\verb|.xsbrc.P|} file {\em must} define and 
+In \version\ the {\verb|./xsb/xsbrc.P|} file {\em must} define and 
 export the predicate {\tt library\_directory/1} if it is used, although
-in the future {\verb|.xsbrc.P|} may be used for other purposes as well.
+in the future {\verb|./xsb/xsbrc.P|} may be used for other purposes as well.
 
-We emphasize that in the presence of a {\verb|.xsbrc.P|} file
+We emphasize that in the presence of a {\verb|./xsb/xsbrc.P|} file
 {\em it is the user's responsibility to avoid module name clashes 
 with modules in \ourprolog's system library directories}.
 Such name clashes can cause the system to behave strangely since these

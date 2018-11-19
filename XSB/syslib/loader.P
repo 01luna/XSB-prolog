@@ -664,7 +664,7 @@ libpath(P) :- stat_flag(INSTALL_DIR, InstallDir1),  % get the installation dir
 libpath(P) :- slash(Slash), str_cat('.', Slash,P).
 
 /*
- *  Determine whether the ~/.xsbrc module has been loaded.
+ *  Determine whether the ~/.xsb/xsbrc.P module has been loaded.
  */
 
 libraries_loaded :- 

@@ -500,7 +500,7 @@ current_module(Module, ObjectFile) :-
 
 module_file('xsbrc', File) :-
 	!,
-	current_predicate('xsbrc':_),	% module .xsbrc is indeed loaded
+	current_predicate('xsbrc':_),	% module ~/.xsb/xsbrc.P is indeed loaded
 	!,
 	xsb_configuration(user_home, HomeDir),
 	slash(Slash),
