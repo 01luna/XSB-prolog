@@ -305,9 +305,7 @@ throw_error(Error) :- throw(Error).
 
 set_tmp_file(DirEnc, FileUnEnc, TmpFile) :-
 	slash(Slash),
-	xsb_configuration(user_home,UserHome), 
-	str_cat(UserHome, Slash, UserHomeSlash),
-	str_cat(UserHomeSlash, '.xsb', UserXSB),
+	xsb_configuration(user_auxdir,UserXSB), 
 	str_cat(UserXSB, Slash, UserXSBSlash),
 	str_cat(UserXSBSlash, 'www_cache', TmpPath), 
 	str_cat(TmpPath, Slash, TmpPathSlash),

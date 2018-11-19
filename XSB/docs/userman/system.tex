@@ -245,7 +245,10 @@ instance, to make sure a user's home directory is loaded, the goal
 command line or from within a program (assuming this is not the
 current working directory).  If you always want XSB to search
 particular directories, the easiest way is to have a file named
-{\verb|.xsb/xsbrc.P|} in your home directory.  User-supplied library
+{\verb|.xsb/xsbrc.P|} in your home directory.
+(Or, if the environment variable \texttt{XSB\_USER\_AUXDIR} is set then
+{\verb|$XSB_USER_AUXDIR/xsbrc.P|} is used.)
+User-supplied library
 directories are searched by the dynamic loader {\em before} searching
 the default library directories.  The {\verb|.xsb/xsbrc.P|} file,
 which is automatically consulted by the XSB interpreter, might look

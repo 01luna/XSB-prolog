@@ -270,8 +270,8 @@ load_library_directories :-
 	),
 	%%
 	%% Construct user''s .xsb/xsbrc.P
-	xsb_configuration(user_home, HomeDir),
-	local_fmt_write_string(UsrFileN, '%s%s.xsb%sxsbrc', f(HomeDir,Slash,Slash)),
+	xsb_configuration(user_auxdir, UsrAuxDir),
+	local_fmt_write_string(UsrFileN, '%s%sxsbrc', f(UsrAuxDir,Slash)),
 %%	str_cat(UsrFileN, XSB_SRC_EXTENSION_ATOM, UserFileNameP),
 %%	str_cat(UsrFileN, XSB_OBJ_EXTENSION_ATOM, UserFileNameO),
 	%% User init file isn't mandatory

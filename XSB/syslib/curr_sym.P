@@ -502,10 +502,10 @@ module_file('xsbrc', File) :-
 	!,
 	current_predicate('xsbrc':_),	% module ~/.xsb/xsbrc.P is indeed loaded
 	!,
-	xsb_configuration(user_home, HomeDir),
+	xsb_configuration(user_auxdir, UsrAuxDir),
 	slash(Slash),
-	fmt_write_string(FileName, '%s%s.xsb%sxsbrc.%s',
-			 arg(HomeDir, Slash, Slash,XSB_OBJ_EXTENSION_ATOM)),
+	fmt_write_string(FileName, '%s%sxsbrc.%s',
+			 arg(UsrAuxDir, Slash, XSB_OBJ_EXTENSION_ATOM)),
 	FileName = File.
 module_file(Module, File) :-
 	psc_insertmod(Module,0,ModPsc),

@@ -887,7 +887,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
   } /* for */
   /* Done with command line arguments */
 
-  /* This is where we will be looking for the .xsb directory */
+  /* User home dir or install dir, if home is undefined */
   flags[USER_HOME] = (Cell) mem_alloc(strlen(user_home_gl) + 1,OTHER_SPACE);
   strcpy( (char *)flags[USER_HOME], user_home_gl );
 

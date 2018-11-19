@@ -1614,7 +1614,8 @@ for the tabled subgoal that is a variant of {\tt Subgoal}.DF
     xsb_configuration(install_dir, InstallDir) :- ...
     /* User home directory. Usually HOME. If that is null, then it would
        be the directory where XSB is currently residing.
-       This is where we expect to find the .xsb directory */
+       This is where we expect to find the .xsb directory unless
+       environment XSB_USER_AUXDIR overrides that. */
     xsb_configuration(user_home, Home) :- ...
     /* Where XSB invocation script is residing */
     xsb_configuration(scriptdir, ScriptDir) :- ...
