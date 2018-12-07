@@ -328,7 +328,7 @@ DllExport char* call_conv p2c_string(prolog_term term)
     return string_val(t);
 }
 
-DllExport Integer call_conv p2c_varnum(prolog_term term)
+DllExport Integer call_conv p2c_varnum(CTXTdeclc prolog_term term)
 {
     Cell t = (Cell)term;
     XSB_Deref(t);
@@ -1281,7 +1281,7 @@ DllExport void call_conv print_pterm(CTXTdeclc prolog_term term, int toplevel,
 DllExport char * call_conv print_pterm_fun(CTXTdeclc prolog_term term)
 {
   XSB_StrSet(&StrArgBuf,"");
-  print_pterm(term, TRUE, &StrArgBuf);
+  print_pterm(CTXTc term, TRUE, &StrArgBuf);
   return StrArgBuf.string;
 }
 

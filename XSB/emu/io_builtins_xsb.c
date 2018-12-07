@@ -1811,7 +1811,7 @@ void write_quotedname(FILE *file, int charset, char *string)
 #define wcan_buff tsgSBuff1
 
 char *cvt_float_to_str(CTXTdeclc Float floatval) {
-  return cvt_float_to_str_with_fmt(CTXTdeclc floatval,(char *)flags[FLOAT_DISPLAY_FORMAT]);
+  return cvt_float_to_str_with_fmt(CTXTc floatval,(char *)flags[FLOAT_DISPLAY_FORMAT]);
 }
 
 char *cvt_float_to_str_with_fmt(CTXTdeclc Float floatval, char *format) {
