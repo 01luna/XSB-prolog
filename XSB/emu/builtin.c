@@ -237,6 +237,8 @@ extern int md5_string(prolog_term, char *);
 extern int base64_encode(CTXTdeclc prolog_term, prolog_term);
 extern int base64_decode(CTXTdeclc prolog_term, prolog_term);
 
+extern void replace_form_by_act(char *name, prolog_term modformals, prolog_term modactuals);
+
 							 //extern byte *biarg;
 
 /* ------- variables also used in other parts of the system -----------	*/
@@ -2053,10 +2055,10 @@ int builtin_call(CTXTdeclc byte number)
     Psc  psc, sym;
     int  value = 0;
     char *addr = ptoc_string(CTXTc 4);
-    if (addr)
+    if (addr) {
+      replace_form_by_act(addr,makenil,makenil); // no parameterized mods...
       psc = pair_psc(insert_module(0, addr));
-    else
-      psc = (Psc)flags[CURRENT_MODULE];
+    } else psc = (Psc)flags[CURRENT_MODULE];
     //    sym = pair_psc(insert(ptoc_string(CTXTc 1), (char)ptoc_int(CTXTc 2), psc, &value));
     sym = pair_psc(insert_psc(ptoc_string(CTXTc 1), (int)ptoc_int(CTXTc 2), psc, &value));
     if (value) {
@@ -2077,8 +2079,10 @@ int builtin_call(CTXTdeclc byte number)
     char *name = ptoc_string(CTXTc 1);
     int arity = (int)ptoc_int(CTXTc 2);
     char *mod_name = ptoc_string(CTXTc 3);
-    if (mod_name) mod_psc = pair_psc(insert_module(0, mod_name));
-    else mod_psc = (Psc)flags[CURRENT_MODULE];
+    if (mod_name) {
+      replace_form_by_act(mod_name,makenil,makenil); // no parameterized mods...
+      mod_psc = pair_psc(insert_module(0, mod_name));
+    } else mod_psc = (Psc)flags[CURRENT_MODULE];
     if ((Cell)get_data(mod_psc) == USERMOD_PSC) {
       search_ptr = (Pair *)(symbol_table.table +
 	           hash(name, arity, symbol_table.size));
@@ -2111,6 +2115,7 @@ int builtin_call(CTXTdeclc byte number)
       if (get_type(pair_psc(sym)) == 0)
       	psc_set_type(pair_psc(sym),T_UDEF);
     } else {
+      replace_form_by_act(mod_name,makenil,makenil); // no parameterized mods...
       mod_psc = pair_psc(insert_module(0, mod_name));
       sym = insert_psc(ptoc_string(CTXTc 1), (int)ptoc_int(CTXTc 2), mod_psc, &value);
       if (value)       /* if predicate is new */
@@ -3207,7 +3212,7 @@ case WRITE_OUT_PROFILE:
     XSB_Deref(term);
     XSB_Deref(iterm);
 
-    if (isstring(term)) {
+    if (isstring(term) || isinteger(term) || isinteger(iterm)) {
       return unify(CTXTc term,iterm);
     } else if (isstring(iterm)) {
       iiterm = stringhash_to_term(CTXTc string_val(iterm));

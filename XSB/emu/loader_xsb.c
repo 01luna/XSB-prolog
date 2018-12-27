@@ -810,7 +810,7 @@ int nec_different_xwam_files(char *datafilename, char *currfilename) {
   // at least one is a module or usermod().
   if (file_strcmp(datafilename+dlen_wo_ext,XSB_OBJ_EXTENSION_STRING) != 0) {
     if (file_strncmp(datafilename,"usermod(",sizeof("usermod(")-1) == 0) {
-      if (datafilename[sizeof("usermof(")-1] == '\'') {
+      if (datafilename[sizeof("usermod(")-1] == '\'') {
 	ddisp = sizeof("usermod('")-1;  //9
 	dmlen = dlen - (sizeof("usermod('')")-1);  //11;
       } else {
