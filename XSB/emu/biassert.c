@@ -1385,8 +1385,9 @@ void dump_asserted_pred(PrRef prref, char *dumpfilename) {
 /***************************************************************/
 
 /* Used by assert & retract to get through the SOBs */
+#define MAXINDEXES 40
 
-static void get_indexes( prolog_term prolog_ind, int *Index, int *NI )
+static void get_indexes(CTXTdeclc prolog_term prolog_ind, int *Index, int *NI, prolog_term Head )
 {
   Index[0] = 0;
   if (isinteger(prolog_ind)) {
@@ -1394,6 +1395,12 @@ static void get_indexes( prolog_term prolog_ind, int *Index, int *NI )
     if (Index[1] == 0) *NI = 0; else *NI = 1;
   } else {
     for (*NI = 0; !isnil(prolog_ind); prolog_ind = p2p_cdr(prolog_ind)) {
+      if (*NI+1 >= MAXINDEXES) {
+	xsb_warn(CTXTc "Too many indexes for %s/%d; only first %d used.\n",
+		 get_name(get_str_psc(Head)),get_arity(get_str_psc(Head)),
+		 MAXINDEXES);
+	return;
+      }
       (*NI)++;
       Index[*NI] = (int)int_val(p2p_car(prolog_ind));
     }
@@ -1440,7 +1447,7 @@ xsbBool assert_buff_to_clref_p(CTXTdeclc prolog_term Head,
 {
   ClRef Clause;
   int Location, *Loc, Inum;
-  int Index[20], NI;
+  int Index[MAXINDEXES], NI;
 
   // try gc dynamic.  Now in another context than retracts,
   // and cant do lots of retracts without asserts.
@@ -1450,7 +1457,7 @@ xsbBool assert_buff_to_clref_p(CTXTdeclc prolog_term Head,
   xsb_dbgmsg((LOG_ASSERT,"Now add clref to chain:"));
 
   XSB_Deref(Indexes);
-  get_indexes( Indexes, Index, &NI ) ;
+  get_indexes(CTXTc Indexes, Index, &NI, Head ) ;
 
   MakeClRef( Clause,
 	     (NI>0) ? INDEXED_CL : UNINDEXED_CL,
