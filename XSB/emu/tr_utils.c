@@ -2424,11 +2424,13 @@ Psc get_psc_for_trie_cp(CTXTdeclc CPtr cp_ptr, BTNptr trieNode) {
     LocNodePtr    = (BTNptr) *(cp_ptr + CP_SIZE);
     return TIF_PSC(subg_tif_ptr(BTN_Parent(LocNodePtr)));
   } else {
+#if NON_OPT_COMPILE
       if (trie_warning_message_array[TN_NodeType(trieNode)][TN_TrieType(trieNode)] == 0) {
 	fprintf(stderr,"Non-answer trie instr in cp stack: TN Root Node type: %s Trie type %s\n",
 		trie_node_type_table[TN_NodeType(trieNode)], trie_trie_type_table[TN_TrieType(trieNode)]);
 	trie_warning_message_array[TN_NodeType(trieNode)][TN_TrieType(trieNode)] = 1;
       }
+#endif
     return NULL;
   }
 }
