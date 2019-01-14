@@ -42,6 +42,7 @@
 
 %%:- import writeln/2 from standard.
 
+:- mode inprog(?,?,?).
 inprog(Sym, clause(Args,Body,CPrag), clause(NArgs,NBody,CPrag)) :- 
 %%	sym_name(Sym,Name,Arity),writeln(userout,sym(Name,Arity,Args,Body)),
     CPrag = crec(ARSize,_),

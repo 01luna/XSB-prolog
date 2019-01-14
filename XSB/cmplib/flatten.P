@@ -46,6 +46,7 @@
 
 level_allowed(1).
 
+:- mode flatten(?,?).
 flatten(clause(Args,B0,P), clause(NArgs,B1,P)) :-
         flt_args_head(Args, NArgs, B2, B1, 1),     % different
         flt_body(B0, B2).
@@ -148,6 +149,7 @@ flt_body(if_then_else(TG,G1,G2), if_then_else(FTG,G3,G4)) :-
 flt_body(goal(Sym,Args), NewGoal) :- 
 	flt_args(Args, NArgs, goal(Sym,NArgs), NewGoal, 1, 0).
 flt_body(inlinegoal(InlP,Arity,Args), NewGoal) :-
+	atom(InlP),
 	flt_inline(InlP,Arity,Args,NewGoal).
 
 last_and_goal(and(_,G),LG) :- !, last_and_goal(G,LG).

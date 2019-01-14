@@ -29,6 +29,7 @@
 /*  singleton_check(+Clause, +VariableList).				*/
 /*============================================================*/
 
+:- mode singleton_check(?,?).
 singleton_check(X, _) :- var(X), !.
 singleton_check([], _) :- !.
 singleton_check([Cl|Cls], VariableList) :- !,
@@ -66,6 +67,7 @@ singleton_warnings(Clause, VariableList) :-
 	write_singleton_warnings(VariableList, Occurences, P, A).
 
 /* TLS: This is used for read_term */
+:- mode calculate_singleton(?,?,?).
 calculate_singleton(Clause,VarList,Occurences) :-
 	copy_term((Clause,VarList),(Clause1,VarList1)),
 	numbervars_cmplib(Clause1, 1, NumberOfVars),
@@ -77,6 +79,7 @@ calculate_singleton(Clause,VarList,Occurences) :-
 process_raw_occurences([],_, _, []):- !.
 %process_raw_occurences([_],_, _, []):- !.
 process_raw_occurences([vv(Name,Var)|R],[vv(Name,'_$cmplib_var'(N))|R1],Occ, Occurences) :-
+	atom(Name),			% for mode checker
 	atom_codes(Name, CharList),
 	( CharList = [95|_] ->	% variable Var begins with an "_"
                 Occurences = NewOccurences
@@ -123,6 +126,7 @@ write_singleton_warnings(VariableList, Occurences, P, A):-
 write_singleton_warnings_1([], _, _, _) :-
 	!.	% This captures the open-end of VariableList.
 write_singleton_warnings_1([vv(VarName,'_$cmplib_var'(N))|Rest],Occurences, P, A) :-
+	atom(VarName),
 	atom_codes(VarName, CharList),
 	( CharList = [95|_] ->	% variable Var begins with an "_"
 		true		% (underscore), so its OK, ignore it!.

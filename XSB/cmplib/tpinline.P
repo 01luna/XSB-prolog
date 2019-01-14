@@ -34,6 +34,7 @@
 /*======================================================================*/
 %:- import console_writeln/1 from standard.
 
+:- mode geninline(+,?,+,+,?,?,?,?,?).
 geninline(true, [], _, _, Pil, Pil, T, T, _).
 geninline(fail, [], _, _, [fail|Pil], Pil, T, T, _).
 geninline(halt, [], _, _, [halt|Pilr], Pilr, T, T, _).
@@ -123,6 +124,7 @@ geninline(BiPred, [Arg1,Arg2,Arg3,Arg4], HoldR, _, Pil, Pilr, Tin, Tout, _EPN) :
 
 /*======================================================================*/
 /*======================================================================*/
+:- mode geninl_load_lhs(?,?,?,?,?,?,?).
 geninl_load_lhs(Term,R,Pil,Pilr,Tin,Tout,SaveR) :-
 	(Term = varocc(_Vid,Prag)
 	 ->	alloc_reg(Prag, Tin, Tmid), vprag_type(Prag, T),
@@ -135,8 +137,9 @@ geninl_load_lhs(Term,R,Pil,Pilr,Tin,Tout,SaveR) :-
 			 ->	SaveR = []
 			 ;	SaveR = [R]
 			)
-		 ;      getreg(Tmid, R), hold(R, Tmid, Tout), SaveR = []
+		 ;	 getreg(Tmid, R), hold(R, Tmid, Tout), SaveR = []
 		),
+		check_integer(R,'putvarinst/5',2),
 		putvarinst(Prag, R, Pil, Pilr,0)
 /* it seems unlikely we'll get a putdval here, so tabled = 0 */
 	; getreg(Tin, R), hold(R, Tin, Tmid), SaveR = [],
@@ -152,7 +155,8 @@ geninl_load_lhs(Term,R,Pil,Pilr,Tin,Tout,SaveR) :-
 
 geninl_unload_lhs(Term, R, HoldR, Tin, Tout) :-
 	( Term = varocc(Vid,Prag) -> 
-		release_if_done(Vid, R, Prag, HoldR, Tin, Tout)
+
+	    release_if_done(Vid, R, Prag, HoldR, Tin, Tout)
 	; release(R, Tin, Tout)
 	).
 
@@ -188,7 +192,8 @@ get_max([N|R],M0,M) :-
 /*======================================================================*/
 
 release_if_tvar_if_done(varocc(Vid,Prag),N,HoldR,Tin,Tout) :- !,
-	release_if_done(Vid,N,Prag,HoldR,Tin,Tout).
+    %% Vid may be a variable here, and it must be passed to release_if_done???
+    release_if_done(Vid,N,Prag,HoldR,Tin,Tout).
 release_if_tvar_if_done(_,_,_HoldR,Tin,Tin).
 
 if_void_var(varocc(_,Prag)) :- vprag_occ(Prag,v).

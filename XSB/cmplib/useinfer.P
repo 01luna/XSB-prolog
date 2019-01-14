@@ -48,7 +48,7 @@
 /*	E.g., if no export names are declared, a warning message is	*/
 /*	      given, and all symbols are assumed to be exported.	*/
 /*======================================================================*/
-
+:- mode useinfer(?,?,?).
 useinfer(Module, IsModule, ExportList) :-
 	Module = module(SymTab,_DcList,ClList,_QrList,_Pars),
 	extract_symlist(ex, ExSymList, SymTab),
@@ -119,10 +119,10 @@ infer_export_fill(RestTab, SymTab, ClBT, Domain) :-
                  ->     Dom = global
                         % multifile predicates are assumed global
 		; find_in_bt(Sym, ClBT) -> Dom = Domain
-		; pred_implicitly_imported_from(Sym, Mod) ->
+		; pred_implicitly_imported_from(Sym, Mod), atom(Mod) ->
 			sym_insert(Mod, 0, [module,used], SymTab, _ModSym),
 			Dom = im(Mod)
-		; sym_prop(defined(Mod,_Pred),Sym) -> 
+		; sym_prop(defined(Mod,_Pred),Sym), atom(Mod) -> 
 			sym_insert(Mod, 0, [module,used], SymTab, _)
 		; Dom = Domain
 		)
@@ -175,9 +175,9 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 		     ;	    MidList = InList
 		    ),
 		    check_pred(Cls, SymTab, MidList, OutList)
-		; ( sym_prop(im(Mod), Sym) ->
+		; ( sym_prop(im(Mod), Sym), atom(Mod) ->
 			sym_insert(Mod, 0, [used], SymTab, _)
-		  ; sym_prop(docim(Mod), Sym) ->
+		  ; sym_prop(docim(Mod), Sym), atom(Mod) ->
 			sym_insert(Mod, 0, [used], SymTab, _)
 		  ; pred_implicitly_imported_from(Sym, Mod) ->
 			sym_insert(Mod, 0, [module,used], SymTab, _),
@@ -186,7 +186,7 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 			 ; 	true)
 		  ; sym_prop((multifile),Sym) ->
 			  true	% cop-out, maybe should recurse through modded clauses
-		  ; sym_prop(defined(Mod,Pred),Sym) -> 
+		  ; sym_prop(defined(Mod,Pred),Sym), atom(Mod), atom(Pred) -> 
 			  sym_insert(Mod, 0, [module,used], SymTab, _),
 			  sym_name(Sym,_P,A),
 			  sym_insert(Pred, A, [used], SymTab, _)
@@ -198,7 +198,7 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 		  ),
 		  OutList = InList
 		)
-	  ; sym_prop(im(Mod), Sym) ->
+	  ; sym_prop(im(Mod), Sym), atom(Mod) ->
 		% takes care of the case when Sym is imported from Mod but is
 		% not a predicate symbol. If Sym is used, then Mod is used.
 		sym_insert(Mod, 0, [used], SymTab, _ModSym), OutList = InList
@@ -224,7 +224,7 @@ add_aggspec_preds(OpSpec,SymTab,InList,OutList) :-
 	add_aggspec_preds(po(OpSpec),SymTab,InList,OutList).
 
 insert_pred_spec_if_nec(OpSpec,SymTab,InList,OutList) :-
-	(OpSpec = Name/Arity
+	(OpSpec = Name/Arity, atom(Name), integer(Arity)
 	 ->	true
 	 ;	functor(OpSpec,Name,Arity)
 	),
@@ -255,6 +255,7 @@ check_body(not(L1), SymTab, InList, OutList) :-
 %%check_body(inlinegoal(_,_,Args), SymTab, InList, OutList) :-
 %%	check_args(Args, SymTab, InList, OutList).
 check_body(inlinegoal(Name,Arity,Args), SymTab, InList, OutList) :-
+	atom(Name), integer(Arity),
 	sym_insert(Name,Arity,[],SymTab,Sym),
 	add_if_necessary(Sym,InList,MedList),
 	check_args(Args, SymTab, MedList, OutList).

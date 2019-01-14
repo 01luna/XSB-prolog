@@ -37,6 +37,7 @@
 /* 	Refer to the file Format for the format of InClause.		*/
 /*======================================================================*/
 %%:- import writeln/2 from standard.
+:- mode compile_clause(?,?,?,?,+).
 compile_clause(Sym, Clause, PilCode, PilCodeR, NC) :-
 	flatten(Clause, FlatClause),
 %%	writeln(userout,''),writeln(userout,pre(Clause)),writeln(userout,pst(FlatClause)),
@@ -45,9 +46,12 @@ compile_clause(Sym, Clause, PilCode, PilCodeR, NC) :-
 
 tclause(Sym, clause(Args,Body,crec(ARSize,Label)),
 	[label(clau,Label)|Pil0], Pilr, NC) :- 
-	( sym_type(Sym, tabled(_,Tabar)) -> Tabled = 1,
-					    ARSize1 is ARSize + 1
-	; Tabar = Tabar, Tabled = 0,ARSize1 = ARSize
+	integer(ARSize),
+	( sym_type(Sym, tabled(_,Tabar))
+	 -> Tabled = 1,
+	    integer(Tabar),
+	    ARSize1 is ARSize + 1
+	; Tabar = 0, Tabled = 0,ARSize1 = ARSize
 	),
 	gennum(N), Label = (Sym,N),
 	sym_name(Sym, _, Arity),
@@ -76,7 +80,7 @@ tclause(Sym, clause(Args,Body,crec(ARSize,Label)),
 /*	 + TRin:  list of registers in use at entry.			*/
 /*	 - TRout: list of registers in use at exit.			*/
 /*======================================================================*/
-
+:- mode theadpars(?,+,?,?,+,?).
 theadpars([], _, Pil, Pil, T, T).
 theadpars([Par|Rest], N, Pil, Pilr, TRin, TRout) :-
 	release(N, TRin, TRm),
@@ -136,7 +140,7 @@ theadpars([Par|Rest], N, Pil, Pilr, TRin, TRout) :-
 /*		we are processing an or-branch);			*/
 /*		if "yes", this would be a nested or-branch.		*/
 /*======================================================================*/
-
+:- mode tbody(?,+,?,?,?,?,+,?,+,+,+,?).
 tbody(and(Goal,Goals),A,Pil,Pilr,Tin,Tout,Meet,_,HoldRegs,Tabled,Tabar,EPN) :-
     tbody(Goal,A,Pil,Pil1,Tin,Tmid,midgoal,no,HoldRegs,Tabled,Tabar,EPN),
     tbody(Goals,A,Pil1,Pilr,Tmid,Tout,Meet,no,HoldRegs,Tabled,Tabar,EPN).
@@ -165,6 +169,7 @@ tbody(if_then_else(Test,TGoal,FGoal),A,Pil,Pilr,Tin,Tout,M,N,HoldRegs,Tabled,Tab
      ->	tbody(TGoal,A,Pil,Pilr,Tin,Tout,M,N,HoldRegs,Tabled,Tabar,EPN)
      ;	gennum(TLabId), TLabel = label(then,(disj,TLabId)),
 	gennum(FLabId), FLabel = label(else,(disj,FLabId)),
+	HoldRegs0 = [],
 	tvar_hold(Test, HoldRegs0, HoldRegs1),
 	tcond(Test,TLabel,FLabel,Pil,[TLabel|Pil1],Tin,Tmid,HoldRegs1,EPN),
 	tbody(TGoal,A,Pil1,Pil2,Tmid,Tout0,M,no,HoldRegs1,Tabled,Tabar,EPN),
@@ -185,6 +190,7 @@ tbody(nil,_,Pil,Pilr,T,T,_,_,_,Tabled,Tabar,EPN) :-
     ).
 tbody(goal(Sym,Args),A,Pil,Pilr,Tin,Tout,Meet,_N,_HoldRegs,Tabled,Tabar,_EPN) :-
     sym_name(Sym, Pred, Arity),
+    check_ground(Tin,'tbody/12',5),
     reserve(Arity,Tin,T1), Tout = [],
     tgoalargs(Args,1,Pil,Pil1,T1,_,Tabled),
     ( (option(sysmod), inline_builtin(Pred, Arity, BltNum)) ->
@@ -219,6 +225,7 @@ tbody(inlinegoal(Pred,_Ar,Args),A,Pil,Pilr,Tin,Tout,Meet,_,HoldRegs,
 	 )
     ; Pil1 = Pilr /* not last lit */
     ),
+    atom(Pred),
     geninline(Pred,Args,HoldRegs,A,Pil,Pil1,Tin,Tout,EPN).
 
 more_branches(or(_,_)).

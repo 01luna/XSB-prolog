@@ -31,6 +31,7 @@
 /* inline predicates							*/
 /*======================================================================*/
 
+:- mode inline_predicate(?,?).
 inline_predicate(<, 2).
 inline_predicate(>, 2).
 inline_predicate(=<, 2).
@@ -61,6 +62,7 @@ inline_predicate(!, 0).
 
 inline_predicate(Pred,A) :- inline_jumpcof_cond(Pred,A,_).
 
+:- mode is_builtin_instr(?,?,?).
 is_builtin_instr(Pred,Arity,Sym) :-
     builtin_instr(Pred,Arity,Mod),
     (standard_symbol(Pred,Arity,_)
@@ -74,7 +76,9 @@ is_builtin_instr(Pred,Arity,Sym) :-
 %% macros/functions and only its argument registers are accessed.  So
 %% builtins like code_call cannot be so declared.  Also, only builtins
 %% with 0 to 4 arguments can be instructions.
+%% Also builtins that may call expand_heap cannot be instructions.
 
+:- mode builtin_instr(?,?,?).
 builtin_instr(abolish_table_info,0,machine).
 builtin_instr(assert_code_to_buff,1,machine).
 %%builtin_instr(code_load,4,machine).
@@ -87,7 +91,7 @@ builtin_instr(file_function,3,machine).
 builtin_instr(getenv,2,machine).
 %%builtin_instr(incr_eval_builtin,3,increval).  NO, uses many registers
 %%builtin_instr(load_obj,4,machine).
-%builtin_instr(parsort,4,machine).
+%%builtin_instr(parsort,4,machine).
 builtin_instr(psc_name,2,machine).
 builtin_instr(psc_arity,2,machine).
 builtin_instr(psc_type,2,machine).
@@ -120,7 +124,6 @@ builtin_instr(term_set_arg,4,machine).
 builtin_instr(term_hash,3,machine).
 %%builtin_instr(trie_assert_hdr_info,3,machine).  % if add to inline_builtin
 builtin_instr(unload_seg,1,machine).
-
 
 %% builtins for which to generate a bi_instr instruction: these are
 %% standard predicates (so mod doesnt matter, or is gotten from the
@@ -165,6 +168,7 @@ builtin_instr(unify_with_occurs_check,2,_).
 /* primitive predicates	("hard-wired" builtins)				*/
 /*======================================================================*/
 
+:- mode inline_builtin(?,?,?).
 inline_builtin(=.., 2, UNIV).
 inline_builtin('$$clean_up_block', 0, CLEAN_UP_BLOCK).
 inline_builtin('$$findall_init', 2, FINDALL_INIT).
@@ -322,6 +326,7 @@ inline_builtin(unify_with_occurs_check, 2, UNIFY_WITH_OCCURS_CHECK).
 % inline_builtin(is_number_atom, 1, IS_NUMBER_ATOM).
 
 
+:- mode inline_jumpcof_cond(?,?,?).
 %%inline_jumpcof_cond(_,_,_) :- fail.
 inline_jumpcof_cond(atom, 1, ATOM_TEST).
 inline_jumpcof_cond(integer, 1, INTEGER_TEST).
@@ -343,6 +348,7 @@ inline_jumpcof_cond(ground, 1, GROUND_TEST).
 /* builtin functions							*/
 /*======================================================================*/
 
+:- mode builtin_function(?,?,?).
 builtin_function(+, 2, 1).
 builtin_function(-, 2, 2).
 builtin_function(*, 2, 3).

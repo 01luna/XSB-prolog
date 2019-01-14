@@ -33,6 +33,7 @@
 
 /*  "peephole_opt" is the top-level optimizer, it calls various others.	*/
 
+:- mode compile_peephole_opt(?,?).
 compile_peephole_opt(Pil, OptPil) :-
 	compile_popt1(Pil, Pil1), !,
 	compile_popt2(Pil1, Pil2), !,

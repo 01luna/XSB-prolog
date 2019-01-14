@@ -71,13 +71,14 @@
 
 :- import
 	preprocessing_error/1,
-	existence_error/4, syntax_error/1, check_ground/3
+   existence_error/4, syntax_error/1, check_ground/3, check_integer/3, check_atom/3
    from error_handler.
 
 :- import
 	file_size/2,
 	fmt_write_string/3,
-	file_set_character_set/2
+   file_set_character_set/2,
+   copyIOport/2, file_reopen/4
    from file_io.
 
 :- import mpa_to_skel/2 from file_op.
@@ -99,7 +100,7 @@
 :- import singleton_check/2 from singlton.
 
 :- import functor/3, seen/0, file_exists/1, '=..'/2, atom/1, integer/1,
-          op/3, (index)/3, (index)/2, real/1, see/1, expand_term/2, (=..)/2,
+          op/3, (index)/3, (index)/2, real/1, see/1, expand_term/2,
 	  check_table_options/3,
 	  callable/1, goal_cut_trans/3, requires_cut_transforming/1,
 	  arg/3,
@@ -107,7 +108,7 @@
 	  close/1,
 	  call/1, compound/1,
 	  is_most_general_term/1, number/1, atom_codes/2,
-	  seeing/1
+	  seeing/1, (',')/2, catch/3
    from standard.
 
 :- import file_read/3 from xsb_read.

@@ -71,6 +71,7 @@
 :- import gennum/1, conget/2, conset/2 from gensym.
 :- import sys_unlink/2, create_lockfile/1, sleep/1 from shell.
 :- import member/2 from basics.
+%%:- import ground/1 from basics.
 %%:- import force_ti_mod_loaded/0, ti_pred_block/3 from ti_mod.
 
 :- import modeanalyze/3 from modeinf.
@@ -78,6 +79,7 @@
 :- import '_$hilog_symbol'/1 from hilogsym.
 :- import catch/3,throw/1 from standard.
 :- import console_writeln/1 from standard.
-:- import syntax_error/1, permission_error/4, permission_warning/5  from error_handler.
+:- import syntax_error/1, permission_error/4, permission_warning/5,
+   check_ground/3  from error_handler.
 :- import see/1 from standard.
-
+:- import (',')/2 from standard.

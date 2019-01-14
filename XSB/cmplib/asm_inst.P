@@ -23,7 +23,7 @@
 ** 
 */
 
-
+:- mode asm_inst(?,?,?,?).
 asm_inst(label(_T,_X),		0,	-2,	[]).
 asm_inst(getpvar(V,R),		4,	0,	[p, v(V), r(R)]	).
 asm_inst(getpval(V,R),		4,	1,	[p, v(V), r(R)]	).

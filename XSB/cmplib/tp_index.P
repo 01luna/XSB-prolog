@@ -33,7 +33,7 @@
 /*----------------------------------------------------------------------*/
 /* single clause predicate cases: no try/index instruction is needed.	*/
 /*----------------------------------------------------------------------*/
-
+:- mode makeindex(?,?,?,?,?,+).
 makeindex(Sym, [clause(_,_,crec(_,Label))], Pil, Pilr, _, Tabled) :- !,
 	( Tabled == 0 -> Pil = Pilr
 	; Tabled = tabled(Ind,_), sym_name(Sym, _, Arity),
@@ -191,6 +191,7 @@ index_extract_label_list([arglabel(_,_,Label)|Rest], [Label|LRest]) :-
 /* index_split/2 is also used in cp_opt.P.  				*/
 /*======================================================================*/
 
+:- mode index_split(?,?).
 index_split(ArgPatterns, ArgGroups) :-
 	index_split0(ArgPatterns, ArgGroups0),
 	index_simplify_singleton(ArgGroups0, ArgGroups).

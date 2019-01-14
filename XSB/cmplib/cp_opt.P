@@ -24,6 +24,7 @@
 
 :- import select/3 from basics.
 
+:- mode cp_opt(?,?).
 cp_opt(module(Symtab,DcList,ClList,QrList,Par),
        module(Symtab,DcList,ClList1,QrList,Par)) :-
 	cp_opt0(ClList, ClList1, Symtab).
@@ -101,8 +102,10 @@ cp_opt_table_body(Sym,_,_,ClList1, Symtab):-
 	parse_preddef_closed(Head, (get_breg(Breg),
 	               NewCall,
 		       ApproxCall),ClList1, Symtab),
-	ensure_imported(get_breg/1,machine,Symtab),
-	ensure_imported(early_complete_on_nth/2,tables,Symtab).
+	ensure_imported_list([im(get_breg/1,machine),
+			      im(early_complete_on_nth/2,tables)],Symtab).
+%%	ensure_imported(get_breg/1,machine,Symtab),
+%%	ensure_imported(early_complete_on_nth/2,tables,Symtab).
 %        console_writeln(ClList1).
 cp_opt_table_body(_Sym,Head,NewCall, ClList1, Symtab):-
 	parse_preddef_closed(Head, NewCall,ClList1, Symtab).
@@ -176,6 +179,7 @@ Legal aggregation specs are of the form:
 									*/
 /************************************************************************/
 
+:- mode perform_tabling_transforms(?,?).
 perform_tabling_transforms(Mod1,Mod2):-
 	aggregation_transform(Mod1,Mod2).
 %	approximation_transform(Mod2,Mod2).
@@ -259,119 +263,26 @@ generate_agg_clauses(po(OpSpec),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClL
 	parse_preddef_closed(PredTerm,Body,ClList2,SymTab),
 	globalize('/',2,SymTab),
 	globalize(var,0,SymTab),
-	ensure_imported(once/1,standard,SymTab),
-	ensure_imported(breg_retskel/4,machine,SymTab),
-	ensure_imported(excess_vars/4,setof,SymTab),
-	ensure_imported(findall/3,setof,SymTab),
-	ensure_imported('_$member'/2,basics,SymTab),
-	ensure_imported(copy_term/2,basics,SymTab),  % but problems with sysmod?
-	ensure_imported(instantiation_error/3,error_handler,SymTab),
-	ensure_imported('_$$get_returns'/3,tables,SymTab),
-	ensure_imported('delete_return'/2,tables,SymTab).
-% Pre-Sept 2014 clause at end of file.
-/*** the lattice code here is buggy, see CR's submitted bug report..
-generate_agg_clauses(lattice(OpSpec),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClList2,SymTab) :-
-	functor(PredTerm,Pred,Arity),
-	(spec_skel(OpSpec,OpSpec1,3)
-	 ->	true
-	 ;	syntax_error(['Improper join specification in tabling declaration for ',Pred,'/',Arity])	),
-	sym_propin(tabled,Sym),
-	arg(1,OpSpec1,OVar), arg(2,OpSpec1,Var1), arg(3,OpSpec1,Var),
-	get_actions_for_lattice_aggr_success(Sym,[Cs,Leaf,Var,OVar,Breg],Actions),
-	Body = ('_$savecp'(Breg),
-		breg_retskel(Breg,Arity,Skel,Cs),
-		(nonvar(Var) -> instantiation_error(Pred/Arity,Arity,var) ; true),
-		excess_vars(Skel,[Var|ExistVarList],[],Vars),
-		copy_term(t(Vars,Skel,Var),t(Vars,OSkel,OVar)),
-		Pred1Term,
-		mywriteln(one(Pred1Term,OVar,Var,Var1)),
-		xwam_state(2,DelayReg),	
-		(DelayReg = 0    ->     
-		   findall((Cs,OSkel,Leaf_1,TV_1),'_$$get_returns_and_tvs'(Cs,OSkel,Leaf_1,TV_1),List),
-		   mywriteln(list_of_trues(List)),
-		   (List = [] -> 
-%		      writeln(oneone(Pred1Term,OVar,Var,Var1)),
-		      Var = Var1
-%		      ,writeln(initted)
-		    ; findall(1,('_$member'((Cs,OSkel,Leaf,TV_Prior),List),
-		                 call_join_op(t,TV_Prior,OpSpec1,Var,OVar,Actions)),GT_List),
-		      GT_List \== [],
-		      Var1 =  Var,
-                      mywriteln(two(Pred1Term,OVar,Var,Var1)) )
-		  ;  ( ('_$$get_returns_and_tvs'(Cs,OSkel,_Leaf_t,t) -> 
-		       call_join_op(u,t,OpSpec1,Var,OVar,Actions)
-		     ; true),
-		     Var1 = Var ) ) ),
-%    	            ('_$$get_returns_and_tvs'(Cs,OSkel,_Leaf_u,u) -> 
-%		        call_join_op(u,u,OpSpec1,Var,OVar,Actions) 
-%		     ;  Var1 = Var) ) ) ),
-	parse_preddef_closed(PredTerm,Body,ClList2,SymTab),
-	globalize('/',2,SymTab),
-	globalize(var,0,SymTab),
-	ensure_imported(call/1,standard,SymTab),
-	ensure_imported(','/2,standard,SymTab),
-	ensure_imported('.'/2,consult,SymTab),
-	ensure_imported(mywriteln/1,cp_opt,SymTab),                     % only for debugging
-	ensure_imported(call_join_op/6,cp_opt,SymTab),
-	ensure_imported('_$$get_returns_and_tvs'/4,tables,SymTab),
-	ensure_imported(xwam_state/2,machine,SymTab),
-	ensure_imported(breg_retskel/4,machine,SymTab),
-	ensure_imported(excess_vars/4,setof,SymTab),
-	ensure_imported(copy_term/2,basics,SymTab),
-	ensure_imported(instantiation_error/3,error_handler,SymTab),
-	ensure_imported('_$$get_returns'/3,tables,SymTab),
-	ensure_imported(delete_return/2,tables,SymTab),
-	ensure_imported('_$member'/2,basics,SymTab),
-	ensure_imported(findall/3,setof,SymTab),
-	% TLS: for approximations (whether or not used)
-	ensure_imported(early_complete_on_nth/2,tables,SymTab),
-	ensure_imported(early_complete_on_delta/4,tables,SymTab).
-%% this one looks OK, but reinstated clause handles this case....
-generate_agg_clauses(fold(OpSpec,Id),Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClList2,SymTab) :-
-	functor(PredTerm,Pred,Arity),
-	(spec_skel(OpSpec,OpSpec1,3)
-	 ->	true
-	 ;	syntax_error(['Improper join specification in tabling declaration for ',Pred,'/',Arity])
-	),
-	(Id = F/1
-	 ->	GetID =.. [F,OVar],
-		Init = (GetID, OpSpec1)
-	 ; Id == no_identity
-	 ->	Init = (Var1 = Var)
-	 ;	Init = (OVar = Id, OpSpec1)
-	),
-	sym_propin(tabled,Sym),
-	arg(1,OpSpec1,OVar), arg(2,OpSpec1,Var1), arg(3,OpSpec1,Var),
-	get_actions_for_lattice_aggr_success(Sym,[Cs,Leaf,Var,OVar,Breg],Actions),
-	Body = ('_$savecp'(Breg),
-		breg_retskel(Breg,Arity,Skel,Cs),
-		(nonvar(Var) -> instantiation_error(Pred/Arity,Arity,var) ; true),
-		excess_vars(Skel,[Var|ExistVarList],[],Vars),
-		copy_term(t(Vars,Skel,Var),t(Vars,OSkel,OVar)),
-		Pred1Term,
-		('_$$get_returns'(Cs,OSkel,Leaf)
-		 ->	OpSpec1,
-			Var \== OVar,
-%			delete_return(Cs,Leaf)
-			Actions
-		 ;	Init
-		)
-	       ),
-	parse_preddef_closed(PredTerm,Body,ClList2,SymTab),
-	globalize('/',2,SymTab),
-	globalize(var,0,SymTab),
-	ensure_imported(breg_retskel/4,machine,SymTab),
-	ensure_imported(excess_vars/4,setof,SymTab),
-	ensure_imported(copy_term/2,basics,SymTab),
-	ensure_imported(instantiation_error/3,error_handler,SymTab),
-	ensure_imported('_$$get_returns'/3,tables,SymTab),
-	ensure_imported(delete_return/2,tables,SymTab),
-	ensure_imported('_$member'/2,basics,SymTab),
-	ensure_imported('.'/2,consult,SymTab),
-	% TLS: for approximations (whether or not used)
-	ensure_imported(early_complete_on_nth/2,tables,SymTab),
-	ensure_imported(early_complete_on_delta/4,tables,SymTab).
-***/
+	ensure_imported_list([im(once/1,standard),
+			      im(breg_retskel/4,machine),
+			      im(excess_vars/4,setof),
+			      im(findall/3,setof),
+			      im('_$member'/2,basics),
+			      im(copy_term/2,basics),
+			      im(instantiation_error/3,error_handler),
+			      im('_$$get_returns'/3,tables),
+			      im('delete_return'/2,tables)
+			      ],SymTab).
+
+%%	ensure_imported(once/1,standard,SymTab),
+%%	ensure_imported(breg_retskel/4,machine,SymTab),
+%%	ensure_imported(excess_vars/4,setof,SymTab),
+%%	ensure_imported(findall/3,setof,SymTab),
+%%	ensure_imported('_$member'/2,basics,SymTab),
+%%	ensure_imported(copy_term/2,basics,SymTab),  % but problems with sysmod?
+%%	ensure_imported(instantiation_error/3,error_handler,SymTab),
+%%	ensure_imported('_$$get_returns'/3,tables,SymTab),
+%%	ensure_imported('delete_return'/2,tables,SymTab).
 %% new with wfs
 generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClList2,SymTab) :-
 	(AggrSpec = fold(OpSpec,Id)
@@ -463,7 +374,33 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	parse_preddef_closed(PredTerm,Body,ClList2,SymTab),
 	globalize('/',2,SymTab),
 	%%globalize(var,0,SymTab),
-	ensure_imported(nonvar/1,standard,SymTab),
+	ensure_imported_list([im(nonvar/1,standard),
+			      im((->)/2,standard),
+			      im((';')/2,standard),
+			      im((',')/2,standard),
+			      im(('\==')/2,standard),
+			      im(('==')/2,standard),
+			      im(('=:=')/2,standard),
+			      im(('=')/2,standard),
+			      im(breg_retskel/4,machine),
+			      im(excess_vars/4,setof),
+			      im(findall/3,setof),
+			      im(copy_term/2,basics),
+			      im(instantiation_error/3,error_handler),
+			      im('_$$get_returns_and_tvs'/4,tables),
+			      im('_$$get_returns'/3,tables),
+			      im(delete_return/2,tables),
+			      im(undefined/0,tables),
+			      im(xwam_state/2,machine),
+			      im('_$member'/2,basics),
+			      im(variant/2,subsumes),
+			      im(subsumes_chk/2,subsumes),
+			      im(early_complete_on_nth/2,tables),
+			      im(term_set_arg/4,machine),
+			      im(early_complete_on_delta/4,tables)
+			      ],SymTab).
+
+/***	ensure_imported(nonvar/1,standard,SymTab),
 	ensure_imported((->)/2,standard,SymTab),
 	ensure_imported((';')/2,standard,SymTab),
 	ensure_imported((',')/2,standard,SymTab),
@@ -489,7 +426,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	ensure_imported(early_complete_on_nth/2,tables,SymTab),
 	ensure_imported(term_set_arg/4,machine,SymTab),
 	ensure_imported(early_complete_on_delta/4,tables,SymTab).
-
+***/
 
 generate_agg_clauses(termset,_Sym,PredTerm,Var1,[],Pred1Term,Var,ClList2,SymTab) :- !,
 	functor(Pred1Term,NPred,Arity),
@@ -509,6 +446,7 @@ generate_agg_clauses(_OpSpec,_Sym,PredTerm,_Var1,_ExistVarList,_Pred1Term,_Var,_
 
 %%---
 
+:- mode get_return_w_tv(+,?,?,?).
 get_return_w_tv(Cs,OSkel,Leaf,TV):- 
 	xwam_state(2,DelayReg_start),mywriteln(start(DelayReg_start)),
 	'_$$get_returns'(Cs,OSkel,Leaf),
@@ -527,11 +465,12 @@ that it is greater than.
 So, in either case compare new to the prior true, then branch on its truth value.
 
 */
+:- mode call_join_op(+,?,?,?,?,?).
 call_join_op(New,Old,Join,Var,OVar,Actions):- 
 	mywriteln(call_join_op(New,Old,Join,Var,OVar,Actions)),
 	call(Join),
  	Var \== OVar,
-	(New = t -> Actions  ; true).
+	(New = t -> call(Actions) ; true).
 
 /* Use this for WFS semantics (maybe incorrect)
 call_join_op(New,Old,Join,Var,OVar,Actions):- 
@@ -580,6 +519,7 @@ equate_but_argno([X|PArgs],[Y|P1Args],CurArg,ArgList,VarList,A,B,ArgNo) :-
 	equate_but_argno(PArgs,P1Args,CurArg1,ArgList0,VarList0,A,B,ArgNo).
 
 %:- import console_writeln/1 from standard.
+:- mode extract_aggr_spec(?,?,?,?).
 extract_aggr_spec(Spec,ArgNo,ExistArgList,AggSpec) :-
 	functor(Spec,_,Arity),
 	get_aggr_spec0(1,Spec,Arity,ExistArgList,ArgNo,AggSpec).
@@ -604,6 +544,11 @@ get_aggr_spec0(ArgNo,Spec,Arity,ExistArgList,OpArgNo,OpSpec) :-
 non_cpopt_var(Term):-
 	nonvar(Term),
 	\+ (Term = '$$var'(Id), integer(Id)).
+
+ensure_imported_list([],_SymTab).
+ensure_imported_list([im(PA,Mod)|Imps],SymTab) :-
+    ensure_imported(PA,Mod,SymTab),
+    ensure_imported_list(Imps,SymTab).
 
 ensure_imported(Pred/Arity,Mod,SymTab) :-
 	sym_insert(Mod,0,[module],SymTab,_),
@@ -721,10 +666,15 @@ table_index_trans_pred(Sym,Pscs,Oth,Indexes,ClList,SymTab) :-
 	gen_ind_clauses(IOrds,BaseOrd,Pred,Arity,NonAbsPoss,BOPred,NewClList2,SymTab),
 	
 	% generate_rest_index_clauses
-	ensure_imported(table_error/1,error_handler,SymTab),
+	ensure_imported_list([im(table_error/1,error_handler),
+			      im(pred_table_pred/2,tables),
+			      im(assert/1,assert),
+			      im(retractall/1,assert)
+			      ], SymTab).
+/**	ensure_imported(table_error/1,error_handler,SymTab),
 	ensure_imported(pred_table_pred/2,tables,SymTab),
 	ensure_imported(assert/1,assert,SymTab),
-	ensure_imported(retractall/1,assert,SymTab).
+	ensure_imported(retractall/1,assert,SymTab).***/
 
 gen_ind_clauses([],_BaseOrd,_Pred,_Arity,_NonAbsPoss,_OrdPred,_ClList,_SymTab).
 gen_ind_clauses([IOrd|IOrds],BaseOrd,Pred,Arity,NonAbsPoss,OrdPred,ClList,SymTab) :-
@@ -869,7 +819,7 @@ gen_sel_nonvars(I,Poss,[Arg|RemArgs],NonVars) :-
 	).
 
 
-
+:- mode collect_orders_from_indexes(?,+,?,?).
 collect_orders_from_indexes(Indexes,Arity,OrdSets,IndexOrds) :-
 	find_orders(Indexes,OrdSets),
 	collect_arg_perms(OrdSets,Arity,IndexOrds).
@@ -1077,7 +1027,18 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	parse_preddef_closed(PredTerm,Body,ClList2,SymTab),
 	globalize('/',2,SymTab),
 	globalize(var,0,SymTab),
-	ensure_imported(breg_retskel/4,machine,SymTab),
+	ensure_imported([im(breg_retskel/4,machine),
+			 im(excess_vars/4,setof),
+			 im(copy_term/2,basics),
+			 im(instantiation_error/3,error_handler),
+			 im('_$$get_returns'/3,tables),
+			 im(delete_return/2,tables),
+			 im('_$member'/2,basics),
+			 im(early_complete_on_nth/2,tables),
+			 im(early_complete_on_delta/4,tables)
+			 ], SymTab).
+
+/**	ensure_imported(breg_retskel/4,machine,SymTab),
 	ensure_imported(excess_vars/4,setof,SymTab),
 	ensure_imported(copy_term/2,basics,SymTab),
 	ensure_imported(instantiation_error/3,error_handler,SymTab),
@@ -1087,6 +1048,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	% TLS: for approximations (whether or not used)
 	ensure_imported(early_complete_on_nth/2,tables,SymTab),
 	ensure_imported(early_complete_on_delta/4,tables,SymTab).
+***/
 
 Following is a template for doing lattice and fold in WFS (including
 undefineds).
@@ -1181,7 +1143,19 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	       ),
 	globalize('/',2,SymTab),
 	globalize(var,0,SymTab),
-	ensure_imported(breg_retskel/4,machine,SymTab),
+	ensure_imported_list([im(breg_retskel/4,machine),
+			      im(excess_vars/4,setof),
+			      im(copy_term/2,basics),
+			      im(instantiation_error/3,error_handler),
+			      im('_$$get_returns'/3,tables),
+			      im(delete_return/2,tables),
+			      im('_$member'/2,basics),
+			      im(early_complete_on_nth/2,tables),
+			      im(early_complete_on_delta/4,tables)
+			      ], SymTab
+			    ),
+
+/*	ensure_imported(breg_retskel/4,machine,SymTab),
 	ensure_imported(excess_vars/4,setof,SymTab),
 	ensure_imported(copy_term/2,basics,SymTab),
 	ensure_imported(instantiation_error/3,error_handler,SymTab),
@@ -1190,5 +1164,6 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	ensure_imported('_$member'/2,basics,SymTab),
 	% TLS: for approximations (whether or not used)
 	ensure_imported(early_complete_on_nth/2,tables,SymTab),
-	ensure_imported(early_complete_on_delta/4,tables,SymTab),
+	ensure_imported(early_complete_on_delta/4,tables,SymTab),***/
+	
 	parse_preddef_closed(PredTerm,Body,ClList2,SymTab).
