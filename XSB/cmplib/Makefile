@@ -46,12 +46,13 @@ EMU_INCLUDES = ../emu/builtin.h ../emu/celltags_xsb.h ../emu/flag_defs_xsb.h \
 	../emu/system_defs_xsb.h ../emu/socket_xsb.h 
 PROLOG_INCLUDES = ../prolog_includes/char_defs.h ../prolog_includes/standard.h
 
-Option = [sysmod,optimize,spec_repr,quit_on_error,modeinfer]
-#Option = [sysmod,optimize,spec_repr,quit_on_error]
+#Option = [sysmod,optimize,spec_repr,quit_on_error,modeinfer]
+Option = [sysmod,optimize,spec_repr,quit_on_error]
 
 #-------------------------------------------------------------------#
 #
 XSB=../bin/xsb
+#XSB=../config/x64-pc-windows/bin/xsb.exe
 Prolog = $(XSB) -e "segfault_handler(warn)."
 #
 #-------------------------------------------------------------------#
