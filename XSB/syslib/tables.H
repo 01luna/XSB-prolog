@@ -169,7 +169,7 @@
 :- import parsort/4 from machine.
 
 
-:- import numbervars/4, unnumbervars/2 from num_vars.
+%%:- import numbervars/4, unnumbervars/2 from num_vars.
 
 :- import bagof/3, findall/3, setof/3, sort/2, excess_vars/4 from setof.
 

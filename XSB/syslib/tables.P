@@ -307,7 +307,7 @@ t_not(Subgoal,PredType,PTCP) :-
 %%mywriteln(Term):- writeit(If),(If =:= 1 -> writeln(Term); true).
 */
 :- import writeln/1 from standard.
-   mywriteln(Term):- writeln(Term).
+%mywriteln(Term):- writeln(Term).
 
 u_not(Goal) :-
 	(ground_and_acyclic(Goal) ->
@@ -318,8 +318,8 @@ u_not(Goal) :-
 :- table floundered/1 as variant, opaque.
 floundered(_Goal):- floundered_undefined(a).
 
-:- table tunnumcall/1.
-:- use_variant_tabling tunnumcall(_).
+%%:- table tunnumcall/1.
+%%:- use_variant_tabling tunnumcall(_).
 
 %% skolemized tnot.  Variables temporarily changed to ground and tnot 
 %% call is made.  Should give existential semantics to nonground negative
@@ -332,6 +332,21 @@ floundered(_Goal):- floundered_undefined(a).
 
 not_exists(Goal):- sk_not(Goal).
 
+:- table tabled_call/1 as variant, opaque.
+tabled_call(X) :- call(X).
+
+%% tnot works "correctly" with variables in subgoal if it has been
+%% called before.  So call it first.
+
+:- mode sk_not(?).
+sk_not(Goal) :-
+        (tabled_call(Goal), fail
+	 ;
+	 tnot(tabled_call(Goal))
+        ). 
+
+/*** Earlier code no longer needed; rewritten more efficiently,
+     and more generally, as above **
 sk_not(Goal) :-
 	check_cyclic(Goal,'sk_not/1',1),
 	copy_term(Goal,Goal1),
@@ -342,6 +357,7 @@ sk_not(Goal) :-
 tunnumcall(GGoal) :-
 	unnumbervars(GGoal,VGoal),
 	call(VGoal).
+***/
 
 % we've got true and fail -- why not this?
 :- table undefined/0 as opaque.
