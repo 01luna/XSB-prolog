@@ -270,7 +270,7 @@ static inline CPtr ProcessSuspensionFrames(CTXTdeclc CPtr cc_tbreg_in,
   return cc_tbreg;
 }
 
-static inline check_SCC_for_compl_sems(CTXTdeclc CPtr cs_ptr) {
+static inline int check_SCC_for_compl_sems(CTXTdecl CPtr cs_ptr) {
   CPtr ComplStkFrame = cs_ptr;
 
   while (ComplStkFrame >= openreg) {

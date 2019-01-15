@@ -239,8 +239,6 @@ extern int base64_decode(CTXTdeclc prolog_term, prolog_term);
 
 extern void replace_form_by_act(char *name, prolog_term modformals, prolog_term modactuals);
 
-							 //extern byte *biarg;
-
 /* ------- variables also used in other parts of the system -----------	*/
 
 Cell flags[MAX_FLAGS];			  /* System flags + user flags */
@@ -528,6 +526,16 @@ static VarString *LSBuff[MAXSBUFFS] = {NULL};
 
 #define str_op1 (*tsgSBuff1)
 
+char *unquote_if_nec(char *string) {
+  size_t string_len;
+  string_len = strlen(string);
+  if (string[0] == '\'' && string[string_len-1] == '\'') {
+      /* cheat for now, at some point remove one on internal double single quotes */
+      XSB_StrSet(&str_op1,string);
+      str_op1.string[string_len-1] = '\0';
+      return str_op1.string+1;
+    } else return string;
+}
 
 /* construct a long string from prolog... concatenates atoms,
 flattening lists and comma-lists, and treating small ints as ascii
@@ -2056,8 +2064,7 @@ int builtin_call(CTXTdeclc byte number)
     int  value = 0;
     char *addr = ptoc_string(CTXTc 4);
     if (addr) {
-      replace_form_by_act(addr,makenil,makenil); // no parameterized mods...
-      psc = pair_psc(insert_module(0, addr));
+      psc = pair_psc(insert_module(0, unquote_if_nec(addr)));
     } else psc = (Psc)flags[CURRENT_MODULE];
     //    sym = pair_psc(insert(ptoc_string(CTXTc 1), (char)ptoc_int(CTXTc 2), psc, &value));
     sym = pair_psc(insert_psc(ptoc_string(CTXTc 1), (int)ptoc_int(CTXTc 2), psc, &value));
@@ -2080,8 +2087,7 @@ int builtin_call(CTXTdeclc byte number)
     int arity = (int)ptoc_int(CTXTc 2);
     char *mod_name = ptoc_string(CTXTc 3);
     if (mod_name) {
-      replace_form_by_act(mod_name,makenil,makenil); // no parameterized mods...
-      mod_psc = pair_psc(insert_module(0, mod_name));
+      mod_psc = pair_psc(insert_module(0, unquote_if_nec(mod_name)));
     } else mod_psc = (Psc)flags[CURRENT_MODULE];
     if ((Cell)get_data(mod_psc) == USERMOD_PSC) {
       search_ptr = (Pair *)(symbol_table.table +
@@ -2107,7 +2113,7 @@ int builtin_call(CTXTdeclc byte number)
     Psc  mod_psc;
     Pair sym;
     char *mod_name = ptoc_string(CTXTc 3);
-    if (strncmp(mod_name,"usermod(",strlen("usermod(")) == 0) {
+    if (!mod_name || strncmp(mod_name,"usermod(",strlen("usermod(")) == 0) {
       sym = insert_psc(ptoc_string(CTXTc 1),(int)ptoc_int(CTXTc 2), global_mod, &value);
       init_psc_ep_info(pair_psc(sym)); // reset to reload
       psc_set_data(pair_psc(sym),(Psc)makestring(string_find(mod_name,1)));
@@ -2115,8 +2121,7 @@ int builtin_call(CTXTdeclc byte number)
       if (get_type(pair_psc(sym)) == 0)
       	psc_set_type(pair_psc(sym),T_UDEF);
     } else {
-      replace_form_by_act(mod_name,makenil,makenil); // no parameterized mods...
-      mod_psc = pair_psc(insert_module(0, mod_name));
+      mod_psc = pair_psc(insert_module(0, unquote_if_nec(mod_name)));
       sym = insert_psc(ptoc_string(CTXTc 1), (int)ptoc_int(CTXTc 2), mod_psc, &value);
       if (value)       /* if predicate is new */
 	psc_set_data(pair_psc(sym), (mod_psc));
