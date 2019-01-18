@@ -68,13 +68,14 @@ config=`./config.guess`
 dir=../config/`./config.sub $config`${suffix}
 makefile=${dir}/topMakefile
 
+makeargs_stripped=`echo $makeargs | sed -e 's/ //g'`
 
 if test -r "$makefile" ; then
    echo ""
    echo "make -f ${makefile}  $makeargs"
    echo ""
    make -f ${makefile}  $makeargs
-   if test "@force_dynmodule@" = "yes"; then
+   if test "@force_dynmodule@" = "yes" -a "$makeargs_stripped" != "clean" ; then
        echo "make -f ${makefile} dynmodule"
        make -f ${makefile} dynmodule
    fi
