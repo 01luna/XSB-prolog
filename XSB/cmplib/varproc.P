@@ -539,11 +539,11 @@ vprag_context(vrec(C,_,_,_,_,_), C).	% h - Head, i - Inline, b - Body
 
 :- mode vprag_level(?,?).
 vprag_level(vrec(_,C,_,_,_,_), C) :-
-    atom(C).				% t - top level, s - second level
+    check_atom(C,'vprag_level/2',1).				% t - top level, s - second level
 
 :- mode vprag_argno(?,?).
 vprag_argno(vrec(_,_,C,_,_,_), C) :-
-    integer(C).
+    check_integer(C,'vprag_argno/2',1).
 
 /*--------------------------------------------------------------*/
 /* The following information is filled by mark_occurrences/1.	*/
@@ -562,7 +562,7 @@ vprag_lastchunk(vrec(_,_,_,_,_,C), C).
 vprag_common(vrec(_,_,_,_,C,_), C). %% structure, some filled in by alloc_vars/2.
 
 :- mode vprag_type(?,?).
-vprag_type(vrec(_,_,_,_,v(C,_,_,_),_), C) :- atom(C).
+vprag_type(vrec(_,_,_,_,v(C,_,_,_),_), C) :- check_atom(C,'vprag_type/1',1).
 	% t - Temp var, p - Permanent var, vh - void var at head, v - void not head
 
 /*------------------------------------------------------*/
@@ -594,11 +594,11 @@ new_on_opentailed([C0|T],C) :-
 	% for temp var, the "use" list; for perm var, "d", "u" or "p"
 
 :- mode vprag_use(?,?).
-vprag_use(vrec(_,_,_,_,v(_,_,C,_),_), C) :- ground(C).
+vprag_use(vrec(_,_,_,_,v(_,_,C,_),_), C) :- check_ground(C,'vprag_use/2',1).
 	% for temp var, the "nouse" list; for perm var, not used.
 
 :- mode vprag_nouse(?,?).
-vprag_nouse(vrec(_,_,_,_,v(_,_,_,C),_), C) :- ground(C).
+vprag_nouse(vrec(_,_,_,_,v(_,_,_,C),_), C) :- check_ground(C,'vprag_nouse/2',1).
 
 /*----------------------------------------------------------------------*/
 /* The non-first occurrence of a permanent variable in the last chunk	*/

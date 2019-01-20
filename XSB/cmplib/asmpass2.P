@@ -157,15 +157,15 @@ asm_genarg(OStr,n(I), _) :-
 		 	(I < 0 -> II = -2147483647 ; II = 2147483647),
 			 write_int(OStr,II)
 		)
-	 ;  real(I),
+	 ;  check_number(I,'asm_genarg/3',2),
 	    write_float(OStr,I)
 	).
-asm_genarg(OStr,d(I), _) :- real(I),write_double(OStr,I).
-asm_genarg(OStr,i(I), _) :-  integer(I),write_int(OStr,I).
-asm_genarg(OStr,l(L), LabelTab) :- hashed_find_label((L,I), LabelTab), integer(I), write_int(OStr,I).
-asm_genarg(OStr,r(I), _) :- atomic(I),file_put(OStr,I).
-asm_genarg(OStr,v(I), _) :- atomic(I),file_put(OStr,I).
-asm_genarg(OStr,a(I), _) :- atomic(I),file_put(OStr,I).
+asm_genarg(OStr,d(I), _) :- check_number(I,'asm_genarg/3',2),write_double(OStr,I).
+asm_genarg(OStr,i(I), _) :- check_integer(I,'asm_genarg/3',2),write_int(OStr,I).
+asm_genarg(OStr,l(L), LabelTab) :- hashed_find_label((L,I), LabelTab), check_integer(I,'asm_genarg/3',2), write_int(OStr,I).
+asm_genarg(OStr,r(I), _) :- check_integer(I,'asm_genarg/3',2),file_put(OStr,I).
+asm_genarg(OStr,v(I), _) :- check_integer(I,'asm_genarg/3',2),file_put(OStr,I).
+asm_genarg(OStr,a(I), _) :- check_integer(I,'asm_genarg/3',2),file_put(OStr,I).
 asm_genarg(OStr,t(T), _) :- write(OStr,T).
 
 

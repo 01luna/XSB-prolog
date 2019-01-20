@@ -143,7 +143,7 @@ get_end_ith_bucket(BucketList, NextBucketList) :-
 /*======================================================================*/
 :- mode sym_count(?,?).
 sym_count(sym_tab(Count,_,_), Count) :-
-    integer(Count).
+    check_integer(Count,'sym_count/2',1).
 
 
 /*======================================================================*/
@@ -423,8 +423,8 @@ sym_name(sym(P, A, _, _), P1, A) :-
 	 ->	true
 	 ;	P1 = P
 	),
-	atom(P1),
-	integer(A).
+	check_atom(P1,'sym_name/3',1),
+	check_integer(A,'sym_name/3',1).
 
 
 /*======================================================================*/
@@ -433,7 +433,7 @@ sym_name(sym(P, A, _, _), P1, A) :-
 /*======================================================================*/
 
 :- mode sym_offset(?,?).
-sym_offset(sym(_,_,_,Offset), Offset) :- integer(Offset).
+sym_offset(sym(_,_,_,Offset), Offset) :- check_integer(Offset,'sym_offset/2',1).
 
 
 /*======================================================================*/

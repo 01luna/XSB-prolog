@@ -119,10 +119,12 @@ infer_export_fill(RestTab, SymTab, ClBT, Domain) :-
                  ->     Dom = global
                         % multifile predicates are assumed global
 		; find_in_bt(Sym, ClBT) -> Dom = Domain
-		; pred_implicitly_imported_from(Sym, Mod), atom(Mod) ->
+		 ; pred_implicitly_imported_from(Sym, Mod) ->
+			check_atom(Mod,'pred_implicitly_imported_from/2',2),
 			sym_insert(Mod, 0, [module,used], SymTab, _ModSym),
 			Dom = im(Mod)
-		; sym_prop(defined(Mod,_Pred),Sym), atom(Mod) -> 
+		; sym_prop(defined(Mod,_Pred),Sym) -> 
+			check_atom(Mod,'defined/2',1),
 			sym_insert(Mod, 0, [module,used], SymTab, _)
 		; Dom = Domain
 		)
@@ -175,9 +177,11 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 		     ;	    MidList = InList
 		    ),
 		    check_pred(Cls, SymTab, MidList, OutList)
-		; ( sym_prop(im(Mod), Sym), atom(Mod) ->
+		; ( sym_prop(im(Mod), Sym) ->
+			check_atom(Mod,'im/1',1),
 			sym_insert(Mod, 0, [used], SymTab, _)
-		  ; sym_prop(docim(Mod), Sym), atom(Mod) ->
+		  ; sym_prop(docim(Mod), Sym) ->
+			check_atom(Mod,'docim/1',1),
 			sym_insert(Mod, 0, [used], SymTab, _)
 		  ; pred_implicitly_imported_from(Sym, Mod) ->
 			sym_insert(Mod, 0, [module,used], SymTab, _),
@@ -186,7 +190,9 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 			 ; 	true)
 		  ; sym_prop((multifile),Sym) ->
 			  true	% cop-out, maybe should recurse through modded clauses
-		  ; sym_prop(defined(Mod,Pred),Sym), atom(Mod), atom(Pred) -> 
+		  ; sym_prop(defined(Mod,Pred),Sym) -> 
+			  check_atom(Mod,'defined/2',1),
+			  check_atom(Mod,'defined/2',2),
 			  sym_insert(Mod, 0, [module,used], SymTab, _),
 			  sym_name(Sym,_P,A),
 			  sym_insert(Pred, A, [used], SymTab, _)
@@ -198,7 +204,8 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 		  ),
 		  OutList = InList
 		)
-	  ; sym_prop(im(Mod), Sym), atom(Mod) ->
+	  ; sym_prop(im(Mod), Sym) ->
+		check_atom(Mod,'im/1',1),
 		% takes care of the case when Sym is imported from Mod but is
 		% not a predicate symbol. If Sym is used, then Mod is used.
 		sym_insert(Mod, 0, [used], SymTab, _ModSym), OutList = InList
@@ -225,7 +232,8 @@ add_aggspec_preds(OpSpec,SymTab,InList,OutList) :-
 
 insert_pred_spec_if_nec(OpSpec,SymTab,InList,OutList) :-
 	(OpSpec = Name/Arity, atom(Name), integer(Arity)
-	 ->	true
+	 ->	check_atom(Name,insert_pred_spec_if_nec/4',1),
+		check_integer(Arity,insert_pred_spec_if_nec/4',1)
 	 ;	functor(OpSpec,Name,Arity)
 	),
 	sym_insert(Name,Arity,[],SymTab,Sym),

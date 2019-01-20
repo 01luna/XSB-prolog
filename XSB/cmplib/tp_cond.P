@@ -53,7 +53,7 @@ tvar_hold_arg(structure(_,Args), HoldIn, HoldOut) :-
 	tvar_hold_args(Args, HoldIn, HoldOut).
 tvar_hold_arg(varocc(Vid,Prag), HoldIn, HoldOut) :-
 	vprag_type(Prag, Type),
-	( Type == t -> integer(Vid),HoldOut=[Vid|HoldIn] ; HoldOut=HoldIn ).
+	( Type == t -> check_integer(Vid,'tvar_hold_arg/3',1),HoldOut=[Vid|HoldIn] ; HoldOut=HoldIn ).
 
 /*======================================================================*/
 /* tcond(+TestGoal, +SuccessLabel, +FailLabel, 				*/

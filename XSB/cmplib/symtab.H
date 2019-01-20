@@ -41,4 +41,4 @@
 :- import term_hash/3, parsort/4, term_set_arg/4
      from machine.
 :- import copy_term/2 from basics.
-
+:- import check_atom/3, check_integer/3 from error_handler.

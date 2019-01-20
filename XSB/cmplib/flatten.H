@@ -31,3 +31,4 @@
 :- import arithrelop/1 from tp_eval.
 :- import length/2 from basics.
 :- import functor/3 from standard.
+:- import check_atom/3 from error_handler.

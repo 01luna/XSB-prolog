@@ -146,7 +146,7 @@ temp_and_releasable(Prag,Loc) :-
 	vprag_loc(Prag,Loc),
 	vprag_use(Prag,Use),
 	\+ (append(_,[Loc|Rest],Use),member(Loc,Rest)), % not used elsewhere
-	integer(Loc).
+	check_integer(Loc,'temp_and_releasable/2',1).
 
 /*======================================================================*/
 /* tgetpar(+HeadArg, +Reg, -Pil, -Pilr, +TRin, -TRout)			*/

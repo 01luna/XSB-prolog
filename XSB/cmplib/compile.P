@@ -80,12 +80,12 @@ compile_internal(Modname, Basename, Extension,Options, ExportList) :-
 	parse(Modname, PFile, HFile, Module_0),
 	( option(profile) -> 
 	    time_message(TimeStart, 'Parse finita'), cputime(TimeParse)
-	; TimeParse = 0 ), % To avoid a silly lamp variable message!
+	; TimeParse = TimeParse ), % To avoid a silly lamp variable message!
 	abort_if_syntax_errors(Modname), !,
 	useinfer(Module_0, IsModule, ExportList), !,
 	( option(profile) -> 
 	    time_message(TimeParse, 'Useinfer finita') ,cputime(TimeUse) 
-	; TimeUse = 0 ),
+	; TimeUse = TimeUse ),
 	modeinfer(Modname, Module_0, DFile),
 	specialise(Module_0, Module0, SpecFile),
 	table_process(Module0, Module, TableFile),
@@ -357,8 +357,8 @@ compile_predicate2(pred(Sym,Clauses,Prag), PilCode-PilCodeR, NC) :-
 
 find_if_tabled(Sym, tabled(Tabind,Ar)):-
     sym_type(Sym, tabled(Tabind,Ar)),
-    integer(Tabind),
-    integer(Ar),
+    check_integer(Tabind,'find_if_tabled/2',2),
+    check_integer(Ar,'find_if_tabled/2',2),
     !. 
 find_if_tabled(_, 0). 
 

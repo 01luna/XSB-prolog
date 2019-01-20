@@ -224,7 +224,8 @@ make_name(ArgName,ArgArity,OutName) :-
 		number_codes(ArgName,L), atom_codes(OutName,L)
 	; number(ArgName) ->
 		OutName = 'F'
-	; atom(ArgName), ArgArity > 0 ->
+	; ArgArity > 0 ->
+		check_atom(ArgName,'make_name/3',1),
 		str_cat(ArgName,'/',Temp0),
 		number_codes(ArgArity,L), atom_codes(Temp1,L),
 		str_cat(Temp0,Temp1,OutName)
@@ -241,7 +242,7 @@ make_name(ArgName,ArgArity,OutName) :-
 
 cat_name(InName,Name,OutName) :-
 	str_cat(InName,'_',Name0),
-	atom(Name),
+	check_atom(Name,'cat_name/3',2),
 	str_cat(Name0,Name,OutName).
 
 
@@ -318,14 +319,17 @@ ext_clause_data(clause(Args,Body,Prag),Args,Body,Prag).
 
 int_pred_data(ti_pred(ExtName,Name,Arity,MList,Cls,ClsR,LastCl),
 	      ExtName,Name,Arity,MList,Cls,ClsR,LastCl) :-
-    atom(Name),integer(Arity).
+    check_atom(Name,'int_pred_data/8',1),
+    check_integer(Arity,'int_pred_data/8',1),
+    int_clause_data(ti_clause(Args,Body,Prag,Pred),
+		    Args,Body,Prag,Pred).
 
 int_clause_data(ti_clause(Args,Body,Prag,Pred),
 		Args,Body,Prag,Pred).
 
 arg_data(constant(Sym),Name,Arity,[]) :- sym_name(Sym,Name,Arity).
-arg_data(integer(Int),Int,0,[]) :- integer(Int).
-arg_data(real(Real),Real,0,[]) :- real(Real).
+arg_data(integer(Int),Int,0,[]) :- check_integer(Int,arg_data/4',1).
+arg_data(real(Real),Real,0,[]) :- check_number(Real,arg_data/4',1).
 arg_data(structure(Sym,Args),Name,Arity,Args) :- sym_name(Sym,Name,Arity).
 
 make_arg(structure(Sym,_),Args,structure(Sym,Args)) :- !.
@@ -337,7 +341,7 @@ new_var(varocc(Varocc)) :- cmp_gensym('_', Prefix), cat_name(Prefix,(ti),Varocc)
 
 pass_thru_sym(constant(Sym)) :- sym_pass_thru(Sym).
 
-is_var(varocc(Int)) :- integer(Int).
+is_var(varocc(Int)) :- check_integer(Int,'is_var/1',1).
 
 is_nonvar(X) :- \+ is_var(X).
 

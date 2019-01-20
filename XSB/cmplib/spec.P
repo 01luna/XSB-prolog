@@ -561,6 +561,7 @@ singleton_special_call([CArg|CArgs], [HArg|HArgs], Body, SpecCall) :-
 
 'arg unification'(CallArg, HeadArg, SpecCall, RestSpecCall) :-
 	( HeadArg = varocc(Id), integer(Id) ->
+		check_integer(Id,'arg unification/4',2),
 		name(Id, L), NL = [0'_, 0'v|L], atom_codes(NewId, NL),
 		SpecCall = and(inlinegoal(=,2,[CallArg,varocc(NewId)]),
 			       RestSpecCall)
@@ -724,7 +725,7 @@ name_vars_uniquely(G, Sym, NG) :-
 %%:- mode make_arg_vars_unique(+,+,-).
 
 make_arg_vars_unique(varocc(Id), IdL, varocc(NewId)) :-
-	integer(Id),    
+	check_atomic(Id,'make_arg_vars_unique/3',1),
 	!,
 	name(Id, IdName),
 	( IdName = [0'_,0'v|_] ->

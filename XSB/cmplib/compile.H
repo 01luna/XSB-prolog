@@ -80,6 +80,6 @@
 :- import catch/3,throw/1 from standard.
 :- import console_writeln/1 from standard.
 :- import syntax_error/1, permission_error/4, permission_warning/5,
-   check_ground/3  from error_handler.
+   check_ground/3, check_integer/3  from error_handler.
 :- import see/1 from standard.
 :- import (',')/2 from standard.

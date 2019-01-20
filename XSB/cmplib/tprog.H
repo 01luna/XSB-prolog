@@ -38,4 +38,4 @@
 :- import tcond/9, tvar_hold/3 from tp_cond.
 :- import sym_name/3, sym_type/2 from symtab.
 :- import tgetpar/6, tgoalargs/7 from tp_goal.
-:- import check_ground/3 from error_handler.
+:- import check_ground/3, check_integer/3, check_atom/3 from error_handler.

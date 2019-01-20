@@ -179,7 +179,6 @@ generates.  Next time I'm here, I should try to figure out why this
 is.... dsw - look at Kostis's comment in release_if_done/6. */
 
 :- mode release(?,?,?).
-release(N,Li,_) :- (ground(Li) -> fail ; standard:writeln(userout,error_release(N,Li)),fail).
 release(_, [], []).
 release(N, [Reg|R], Rest) :-
 	( N =:= Reg -> Rest = R ; Rest = [Reg|T], release(N, R, T) ).
@@ -189,10 +188,9 @@ release(N, [Reg|R], Rest) :-
 /* getreg(+TRList, -Reg)						*/
 /* get an unused register (not in TRList)				*/
 /*======================================================================*/
-:- import ground/1 from basics.
 :- mode getreg(?,?).  % 1st (list) is ground, but sometimes (rarely) Tin is open.
 getreg(TRList, Reg) :-
-    (ground(TRList) -> true ; standard:writeln(userout,error_getreg(TRList))),
+    check_ground(TRList,'getreg/2',1),
     sort(TRList,STRList),
 	choose_reg_not_in(STRList,1,Reg).
 
@@ -296,7 +294,9 @@ release_if_done(Vid,R,VPrag,HoldR,Tin,Tout) :-
 	( T == t -> 
 	    vprag_loc(VPrag, L),
 	    vprag_occ(VPrag, Occ),
-	    ( integer(L) -> release_if_done1(Vid,R,HoldR,Tin,Tout,L,Occ)
+	    ( nonvar(L)
+	     ->	check_integer(L,'release_if_done/6',3),
+		release_if_done1(Vid,R,HoldR,Tin,Tout,L,Occ)
 	    ; var(L), Tout = [R|Tin]	% Changed Kostis (12/18/92) to fix bug.
 				% Now two terms share this reg, so on list TWICE!
 	    )
@@ -331,9 +331,8 @@ release_if_done1(Vid,R,HoldR,Tin,Tout,L,Occ) :-
 /*	or b) 								*/
 /*======================================================================*/
 :- mode release_if_done0(?,?,+,?,?).
-release_if_done0(_,_R,HoldR,_Tin,_Tout) :- (ground(HoldR) -> true ; standard:writeln(userout,hold_open(HoldR))), fail.
 release_if_done0(varocc(Vid,Prag),R,HoldR,Tin,Tout) :-
-	!, integer(Vid),
+	!, check_integer(Vid,'release_if_done0/5',1),
 	release_if_done(Vid,R,Prag,HoldR,Tin,Tout).
 release_if_done0(_Term,R,_,Tin,Tout) :-
 	release(R,Tin,Tout).

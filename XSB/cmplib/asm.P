@@ -160,7 +160,7 @@ asm_magic(OStr,N) :- file_put(OStr,17), file_put(OStr,18), file_put(OStr,19), fi
 
 asm_index_inst(cases(_,_,_,_), 10).
 asm_index_inst(arglabel(T,_,_), Size) :-
-	( asm_index_inst1(T, Size), integer(Size) -> true ; Size = 5 ).
+	( asm_index_inst1(T, Size) -> check_integer(Size,'asm_index_inst/2',2) ; Size = 5 ).
 
 asm_index_inst1(i, 9).
 asm_index_inst1(c, 9).

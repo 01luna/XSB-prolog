@@ -204,7 +204,7 @@ new_preds([P1,P2|Ps], [GA|GAs], [Sym|Syms], Name,
 
 new_pred([], [], A,A, P,P).
 new_pred([Arg|Args], [HeadArg|HeadArgs], Ain,Aout, Pin,Pout) :-
-	Arg = varocc(Id), integer(Id),
+	Arg = varocc(Id), check_integer(Id,'new_pred/6',1),
 	HeadArg = varocc(NewId),
 	name(Id, L), NL = [0'_,0'v|L], name(NewId, NL),
 	Amid is Ain+1,

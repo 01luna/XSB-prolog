@@ -35,6 +35,10 @@
 /*======================================================================*/
 
 %-----------------------------------------------------------------------
+% following for self-compile startup
+%:- import mode_on_success/1 from usermod.
+%:- assert:assert(mode_on_success(_)).
+
 :- mode_on_success(gpp_include_dir(+)).
 :- dynamic gpp_include_dir(_).
 
@@ -815,7 +819,7 @@ parse_directive(include(FileIn), _QrList,_SymTab,ModName,ModStruct) :- !,
 	(var(FileIn)
 	 ->	error(('Module cannot be a variable. Include: '))
           ;	(FileIn = library(File1) -> File = File1 ; File = FileIn),
-		atom(File),
+		check_atom(File,'parse_directive/5',1),
 		(search_module(File, _Dir, _Newame, Ext, Base, _Obj) ->
 		    concat_atom([Base,'.',Ext],PFile),
 		    parse1(ModName,PFile,ModStruct)
@@ -829,7 +833,7 @@ parse_directive(index(X), _QrList,SymTab,_ModName,_ModStruct) :- !,
 	parse_index(X, SymTab).
 parse_directive(index(Ps,Arg,Size), QrList,SymTab,_ModName,_ModStruct) :- !,
     (Ps = Pname/Arity,
-     atom(Pname),integer(Arity)
+     check_atom(Pname,'index/3',1),check_integer(Arity,'index/3',1)
      ->	true
      ; functor(Ps,Pname,Arity)
     ),
@@ -1153,7 +1157,8 @@ parse_comma_list_import(X,_Mod,_SymTab) :-
 :- import comma_member/2 from basics.
 % who knows, there could be more...
 insert_compiler_based_options(Options,P/A,SymTab):-
-    atom(P), integer(A),
+    check_atom(P,'insert_compiler_based_options/3','2.1'),
+    check_integer(A,'insert_compiler_based_options/3','2.2'),
     comma_member(approximate(Cond),Options) -> 
 %	        standard:console_writeln(approximate(Cond)),
 		sym_insert(P, A, [approximation(Cond)], SymTab, _)
@@ -1253,7 +1258,8 @@ is_a_mode('+').
 
 parse_table_index(PredSpec,IndexSpec,SymTab) :-
 	(PredSpec = Pred/Arity
-	  ->	 atom(Pred), integer(Arity)
+	 ->	check_atom(Pred,'parse_table_index/3','1.1'),
+		check_integer(Arity,'parse_table_index/3','1.2')
 	  ;	 functor(PredSpec,Pred,Arity)
 	),
 	(valid_index_spec(IndexSpec,Arity)
@@ -1286,7 +1292,8 @@ parse_comma_list_dyn(Spec,SymTab) :-
 		 ->	warning((P,'/',A,' defined before its dynamic declaration'))
 		 ;	true
 		),
-		sym_insert(P,A,[(dynamic),pred,defined],SymTab,Sym)
+		%sym_insert(P,A,[(dynamic),pred,defined],SymTab,Sym) DSWDSW
+		sym_insert(P,A,[(dynamic),pred],SymTab,Sym)
 	 ;      warning(('Non predicate specification "', Spec,
 		 '" found in dynamic directive. Ignored!'))
 	).	
