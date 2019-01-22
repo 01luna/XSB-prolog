@@ -14,13 +14,11 @@
 :- mode cv(?,?,?).
 :- mode cv(?,?).
 :- mode needed(?,?).
-:- mode edb_dep(+,+,?).
 :- mode args_of_new_goal(?,?,?).
 :- mode rbl(?,?,?).
 :- mode pred_edb_dependency(?,?).
 :- mode clause_dependency(?,?,?,?).
 :- mode suppl_fold(?,?,+,+,?,?,?,?).
-:- mode suppl_folding(+,+,?).
 :- mode max(?,?,?).
 :- mode can_be_folded(?).
 :- mode cv2(?,?).
@@ -69,7 +67,6 @@
 :- (mode_on_success cv(A,B)).
 :- (mode_on_success needed(g,A)).
 :- (mode_on_success needed(ng,ng)).
-:- (mode_on_success edb_dep(g,g,A)).
 :- (mode_on_success args_of_new_goal(g,A,g)).
 :- (mode_on_success args_of_new_goal(ng,ng,A)).
 :- (mode_on_success args_of_new_goal(ng,g,g)).
@@ -80,7 +77,6 @@
 :- (mode_on_success suppl_fold(g,A,g,g,B,C,D,D)).
 :- (mode_on_success suppl_fold(ng,A,g,g,B,ng,C,C)).
 :- (mode_on_success suppl_fold(A,B,g,g,C,D,ng,E)).
-:- (mode_on_success suppl_folding(g,g,A)).
 :- (mode_on_success max(A,B,B)).
 :- (mode_on_success can_be_folded(A)).
 :- (mode_on_success cv2(A,B)).

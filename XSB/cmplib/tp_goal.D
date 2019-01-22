@@ -34,7 +34,8 @@
 :- (mode_on_success load_from_nreg_struct(ng,A,g,g)).
 :- (mode_on_success tunipars(ng,ng,A,B,B)).
 :- (mode_on_success tunipars(A,B,B,C,C)).
-:- (mode_on_success tgoalargs(A,g,ng,B,C,C,g)).
+:- (mode_on_success tgoalargs(A,g,ng,B,g,g,g)).
+:- (mode_on_success tgoalargs(ng,g,ng,A,B,B,g)).
 :- (mode_on_success tgoalargs(ng,g,A,g,B,B,g)).
 :- (mode_on_success tgoalargs(A,g,B,B,C,C,g)).
 :- (mode_on_success rval_needed(A,B,g)).

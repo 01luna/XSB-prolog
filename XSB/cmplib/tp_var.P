@@ -288,7 +288,7 @@ computil_find_reg1([Reg|Rest],Tin,OReg) :-
 
 %:- import tell/1, telling/1, told/0, write/1, nl/0 from standard.
 
-:- mode release_if_done(?,?,?,+,?,?).
+:- mode release_if_done(?,?,?,?,?,?).
 release_if_done(Vid,R,VPrag,HoldR,Tin,Tout) :-
 	vprag_type(VPrag, T),
 	( T == t -> 
@@ -330,7 +330,7 @@ release_if_done1(Vid,R,HoldR,Tin,Tout,L,Occ) :-
 /*	   a) Reg is not a register allocated for the variable		*/
 /*	or b) 								*/
 /*======================================================================*/
-:- mode release_if_done0(?,?,+,?,?).
+:- mode release_if_done0(?,?,?,?,?).
 release_if_done0(varocc(Vid,Prag),R,HoldR,Tin,Tout) :-
 	!, check_integer(Vid,'release_if_done0/5',1),
 	release_if_done(Vid,R,Prag,HoldR,Tin,Tout).

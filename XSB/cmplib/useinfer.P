@@ -184,6 +184,7 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 			check_atom(Mod,'docim/1',1),
 			sym_insert(Mod, 0, [used], SymTab, _)
 		  ; pred_implicitly_imported_from(Sym, Mod) ->
+			check_atom(Mod,'system_import/1',1),
 			sym_insert(Mod, 0, [module,used], SymTab, _),
 			(Ps_or_real == real -> 
 				sym_propin(im(Mod), Sym)
@@ -192,7 +193,7 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 			  true	% cop-out, maybe should recurse through modded clauses
 		  ; sym_prop(defined(Mod,Pred),Sym) -> 
 			  check_atom(Mod,'defined/2',1),
-			  check_atom(Mod,'defined/2',2),
+			  check_atom(Pred,'defined/2',2),
 			  sym_insert(Mod, 0, [module,used], SymTab, _),
 			  sym_name(Sym,_P,A),
 			  sym_insert(Pred, A, [used], SymTab, _)
@@ -263,7 +264,8 @@ check_body(not(L1), SymTab, InList, OutList) :-
 %%check_body(inlinegoal(_,_,Args), SymTab, InList, OutList) :-
 %%	check_args(Args, SymTab, InList, OutList).
 check_body(inlinegoal(Name,Arity,Args), SymTab, InList, OutList) :-
-	atom(Name), integer(Arity),
+	check_atom(Name,'check_body/4',1),
+	check_integer(Arity,'check_body/4',1),
 	sym_insert(Name,Arity,[],SymTab,Sym),
 	add_if_necessary(Sym,InList,MedList),
 	check_args(Args, SymTab, MedList, OutList).

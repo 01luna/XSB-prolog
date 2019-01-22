@@ -24,7 +24,7 @@
 */
 
 
-:- mode eval_relop(+,?,?,+,?,?,?,?,?,?).
+:- mode eval_relop(+,?,?,?,?,?,?,?,?,?).
 eval_relop(Op, Arg1, Arg2, HoldR, Label, Pil, Pilr, Tin, Tout, EPN) :-
 	( int_eq(Op, Arg2, N) ->
 		test_with_int(Op, Arg1, N, HoldR, Label,
@@ -76,7 +76,7 @@ int_eq(Op, integer(N), N) :-
 /*======================================================================*/
 %:- import console_writeln/1 from standard.
 
-:- mode eval_exp(?,?,?,?,+,?,?,?).
+:- mode eval_exp(?,?,?,?,?,?,?,?).
 eval_exp(varocc(_,Prag),R,Pil,Pilr,_,Tin,Tout,EPN) :-
 	eval_var(Prag,R,Pil,Pilr,Tin,Tout,EPN).
 eval_exp(integer(N),R,[Inst|Pil],Pil,_,Tin,Tout,_) :- 
@@ -199,7 +199,7 @@ eval_numgetinst(VPrag,R,Pil,Pilr,Tin,Tout) :-
 		putvarinst(VPrag,R,Pil,Pilr,0) /* replace by tabled */
 	).
 
-:- mode geninline_isindeed(?,?,+,?,?,?,?,?).
+:- mode geninline_isindeed(?,?,?,?,?,?,?,?).
 :- index geninline_isindeed/8-2.
 geninline_isindeed(LHS,varocc(Vid,Prag),HoldR,Pil,Pilr,Tin,Tout,EPN) :-
 	isindeed_var(LHS,Prag,HoldR,Pil,Pilr,Tin,Tout,EPN,Vid).
@@ -225,7 +225,7 @@ geninline_isindeed(_LHS,string(Sym),_HoldR,_Pilr,_Pil,_Tin0,_Tin,e(PredSym,NC)) 
 	error(('non-numeric string ', Sym, ' in a numeric expression',
 	       ' (in clause #', NC, ' of predicate ', P,/,A.')')).
 
-:- mode isindeed_var(?,?,+,?,?,?,?,?,?).
+:- mode isindeed_var(?,?,?,?,?,?,?,?,?).
 /***isindeed_var(varocc(LVid,LPrag),RPrag,HoldR,Pil,Pilr,Tin,Tout,EPN,_RVid) :- !,
 	eval_var(RPrag,R,Pil,Pilm,Tin,Tout1,EPN),
 	release_if_done(LVid,R,LPrag,HoldR,Tout1,Tout2),
@@ -357,7 +357,7 @@ isindeed_unary(_LHS,_Op,_E,_HoldR,_Pilr,_Pil,_Tin,_Tout,e(PredSym,NC)) :-
 	error(('variable or numerical constant expected as 1st arg of is/2',
 	       ' (in clause #', NC, ' of predicate ', P,/,A,')')).
 
-:- mode eval_binop(+,?,?,?,?,?,+,?,?,?).
+:- mode eval_binop(+,?,?,?,?,?,?,?,?,?).
 eval_binop(Op,E1,E2,R1,Pil,Pilr,HoldR,Tin,Tout,EPN) :-
 	eval_binop(Op), !,
 	eval_exp_vc(E1,R1,Pil,Pilm,HoldR,Tin,Tmid1,EPN),

@@ -34,7 +34,7 @@
 /*======================================================================*/
 %:- import console_writeln/1 from standard.
 
-:- mode geninline(+,?,+,+,?,?,?,?,?).
+:- mode geninline(+,?,?,+,?,?,?,?,?).
 geninline(true, [], _, _, Pil, Pil, T, T, _).
 geninline(fail, [], _, _, [fail|Pil], Pil, T, T, _).
 geninline(halt, [], _, _, [halt|Pilr], Pilr, T, T, _).

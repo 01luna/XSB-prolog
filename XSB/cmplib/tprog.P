@@ -140,7 +140,7 @@ theadpars([Par|Rest], N, Pil, Pilr, TRin, TRout) :-
 /*		we are processing an or-branch);			*/
 /*		if "yes", this would be a nested or-branch.		*/
 /*======================================================================*/
-:- mode tbody(?,+,?,?,?,?,+,?,+,+,+,?).
+:- mode tbody(?,+,?,?,?,?,+,?,?,+,?,?).
 tbody(and(Goal,Goals),A,Pil,Pilr,Tin,Tout,Meet,_,HoldRegs,Tabled,Tabar,EPN) :-
     tbody(Goal,A,Pil,Pil1,Tin,Tmid,midgoal,no,HoldRegs,Tabled,Tabar,EPN),
     tbody(Goals,A,Pil1,Pilr,Tmid,Tout,Meet,no,HoldRegs,Tabled,Tabar,EPN).

@@ -12,9 +12,9 @@
 :- mode all_inline_tests(?,?).
 :- mode inline_test(?,?).
 :- mode force_preprocess_loaded.
-:- mode gensym_pred(?,?).
+:- mode gensym_pred(+,?).
 :- mode gen_arglist(+,?,?,?).
-:- mode cmp_gensym(?,?).
+:- mode cmp_gensym(+,?).
 :- mode pre_else(?,?,?,+).
 :- mode pre_body(?,?,?).
 :- mode ti_prag(?,?).

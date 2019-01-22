@@ -30,7 +30,7 @@
 /*	their id in HoldRegs, since these temp vars should not be	*/
 /*	released in the "then" part until the next chunk.		*/
 /*======================================================================*/
-:- mode tvar_hold(?,+,?).
+:- mode tvar_hold(?,?,?).  % HoldRegsIn can be variable!
 tvar_hold(and(Goal,Goals), HoldIn, HoldOut) :-
 	tvar_hold(Goal, HoldIn, HoldMed),
 	tvar_hold(Goals, HoldMed, HoldOut).
@@ -61,7 +61,7 @@ tvar_hold_arg(varocc(Vid,Prag), HoldIn, HoldOut) :-
 /* 	Generates code for the test part of an 'if_then_else'.		*/
 /*======================================================================*/
 
-:- mode tcond(?,?,?,?,?,?,?,+,?).
+:- mode tcond(?,?,?,?,?,?,?,?,?).
 tcond(and(Goal,Goals),SuccLab,FailLab,Pil,Pilr,Tin,Tout,Hold,EPN) :-
     gennum(LabId), IntSuccLab = label(_,(disj,LabId)),
     tcond(Goal,IntSuccLab,FailLab,Pil,[IntSuccLab|Pilm],

@@ -3,7 +3,7 @@
 
 :- mode theadpars(?,+,?,?,+,?).
 :- mode force_tprog_loaded.
-:- mode tbody(?,+,?,?,?,?,+,?,+,+,+,?).
+:- mode tbody(?,+,?,?,?,?,+,?,?,+,?,?).
 :- mode compile_clause(?,?,?,?,+).
 :- mode more_branches(?).
 :- mode tclause(?,?,?,?,+).
@@ -12,15 +12,16 @@
 :- (mode_on_success theadpars(ng,g,A,g,g,g)).
 :- (mode_on_success theadpars(ng,g,ng,A,g,g)).
 :- (mode_on_success force_tprog_loaded).
-:- (mode_on_success tbody(A,g,g,g,B,g,g,C,g,g,g,D)).
-:- (mode_on_success tbody(A,g,ng,B,ng,ng,g,C,g,g,g,D)).
-:- (mode_on_success tbody(A,g,ng,B,C,g,g,D,g,g,g,E)).
-:- (mode_on_success tbody(g,g,ng,g,A,A,g,B,g,g,g,ng)).
-:- (mode_on_success tbody(A,g,B,B,C,C,g,D,g,g,g,E)).
-:- (mode_on_success tbody(ng,g,A,g,B,B,g,C,g,g,g,D)).
-:- (mode_on_success tbody(ng,g,A,g,B,g,g,C,g,g,g,D)).
-:- (mode_on_success tbody(ng,g,ng,A,B,B,g,C,g,g,g,D)).
-:- (mode_on_success tbody(ng,g,ng,A,B,ng,g,C,g,g,g,D)).
+:- (mode_on_success tbody(A,g,g,g,B,g,g,C,D,g,E,F)).
+:- (mode_on_success tbody(A,g,ng,B,ng,ng,g,C,D,g,E,F)).
+:- (mode_on_success tbody(A,g,ng,B,C,g,g,D,E,g,F,G)).
+:- (mode_on_success tbody(g,g,ng,g,A,A,g,B,C,g,ng,D)).
+:- (mode_on_success tbody(g,g,ng,g,A,A,g,B,C,g,g,ng)).
+:- (mode_on_success tbody(A,g,B,B,C,C,g,D,E,g,F,G)).
+:- (mode_on_success tbody(ng,g,A,g,B,B,g,C,D,g,E,F)).
+:- (mode_on_success tbody(ng,g,A,g,B,g,g,C,D,g,E,F)).
+:- (mode_on_success tbody(ng,g,ng,A,B,B,g,C,D,g,E,F)).
+:- (mode_on_success tbody(ng,g,ng,A,B,ng,g,C,D,g,E,F)).
 :- (mode_on_success compile_clause(g,A,B,B,g)).
 :- (mode_on_success compile_clause(g,A,B,g,g)).
 :- (mode_on_success compile_clause(A,B,ng,C,g)).

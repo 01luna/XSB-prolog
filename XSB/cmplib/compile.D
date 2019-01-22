@@ -19,7 +19,6 @@
 :- mode modeinfer(+,?,+).
 :- mode compile_predicate(?,+,+,+,+,+,?).
 :- mode compile_pred_block(?,?,+,?).
-:- mode current_compiled_module(?).
 :- mode specialise(?,?,+).
 :- mode file_names(+,+,?,?,?,?,?,?,?,?,?).
 :- mode wait_on_lockfile(+,+).
@@ -45,7 +44,6 @@
 :- (mode_on_success modeinfer(g,A,g)).
 :- (mode_on_success compile_predicate(A,g,g,g,g,g,B)).
 :- (mode_on_success compile_pred_block(A,B,g,g)).
-:- (mode_on_success current_compiled_module(g)).
 :- (mode_on_success specialise(A,A,g)).
 :- (mode_on_success specialise(A,ng,g)).
 :- (mode_on_success specialise(ng,A,g)).

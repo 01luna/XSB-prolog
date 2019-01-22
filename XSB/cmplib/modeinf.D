@@ -6,9 +6,7 @@
 :- mode cvt_mod_to_file(+,?).
 :- mode set_to_call(?,?).
 :- mode imported_clauses(?).
-:- mode saved_library_directory(?).
 :- mode assert_with_declared_modes(?).
-:- mode '_$init_call'(?).
 :- mode reduce_by_variant(?,?).
 :- mode weaker_mode(?,?).
 :- mode nearest_2n(+,+,?).
@@ -56,7 +54,6 @@
 :- mode remove_asserted_stuff.
 :- mode gen_varlist1(?,?,?).
 :- mode gen_default_clauses(?).
-:- mode '_$flat_rule'(?,?).
 :- mode nearest_2n_minus_1(+,?).
 :- mode force_modeinf_loaded.
 :- mode flatten_arg(?,?,?,?).
@@ -87,7 +84,6 @@
 :- mode preproc_preds(?).
 :- mode init_counter(+).
 :- mode cvt_modes_to_ilists(?,?).
-:- mode '_$call_user'(?).
 :- mode reconstruct_pterm(?,?,?,?).
 :- mode get_mode_pat(?,?).
 :- mode filter_symlist(+,?,?,?).
@@ -113,7 +109,6 @@
 :- mode define_all.
 :- mode analyze.
 :- mode dump_exported_modes(+,?).
-:- mode '_$mode'(?).
 :- mode cvt_modelist_ie(?,?).
 :- mode add_mode_to_symtab(?,?).
 :- mode get_std_pred_defs.
@@ -134,9 +129,7 @@
 :- (mode_on_success cvt_mod_to_file(g,A)).
 :- (mode_on_success set_to_call(g,g)).
 :- (mode_on_success imported_clauses(A)).
-:- (mode_on_success saved_library_directory(A)).
 :- (mode_on_success assert_with_declared_modes(A)).
-:- (mode_on_success '_$init_call'(A)).
 :- (mode_on_success reduce_by_variant(ng,ng)).
 :- (mode_on_success reduce_by_variant(A,g)).
 :- (mode_on_success weaker_mode(A,B)).
@@ -194,7 +187,6 @@
 :- (mode_on_success gen_varlist1(ng,g,ng)).
 :- (mode_on_success gen_varlist1(A,B,B)).
 :- (mode_on_success gen_default_clauses(A)).
-:- (mode_on_success '_$flat_rule'(A,B)).
 :- (mode_on_success nearest_2n_minus_1(g,g)).
 :- (mode_on_success force_modeinf_loaded).
 :- (mode_on_success flatten_arg(A,g,g,B)).
@@ -235,7 +227,6 @@
 :- (mode_on_success preproc_preds(A)).
 :- (mode_on_success init_counter(g)).
 :- (mode_on_success cvt_modes_to_ilists(A,B)).
-:- (mode_on_success '_$call_user'(A)).
 :- (mode_on_success reconstruct_pterm(ng,A,B,C)).
 :- (mode_on_success reconstruct_pterm(A,B,C,A)).
 :- (mode_on_success reconstruct_pterm(A,ng,B,ng)).
@@ -269,7 +260,6 @@
 :- (mode_on_success define_all).
 :- (mode_on_success analyze).
 :- (mode_on_success dump_exported_modes(g,A)).
-:- (mode_on_success '_$mode'(A)).
 :- (mode_on_success cvt_modelist_ie(ng,ng)).
 :- (mode_on_success cvt_modelist_ie(A,g)).
 :- (mode_on_success add_mode_to_symtab(ng,ng)).

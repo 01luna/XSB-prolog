@@ -249,18 +249,24 @@ gen_default_clauses(SymTab) :-
     filter_symlist(except, defined, UList, U1List),   % remove defined
     filter_symlist(except, im(_), U1List, UndefList), % remove imported
     debug(undefined(UndefList)),
-    default_clause(UndefList),
-    default_ms_clause(UList).
+    default_ms_clause(UList),
+    default_clause(UndefList).
 
 default_clause(V) :- var(V), !.
 default_clause([]).
 default_clause([sym(Pred, Arity, _, _) | Rest]) :- !,
     functor(OpenGoal, Pred, Arity),
-    assert('_$flat_rule'('_$call_user'(OpenGoal), true)),
+    ('_$flat_rule'('_$call_user'(OpenGoal), true)
+     ->	true
+     ;	assert('_$flat_rule'('_$call_user'(OpenGoal), true))
+    ),
     default_clause(Rest).
 default_clause([Pred / Arity | Rest]) :-
     functor(OpenGoal, Pred, Arity),
-    assert('_$flat_rule'('_$call_user'(OpenGoal), true)),
+    ('_$flat_rule'('_$call_user'(OpenGoal), true)
+     ->	true
+     ;	assert('_$flat_rule'('_$call_user'(OpenGoal), true))
+    ),
     default_clause(Rest).
 
 default_ms_clause([]).
@@ -269,16 +275,16 @@ default_ms_clause([Sym|DynList]) :-
      \+ sym_prop(mode_on_success(_Mode),Sym)
      ->	Sym = sym(Pred,Arity,_,_),
 	functor(OpenGoal, Pred, Arity),
-	(\+ '_$flat_rule'('_$call_user'(OpenGoal), true)
-	 -> assert('_$flat_rule'('_$call_user'(OpenGoal), true))
-	 ;  true
+	('_$flat_rule'('_$call_user'(OpenGoal), true)
+	 -> true
+	 ;  assert('_$flat_rule'('_$call_user'(OpenGoal), true))
 	)
      ;	(do_all
 	 sym_prop(mode_on_success(Mode),Sym),
 	 cvt_modes_ec(Mode,Call), % allow ng and vars?
-	 (\+ '_$flat_rule'('_$call_user'(Call), true)
-	  -> assert('_$flat_rule'('_$call_user'(Call),true))
-	  ;  true
+	 ('_$flat_rule'('_$call_user'(Call),true)
+	  -> true
+	  ;  assert('_$flat_rule'('_$call_user'(Call),true))
 	 )
 	)
     ),
@@ -770,7 +776,7 @@ more_general_sym(g, Y) :- Y == g.
 
 dump_exported_modes(_OStr,[]).
 dump_exported_modes(OStr,[Sym|PredList]) :-
-    (true %sym_prop(ex,Sym)
+    (true  %sym_prop(ex,Sym)
      ->	Sym = sym(Pred,Arity,_,_),
 	functor(Goal,Pred,Arity),
 	findall(ModeList,(get_mode_pat(Goal,ModeList)/*,standard:writeln(md(Goal,ModeList))*/),ModeLists),

@@ -23,8 +23,6 @@
 :- mode time_message(+,+).
 :- mode executable_option(?).
 :- mode subsumes(?,?).
-:- mode '_$global_compiler_options'(?).
-:- mode load_dyn_module(?).
 :- mode setoptions1(?).
 :- mode message(?).
 :- mode writetop(?,+).
@@ -63,8 +61,6 @@
 :- (mode_on_success time_message(g,g)).
 :- (mode_on_success executable_option(A)).
 :- (mode_on_success subsumes(A,B)).
-:- (mode_on_success '_$global_compiler_options'(g)).
-:- (mode_on_success load_dyn_module(A)).
 :- (mode_on_success setoptions1(A)).
 :- (mode_on_success message(A)).
 :- (mode_on_success writetop(A,g)).
