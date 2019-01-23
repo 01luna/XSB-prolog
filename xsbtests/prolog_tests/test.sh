@@ -175,6 +175,14 @@ rm -f varcond.xwam
 ../gentest.sh "$XEMU $options" prolog_db_tests "test."
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" test_float_io_precision "test."
+#------------------------------------
+../gentest.sh "$XEMU $options" findall "test."
+#------------------------------------
+../gentest.sh "$XEMU $options" altindex "test."
+#------------------------------------
+../gentest.sh "$XEMU $options" longname "test."
+#------------------------------------
+../gentest.sh "$XEMU $options" gctest "test."
 #------------------------------------------------------------------------
 cd parmod_tests
 ../../gentest.sh "$XEMU $options" test_parmod "test."

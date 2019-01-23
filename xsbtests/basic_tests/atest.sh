@@ -62,13 +62,5 @@ options=$2
 # h series is hilog/tabling tests
 #------------------------------------
 ../agentest.sh "$XEMU $options" hirc "tc(manage)(X,Y),write(X),write(' '),write(Y),nl,fail."
-#------------------------------------
-../agentest.sh "$XEMU $options" findall "test."
-#------------------------------------
-../agentest.sh "$XEMU $options" altindex "test."
-#------------------------------------
-../agentest.sh "$XEMU $options" longname "test."
-#------------------------------------
-../agentest.sh "$XEMU $options" gctest "test."
 
 ../agentest.sh "$XEMU $options" xpp_on_test "test."
