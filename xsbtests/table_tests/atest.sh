@@ -120,6 +120,10 @@ EOF
 #--------------------------------------------------
 ../agentest.sh "$XEMU -l $options" test_cyclic_tabling "test."
 #--------------------------------------------------
+#--------------------------------
+# h series is hilog/tabling tests
+#------------------------------------
+../agentest.sh "$XEMU $options" hirc "tc(manage)(X,Y),write(X),write(' '),write(Y),nl,fail."
 
 if test "$valgrind" = "true"; then
 	echo "Skipping test_just in call abstraction"
