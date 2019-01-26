@@ -526,7 +526,7 @@ static VarString *LSBuff[MAXSBUFFS] = {NULL};
 
 #define str_op1 (*tsgSBuff1)
 
-char *unquote_if_nec(char *string) {
+char *unquote_if_nec(CTXTdeclc char *string) {
   size_t string_len;
   string_len = strlen(string);
   if (string[0] == '\'' && string[string_len-1] == '\'') {
@@ -2064,7 +2064,7 @@ int builtin_call(CTXTdeclc byte number)
     int  value = 0;
     char *addr = ptoc_string(CTXTc 4);
     if (addr) {
-      psc = pair_psc(insert_module(0, unquote_if_nec(addr)));
+      psc = pair_psc(insert_module(0, unquote_if_nec(CTXTc addr)));
     } else psc = (Psc)flags[CURRENT_MODULE];
     //    sym = pair_psc(insert(ptoc_string(CTXTc 1), (char)ptoc_int(CTXTc 2), psc, &value));
     sym = pair_psc(insert_psc(ptoc_string(CTXTc 1), (int)ptoc_int(CTXTc 2), psc, &value));
@@ -2087,7 +2087,7 @@ int builtin_call(CTXTdeclc byte number)
     int arity = (int)ptoc_int(CTXTc 2);
     char *mod_name = ptoc_string(CTXTc 3);
     if (mod_name) {
-      mod_psc = pair_psc(insert_module(0, unquote_if_nec(mod_name)));
+      mod_psc = pair_psc(insert_module(0, unquote_if_nec(CTXTc mod_name)));
     } else mod_psc = (Psc)flags[CURRENT_MODULE];
     if ((Cell)get_data(mod_psc) == USERMOD_PSC) {
       search_ptr = (Pair *)(symbol_table.table +
@@ -2121,7 +2121,7 @@ int builtin_call(CTXTdeclc byte number)
       if (get_type(pair_psc(sym)) == 0)
       	psc_set_type(pair_psc(sym),T_UDEF);
     } else {
-      mod_psc = pair_psc(insert_module(0, unquote_if_nec(mod_name)));
+      mod_psc = pair_psc(insert_module(0, unquote_if_nec(CTXTc mod_name)));
       sym = insert_psc(ptoc_string(CTXTc 1), (int)ptoc_int(CTXTc 2), mod_psc, &value);
       if (value)       /* if predicate is new */
 	psc_set_data(pair_psc(sym), (mod_psc));
