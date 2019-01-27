@@ -3971,6 +3971,7 @@ ensured that {\tt Term} is acyclic.
 
 \ourmoditem{intern\_term(+Term,-InternedTerm)}{intern\_term/2}{machine}
 \index{interned terms} 
+\noindent
 {\tt intern\_term} makes an ``interned'' version of its first argument
 and returns that term in its second argument.  The terms are equal
 terms (i.e., {\tt Term == InternedTerm} would succeed.)  The interned
@@ -3981,16 +3982,17 @@ and/or time in some situations.  Note that already interned subterms
 or {\tt Term} do not need to be traversed in this operation.
 
 \ourmoditem{intern\_termhash(?Term,?TermHash)}{intern\_termhash/2}{machine}
-\index{interned terms} \label{interntermhash} {\tt intern\_termhash}
-allows a user to create a perfect hash integer for a ground list or
-structure.  If {\tt Term} is bound to a ground term, it term\_intern's
-it and returns an integer in {\tt TermHash} that uniquely represents
-that ground term.  (If {\tt Term} is a nonground structure or list,
-the goal fails.)  If {tt TermHash} is bound to an integer, that
-integer value must have been generated and returned by an earlier call
-to {\tt intern\_termhash}, in which case {\tt Term} will be unified
-with the ground list or structure that the value of {tt TermHash}
-represents.
+\index{interned terms} \label{interntermhash} 
+\noindent
+The predicate \texttt{intern\_termhash/2} allows a user to create a
+perfect hash integer for a ground list or structure.  If {\tt Term} is
+bound to a ground term, it term\_intern's it and returns an integer in
+{\tt TermHash} that uniquely represents that ground term.  (If {\tt
+  Term} is a nonground structure or list, the goal fails.)  If {\tt
+  TermHash} is bound to an integer, that integer value must have been
+generated and returned by an earlier call to {\tt intern\_termhash},
+in which case {\tt Term} will be unified with the ground list or
+structure that the value of {\tt TermHash} represents.
 
 This predicate can be used to generate integers to represent large
 ground terms, and then passed through tabled predicates, and when the
