@@ -97,5 +97,7 @@
 :- import (use_variant_tabling)/1 from tables.
 :- import retract_table/1 from tables.
 
-:- import call_xsb_hook/3, xsb_assert_hook/1, xsb_retract_hook/1 from xsb_hook.
+:- import call_xsb_hook/3, xsb_assert_hook/1, xsb_intercept_assert_hook/1,
+   xsb_retract_hook/1, xsb_intercept_retractall_hook/1, xsb_hook_class_active/1
+   from xsb_hook.
  
