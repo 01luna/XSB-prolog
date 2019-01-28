@@ -19,26 +19,101 @@
 <h1>ChangeLog</h1>
  up to about 9259
 
-<h2> Version 3.8.1 (Three-Buck Chuck)</h2> 
+<h2> Version 3.9 (???)</h2> 
 <ul>
 <li><b> Enhancements </b></li>
 <ul>
+<li> Numerous improvements to interned tables for robustness and
+efficiency, including better integration of interned terms with
+garbage collection.  The predicate <tt>intern_termhash/2</tt> was
+added which intern a ground term and returns a perfect hash number for
+the term.  Fixes for interning large arity terms.
+<li>Incremental tabling has improved in several ways.  A few remaining
+bugs in incremental tabling have been fixed.  Inspection of the
+dependency graph for incremental tabling has been improved, including
+support for inspecting leaf nodes, and new
+predicates <tt>summarize_idg/0</tt> and <tt>get_idg_info/2</tt>.
+Incremental tabling now also works with XSB is called from C.</li>
+<li>The <tt>proc_files</tt> library has been redesigned.  It now
+supports user-defined types, the option of throwing errors instead of
+warning messages.</li>
+<li>The <tt>prolog_db</tt> library was extended to include set
+operations among Prolog databases, storage of interned as well as
+regular terms, and a new implementation of index trees.  New
+predicates for cross product, join, reindex, and project that work
+directly on trie databases.  The functionality
+of <tt>retractall_in_db</tt> was improved and the predicates made more
+efficient.</li>
+<li>Various updates of PITA, XSB's package for fuzzy and probabilistic
+reasoning.  XSB can now be easily configured with PITA on Linux and
+the Mac, along with Windows under Cygwin.  Also, PITA has been
+extended to 64-bits.</li>
+<li>Restructured <tt>predicate_property/2</tt> to more accurately and
+consistenly indicate tabling properties.
+Introduced <tt>set_predicate_property/2</tt> to allow a consistent
+means to alter the tabling properties of predicates.</li>
+<li>The completion semantics can now be specified on a per-predicate
+basis, using a tabling option.</li>
 <li> XSB now allows specification of the display precision of floating
-point numbers both through a Prolog flag and through an option of <tt>write_term/[1,2]</tt></li>
+point numbers, both through a Prolog flag and through an option
+of <tt>write_term/[1,2]</tt>. Now <tt>write_term/[1,2]</tt> also has
+an option to write out integers in octal and hexidecimal.P.  These
+improvements are reflected in various conversion routines between
+integers and character/code lists. </li>
+<li>Various improvements to the <tt>curl</tt> package, including
+better handling of URLs and their properties.  <tt>post_data/4</tt>
+was added, which returns the server response and warnings.</li>
+<li>A new <tt>encoding</tt> directive allows compilation of files
+according to different character encodings.  (The default is UTF-8.)
+XSB also is now better at reading unicode hexidecimal constants within
+text.</li>
+<li>The new predicates <tt>subgoal_property/2</tt>
+and <tt>variant_subgoal_property/2</tt> allow inspection of the state
+of various tabled subgoals, including the number of calls to a
+subgoal, the number of its answers, its evaluation state and whether
+it is incremental.</li>
+<li>It is now possible to load into a specific module
+in <tt>load_dyn(c)</tt>, and to specify which character encoding to
+use.  Fixed bugs in <tt>load_dyn/[1,2]</tt>for handling query
+directives, in explicit module qualifications, and in handling
+multifile declarations. </li>
+<li>A priority queue implementation was added to the <tt>assoc</tt> library.</li>
+<li> The <tt>custom</tt> option for tripwires allows a user to specify
+the action to take when a tripwire is hit.</li>
+<li>Added <tt>str_repl/2</tt> which replaces strings inside a string.</li>
 <li> XSB now supports a predicate, <tt>not3/1</tt> which properly
 handles negation of Prolog predicates within a 3-valued
 semantics.</li>
-<li>User-defined types to <tt>proc_file</tt>, better error messages, </li>
-<li>summarize_idg, leaf nodes in get_idg and other inspection predicates for incremental tabling</li>
-<li>added subgoal_property/2 and variant_subgoal_property/2</li>
-<li>fix to make programs that use a large number of atoms run much faster</li>
-<li>predicate_property, set_predicate_property</li>
-<li>fixed bug with declaring tabled predicates as dynamic</li>
-<li> Custom option for tripwires
-<li></li>
-* Fix bug where callnode->recomputable was not reset to
-COMPUTE_DEPENDENCIES_FIRST when no change was propagated.  Incremental tabling works when called from C.
+<li>Added <tt>sleep_ms/1</tt> to sleep for milliseconds rather than seconds.</li>
+<li>XSB's initialization procedures were changed to make XSB easier to
+use as a servlet.</li>
 </ul>
+
+<li><b> Smaller Bug fixes and Minor Changes </b></li>
+<ul>
+<li>Added the declaration <tt>table ... as maxans(N)</tt> which allows
+a predicate to be tabled using answer set cardinality restraint.</li>
+<li>Various improvements in the <tt>multifile</tt> directive,
+including integrating <tt>multifile</tt> with the unknown predicate
+check.</li>
+<li>Fixes were made that allow programs that use a large number of
+atoms run much faster</li>
+<li>Fixed a transient and obscure bug with cycle detection for terms,
+along with bug fix for <tt>ground_and_cyclic/1</tt>.
+Also <tt>writeq/1</tt> now properly writes out cyclic terms.</li>
+<li>Fixed bug with declaring tabled predicates as dynamic</li>
+<li>Fixed bug in returning errors to C when C calls XSB.</li>
+<li>When using call or answer abstraction, a change was made to
+postpone abstraction when the limit is hit during traversal of an
+attributed variable, rather than aborting as was done previously.</li>
+<li>Fixed an obscure bug in heap expansion that occurred
+with <tt>atom_codes/2</tt> and similar predicates.</li>
+<li><tt>clause/2</tt> now handles an input of an explicit module as
+well as a predicate.</li>
+<li>Various small improvements to XSB's code profiling functionality.</li>
+</ul>
+</ul>
+
 <h2> Version 3.8 (Three-Buck Chuck)</h2> 
 
 Many of the changes for Version 3.8 of XSB have been motivated by the

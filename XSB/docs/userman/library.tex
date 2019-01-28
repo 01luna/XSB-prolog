@@ -2510,21 +2510,22 @@ files in this, and similar, formats to define Prolog predicates.
 \ourmoditem{load\_csv(+FileName,+PredSpec)}{load\_csv/2}{proc\_files}
 
 {\tt load\_csv/2} takes a file name and a predicate specification, and
-reads a csv-formatted file into memory, defining the indicated dynamic
-predicate.  The simplest form of {\tt PredSpec} is {\tt
-PredName/Arity}.  In this case the arity must equal the number of
+loads a csv-formatted file into memory so that it defines the
+predicate {\tt PredSpec}.  The simplest form of {\tt PredSpec} is {\tt
+  PredName/Arity}.  In this case {\tt Arity} must equal the number of
 fields in the csv file, and the predicate must be dynamic.  Each line
 in the file will define one fact of the predicate {\tt
-PredName/Arity}.  Fields in the file enclosed in double quotes will
+  PredName/Arity}.  Fields in the file enclosed in double quotes will
 be treated as single fields (and thus can contain commas and
-new-lines.)  The dynamic predicate will be emptied before the facts
-from the file are added.  Each field will be loaded as an atom
-(including fields that contain just integers.)
+new-lines.)  Any clauses for {\tt PredSpec} will be removed before the
+facts from the file are added.  WIth this simple type of predicate
+specification, each field will be loaded as an atom (including fields
+that contain just integers.)
 
 Alternatively, {\tt PredSpec} may be of the form {\tt
 predName(TypeSpec1,...,TypeSpecN)}, where {\tt predName} is the name
 of the dynamic predicate to be defined by the file contents, and each
-{\tt TypeSpecI} indicates the type of the corresponding field in the
+{\tt TypeSpec$_I$} indicates the type of the corresponding field in the
 file.  The permitted values of {\tt TypeSpec} are:
 \begin{itemize}
 \item[{\tt atom}] The corresponding field value will become an atom in
@@ -2562,38 +2563,39 @@ fact.
 This predicate supports the loading of more general forms of files
 with value-separated fields.  The {\tt FileName} and {\tt PredSpec}
 parameters are exactly as in {\tt load\_csv/2}, as described just
-above.  {\tt Options} is a list of options.  (With an empty list, {\tt
-load\_dsv} acts as {\tt load\_csv/2}.)  The options are:
+above.  {\tt Options} is a list of options.  (With an empty {\tt
+  Options} list, {\tt load\_dsv} acts as {\tt load\_csv/2}.)  The
+options are:
 \begin{itemize}
-\item[{\tt separator=''Sep''}] (or separator(''Sep'')) which indicates
-  that the character(s) {\tt Sep} will be used as the field separator.
-  There may be one or more characters.
+\item[{\tt separator=''Sep''}] (or {\tt separator(''Sep'')}) which
+  indicates that the character(s) {\tt Sep} will be used as the field
+  separator.  There may be one or more characters.
 
   {\tt Example: } To load a tab-separated file (tsv) use 
     \verb|separator="\t"| in the options list.
-\item[{\tt delimiter=''C''}] (or delimiter(''C'')) which indicates
-  that the single character {\tt C} will be used as the field
-  delimiter, the default being the double quote, ``'''''' (and I've
-  yet to find a situation in which I want to change it).
+\item[{\tt delimiter=''C''}] (or {\tt delimiter(''C'')}) which
+  indicates that the single character {\tt C} will be used as the
+  field delimiter, the default being the double quote, ``'''''' (and
+  I've yet to find a situation in which I want to change it).
 \item[{\tt titles}] which indicates that the first line of the file should
   be ignored and not contribute a fact to the dynamic predicate.
-\item[{\tt titles=$N$}] (or titles($N$)), where $N$ is an integer,
+\item[{\tt titles=$N$}] (or {\tt titles($N$)}), where $N$ is an integer,
   indicates that the first $N$ lines of the file should be ignored and
   not contribute a fact to the dynamic predicate.
-\item[{\tt types=TypeList}] ( or types(TypeList)), where {\tt
+\item[{\tt types=TypeList}] ( or {\tt types(TypeList)}), where {\tt
   TypeList} is a list of types (atoms) as described above for {\tt
   load\_csv/2}.  If types are given both in {\tt PredSpec} and in the
   options list, the one in {\tt PredSpec} is used.
-\item[{\tt returns=''C''}] (or returns(''C''), where {\tt C} is a
-  string, causes the lines that have newlines in non-delimited fields
-  to be processed specially.  The system tries to recover from such
-  situations and process such fields correctly.  If a newline (or
+\item[{\tt returns=''C''}] (or {\tt returns(''C'')}, where {\tt C} is
+  a string, causes the lines that have newlines in non-delimited
+  fields to be processed specially.  The system tries to recover from
+  such situations and process such fields correctly.  If a newline (or
   return) is detected in a field, it will be replaced with the string
   {\tt C} in the output field.
-\item[{\tt reverse}] causes asserta to be used to assert the input
-  terms, so the predicate will contain the file records in reverse
-  order.  This can significantly improve performanc if indexing is
-  particularly weak.
+\item[{\tt reverse}] causes {\tt asserta/1} to be used to assert the
+  input terms, so the predicate will contain the file records in
+  reverse order.  This can significantly improve performance if
+  indexing is particularly weak.
 \item[{\tt pad=$N$}] (or {\tt pad($N$)}, where $N$ is a (positive or
   negative) integer.  If $N$ is negative, then the asserted predicate
   must have $|N|$ more fields than the input records contain, and they
@@ -2915,17 +2917,22 @@ unlike other XSB facilities for storing program clauses.  A Prolog DB
 can also be used to manipulate sets of facts (or rules), as it
 provides efficient set operations of union, intersection, subset, etc.
 
-A PDB is stored as a trie, which is a ground Prolog term.  Each
-branching point in the trie is implemented by a variant of a radix
-tree.  A set of clauses is canonically represented, i.e., no matter
-what sequence of operations, such as {\tt assert\_in\_db}'s, {\tt
-  retractall\_in\_db}'s, or {\tt union\_db}'s, that one uses to
-construct a particular set of clauses, the resulting PDBs (i.e.,
-Prolog terms) are identical.~\footnote{Since a Prolog DB is a term and
-  must be passed as an argument through the predicates that use it, it
-  differs from other implementations of tries in XSB, such as interned
-  tries (cf. Chapter~\ref{chap:tries}), or trie-indexed facts
-  (cf. Section~\ref{sec:assert}), which are persistent.}
+A PDB represents an unordered set of clauses using a trie, which can
+be seen as a ground Prolog term.  Each branching point in the trie is
+implemented by a variant of a radix tree.  Because a set of clauses is
+canonically represented it does not matter what sequence of operations
+(such as {\tt assert\_in\_db}'s, {\tt retractall\_in\_db}'s, or {\tt
+  union\_db}'s) that one uses to construct a particular set of
+clauses: the resulting PDBs (i.e., Prolog terms) are
+identical.~\footnote{Since a Prolog DB is a term and must be passed as
+  an argument through the predicates that use it, it differs from
+  other implementations of tries in XSB, such as interned tries
+  (cf. Chapter~\ref{chap:tries}), or trie-indexed facts
+  (cf. Section~\ref{sec:assert}), both of which are persistent.}
+Furthermore, since a PDB represents an unordered set of clauses, the
+order in which clauses are returned from {\tt clause\_in\_db} (and
+thus for {\tt call\_in\_db}) is indeterminate.
+
 
 A PDB term is automatically interned (or hash-consed) by all
 predicates operating on this data type, i.e., it is copied to a global
@@ -2934,10 +2941,6 @@ accessed through their ``names,'' which are Prolog atoms that encode
 the terms addresses in the global space.  (See {\tt term\_name/2}.)
 Only these atomic names are passed through the Prolog program that
 uses these PDBs, so they can be tabled efficiently.
-
-A PDB represents an unordered set of clauses.  The order in which
-clauses are returned from {\tt clause\_in\_db} (and thus for {\tt
-  call\_in\_db}) is indeterminate.
 
 PDB's, understood as representing sets of clauses, can be combined
 using the binary set operations of union, intersection, and set
@@ -2954,7 +2957,8 @@ The most important predicates provided by the {\tt prolog\_db}
 interface are described next.  More extensive documentation, including
 examples and other useful predicates, is available in the file
 distributed as:
-<XSB\_INSTALL\_DIR>/lib/prolog\_db\_doc/prolog\_db.pdf.)
+
+{\tt <XSB\_INSTALL\_DIR>/lib/prolog\_db\_doc/prolog\_db.pdf}
 
 \begin{description}
 \ourmoditem{empty\_db(-EmptyPrologDB)}{empty\_db/1}{prolog\_db} {\tt
