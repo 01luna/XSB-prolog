@@ -67,6 +67,9 @@ was added, which returns the server response and warnings.</li>
 according to different character encodings.  (The default is UTF-8.)
 XSB also is now better at reading unicode hexidecimal constants within
 text.</li>
+<li>XSB's compiler was updated to allow more efficient calls to
+builtins, which can be helpful if builtins are called within a tight
+loop.
 <li>The new predicates <tt>subgoal_property/2</tt>
 and <tt>variant_subgoal_property/2</tt> allow inspection of the state
 of various tabled subgoals, including the number of calls to a
