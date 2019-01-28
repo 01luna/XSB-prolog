@@ -3226,8 +3226,8 @@ case WRITE_OUT_PROFILE:
       else return unify(CTXTc term,iterm);
     } else if (isconstr(term) || islist(term)) { // forward
       if (ifHashIntern && !ground(term)) {
-	//xsb_instantiation_error(CTXTc "intern_term/hash/2",1);
-	return FALSE;
+	xsb_instantiation_error(CTXTc "intern_term/hash/2",1);
+	//return FALSE;
       }
       if (!isinternstr_really(term)) {
 	termsize = intern_term_size(CTXTc term);
@@ -3236,20 +3236,17 @@ case WRITE_OUT_PROFILE:
 	XSB_Deref(term);
 	iterm = ptoc_tag(CTXTc 2);
 	XSB_Deref(iterm);
-	//	printf("interning term of size: %lld\n",termsize);
 	term = intern_term(CTXTc term);
       }
       if (term) {  // term is interned
 	if (!ifHashIntern) {
-	  //printf("o %p\n",term);
 	  return unify(CTXTc term, iterm);
 	} else {  // build structured term for hash
 	  iiterm = term_to_stringhash(CTXTc term);
 	  return unify(CTXTc iterm, iiterm);
 	  }
       } else {
-	//printf("of\n");
-	return FALSE;
+	xsb_type_error(CTXTc "Term to intern",term,"intern_term/hash/2",1);
       }
     } else if (isref(term) && isref(iterm)) {
       xsb_instantiation_error(CTXTc "intern_term/hash/2", 1);
