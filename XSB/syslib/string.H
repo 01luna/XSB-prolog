@@ -44,12 +44,13 @@
         error_writeln/1,
         warning/1
    from standard.
+:- import catch/3, nl/1 from standard.
 :- import file_open/3, file_close/1 from file_io.
 :- import
         file_read/3,
         file_read_foe/3
    from xsb_read.
-   :- import domain_error/4, check_nonvar_list/3, type_error/4,
-   instantiation_error/3, misc_error/1 from error_handler.
+:- import domain_error/4, check_nonvar_list/3, type_error/4, check_atom/3,
+   check_integer/3, instantiation_error/3, misc_error/1 from error_handler.
 
 /* ---------------------- end of file string.H ------------------------ */

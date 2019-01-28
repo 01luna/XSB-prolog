@@ -42,6 +42,7 @@
         sys_file_readlink/3,
         sys_main_memory/1.
 :- export platform/1.
+:- export shell_to_list/4.
 
 :- import file_to_list/2 from scrptutl.
 :- import append/3, member/2 from basics.
@@ -53,6 +54,6 @@
         sys_syscall/4,
         tilde_expand_filename/2, slash/1
    from machine.
-:- import atom/1, abort/1, is_list/1 from standard.
+:- import atom/1, abort/1, is_list/1, close/1 from standard.
 :- import xsb_configuration/2 from xsb_configuration.
 

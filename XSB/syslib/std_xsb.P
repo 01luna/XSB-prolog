@@ -23,7 +23,12 @@
 ** 
 */
 
-standard_symbol(abolish, 1, assert).                               % ISO
+:- mode standard_symbol(?,?,?).
+:- mode standard_metapredicate(?,?,?).
+:- mode standard_metapredicate_template(?,?,?).
+:- mode standard_dynamic_symbol(?,?).
+
+standard_symbol(abolish, 1, assert). % ISO
 standard_metapredicate(abolish,1,1).
 
 standard_symbol(abolish, 2, assert).			 %????

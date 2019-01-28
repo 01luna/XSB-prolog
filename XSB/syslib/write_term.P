@@ -66,6 +66,7 @@ display(Term):- write(Term).
 
 :- import current_xsb_param/2 from curr_sym.
 
+:- mode write_term(+,?,+).
 write_term(Stream, Term, OptList) :-
 	xsb_stream_lock( Stream ),
         current_output(Curr),
@@ -80,6 +81,7 @@ write_term(Stream, Term, OptList) :-
 	set_output(Curr),
 	xsb_stream_unlock( Stream ).
 
+:- mode write_term(?,+).
 write_term(Term,OptList):- 
         current_output(Curr),
 	xsb_sys_mutex_lock( Curr ),
@@ -139,6 +141,7 @@ write_term(Term,OptList):-
 
 @end{itemize}.").
 
+:- mode write_option(+).
 write_option(quoted(Qt)) :- (Qt = true ; Qt = false),!.
 write_option(ignore_ops(IO)) :- ignore_ops_flag(IO).
 write_option(numbervars(NV)) :- (NV = true ; NV = false),!.
@@ -157,7 +160,7 @@ compute_options(_Opts, N, OL, _, _, _, _) :-
         type_error(list, OL, write_term/N, N).
 
 one_opt(V, N, _, _, _, _) :- var(V), !,
-	check_nonvar(V,write_term/N,N).
+	check_nonvar(V,write_term/N,N), fail.
 one_opt(quoted(Qt),     _, options(_ ,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio,
                            options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- boolean(Qt), !.
 one_opt(ignore_ops(IO), _, options(Qt,_ ,NV,Pr,Li,Prec,Width,Spec,Radix), Prio,
@@ -455,8 +458,9 @@ write_VAR(Atom, Ci, Co) :-
 	display(Atom).
 %% Added the case in which the name is a string. MH
 write_VAR(String, Ci, Co) :-
-	nonvar(String),
-	% This type test is incomplete!
+%%	nonvar(String),
+	ground(String),
+% This type test is incomplete!
 	String = [X|_],
 	integer(X),
 	atom_codes(Atom,String), !,
@@ -573,6 +577,7 @@ displayq(Term):- writeq(Term).
    compatibility with @concept{ISO-Prolog} is desired, the programmer should
    not use this character in unquoted names.").
 
+:- mode code_class(+,?).
 code_class(N,Class):- 
 	code_class1(N,Class),!.
 code_class(N,_Class):- 

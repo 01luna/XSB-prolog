@@ -117,6 +117,10 @@ unstructure_modname(PModName,ModName,ModPars,ModTerm) :-
 			 ;	ModTerm =.. [ModName|StrModPars],
 				atomize_pars(StrModPars,AtomModPars),
 				ModPars =.. [ModName|AtomModPars]
+			),
+			(atom(ModName)
+			 -> true
+			 ;  throw(error(type_error(atom,ModName),'Illegal module specification'))
 			)
 		 ;	ModName = PModName,
 			ModPars = PModName
@@ -181,6 +185,7 @@ site_specific_init(_catchall).
  *  emulator.
  */
 
+:- mode set_inthandler(?,+).
 set_inthandler(Handler, Number) :-
 	Flag is Number + INT_HANDLERS_FLAGS_START,
 	term_psc(Handler, PSC),
@@ -331,6 +336,7 @@ XSB's in-lined predicates, builtins, and functions.
  */
 
 :- import conset/2,conget/2 from gensym.
+:- mode '_$load_undef'(?).
 '_$load_undef'(Term) :-
 	term_type(Term, Type),
 	( Type =:= XSB_STRUCT -> term_psc(Term, PSC)
@@ -346,6 +352,7 @@ XSB's in-lined predicates, builtins, and functions.
 	     handle_undefined_pred(PSC,Term)
 	).
 
+:- mode load_pred(+).
 load_pred(PSC) :- \+ (\+ (load_pred0(PSC))).
 
 load_pred0(PSC) :- 
@@ -478,6 +485,7 @@ not_handling_undef_pred :- conget('_$_$_undefhook',0).
  *  Loads and executes the directives of a module.  The file(s) containing
  *  the module is constructed using search_file/3, below.
  */
+:- mode load(+).
 load(PModName) :-
 	stat_flag(DEBUG_ON, Debug_on),
 	(Debug_on =:= 1, atom(PModName)
@@ -524,6 +532,7 @@ check_times_and_load(FileName_O,FileName_H,SourceFileNames,PModName,ModPars) :-
 	 ;	load_object_file(FileName_O,ModPars) % load byte-code, no source-file
 	).
 
+:- mode load_object_file(+).
 load_object_file(FileName_O) :-
 	load_object_file(FileName_O,dummypars).
 
@@ -601,6 +610,7 @@ ll_code_call(A,B,C) :- code_call(A,B,C).
  *  or in system directories.
  */
 
+:- mode search_file(+,?,?).
 search_file(ModName0, AbsFileNames, Extensions) :-
 	(integer(ModName0) -> intern_string(ModName0,ModName) ; ModName = ModName0),
 	(atom(ModName)
@@ -633,9 +643,10 @@ system_mod([FileName|_]) :-
  *      Return in the order specified through the predicate
  *	library_directory/1, followed by the default paths
  *      in this default order:
- *	  lib/   syslib/   cmplib/   ./
+ *	  syslib/   cmplib/   lib/   ./
  */
 
+:- mode libpath(?).
 libpath(P) :- libraries_loaded, 
 	      library_directory(Dir), 
 	      expand_filename(Dir, P1),

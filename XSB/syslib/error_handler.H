@@ -54,7 +54,7 @@
 :- export xsb_error_get_tag/2,xsb_error_get_message/2,xsb_error_get_backtrace/2,xsb_error_get_goal/2,xsb_error_get_tid/2,
           xsb_error_get_goalatom/2.
 
-:- import (dynamic)/1,asserta/1 from assert.
+:- import (dynamic)/1,assert/3 from assert.
 %%:- import reset_undef_pred_handlers/0 from loader.
 :- import close_open_tables/1, psc_data/2, psc_name/2, psc_arity/2, ccall_store_error/2,
    stat_flag/2, xsb_backtrace/1, psc_ep/2,conget/2, conset/2 from machine.

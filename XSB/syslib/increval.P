@@ -28,6 +28,7 @@
 
 	 
 %--------
+:- mode incr_directly_depends(+,?).
 incr_directly_depends(X,Y):-	
 	(nonvar(X),var(Y)
 	 ->	immed_depends(X,Y)
@@ -51,6 +52,7 @@ immed_affects(Call,Call2):-
 
 %--------
 
+:- mode incr_trans_depends(?,?).
 incr_trans_depends(X,Y):- 
     findall(d(X,Y),incr_trans_depends_1(X,Y),Dependencies),
     member(d(X,Y),Dependencies).
@@ -90,6 +92,7 @@ trans_depends(Call1,Call2):-
 %--------
 
 %TES shd. be invalidate call*s*
+:- mode incr_invalidate_call(?).
 incr_invalidate_call(Call) :-
 	get_calls(Call,SF,_),
 	incr_eval_builtin(INVALIDATE_SF,SF,Call),
@@ -98,10 +101,16 @@ incr_invalidate_call(_Call).
 
 %--------
 
+:- mode incr_assert(?).
 incr_assert(Term) :- incr_assert(Term,1,1).
+
+:- mode incr_asserta(?).
 incr_asserta(Term) :- incr_assert(Term,0,1).
+
+:- mode incr_assertz(?).
 incr_assertz(Term) :- incr_assert(Term,1,1).
 
+:- mode incr_assert(?,+,+).
 incr_assert(Term,AZL,Index):-
 	(Term = (:-(H,_)) -> Head = H ; Head = Term),
 	check_incremental(Head,dynamic_incremental_predicate,incr_assert,1),
@@ -116,11 +125,13 @@ incr_assert(Term,AZL,Index):-
 invalidate_callnode(CALLNODEPTR):-
 	incr_eval_builtin(INVALIDATE_CALLNODE,CALLNODEPTR).
 
+:- mode invalidate_callnode_trie(+).
 invalidate_callnode_trie(Trie):-
 	incr_eval_builtin(INVALIDATE_CALLNODE_TRIE,Trie).
 
 %------------------------------------------------------------
 
+:- mode incr_retractall(?).
 incr_retractall(Term):-
 	check_incremental(Term,dynamic_incremental_predicate,incr_retractall,1),
 	(get_calls_incr(Term,A),
@@ -132,7 +143,7 @@ incr_retractall(Term):-
 	retractall(Term).
 
 %------------------------------------------------------------
-
+:- mode incr_retract(?).
 incr_retract(Term):-
 	(Term = (:-(H,_)) -> Head = H ; Head = Term),
 	check_incremental(Head,dynamic_incremental_predicate,incr_retract,1),
@@ -164,6 +175,7 @@ check_incremental(Term,Type,Pred,Arity):-
 
 %-----------
 % returns callnodeptr as handle
+:- mode get_calls_incr(?,?).
 get_calls_incr(CallTerm, Handle) :-
 	findall(get_calls_incr(CallTerm,Handle),
 		get_calls_incr_each(CallTerm,Handle),
@@ -184,6 +196,7 @@ get_callnodeptr_incr(CallTerm,CallNodePtr):-
 incr_eval_builtin(_BuiltinNo, _A) :-
 	'_$builtin'(INCR_EVAL_BUILTIN).
 
+:- mode incr_eval_builtin(+,?,?).
 incr_eval_builtin(_BuiltinNo, _A, _B) :-
 	'_$builtin'(INCR_EVAL_BUILTIN).
 
@@ -222,26 +235,31 @@ immed_connected_ptr(CNIn,CNOut):-
 %----------
 :- table trans_affects_ptr/2 as variant, incremental.
 
+:- mode trans_affects_ptr(+,?).
 trans_affects_ptr(CN1,CN2):-
 	immed_affects_set_ptr(CN1,CN2).
 trans_affects_ptr(CN1,CN2):-
 	trans_affects_ptr(CN1,CN3),
 	immed_affects_ptr_ptr(CN3,CN2).
 
+:- mode immed_affects_ptr_ptr(+,?).
 immed_affects_ptr_ptr(CN,CN2):-
 	incr_eval_builtin(IMMED_AFFECTS_CALLNODE_PTRLIST, CN, CNList),
 	member(CN2,CNList).		
 
+:- mode immed_affects_set_ptr(+,?).
 immed_affects_set_ptr(CNList,CN2):-
 	member(CN,CNList),
 	immed_affects_ptr_ptr(CN,CN2).
 
+:- mode immed_affects_ptr_set(+,?).
 immed_affects_ptr_set(CN,CNList):- 
    incr_eval_builtin(IMMED_AFFECTS_CALLNODE_PTRLIST, CN, CNList).
 
    %-----------
 
 :- table trans_depends_ptr/2 as variant, incremental.
+:- mode trans_depends_ptr(+,?).
 trans_depends_ptr(CN1,CN2):-
 	immed_depends_set_ptr(CN1,CN2).
 trans_depends_ptr(CN1,CN2):-
@@ -252,6 +270,7 @@ immed_depends_set_ptr(CNList,CN2):-
 	member(CN,CNList),
 	immed_depends_ptr_ptr(CN,CN2).
 
+:- mode immed_depends_ptr_ptr(+,?).
 immed_depends_ptr_ptr(CN,CN2):-
 	incr_eval_builtin(IMMED_DEPENDS_CALLNODE_PTRLIST, CN, CNList),
 	member(CN2,CNList).		
@@ -262,6 +281,7 @@ immed_depends_ptr_ptr(CN,CN2):-
 
 %-------------------------------------
    
+:- mode get_incr_sccs(?).
 get_incr_sccs(Scc):-
 	setof(Skel,
 	      (predicate_property(Skel,tabled),predicate_property(Skel,incremental)),
@@ -269,14 +289,17 @@ get_incr_sccs(Scc):-
 	get_cns_for_skels(Skels,CNs),
 	get_incr_sccs_1(CNs,Scc).
 
+:- mode get_incr_sccs(?,?).
 get_incr_sccs(CallList,Scc):-
 	get_subgoal_cns(CallList,CNs),
 	get_incr_sccs_1(CNs,Scc).
 
+:- mode get_incr_sccs_with_deps(?,?).
 get_incr_sccs_with_deps(Scc,Depends):-
 	get_incr_sccs(Scc),
 	get_scc_dependency_structure(Scc,Depends).
 
+:- mode get_incr_sccs_with_deps(+,?,?).
 get_incr_sccs_with_deps(SFList,Scc,Depends):-
 	get_incr_sccs(SFList,Scc),
 	get_scc_dependency_structure(Scc,Depends).
@@ -455,6 +478,7 @@ call_if_affected(C) :-
 %	incr_eval_builtin(GET_CHANGED_CALLS, Filt, X).
 
 /* this is what is called for lazy reevaluation */
+:- mode lazy_reeval_trap(?).
 lazy_reeval_trap(Call):- 
 	create_lazy_call_list(Call,CALL_LIST_EVAL,List),
 	reverse(List,ListR),
@@ -475,11 +499,13 @@ create_lazy_call_list(Call,Flag,List) :-
  *  ====================================================== */
 
 /* Does not use affected_gl which is not always updated by lazy or by abolishes */
+:- mode incr_invalid_subgoals(?).
 incr_invalid_subgoals(List):-
     (setof(Term,(predicate_property(Term,incremental),
 		 predicate_property(Term,tabled),
 		 incr_is_invalid(Term)),List) -> true ; List = []).
 
+:- mode is_incremental_subgoal(?).
 is_incremental_subgoal(_Subgoal):-
     obsolete(incr_invalid_subgoals/1, incremental_subgoal/1).
 
@@ -496,20 +522,24 @@ is_incremental_subgoal(Subgoal):-
 	%        writeln(incremental_pred(Subgoal)),
 	catch(get_calls(Subgoal,_,_),_E,fail).
 
+:- mode incr_is_invalid(?).
 incr_is_invalid(Call):-
     incr_is_invalid(Call,Falsecount,_HasAnswers),
     Falsecount > 0.
 %    writeln(incr_is_invalid(Call,Falsecount,_HasAnswers)).
 
+:- mode incr_is_invalid(?,?,?).
 incr_is_invalid(Call,Falsecount,HasAnswers):-
     (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
     incr_eval_builtin(IS_AFFECTED,NewGoal,Falsecount,HasAnswers).
 
+:- mode incremental_subgoal(?,?).
 incremental_subgoal(Call,Falsecount):- 
         (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
 	incr_eval_builtin(IS_AFFECTED,NewGoal,Falsecount,_HasAnswers).
 
    /* the following is obsolescent -- use subgoal_property/2, subgoal_property_2 */
+:- mode incremental_subgoals(?,?).
 incremental_subgoals(Subgoal,Falsecount):- 
     (var(Subgoal) -> 
  	predicate_property(S,tabled),predicate_property(S,incremental),

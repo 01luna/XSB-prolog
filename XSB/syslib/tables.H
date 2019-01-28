@@ -81,6 +81,7 @@
    (use_subsumptive_tabling)/1,
    (use_variant_tabling)/1,
    variant_get_residual/2.
+:- export abolish_nonincremental_tables/0.
 :- export not_exists/1.
 :- export answer_completion/2.
 :- export dump_table_counts/0, table_counts/5.
@@ -117,6 +118,24 @@
 :- export '_$$get_returns'/3.
 :- export '_$$get_returns_and_tvs'/4.
 :- export predicate_has_tables/1.
+:- export is_tabled/1.
+:- export not3/1. 
+:- export get_call/4,get_call/3.
+:- export get_calls/1.
+:- export set_psc_table_property/2.
+:- export set_tif_property/3, get_tif_property/3.
+:- export forest_log_overview_1/1.
+:- export get_idg_leaf_info/1.
+:- export print_idg_info/2.
+:- export print_idg_info/0.
+:- export abstract_modes/2,abstract_functor/2.
+:- export get_answer_dependencies/3.
+:- export trans_ans_depends_ptr/2.
+:- export immed_ans_depends_ptr/2.	
+:- export explain_u_val/3,explain_u_val/7.
+:- export max_incomplete_subgoals_handler/0.
+:- export max_scc_subgoals_handler/0.
+:- export max_table_subgoal_size_handler/0.
 
 :- import
 	(dynamic)/1,
@@ -142,12 +161,12 @@
 
 :- import
    domain_error/4, domain_error/5, check_nonvar/3, type_error/4, table_error/1,instantiation_error/2,
-   check_atom/3,check_var/3,check_ground/3,
+   check_atom/3,check_var/3,check_ground/3,check_atomic/3,
    permission_error/4, check_cyclic/3, misc_error/1
    from error_handler.
 
 :- import check_open_stream_or_alias/5 from file_io.
-:- import add_trie_index/1, mpa_to_skel/2
+:- import add_trie_index/1, mpa_to_skel/2, '_$trie_asserted'/1
      from file_op.
 :- import format/2 from format.
 
@@ -168,8 +187,6 @@
    from machine.
 :- import parsort/4 from machine.
 
-
-%%:- import numbervars/4, unnumbervars/2 from num_vars.
 
 :- import bagof/3, findall/3, setof/3, sort/2, excess_vars/4 from setof.
 

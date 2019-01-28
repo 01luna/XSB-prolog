@@ -67,8 +67,6 @@ interpreter :-
 	                                     default_error_handler(Ball))),
 	fail.
 
-:- import get_stdin/2 from push_io.
-
 set_thread_interrupt:- 
 	xsb_configuration(engine_mode,'slg-wam'),!,
 	set_inthandler('_$goal_int'(_,_), THREADSIG_CANCEL).
@@ -163,7 +161,6 @@ read_in_stop(end_of_file) :-   %% pop a break level, out if at top
         ).
 
 
-:- import file_clearerr/1 from file_io.
 bp_read_in_stop(halt) :-          %% quit XSB, regardless of break level
 	call_xsb_hook(xsb_exit_hook(_),all),
 	halt.
@@ -250,6 +247,7 @@ call_query(_) :-
 exclude__([], []) :- !.
 exclude__([V|Vs], PVs) :-
 	V = vv(Name,_),
+	atom(Name),		% mode inf cant infer
 	atom_codes(Name, [Code|_]),
 	( Code =:= CH_UNDERSCORE -> PVs = NPVs ; PVs = [V|NPVs] ),
 	exclude__(Vs, NPVs).
@@ -284,7 +282,6 @@ print_answer([vv(Name,Val)|Tail]) :-
 %	 portray_attributes_1(T).
 ***********************/
 
-:- import constraint_portray_hook/4 from machine.
 maybe_print_constraints(VarList):- 
 	constraint_portray_hook(_Mod,ValList,NameList,Hook),
 	split_lists(VarList,ValList,NameList),
@@ -314,7 +311,7 @@ break :-
 	see(InpFile), tell(OutFile),
         reinvoke_timed_calls.
 
-:- export break_for_tripwires/1.
+:- mode break_for_tripwires(?).
 break_for_tripwires(Initializers) :-
 	seeing(InpFile), telling(OutFile),
 	see(userin), tell(userout),
@@ -335,10 +332,9 @@ call_initializers([Initializer|Rest]):-
 	call(Initializer),
 	call_initializers(Rest).
 
-:- import cancel_sleeper_thread/0,start_sleeper_thread/1 from machine.
 handle_timed_calls:- 
       cancel_sleeper_thread,
-      machine:stat_walltime(NewWalltime),
+      stat_walltime(NewWalltime),
       get_interpreter_index(Index),
 %      writeln(index_is(Index)),
       ('_$timed_call_rep_max_handler'(Index,_Rep_handler,_Rep_interval,_Max_handler,_Remaining,_Walltime,_Orig) -> 
@@ -361,6 +357,15 @@ handle_timed_calls_rep_max(Index,NewWalltime):-
       assert('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,NewRemaining,Walltime,Orig)).
 % nothing to do for timed_call_rep_handler
 
+:- mode_on_success('_$timed_call_rep_handler'(+,?,+)).
+:- dynamic '_$timed_call_rep_handler'/3.
+
+:- mode_on_success('_$timed_call_max_handler'(+,?,+,+,+)).
+:- dynamic '_$timed_call_max_handler'/5.
+
+:- mode_on_success('_$timed_call_rep_max_handler'(+,?,+,?,+,+,+)).
+:- dynamic '_$timed_call_rep_max_handler'/7.
+
 reinvoke_timed_calls:- 
       get_interpreter_index(Index),
       ( '_$timed_call_rep_max_handler'(Index,_Rep_handler,_Rep_interval,_Max_handler,_Max_int,_Walltime,_Orig) -> 
@@ -374,13 +379,13 @@ reinvoke_timed_calls:-
   
 reinvoke_timed_calls_max(Index):- 
       retract('_$timed_call_max_handler'(Index,Max_handler,Remaining,_Walltime,Orig_int)),
-      machine:stat_walltime(NewWalltime),
+      stat_walltime(NewWalltime),
       assert('_$timed_call_max_handler'(Index,Max_handler,Remaining,NewWalltime,Orig_int)),
 %      writeln(restarting_sleeper_thread_max(Remaining)),
       start_sleeper_thread(Remaining),!.
 reinvoke_timed_calls_rep_max(Index):- 
       retract('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,Max_interval,_Walltime,Orig)),
-      machine:stat_walltime(NewWalltime),
+      stat_walltime(NewWalltime),
       assert('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_interval,Max_handler,Max_interval,NewWalltime,Orig)),
 %      writeln(restarting_sleeper_thread_max_rep(Rep_interval)),
       start_sleeper_thread(Rep_interval),!.
@@ -403,8 +408,6 @@ readl_brklp1(_) :-
 	).
 
 /* === interrupt handlers ============================================== */
-:- import token_type/2 from xsb_read.
-:- import misc_error/2 from error_handler.
 
 /* TES 2016/09: modified ctrl-c interrupt so that ctrl-c/ctrl-d works
    properly if ctrl-c occurs when waiting to read a command.  In this
@@ -412,6 +415,7 @@ readl_brklp1(_) :-
    abort the read, which will fail back to a new read.  The original 
    interrupt code is below. */
 
+:- mode '_$keyboard_int'(?,+).
 '_$keyboard_int'(Call,_Code) :- 
 	is_xwammode(Flag),
 	(Flag =:= 1 -> 
@@ -425,11 +429,8 @@ readl_brklp1(_) :-
         ( Flag =:= 1 -> abort ; break, call_c(Call) ).
 */
 
-:- import thread_get_signal/1 from mutex_xsb.
-:- import thread_peek_signal/1 from mutex_xsb.
-:- import repeat/0 from standard.
-
 % Continuation is in first arg as opposed to second in attv_int 
+:- mode '_$thread_int'(?,+).
 '_$thread_int'(One,_Two) :- 
 	execute_messages_on_signal_queue,
 %	writeln(One),
@@ -444,6 +445,7 @@ execute_messages_on_signal_queue:-
 	 ;  true),!.
 
 %:- import writeln/1 from standard.
+:- mode '_$goal_int'(?,+).
 '_$goal_int'(One,_Two) :- 
 	handle_goal_interrupt(Message),
 %	writeln(call(Message)),
@@ -451,14 +453,15 @@ execute_messages_on_signal_queue:-
 	call_c(One).
 
 
-:- import lazy_reeval_trap/1 from increval.
+:- mode '_$lazy_reeval_int'(?,+).
 '_$lazy_reeval_int'(One,_Two):- 
 	lazy_reeval_trap(One).
 
-:- import timer_interrupt_trap/2 from standard.
+:- mode '_$timer_int'(?,+).
 '_$timer_int'(One,Two):- 
 	timer_interrupt_trap(One,Two).
 
+:- mode '_$attv_int'(+,?).
 '_$attv_int'(Intlist, Call) :-
 % 	file_write(1, '.... in _$attv_int/2'), file_nl(1),
 % 	file_write(1, '.... interrupt chain is : '),

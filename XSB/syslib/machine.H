@@ -55,6 +55,7 @@
 	term_type/2, 
 	term_compare/3, 
 	term_new/2,
+	term_new_skel/2,
 	term_arg/3, 
 	term_set_arg/4, 
 	term_hash/3,
@@ -191,12 +192,9 @@
    psc_set_incr/2,psc_get_incr/2,psc_get_intern/2,psc_set_intern/2,
 	xsb_backtrace/0, xsb_backtrace/1.
 
+:- export close_open_tables/0.
 :- export constraint_portray_hook/4.	% used in [x_interp]
-
-:- import assert/1, retract/1, (dynamic)/1 from assert.
-:- import write/1, writeln/1, is_attv/1, warning/1 from standard.
-:- import incr_eval_builtin/3 from increval.
-:- import term_to_atom/3 from string.
+:- export epoch_seconds/1, epoch_milliseconds/2.
 
 :- export 
 	file_function/7, file_function/3, conname/2, conpsc/2, 
@@ -208,9 +206,18 @@
 
 :- export breg_retskel/4.
 
-   :- export intern_term/2, intern_termhash/2, intern_termhash_test/2.
+:- export intern_term/2, intern_termhash/2, term_name/2, term_name_rec/2,
+   intern_termhash_test/2.
 
 :- export module_of_term/2.
 
+:- export start_sleeper_thread/1.
+:- export cancel_sleeper_thread/0.
+
+:- import assert/1, retract/1, (dynamic)/1 from assert.
+:- import write/1, writeln/1, is_attv/1, warning/1, (=..)/2 from standard.
+:- import incr_eval_builtin/3 from increval.
+:- import term_to_atom/3 from string.
+:- import writeln/1 from standard.
 /* --------------------- end of file machine.H ------------------------ */
 

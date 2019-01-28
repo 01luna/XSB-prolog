@@ -33,7 +33,7 @@
 
 :- import retractall/1, (dynamic)/1, asserta/1 from assert.
 :- import member/2,append/3 from basics.
-:- import check_nonvar/3, check_ground/3,
+   :- import check_nonvar/3, check_ground/3, check_integer/3, check_atomic/3,
           domain_error/5, type_error/4, permission_error/4,misc_error/1,
           instantiation_error/3, domain_error/4 from error_handler.
 :- import fmt_write_string/3, is_valid_stream/2 from file_io.

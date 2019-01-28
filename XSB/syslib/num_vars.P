@@ -36,10 +36,12 @@
 %   LastVar-1.
 
 
+:- mode numbervars(?,+,?,+).
 numbervars(Y,I,J,Options) :-
 	check_numbervars_options(Options,Attv_Act),
 	numbervars_int(Y,I,J,Attv_Act).
 
+:- mode numbervars(?,+,?).
 numbervars(Y,I,J) :- numbervars_int(Y,I,J,error).
 
 %:- import writeln/1 from standard.
@@ -86,6 +88,7 @@ numbervars(Y,I,J,N,A,AttvAct) :-
 %   integer values of N ranging from 0 up. This predicate was written since
 %   most of the calls to numbervars/3 are of the form: numbervars(Term,0,_)
  
+:- mode numbervars(?).
 numbervars(Term) :-
         numbervars(Term, 0, _).
 
@@ -96,11 +99,14 @@ a term with variables in it, by replacing uniformly the '$VAR'(<int>)
 terms where <int> >= FirstN with new variables.  It is the converse of
 numbervars, and must copy the input term. */
 
+:- mode unnumbervars(?,?).
 unnumbervars(TermIn,TermOut) :- unnumbervars(TermIn,0,TermOut,_Vars).
 
+:- mode unnumbervars(?,?,?).
 unnumbervars(TermIn,FirstN,TermOut) :- 
 	unnumbervars(TermIn,FirstN,TermOut,_Vars).
 
+:- mode unnumbervars(?,?,?,?).
 unnumbervars(TermIn,FirstN,TermOut,Vars) :-
     term_type(TermIn,Type),
     (Type =:= XSB_STRUCT

@@ -32,6 +32,7 @@
 #include "thread_defs_xsb.h"
 
 %   file_read(+File, -Answer).
+:- mode file_read(+,?).
 file_read(File, Answer) :- 
 	file_read(File, Answer, _).
 
@@ -42,6 +43,7 @@ Variables is bound to a list of vv(Atom,Variable) pairs.  It fails
 if it finds an error (and doesn''t try again to read another term.)
 *************/
 
+:- mode file_read_foe(+,?,?).
 file_read_foe(File, Answer, Variables) :-
 	xsb_stream_lock(File),
 	term_psc('_$synerr'(_), Psc), psc_set_prop(Psc, -1),
@@ -60,6 +62,7 @@ pairs.  It "handles" its own syntax errors by printing out an error
 message, and failing.  
 **************/
 
+:- mode file_read_fapoe(+,?,?).
 file_read_fapoe(File, Answer, Variables) :-
 	xsb_stream_lock(File),
 	repeat,	% reading terms until you find one with no syntax errors
@@ -85,6 +88,7 @@ message will be Message-P, where P is the position of the first bad token
 
 ************/
 
+:- mode file_read(+,?,?).
 file_read(File, Answer, Variables) :-
 	xsb_stream_lock(File),
 	repeat,	% reading terms until you find one with no syntax errors
@@ -331,6 +335,7 @@ read5(punc(CH_LBRACE), S1, Precedence, Answer, S) :-
 % Term ::= String
 read5(string(String), S0, Precedence, Answer, S) :- 
         !,
+	atom(String),		% for mode checker.
 	atom_codes(String, Term),
         read_exprtl0(S0, Term, Precedence, Answer, S).
 
@@ -706,8 +711,8 @@ print_token(integer(X))		:- !, file_write0(STDERR, X).
 print_token(real(X))		:- !, file_write0(STDERR, X).
 print_token(intfunc(X))		:- !, file_write0(STDERR, X).	% For HiLog
 print_token(realfunc(X))	:- !, file_write0(STDERR, X).	% For HiLog
-print_token(punc(V))		:- !, file_put(STDERR, V).
-print_token(h_punc(V))		:- !, file_put(STDERR, V).	% For HiLog
+print_token(punc(V))		:- !, integer(V),file_put(STDERR, V).
+print_token(h_punc(V))		:- !, integer(V),file_put(STDERR, V).	% For HiLog
 print_token(func(X))		:- !, read_writecon(X).
 print_token(tk_eoc)		:- !, file_put(STDERR, 46).
 print_token(X)			:-    read_writecon(X).
@@ -765,8 +770,8 @@ strip_token(integer(X),X):- !.
 strip_token(real(X),X):-!.
 strip_token(intfunc(X),X):-!.
 strip_token(realfunc(X),X):-!.
-strip_token(punc(V),X):- !,atom_codes(X,[V]).
-strip_token(h_punc(V),X):- !,atom_codes(X,[V]).
+strip_token(punc(V),X):- !,integer(V),atom_codes(X,[V]).
+strip_token(h_punc(V),X):- !,integer(V),atom_codes(X,[V]).
 strip_token(func(X),X):- !.
 strip_token(tk_eoc,'.'):- !.
 strip_token(X,X).
@@ -825,6 +830,7 @@ read_writecon(X) :- file_write0(STDERR, X).
 /*==============================================================*/
 
 % Version with extra arg returning a list of token char start positions
+:- mode read_tokens(+,+,?,?,?).
 read_tokens(File, Char, TokenList, Dict, Positions) :-
 %	read_next_token(Char, Type, Value, NextChar),	      % Prolog Version
 	file_pos(File,Pos1),
@@ -900,6 +906,7 @@ read_next_token_c(File, Char, Type, Value, NextChar) :-
 %  token_type(+C_Token_Type, -Prolog_Token_Type)
 %  Prolog_Token_Type is the corresponding token type to the C_Token_Type.
 
+:- mode token_type(+,?).
 token_type( 0, tk_punc).
 token_type( 1, tk_varfunc).	% Added for HiLog for terms of the form: VAR( ...
 token_type( 2, tk_var).

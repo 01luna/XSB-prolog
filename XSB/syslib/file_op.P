@@ -35,6 +35,7 @@
 :- local dyn_op/3.	% make it local
 :- thread_shared 'dyn_op'(_,_,_).
 
+:- mode '_$op'(?,?,?).
 '_$op'(P, T, S) :- 
 	dyn_op(P, T, S),
 	P =\= 0.		% operator S has not been de-activated
@@ -55,6 +56,7 @@
 %   to be added), so this is the exported predicate in contrast to add_op/3
 %   which is local to this module.
  
+:- mode add_ops(+,+,+).
 add_ops(_P,_T, []).
 add_ops( P, T, [OP|OPs]) :- add_op(P, T, OP), add_ops(P, T, OPs).
 
@@ -100,7 +102,8 @@ deactivate_op(T, S) :-
 %		op(400, yfx, rem).
 %		op(200, xfx, **).
 
-:- dynamic dyn_op(_,_,_).	% need this form so get right psc record.
+:- mode_on_success(dyn_op(+,+,+)).
+:- dynamic dyn_op(_,_,_).
 
 '_$op1'(1200,xfx,(':-')).
 '_$op1'(1200,xfx,('-->')).	% Not in the Prolog standard
@@ -130,6 +133,7 @@ deactivate_op(T, S) :-
 '_$op1'(1100,fy,(ti)).		% Added for transformational indexing
 '_$op1'(1100,fy,(ti_off)).	% Added for transformational indexing
 '_$op1'(1100,fx,(mode)).	% Not in the Prolog standard
+'_$op1'(1100,fx,(mode_on_success)).	% Not in the Prolog standard
 '_$op1'(1100,fx,(annotation)).	% Not in the Prolog standard
 '_$op1'(1100,fx,(document_export)).	% Not in the Prolog standard
 '_$op1'(1100,fx,(export)).	% Not in the Prolog standard
@@ -206,6 +210,7 @@ deactivate_op(T, S) :-
 %  op_priority(+Priority)
 %  true iff Priority is an integer representing a valid operator priority
 
+:- mode op_priority(+).
 op_priority(Priority) :-
 	integer(Priority),
 	Priority >= 0, Priority =< 1200.
@@ -214,6 +219,7 @@ op_priority(Priority) :-
 %  op_specifier(+Op_Specifier)
 %  true iff Op_Specifier is a valid operator specifier
 
+:- mode op_specifier(+).
 op_specifier(Op_Specifier) :-
 	nonvar(Op_Specifier),
 	op_type(Op_Specifier, _).
@@ -222,6 +228,7 @@ op_specifier(Op_Specifier) :-
 %  op_type(?Op_Specifier, ?Op_Type)
 %  classify operator types, within type must be exclusive
 
+:- mode op_type(?,?).
 op_type(xfx,inf).
 op_type(xfy,inf).
 op_type(yfx,inf).
@@ -237,6 +244,7 @@ call to a predicate, the argument to index on, and the size of the hash
 table to use. */
 
 
+:- mode '_$index'(?,?,?).
 '_$index'(A,B,C) :-
 	conpsc('_$index1'(_,_,_),Psc),
 	psc_type(Psc, Type),
@@ -246,11 +254,13 @@ table to use. */
         ).
 
 :- thread_shared('_$index1'(_,_,_)).
+:- mode_on_success('_$index1'(?,+,+)).
 :- dynamic '_$index1'(_,_,_).
 :- assert('_$index1'(dyn_op(_,_,_),3,17)),
    assert('_$index1'('_$index'(_,_,_),1,29)).
 
 :- thread_shared('_$trie_asserted1'(_)).
+:- mode_on_success('_$trie_asserted1'(?)).
 :- dynamic '_$trie_asserted1'(_).
 '_$trie_asserted'(Term) :- 
 	conpsc('_$trie_asserted1'(_),Psc),
@@ -258,6 +268,7 @@ table to use. */
 	Type =:= 1,		% DYNA so exists 
 	'_$trie_asserted1'(Term).
 
+:- mode add_trie_index(?).
 add_trie_index(Spec) :-
 	mpa_to_skel(Spec,Pcall),
 	assert_trie_index(Pcall).
@@ -267,9 +278,11 @@ assert_trie_index(Pcall) :-
 	retract_index(Pcall),
 	assert('_$trie_asserted1'(Pcall)).
 
+:- mode retract_trie_index(?).
 retract_trie_index(Pcall) :-
 	system_retractall('_$trie_asserted1'(Pcall)).
 
+:- mode add_index(?,+,+).
 add_index(Pred,Arg,Size) :-
 	mpa_to_skel(Pred,Pcall),
 	functor(Pcall,_P,Arity),
@@ -312,6 +325,7 @@ warn_if_existing_clauses(Pcall,From,To) :-
 	 ;      true	% assume OK if static
 	).
 
+:- mode retract_index(?).
 retract_index(Pred) :-
 	(Pred = P/Arity
 	 ->	functor(Pcall,P,Arity)
@@ -365,6 +379,7 @@ conv_one_indx(A,Arity,Aout) :-
 /*======================================================================*/
 
 % TLS: added some checking here, as I think silently failing can be dangerous.
+:- mode mpa_to_skel(?,?).
 mpa_to_skel(Mod:P/A,Skel) :-
 	atom(Mod),atom(P),integer(A),!,
 	psc_insert(P,A,PSC,Mod),

@@ -51,6 +51,7 @@
 %--------------------------%
 
 
+:- mode set_input(+).
 set_input(Stream):- 
 	check_open_stream_or_alias(Stream,set_input/1,1,input,Stream1),
 	stat_set_flag(CURRENT_INPUT, Stream1).
@@ -61,6 +62,7 @@ display_current_stream(Pred):-
 	display(current_input(Curr,Pred)).
 */
 
+:- mode see(+).
 see(Var):- var(Var),!,instantiation_error(see/1,1).
 see(userin):- !,	stat_set_flag(CURRENT_INPUT, STDIN).
 see(user):- !,	stat_set_flag(CURRENT_INPUT, STDIN).
@@ -88,10 +90,12 @@ seen :- stat_flag(CURRENT_INPUT, Str),
 	 ;	true
 	).
 
+:- mode set_output(+).
 set_output(Stream):- 
 	check_open_stream_or_alias(Stream,set_output/1,1,output,Stream1),
 	stat_set_flag(CURRENT_OUTPUT, Stream1).
 
+:- mode tell(+).
 tell(Var):- var(Var),!,instantiation_error(tell/1,1).
 tell(userout):- !,	stat_set_flag(CURRENT_OUTPUT, STDOUT).
 tell(user):- !,	stat_set_flag(CURRENT_OUTPUT, STDOUT).
@@ -113,9 +117,10 @@ telling(Str) :- stat_flag(CURRENT_OUTPUT, Str).
 told :- 
 	stat_flag(CURRENT_OUTPUT, Str),
 	( if_file_loaded(curl),	% required to avoid trying to load (when compiling configuration.P
-	  get_curl_pair(Atom,_,Str)
-	-> close(url(Atom))
-	;
+	 get_curl_pair(Atom,_,Str)
+	 -> check_atom(Atom,'told/curl',*), % perhaps elimnable if get_curl_pair can be more precise.
+	    close(url(Atom))
+	 ;  
 	    (Str > 6 -> close(Str) ; true)
 	), 
 	stat_set_flag(CURRENT_OUTPUT, STDOUT).
@@ -124,6 +129,7 @@ told :-
 % Opening and Closing
 %----------------------------------------------------------------------------------------------------
 
+:- mode open(+,+,?).
 open(File,Mode,Stream) :- 'open aux'(File,Mode,0,Stream).
 %%open(File,Mode,Stream) :- 'open aux'(File,Mode,1,Stream).
 
@@ -167,6 +173,7 @@ open(File,Mode,Stream) :- 'open aux'(File,Mode,0,Stream).
 	    permission_error(open,file,atom/1,open/3)
 	 ;  true).
 'open aux'(url(Atom),Mode,_,Stream):- !,
+	check_atom(Atom,'open(url)/3',1),
 	open_url(url(Atom),Mode,Stream,[]).
 'open aux'(file(File),Mode,New,Stream):- !,
 	'open aux'(File,Mode,New,Stream).
@@ -176,7 +183,9 @@ open(File,Mode,Stream) :- 'open aux'(File,Mode,0,Stream).
 	check_var(Stream,open/[3,4],3),
 	file_open(File, M, New, Stream),
 	(Stream < 0 -> 
-	    permission_error(open,file,File,open/3)
+	    sys_errno(ErrNo),
+	    concat_atom(['open[mode=',M,',errno=',ErrNo,']'],Msg),
+	    permission_error(Msg,file,File,open/3)
 	 ;  true).
 'open aux'(SrcSnk,_,_,_):- 
 	domain_error(source_sink,SrcSnk,open/3,1).
@@ -195,6 +204,7 @@ file_translate(Mode,_) :-
 	;	type_error(atom,Mode,open/3,2)
 	).
 
+:- mode open(+,+,?,+).
 open(url(Atom),Mode,Stream,Options) :-
 	!, 
 	open_url(url(Atom),Mode,Stream,Options).
@@ -239,6 +249,7 @@ examine_open_options(Option,_,_):-
 	type_error(list,Option,open/4,4).
 
 %------------------------------------------------
+:- mode close(+).
 close(Var):- var(Var),!,instantiation_error(close/1,1).
 close(user) :- !.
 close(userin) :- !.
@@ -269,7 +280,7 @@ close(S_or_A) :-
 	).
 
 %----
-
+:- mode close(+,+).
 close(Var,_):- var(Var),!,instantiation_error(close/2,1).
 close(user,_) :- !.
 close(userin,_) :- !.
@@ -282,8 +293,10 @@ close(user_error,_) :- !.
 
 close(url(Atom),Options) :- 
         close(url(Atom),Options,_ReturnResult,_Warnings).
+
 close(url(Atom),Options,ReturnResult,Warnings) :- 
 	curl:get_us_pair(Atom, Mode, S_or_A), 
+	check_atomic(S_or_A,'close(url)/1',*),
 	close(S_or_A), 
 	curl:post_data(Atom, Mode, ReturnResult,Warnings,Options), 
 	!.
@@ -303,8 +316,9 @@ close(S_or_A,Options) :-
 	%% otherwise, it will cause compilation of curl,
 	%% which will come back here and will keep trying to compile curl
 	%% infinitely
-	(if_file_loaded(curl)	% required to avoid trying to load (when compiling configuration.P	 ->	delete_curl_pair(_,_,S_or_A)
-	 ;	true
+	(if_file_loaded(curl) % required to avoid trying to load (when compiling configuration.P
+	 -> delete_curl_pair(_,_,S_or_A)
+	 ;  true
 	).
 
 examine_close_options(List,Action):-
@@ -334,6 +348,7 @@ examine_close_options_1(Options,_) :-
 % Character I/O Predicates %
 %-----------------------------------------------------------------------%
 
+:- mode nl(+).
 nl(S_or_A) :-  
 	check_open_stream_or_alias(S_or_A,nl/1,1,output,Str),
 	file_nl(Str).
@@ -346,6 +361,7 @@ nl :-
 probably have a character-conversion table.  I want to think this
 through when I get to the tokenizer.  */
 
+:- mode get_char(+,?).
 %ISO 
 get_char(S_or_A,Char):- 
 	check_open_stream_or_alias(S_or_A,get_char/2,1,input,Str),
@@ -354,6 +370,7 @@ get_char(S_or_A,Char):-
 %	    Char = Code
 %	  ; atom_codes(Char,[Code])).
 
+:- mode get_char(?).
 %ISO
 get_char(Char):- 
 	get_code(Code),
@@ -361,6 +378,7 @@ get_char(Char):-
 	    Char = Code
 	  ; atom_codes(Char,[Code])).
 
+:- mode get_code(+,?).
 %ISO
 get_code(S_or_A,C) :- 
 	check_open_stream_or_alias(S_or_A,get_code/2,1,input,Str),
@@ -370,6 +388,7 @@ get_code(S_or_A,C) :-
 	        file_get_code(Str,C1),C1 = C
 	     ;  domain_error(integer_or_variable,C,get_code/2,2) ) ).
 
+:- mode get_code(?).
 %ISO
 get_code(C) :- 
 	 stat_flag(CURRENT_INPUT, Str), 
@@ -379,6 +398,7 @@ get_code(C) :-
         	file_get_code(Str,C1),C1 = C
 	     ;  domain_error(integer_or_variable,C,get_code/1,1) ) ).
 
+:- mode get_byte(+,?).
 %ISO
 get_byte(S_or_A,C) :- 
 	check_open_stream_or_alias(S_or_A,get_byte/2,1,input,Str),
@@ -390,6 +410,7 @@ get_byte(S_or_A,C) :-
 	;	type_error(in_byte,C,get_byte/2,2)
 	).
 
+:- mode get_byte(?).
 %ISO
 get_byte(C) :- 
 	stat_flag(CURRENT_INPUT, Str), 
@@ -401,18 +422,22 @@ get_byte(C) :-
 	;	type_error(in_byte,C,get_byte/1,1)
 	).
 
+:- mode get(?).
 get(C) :- get0(C0), ( char_blank(C0), !, get(C) ; C = C0 ).
 
 %% characters ignored (treat as blanks)
 char_blank(Ch) :- Ch >= 0, Ch =< 9.
 char_blank(Ch) :- Ch >= 11, Ch =< 32.
 
+:- mode get0(?).
 get0(C) :- stat_flag(CURRENT_INPUT, Str), 
 	   file_get_code(Str, C0), C = C0.
 
+:- mode skip(+).
 % Not in manual.
 skip(C) :- get0(C0), (C0=C ; skip(C)).
 
+:- mode put_char(+,+).
 %ISO
 put_char(S_or_A,C) :-
 	check_open_stream_or_alias(S_or_A,put_char/2,1,output,Str),
@@ -423,6 +448,7 @@ put_char(S_or_A,C) :-
 %	  ; domain_error(character_or_variable,C,put_char/2,2) ),
 %	file_put(Str,L1).
 
+:- mode put_char(+).
 %ISO
 put_char(C) :-
         stat_flag(CURRENT_OUTPUT, Str), 
@@ -433,6 +459,7 @@ put_char(C) :-
 %	  ; domain_error(character_or_variable,C,put_char/1,1) ),
 %	put(L1).
 
+:- mode put_code(+,+).
 %ISO
 put_code(S_or_A,C) :-
 	check_open_stream_or_alias(S_or_A,put_code/2,1,output,Str),
@@ -443,6 +470,7 @@ put_code(S_or_A,C) :-
 	;	type_error(integer,C,put_code/2,2)
 	).
 
+:- mode put_code(+).
 %ISO
 put_code(C) :-
 	stat_flag(CURRENT_OUTPUT, Str),
@@ -457,20 +485,24 @@ put_code(C) :-
 % TLS: changed definition of put so that stream-based version (w. mutexes) is used. 
 %put(C) :- put(C).
 
+:- mode put(+).
 put(C):- stat_flag(CURRENT_OUTPUT, Str), file_put_code(Str, C).
 
 
+:- mode tab(+).
 tab(N) :- tab(N).
 
 % TLS: peek_code, peek_char in file_io.
 
-% TLS: this can probably go...
+% TLS: this can probably go... ???dsw I use it??
+:- mode file_exists(+).
 file_exists(F) :- 
 	check_nonvar(F,'file_exists/1',1),
 	check_atom(F,'file_exists/1',1),
 	expand_filename(F, EF),
 	machine_file_exists(EF).
 
+:- mode put_byte(+).
 put_byte(C) :- 
 	stat_flag(CURRENT_OUTPUT, Str),
 	(	integer(C), C >= 0, C =< 255 ->
@@ -480,8 +512,9 @@ put_byte(C) :-
 	;	type_error(byte,C,put_byte/1,1)
 	).
 
+:- mode put_byte(+,+).
 put_byte(S_or_A,C) :-
-	check_open_stream_or_alias(S_or_A,put_byte/2,1,output,Str),
+	check_open_stream_or_alias(S_or_A,'put_byte/2',1,output,Str),
 	(	integer(C), C >= 0, C =< 255 ->
 		file_put(Str,C)
 	;	var(C) ->
@@ -499,12 +532,14 @@ put_byte(S_or_A,C) :-
 % TLS: this is more-or-less ISO compliant, modulo some exception handling
 % that would need to be added to the tokenizer.
 
+:- mode read_term(?,?).
 read_term(T,List):- 
 	read_term_check(List,read_term/2),
 	stat_flag(CURRENT_INPUT, File), 
 	file_read(File, T,Vlist),
 	process_variable_list(List,T,Vlist),!.
 
+:- mode read_term(+,?,?).
 read_term(S_or_A,T,List):- 
 	check_open_stream_or_alias(S_or_A,read_term/3,1,input,Istr),
 	read_term_check(List,read_term/3),
@@ -553,25 +588,31 @@ isoify([_|R],R1):-
 	isoify(R,R1).
 
 %-------------
+:- mode read(+,?).
 read(S_or_A,T) :- 
 	check_open_stream_or_alias(S_or_A,read/2,1,input,Istr),
 	file_read(Istr,T).
 
+:- mode read(?).
 read(T) :- stat_flag(CURRENT_INPUT, Str), file_read(Str, T).
 
+:- mode write(+,?).
 write(S_or_A,Term):- 
 	check_open_stream_or_alias(S_or_A,write/2,1,output,Ostr),
 	file_write(Ostr,Term).
 
+:- mode write(?).
 write(T) :- stat_flag(CURRENT_OUTPUT, Str), file_write(Str, T).
 
 %writeln(T) :- stat_flag(CURRENT_OUTPUT,File),file_write(File,T),file_nl(File).
+:- mode write(?).
 writeln(T) :- stat_flag(CURRENT_OUTPUT,File),
 	xsb_stream_lock(File),
 	l_write(File, T, 999), 
 	file_function(FILE_NL, File, _),
 	xsb_stream_unlock(File).
 
+:- mode writeln(+,?).
 writeln(S_or_A,Term):- 
 	check_open_stream_or_alias(S_or_A,writeln/2,1,output,File),
 	xsb_stream_lock(File),
@@ -580,27 +621,35 @@ writeln(S_or_A,Term):-
 	xsb_stream_unlock(File).
 
 % yes, according to the manual this is what it should do.
+:- mode display(?).
 display(T) :- telling(F), tell(user_out), write(T), told, tell(F).	
 
+:- mode displayln(?).
 displayln(T) :- telling(F), tell(user_out), write(T), nl, told, tell(F).	
 
+:- mode write_prolog(+,?).
 write_prolog(S_or_A,Term):- 
 	check_open_stream_or_alias(S_or_A,write_prolog/2,1,output,Ostr),
 	file_write_prolog(Ostr,Term).
 
+:- mode write_prolog(?).
 write_prolog(T) :- stat_flag(CURRENT_OUTPUT, Str), file_write_prolog(Str, T).
 
+:- mode writeq(+,?).
 writeq(S_or_A,Term):-
 	check_open_stream_or_alias(S_or_A,writeq/2,1,output,Ostr),
 	file_write_quoted(Ostr, Term).
 
+:- mode writeq(?).
 writeq(T) :- stat_flag(CURRENT_OUTPUT, Str), 
 	     file_write_quoted(Str, T).
 
+:- mode write_canonical(+,?).
 write_canonical(S_or_A,Term):- 
 	check_open_stream_or_alias(S_or_A,write_canonical/2,1,output,Ostr),
 	file_write_canonical(Ostr,Term).
 
+:- mode write_canonical(?).
 write_canonical(T) :-  
 	stat_flag(CURRENT_OUTPUT,Str),
 	file_write_canonical(Str, T).
@@ -616,39 +665,55 @@ write_canonical(T) :-
 % Prolog Meta-Logical Predicates (now most of them are in C)	%
 %---------------------------------------------------------------%
 
+:- mode is_attv(?).
 is_attv(X) :- is_attv(X).
 
+:- mode var(?).
 var(X) :- var(X).
 
+:- mode nonvar(?).
 nonvar(X) :- nonvar(X).
 
+:- mode atom(?).
 atom(X) :- atom(X).
 
+:- mode integer(?).
 integer(X) :- integer(X).
 
+:- mode real(?).
 real(X) :- real(X).
 
+:- mode float(?).
 float(X) :- real(X).
 
+:- mode number(?).
 number(X) :- number(X).
 
+:- mode atomic(?).
 atomic(X) :- atomic(X).
 
+:- mode compound(?).
 compound(X) :- compound(X).
 
+:- mode structure(?).
 structure(X) :- compound(X).
 
+:- mode callable(?).
 callable(X) :- callable(X).
 
+:- mode is_list(?).
 is_list(X) :- is_list(X).
 
+:- mode is_most_general_term(?).
 is_most_general_term(X) :- is_most_general_term(X).
 
+:- mode is_number_atom(?).
 is_number_atom(X) :- is_number_atom(X).
 
 % A term X is a proper hilog term if it somewhere 
 % contains a subterm that is not a prolog term.
 
+:- mode proper_hilog(?).
 proper_hilog(X) :-
 	term_type(X, Type),
 	( Type =:= XSB_STRUCT ->		% compound term (but not list)
@@ -661,12 +726,12 @@ proper_hilog(X) :-
 		X = [H|T], ( proper_hilog(H), !; proper_hilog(T) )
 	).
 
+:- mode functor(?,?,?).
 functor(T, F, N) :- functor(T, F, N).
 
+:- mode functor(?,?,?,?).
 functor(Term,Mod,Fun,Arity) :-
-    (atomic(Term)
-     ->	Mod = usermod, Fun = Term, Arity = 0
-     ; var(Term)
+    (var(Term)
      ->	(Mod == usermod
 	 -> functor(Term,Fun,Arity)
 	 ;  (var(Mod)
@@ -675,10 +740,12 @@ functor(Term,Mod,Fun,Arity) :-
 		term_new_mod(Mod,Term0,Term)
 	    )
 	)
-     ;	(Term @= [_|_]
-	 -> Mod = usermod, Fun = '.', Arity = 2
-	 ;  functor(Term,Fun,Arity),
-	    term_psc(Term,Psc),
+     ; atomic(Term)
+     ->	Mod = usermod, Fun = Term, Arity = 0
+     ;	functor(Term,Fun,Arity),
+	(Fun == '.', Arity =:= 2
+	 -> Mod = usermod
+	 ;  term_psc(Term,Psc),
 	    psc_mod(Psc,MPsc),
 	    (MPsc =:= 0
 	     ->	Mod = usermod
@@ -687,8 +754,10 @@ functor(Term,Mod,Fun,Arity) :-
 	)
     ).
 
+:- mode arg(+,?,?).
 arg(I, T, A) :- arg(I, T, A).
 
+:- mode goal_arg(+,?,?).
 goal_arg(I,G,A) :-
 	(G @= (_:_)
 	 ->	G = (_:G1),
@@ -696,6 +765,7 @@ goal_arg(I,G,A) :-
 	 ;	arg(I,G,A)
 	).
 
+:- mode arg0(+,?,?).
 arg0(I, T, A) :- 
 	term_type(I, I_type),
 	( I_type =:= XSB_INT ->	% integer
@@ -711,8 +781,10 @@ arg0(I, T, A) :-
 	;   type_error(nonNegativeInteger,I,arg0/3,1)
 	).
 
+:- mode '=..'(?,?).
 X =.. L :- X =.. L.
 
+:- mode prolog_arglist(?,?,+,+).
 prolog_arglist(X, List, I, N) :-
 	( I =:= 0 -> List = []
 	; List = [Y|Z], K is I - 1, J is N - K,
@@ -724,6 +796,7 @@ prolog_arglist(X, List, I, N) :-
 % HiLog Meta-Logical Predicates %
 %-------------------------------%
 
+:- mode hilog_functor(?,?,?).
 hilog_functor(T, F, N) :-
         term_type(T, Type),
         ( Type =:= XSB_FREE ->
@@ -774,6 +847,7 @@ hilog_functor(T, F, N) :-
 	    N = Arity
 	).
 
+:- mode hilog_arg(+,?,?).
 hilog_arg(I, T, A) :- hilog_arg(I, T, A).
 
 '^=..'(X, [H|T]) :- 
@@ -816,22 +890,32 @@ hilog_arglist(X, [Y|Z], I, N) :- K is I - 1, J is N - K,
 % Type conversion Predicates %
 %----------------------------%
 
+:- mode atom_length(+,?).
 %atom_length(A, N) :- str_len(A, N).
 atom_length(A, N) :-  file_function(ATOM_LENGTH, A, N).
 
 
+:- mode atom_chars(+,?), atom_chars(?,+).
 %atom_chars(A, L) :- atom_chars(A, L).
 atom_chars(_A, _L) :- '_$builtin'(ATOM_CHARS).
+
+:- mode atom_codes(+,?), atom_codes(?,+).
 %atom_codes(A, L) :- atom_codes(A, L).
 atom_codes(_A, _L) :- '_$builtin'(ATOM_CODES).
 
+:- mode number_chars(+,?),number_chars(?,+).
 number_chars(T, L) :- number_chars(T, L).
+
+:- mode number_codes(+,?), number_codes(?,+).
 number_codes(T, L) :- number_codes(T, L).
+
+:- mode number_digits(+,?),number_digits(?,+).
 number_digits(T, L) :- number_digits(T, L).
 
 /* The idea when Type is free is to try to turn it into a number if
     you can -- otherwise try to turn it into an atom.  All the
     checking is done in C. */
+:- mode name(+,?),name(?,+).
 name(T, L) :-
 	term_type(T, Type),
 	( Type =:= XSB_FREE -> 
@@ -908,6 +992,7 @@ atom_concat(One,Two,Three) :- concat_atom([One,Two],Three).
 */
 
 % ISO
+:- mode atom_concat(+,+,?),atom_concat(?,?,+).
 atom_concat(One,Two,Three) :-
 	(	atom(One) ->
 		(	atom(Two) ->
@@ -943,6 +1028,7 @@ atom_disassemble(Three,One,Two):-
 
 % PM: If performance of this predicate become critical for some application,
 % implementing it in C might help by making error checking faster
+:- mode char_code(+,?),char_code(?,+).
 char_code(Char,Code) :-
 	(	atom(Char),
 		atom_length(Char, 1) ->
@@ -970,6 +1056,7 @@ char_code(Char,Code) :-
 % Term expansion %
 %----------------%
 
+:- mode expand_term(?,?).
 expand_term(Term, Expanded_Term) :- 
 	term_psc(term_expansion(_,_), PSC), psc_type(PSC, Type),
 	Type > 0,	% defined as something, so call it
@@ -985,9 +1072,11 @@ expand_term(Term, Term).
 % Reader-Modifying Predicates % 
 %-----------------------------%
 
+:- mode hilog(+).
 hilog(HS) :- 
 	add_hilog_symbol(HS).
 
+:- mode op(+,+,+).
 op(Priority, Specifier, Operators) :-
 	check_operator_priority(Priority),
 	check_operator_specifier(Specifier),
@@ -1074,6 +1163,7 @@ check_operator_name(Term, Priority, Specifier) :-
 
 /*------------------------------------------------------------------*/
 /* add index declaration */
+:- mode index(?,+,+).
 index(Ps,Arg,S) :- 
 	check_nonvar(Ps,(index)/2,1),
 	check_ground(Arg,(index)/3,2),
@@ -1086,6 +1176,7 @@ index(Ps,Arg,S) :-
 index(Ps,_Arg,_S) :-
 	type_error(predicate_or_term_indicator,Ps,(index)/3,1).
 
+:- mode index(?,+).
 index(Ps,Arg) :-
 	check_nonvar(Ps,(index)/2,1),
 	check_ground(Arg,(index)/2,2),
@@ -1099,7 +1190,7 @@ index(Ps,_Arg) :-
 	type_error(predicate_indicator,Ps,(index)/2,1).
 
 check_index(Ps,X):-
-	(Ps = _/A -> Arity = A ; functor(Ps,_,Arity)),
+	(Ps = _/Arity -> check_arity_integer(Arity,index,2) ; functor(Ps,_,Arity)),
 	(X = [_|_] -> 
 	    check_index_list(X,Arity)
 	  ; check_index_element(X,Arity) ).
@@ -1200,9 +1291,11 @@ table_1(Pred):-
 :- import abolish_table_pred/1 from tables.
 :- export table_index/2, abolish_table_index_pred/1.
 
+:- mode_on_success(table_index_predicates(?,+)).
 :- dynamic table_index_predicates/2.
 
 %% handle table_index declarations for abolish_table_index_pred.
+:- mode table_index(?,+).
 table_index(PredSpecs,IndexSpec) :-
 	comma_member(PSpec,PredSpecs),
 	functor(PSpec,Pred,Arity),
@@ -1220,6 +1313,7 @@ table_index(PredSpecs,IndexSpec) :-
 	fail.
 table_index(_PredSpecs,_IndexSpec).
 		       
+:- mode upto_n(+,+,?).
 upto_n(I,K,List) :-
 	(I =< K
 	 ->	List = [I|List1],
@@ -1285,15 +1379,18 @@ exec_table_option(subsumptive,Pred) :- !,
 exec_table_option(variant,Pred) :- !,
 	use_variant_tabling(Pred).
 exec_table_option(subgoal_abstract(Val),PredSpec) :- !,
+	check_integer(Val,'set_tif_property/3',3),
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,subgoal_size,Val).
 exec_table_option(ans_subsumption,PredSpec) :- !,
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,answer_subsumption,1).
 exec_table_option(answer_abstract(Val),PredSpec) :- !,
+	check_integer(Val,'set_tif_property/3',3),
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,answer_size,Val).
 exec_table_option(max_answers(Val),PredSpec) :- !,
+	check_integer(Val,'set_tif_property/3',3),
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,max_answers,Val).
 exec_table_option(incremental,Pred) :- !,
@@ -1388,6 +1485,7 @@ call(G,A1,A2,A3,A4,A5,A6,A7,A8) :- calln(8,A1,A2,A3,A4,A5,A6,A7,A8,G).
 call(G,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- calln(9,A1,A2,A3,A4,A5,A6,A7,A8,A9,G).
 call(G,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- calln(10,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,G).
 
+:- mode call_tv(?,?).
 call_tv(Call,Ans):-
 	xwam_state(2,DelayReg1),
         call(Call),
@@ -1409,7 +1507,8 @@ tcall(X) :- call0(X).
 
 %  transforms a goal to turn its cuts (!) into '_$cutto's.
 %  TLS: Calling requires_cut_transforming1/1 at top level because goal_cut_trans/3
-%  has already checke for var.
+%  has already checked for var.
+:- mode goal_cut_trans(?,?,?).
 goal_cut_trans(Goal,TGoal,Cutpoint) :-
 %	writeln(goal_cut_trans(Goal,TGoal,Cutpoint)),
 	(requires_cut_transforming1(Goal) ->
@@ -1437,6 +1536,7 @@ requires_cut_transforming1((A;B)) :-
 	 ;	requires_cut_transforming(B)
 	).
 
+:- mode goal_cut_transform(?,?,?).
 goal_cut_transform(Goal,TGoal,Cutpoint) :-
 	(var(Goal)
 	 ->	TGoal = call(Goal)
@@ -1570,6 +1670,7 @@ repeat :- true; repeat.
 
 %% ';' for in calls, to separate from ';' in asserted goal bodies (for
 %%	retract gc)
+:- export ';;'/2.
 ';;'((A->B),C) :- !,
 	(call_c(A) -> call_c(B) ; call_c(C)).
 ';;'(A,_B) :- 
@@ -1579,6 +1680,8 @@ repeat :- true; repeat.
 
 (A->B) :- call_c(A) -> call_c(B).
 
+%%:- mode ':'(+,?).   % infers conflict, seems a call to curl:p(X) in close is triggering it.
+%% figure out why mode inferencing is messing up....
 (Mod:Call) :-
 	term_new_mod(Mod,Call,MCall),
 	call0(MCall).
@@ -1629,6 +1732,7 @@ false :- fail.
 
 halt :- halt.
 
+:- mode halt(+).
 halt(Code) :-
 	(	integer(Code) ->
 		sys_exit(Code)
@@ -1652,7 +1756,8 @@ X \= Y :- ( X = Y, !, fail) ; true.
 %  Term comparison  %
 %-------------------%
 
-compare(Op, T1, T2) :-	% Pred compare/3 has no associated error conditions.
+:- mode compare(?,?,?).
+compare(Op, T1, T2) :- % Pred compare/3 has no associated error conditions.
 	term_compare(T1, T2, Res),
 	( Res =:= 0 ->	Op = ('=')
 	; Res < 0   ->	Op = ('<')
@@ -1676,11 +1781,17 @@ X @>= Y :- X @>= Y.
 %	only instantiation errors. For example the following should simply
 %	fail 4+a =< foo(1,3)
 
-  '<'(X,Y) :- X < Y.
- '=<'(X,Y) :- X =< Y.
- '>='(X,Y) :- X >= Y.
-  '>'(X,Y) :- X > Y.
+:- mode '<'(+,+).
+'<'(X,Y) :- X < Y.
+:- mode '=<'(+,+).
+'=<'(X,Y) :- X =< Y.
+:- mode '>='(+,+).
+'>='(X,Y) :- X >= Y.
+:- mode '>'(+,+).
+'>'(X,Y) :- X > Y.
+:- mode '=:='(+,+).
 '=:='(X,Y) :- X =:= Y.
+:- mode '=\='(+,+).
 '=\='(X,Y) :- X =\= Y.
 
 '?='(X,Y):- (X == Y -> true ; X \= Y).
@@ -1690,6 +1801,7 @@ X @>= Y :- X @>= Y.
 			/*   ARITHMETIC EVALUATION   */
 			/*****************************/
 
+:- mode is(?,+).
 is(Head, Expr) :- Head is Expr. 
 
 
@@ -1925,11 +2037,16 @@ nofileerrors :- stat_set_flag(fileerrors, 0).
 
 % save(_C) :- write('Not implemented'), nl, fail.
 
+:- mode ttywrite(?).
 ttywrite(T) :- ttywrite(T, STDMSG).
+
+:- mode ttywritenl(?).
 ttywritenl(T) :- ttywritenl(T, STDMSG).
 
+:- mode ttywrite(?,+).
 ttywrite(T, File) :- file_write(File, T).
 
+:- mode ttywritenl(?,+).
 ttywritenl(T, File) :- ttywritenl0(T, File), file_nl(File).
 
 ttywritenl0(T, File) :- var(T), !, file_write(File, T).
@@ -1948,6 +2065,7 @@ ttywritenl0(T, File) :- file_write(File, T).
 %  true iff N is an integer describing a valid arity of a predicate
 %  in the system.
 
+:- mode arity_integer(?).
 arity_integer(N) :-
 	integer(N),
 	N >= 0, N =< 255.
@@ -1956,6 +2074,7 @@ arity_integer(N) :-
 % conflating integer + var checks, as well as > 0 (domain) and =<
 % 255 (representation).  But it seems pedantic to add unnecessary ISO
 % checks. 
+:- mode check_arity_integer(?,+,+).
 check_arity_integer(N,Pred,Arg) :-
 	(	integer(N) -> 
 		(	N >= 0, N =< 255 -> 
@@ -1987,6 +2106,7 @@ contains_var([_|T]) :- contains_var(T).
 %  should be used with the first argument instantiated. For a predicate
 %  that works both ways use the length/2 in basics.
 
+:- mode length(?,+,?).
 length([], N, N).
 length([_|R], M, N) :- N1 is M+1, length(R, N1, N).
 
@@ -2041,9 +2161,11 @@ warning(Message,Type) :-
 
 
 %  message/1
+:- mode message(+).  % maybe ?
 message(X) :- message(X, STDMSG).
 messageln(X) :- message(X, STDMSG),nl.
 
+:- mode message(?,+).
 message(Message, File) :-
 	var(Message), !,
 	file_write0(File, Message).
@@ -2069,6 +2191,7 @@ messagelist([M1|ML],File) :-
 	messagelist(ML,File).
 
 %%messageln(Message) :- messageln(Message, STDMSG).
+:- mode messageln(?,+).
 messageln(Message, File) :- 
 	message(Message, File),
 	file_nl(File).
@@ -2127,12 +2250,15 @@ multifile([P/A, _T1, T2]) :-	% T1 is not used
 %
 % import(Mod) :- import all preds in that module. not implemented yet.
 
+:- mode use_module(+,+).
 use_module(Mod,Syms):- 
 	import(from(Syms, Mod)).
 
+:- mode use_module(+,+,?).
 use_module(Mod,Syms,_):- 
 	import(from(Syms, Mod)).
 
+:- mode import(+).
 import(from(Syms, Mod)) :- !, 
 	term_to_atom(Mod,MName,[quoted(true)]),
 	import(Syms, MName).
@@ -2208,6 +2334,7 @@ catch(_Goal,Catcher,Handler) :-
             '$$unwind_stack'  % unwind_stack xsb_exits if no catcher was found
         ).
 
+:- mode throw(+).
 throw(Ball) :-
 	(	var(Ball) ->
 		Ball = error(instantiation_error, context('Error: non-instantiated exception term in call to throw/1', throw/1))
@@ -2231,6 +2358,7 @@ get_exception_ball(_T,E):-
 :- import getenv/2 from machine.
 :- import append/3 from basics.
 
+:- mode expand_atom(+,?).
 expand_atom(Atom,Expanded):- 
 	atom_codes(Atom,Chars),
 	expand_atom_1(Chars,NewChars),
@@ -2280,6 +2408,7 @@ read_until_right_brace([H|T],Tout,Return):-
 
 :- import get_breg/1 from machine.
 
+:- mode call_cleanup(?,?).
 call_cleanup(Goal,Cleanup):-
 	get_breg(BregBefore),
 	catch(Goal,E,cleanup_catcher(Cleanup,E)),
@@ -2297,6 +2426,7 @@ cleanup_catcher(Cleanup,Error):-
 	call(Cleanup),
 	throw(Error).
 
+:- mode cleanup_handler(?,?).
 cleanup_handler(Attr,_Target):-
 	call(Attr).
 %	writeln(attr(Attr)),
@@ -2350,12 +2480,17 @@ call_attribute_handlers([Mod,Attr|Rest],Value) :-
 	                       call_attribute_handlers/2,1) ) ),
 call_attribute_handlers(Rest,Value).	
 
+:- mode_on_success('_$timed_call_rep_handler'(+,?,+)).
 :- dynamic '_$timed_call_rep_handler'/3.
+:- mode_on_success('_$timed_call_max_handler'(+,?,+,+,+)).
 :- dynamic '_$timed_call_max_handler'/5.
+:- mode_on_success('_$timed_call_rep_max_handler'(+,?,+,?,+,+,+)).
 :- dynamic '_$timed_call_rep_max_handler'/7.
 :- import interpreter_index_hook/1 from usermod.
+:- mode_on_success(interpreter_index_hook(+)).
 :- dynamic interpreter_index_hook/1.
 
+:- mode timed_call(?,?).
 timed_call(Call,Options):- 
 	check_timed_call_options(Options,Rep_interval,Rep_handler,Max_interval,Max_handler,Nesting),
         (Rep_interval = 0,Max_interval \== 0 -> 
@@ -2431,6 +2566,7 @@ timed_call_handler_is_active(Index):- 	'_$timed_call_rep_handler'(Index,_,_),!.
 timed_call_handler_is_active(Index):- 	'_$timed_call_max_handler'(Index,_,_,_,_),!.
 
 %:- import writeln/1 from standard.
+:- mode timer_interrupt_trap(?,+).
 timer_interrupt_trap(One,_Two) :-
 %	writeln(timer_int),
         get_interpreter_index(Index),
@@ -2569,7 +2705,7 @@ handle_timer_interrupt(MaxMemorySize,Handler) :-
 	 ;	true
 	).
 
-intersect_variables(A,B,C) :-
+/**intersect_variables(A,B,C) :-
 	excess_vars(A,B,[],AminusB),
 	excess_vars(A,AminusB,[],C).
 
@@ -2590,11 +2726,14 @@ do_all(SetGoal,DoGoal0) :-
 	call(DoGoal),
 	fail.
 do_all(_SetGoal,_DoGoal).
+**/
+do_all(SetGoal,DoGoal0) :- do_all(SetGoal,DoGoal0).
 
-do_all(Goal) :-
+/*do_all(Goal) :-
 	call(Goal),
 	fail.
-do_all(_Goal).
+do_all(_Goal).*/
+do_all(Goal) :- do_all(Goal).
 
 
 /* --------------------- end of file standard.P ----------------------- */

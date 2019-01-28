@@ -137,8 +137,8 @@
 %%:- import eval/2 from eval.
 
 :- import domain_error/4, domain_error/5, check_atom/3, check_nonvar/3,check_var/3, check_callable/3,
-	  check_ground/3,resource_error/2, representation_error/3,
-	  type_error/4, permission_error/4, 
+	  check_ground/3,resource_error/2, representation_error/3, check_integer/3,
+	  type_error/4, permission_error/4, check_atomic/3,
 	  instantiation_error/3, instantiation_error/2, check_nonneg_integer/3, check_pos_integer/3,
 	  misc_error/1,misc_error/2  from error_handler.
 :- import  check_nonvar_list/3 from error_handler.
@@ -164,7 +164,7 @@
 	  stat_sta/1, stat_cputime/1, stat_walltime/1,
           %%str_len/2,
 	  term_psc/2, term_new/2, term_new_mod/3, term_type/2, cancel_sleeper_thread/0,
-          verify_attribute_handler/4, conget/2
+	  verify_attribute_handler/4, conget/2, sys_errno/1
 	  from machine.
 :- import start_sleeper_thread/1 from machine.
 :- import file_function/3 from machine.
@@ -178,7 +178,7 @@
 %:- import numbervars/1 from num_vars.
 :- import numbervars/4 from num_vars.
 
-:- import findall/3, term_variables/2, sort/2, excess_vars/4 from setof.
+:- import findall/3, sort/2  from setof.
 :- import sys_exit/1 from shell.
 :- import calculate_singleton/3 from singlton.
 :- import concat_atom/2, term_to_atom/3  from string.

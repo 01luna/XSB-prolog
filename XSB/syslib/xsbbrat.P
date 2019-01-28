@@ -14,6 +14,7 @@ brat_undefined :- tnot(brat_undefined).
 restraint_number_of_answers :- tnot(restraint_number_of_answers).
 
 :- table floundered_undefined/1 as opaque.
+:- mode floundered_undefined(+).
 floundered_undefined(a) :- tnot(floundered_undefined(a)).
 
 :- table cs_undef/0 as opaque.

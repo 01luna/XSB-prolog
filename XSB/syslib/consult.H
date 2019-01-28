@@ -58,7 +58,7 @@
 
 :- import check_one_thread/3,
    domain_error/4, existence_error/4,instantiation_error/2, permission_error/4,type_error/4,
-   check_nonvar/3, check_atom/3 from error_handler.
+   check_nonvar/3, check_atom/3, check_ground/3, check_integer/3 from error_handler.
 :- import domain_error/5 from error_handler.
 :- import asserta/1, (dynamic)/1, retractall/1, assert/1, retract/1, t_assert/2
      from assert.

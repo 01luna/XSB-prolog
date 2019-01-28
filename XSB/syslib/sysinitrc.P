@@ -34,6 +34,7 @@
 :- import xsb_configuration/2 from xsb_configuration.
 
 :- thread_shared library_directory/1.
+:- mode library_directory(+).
 :- dynamic library_directory/1.
 
 :- %% Add the packages dir to the search path
