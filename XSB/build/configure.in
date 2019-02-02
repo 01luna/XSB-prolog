@@ -136,7 +136,9 @@ AC_ARG_WITH(pcre-libdir,
 AC_ARG_WITH(pcre-incdir,
 [  --with-pcre-incdir=DIR       the location of the include files for the PCRE library is at DIR])
 AC_ARG_WITH(dbdrivers,
-[  --with-dbdrivers             configure dbdrivers package])
+[  --with-dbdrivers             configure with the dbdrivers package])
+AC_ARG_WITH(no-dbdrivers,
+[  --with-no-dbdrivers          configure without the dbdrivers package])
 AC_ARG_WITH(odbc-libdir,
 [  --with-odbc-libdir=DIR       provide info on where the ODBC libraries are])
 AC_ARG_WITH(odbc-incdir,
@@ -270,7 +272,7 @@ do
 		--with-static-libraries* | --with-dynamic-libraries* | \
                 --with-xpath* | \
 		--with-curl* | --with-pcre* | --with-mysql* | \
-		--with-dbdrivers | --with-oracle | --with-odbc* | \
+		--with-dbdrivers | --with-no-dbdrivers | --with-oracle | --with-odbc* | \
                 --with-iodbc* | \
                 --with-stdcall | \
 		--with-smodels* | --with-itkwish* | --with-pita )
@@ -922,6 +924,14 @@ if test -n "$with_pita" && test -d "$topdir/packages/pita"; then
     chmod 700 ./configure
     ./configure 
     cd $build_dir
+fi
+
+dnl If --with-no-dbdrivers is specified then zap with_dbdrivers
+dnl (even if --with-dbdrivers is given explicitly). Else enable dbdrivers.
+if test -n "${with_no_dbdrivers}"; then
+    with_dbdrivers=
+else
+    with_dbdrivers=yes
 fi
 
 if test -n "${with_dbdrivers}" && test -d "$topdir/packages/dbdrivers"; then
