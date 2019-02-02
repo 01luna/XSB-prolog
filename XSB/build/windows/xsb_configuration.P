@@ -52,7 +52,7 @@ xsb_configuration(compiler, 'cl.exe').
 xsb_configuration(compiler_flags, '').
 xsb_configuration(loader_flags, '').
 
-xsb_configuration(build_date, '2019-01-17').
+xsb_configuration(build_date, '2019-02-02').
 
 /* Packages */
 
