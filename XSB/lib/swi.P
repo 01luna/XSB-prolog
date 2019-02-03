@@ -31,7 +31,7 @@
 
 /* Should now take out setarg/3 and use one in constraintlib */
 
-:- import call/1,call/2,call/3,write/2,get/1,'=..'/2 from standard.
+:- import call/1,call/2,call/3,call/4,call/5,call/6,call/7,write/2,get/1,'=..'/2 from standard.
 :- import sort/2 from setof.
 
 :- import trie_delete/2,trie_create/2, trie_unify/2, trie_insert/2 from intern.
@@ -156,7 +156,7 @@ nth1(I,L,E,RL):-
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-
+/*
 :- module(apply,
           [ include/3,                  % :Pred, +List, -Ok
             exclude/3,                  % :Pred. +List, -NotOk
@@ -178,6 +178,7 @@ nth1(I,L,E,RL):-
             scanl/7                     % :Pred, +List1, +List2, +List3, +List4,
                                         % ?V0, ?Vs
           ]).
+*/
 %:- use_module(library(error)).
 
 /** <module> Apply predicates on a list
