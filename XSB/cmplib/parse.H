@@ -43,6 +43,7 @@
 	enqueue_preprocessor/1,
 	dequeue_preprocessor/2.
 :- export parsing_file_name/1.
+:- export ensure_gensym_num_larger/1.
 
 :- import
 	retractall/1, retract/1,
