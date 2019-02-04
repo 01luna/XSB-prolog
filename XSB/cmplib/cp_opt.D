@@ -3,6 +3,7 @@
 
 :- mode aggregation_transform(?,?).
 :- mode extract_aggr_spec(?,?,?,?).
+:- mode replace_dyn_sym(?,?,?,?).
 :- mode uses_approx(?,?).
 :- mode collect_inds_and_perms(?,?,?).
 :- mode add_tail(?,?).
@@ -28,14 +29,16 @@
 :- mode list_to_commalist(?,?).
 :- mode parse_preddef_closed(?,?,?,?).
 :- mode subset(?,?).
+:- mode gen_add_hook_cmd(+,+,+,+,?,?,?,?).
 :- mode cpo_index_argpats(?,?,?).
 :- mode build_nonvar_plus_var_minus_cl(?,?,?,?).
-:- mode transform_pred(+,?).
+:- mode transform_pred(?,?).
 :- mode build_nonvar_plus_var_minus(?,?,?,?).
 :- mode aggr_trans_pred(?,?,?,?,+,?,?,?).
 :- mode get_aggr_spec0(+,?,+,?,?,?).
 :- mode cp_opt_block1(+,?,?,?).
 :- mode mywriteln(?).
+:- mode fix_main_dynamics(?,?,?,?,?,?).
 :- mode get_calling_proc(?,?,?).
 :- mode cp_opt(?,?).
 :- mode add_all_to_chains(?,+,?).
@@ -59,6 +62,7 @@
 :- mode collect_arg_pos(?,?,?,?).
 :- mode gen_sel_clause(+,+,?,?).
 :- mode check_for_bad_order(?).
+:- mode syms_to_undef_preds(?,?,?).
 :- mode cp_opt_table_body(?,?,?,?,?).
 :- mode proper_subset(?,?).
 :- mode gen_ind_clauses(?,+,+,+,+,+,?,?).
@@ -66,6 +70,7 @@
 :- mode cp_opt_block(?,?,?,?).
 :- mode collect_orders_from_indexes(?,+,?,?).
 :- mode an_indexset(?,?,?,?).
+:- mode get_hook_goals(+,+,+,+,?,?,?).
 :- mode compl(+,+,?,?).
 :- mode aggr_trans(?,?,?).
 :- mode build_subs_abs_clause_body(?,+,+,?,?).
@@ -82,6 +87,11 @@
 :- (mode_on_success aggregation_transform(A,ng)).
 :- (mode_on_success aggregation_transform(A,A)).
 :- (mode_on_success extract_aggr_spec(A,B,g,C)).
+:- (mode_on_success replace_dyn_sym(g,g,ng,A)).
+:- (mode_on_success replace_dyn_sym(g,ng,ng,g)).
+:- (mode_on_success replace_dyn_sym(g,A,g,g)).
+:- (mode_on_success replace_dyn_sym(ng,A,B,ng)).
+:- (mode_on_success replace_dyn_sym(ng,ng,g,g)).
 :- (mode_on_success uses_approx(A,g)).
 :- (mode_on_success collect_inds_and_perms(A,ng,ng)).
 :- (mode_on_success collect_inds_and_perms(ng,g,ng)).
@@ -125,6 +135,8 @@
 :- (mode_on_success list_to_commalist(A,A)).
 :- (mode_on_success parse_preddef_closed(A,B,C,D)).
 :- (mode_on_success subset(g,A)).
+:- (mode_on_success gen_add_hook_cmd(g,g,g,g,A,g,ng,ng)).
+:- (mode_on_success gen_add_hook_cmd(g,g,g,g,A,g,g,B)).
 :- (mode_on_success cpo_index_argpats(g,ng,g)).
 :- (mode_on_success cpo_index_argpats(A,g,B)).
 :- (mode_on_success build_nonvar_plus_var_minus_cl(g,ng,A,ng)).
@@ -137,6 +149,12 @@
 :- (mode_on_success get_aggr_spec0(g,A,g,g,B,C)).
 :- (mode_on_success cp_opt_block1(g,A,B,C)).
 :- (mode_on_success mywriteln(A)).
+:- (mode_on_success fix_main_dynamics(g,A,ng,ng,B,ng)).
+:- (mode_on_success fix_main_dynamics(g,A,g,B,C,C)).
+:- (mode_on_success fix_main_dynamics(g,A,g,B,C,ng)).
+:- (mode_on_success fix_main_dynamics(g,A,B,B,C,C)).
+:- (mode_on_success fix_main_dynamics(ng,A,ng,ng,B,C)).
+:- (mode_on_success fix_main_dynamics(ng,A,g,B,C,D)).
 :- (mode_on_success get_calling_proc(ng,A,ng)).
 :- (mode_on_success get_calling_proc(g,A,A)).
 :- (mode_on_success cp_opt(A,ng)).
@@ -175,6 +193,8 @@
 :- (mode_on_success collect_arg_pos(ng,ng,ng,ng)).
 :- (mode_on_success gen_sel_clause(g,g,A,B)).
 :- (mode_on_success check_for_bad_order(A)).
+:- (mode_on_success syms_to_undef_preds(A,B,B)).
+:- (mode_on_success syms_to_undef_preds(A,g,ng)).
 :- (mode_on_success cp_opt_table_body(A,B,C,D,E)).
 :- (mode_on_success proper_subset(A,B)).
 :- (mode_on_success gen_ind_clauses(g,g,g,g,g,g,A,B)).
@@ -185,6 +205,7 @@
 :- (mode_on_success collect_orders_from_indexes(A,g,g,g)).
 :- (mode_on_success an_indexset(ng,g,g,ng)).
 :- (mode_on_success an_indexset(A,g,g,g)).
+:- (mode_on_success get_hook_goals(g,g,g,g,A,A,B)).
 :- (mode_on_success gen_tests(A,g,ng,ng)).
 :- (mode_on_success gen_tests(A,g,B,g)).
 :- (mode_on_success compl(g,g,A,g)).

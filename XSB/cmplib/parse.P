@@ -1092,6 +1092,7 @@ parse_preddef_sym(H, B, List, PredSym, SymTab) :-
 	add_new_clause(clause(PredSym,K,ArgList, Body), List,K),
 	sym_propin(pred, PredSym).
 
+:- mode ensure_gensym_num_larger(+).
 ensure_gensym_num_larger(Num) :-
 	gennum(VNum),
 	(VNum > Num

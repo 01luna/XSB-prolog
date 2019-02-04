@@ -130,8 +130,8 @@
 :- (mode_on_success trans_head(A,B,C,g,g)).
 :- (mode_on_success make_gpp_command(g,g,g,g)).
 :- (mode_on_success insert_compiler_based_options(A,g,B)).
-:- (mode_on_success trans_args(g,ng,ng,g,g)).
 :- (mode_on_success trans_args(g,g,A,g,g)).
+:- (mode_on_success trans_args(g,ng,ng,g,g)).
 :- (mode_on_success transform_directive(A,g,B,C)).
 :- (mode_on_success parse_comma_list_dyn(A,B)).
 :- (mode_on_success check_cond_call(A)).

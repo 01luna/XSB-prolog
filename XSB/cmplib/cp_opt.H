@@ -40,7 +40,7 @@
 :- import syntax_error/1 from error_handler.
 :- import excess_vars/4 from setof.
 :- import concat_atom/2 from string.
-:- import trans_head/5, trans_goals/5 from parse.
+:- import trans_head/5, trans_goals/5, ensure_gensym_num_larger/1 from parse.
 :- import memberchk/2 from basics.
 :- import xwam_state/2 from machine.
 :- import parsort/4 from machine.
@@ -50,5 +50,6 @@
 :- import (',')/2 from standard.
 :- import (';')/2 from standard.
 :- import ('->')/2 from standard.
+:- import abort/1 from standard.
 :- import undefined/0 from tables.
 :- import '_$$get_returns'/3 from tables.
