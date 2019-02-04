@@ -1598,26 +1598,97 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
 %---------------------------------------------
 \item[{\tt modeinfer}]\index{compiler options!\texttt{modeinfer}}
 	This option is used to trigger mode analysis. For each module
-	compiled,  the mode analyzer creates a  {\tt {\em module}.D} file
-	that contains the mode information.
+        compiled, the mode analyzer creates a {\tt {\em module}.D}
+        file that contains the mode information that is inferred (or
+        declared).
 
-	{\sc Warning:}
-	Occasionally, the analysis itself may take a long time. 
-	As far as we have seen,
-	the analysis times are longer than the rest of the compilation time
-	only when the module contains recursive predicates of arity $\geq 10$.
-	If the analysis takes an unusually long time
-	(say, more than 4 times as long as the rest of the compilation)
-	you may want to abort and restart compilation without {\tt modeinfer}.
-	
+        The mode analyzer checks whether predicates are called with
+        correct modes, i.e., in modes consistent with their declared
+        modes.  The modes are + for ground, and ? for nonground (or
+        unknown).  Modes for exported predicates (or predicates not in
+        modules that will be called from the top-level or externally)
+        should be declared appropriately; e.g.,
+\begin{verbatim}
+:- mode my_pred(+,?).
+\end{verbatim}
+	indicates that the predicate {\tt my\_pred/2} (defined in this
+        {\tt .P} file must be called with the first argument as a
+        ground term and the second argument as any term (including a
+        variable).  Non-exported predicates may also have modes
+        declared.  The mode analyzer tries to determine whether any
+        call to a predicate may violate its declared modes, and
+        reports a possible mode violation if it is unable to prove
+        that all calls conform to the declared modes.
+
+        Multiple modes may be declared for a given predicate.  For
+        example,...
+
+        There are cases in which the inference is too weak to
+        establish that all calls will be correctly moded, even though
+        in any execution they will be.  This usually arises when a
+        program uses a data structure that is partially ground and
+        partially non-ground.  The programmer knows which
+        subcomponents are ground and is careful to pass those
+        components to predicates requiring ground inputs.  But, the
+        mode analyzer does not keep track of groundedness of
+        subcomponents of arguments, only of entire arguments, so it
+        could signal a mode error in such cases, even though running
+        the program would never produce an erroneous call.  In these
+        cases, to avaoid a mode warning, the programmer may add a
+        redundant run-time check of groundedness (e.g., using {\tt
+          atomic/1}) before the wrongly inferred call to allow the
+        analyzer to infer that the argument will indeed be ground.
+
+        The analyzer infers modes for calls to each predicate, and
+        modes for its arguments when any call to it successfully
+        returns.  The mode on call is indicated by a term like {\tt
+          mode my\_pred(+,?)}; the mode at successful return is
+        indicated by {\tt mode\_on\_success my\_pred(+,+)}.  The modes
+        inferred when processing a file {\tt {\em module}.P} are
+        written to the file named {\tt {\em module}.D}.  For imported
+        predicates, the analyzer reads the {\tt .D} file of the module
+        imported from.  It finds the location of the module by looking
+        in directories specified in directives in the source file that
+        use the {\tt add\_lib\_dir} system predicate.
+
+        {\em Note (DSW):} At the time of this writing, the user should
+        declare {\tt mode\_on\_success} modes for dynamic predicates
+        to indicate the mode of terms that will be asserted into the
+        dynamic predicate.  This is often necessary to allow the
+        analyzer to be able to correctly infer modes.  In the future,
+        the analyzer should be improved to be able to infer these
+        success modes automatically.
+
+	{\sc Warning:} Occasionally, the analysis itself may take a
+        long time.  The analysis times are longer than the rest of the
+        compilation time when the module contains clauses whose bodies
+        have very many subgoals.  By refactoring these clauses to
+        reduce the number of literals in the body, one may be able to
+        reduce the time for mode analysis.  Note, also, if the
+        analysis depends on knowing the modes of predicates from other
+        modules, and the modes of those predicates are not known, then
+        the time may again be long.  But when those modes are known,
+        the analysis time may be shorter.  If the analysis takes an
+        unusually long time (say, more than 4 times as long as the
+        rest of the compilation) you may want to abort and restart
+        compilation without {\tt modeinfer}.
+
+        {\em Note (DSW):} At the time of this writing the mode
+        analyzer does not handle explicit module modifiers in
+        predicate calls (through the use of the ``:'' operator).
+
 \item[{\tt mi\_warn}]\index{compiler options!\texttt{mi\_warn}}
-	During mode analysis, the {\tt .D} files corresponding to the
-	imported modules are read in. The option {\tt mi\_warn} is used
-	to generate warning messages if these {\tt .D} files are 
-	outdated --- {\em i.e.}, older
-	than the last modification time of the source files.
+  (Active only if the {\tt modeinfer} option is also invoked.)  During
+  mode analysis, the {\tt .D} files corresponding to the imported
+  modules are read in. The option {\tt mi\_warn} is used to generate
+  warning messages if these {\tt .D} files are outdated --- {\em
+    i.e.}, older than the last modification time of the source files.
+  Also, a warning is given if a predicate is inferred to never exit
+  successfully (i.e., fail or throw).  This may be a correct
+  inference, or it may indicate a problem in the inferencing that
+  might be fixed by more mode declarations.
 
-\item[{\tt mi\_foreign}] This option is used {\em only\/} when mode analysis
+\item[{\tt mi\_foreign}] (Obsolete) This option is used {\em only\/} when mode analysis
 	is performed on XSB system modules. This option is
 	needed when analyzing {\tt standard} and {\tt machine} in
 	{\tt syslib}.
