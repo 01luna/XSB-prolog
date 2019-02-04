@@ -537,29 +537,32 @@ read_term(T,List):-
 	read_term_check(List,read_term/2),
 	stat_flag(CURRENT_INPUT, File), 
 	file_read(File, T,Vlist),
-	process_variable_list(List,T,Vlist),!.
+	process_variable_list(List,T,Vlist).
 
 :- mode read_term(+,?,?).
 read_term(S_or_A,T,List):- 
 	check_open_stream_or_alias(S_or_A,read_term/3,1,input,Istr),
 	read_term_check(List,read_term/3),
 	file_read(Istr, T,Vlist),
-	process_variable_list(List,T,Vlist),!.
+	process_variable_list(List,T,Vlist).
 
 read_term_check(List,F/N):- 
 	check_nonvar_list(List,F/N,N),
 	check_read_options(List,F/N,N).
 
 process_variable_list(List,T,Vlist):- 
-	(member(singletons(Sings),List) -> 
-	    calculate_singleton(T,Vlist,Sings)
-	  ; true),
-	(member(variables(Vars),List) -> 
-	    extract_vars(Vlist,Vars)
-	  ; true),
-	(member(variable_names(Names),List) -> 
-	    isoify(Vlist,Names)
-	  ; true).
+	(member(variables_as_atoms,List) % destructive, so ignore other options
+	 -> equate_vars_and_names(Vlist)
+	 ;	(member(singletons(Sings),List) -> 
+		    calculate_singleton(T,Vlist,Sings)
+		 ;  true),
+		(member(variables(Vars),List) -> 
+		    extract_vars(Vlist,Vars)
+		 ;  true),
+		(member(variable_names(Names),List) -> 
+		    isoify(Vlist,Names)
+		 ;  true)
+	).
 
 % TLS: keeping the following predicate here, 
 % as read_options check affects only these two predicates.
@@ -573,14 +576,19 @@ check_read_options([H|T],Predvers,Arg):-
 read_option(variables(_)).
 read_option(variable_names(_)).
 read_option(singletons(_)).
+read_option(variables_as_atoms).
 
-extract_vars([],[]).
+extract_vars([],[]) :- !.
 extract_vars([A],[]):- var(A),!.
 extract_vars([H|R],[V|R1]):- 
 	H = vv(_,V),
 	extract_vars(R,R1).
 
-isoify([],[]).
+equate_vars_and_names([]) :- !.
+equate_vars_and_names([vv(V,V)|R]) :-
+    equate_vars_and_names(R).
+
+isoify([],[]) :- !.
 isoify([vv(A,V)|R],[A = V|R1]):- 
 	A \== '_', !,
 	isoify(R,R1).
