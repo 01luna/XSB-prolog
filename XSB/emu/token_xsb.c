@@ -1278,7 +1278,8 @@ LAB_DECIMAL:                *s++ = '.';
                 } else {
 	            token->nextch = c;
 		    token->value = (char *)strbuff;
-                    token->type = TK_VAR;
+		    if (flags[TOKENIZE_VARIABLES_AS_ATOMS]) token->type = TK_ATOM;
+                    else token->type = TK_VAR;
                     return token;
                 }
  
