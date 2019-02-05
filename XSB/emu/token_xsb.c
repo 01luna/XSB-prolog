@@ -43,6 +43,7 @@
 #include "io_builtins_xsb.h"
 #include "cinterf.h"
 #include "sig_xsb.h"
+#include "flag_defs_xsb.h"
 
 #define exit_if_null(x) {\
   if(x == NULL){\
@@ -1441,7 +1442,8 @@ case deleted ****/
 		*s = 0;
 		token->nextch = lastc;
 		token->value = (char *)strbuff;
-		token->type = TK_LIST;
+		if (flags[TOKENIZE_DQ_AS_ATOM]) token->type = TK_ATOM;
+		else token->type = TK_LIST;
                 return token;
 
             case EOLN:

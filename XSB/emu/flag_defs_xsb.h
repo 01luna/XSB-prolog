@@ -168,6 +168,7 @@ interrupt flag
 #define MAX_MEMORY_ACTION               111
 #define ALTERNATE_SEMANTICS             112
 #define FLOAT_DISPLAY_FORMAT            113
+#define TOKENIZE_DQ_AS_ATOM		114 /* 0-usual "-strings go to lists; 1- "-qouted go to atoms (in tokenizer) */
 #define MAX_FLAGS		 120
 
 #define MAXTOINDEX 20              /* maximum depth in term to go when using deep indexing; 
