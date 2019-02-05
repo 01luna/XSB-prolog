@@ -183,7 +183,7 @@ perform_tabling_transforms(Mod1,Mod2):-
 
 aggregation_transform(module(Symtab,DcList,ClList,QrList,Par),
 		      module(Symtab,DcList,ClList3,QrList1,Par)) :-
-	symtab:extract_symlist([aggregation(_),(dynamic)],SymList,Symtab),
+	extract_symlist([aggregation(_),(dynamic)],SymList,Symtab),
 	(SymList == []
 	 -> ClList2 = ClList,
 	    QrList1 = QrList
@@ -200,10 +200,7 @@ aggregation_transform(module(Symtab,DcList,ClList,QrList,Par),
 
 syms_to_undef_preds([],ClList,ClList).
 syms_to_undef_preds([Sym|Syms],ClList0,ClList) :-
-    (sym_prop(defined,Sym)
-     ->	syms_to_undef_preds(Syms,ClList0,ClList)
-     ;	syms_to_undef_preds(Syms,[pred(Sym,[],_)|ClList0],ClList)
-    ).
+    syms_to_undef_preds(Syms,[pred(Sym,[],_)|ClList0],ClList).
 
 fix_main_dynamics([],_Symtab,ClList,ClList,QrList,QrList).
 fix_main_dynamics([Sym|SymList],Symtab,ClList0,ClList,QrList0,QrList) :-

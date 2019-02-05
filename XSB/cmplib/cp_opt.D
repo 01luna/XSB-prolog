@@ -38,6 +38,7 @@
 :- mode get_aggr_spec0(+,?,+,?,?,?).
 :- mode cp_opt_block1(+,?,?,?).
 :- mode mywriteln(?).
+:- mode fix_main_dynamics(+,?,?,?,?,?).
 :- mode fix_main_dynamics(?,?,?,?,?,?).
 :- mode get_calling_proc(?,?,?).
 :- mode cp_opt(?,?).
@@ -150,11 +151,10 @@
 :- (mode_on_success cp_opt_block1(g,A,B,C)).
 :- (mode_on_success mywriteln(A)).
 :- (mode_on_success fix_main_dynamics(g,A,ng,ng,B,ng)).
-:- (mode_on_success fix_main_dynamics(g,A,g,B,C,C)).
 :- (mode_on_success fix_main_dynamics(g,A,g,B,C,ng)).
+:- (mode_on_success fix_main_dynamics(g,A,g,B,C,C)).
 :- (mode_on_success fix_main_dynamics(g,A,B,B,C,C)).
-:- (mode_on_success fix_main_dynamics(ng,A,ng,ng,B,C)).
-:- (mode_on_success fix_main_dynamics(ng,A,g,B,C,D)).
+:- (mode_on_success fix_main_dynamics(ng,ng,ng,ng,A,B)).
 :- (mode_on_success get_calling_proc(ng,A,ng)).
 :- (mode_on_success get_calling_proc(g,A,A)).
 :- (mode_on_success cp_opt(A,ng)).
@@ -193,8 +193,9 @@
 :- (mode_on_success collect_arg_pos(ng,ng,ng,ng)).
 :- (mode_on_success gen_sel_clause(g,g,A,B)).
 :- (mode_on_success check_for_bad_order(A)).
-:- (mode_on_success syms_to_undef_preds(A,B,B)).
+:- (mode_on_success syms_to_undef_preds(g,A,A)).
 :- (mode_on_success syms_to_undef_preds(A,g,ng)).
+:- (mode_on_success syms_to_undef_preds(ng,ng,ng)).
 :- (mode_on_success cp_opt_table_body(A,B,C,D,E)).
 :- (mode_on_success proper_subset(A,B)).
 :- (mode_on_success gen_ind_clauses(g,g,g,g,g,g,A,B)).

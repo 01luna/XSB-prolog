@@ -35,7 +35,8 @@
 :- import index_split/2 from tp_index.
 :- import member/2, append/3, length/2, copy_term/2 from basics.
 :- import functor/3, arg/3, '=..'/2, call/1 from standard.
-:- import sym_type/2, sym_name/3, sym_index/2, sym_insert/5, sym_propin/2, sym_prop/2 from symtab.
+:- import sym_type/2, sym_name/3, sym_index/2, sym_insert/5, sym_propin/2, sym_prop/2,
+   extract_symlist/3 from symtab.
 :- import warning/1 from auxlry.
 :- import syntax_error/1 from error_handler.
 :- import excess_vars/4 from setof.
