@@ -536,14 +536,30 @@ put_byte(S_or_A,C) :-
 read_term(T,List):- 
 	read_term_check(List,read_term/2),
 	stat_flag(CURRENT_INPUT, File), 
-	file_read(File, T,Vlist),
+	(member(double_quoted_as_atoms,List)
+	 -> (stat_flag(TOKENIZE_DQ_AS_ATOM,DQA),DQA =:= 1
+	     ->	file_read(File,T,Vlist)
+	     ;	stat_set_flag(TOKENIZE_DQ_AS_ATOM,1),
+		file_read(File, T,Vlist),
+		stat_set_flag(TOKENIZE_DQ_AS_ATOM,0)
+	    )
+	 ;  file_read(File, T,Vlist)
+	 ),
 	process_variable_list(List,T,Vlist).
 
 :- mode read_term(+,?,?).
 read_term(S_or_A,T,List):- 
 	check_open_stream_or_alias(S_or_A,read_term/3,1,input,Istr),
 	read_term_check(List,read_term/3),
-	file_read(Istr, T,Vlist),
+	(member(double_quoted_as_atoms,List)
+	 -> (stat_flag(TOKENIZE_DQ_AS_ATOM,DQA),DQA =:= 1
+	     ->	file_read(Istr, T,Vlist)
+	     ;	stat_set_flag(TOKENIZE_DQ_AS_ATOM,1),
+		file_read(Istr, T,Vlist),
+		stat_set_flag(TOKENIZE_DQ_AS_ATOM,0)
+	    )
+	 ;  file_read(Istr, T,Vlist)
+	),
 	process_variable_list(List,T,Vlist).
 
 read_term_check(List,F/N):- 
@@ -577,6 +593,7 @@ read_option(variables(_)).
 read_option(variable_names(_)).
 read_option(singletons(_)).
 read_option(variables_as_atoms).
+read_option(double_quoted_as_atoms).
 
 extract_vars([],[]) :- !.
 extract_vars([A],[]):- var(A),!.
