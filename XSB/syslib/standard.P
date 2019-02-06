@@ -546,7 +546,7 @@ read_term(T,List):-
 	 -> stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,1)
 	 ;  true
 	),
-	file_read(File, T,Vlist),
+	catch(file_read(File, T,Vlist),Ball,reset_read_flags_throw(OLDDQA,OLDVAA,Ball)),
 	stat_set_flag(TOKENIZE_DQ_AS_ATOM,OLDDQA),
 	stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,OLDVAA),
 	process_variable_list(List,T,Vlist).
@@ -565,10 +565,15 @@ read_term(S_or_A,T,List):-
 	 -> stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,1)
 	 ;  true
 	),
-	file_read(Istr, T,Vlist),
+	catch(file_read(Istr, T,Vlist),Ball,reset_read_flags_throw(OLDDQA,OLDVAA,Ball)),
 	stat_set_flag(TOKENIZE_DQ_AS_ATOM,OLDDQA),
 	stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,OLDVAA),
 	process_variable_list(List,T,Vlist).
+
+reset_read_flags_throw(OLDDQA,OLDVAA,Ball) :-
+	stat_set_flag(TOKENIZE_DQ_AS_ATOM,OLDDQA),
+	stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,OLDVAA),
+	throw(Ball).
 
 read_term_check(List,F/N):- 
 	check_nonvar_list(List,F/N,N),
