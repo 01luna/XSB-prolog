@@ -224,13 +224,20 @@ fix_main_dynamics([Sym|SymList],Symtab,ClList0,ClList,QrList0,QrList) :-
 
     get_hook_goals(RetHookPred,Pred,DPred,Arity,RetPHead,RetDHead,RetHookCallA),
     arg(1,RetHookCallA,RetPHead),
-    parse_preddef_closed(RetHookCallA,retractall(RetDHead),[Clause1],Symtab),
+    ClList1 = [_|ClList0],  % new predicated, add place for it
+    parse_preddef_closed(RetHookCallA,retractall(RetDHead),ClList1,Symtab),
     
     get_hook_goals(AssertHookPred,Pred,DPred,Arity,AsPHead,AsDHead,AsHookCallA),
     arg(1,AsHookCallA,[AsPHead,Dir]),
-    parse_preddef_closed(AsHookCallA,assert(AsDHead,Dir,1),[Clause2],Symtab),
+    ClList2 = [_|ClList1],  % new predicated, add place for it
+    parse_preddef_closed(AsHookCallA,assert(AsDHead,Dir,1),ClList2,Symtab),
 
-    fix_main_dynamics(SymList,Symtab,[Clause1,Clause2|ClList0],ClList,QrList1,QrList).
+    get_hook_goals(AssertHookPred,Pred,DPred,Arity,AsPHead2,AsDHead2,AsHookCallA2),
+    arg(1,AsHookCallA2,[':-'(AsPHead2,Body),Dir2]),
+    %% old predicate, so will find in ClList2
+    parse_preddef_closed(AsHookCallA2,assert(':-'(AsDHead2,Body),Dir2,1),ClList2,Symtab),
+
+    fix_main_dynamics(SymList,Symtab,ClList2,ClList,QrList1,QrList).
 
 gen_add_hook_cmd(CmdPref,DPred,Arity,HookName,Symtab,HookPred,Clauses0,[clause([],IntCode,_)|Clauses0]) :-
     concat_atom([CmdPref,DPred,'/',Arity],HookPred),
