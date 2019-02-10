@@ -181,7 +181,7 @@ db_clause_match(Head,Body,Entry) :-
 		 ->	Body = true
 		 ;	term_set_arg(BodyStore,1,true,1), % reset for next alt
 			goal_cut_trans_a(Body0, Body1, _),
-			(atom(Body1)
+			(atom(Body)
 			 ->	conname(Body1,Body2),
 				Body = Body2
 			 ;	Body = Body1
