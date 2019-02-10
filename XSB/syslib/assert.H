@@ -100,4 +100,6 @@
 :- import call_xsb_hook/3, xsb_assert_hook/1, xsb_intercept_assert_hook/1,
    xsb_retract_hook/1, xsb_intercept_retractall_hook/1, xsb_hook_class_active/1
    from xsb_hook.
+:- import rename_dyn_pred/2 from xsb_hook.
+
  

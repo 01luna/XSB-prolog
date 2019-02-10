@@ -240,7 +240,11 @@ assert0(Clause, AZL, Index1,_ErrPred) :-
 	('_$trie_asserted'(Clause) -> 
 	    t_assert_2(Clause,_Flag)
 	  ; 
-	  (Clause = (Head:-Body) ->
+	  (Clause = (Head0:-Body) ->
+	      (rename_dyn_pred(Head0,Head)
+	       -> true
+	       ;  Head = Head0
+	      ),
 	      check_assert_fact(Head, Pred), 
   	      ( check_body(Body) -> true ; type_error(callable,Body,Pred,1)),
               ('_$trie_asserted'(Head), Body \== true -> 
@@ -249,10 +253,14 @@ assert0(Clause, AZL, Index1,_ErrPred) :-
 		            'Indexing for this predicate may not be efficient.']) ; true),
 %		    permission_error(assert_clause_with_body,trie_asserted_head,
 %		                     Clause,ErrPred) ; true),
-	     cut_transform(Clause,Nclause)
-            ;	Clause = Head,Body = true,
+	      cut_transform((Head:-Body),Nclause)
+	   ;    (rename_dyn_pred(Clause,Head)
+		 -> true
+		 ;  Head = Clause
+		),
+		Body = true,
   	        check_assert_fact(Head, Pred),
-		Nclause = Clause
+		Nclause = Head
            ),
 	   conpsc(Head, PSC),
 	   psc_arity(PSC, Arity),
@@ -629,10 +637,14 @@ retract(Rule) :-	   % changed for multifile predicates (9/2008)
 	 ;	Head0 = Rule, Body = true
 	),
 	(nonvar(Head0),Head0 = Mod:Head1
-	 ->	term_new_mod(Mod,Head1,Head) %,
+	 ->	term_new_mod(Mod,Head1,Head2) %,
 		%Head1 =.. [_|Args],
 		%Head =.. [_|Args]
-	 ;	Head = Head0
+	 ;	Head2 = Head0
+	),
+	(rename_dyn_pred(Head2,Head)
+	 -> true
+	 ;  Head = Head2
 	),
 	(xsb_hook_class_active(retract)
 	 -> call_xsb_hook(xsb_retract_hook(_),[Head,Body],all)
@@ -687,10 +699,14 @@ retract0(Rule) :-	   % original retract/1, is used in standard.P
 :- mode retractall(?).
 retractall(Fact0) :-
 	(nonvar(Fact0),Fact0 = Mod:Fact1
-	 ->	term_new_mod(Mod,Fact1,Fact)%,
+	 ->	term_new_mod(Mod,Fact1,Fact2)%,
 		%Fact1 =.. [_|Args],
 		%Fact =.. [_|Args]
-	 ;	Fact = Fact0
+	 ;	Fact2 = Fact0
+	),
+	(rename_dyn_pred(Fact2,Fact)
+	 -> true
+	 ;  Fact = Fact2
 	),
 	(nonvar(Fact), '_$multifile'(Fact)
 	 ->	(xsb_hook_class_active(retract)
@@ -912,8 +928,12 @@ immutable_predicate(Term,Immutable):-
 :- mode clause(?,?).
 clause(Head0, Body) :-
     (nonvar(Head0), Head0 = Mod:Head1
-     ->	term_new_mod(Mod,Head1,Head)
-     ;	Head = Head0
+     ->	term_new_mod(Mod,Head1,Head2)
+     ;	Head2 = Head0
+    ),
+    (rename_dyn_pred(Head2,Head)
+     ->	true
+     ;	Head = Head2
     ),
     check_clause(Head),
     clause0(Head, Body0),

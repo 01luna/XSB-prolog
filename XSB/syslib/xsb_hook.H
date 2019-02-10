@@ -39,3 +39,6 @@
 	xsb_intercept_retractall_hook/1,
 	xsb_before_prompt_hook/1,
 	xsb_hook_class_active/1.
+:- export rename_dyn_pred/2,
+   set_rename_dyn_pred/2,
+   reset_rename_dyn_pred/1.
