@@ -181,31 +181,34 @@ perform_tabling_transforms(Mod1,Mod2):-
 	aggregation_transform(Mod1,Mod2).
 %	approximation_transform(Mod2,Mod2).
 
-aggregation_transform(module(Symtab,DcList,ClList,QrList,Par),
-		      module(Symtab,DcList,ClList3,QrList1,Par)) :-
+aggregation_transform(module(Symtab,DcList,ClList0,QrList0,Par),
+		      module(Symtab,DcList,ClList,QrList,Par)) :-
 	extract_symlist([aggregation(_),(dynamic)],SymList,Symtab),
 	(SymList == []
-	 -> ClList2 = ClList,
-	    QrList1 = QrList
-	 ;  ensure_imported_list([im(xsb_intercept_assert_hook/1,xsb_hook),
-				  im(xsb_intercept_retractall_hook/1,xsb_hook),
-				  im(add_xsb_hook/1,xsb_hook),
-				  im(assert/3,assert),
-				  im(retractall/1,assert)
+	 -> ClList1 = ClList0,
+	    QrList = QrList0
+	 ;  ensure_imported_list([im(set_rename_dyn_pred/2,xsb_hook)
 				  ],Symtab),
-	    syms_to_undef_preds(SymList,ClList,ClList1),
-	    fix_main_dynamics(SymList,Symtab,ClList1,ClList2,QrList,QrList1)
+	    syms_to_undef_preds(SymList,ClList0,ClList1),
+	    fix_main_dynamics(SymList,Symtab,QrList0,QrList)
 	),
-	aggr_trans(ClList2,ClList3,Symtab).
+	aggr_trans(ClList1,ClList,Symtab).
 
 syms_to_undef_preds([],ClList,ClList).
 syms_to_undef_preds([Sym|Syms],ClList0,ClList) :-
     syms_to_undef_preds(Syms,[pred(Sym,[],_)|ClList0],ClList).
 
-fix_main_dynamics([],_Symtab,ClList,ClList,QrList,QrList).
-fix_main_dynamics([Sym|SymList],Symtab,ClList0,ClList,QrList0,QrList) :-
+fix_main_dynamics([],_Symtab,QrList,QrList).
+/*fix_main_dynamics([Sym|SymList],Symtab,QrList0,QrList) :- !,
     Sym = sym(Pred,Arity,_Props,_Oth),
-    (QrList0 = [pred(sym('_$main',0,Props,Ot),Clauses,Stuff)]
+    QrList0 = [pred(MainSym,Clauses,Stuff)],
+    (MainSym = sym('_$main',0,_,_) -> true ; abort(error)),
+    QrList1 = [pred(MainSym,Clauses,Stuff)],
+    fix_main_dynamics(SymList,Symtab,QrList1,QrList). */
+fix_main_dynamics([Sym|SymList],Symtab,QrList0,QrList) :-
+    Sym = sym(Pred,Arity,_Props,_Oth),
+    QrList0 = [pred(MainSym,Clauses,Stuff)],
+    (MainSym = sym('_$main',0,_,_)
      ->	true
      ;	abort('ERROR: wrong _$main in aggregation?')
     ),
@@ -213,44 +216,14 @@ fix_main_dynamics([Sym|SymList],Symtab,ClList0,ClList,QrList0,QrList) :-
     integer(Arity),
     sym_insert(DPred,Arity,[dynamic],Symtab,DSym),
     replace_dyn_sym(Clauses,Sym,DSym,DClauses0),
-
-    gen_add_hook_cmd('assert_$',DPred,Arity,xsb_intercept_assert_hook,
-		     Symtab,AssertHookPred,DClauses0,DClauses1),
-
-    gen_add_hook_cmd('retractall_$',DPred,Arity,xsb_intercept_retractall_hook,
-		     Symtab,RetHookPred,DClauses1,DClauses),
-
-    QrList1 = [pred(sym('_$main',0,Props,Ot),DClauses,Stuff)],
-
-    get_hook_goals(RetHookPred,Pred,DPred,Arity,RetPHead,RetDHead,RetHookCallA),
-    arg(1,RetHookCallA,RetPHead),
-    ClList1 = [_|ClList0],  % new predicated, add place for it
-    parse_preddef_closed(RetHookCallA,retractall(RetDHead),ClList1,Symtab),
-    
-    get_hook_goals(AssertHookPred,Pred,DPred,Arity,AsPHead,AsDHead,AsHookCallA),
-    arg(1,AsHookCallA,[AsPHead,Dir]),
-    ClList2 = [_|ClList1],  % new predicated, add place for it
-    parse_preddef_closed(AsHookCallA,assert(AsDHead,Dir,1),ClList2,Symtab),
-
-    get_hook_goals(AssertHookPred,Pred,DPred,Arity,AsPHead2,AsDHead2,AsHookCallA2),
-    arg(1,AsHookCallA2,[':-'(AsPHead2,Body),Dir2]),
-    %% old predicate, so will find in ClList2
-    parse_preddef_closed(AsHookCallA2,assert(':-'(AsDHead2,Body),Dir2,1),ClList2,Symtab),
-
-    fix_main_dynamics(SymList,Symtab,ClList2,ClList,QrList1,QrList).
-
-gen_add_hook_cmd(CmdPref,DPred,Arity,HookName,Symtab,HookPred,Clauses0,[clause([],IntCode,_)|Clauses0]) :-
-    concat_atom([CmdPref,DPred,'/',Arity],HookPred),
-    functor(HookCall,HookPred,1),
-    Hook =.. [HookName,HookCall],
-    trans_goals((add_xsb_hook(Hook)->fail),IntCode,Symtab,0,VA),
-    ensure_gensym_num_larger(VA).
-
-get_hook_goals(HookPred,Pred,DPred,Arity,PHead,DHead,HookCall) :-
-    functor(HookCall,HookPred,1),
-    functor(PHead,Pred,Arity),
-    PHead =.. [Pred|Args],
-    DHead =.. [DPred|Args].
+    functor(MHead,Pred,Arity),
+    MHead =.. [Pred|Args],
+    DHead =.. [DPred|Args],
+    trans_goals((set_rename_dyn_pred(MHead,DHead)->fail),CmdCode,Symtab,0,VA),
+    ensure_gensym_num_larger(VA),
+    DClauses = [clause([],CmdCode,_)|DClauses0],
+    QrList1 = [pred(MainSym,DClauses,Stuff)],
+    fix_main_dynamics(SymList,Symtab,QrList1,QrList).
 
 replace_dyn_sym([],_Sym,_DSym,[]).
 replace_dyn_sym([Clause|Clauses],Sym,DSym,[DClause|DClauses]) :-
