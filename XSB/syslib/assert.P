@@ -369,7 +369,11 @@ check_assert((Head :- Body), Pred) :-
 check_assert(_Head,_Pred).
 
 % TLS: note that checking for static is done in convert_to_dyna
-check_assert_fact(Head, Pred) :- 	% asserting a fact
+check_assert_fact(Head0, Pred) :- 	% asserting a fact
+	(Head0 = _Mod:Head
+	 -> true
+	 ;  Head = Head0
+	),
 	( callable(Head) -> 
 	    ( functor(Head, F, A),
 		standard_symbol(F, A, _Prop),
@@ -634,6 +638,8 @@ dynamic_pred_has_clauses(Head,Has_Clauses) :-
 retract(Rule) :-	   % changed for multifile predicates (9/2008)
 	(Rule = (Head0 :- Body)
 	 ->	true
+	 ; Rule = _Mod:(Head0 :- Body) % ignore module of :-
+	 -> 	true
 	 ;	Head0 = Rule, Body = true
 	),
 	(nonvar(Head0),Head0 = Mod:Head1
