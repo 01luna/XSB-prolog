@@ -1,6 +1,6 @@
 ## File:      packages/regmatch/Makefile
 ## Author(s): kifer
-## Contact:   xsb-contact@cs.sunysb.edu
+## Contact:   xsb-users@lists.sourceforge.net
 ## 
 ## Copyright (C) The Research Foundation of SUNY, 1999
 ## 
@@ -18,8 +18,6 @@
 ## along with XSB; if not, write to the Free Software Foundation,
 ## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##
-## $Id: Makefile,v 1.16 2012-09-27 02:25:58 kifer Exp $
-## 
 ##
 
 OBJEXT=.xwam
@@ -80,4 +78,4 @@ clean:
 	/bin/rm -f cc/*${OBJEXT} cc/*.[Oo]  cc/*.so cc/*~ cc/.*~ cc/*.bak
 
 .DONE:
-	echo Done
+	@echo Done

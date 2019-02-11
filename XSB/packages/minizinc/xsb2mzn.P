@@ -212,12 +212,13 @@ load_dyn_handler(Ball,OLDDQA,OLDVAA) :-
         restore_tokenizer_flags(OLDDQA,OLDVAA),
         throw(Ball).
 
-cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrFile) :-
+cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ExceptnFile,SynChkFile) :-
         (debug_option(keep_tmpfiles) ->
             writeln(solutions=SolnOutputFile),
             writeln(params=TmpParamFile),
             writeln(model=MZNTmpFile),
-            writeln(errors=ErrFile)
+            writeln(olver_exceptions=ExceptnFile),
+            writeln(other_errors=SynChkFile)
         ; 
             (atom(SolnOutputFile), path_sysop(unlink,SolnOutputFile)->true
             ; true
@@ -228,12 +229,15 @@ cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrFile) :-
             (atom(MZNTmpFile), path_sysop(unlink,MZNTmpFile)->true
             ; true
             ),
-            (atom(ErrFile), path_sysop(unlink,ErrFile)->true
+            (atom(ExceptnFile), path_sysop(unlink,ExceptnFile)->true
+            ; true
+            ),
+            (atom(SynChkFile), path_sysop(unlink,SynChkFile)->true
             ; true
             )
         ),
         !.
-cleanup_tmpfiles(_SolnOutputFile,_TmpParamFile,_MZNTmpFile,_ErrFile).
+cleanup_tmpfiles(_SolnOutputF,_TmpParamF,_MZNTmpF,_ExceptionF,_SynChkF).
 
 
 mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
@@ -253,22 +257,22 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
         add_output_spec(MZNFile,OutMZNVarList,ResultPredName,MZNTmpFile),
         path_sysop(tmpfilename,SolnOutputFile1),
         add_file_suffix(SolnOutputFile1,'.P',SolnOutputFile),
-        path_sysop(tmpfilename,ErrorFile1),
-        add_file_suffix(ErrorFile1,'.P',ErrorFile),
+        path_sysop(tmpfilename,ExceptionsFile1),
+        add_file_suffix(ExceptionsFile1,'.P',ExceptionsFile),
         path_sysop(tmpfilename,SyntaxChkFile),
         fmt_write_string(MZNCommand,
                          '%s %s -o %s %s > %s 2> %s',
                          args(MznParams,DataParams,SolnOutputFile,MZNTmpFile,
-                              ErrorFile,SyntaxChkFile)),
+                              ExceptionsFile,SyntaxChkFile)),
         (debug_option(shell_cmd) -> write('shell cmd:  '), writeln(MZNCommand)
         ; true
         ),
         shell(MZNCommand,ErrCode),
         retractall('_$mzn^error'(_,_)),
-        (path_sysop(exists,ErrorFile) ->
+        (path_sysop(exists,ExceptionsFile) ->
             (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
             set_banner_control(quietload,1),
-            catch(load_dyn(ErrorFile),ErrFileLoadBall,true),
+            catch(load_dyn(ExceptionsFile),ExceptnFileLoadBall,true),
             set_banner_control(quietload,QuietFlag)
         ; true
         ),
@@ -276,17 +280,14 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
             show_results(SolnOutputFile,Result)
         ; write('\n+++ xsb2mzn: syntax or type errors found; details '),
             (\+ empty_file(SyntaxChkFile) -> write('in '), writeln(SyntaxChkFile)
-            ; nonvar(ErrFileLoadBall) -> write('in '), writeln(ErrorFile)
+            ; nonvar(ExceptnFileLoadBall) -> write('in '), writeln(ExceptionsFile)
             ; write('possibly in '), writeln(SolnOutputFile)
             ),
             SyntaxError = true
         ),
         %% If syntax errors, fail; otherwise, clean up temp files
         (nonvar(SyntaxError) -> fail
-        ; path_sysop(unlink,SyntaxChkFile),
-            cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrorFile)
-        -> true
-        ; true
+        ; cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ExceptionsFile,SyntaxChkFile)
         ).
 
 mzn_do(_MZNFile,_DataFileList,InParams,_Solver,_NumSolutions,OutTemplate,Result) :-

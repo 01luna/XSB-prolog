@@ -22,19 +22,23 @@
 
 OBJEXT=.xwam
 
+XSBDIR = ../..
+
+ALL = xsb2mzn${OBJEXT} examples${OBJEXT}
+
 Option = [optimize]
 
 #-----------------------------------------------------------------------#
 #
 # Self-make: Version 1.4.1
 #
-XSB=../bin/xsb
+XSB=$(XSBDIR)/bin/xsb
 Prolog = $(XSB) -i -m 2000 -c 2000
 #
 #-----------------------------------------------------------------------#
 
 # Make sure warnings are saved in a file.
-SVFILE = '../build/.apkgs.mzn.tmp'
+SVFILE = '../../build/.apkgs.mzn.tmp'
 STDWARN = 3
 STDERR = 2
 HDRMSG = "While compiling XSB/packages/minizinc:"
@@ -50,8 +54,8 @@ HDRMSG = "While compiling XSB/packages/minizinc:"
 	echo 'mc($*, $(Option)).' >> cmd...
 
 
-all:  init finish $(SUBDIR)
-	@../build/touch.sh cmd...
+all:  init $(ALL) finish
+	@../../build/touch.sh cmd...
 	$(Prolog) < cmd...
 	@rm cmd...
 	@cat $(SVFILE)
@@ -67,10 +71,10 @@ init:
 finish:
 	@echo 'fmt_write($(STDWARN),"-------------------- End --------------------------\n",_).' >> cmd...
 
+.PHONY: clean
 
 clean:
 	/bin/rm -f core *${OBJEXT} *.O *~ .*~ *.bak .#*
 
 .DONE:
 	@echo Done
-

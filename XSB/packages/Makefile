@@ -24,19 +24,24 @@ OBJEXT=.xwam
 
 ALL = 	slx${OBJEXT} gap${OBJEXT} \
 	regmatch${OBJEXT} wildmatch${OBJEXT} \
-	xasp${OBJEXT} xsbdoc${OBJEXT} \
+	xsbdoc${OBJEXT} \
 	chr${OBJEXT} chr_d${OBJEXT} \
 	sgml${OBJEXT} \
 	minizinc${OBJEXT} \
 	wildmatch${OBJEXT} regmatch${OBJEXT} \
-	xmc${OBJEXT} justify${OBJEXT} clpr${OBJECT} curl${OBJECT} pcre${OBJECT}
+	justify${OBJEXT} clpr${OBJECT} curl${OBJECT} pcre${OBJECT}
+# Disabled due to errors
+#	xasp${OBJEXT} xmc${OBJEXT}
 # Perlmatch, libwww - deprecated. Use PCRE, CURL
 #	perlmatch${OBJEXT} libwww${OBJEXT}
 
-SUBDIR = slx gap regmatch wildmatch xasp \
-	 xsbdoc xmc justify clpqr curl pcre
-# Deprecated
-#	perlmatch libwww
+SUBDIR = slx gap regmatch wildmatch \
+	 xsbdoc justify clpqr curl pcre \
+	 minizinc
+# Disabled due to errors:
+#	 xmc xasp
+# Deprecated:
+#	 perlmatch libwww
 
 Option = [optimize]
 
@@ -95,9 +100,11 @@ iprolog::
 #	@echo ""
 #	cd perlmatch; make
 
-xasp::
-	@echo ""
-	cd xasp; make
+# Disabled until fixed:
+# Errors and warnings
+#xasp::
+#	@echo ""
+#	cd xasp; make
 
 gap::
 	@echo ""
@@ -115,9 +122,12 @@ wildmatch::
 	@echo ""
 	cd wildmatch; make
 
-xmc::
-	@echo ""
-	cd xmc; make
+# Disabled until fixed:
+# Error while compiling xlparse.c
+# Too many warnings during ompilation, both Prolog and main.c
+#xmc::
+#	@echo ""
+#	cd xmc; make
 
 justify::
 	@echo ""

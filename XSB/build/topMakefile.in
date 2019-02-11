@@ -152,7 +152,7 @@ arch_config_objlibdir=$(src_config_prefix)/saved.o
 emumake_goal=@emumake_goal@
 
 # Normal user
-all: prepare emulator xsbmod xsbdll gpp_exe remake_dot_O_files emu_clean
+all: prepare emulator xsbmod xsbdll gpp_exe remake_dot_O_files packages emu_clean
 
 devel: prepare emulator xsbmod xsbdll gpp_exe remake_dot_O_files_force packages emu_clean
 
