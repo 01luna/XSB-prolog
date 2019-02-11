@@ -26,7 +26,8 @@
 			nth0/3,
 			nth0/4,
 			nth1/3,
-			nth1/4.
+			nth1/4,
+            delete/3.
 
 
 /* Should now take out setarg/3 and use one in constraintlib */
@@ -38,7 +39,8 @@
 :- import when/2 from constraintLib.
 :- import concat_atom/3 from string.
 
-:- import  ith/3, delete_ith/4 from basics.
+:- import  ith/3 from basics.
+:- import  delete_ith/4 from listutil.
 
 print_message(Str,Term):- write(Str,Term).
 
@@ -119,6 +121,16 @@ nth1(I,L,E):-
 
 nth1(I,L,E,RL):-
   delete_ith(I,L,E,RL).
+
+delete([],_,[]).
+
+delete([H|R],Elem,R1):-
+  \+ \+ Elem = H,!,
+  delete(R,Elem,R1).
+
+delete([H|R],Elem,[H|R1]):-
+  delete(R,Elem,R1).
+
 
 /* start of file apply.pl from SWI-Prolog */
 
