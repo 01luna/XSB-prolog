@@ -18,6 +18,7 @@
 :- mode for(?,+,+).
 :- mode fordown(?,+,+).
 :- mode length(?,?).
+:- mode perm(?,?).
 :- mode copy_term_nat(?,?).
 :- mode between_1(+,+,?).
 :- mode flatten1(?,?,?).
@@ -80,6 +81,7 @@
 :- (mode_on_success for(g,g,g)).
 :- (mode_on_success fordown(g,g,g)).
 :- (mode_on_success length(A,g)).
+:- (mode_on_success perm(A,A)).
 :- (mode_on_success copy_term_nat(A,B)).
 :- (mode_on_success between_1(g,g,g)).
 :- (mode_on_success flatten1(g,A,A)).

@@ -348,6 +348,7 @@ subseq([H|T],S,[H|C]) :- subseq(T,S,C).
 
 %---
 % A not so naive reverse
+:- mode reverse(?,?).
 reverse(L, R) :- nonvar(L), !, reverse_acc(L, [], R).
 reverse(L, R) :- reverse_acc(R, [], L).
 
@@ -357,9 +358,17 @@ reverse_acc([Head|Tail], Acc, Reversed) :-
 
 %---
 % Some Prologs like to call this delete!
+:- mode select(?,?,?).
 select(Element, [Element|Rest_Elements], Rest_Elements).
 select(Element, [Element1|Rest_L1], [Element1|Rest_L2]) :-
 	select(Element, Rest_L1, Rest_L2).
+
+% Permutation
+:- mode perm(?,?).
+perm([], []).
+perm(L, [H|T]) :-
+	select(H, L, Rest),
+	perm(Rest, T).
 
 %%% for(?I,+B1,+B2) nondeterministically binds I to all integer values
 %%% from B1 to B2 inclusive.  B1 and B2 must be integers, but either
