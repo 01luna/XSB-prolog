@@ -62,6 +62,7 @@
 mzndebug(tmpfiles) :- assert(debug_option(keep_tmpfiles)).
 %% shell_cmd - show the shell command used to invoke Minizinc
 mzndebug(shell_cmd) :- assert(debug_option(shell_cmd)).
+mzndebug(clear) :- retractall(debug_option(_)).
 
 platform(windows) :-
         xsb_configuration(architecture,A),

@@ -27,8 +27,19 @@
         mzn_do/7
    from xsb2mzn.
 
+:- export
+        keep_tempfiles/0,
+        show_shell_cmd/0,
+        dbg_clear/0,
+        solve/8.
+
 ?- bootstrap_package([minizinc], minizinc),
 	[xsb2mzn].
 
-solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
-        mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result).
+solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Errors) :-
+        mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result),
+        findall(Err,mzn_error(Err),Errors).
+
+keep_tempfiles :- mzndebug(tmpfiles).
+show_shell_cmd :- mzndebug(shell_cmd).
+dbg_clear :- mzndebug(clear).
