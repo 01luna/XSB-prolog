@@ -27,10 +27,13 @@
         mzn_do/7
    from xsb2mzn.
 
+:- import when/2 from constraintLib.
+
 :- export
         keep_tmpfiles/0,
         show_shell_cmd/0,
         dbg_clear/0,
+        solve_flex/8,
         solve/8.
 
 ?- bootstrap_package([minizinc], minizinc),
@@ -40,6 +43,13 @@ solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Error
         mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result),
         findall(Err,mzn_error(Err),Errors).
 
+%% this delays calling minizinc until in-parameters are ground. But if they
+%% never get bound then minizinc never gets called -- similarly to CLPR.
+solve_flex(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Errors) :-
+        when(ground(InParams),
+             solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Errors)).
+
+%% debugging functions
 keep_tmpfiles :- mzndebug(tmpfiles).
 show_shell_cmd :- mzndebug(shell_cmd).
 dbg_clear :- mzndebug(clear).

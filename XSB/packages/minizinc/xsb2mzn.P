@@ -236,6 +236,7 @@ cleanup_tmpfiles(_SolnOutputFile,_TmpParamFile,_MZNTmpFile,_ErrFile).
 
 
 mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
+        ground(InParams),
         compound(OutTemplate), \+ is_list(OutTemplate),
         functor(OutTemplate,ResultPredName,ResArity),
         %% TODO: also check that OutTemplate contains only
@@ -270,7 +271,7 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
             set_banner_control(quietload,QuietFlag)
         ; true
         ),
-        (ErrCode==NO_ERRORS, \+mzn_error(_), path_sysop(size,SyntaxChkFile,0) ->
+        (ErrCode==NO_ERRORS, \+mzn_error(_), empty_file(SyntaxChkFile) ->
             show_results(SolnOutputFile,Result)
         ; write('\n+++ xsb2mzn: syntax or type errors found; details in '),
             writeln(SyntaxChkFile)
@@ -279,10 +280,17 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
         (path_sysop(size,SyntaxChkFile, Size), Size > 0 -> fail
         ; path_sysop(unlink,SyntaxChkFile),
             cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrorFile)
+        -> true
+        ; true
         ).
 
-mzn_do(_MZNFile,_DataFileList,_InParams,_Solver,_NumSolutions,OutTemplate,Result) :-
-        abort(['xsb2mzn:\n   invalid output template or result template\n   or the two templates do not match\n   or the template predicate is not a dynamic:\n      ', 'output template'=OutTemplate, '\n      ', 'result template'=Result]).
+mzn_do(_MZNFile,_DataFileList,InParams,_Solver,_NumSolutions,OutTemplate,Result) :-
+        (\+predicate_property(OutTemplate,dynamic) ->
+            abort(['xsb2mzn: the template predicate is not dynamic, ', OutTemplate])
+        ; ground(InParams) ->
+            abort(['xsb2mzn:\n   invalid output template or result template\n   or the two templates do not match:\n      ', 'output template'=OutTemplate, '\n      ', 'result template'=Result])
+        ; abort(['xsb2mzn: in-parameters (argument #3) must be ground; got this instead: ', InParams])
+        ).
 
 %% unsatisfiable: optimization problem is unsatisfiable
 %% unbounded:     optimization problem has unbounded objective function
@@ -315,7 +323,7 @@ is_alphanum_or_underscore_ch(Ch) :- is_alphanum_ch(Ch).
 check_system_path :-
         (platform(windows) ->
             shell('minizinc --version > NUL',EC),
-            ErrMsg2 = '\n\t\t set PATH=\%PATH\%;path-to-\\bin\\minizinc\n\t\t E.g., set PATH=\%PATH\%;"C:\progs\minizinc\MiniZincIDE-2.2.3-bundle-windows\bin"'
+            ErrMsg2 = '\n\t   set PATH=\%PATH\%;path-to-\\bin\\minizinc\n\t     E.g., set PATH=\%PATH\%;"C:\progs\minizinc\MiniZincIDE-2.2.3-bundle-windows\bin"'
         ;
             shell('minizinc --version > /dev/null',EC),
             ErrMsg2 = '\n\t\t export PATH=$PATH:path-to-/bin/minizinc\n\t\t E.g., export PATH=$PATH:$HOME/progs/minizinc/MiniZincIDE-2.2.3-bundle-linux/bin'
@@ -326,10 +334,12 @@ check_system_path :-
             abort(['xsb2mzn: ', ErrMsg1, ErrMsg2])
         ).
 
+%% file does not exist or is zero size
+empty_file(File) :-
+        (\+path_sysop(exists,File) -> true
+        ; path_sysop(size,File,0)
+        ).
+
+
 ?- check_system_path.
         
-
-
-%% TODO: define predicate that would define delayed attributed variables
-%%       to be used as input InParams and possibly OutTemplate.
-
