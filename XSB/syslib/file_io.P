@@ -409,7 +409,7 @@ path_sysop(newerthan,Path1,Path2) :- !,
 	file_time(Path2,Time2),
 	Time1 >= Time2.
 path_sysop(size,Path,Size) :- !,
-	sys_system(STAT_FILE_SIZE,Path,Size, _,_,_,_).
+        file_size(Path, Size).
 path_sysop(extension,Filename,Extension) :- !,
 	parse_filename(Filename,_,_,Extension).
 path_sysop(basename,Filename,Basename) :- !,

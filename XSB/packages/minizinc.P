@@ -28,7 +28,7 @@
    from xsb2mzn.
 
 :- export
-        keep_tempfiles/0,
+        keep_tmpfiles/0,
         show_shell_cmd/0,
         dbg_clear/0,
         solve/8.
@@ -40,6 +40,6 @@ solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Error
         mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result),
         findall(Err,mzn_error(Err),Errors).
 
-keep_tempfiles :- mzndebug(tmpfiles).
+keep_tmpfiles :- mzndebug(tmpfiles).
 show_shell_cmd :- mzndebug(shell_cmd).
 dbg_clear :- mzndebug(clear).

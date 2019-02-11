@@ -253,10 +253,11 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
         add_file_suffix(SolnOutputFile1,'.P',SolnOutputFile),
         path_sysop(tmpfilename,ErrorFile1),
         add_file_suffix(ErrorFile1,'.P',ErrorFile),
+        path_sysop(tmpfilename,SyntaxChkFile),
         fmt_write_string(MZNCommand,
-                         '%s %s -o %s %s > %s',
+                         '%s %s -o %s %s > %s 2> %s',
                          args(MznParams,DataParams,SolnOutputFile,MZNTmpFile,
-                              ErrorFile)),
+                              ErrorFile,SyntaxChkFile)),
         (debug_option(shell_cmd) -> write('shell cmd:  '), writeln(MZNCommand)
         ; true
         ),
@@ -269,11 +270,16 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
             set_banner_control(quietload,QuietFlag)
         ; true
         ),
-        (ErrCode == NO_ERRORS, \+mzn_error(_) ->
+        (ErrCode==NO_ERRORS, \+mzn_error(_), path_sysop(size,SyntaxChkFile,0) ->
             show_results(SolnOutputFile,Result)
-        ; true
+        ; write('\n+++ xsb2mzn: syntax or type errors found; details in '),
+            writeln(SyntaxChkFile)
         ),
-        cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrorFile).
+        %% If syntax errors, fail; otherwise, clean up temp files
+        (path_sysop(size,SyntaxChkFile, Size), Size > 0 -> fail
+        ; path_sysop(unlink,SyntaxChkFile),
+            cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrorFile)
+        ).
 
 mzn_do(_MZNFile,_DataFileList,_InParams,_Solver,_NumSolutions,OutTemplate,Result) :-
         abort(['xsb2mzn:\n   invalid output template or result template\n   or the two templates do not match\n   or the template predicate is not a dynamic:\n      ', 'output template'=OutTemplate, '\n      ', 'result template'=Result]).
