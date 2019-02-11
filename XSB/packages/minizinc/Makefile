@@ -1,8 +1,8 @@
-## File:      packages/Makefile
+## File:      packages/minizinc/Makefile
 ## Author(s): kifer
 ## Contact:   xsb-users@lists.sourceforge.net
 ## 
-## Copyright (C) The Research Foundation of SUNY, 1998-2019
+## Copyright (C) The Research Foundation of SUNY, 2019
 ## 
 ## XSB is free software; you can redistribute it and/or modify it under the
 ## terms of the GNU Library General Public License as published by the Free
@@ -22,22 +22,6 @@
 
 OBJEXT=.xwam
 
-ALL = 	slx${OBJEXT} gap${OBJEXT} \
-	regmatch${OBJEXT} wildmatch${OBJEXT} \
-	xasp${OBJEXT} xsbdoc${OBJEXT} \
-	chr${OBJEXT} chr_d${OBJEXT} \
-	sgml${OBJEXT} \
-	minizinc${OBJEXT} \
-	wildmatch${OBJEXT} regmatch${OBJEXT} \
-	xmc${OBJEXT} justify${OBJEXT} clpr${OBJECT} curl${OBJECT} pcre${OBJECT}
-# Perlmatch, libwww - deprecated. Use PCRE, CURL
-#	perlmatch${OBJEXT} libwww${OBJEXT}
-
-SUBDIR = slx gap regmatch wildmatch xasp \
-	 xsbdoc xmc justify clpqr curl pcre
-# Deprecated
-#	perlmatch libwww
-
 Option = [optimize]
 
 #-----------------------------------------------------------------------#
@@ -50,10 +34,10 @@ Prolog = $(XSB) -i -m 2000 -c 2000
 #-----------------------------------------------------------------------#
 
 # Make sure warnings are saved in a file.
-SVFILE = '../build/.apkgs.tmp'
+SVFILE = '../build/.apkgs.mzn.tmp'
 STDWARN = 3
 STDERR = 2
-HDRMSG = "While compiling XSB/packages:"
+HDRMSG = "While compiling XSB/packages/minizinc:"
 
 
 # continue to the next when one error occurs
@@ -66,70 +50,11 @@ HDRMSG = "While compiling XSB/packages:"
 	echo 'mc($*, $(Option)).' >> cmd...
 
 
-all:  init $(ALL) finish $(SUBDIR)
+all:  init finish $(SUBDIR)
 	@../build/touch.sh cmd...
 	$(Prolog) < cmd...
 	@rm cmd...
 	@cat $(SVFILE)
-
-clpr::
-	@echo ""
-	cd clpqr; make
-
-slx::
-	@echo ""
-	cd slx; make
-
-
-#Add interprolog
-iprolog::
-	@echo ""
-	cd iprolog; make
-
-# Deprecated
-#libwww::
-#	@echo ""
-#	cd libwww; make
-#
-#perlmatch::
-#	@echo ""
-#	cd perlmatch; make
-
-xasp::
-	@echo ""
-	cd xasp; make
-
-gap::
-	@echo ""
-	cd gap; make
-
-minizinc::
-	@echo ""
-	cd minizinc; make
-
-regmatch::
-	@echo ""
-	cd regmatch; make
-
-wildmatch::
-	@echo ""
-	cd wildmatch; make
-
-xmc::
-	@echo ""
-	cd xmc; make
-
-justify::
-	@echo ""
-	cd justify; make
-
-curl::
-	@echo ""
-	cd curl; make
-
-pcre::
-	@echo ""
-	cd pcre; make
 
 init:
 	/bin/rm -f $(SVFILE)
@@ -148,3 +73,4 @@ clean:
 
 .DONE:
 	@echo Done
+

@@ -54,6 +54,7 @@
 
 :- export
         mzndebug/1,
+        mzn_info/2,
         mzn_error/1,
         mzn_do/7.
 
@@ -267,17 +268,21 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
         (path_sysop(exists,ErrorFile) ->
             (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
             set_banner_control(quietload,1),
-            load_dyn(ErrorFile),
+            catch(load_dyn(ErrorFile),ErrFileLoadBall,true),
             set_banner_control(quietload,QuietFlag)
         ; true
         ),
         (ErrCode==NO_ERRORS, \+mzn_error(_), empty_file(SyntaxChkFile) ->
             show_results(SolnOutputFile,Result)
-        ; write('\n+++ xsb2mzn: syntax or type errors found; details in '),
-            writeln(SyntaxChkFile)
+        ; write('\n+++ xsb2mzn: syntax or type errors found; details '),
+            (\+ empty_file(SyntaxChkFile) -> write('in '), writeln(SyntaxChkFile)
+            ; nonvar(ErrFileLoadBall) -> write('in '), writeln(ErrorFile)
+            ; write('possibly in '), writeln(SolnOutputFile)
+            ),
+            SyntaxError = true
         ),
         %% If syntax errors, fail; otherwise, clean up temp files
-        (path_sysop(size,SyntaxChkFile, Size), Size > 0 -> fail
+        (nonvar(SyntaxError) -> fail
         ; path_sysop(unlink,SyntaxChkFile),
             cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrorFile)
         -> true

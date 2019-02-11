@@ -24,6 +24,7 @@
 :- import
         mzndebug/1,
         mzn_error/1,
+        mzn_info/2,
         mzn_do/7
    from xsb2mzn.
 
@@ -31,7 +32,7 @@
 
 :- export
         keep_tmpfiles/0,
-        show_shell_cmd/0,
+        show_mzn_cmd/0,
         dbg_clear/0,
         solve_flex/8,
         solve/8.
@@ -40,6 +41,7 @@
 	[xsb2mzn].
 
 solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Errors) :-
+        mzn_info(support,yes),
         mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result),
         findall(Err,mzn_error(Err),Errors).
 
@@ -51,5 +53,5 @@ solve_flex(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,
 
 %% debugging functions
 keep_tmpfiles :- mzndebug(tmpfiles).
-show_shell_cmd :- mzndebug(shell_cmd).
+show_mzn_cmd :- mzndebug(shell_cmd).
 dbg_clear :- mzndebug(clear).
