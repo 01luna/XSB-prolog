@@ -304,6 +304,8 @@ XSB/packages/libwww/cc/*.obj
 XSB/packages/libwww/cc/*.so
 XSB/packages/libwww/cmd...
 XSB/packages/libwww/libwww_init.P
+XSB/packages/minizinc/*.xwam
+XSB/packages/minizinc/examples/*.xwam
 XSB/packages/pcre/*.log
 XSB/packages/pcre/Installation_summary
 XSB/packages/pcre/a.out

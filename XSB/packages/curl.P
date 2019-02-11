@@ -1,7 +1,7 @@
 /*
 ** File: packages/curl.P
 ** Author: Aneesh Ali
-** Contact:   xsb-contact@cs.sunysb.edu
+** Contact:   xsb-users@lists.sourceforge.net
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 2010
 ** 

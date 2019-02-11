@@ -1,0 +1,360 @@
+/* File:      xsb2mzn.P -- Interface to Minizinc
+** Author(s): kifer
+** Contact:   xsb-users@lists.sourceforge.net
+** 
+** Copyright (C) The Research Foundation of SUNY, 2019
+** 
+** XSB is free software; you can redistribute it and/or modify it under the
+** terms of the GNU Library General Public License as published by the Free
+** Software Foundation; either version 2 of the License, or (at your option)
+** any later version.
+** 
+** XSB is distributed in the hope that it will be useful, but WITHOUT ANY
+** WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+** FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
+** more details.
+** 
+** You should have received a copy of the GNU Library General Public License
+** along with XSB; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+**
+*/
+
+
+:- compiler_options([xpp_on]).
+
+#include "flag_defs_xsb.h"
+#include "char_defs.h"
+
+#define DEFAULT_SOLVER   gecode
+#define NO_ERRORS        0
+
+:- import
+        path_sysop/2,
+        path_sysop/3
+   from file_io.
+%%:- import length/2 from basics.
+
+:- import
+        stat_set_flag/2,
+        stat_flag/2
+   from machine.
+
+:- import
+        banner_control/1,
+        set_banner_control/2
+   from banner.
+
+:- import '_$mzn^error'/2 from usermod.
+:- import xsb_configuration/2 from xsb_configuration.
+
+:- dynamic debug_option/1.
+:- dynamic '_$mzn^error'/2.
+:- dynamic mzn_info/2.
+
+:- export
+        mzndebug/1,
+        mzn_error/1,
+        mzn_do/7.
+
+%% these are called to enable debugging
+%% tmpfiles - don't delete temp files, leave them for inspection
+mzndebug(tmpfiles) :- assert(debug_option(keep_tmpfiles)).
+%% shell_cmd - show the shell command used to invoke Minizinc
+mzndebug(shell_cmd) :- assert(debug_option(shell_cmd)).
+
+platform(windows) :-
+        xsb_configuration(architecture,A),
+	str_sub(windows,A),
+	!.
+platform(unix).
+
+num_of_solutions_param(all,' -a ') :- !.
+num_of_solutions_param(N,Param)    :-
+        integer(N),
+        N > 0,
+        !,
+        fmt_write_string(Param, ' -n %d ', arg(N)).
+num_of_solutions_param(N,_)        :-
+        abort(['xsb2mzn: invalid number of expected solutions given, ', N]).
+
+%% mzn_params(+MZNFile,+Solver,+NumSolutions,-Params)
+%% if Solver is a non-atom (eg a var) - use the default solver
+%% NumSolutions can be all/var/natural number
+mzn_params(MZNFile,Solver,NumSolutions,Params) :-
+        check_file(MZNFile,model),
+        (atom(Solver) -> SolverParam = Solver
+        ; SolverParam = DEFAULT_SOLVER
+        ),
+        num_of_solutions_param(NumSolutions,SolutionsParam),
+        fmt_write_string(Params,
+                         'minizinc %s --soln-sep "" --unsat-msg "''_\\$mzn^error''(unsatisfiable,''%s'')." --unbounded-msg "''_\\$mzn^error''(unbounded,''%s'')." --unsatorunbnd-msg "''_\\$mzn^error''(unsatisfiable_or_unbounded''%s'')." --unknown-msg "''_\\$mzn^error''(unknown,''%s'')." --error-msg "''_\\$mzn^error''(error,''%s'')." --search-complete-msg "" --solver %s',
+                         args(SolutionsParam,
+                              MZNFile,MZNFile,MZNFile,MZNFile,MZNFile,
+                              SolverParam)).
+
+%% Type is model or data
+check_file(MZNFile,_Type) :-
+        atom(MZNFile),
+        path_sysop(readable,MZNFile),
+        !.
+check_file(MZNFile,Type) :-
+        abort(['xsb2mzn: invalid or unreadable ', Type, ' file, ', MZNFile]).
+
+%% construct --data file1 --data file2 ..., incl params tmpfile passed by Prolog
+%% if DataFileList = [] - no data files
+make_input_params(InParamLst,DataFileLst,TmpParamFile,DataParam) :-
+        %% TODO: also check that InParamLst contains only
+        %%       the allowed attributed delay variables
+        datafiles_param(DataFileLst,DataParam1),
+        (make_inparam_file(InParamLst,TmpParamFile) ->
+            fmt_write_string(DataParam,' %s --data %s ', args(DataParam1,TmpParamFile))
+        ; DataParam = DataParam1
+        ).
+
+datafiles_param([],' ') :- !.
+datafiles_param([File|FileList],DataParam) :-
+        check_file(File,data),
+        datafiles_param(FileList,RestParam),
+        fmt_write_string(DataParam,' --data %s %s', args(File,RestParam)).
+
+%% make_inparam_file(+InParamLst,-ParamFile)
+make_inparam_file(InParamLst,ParamFile) :-
+        InParamLst \= [],
+        path_sysop(tmpfilename,ParamFile1),
+        add_file_suffix(ParamFile1,'.dzn',ParamFile),
+        tell(ParamFile),
+        write_params(InParamLst),
+        told.
+
+write_params([]) :- !.
+write_params([Var=Val|InParamLst]) :-
+        write(Var=Val),
+        writeln(';'),
+        write_params(InParamLst).
+
+add_output_spec(MZNFile,MZNVarList,ResultPredName,MZNTmpFile) :-
+        path_sysop(tmpfilename,MZNTmpFile1),
+        add_file_suffix(MZNTmpFile1,'.mzn',MZNTmpFile),
+        path_sysop(copy,MZNFile,MZNTmpFile),
+        open(MZNTmpFile,append,Stream),
+        write(Stream,'\noutput ["'),
+        write(Stream,ResultPredName),
+        write(Stream,'(",'),
+        write_output_spec(MZNVarList,Stream),
+        writeln(Stream,',").\\n"];'),
+        close(Stream).
+
+
+write_output_spec([],_Stream) :- !.
+%% if var(NoLastComma), then put last comma; else no last comma
+write_output_spec([MZNVar|MZNVarList],Stream) :-
+        !,
+        write_one_output_spec(MZNVar,Stream),
+        (MZNVarList == [] -> true
+        ; write(Stream,',",",'),
+            write_output_spec(MZNVarList,Stream)
+        ).
+write_output_spec(MZNVar,Stream) :-
+        write_one_output_spec(MZNVar,Stream).
+
+write_one_output_spec(MZNVar,Stream) :-
+        ((MZNVar = str(MZNVarString) ; MZNVar = +MZNVarString) ->
+            fmt_write(Stream,'"\'%S\'"', arg(MZNVarString))
+        ; is_list(MZNVar) ->
+            write(Stream,'"[" ++ '),
+            write_output_spec(MZNVar,Stream),
+            write(Stream,' ++ "]"')
+        ; MZNVar = (MZNVarLeft = MZNVarRight) ->
+            write_one_output_spec(MZNVarLeft,Stream),
+            write(Stream,' ++ "=" ++ '),
+            write_one_output_spec(MZNVarRight,Stream)
+        ; (is_alphanum(MZNVar) -> fmt_write(Stream,'show(%S)', arg(MZNVar))
+          ; abort(['xsb2mzn: invalid Minizinc identifier found in output template:\n\t\t',
+                   MZNVar, '\n\t +++ Must be alphanumeric.'])
+          )
+        ).
+
+%% add suffix to file name
+add_file_suffix(FileN,Suff,NewName) :-
+        atom(FileN),
+        atom(Suff),
+        str_cat(FileN,Suff,NewName).
+
+show_results(ResultsFile,ResultTemplate) :-
+        retractall(ResultTemplate),
+        %% can't load_dync because sets are output by Minizinc as {aaa,bbb,ccc}
+        save_tokenizer_flags(OLDDQA,OLDVAA),
+	stat_set_flag(TOKENIZE_DQ_AS_ATOM,1),
+	stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,1),
+        %% Use current_op/3 to save/restore '..', if it's defined as an op
+        (current_op(Prio,OpType,'..') -> true
+        ; Prio = 0, OpType = xfx
+        ),
+        op(500,xfx,'..'), %% because Minizinc uses ranges like 1..n
+        (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
+        set_banner_control(quietload,1),
+        catch(load_dyn(ResultsFile),Ball,load_dyn_handler(Ball,OLDDQA,OLDVAA)),
+        set_banner_control(quietload,QuietFlag),
+        op(Prio,OpType,'..'),
+        restore_tokenizer_flags(OLDDQA,OLDVAA),
+        call(ResultTemplate).
+
+save_tokenizer_flags(OLDDQA,OLDVAA) :-
+	stat_flag(TOKENIZE_DQ_AS_ATOM,OLDDQA),
+	stat_flag(TOKENIZE_VARIABLES_AS_ATOMS,OLDVAA).
+restore_tokenizer_flags(OLDDQA,OLDVAA) :-
+	stat_set_flag(TOKENIZE_DQ_AS_ATOM,OLDDQA),
+	stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,OLDVAA).
+load_dyn_handler(Ball,OLDDQA,OLDVAA) :-
+        restore_tokenizer_flags(OLDDQA,OLDVAA),
+        throw(Ball).
+
+cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrFile) :-
+        (debug_option(keep_tmpfiles) ->
+            writeln(solutions=SolnOutputFile),
+            writeln(params=TmpParamFile),
+            writeln(model=MZNTmpFile),
+            writeln(errors=ErrFile)
+        ; 
+            (atom(SolnOutputFile), path_sysop(unlink,SolnOutputFile)->true
+            ; true
+            ),
+            (atom(TmpParamFile), path_sysop(unlink,TmpParamFile)->true
+            ; true
+            ),
+            (atom(MZNTmpFile), path_sysop(unlink,MZNTmpFile)->true
+            ; true
+            ),
+            (atom(ErrFile), path_sysop(unlink,ErrFile)->true
+            ; true
+            )
+        ),
+        !.
+cleanup_tmpfiles(_SolnOutputFile,_TmpParamFile,_MZNTmpFile,_ErrFile).
+
+
+mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
+        compound(OutTemplate), \+ is_list(OutTemplate),
+        functor(OutTemplate,ResultPredName,ResArity),
+        %% TODO: also check that OutTemplate contains only
+        %%       the allowed attributed delay variables
+        (var(Result) ; compound(Result)),
+        functor(Result,ResultPredName,ResArity),
+        %% Result should be a dynamic predicate
+        (predicate_property(Result,dynamic) ; \+predicate_property(Result,_)),
+        !,  %% now templates are checked
+        mzn_params(MZNFile,Solver,NumSolutions,MznParams),
+        make_input_params(InParams,DataFileList,TmpParamFile,DataParams),
+        OutTemplate =.. [ResultPredName|OutMZNVarList],
+        add_output_spec(MZNFile,OutMZNVarList,ResultPredName,MZNTmpFile),
+        path_sysop(tmpfilename,SolnOutputFile1),
+        add_file_suffix(SolnOutputFile1,'.P',SolnOutputFile),
+        path_sysop(tmpfilename,ErrorFile1),
+        add_file_suffix(ErrorFile1,'.P',ErrorFile),
+        fmt_write_string(MZNCommand,
+                         '%s %s -o %s %s > %s',
+                         args(MznParams,DataParams,SolnOutputFile,MZNTmpFile,
+                              ErrorFile)),
+        (debug_option(shell_cmd) -> write('shell cmd:  '), writeln(MZNCommand)
+        ; true
+        ),
+        shell(MZNCommand,ErrCode),
+        retractall('_$mzn^error'(_,_)),
+        (path_sysop(exists,ErrorFile) ->
+            (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
+            set_banner_control(quietload,1),
+            load_dyn(ErrorFile),
+            set_banner_control(quietload,QuietFlag)
+        ; true
+        ),
+        (ErrCode == NO_ERRORS, \+mzn_error(_) ->
+            show_results(SolnOutputFile,Result)
+        ; true
+        ),
+        cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ErrorFile).
+
+mzn_do(_MZNFile,_DataFileList,_InParams,_Solver,_NumSolutions,OutTemplate,Result) :-
+        abort(['xsb2mzn:\n   invalid output template or result template\n   or the two templates do not match\n   or the template predicate is not a dynamic:\n      ', 'output template'=OutTemplate, '\n      ', 'result template'=Result]).
+
+%% unsatisfiable: optimization problem is unsatisfiable
+%% unbounded:     optimization problem has unbounded objective function
+%%                from top (if max) or bottom (if min)
+%% unsatisfiable_or_unbounded: one of the above
+%% unknown:       could not find a solution within the limits (eg, timeout)
+%% error:         search resulted in an error
+mzn_error(Err) :-
+        '_$mzn^error'(Reason,File),
+        Err = (reason=Reason,model_file=File).
+
+is_alphanum(Atom) :-
+        atom_codes(Atom,List),
+        List=[First|Rest],
+        is_alpha_ch(First),
+        is_alphanum_rest(Rest).
+is_alphanum_rest([]) :- !.
+is_alphanum_rest([C|Rest]) :-
+        is_alphanum_or_underscore_ch(C),
+        is_alphanum_rest(Rest).
+
+is_alpha_ch(Ch) :- Ch >= CH_a, Ch =< CH_z, !.
+is_alpha_ch(Ch) :- Ch >= CH_A, Ch =< CH_Z.
+is_digit_ch(Ch) :- Ch >= CH_0, Ch =< CH_9.
+is_alphanum_ch(Ch) :- is_alpha_ch(Ch), !.
+is_alphanum_ch(Ch) :- is_digit_ch(Ch).
+is_alphanum_or_underscore_ch(CH_UNDERSCORE) :- !.
+is_alphanum_or_underscore_ch(Ch) :- is_alphanum_ch(Ch).
+
+check_system_path :-
+        (platform(windows) ->
+            shell('minizinc --version > NUL',EC),
+            ErrMsg2 = '\n\t\t set PATH=\%PATH\%;path-to-\\bin\\minizinc\n\t\t E.g., set PATH=\%PATH\%;"C:\progs\minizinc\MiniZincIDE-2.2.3-bundle-windows\bin"'
+        ;
+            shell('minizinc --version > /dev/null',EC),
+            ErrMsg2 = '\n\t\t export PATH=$PATH:path-to-/bin/minizinc\n\t\t E.g., export PATH=$PATH:$HOME/progs/minizinc/MiniZincIDE-2.2.3-bundle-linux/bin'
+        ),
+        ErrMsg1 = 'the minizinc command not found.\n\t +++ Please set the environment variable PATH via the shell command',
+        (EC==0 -> assert(mzn_info(support,yes))
+        ; assert(mzn_info(support,no)),
+            abort(['xsb2mzn: ', ErrMsg1, ErrMsg2])
+        ).
+
+?- check_system_path.
+        
+
+
+%% TODO: define predicate that would define delayed attributed variables
+%%       to be used as input InParams and possibly OutTemplate.
+
+/*
+export PATH=$PATH:$HOME/test/minizinc/MiniZincIDE-2.2.3-bundle-linux/bin
+
+%% For optimization problems, the number of solutions must always be 1
+%% or else it will return also non-optimal solutions.
+
+%% australia
+mzn_do('examples/australia.mzn',[],[],_,4,au(wa,nt,sa,q,nsw,v,t),Result).
+
+%% australia2
+mzn_do('examples/australia2.mzn',[],['Color' = '{ red, yellow, blue }'],_,3,au2(str('W. Australia')=wa, str('N. Territory')=nt, str('S. Australia')=sa, str('Queensland')=q, str('New S. Wales')=nsw, str('Victoria')=v, str('Tasmania')=t),Result).
+
+%% bake.mzn
+mzn_do('examples/bake.mzn',['examples/bake.dzn'],[butter=1500,cocoa=800],_,1,bake(str(price)=price,str(bananaCakes)=b,str(cocoaCakes)=c),Result).
+
+%% stable marriage
+mzn_do('examples/marriage.mzn',['examples/marriage.dzn'],[rankMen='[|5,1,2,4,3,|4,1,3,2,5,|5,3,2,4,1,|1,5,4,3,2,|4,3,2,1,5|]'],_,4,marriage(wife=husband),Result).
+
+%% prod-planning.mzn
+mzn_do('examples/prod-planning.mzn',['examples/prod-planning.dzn','examples/prod-planning2.dzn'],[profit=[400,550]],_,1,plan(str(profit)=maxprofit,'Products'=produce,'Resources'=used),Result).
+
+%% N queens
+mzn_do('examples/queens.mzn',[],[n=13],_,3,board(q),Result).
+
+%% SEND+MORE+MONEY
+mzn_do('examples/sendmoney.mzn',[],[],_,3,money(str(send) = ['S','E','N','D'],str(more) = ['M','O','R','E'], str('money') = ['M','O','N','E','Y']),Result).
+
+%% Social golfers
+mzn_do('examples/golfer.mzn',[],[weeks=4,groups=4,size=3],_,3,golfer(str(groups) = 'GROUP',str(weeks) = 'WEEK', str(schedule) = 'Sched'),Result).
+
+mzn_do('examples/jobshop.mzn',['examples/jobshop.dzn'],['JOB'=anon_enum(5),'TASK'=anon_enum(5)],_,1,jobs(str(total_duration)=end,str(jobs) = 'JOB',str(tasks) = 'TASK', str(schedule) = s),Result).
+*/
