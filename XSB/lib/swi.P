@@ -3,39 +3,46 @@
 
 :- export atomic_concat/3, nb_delete/1, nb_getval/2, nb_setval/2, 
 	print_message/2, get_single_char/1,
-	  setarg/3, term_variables/2, ignore/1,
+	  setarg/3,
+          term_variables_swi/2,
+          ignore/1,
 	  strip_module/3,
 	  unifiable/2, freeze/2,
-			include/3,                  % :Pred, +List, -Ok
-            exclude/3,                  % :Pred. +List, -NotOk
-            partition/4,                % :Pred, +List, -Included, -Excluded
-            partition/5,                % :Pred, +List, ?Less, ?Equal, ?Greater
-            maplist/2,                  % :Pred, +List
-            maplist/3,                  % :Pred, ?List, ?List
-            maplist/4,                  % :Pred, ?List, ?List, ?List
-            maplist/5,                  % :Pred, ?List, ?List, ?List, ?List
-            convlist/3,                 % :Pred, +List, -List
-            foldl/4,                    % :Pred, +List, ?V0, ?V
-            foldl/5,                    % :Pred, +List1, +List2, ?V0, ?V
-            foldl/6,                    % :Pred, +List1, +List2, +List3, ?V0, ?V
-            foldl/7,                    % :Pred, +List1, +List2, +List3, +List4,
-            scanl/4,                    % :Pred, +List, ?V0, ?Vs
-            scanl/5,                    % :Pred, +List1, +List2, ?V0, ?Vs
-            scanl/6,                    % :Pred, +List1, +List2, +List3, ?V0, ?Vs
-            scanl/7,                     % :Pred, +List1, +List2, +List3, +List4,
-			nth0/3,
-			nth0/4,
-			nth1/3,
-			nth1/4,
-            delete/3.
+          include/3,         % :Pred, +List, -Ok
+          exclude/3,         % :Pred. +List, -NotOk
+          partition/4,       % :Pred, +List, -Included, -Excluded
+          partition/5,       % :Pred, +List, ?Less, ?Equal, ?Greater
+          maplist/2,         % :Pred, +List
+          maplist/3,         % :Pred, ?List, ?List
+          maplist/4,         % :Pred, ?List, ?List, ?List
+          maplist/5,         % :Pred, ?List, ?List, ?List, ?List
+          convlist/3,        % :Pred, +List, -List
+          foldl/4,           % :Pred, +List, ?V0, ?V
+          foldl/5,           % :Pred, +List1, +List2, ?V0, ?V
+          foldl/6,           % :Pred, +List1, +List2, +List3, ?V0, ?V
+          foldl/7,           % :Pred, +List1, +List2, +List3, +List4,
+          scanl/4,           % :Pred, +List, ?V0, ?Vs
+          scanl/5,           % :Pred, +List1, +List2, ?V0, ?Vs
+          scanl/6,           % :Pred, +List1, +List2, +List3, ?V0, ?Vs
+          scanl/7,           % :Pred, +List1, +List2, +List3, +List4,
+          nth0/3,
+          nth0/4,
+          nth1/3,
+          nth1/4,
+          delete/3.
 
 
 /* Should now take out setarg/3 and use one in constraintlib */
 
-:- import call/1,call/2,call/3,call/4,call/5,call/6,call/7,write/2,get/1,'=..'/2 from standard.
+:- import
+        call/1,call/2,call/3,call/4,call/5,call/6,call/7,
+        write/2,get/1,'=..'/2 
+   from standard.
 :- import sort/2 from setof.
 
-:- import trie_delete/2,trie_create/2, trie_unify/2, trie_insert/2 from intern.
+:- import
+        trie_delete/2,trie_create/2, trie_unify/2, trie_insert/2
+   from intern.
 :- import when/2 from constraintLib.
 :- import concat_atom/3 from string.
 
@@ -64,7 +71,11 @@ setarg(N,T,A):-  set_arg(T, N, A).
 
 
 
-term_variables(Term, Vars) :-
+%% MK: renamed from term_variables/2 to avoid clashes with XSB standard
+%%     predicate term_variables/2 in setof and also in constraintLib.
+%%     The one in constraintLib is identical to the one below.
+%%     The one in setof is faster, but does not sort.
+term_variables_swi(Term, Vars) :-
 	listofvars(Term, Vs, []),
 	sort(Vs, Vars).	
 

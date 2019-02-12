@@ -206,7 +206,7 @@ gpp_exe:
 xasp:
 	@cd $(src_pkgdir)/xasp; \
 	  echo "Compiling xasp interface"; \
-	  rm -f *.o Makefile *.h *$(xsb_obj_extension) *.so 2>/dev/null || echo ""; \
+	  rm -f *.o Makefile *$(xsb_obj_extension) *.so 2>/dev/null || echo ""; \
 	  ${link_cmd} ${src_config_prefix}/smoMakefile ./Makefile; \
 	  $(MAKE) CROSS_SIMULATOR=@CROSS_SIMULATOR@ XSB=$(src_scriptdir)/xsb$(config_tag) @smodels_goal@ 2>&1\
 		 | tee -a ../../build/Installation_summary
