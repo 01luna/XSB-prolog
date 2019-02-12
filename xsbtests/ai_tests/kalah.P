@@ -129,7 +129,7 @@ stonesinhole__1(_312,_314,_316) :-
                          [_312,_314,_316]).
 extendmove__1(_282,_284,_286,_288) :- 
         [_241] = _290, [_254] = _292, [_221] = _294, [list] = _296, 
-        'my =\='([_241],[[num],[_254]]),
+        'my =\\='([_241],[[num],[_254]]),
         normalize_result([_290,_292,_294,_296],
                          [_282,_284,_286,_288]).
 extendmove__1(_472,_474,_476,_478) :- 
@@ -423,7 +423,7 @@ zero__1(_153) :-
                           [_153]).
 nonzero__1(_227) :- 
         [_186] = _229, 
-        'my \=='([_186],[list,list,list,list,list,list,list]),
+        'my \\=='([_186],[list,list,list,list,list,list,list]),
         normalize_result([_229],
                          [_227]).
 reverse__1(_226,_228) :- 
@@ -712,22 +712,22 @@ tp.
 %---------------- Builtin Preds ----------------------------
 
 'my ='(X1,X2) :- 'my =__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
-'my \=='(X1,X2) :- 'my \==__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
+'my \\=='(X1,X2) :- 'my \\==__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
 'my is'(X1,X2) :- 'my is__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
 'my >='([num],[num]).
 'my =<'([num],[num]).
 'my =:='(X1,X2) :- 'my =:=__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
-'my =\='(X1,X2) :- 'my =\=__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
+'my =\\='(X1,X2) :- 'my =\\=__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
 'my <'(X1,X2) :- 'my <__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
 'my >'(X1,X2) :- 'my >__1'(Y1,Y2), unify_sets([X1,X2],[Y1,Y2]).
 
 'my =__1'(X,X).
-'my \==__1'(_,_).
+'my \\==__1'(_,_).
 'my is__1'(num,num).
 'my <__1'(num,num).
 'my >__1'(num,num).
 'my =:=__1'(num,num).
-'my =\=__1'(num,num).
+'my =\\=__1'(num,num).
 
 
 %---------------- Show Result ------------------------------
