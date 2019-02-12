@@ -23,7 +23,7 @@
 :- import bootstrap_package/2 from packaging.
 :- import
         mzndebug/1,
-        mzn_error/1,
+        mzn_exception/1,
         mzn_info/2,
         mzn_do/7
    from xsb2mzn.
@@ -43,7 +43,7 @@
 solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Exceptions) :-
         mzn_info(support,yes),
         mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result),
-        findall(Err,mzn_error(Err),Exceptions).
+        findall(Err,mzn_exception(Err),Exceptions).
 
 %% this delays calling minizinc until in-parameters are ground. But if they
 %% never get bound then minizinc never gets called -- similarly to CLPR.

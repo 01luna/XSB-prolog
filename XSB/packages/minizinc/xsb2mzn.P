@@ -45,17 +45,17 @@
         set_banner_control/2
    from banner.
 
-:- import '_$mzn^error'/2 from usermod.
+:- import '_$mzn^exception'/2 from usermod.
 :- import xsb_configuration/2 from xsb_configuration.
 
 :- dynamic debug_option/1.
-:- dynamic '_$mzn^error'/2.
+:- dynamic '_$mzn^exception'/2.
 :- dynamic mzn_info/2.
 
 :- export
         mzndebug/1,
         mzn_info/2,
-        mzn_error/1,
+        mzn_exception/1,
         mzn_do/7.
 
 %% these are called to enable debugging
@@ -79,7 +79,7 @@ num_of_solutions_param(N,Param)    :-
         !,
         fmt_write_string(Param, ' -n %d ', arg(N)).
 num_of_solutions_param(N,_)        :-
-        abort(['xsb2mzn: invalid number of expected solutions given, ', N]).
+        abort(['xsb2mzn: invalid number of expected solutions, ', N]).
 
 %% mzn_params(+MZNFile,+Solver,+NumSolutions,-Params)
 %% if Solver is a non-atom (eg a var) - use the default solver
@@ -91,7 +91,7 @@ mzn_params(MZNFile,Solver,NumSolutions,Params) :-
         ),
         num_of_solutions_param(NumSolutions,SolutionsParam),
         fmt_write_string(Params,
-                         'minizinc %s --soln-sep "" --unsat-msg "''_\\$mzn^error''(unsatisfiable,''%s'')." --unbounded-msg "''_\\$mzn^error''(unbounded,''%s'')." --unsatorunbnd-msg "''_\\$mzn^error''(unsatisfiable_or_unbounded''%s'')." --unknown-msg "''_\\$mzn^error''(unknown,''%s'')." --error-msg "''_\\$mzn^error''(error,''%s'')." --search-complete-msg "" --solver %s',
+                         'minizinc %s --soln-sep "" --unsat-msg "''_\\$mzn^exception''(unsatisfiable,''%s'')." --unbounded-msg "''_\\$mzn^exception''(unbounded,''%s'')." --unsatorunbnd-msg "''_\\$mzn^exception''(unsatisfiable_or_unbounded''%s'')." --unknown-msg "''_\\$mzn^exception''(unknown,''%s'')." --error-msg "''_\\$mzn^exception''(error,''%s'')." --search-complete-msg "" --solver %s',
                          args(SolutionsParam,
                               MZNFile,MZNFile,MZNFile,MZNFile,MZNFile,
                               SolverParam)).
@@ -172,10 +172,9 @@ write_one_output_spec(MZNVar,Stream) :-
             write_one_output_spec(MZNVarLeft,Stream),
             write(Stream,' ++ "=" ++ '),
             write_one_output_spec(MZNVarRight,Stream)
-        ; (is_alphanum(MZNVar) -> fmt_write(Stream,'show(%S)', arg(MZNVar))
-          ; abort(['xsb2mzn: invalid Minizinc identifier found in output template:\n\t\t',
-                   MZNVar, '\n\t +++ Must be alphanumeric.'])
-          )
+        ; is_alphanum(MZNVar) -> fmt_write(Stream,'show(%S)', arg(MZNVar))
+        ; abort(['xsb2mzn: invalid Minizinc identifier found in output template:\n\t\t',
+                 MZNVar, '\n\t +++ Must be alphanumeric.'])
         ).
 
 %% add suffix to file name
@@ -269,7 +268,7 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
         ; true
         ),
         shell(MZNCommand,ErrCode),
-        retractall('_$mzn^error'(_,_)),
+        retractall('_$mzn^exception'(_,_)),
         (path_sysop(exists,ExceptionsFile) ->
             (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
             set_banner_control(quietload,1),
@@ -277,7 +276,7 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
             set_banner_control(quietload,QuietFlag)
         ; true
         ),
-        (ErrCode==NO_ERRORS, \+mzn_error(_), empty_file(SyntaxChkFile) ->
+        (ErrCode==NO_ERRORS, \+mzn_exception(_), empty_file(SyntaxChkFile) ->
             show_results(SolnOutputFile,Result)
         ; write('\n+++ xsb2mzn: syntax or type errors found; details '),
             (\+ empty_file(SyntaxChkFile) -> write('in '), writeln(SyntaxChkFile)
@@ -305,8 +304,8 @@ mzn_do(_MZNFile,_DataFileList,InParams,_Solver,_NumSolutions,OutTemplate,Result)
 %% unsatisfiable_or_unbounded: one of the above
 %% unknown:       could not find a solution within the limits (eg, timeout)
 %% error:         search resulted in an error
-mzn_error(Err) :-
-        '_$mzn^error'(Reason,File),
+mzn_exception(Err) :-
+        '_$mzn^exception'(Reason,File),
         Err = (reason=Reason,model_file=File).
 
 is_alphanum(Atom) :-
