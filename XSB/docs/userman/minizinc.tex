@@ -60,7 +60,7 @@ to \texttt{.bashrc} or an equivalent place. For instance,
 
 \section{The API}
 
-Constraint and optimization problems are specified un=sing the MiniZinc
+Constraint and optimization problems are specified using the MiniZinc
 language in \emph{model files}, which have the suffix \texttt{.mzn}.
 Such problems usually have a number of \emph{input variables}   and several
 \emph{output} (or \emph{decision}) \emph{variables}.   
@@ -82,7 +82,7 @@ module \texttt{minizinc}:
   %% 
   \begin{itemize}
   \item    \texttt{MznF}: should be bound to a path to to the desired MznF
-    model file (.mzn file) that contains a solution to a constraint or
+    model file (.mzn file) that contains a specification of a constraint or
     optimization problem. The path must be represented as a Prolog atom and
     can be absolute or relative to the current directory.
   \item \texttt{DatFs}: a list of paths (relative or absolute)  
@@ -124,22 +124,22 @@ module \texttt{minizinc}:
     \item  A term of the form \texttt{+}(\emph{atom}) or
       \texttt{str}(\emph{atom}).  In the result, this will be replaced with
       \emph{atom} verbatim. Note: if \texttt{atom} is not alphanumerical or
-      if it starts with a capital letter, it must be capitalized.
+      if it starts with a capital letter, it must be quoted.
 
     \item A list of the form [$OutSpec_1$, ...,$OutSpec_n$]. Each
-      \emph{Spec} in the list will be replaced according tho the rules
+      \emph{Spec} in the list will be replaced according to the rules
       described here.
-    \item A term of the form $OutSpec_1$) \texttt{=} $OutSpec_2$. Each
-      \emph{Spec} will be replaced according tho the rules described here.
+    \item A term of the form $OutSpec_1$ \texttt{=} $OutSpec_2$. Each
+      \emph{Spec} will be replaced according to the rules described here.
     \end{itemize}
     %% 
-  \item \texttt{Rslt}: must be a terms that matches the output template.
-    Solutions to the constraints and optimization problems will be returned
-    as bindings to this variable. They will also be asserted in
-    \texttt{usermod}.
+  \item \texttt{Rslt}: must be a term that matches the output
+    template.  Solutions to the constraint and optimization problems
+    will be returned as bindings to variables in this term. They will
+    also be asserted as facts in \texttt{usermod}.
   \item \texttt{Xceptns}: a list of exceptions returned by the solver.
     If the constraint/optimization problem was solved successfully, this
-    variable would be bound to an empty list \texttt{[]}. Otherwise,
+    variable will be bound to an empty list \texttt{[]}. Otherwise,
     each exception has the form
     \texttt{(reason=...,model\_file=...)}  and the
     following reasons might be returned:
@@ -147,8 +147,8 @@ module \texttt{minizinc}:
     \begin{itemize}
     \item  \texttt{unsatisfiable} --- the optimization problem is
       unsatisfiable.
-    \item \texttt{unbounded}  --- the optimization problem has unbounded
-      objective function. That is, in the problem is to maximize the
+    \item \texttt{unbounded}  --- the optimization problem has an unbounded
+      objective function. For example, if the problem is to maximize the
       function and the function has no maximum (under the given
       constraints); or the problem is to minimize the function, and there
       is no minimum.
@@ -204,7 +204,7 @@ XSB module \texttt{minizinc}.
   without an error. However, if a bug is suspected, it is desirable to
   preserve these files and send them to the developers. 
   This can be achieved by executing the \texttt{keep\_tmpfiles} predicate
-  as a query.
+  as a query, before the call to solve.
 \item \texttt{show\_mzn\_cmd}: Executing this as a query will cause the
   \texttt{solve/8} predicate, described earlier, to print the shell command
   that is used to invoke MiniZinc for each call.
