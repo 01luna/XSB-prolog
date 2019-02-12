@@ -72,9 +72,10 @@ platform(windows) :-
 platform(unix).
 
 num_of_solutions_param(all,' -a ') :- !.
+num_of_solutions_param(1,' ') :- !.
 num_of_solutions_param(N,Param)    :-
         integer(N),
-        N > 0,
+        N > 1,
         !,
         fmt_write_string(Param, ' -n %d ', arg(N)).
 num_of_solutions_param(N,_)        :-

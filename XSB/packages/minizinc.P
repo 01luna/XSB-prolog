@@ -1,4 +1,4 @@
-/* File:      minizinc.P -- Package loader for Minizinc
+/* File:      minizinc.P -- top package entry points for Minizinc solvers
 ** Author(s): kifer
 ** Contact:   xsb-users@lists.sourceforge.net
 ** 
@@ -40,16 +40,16 @@
 ?- bootstrap_package([minizinc], minizinc),
 	[xsb2mzn].
 
-solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Errors) :-
+solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Exceptions) :-
         mzn_info(support,yes),
         mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result),
-        findall(Err,mzn_error(Err),Errors).
+        findall(Err,mzn_error(Err),Exceptions).
 
 %% this delays calling minizinc until in-parameters are ground. But if they
 %% never get bound then minizinc never gets called -- similarly to CLPR.
-solve_flex(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Errors) :-
+solve_flex(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Exceptions) :-
         when(ground(InParams),
-             solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Errors)).
+             solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Exceptions)).
 
 %% debugging functions
 keep_tmpfiles :- mzndebug(tmpfiles).

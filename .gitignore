@@ -33,6 +33,7 @@ XSB/cmplib/o.diff
 XSB/cmplib/objfiles.saved
 XSB/config
 XSB/docs/techman/auto
+XSB/docs/userman/*.*~
 XSB/docs/userman/*.aux
 XSB/docs/userman/*.bbl
 XSB/docs/userman/*.blg
@@ -52,10 +53,13 @@ XSB/docs/userman/*.ps
 XSB/docs/userman/*.sty
 XSB/docs/userman/*.toc
 XSB/docs/userman/auto
+XSB/docs/userman/auto/*.*~
 XSB/docs/userman/auto/*.el
+XSB/docs/userman/cdf/*.*~
 XSB/docs/userman/manual1
 XSB/docs/userman/manual1.dvi
 XSB/docs/userman/manual2
+XSB/docs/userman/odbc_man/*.*~
 XSB/docs/userman/odbc_man/auto
 XSB/emu/*.*-sv
 XSB/emu/*.*~

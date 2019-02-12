@@ -1,0 +1,112 @@
+
+\chapter{{\tt minizinc}: The XSB Interface to MiniZinc-based Constraint
+  Solving}
+
+\begin{center}
+  {\Large {\bf By Michael Kifer}}
+\end{center}
+
+
+
+\section{Introduction}
+
+MiniZinc is a uniform declarative constraint language that is understood by
+most modern solvers. It comes bundled with a few such solvers, one of
+which, \texttt{gecode}, is very powerful and fast.  Other solvers,
+including most of the newest ones, can be downloaded separately and
+installed as plugins.
+
+The MiniZinc language is described in
+\url{https://www.minizinc.org/doc-2.2.3/en/index.html}; see, especially, the
+tutorial. 
+The XSB interface to MiniZinc comes with several sample problems from that
+tutorial, which are found in \texttt{.../XSB/packages/minizinc/examples/}.
+The file \texttt{.../XSB/packages/minizinc/examples.P} contains examples of
+XSB invocations of those problems. After the installation, all examples can be run
+by simply starting XSB and then
+%% 
+\begin{verbatim}
+   | ?- [minizinc].   %% load the package
+   | ?- [examples].   %% run all examples
+\end{verbatim}
+%% 
+
+Make sure that the command \texttt{minizinc} is understood when typed in a
+command window. If not, add \emph{folder-to-where-}\textbf{/bin/}minizinc is sitting to the
+environment variable \texttt{PATH}.  In Windows, this is best done in
+Control Panel; in Linux and Mac, add the command
+%% 
+\begin{verbatim}
+    export PATH=$PATH:path-to-minizinc
+\end{verbatim}
+%% 
+to \texttt{.bashrc} or an equivalent place. For instance,
+%% 
+\begin{verbatim}
+    PATH=$PATH:$HOME/minizinc/MiniZincIDE-2.2.3-bundle-linux/bin
+\end{verbatim}
+%% 
+
+\section{Installation}
+
+Some Linux distributions (e.g., Ubuntu) come with ready-made MiniZinc .deb
+or .rpm packages. However, one must make sure that the command
+\url{minizinc} is provided by those packages (some provide only the IDE).
+Mac packages are also available.
+
+In case a Linux or a Mac package is incomplete (or if one uses Windows),
+MiniZinc can be downloaded from
+\url{https://www.minizinc.org/software.html}. 
+
+\section{API}
+
+Talk about model files, data files, in-line parameters, exceptions vs
+errors.
+
+%% 
+\begin{itemize}
+\item
+  \texttt{solve(+MznF,+DatFs,+InPars,+Solver,+Solns,+OutTempl,-Rslt,-Xceptns)}: 
+\item
+  \texttt{solve\_flex(+MznF,+DatFs,+InPars,+Solver,+Solns,+OutTempl,-Rslt,-Xceptns)}: 
+  The meaning of the parameters is the same as for \texttt{solve/8}.
+  The difference is that if \texttt{InPars} is non-ground, the call to
+  MiniZinc is delayed until \texttt{InPars} becomes ground. If the top
+  query finishes and \texttt{InPars} is still not ground, MiniZinc will
+  \emph{not} be called at all.
+  This is used in cases when it is hard to estimate when \texttt{InPars}
+  may become ground, so calls to \texttt{solve\_flex} can be placed
+  early. But, of course, one must be sure that \texttt{InPars} will get
+  bound at some point.  
+\end{itemize}
+%% 
+
+\paragraph{Debugging API}
+For further development and bug reporting, the following calls are useful.
+They are all 0-ary predicates that take no arguments; they all reside in the
+XSB module \texttt{minizinc}. 
+%% 
+\begin{itemize}
+\item  \texttt{keep\_tmpfiles}: The MiniZinc interface creates a number of
+  temporary files, which are deleted, if MiniZinc finished normally and
+  without an error. However, if a bug is suspected, it is desirable to
+  preserve these files and send them to the developers. 
+  This can be achieved by executing the \texttt{keep\_tmpfiles} predicate
+  as a query.
+\item \texttt{show\_mzn\_cmd}: Executing this as a query will cause the
+  \texttt{solve/8} predicate, described earlier, to print the shell command
+  that is used to invoke MiniZinc for each call.
+  This is useful if one suspects a bug in the API.
+\item \texttt{dbg\_clear}: Executing this clears out the flags set by the
+  above debugging calls. As a result, the temporary files will again be
+  deleted after each invocation of MiniZinc and shell commands will not be
+  shown.
+\end{itemize}
+%% 
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual2"
+%%% End: 
