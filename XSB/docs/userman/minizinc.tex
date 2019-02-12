@@ -96,7 +96,7 @@ module \texttt{minizinc}:
     \emph{value}, where \emph{id} must be the Id of an input variable used in
     the model \texttt{MznF} and value must be a term understood by MiniZinc.
     Typically, such a term would be a number, an atom, or a function term.
-    For instance,  \texttt{foo='[|1 0|3 4|8 9|]'} would initialize the input
+    For instance,  \texttt{foo='[|1, 0|3, 4|8, 9|]'} would initialize the input
     variable \texttt{foo} with a 2-dimensional array of numbers;
     \texttt{'Item' = anon\_enum(8)}  would initialize the MiniZinc variable
     \texttt{Item}  of an enumerated type to a set
@@ -178,6 +178,26 @@ module \texttt{minizinc}:
 %% 
 
 \paragraph{How does MiniZinc return complex structures back to Prolog?}
+MiniZinc has a number of data structures that do not have direct
+equivalence in Prolog, so they are mapped to Prolog terms when results are
+returned as bindings for the \texttt{Rslt} variable. Here is the correspondence:
+%% 
+\begin{itemize}
+\item  Numbers are passed back to Prolog as integers and floats.
+\item  MiniZinc strings and identifiers are passed to Prolog as atoms.
+\item  Arrays are returned as lists. Multi-dimensional arrays are flattened
+  and passed as lists as well. For instance, a 2-dimensional array
+  \texttt{[|1, 2|3, 4|5, 6|]} will be returned as \texttt{[1,2,3,4,5,6]}.
+\item Sets are returned as terms of the form \texttt{\{elt1,elt2,elt3,...\}}. 
+  For example, the set \texttt{\{a,b,c\}} comes back as the term
+  \texttt{\{a,b,c\}}. Note that in Prolog this term is really
+  \texttt{'\{\}'((a,b,c))}. Observe the double parentheses, which indicate
+  that the functor symbol here is \texttt{\{\}/1}, not \texttt{\{\}/3}.
+\item A MiniZinc range expressions of the form \texttt{N1..N2} is returned as
+  \texttt{'..'(N1,N2)}. For instance, the range \texttt{3..17} 
+  comes back to Prolog as \texttt{'..'(3,17)}. 
+\end{itemize}
+%% 
 
 \paragraph{Errors vs. exceptions.}
 If a model or data file contains a syntax error or a feature that the
@@ -206,7 +226,7 @@ XSB module \texttt{minizinc}.
   without an error. However, if a bug is suspected, it is desirable to
   preserve these files and send them to the developers. 
   This can be achieved by executing the \texttt{keep\_tmpfiles} predicate
-  as a query, before the call to solve.
+  as a query, before the call to \texttt{solve/8}.
 \item \texttt{show\_mzn\_cmd}: Executing this as a query will cause the
   \texttt{solve/8} predicate, described earlier, to print the shell command
   that is used to invoke MiniZinc for each call.
