@@ -17,9 +17,9 @@ test:- p(3,_Y),writeln('p(3,Y) succeeded'),fail.
 test:- p(_X,1),writeln('p(X,1) succeeded'),fail.
 test:- p(_X,3),writeln('p(X,3) succeeded'),fail.
 %
-test:- when(nonvar(X),X \= 2),r(X),X = 3,writeln('when(nonvar(X),X \= 2),r(X),X = 3 succeeded'),fail.
-test:- when(nonvar(X),X \= 2),r(X),X = 2,writeln('when(nonvar(X),X \= 2),r(X),X = 1 succeeded'),fail.
-test:- when(nonvar(X),X \= 2),r(X),X = 1,writeln('when(nonvar(X),X \= 2),r(X),X = 1 succeeded'),fail.
+test:- when(nonvar(X),X \= 2),r(X),X = 3,writeln('when(nonvar(X),X \\= 2),r(X),X = 3 succeeded'),fail.
+test:- when(nonvar(X),X \= 2),r(X),X = 2,writeln('when(nonvar(X),X \\= 2),r(X),X = 1 succeeded'),fail.
+test:- when(nonvar(X),X \= 2),r(X),X = 1,writeln('when(nonvar(X),X \\= 2),r(X),X = 1 succeeded'),fail.
 %
 test:- palt(_X),writeln('palt(X) succeeded'),fail.
 test:- palt(1),writeln('palt(1) succeeded'),fail.  % shd fail.
