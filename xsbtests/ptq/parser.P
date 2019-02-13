@@ -53,8 +53,8 @@ lwrite(T@A) :- !, lwrite(T),write('('),lwrite(A),write(')').
 lwrite(exists(X,T)) :- !,write('Ex '),write(X),write('('),lwrite(T),write(')').
 lwrite(exists1(X,T)) :- !,write('Ex1 '),write(X),write('('),lwrite(T),write(')').
 lwrite(all(X,T)) :- !,write('Al '),write(X),write('('),lwrite(T),write(')').
-lwrite((A/\B)) :- lwrite(A),write(' /\ '),lwrite(B).
-lwrite((A\/B)) :- lwrite(A),write(' \/ '),lwrite(B).
+lwrite((A/\B)) :- lwrite(A),write(' /\\ '),lwrite(B).
+lwrite((A\/B)) :- lwrite(A),write(' \\/ '),lwrite(B).
 lwrite((A->B)) :- lwrite(A),write(' -> '),lwrite(B).
 lwrite(*A) :- write(*),lwrite(A).
 lwrite(^A) :- write(^),lwrite(A).
