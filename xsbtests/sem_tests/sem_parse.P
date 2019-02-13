@@ -14,6 +14,7 @@
 :- export parse/2.
 :- export is_true/1.
 
+%% Ignore undefined warning, since is not a predicate!
 :- export 'set member'/1.	% function symbol (term constructor)
 
 :- import tokenise/2 from sem_lex.
@@ -156,7 +157,7 @@ term(VarDict, Term) -->
 	( [=] ->
 		simple_term(VarDict, Term2),
 		{Term = 'term equal'(Term1,Term2)}
-	; ['\in'], set_expr(VarDict, SetExpr),
+	; ['\\in'], set_expr(VarDict, SetExpr),
 		{Term = 'set member'(Term1,SetExpr)}
 	).
 
@@ -447,7 +448,7 @@ is_sequence('g').
 is_sequence('g''').
 is_sequence('s').
 is_sequence('s''').
-is_sequence('\sigma').
+is_sequence('\sigma').  % is now ' igma', should figure out how to safely change to '\\sigma'
 is_sequence('\sigma''').
 
 /* ------------------- end of file sem_parse.P ------------------------ */

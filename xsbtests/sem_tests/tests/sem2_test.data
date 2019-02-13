@@ -17,8 +17,8 @@ test('Val(x,"arrived",g) iff arrived(x)').
 test('Val(<x,y>,"baked",g) iff x=y').
 test('Val(<x,y,z>,"baked",g) iff bake_for(x,z,y)').
 
-test('Val(t, [S NP VP]) iff \exists x [Val(x,NP) & Val(x,VP)]').
-test('Val(t, [S NP VP]) iff Val(x,NP) & Val(X,VP) & x \in X').
+test('Val(t, [S NP VP]) iff \\exists x [Val(x,NP) & Val(x,VP)]').
+test('Val(t, [S NP VP]) iff Val(x,NP) & Val(X,VP) & x \\in X').
 
 %------------------
 % A. Non Set-based
@@ -37,9 +37,9 @@ test('Val(x,"t1", s) iff s(1) = x').
 
 %-------------- Determiners as set relations ---------------------------
 test('Val(<X,Y>,"every",s) iff |Y-X|=0').
-test('Val(<X,Y>,"some", s) iff |Y /\ X|>0').
-test('Val(<X,Y>,"some", s) iff 1>=|Y /\ X|').
-test('Val(<X,Y>,"most", s) iff |Y /\ X|>|Y-X|').
+test('Val(<X,Y>,"some", s) iff |Y /\\ X|>0').
+test('Val(<X,Y>,"some", s) iff 1>=|Y /\\ X|').
+test('Val(<X,Y>,"most", s) iff |Y /\\ X|>|Y-X|').
 test('Val(<X,Y>,"the", s) iff |Y - X| = 0 & |Y| = 1').
 
 %-------------- NP-Rule ------------------------------------------------
@@ -58,15 +58,15 @@ test('Val(<X,Y>, [D "every"], s) iff |Y - X| = 0').
 test('Val(<X,Y>, [D "not_every"], s) iff -(|Y - X| = 0)').
 test('Val(<X,Y,z>, [D "every_except"], s) iff Y - X = {z}').
 test('Val(<X,Y,z>, [D "every_except"], s) iff |(Y - {z}) - X| = 0').
-test('Val(<X,Y,z>, [D "no_except"], s) iff Y /\ X = {z}').
-test('Val(<X,Y,z>, [D "no_except"], s) iff |(Y - {z}) \/ X| = 0').
-test('Val(<X,Y>, "har", s) iff X/\Y = X').
-test('Val(<X,Y>, "har", s) iff X /\ Y = X').
-test('Val(<X,Y>, "har", s) iff {a,b} /\ Y = X').
+test('Val(<X,Y,z>, [D "no_except"], s) iff Y /\\ X = {z}').
+test('Val(<X,Y,z>, [D "no_except"], s) iff |(Y - {z}) \\/ X| = 0').
+test('Val(<X,Y>, "har", s) iff X/\\Y = X').
+test('Val(<X,Y>, "har", s) iff X /\\ Y = X').
+test('Val(<X,Y>, "har", s) iff {a,b} /\\ Y = X').
 
-test('Val(X, [VP VP_1 "aur" VP_2]) iff X = Y /\ Z & Val(Y,VP_1) & Val(Z,VP_2)').
+test('Val(X, [VP VP_1 "aur" VP_2]) iff X = Y /\\ Z & Val(Y,VP_1) & Val(Z,VP_2)').
 test('Val(X, [VP VP_1 "aur" VP_2]) iff X = {x: member(x,Y) & Val(Y, VP_1) & member(x,Z) & Val(Z, VP_2)}').
-test('Val(X, [VP VP_1 "ya" VP_2]) iff X = {x:(member(x,Y) & Val(Y, VP_1)) \/ (member(x,Z) & Val(Z, VP_2))}').
+test('Val(X, [VP VP_1 "ya" VP_2]) iff X = {x:(member(x,Y) & Val(Y, VP_1)) \\/ (member(x,Z) & Val(Z, VP_2))}').
 
 %-------------- Stuff that looks ambiguous, but shouldn't be --------
 
@@ -74,10 +74,8 @@ test('Val(x, "z") iff z').
 test('Val(x, "X") iff X').	% error
 test('Val(<X,Y>, "foo", s) iff Y = X').
 test('Val(<X10,Y10>, "foo", s) iff Y10 = X10').
-test('Val(<X,Y>, "foo", s) iff X \/ Y = X').
-test('Val(X, [VP VP_1 "ya" VP_2]) iff X = Y \/ Z & Val(Y,VP_1) & Val(Z,VP_2)').
+test('Val(<X,Y>, "foo", s) iff X \\/ Y = X').
+test('Val(X, [VP VP_1 "ya" VP_2]) iff X = Y \\/ Z & Val(Y,VP_1) & Val(Z,VP_2)').
 
 end_of_file.
-
-%test('Val(t, [s [np_i every N] S1], \sigma) iff \every \sigma \prime((SeqV
 

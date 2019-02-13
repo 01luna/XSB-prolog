@@ -24,7 +24,7 @@ test('Val(x,[V "arrived"]) iff Val(x, "arrived")').
 
 test('Val(t,[S S_1 "and" S_2]) iff Val(x,S_1) & Val(x,S_2)').
 test('Val(t,[X X_1 "and" X_2]) iff Val(x,X_1) & Val(x,X_2)').
-test('Val(t,[NP NP_1 "or" NP_2]) iff Val(x,NP_1) \/ Val(x,NP_2)').
+test('Val(t,[NP NP_1 "or" NP_2]) iff Val(x,NP_1) \\/ Val(x,NP_2)').
 % test('Val(x,[XP X XP_1]) iff Val(x,X) & Val(x,XP_1)').
 
 test('Val(t, [S "it_is_not_the_case_that" S_1 ]) iff -Val(t, S_1)').

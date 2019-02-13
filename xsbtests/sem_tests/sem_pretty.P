@@ -42,7 +42,7 @@ pretty_string((Term1;Term2), StrIn, Strout) :-
 	!,
 	str_cat(StrIn, '(', StrP),
 	pretty_string(Term1, StrP, StrT1),
-	str_cat(StrT1, ' \/ ', StrOr),
+	str_cat(StrT1, ' \\/ ', StrOr),
 	pretty_string(Term2, StrOr, StrT2),
 	str_cat(StrT2, ')', Strout).
 pretty_string(not(Term), StrIn, StrOut) :-
@@ -104,7 +104,7 @@ pretty_string('set union'(X,Y), StrIn, StrOut) :-
 	!,
 	str_cat(StrIn, '(', StrP),
 	pretty_string(X, StrP, StrX),
-	str_cat(StrX, ' \/ ', StrEq),
+	str_cat(StrX, ' \\/ ', StrEq),
 	pretty_string(Y, StrEq, StrMid),
 	str_cat(StrMid, ')', StrOut).
 pretty_string('set difference'(X,Y), StrIn, StrOut) :-
@@ -118,7 +118,7 @@ pretty_string('set intersection'(X,Y), StrIn, StrOut) :-
 	!,
 	str_cat(StrIn, '(', StrP),
 	pretty_string(X, StrP, StrX),
-	str_cat(StrX, ' /\ ', StrEq),
+	str_cat(StrX, ' /\\ ', StrEq),
 	pretty_string(Y, StrEq, StrMid),
 	str_cat(StrMid, ')', StrOut).
 pretty_string('$VAR'(N), StrIn, StrOut) :-
