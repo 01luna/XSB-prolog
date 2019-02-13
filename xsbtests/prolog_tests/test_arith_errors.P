@@ -10,9 +10,9 @@ test:- writeln('------------'),fail.
 test:- catch(_X is atan(foo(1)),E,(E= error(Tag,context(context(Msg,Goal),_)),writeln(error(Tag,context(Msg,Goal))))),fail.
 % bnnary functions
 test:- writeln('------------'),fail.
-test:- catch(_X is '/\\'(1.0, _Y),E,(E= error(instantiation_error,_),writeln('/\ instantiation error 1'))),fail.
+test:- catch(_X is '/\\'(1.0, _Y),E,(E= error(instantiation_error,_),writeln('/\\ instantiation error 1'))),fail.
 test:- writeln('------------'),fail.
-test:- catch(_X is '/\\'(_X,1.0),E,(E= error(instantiation_error,_),writeln('/\ instantiation error 1'))),fail.
+test:- catch(_X is '/\\'(_X,1.0),E,(E= error(instantiation_error,_),writeln('/\\ instantiation error 1'))),fail.
 test:- writeln('------------'),fail.
 test:- catch(_X is '/\\'(foo, 2),E,(E= error(Tag,context(context(Msg,Goal),_)),writeln(error(Tag,context(Msg,Goal))))),fail.
 test:- writeln('------------'),fail.

@@ -1,6 +1,6 @@
 
 test:- 
-	writeln(0'\ ),
+	writeln(0'\\ ),
 	writeln(0' ),
 	writeln(0',),
 	writeln(0'n),
