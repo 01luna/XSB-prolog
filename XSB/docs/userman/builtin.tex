@@ -1394,6 +1394,12 @@ VN\_List} is a list of the non-anonymous {\tt singleton} variables in
 the term.  The elements of the list have the form {\tt A = V} where
 {\tt V} is a non-anonymous variable of the term, and {\tt A} is the
 string used to denote the variable in the input stream.
+\item {\tt variables\_as\_atoms}: reads variables as atoms, i.e., a
+  variable name is returned as an atom.  Of course, this means any
+  term read with this option will be a ground term.  So the above
+  variable list, if requested, will be empty.
+\item {\tt double\_quoted\_as\_atoms}: reads double-quoted strings as
+  atoms.
 \end{itemize}
 
 {\bf Error Cases}
