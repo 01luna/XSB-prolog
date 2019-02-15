@@ -126,7 +126,8 @@
 
 :- import install_verify_attribute_handler/4 from machine.
 
-:- import term_variables/2 from constraintLib.
+%%:- import term_variables/2 from constraintLib.
+:- import term_variables_swi/2 from swi.
 
 :- install_verify_attribute_handler(locked,Attr,Value,locked_verify_attributes(Attr,Value)).
 
@@ -293,7 +294,7 @@ remove_constraint_internal( Susp, Agenda) :-
 	%     Agenda = []
 	;
             Susp =.. [_,_,_,_,_,_,_|Args],
-	    term_variables( Args, Vars),
+	    term_variables_swi( Args, Vars),
 	    global_term_ref_1( Global),
 	    Agenda = [Global|Vars]
 	).
@@ -318,12 +319,12 @@ via(L,V) :-
 
 %
 % The second arg is a witness.
-% The formulation with term_variables/2 is
+% The formulation with term_variables_swi/2 is
 % cycle safe, but it finds a list of all vars.
 % We need only one, and no list in particular.
 %
 nonground( Term, V) :-
-	term_variables( Term, Vs),
+	term_variables_swi( Term, Vs),
 	Vs = [V|_].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -380,13 +381,13 @@ activate_constraint( Vars, Susp, Generation) :-
 	    update_mutable( Generation, Gref)
 	),
 	( compound(State) ->			% passive/1
-	    term_variables( State, Vs),
+	    term_variables_swi( State, Vs),
 	    none_locked( Vs),
 	    global_term_ref_1( Global),
 	    Vars = [Global|Vs]
 	; State==removed ->			% the price for eager removal ...
 	    Susp =.. [_,_,_,_,_,_,_|Args],
-	    term_variables( Args, Vs),
+	    term_variables_swi( Args, Vs),
 	    global_term_ref_1( Global),
 	    Vars = [Global|Vs]
 	;
@@ -394,7 +395,7 @@ activate_constraint( Vars, Susp, Generation) :-
 	).
 
 insert_constraint_internal( [Global|Vars], Self, Closure, F, Args) :-
-	term_variables( Args, Vars),
+	term_variables_swi( Args, Vars),
 	none_locked( Vars),
 	global_term_ref_1( Global),
 	empty_history( History),
@@ -405,7 +406,7 @@ insert_constraint_internal( [Global|Vars], Self, Closure, F, Args) :-
 	Self =.. [suspension,Id,Mref,Closure,Gref,Href,F|Args].
 
 %% insert_constraint_internal( [Global|Vars], Self, Term, Closure, F, Args) :-
-%% 	term_variables( Term, Vars),
+%% 	term_variables_swi( Term, Vars),
 %% 	none_locked( Vars),
 %% 	global_term_ref_1( Global),
 %% 	empty_history( History),
@@ -504,7 +505,7 @@ suspended_constraint(S,Goal) :-
 	S =.. [suspension,_,_,Closure,_,_,_|Args],
 	functor(Closure,_,Arity),
 	set_arg(Closure,Arity,_FreshVar),
-	term_variables(Closure,Vars),
+	term_variables_swi(Closure,Vars),
 	delete_attributes_list(Vars),
 	copy_term(Closure,Goal),
 	Goal =.. [_|Args1],
@@ -553,7 +554,7 @@ suspended_constraint2(S,IDs) :-
 	S =.. [suspension,ID,_,Closure,_,HRef,_|_],
 	functor(Closure,_,Arity),
 	set_arg(Closure,Arity,_FreshVar),
-	term_variables(Closure,Vars),
+	term_variables_swi(Closure,Vars),
 	delete_attributes_list(Vars),
 	id_lookup(IDs,ID,Var),
 	set_arg(S,1,Var),

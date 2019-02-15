@@ -41,7 +41,7 @@
 	    project_nonlin/3,
 	    collect_nonlin/3.
 
-:- import maplist/2,term_variables/2, ignore/1 from swi.
+:- import maplist/2,term_variables_swi/2, ignore/1 from swi.
 :- import del_attr/2, install_verify_attribute_handler/4 from machine.
 :- import nf_r_transg/3 from nf_r.
 
@@ -112,7 +112,7 @@ attr_unify_hook(_,_). % no goals in X
 project_nonlin(_,Cvas,Reachable) :-
 	collect_nonlin(Cvas,L,[]),
 	sort(L,Ls),
-	term_variables(Ls,Reachable).
+	term_variables_swi(Ls,Reachable).
 	%put_attr(_,all_nonlin(Ls)).
 
 
