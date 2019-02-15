@@ -72,7 +72,7 @@
 	    ordering/1
 	]).
 
-:- import nb_delete/1, nb_getval/2, nb_setval/2, term_variables_swi/2,strip_module/3
+:- import nb_delete/1, nb_getval/2, nb_setval/2, strip_module/3
           from swi.
 :- import instantiation_error/2from error_handler.
 
@@ -130,7 +130,7 @@ projecting_assert(Clause) :-	% not our business
 	assert(Clause).
 
 copy_term(Term,Copy,Constraints) :-
-	(   term_variables_swi(Term,Target),	% get all variables in Term
+	(   term_variables(Term,Target),	% get all variables in Term
 	    related_linear_vars(Target,All),	% get all variables of the classes of the variables in Term
 	    nonlin_crux(All,Nonlin),		% get a list of all the nonlinear goals of these variables
 	    project_attributes(Target,All),
