@@ -24,9 +24,10 @@
 :- compiler_options([sysmod,xpp_on]).
 #include "builtin.h"
 
-:- export when/2, unifiable/3, term_variables/2,setarg/3.
+:- export when/2, unifiable/3, /*term_variables/2,*/ setarg/3.
 :- export globalize/1, unglobalize/1, var_compare/3, lookup_variable_id/2.
 
+:- import term_variables_swi/2 from swi.
 :- import
 	get_attr/3,
 	put_attr/3,
@@ -112,7 +113,7 @@ trigger_nonvar(X,Goal) :-
 	).
 
 trigger_ground(X,Goal) :-
-	term_variables(X,Vs),
+	term_variables_swi(X,Vs),
 	( Vs = [H|_] ->
 		suspend(H,trigger_ground(Vs,Goal))
 	;
@@ -263,6 +264,7 @@ unifiable_list([Term1|R1],[Term2|R2],ListIn,ListOut):-
 
 %---------
 	
+/*
 term_variables(Term, Vars) :-
 	listofvars(Term, Vs, []),
 	sort(Vs, Vars).	
@@ -278,6 +280,7 @@ listofvars1([], V, V).
 listofvars1([T|Ts], Vh, Vt) :-
 	listofvars(T, Vh, Vm),
 	listofvars1(Ts, Vm, Vt).
+*/
 
 :- import set_arg/3 from machine.
 setarg(T,N,A):-  set_arg(T,N,A).
@@ -336,7 +339,7 @@ attr_unify_hook_ordering_1(Id,Other) :-
 %	globalize(X)
 %
 globalize(Term) :-
-	term_variables(Term, Vars),
+	term_variables_swi(Term, Vars),
 	var_globalize(Vars).
 
 /*
@@ -371,7 +374,7 @@ var_globalize1(X) :-
 %	unglobalize(X)
 %
 unglobalize(Term) :-
-	term_variables(Term, Vars),
+	term_variables_swi(Term, Vars),
 	var_unglobalize(Vars).
 
 var_unglobalize(X) :-
