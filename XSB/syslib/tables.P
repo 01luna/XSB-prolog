@@ -39,7 +39,6 @@
 
 :- dynamic table_index_predicates/2.
 
-
 /*----------------------------------------------------------------------*/
 % truth_value/2
 :- mode is_tabled(?).
@@ -2340,7 +2339,7 @@ max_memory_header:-
   current_prolog_flag(max_memory,Max_mem),
   format("~nThe maximum user-set memory of ~d has been exceeded~n",[Max_mem]),
   format("Details can be seen by typing statistics/0~n",[]),
-  format("To support debugging and diagnosis, the limit has been increased by 20\%.~n",[]),
+  format("To support debugging and diagnosis, the limit has been increased by 20\\%.~n",[]),
   format("~n  * To continue set the flag to allow more memory, and then type Ctrl-d~n",[]),
   format("  * To abort, enter the command 'abort/0'~n",[]).
 

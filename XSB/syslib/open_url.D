@@ -6,7 +6,7 @@
 :- mode open_url(+,+,?,+).
 :- mode open_url(+,+,?,+,?).
 
-:- (mode_on_success delete_curl_pair(A,B,C)).
-:- (mode_on_success get_curl_pair(A,B,C)).
-:- (mode_on_success open_url(g,g,g,g)).
-:- (mode_on_success open_url(g,g,g,g,A)).
+:- mode_on_success delete_curl_pair(A,B,C).
+:- mode_on_success get_curl_pair(A,B,C).
+:- mode_on_success open_url(g,g,g,g).
+:- mode_on_success open_url(g,g,g,g,A).

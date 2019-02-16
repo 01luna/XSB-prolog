@@ -6,7 +6,7 @@
 :- mode eval_cmdline_goal.
 :- mode eval_cmdline_goal(+).
 
-:- (mode_on_success '_$keyboard_int'(A)).
-:- (mode_on_success c_callloop_cmd_goal(g)).
-:- (mode_on_success eval_cmdline_goal).
-:- (mode_on_success eval_cmdline_goal(g)).
+:- mode_on_success '_$keyboard_int'(A).
+:- mode_on_success c_callloop_cmd_goal(g).
+:- mode_on_success eval_cmdline_goal.
+:- mode_on_success eval_cmdline_goal(g).

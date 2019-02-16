@@ -78,4 +78,7 @@
 %% NO, made standard preds so this will be loaded on demand.
 %%:- [packaging].
 
-:- [xsbbrat].
+%%:- import reinitialize_undefineds/0 from xsbbrat.
+%%?- reinitialize_undefineds. % tables for "undefineds" must be defined.
+
+:- [xsbbrat]. % why doesn''t above work instead of this??
