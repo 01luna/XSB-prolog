@@ -3,4 +3,4 @@
 
 :- mode default_assert_size(?).
 
-:- (mode_on_success default_assert_size(g)).
+:- mode_on_success default_assert_size(g).

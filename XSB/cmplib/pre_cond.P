@@ -76,19 +76,19 @@ get_test(Test, Test, inlinegoal(true,0,[])).
 inline_neg(inlinegoal(P,A,Args), inlinegoal(NP,A,Args)) :-
 	inline_neg0(P, A, NP).
 
-inline_neg0('=:=', 2, '=\=').
-inline_neg0('=\=', 2, '=:=').
-%%inline_neg0('>', 2, '=<').  %% not equivalent for floating point inf's 
-%%inline_neg0('>=', 2, '<').
-%%inline_neg0('=<', 2, '>').
-%%inline_neg0('<', 2, '>=').
+inline_neg0(=:=, 2, =\=).
+inline_neg0(=\=, 2, =:=).
+%%inline_neg0(>, 2, =<).  %% not equivalent for floating point inf's 
+%%inline_neg0(>=, 2, <).
+%%inline_neg0(=<, 2, >).
+%%inline_neg0(<, 2, >=).
 
-inline_neg0('==', 2, '\==').
-inline_neg0('\==', 2, '==').
-inline_neg0('@>', 2, '@=<').
-inline_neg0('@>=', 2, '@<').
-inline_neg0('@=<', 2, '@>').
-inline_neg0('@<', 2, '@>=').
+inline_neg0(==, 2, \==).
+inline_neg0(\==, 2, ==).
+inline_neg0(@>, 2, @=<).
+inline_neg0(@>=, 2, @<).
+inline_neg0(@=<, 2, @>).
+inline_neg0(@<, 2, @>=).
 
 inline_neg0(var, 1, nonvar).
 inline_neg0(nonvar, 1, var).

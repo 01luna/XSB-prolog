@@ -414,10 +414,10 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 			      im((->)/2,standard),
 			      im((';')/2,standard),
 			      im((',')/2,standard),
-			      im(('\==')/2,standard),
-			      im(('==')/2,standard),
-			      im(('=:=')/2,standard),
-			      im(('=')/2,standard),
+			      im((\==)/2,standard),
+			      im((==)/2,standard),
+			      im((=:=)/2,standard),
+			      im((=)/2,standard),
 			      im(breg_retskel/4,machine),
 			      im(excess_vars/4,setof),
 			      im(findall/3,setof),
@@ -521,7 +521,7 @@ get_aggr_spec0(ArgNo,Spec,Arity,ExistArgList,OpArgNo,OpSpec) :-
 	 ;	arg(ArgNo,Spec,ArgVal),
 		ArgNo1 is ArgNo+1,
 		(non_cpopt_var(ArgVal)
-		 ->	(ArgVal == '^'
+		 ->	(ArgVal == (^)
 			 ->	ExistArgList = [ArgNo|EAL1],
 				get_aggr_spec0(ArgNo1,Spec,Arity,EAL1,OpArgNo,OpSpec)
 			 ;	var(OpArgNo),  % only set once

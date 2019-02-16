@@ -25,12 +25,12 @@
 
 
 :- mode term_comp_op(?).
-term_comp_op('==').
-term_comp_op('\==').
-term_comp_op('@<').
-term_comp_op('@=<').
-term_comp_op('@>').
-term_comp_op('@>=').
+term_comp_op(==).
+term_comp_op(\==).
+term_comp_op(@<).
+term_comp_op(@=<).
+term_comp_op(@>).
+term_comp_op(@>=).
 
 :- mode term_comp_tab(+,?,?,?).
 term_comp_tab(==,R,Label,jumpnz(R,Label)).

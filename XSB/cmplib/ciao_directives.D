@@ -3,4 +3,4 @@
 
 :- mode included_ciao_directive(?).
 
-:- (mode_on_success included_ciao_directive(A)).
+:- mode_on_success included_ciao_directive(A).

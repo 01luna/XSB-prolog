@@ -118,7 +118,7 @@ write_body(OStr,if_then_else(G1,G2,G3)) :-
 	write_body(OStr,G2), nl(OStr), 
 	write(OStr,' ; '), nl(OStr), 
 	write_body(OStr,G3), write(OStr,' )'), nl(OStr).
-write_body(OStr,not(G)) :- write(OStr,'\+ '), write_body(OStr,G).
+write_body(OStr,not(G)) :- write(OStr,'\\+ '), write_body(OStr,G).
 write_body(OStr,goal(Sym,GoalArgs)) :-
 	write(OStr,'        '), 
 	sym_name(Sym, Name, Arity),

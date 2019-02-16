@@ -1449,7 +1449,7 @@ trans_goals((A->B), if(Goal1, Goal2), SymTab, VidIn, VidOut) :- !,
 	trans_goals(B, Goal2, SymTab, VidMed, VidOut).
 trans_goals(not(A), not(Goal1), SymTab, VidIn, VidOut) :- !,
 	trans_goals(A, Goal1, SymTab, VidIn, VidOut).
-trans_goals('\+'(A), not(Goal1), SymTab, VidIn, VidOut) :- !,
+trans_goals(\+(A), not(Goal1), SymTab, VidIn, VidOut) :- !,
 	trans_goals(A, Goal1, SymTab, VidIn, VidOut).
 trans_goals(fail_if(A), not(Goal1), SymTab, VidIn, VidOut) :- !, 
 	trans_goals(A, Goal1, SymTab, VidIn, VidOut).

@@ -220,20 +220,20 @@ all_inline_tests(goal(sym(Pred,Arity,_,_),Args),inlinegoal(Pred,Arity,Args)) :-
 /*	state (without unification).					*/
 /*======================================================================*/
 
-inline_test('>', 2).
-inline_test('>=', 2).
-inline_test('=<', 2).
-inline_test('<', 2).
-inline_test('=:=', 2).
-inline_test('=\=', 2).
+inline_test(>, 2).
+inline_test(>=, 2).
+inline_test(=<, 2).
+inline_test(<, 2).
+inline_test(=:=, 2).
+inline_test(=\=, 2).
 
-inline_test('==', 2).
-inline_test('@=', 2).
-inline_test('\==', 2).
-inline_test('@<', 2).
-inline_test('@=<', 2).
-inline_test('@>', 2).
-inline_test('@>=', 2).
+inline_test(==, 2).
+inline_test(@=, 2).
+inline_test(\==, 2).
+inline_test(@<, 2).
+inline_test(@=<, 2).
+inline_test(@>, 2).
+inline_test(@>=, 2).
 
 inline_test(var, 1).
 inline_test(nonvar, 1).
