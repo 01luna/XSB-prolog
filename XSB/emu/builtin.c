@@ -1016,11 +1016,9 @@ CPtr excess_vars(CTXTdeclc Cell term, CPtr varlist, int ifExist,
     cell(varlist) = makelist(hreg);
     cell(hreg) = term;
     term = dec_addr(term);
-    if (isref(term)) {
-      local_bind_var(term,var_trail);
-      hreg += 2;
-      return (CPtr)hreg-1;
-    } else return varlist;
+    local_bind_var(term,var_trail);
+    hreg += 2;
+    return (CPtr)hreg-1;
   case XSB_FREE:
   case XSB_REF1:
     cell(varlist) = makelist(hreg);
