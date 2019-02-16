@@ -488,7 +488,7 @@ DllExport void call_conv xsb_evaluation_error(CTXTdeclc int type,char *descripti
   int isNew;
 
   if (flags[EXCEPTION_ACTION]) {
-    undefPair = insert("floundered_undefined",1,pair_psc(insert_module(0,"tables")),&isNew); 
+    undefPair = insert("floundered_undefined",1,pair_psc(insert_module(0,"xsbbrat")),&isNew); 
     //    printf("undefPair %p\n",undefPair);
     Utip = get_tip(CTXTc pair_psc(undefPair));				
     delay_negatively(TIF_Subgoals(Utip));					
@@ -1285,7 +1285,7 @@ void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
     }
   }
   else { // Delay on Exception 
-    undefPair = insert("floundered_undefined",1,pair_psc(insert_module(0,"tables")),&isNew); 
+    undefPair = insert("floundered_undefined",1,pair_psc(insert_module(0,"xsbbrat")),&isNew); 
     //    printf("undefPair %p\n",undefPair);
     Utip = get_tip(CTXTc pair_psc(undefPair));				
     delay_negatively(TIF_Subgoals(Utip));					
