@@ -4,19 +4,17 @@
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 2019
 ** 
-** XSB is free software; you can redistribute it and/or modify it under the
-** terms of the GNU Library General Public License as published by the Free
-** Software Foundation; either version 2 of the License, or (at your option)
-** any later version.
-** 
-** XSB is distributed in the hope that it will be useful, but WITHOUT ANY
-** WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-** FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
-** more details.
-** 
-** You should have received a copy of the GNU Library General Public License
-** along with XSB; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**      http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
 **
 */
 
@@ -29,23 +27,38 @@
 #define DEFAULT_SOLVER   gecode
 #define NO_ERRORS        0
 
+#define MINIZINCMOD      minizinc
+#define XSB2MZNMOD       xsb2mzn
+
 :- import
         path_sysop/2,
         path_sysop/3
    from file_io.
-%%:- import length/2 from basics.
+:- import
+        %%length/2,
+        memberchk/2
+   from basics.
 
 :- import
+        term_new_mod/3,
         stat_set_flag/2,
         stat_flag/2
    from machine.
+
+:- import
+        load_dyn/3
+   from consult.
+
+:- import
+        functor/4
+   from standard.
 
 :- import
         banner_control/1,
         set_banner_control/2
    from banner.
 
-:- import '_$mzn^exception'/2 from usermod.
+:- import '_$mzn^exception'/2 from XSB2MZNMOD.
 :- import xsb_configuration/2 from xsb_configuration.
 
 :- dynamic debug_option/1.
@@ -196,7 +209,9 @@ show_results(ResultsFile,ResultTemplate) :-
         op(500,xfx,'..'), %% because Minizinc uses ranges like 1..n
         (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
         set_banner_control(quietload,1),
-        catch(load_dyn(ResultsFile),Ball,load_dyn_handler(Ball,OLDDQA,OLDVAA)),
+        catch(load_dyn(ResultsFile,1,MINIZINCMOD),
+              Ball,
+              load_dyn_handler(Ball,OLDDQA,OLDVAA)),
         set_banner_control(quietload,QuietFlag),
         op(Prio,OpType,'..'),
         restore_tokenizer_flags(OLDDQA,OLDVAA),
@@ -240,16 +255,26 @@ cleanup_tmpfiles(SolnOutputFile,TmpParamFile,MZNTmpFile,ExceptnFile,SynChkFile) 
 cleanup_tmpfiles(_SolnOutputF,_TmpParamF,_MZNTmpF,_ExceptionF,_SynChkF).
 
 
-mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
+mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,ResultIn) :-
         ground(InParams),
         compound(OutTemplate), \+ is_list(OutTemplate),
         functor(OutTemplate,ResultPredName,ResArity),
-        %% TODO: also check that OutTemplate contains only
-        %%       the allowed attributed delay variables
-        (var(Result) ; compound(Result)),
+        %% prevent smashing predicates in minizinc.P
+        \+ memberchk(ResultPredName/ResArity, [solve/8,solve_flex/8,_/0]),
+        (var(ResultIn) ->
+            Result = ResultIn,
+            functor(Result,MINIZINCMOD,ResultPredName,ResArity)
+        ; compound(ResultIn) ->
+            term_new_mod(MINIZINCMOD,ResultIn,Result)
+        ),
+        %% check the predname, arity; ignore module
         functor(Result,ResultPredName,ResArity),
         %% Result should be a dynamic predicate
-        (predicate_property(Result,dynamic) ; \+predicate_property(Result,_)),
+        (predicate_property(Result,static) ->
+            abort(['xsb2mzn: the template predicate is not dynamic, ',
+                   MINIZINCMOD:ResultPredName/ResArity])
+        ; true
+        ),
         !,  %% now templates are checked
         mzn_params(MZNFile,Solver,NumSolutions,MznParams),
         make_input_params(InParams,DataFileList,TmpParamFile,DataParams),
@@ -272,7 +297,9 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
         (path_sysop(exists,ExceptionsFile) ->
             (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
             set_banner_control(quietload,1),
-            catch(load_dyn(ExceptionsFile),ExceptnFileLoadBall,true),
+            catch(load_dyn(ExceptionsFile,1,MINIZINCMOD),
+                  ExceptnFileLoadBall,
+                  true),
             set_banner_control(quietload,QuietFlag)
         ; true
         ),
@@ -291,10 +318,8 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result) :-
         ).
 
 mzn_do(_MZNFile,_DataFileList,InParams,_Solver,_NumSolutions,OutTemplate,Result) :-
-        (\+predicate_property(OutTemplate,dynamic) ->
-            abort(['xsb2mzn: the template predicate is not dynamic, ', OutTemplate])
-        ; ground(InParams) ->
-            abort(['xsb2mzn:\n   invalid output template or result template\n   or the two templates do not match:\n      ', 'output template'=OutTemplate, '\n      ', 'result template'=Result])
+        (ground(InParams) ->
+            abort(['xsb2mzn:\n   invalid output template\n   or the output template does not match the result:\n      ', 'output template'=OutTemplate, '\n      ', 'result'=Result])
         ; abort(['xsb2mzn: in-parameters (argument #3) must be ground; got this instead: ', InParams])
         ).
 

@@ -24,8 +24,11 @@ Do not forget to set PATH. Something like this:
 
 %% Australia2
 ?- nl, writeln('Example: Australia2'),
-   (solve('examples/australia2.mzn',[],['Color' = '{ red, yellow, blue }'],_,3,au2(+'W. Australia'=wa, +'N. Territory'=nt, +'S. Australia'=sa, +'Queensland'=q, +'New S. Wales'=nsw, +'Victoria'=v, +'Tasmania'=t),Result,_Exceptions),
-       writeln(Result),
+   (solve('examples/australia2.mzn',[],['Color' = '{ red, yellow, blue }'],_,3,
+          au2(+'W. Australia'=wa, +'N. Territory'=nt, +'S. Australia'=sa, +'Queensland'=q, +'New S. Wales'=nsw, +'Victoria'=v, +'Tasmania'=t),
+          au2(S1=C1,S2=C2,S3=C3,S4=C4,S5=C5,S6=C6,S7=C7),
+          _Exceptions),
+       writeln(au_colors(S1=C1,S2=C2,S3=C3,S4=C4,S5=C5,S6=C6,S7=C7)),
        fail
    ;
        true

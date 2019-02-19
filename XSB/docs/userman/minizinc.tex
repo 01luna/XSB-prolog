@@ -113,9 +113,9 @@ module \texttt{minizinc}:
     be the first one.
   \item \texttt{OutTempl}: the template showing how the output should look
     like. It has the form \emph{predname}($OutSpec_1$, ...,$OutSpec_n$)
-    where \emph{predname} is the name of a predicate in \texttt{usermod}
-    where the results will be stored  and each $OutSpec$ can have one of
-    these forms
+    where \emph{predname} is the name of a predicate
+    where the results will be stored (see below)
+    and each $OutSpec$ can have one of these forms:
     %% 
     \begin{itemize}
     \item  An \emph{atom} representing an output (``decision'') variable
@@ -133,10 +133,28 @@ module \texttt{minizinc}:
       \emph{Spec} will be replaced according to the rules described here.
     \end{itemize}
     %% 
+    The template predicate cannot be \texttt{solve/8} or \texttt{solve\_flex/8},
+    and the arity must be greater than 0.  
   \item \texttt{Rslt}: must be a term that matches the output
-    template.  Solutions to the constraint and optimization problems
-    will be returned as bindings to variables in this term. They will
-    also be asserted as facts in \texttt{usermod}.
+    template---typically just a variable.  Solutions to the constraint and optimization problems
+    will be returned as bindings to variables in this term.
+    The term cannot match the predicates
+    \texttt{solve/8} or \texttt{solve\_flex/8} (e.g., cannot be
+    \texttt{solve(\_,\_,\_,\_,\_,\_,\_,\_)}), and the
+    arity must be greater than 0 (i.e., the predicate cannot be
+    \texttt{foo/0} and the like).  
+
+    \emph{Note}: solutions are also asserted in the predicate
+    \texttt{minizinc:}\emph{SolutionPred}/\emph{Arity}, where
+    \texttt{SolutionPred/Arity} is the predicate name and arity used in
+    the aforementioned
+    \texttt{OutTempl}.  Thus, solution predicates from different runs of
+    MiniZinc are accumulated  in module \texttt{minizinc} and can be used
+    at a later analysis stage. If any of these predicates are no longer
+    needed, they can be emptied out with \texttt{retractall/1} or
+    \texttt{abolish/1}. 
+    For instance, \texttt{abolish(minizinc:somepred/5)}. 
+
   \item \texttt{Xceptns}: a list of exceptions returned by the solver.
     If the constraint/optimization problem was solved successfully, this
     variable will be bound to an empty list \texttt{[]}. Otherwise,
