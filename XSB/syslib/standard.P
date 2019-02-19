@@ -788,7 +788,8 @@ functor(Term,Mod,Fun,Arity) :-
 	    psc_mod(Psc,MPsc),
 	    (MPsc =:= 0
 	     ->	Mod = usermod
-	     ;	psc_name(MPsc,Mod)
+	     ;	psc_name(MPsc,Mod0),
+		Mod = Mod0
 	    )
 	)
     ).
