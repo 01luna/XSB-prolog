@@ -139,9 +139,11 @@ make_inparam_file(InParamLst,ParamFile) :-
         InParamLst \= [],
         path_sysop(tmpfilename,ParamFile1),
         add_file_suffix(ParamFile1,'.dzn',ParamFile),
+        telling(CurrentOut),
         tell(ParamFile),
         write_params(InParamLst),
-        told.
+        told,
+        tell(CurrentOut).
 
 write_params([]) :- !.
 write_params([Var=Val|InParamLst]) :-
