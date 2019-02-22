@@ -26,12 +26,16 @@
         mzn_do/7
    from xsb2mzn.
 
+:- import term_new_mod/3 from machine.
+
 :- import when/2 from constraintLib.
 
 :- export
         keep_tmpfiles/0,
         show_mzn_cmd/0,
         dbg_clear/0,
+        show/1,
+        delete/1,
         solve_flex/8,
         solve/8.
 
@@ -40,7 +44,9 @@
 
 solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Exceptions) :-
         mzn_info(support,yes),
-        mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result),
+        mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result1),
+        term_new_mod(usermod,Result1,Result2), %% return terms in usermod
+        Result = Result2,
         findall(Err,mzn_exception(Err),Exceptions).
 
 %% this delays calling minizinc until in-parameters are ground. But if they
@@ -53,3 +59,17 @@ solve_flex(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,
 keep_tmpfiles :- mzndebug(tmpfiles).
 show_mzn_cmd :- mzndebug(shell_cmd).
 dbg_clear :- mzndebug(clear).
+
+%% These allow querying/retracting minizinc results in a way that is
+%% more suitable for systems like Flora-2. Maybe useful for Prolog also.
+show(X) :-
+        compound(X),
+        \+ is_list(X),
+        term_new_mod(minizinc,X,Y),
+        call(Y).
+
+delete(X) :-
+        compound(X),
+        \+ is_list(X),
+        term_new_mod(minizinc,X,Y),
+        retractall(Y).
