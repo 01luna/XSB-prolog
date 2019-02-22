@@ -72,6 +72,12 @@ with one or more \emph{input files}, which have the extension \texttt{.dzn}.
 In addition, XSB's API to MiniZinc lets one pass parameters in-line, as
 part of a Prolog call.
 
+\noindent
+\emph{Important:} the MiniZinc model files (.mzn) must \textbf{not} have
+\texttt{output} statements in them. Otherwise, errors and wrong answers
+may result. (These output statements will be added automatically based on
+output templates described below.)  
+
 The API itself mainly consists of the following calls, which live in XSB's
 module \texttt{minizinc}: 
 %% 
