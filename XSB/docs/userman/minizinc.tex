@@ -65,10 +65,10 @@ language in \emph{model files}, which have the suffix \texttt{.mzn}.
 Such problems usually have a number of \emph{input variables}   and several
 \emph{output} (or \emph{decision}) \emph{variables}.   
 In principle, input values can be specified in the model file itself, but
-this is generally is not a good idea because typically one wants to solve
-the same problem with different outputs.
-For this reason, MiniZinc allows one to invoke a model (which has no input)
-on one or more \emph{input files}, which have the extension \texttt{.dzn}. 
+this is generally not a good idea because typically one wants to solve
+the same problem with different inputs.
+For this reason, MiniZinc allows one to use models (that have no input)
+with one or more \emph{input files}, which have the extension \texttt{.dzn}. 
 In addition, XSB's API to MiniZinc lets one pass parameters in-line, as
 part of a Prolog call.
 
@@ -81,20 +81,21 @@ module \texttt{minizinc}:
   The meaning of the arguments is as follows:
   %% 
   \begin{itemize}
-  \item    \texttt{MznF}: should be bound to a path to to the desired MznF
+  \item    \texttt{MznF}: should be bound to a path to the desired 
     model file (.mzn file) that contains a specification of a constraint or
     optimization problem. The path must be represented as a Prolog atom and
     can be absolute or relative to the current directory.
   \item \texttt{DatFs}: a list of paths (relative or absolute)  
     to the data files that describe all or some of the input parameters for
-    the model in \texttt{MznF}.
+    the model in \texttt{MznF}. All paths must be atoms.
     If no data files are needed, just use the empty list \texttt{[]}. 
-  \item \texttt{InPars}: a list of the \emph{in-line} input parameters.
+  \item \texttt{InPars}: a list of the \emph{in-line} input parameters to
+    the model.
     These are supported for flexibility, to allow initialization of some or
     all input parameters directly in Prolog.
     Each parameter in \texttt{InPars} must have the form \emph{id} =
     \emph{value}, where \emph{id} must be the Id of an input variable used in
-    the model \texttt{MznF} and value must be a term understood by MiniZinc.
+    the model file \texttt{MznF} and value must be a term understood by MiniZinc.
     Typically, such a term would be a number, an atom, or a function term.
     For instance,  \texttt{foo='[|1, 0|3, 4|8, 9|]'} would initialize the input
     variable \texttt{foo} with a 2-dimensional array of numbers;
@@ -110,7 +111,7 @@ module \texttt{minizinc}:
     Note: for optimization problems where a function is maximized or minimized,
     \texttt{Solns} \underline{must} be bound to 1. Otherwise, solvers would
     return also non-optimal solutions, and the desired optimal one may not
-    be the first one.
+    be the first.
   \item \texttt{OutTempl}: the template showing how the output should look
     like. It has the form \emph{predname}($OutSpec_1$, ...,$OutSpec_n$)
     where \emph{predname} is the name of a predicate
@@ -133,7 +134,8 @@ module \texttt{minizinc}:
       \emph{Spec} will be replaced according to the rules described here.
     \end{itemize}
     %% 
-    The template predicate cannot be \texttt{solve/8} or \texttt{solve\_flex/8},
+    The template predicate cannot be \texttt{solve/8}, \texttt{solve\_flex/8},
+    \texttt{show/1}, \texttt{delete/1},
     and the arity must be greater than 0.  
   \item \texttt{Rslt}: must be a term that matches the output
     template---typically just a variable.  Solutions to the constraint and optimization problems
@@ -179,7 +181,7 @@ module \texttt{minizinc}:
   \end{itemize}
   %% 
   Note: exceptions are separate from other kinds of errors, such as a
-  syntax error in a model or data file or using a solver with a feature or
+  syntax errors in a model or data file or using a solver with a feature or
   option it does not support. Errors are explained later.
 \item
   \texttt{solve\_flex(+MznF,+DatFs,+InPars,+Solver,+Solns,+OutTempl,-Rslt,-Xceptns)}: 
