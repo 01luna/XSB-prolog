@@ -49,11 +49,12 @@ solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Excep
         Result = Result2,
         findall(Err,mzn_exception(Err),Exceptions).
 
-%% this delays calling minizinc until in-parameters are ground. But if they
-%% never get bound then minizinc never gets called -- similarly to CLPR.
+%% this delays calling minizinc until in-parameters and out-template are ground.
+%% if they never get ground then minizinc is never called -- similarly to CLPR.
 solve_flex(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Exceptions) :-
-        when(ground(InParams),
-             solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,Result,Exceptions)).
+        when((ground(InParams),ground(OutTemplate)),
+             solve(MZNFile,DataFileList,InParams,Solver,NumSolutions,
+                   OutTemplate,Result,Exceptions)).
 
 %% debugging functions
 keep_tmpfiles :- mzndebug(tmpfiles).

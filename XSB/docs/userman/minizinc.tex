@@ -134,23 +134,23 @@ module \texttt{minizinc}:
       if it starts with a capital letter, it must be quoted.
 
     \item A list of the form [$OutSpec_1$, ...,$OutSpec_n$]. Each
-      \emph{Spec} in the list will be replaced according to the rules
+      \emph{OutSpec} in the list has the form
       described here.
     \item A term of the form $OutSpec_1$ \texttt{=} $OutSpec_2$. Each
-      \emph{Spec} will be replaced according to the rules described here.
+      \emph{OutSpec} has the form described here.
     \end{itemize}
     %% 
     The template predicate cannot be \texttt{solve/8}, \texttt{solve\_flex/8},
     \texttt{show/1}, \texttt{delete/1},
     and the arity must be greater than 0.  
   \item \texttt{Rslt}: must be a term that matches the output
-    template---typically just a variable.  Solutions to the constraint and optimization problems
-    will be returned as bindings to variables in this term.
-    The term cannot match the predicates
-    \texttt{solve/8} or \texttt{solve\_flex/8} (e.g., cannot be
-    \texttt{solve(\_,\_,\_,\_,\_,\_,\_,\_)}), and the
-    arity must be greater than 0 (i.e., the predicate cannot be
-    \texttt{foo/0} and the like).  
+    template---typically just a variable.  Solutions to the constraint and
+    optimization problems will be returned as bindings to variables in this
+    term.  The term cannot match the predicates \texttt{solve/8},
+    \texttt{solve\_flex/8}, \texttt{show/1}, or \texttt{delete/1} (e.g.,
+    cannot be \texttt{solve(\_,\_,\_,\_,\_,\_,\_,\_)}), and the arity must
+    be greater than 0 (i.e., the predicate cannot be \texttt{foo/0} and the
+    like).
 
     \emph{Note}: solutions are also asserted in the predicate
     \texttt{minizinc:}\emph{SolutionPred}/\emph{Arity}, where
@@ -192,14 +192,16 @@ module \texttt{minizinc}:
 \item
   \texttt{solve\_flex(+MznF,+DatFs,+InPars,+Solver,+Solns,+OutTempl,-Rslt,-Xceptns)}: 
   The meaning of the parameters is the same as for \texttt{solve/8}.
-  The difference is that if \texttt{InPars} is non-ground, the call to
-  MiniZinc is delayed until \texttt{InPars} becomes ground. If the top
-  query finishes and \texttt{InPars} is still not ground, MiniZinc will
+  The difference is that if \texttt{InPars} or \texttt{OutTempl} 
+  is non-ground, the call to
+  MiniZinc is delayed until they both groun. If the top
+  query finishes and \texttt{InPars} or \texttt{OutTempl} is still not ground, MiniZinc will
   \emph{not} be called at all.
   This is used in cases when it is hard to estimate when \texttt{InPars}
+  or \texttt{OutTempl}
   may become ground, so calls to \texttt{solve\_flex} can be placed
-  early. But, of course, one must be sure that \texttt{InPars} will get
-  bound at some point.  
+  early. But, of course, one must ensure that \texttt{InPars}/\texttt{OutTempl}
+  will get bound at some point.  
 \end{itemize}
 %% 
 
@@ -255,7 +257,7 @@ XSB module \texttt{minizinc}.
   as a query, before the call to \texttt{solve/8}.
 \item \texttt{show\_mzn\_cmd}: Executing this as a query will cause the
   \texttt{solve/8} predicate, described earlier, to print the shell command
-  that is used to invoke MiniZinc for each call.
+  that was used to invoke MiniZinc in each call.
   This is useful if one suspects a bug in the API.
 \item \texttt{dbg\_clear}: Executing this clears out the flags set by the
   above debugging calls. As a result, the temporary files will again be

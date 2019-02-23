@@ -1,4 +1,4 @@
-/* File:      xsb2mzn.P -- Interface to Minizinc
+/* File:      xsb2mzn.P -- Interface to MiniZinc
 ** Author(s): kifer
 ** Contact:   xsb-users@lists.sourceforge.net
 ** 
@@ -74,7 +74,7 @@
 %% these are called to enable debugging
 %% tmpfiles - don't delete temp files, leave them for inspection
 mzndebug(tmpfiles) :- assert(debug_option(keep_tmpfiles)).
-%% shell_cmd - show the shell command used to invoke Minizinc
+%% shell_cmd - show the shell command used to invoke MiniZinc
 mzndebug(shell_cmd) :- assert(debug_option(shell_cmd)).
 mzndebug(clear) :- retractall(debug_option(_)).
 
@@ -92,7 +92,7 @@ num_of_solutions_param(N,Param)    :-
         !,
         fmt_write_string(Param, ' -n %d ', arg(N)).
 num_of_solutions_param(N,_)        :-
-        abort(['xsb2mzn: invalid number of expected solutions, ', N]).
+        abort(['minizinc: invalid number of expected solutions, ', N]).
 
 %% mzn_params(+MZNFile,+Solver,+NumSolutions,-Params)
 %% if Solver is a non-atom (eg a var) - use the default solver
@@ -115,7 +115,7 @@ check_file(MZNFile,_Type) :-
         path_sysop(readable,MZNFile),
         !.
 check_file(MZNFile,Type) :-
-        abort(['xsb2mzn: invalid or unreadable ', Type, ' file, ', MZNFile]).
+        abort(['minizinc: invalid or unreadable ', Type, ' file, ', MZNFile]).
 
 %% construct --data file1 --data file2 ..., incl params tmpfile passed by Prolog
 %% if DataFileList = [] - no data files
@@ -188,7 +188,7 @@ write_one_output_spec(MZNVar,Stream) :-
             write(Stream,' ++ "=" ++ '),
             write_one_output_spec(MZNVarRight,Stream)
         ; is_alphanum(MZNVar) -> fmt_write(Stream,'show(%S)', arg(MZNVar))
-        ; abort(['xsb2mzn: invalid Minizinc identifier found in output template:\n\t\t',
+        ; abort(['minizinc: invalid MiniZinc identifier found in output template:\n\t\t',
                  MZNVar, '\n\t +++ Must be alphanumeric.'])
         ).
 
@@ -200,7 +200,7 @@ add_file_suffix(FileN,Suff,NewName) :-
 
 show_results(ResultsFile,ResultTemplate) :-
         retractall(ResultTemplate),
-        %% can't load_dync because sets are output by Minizinc as {aaa,bbb,ccc}
+        %% can't load_dync because sets are output by MiniZinc as {aaa,bbb,ccc}
         save_tokenizer_flags(OLDDQA,OLDVAA),
 	stat_set_flag(TOKENIZE_DQ_AS_ATOM,1),
 	stat_set_flag(TOKENIZE_VARIABLES_AS_ATOMS,1),
@@ -208,7 +208,7 @@ show_results(ResultsFile,ResultTemplate) :-
         (current_op(Prio,OpType,'..') -> true
         ; Prio = 0, OpType = xfx
         ),
-        op(500,xfx,'..'), %% because Minizinc uses ranges like 1..n
+        op(500,xfx,'..'), %% because MiniZinc uses ranges like 1..n
         (banner_control(quietload) -> QuietFlag=1 ; QuietFlag=0),
         set_banner_control(quietload,1),
         catch(load_dyn(ResultsFile,1,MINIZINCMOD),
@@ -262,7 +262,8 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,ResultIn) :
         compound(OutTemplate), \+ is_list(OutTemplate),
         functor(OutTemplate,ResultPredName,ResArity),
         %% prevent smashing predicates in minizinc.P
-        \+ memberchk(ResultPredName/ResArity, [solve/8,solve_flex/8,_/0]),
+        \+ memberchk(ResultPredName/ResArity,
+                     [solve/8,solve_flex/8,show/1,delete/1,_/0]),
         (var(ResultIn) ->
             Result = ResultIn,
             functor(Result,MINIZINCMOD,ResultPredName,ResArity)
@@ -273,7 +274,7 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,ResultIn) :
         functor(Result,ResultPredName,ResArity),
         %% Result should be a dynamic predicate
         (predicate_property(Result,static) ->
-            abort(['xsb2mzn: the template predicate is not dynamic, ',
+            abort(['minizinc: the template predicate is not dynamic, ',
                    MINIZINCMOD:ResultPredName/ResArity])
         ; true
         ),
@@ -307,7 +308,7 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,ResultIn) :
         ),
         (ErrCode==NO_ERRORS, \+mzn_exception(_), empty_file(SyntaxChkFile) ->
             show_results(SolnOutputFile,Result)
-        ; write('\n+++ xsb2mzn: syntax or type errors found; details '),
+        ; write('\n+++ MiniZinc: syntax or type errors found; details '),
             (\+ empty_file(SyntaxChkFile) -> write('in '), writeln(SyntaxChkFile)
             ; nonvar(ExceptnFileLoadBall) -> write('in '), writeln(ExceptionsFile)
             ; write('possibly in '), writeln(SolnOutputFile)
@@ -321,8 +322,8 @@ mzn_do(MZNFile,DataFileList,InParams,Solver,NumSolutions,OutTemplate,ResultIn) :
 
 mzn_do(_MZNFile,_DataFileList,InParams,_Solver,_NumSolutions,OutTemplate,Result) :-
         (ground(InParams) ->
-            abort(['xsb2mzn:\n   invalid output template\n   or the output template does not match the result:\n      ', 'output template'=OutTemplate, '\n      ', 'result'=Result])
-        ; abort(['xsb2mzn: in-parameters (argument #3) must be ground; got this instead: ', InParams])
+            abort(['minizinc:\n   invalid output template\n   or the output template does not match the result:\n      ', 'output template'=OutTemplate, '\n      ', 'result'=Result])
+        ; abort(['minizinc: in-parameters (argument #3) must be ground; got this instead: ', InParams])
         ).
 
 %% unsatisfiable: optimization problem is unsatisfiable
@@ -364,7 +365,7 @@ check_system_path :-
         ErrMsg1 = 'the minizinc command not found.\n\t +++ Please set the environment variable PATH via the shell command',
         (EC==0 -> assert(mzn_info(support,yes))
         ; assert(mzn_info(support,no)),
-            abort(['xsb2mzn: ', ErrMsg1, ErrMsg2])
+            abort(['minizinc: ', ErrMsg1, ErrMsg2])
         ).
 
 %% file does not exist or is zero size
