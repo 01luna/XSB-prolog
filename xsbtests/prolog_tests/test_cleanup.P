@@ -96,7 +96,7 @@ tc_6(X):-
 	call_cleanup(p(X),(writeln(handled_6_1),call_cleanup(p(3),writeln(handled_6_2)))).
 
 tc_7(X):-
-	call_cleanup(p(X),(tc_7_1(Y))).
+	call_cleanup(p(X),(tc_7_1(_Y))).
 
 tc_7_1(Y):-
 	writeln(handled_7_1),
@@ -143,7 +143,7 @@ bt5(X):- call_cleanup((X = 1; fail), write(X)).
 bt8:- call_cleanup((X=foo,throw(7)),write(X)).
 
 tc_11(X):-
-	call_cleanup(p(X),(writeln(handled_6_1),call_cleanup(p(Y),writeln(handled_6_2)),!)).
+	call_cleanup(p(X),(writeln(handled_6_1),call_cleanup(p(_Y),writeln(handled_6_2)),!)).
 
 end_of_file.
 

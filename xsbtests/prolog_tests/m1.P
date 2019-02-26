@@ -1,11 +1,11 @@
 
-:- export exported/2, p1/2, p2/2, p3/2, p3s/2, p4/2, p10/0, p11/0, r2/2.
+:- export exported/2, p1/2, p2/2, p3/2, p3s/2, p4/2, p10/0, p11/0, r2/2, d1/2.
 
 :- import p9/2,a1/0 from m2.
 :- import d2/2 from usermod.
 
 exported(a,b).
-local(c,d).
+%local(c,d).
 
 :- dynamic d1/2.
 % local dynamic code

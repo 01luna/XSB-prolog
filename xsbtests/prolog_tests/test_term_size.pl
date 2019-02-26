@@ -1,7 +1,7 @@
 :- import for/3 from basics.
 
 test:- 
-    term_size([a,1,X,f(a),1.1],S),writeln(type_test_size(S)),
+    term_size([a,1,_X,f(a),1.1],S),writeln(type_test_size(S)),
     makelist(100,L),term_size(L,LN),writeln(list_size(LN)),
     makef(100,F),term_size(F,FN),writeln(functor_size(FN)).
 

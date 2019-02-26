@@ -2,12 +2,12 @@
 :- import term_to_atom/2,term_to_atom/3 from string.
 
 test:- 
-	term_to_atom(X,F),writeln(F),fail.
+	term_to_atom(_X,F),writeln(F),fail.
 
 test:- 
-	term_to_atom('$VAR'(N),F),writeln(F),fail.
+	term_to_atom('$VAR'(_N),F),writeln(F),fail.
 test:- 
-	term_to_atom('$VAR'(N),F,[numbervars(true)]),writeln(F),fail.
+	term_to_atom('$VAR'(_N),F,[numbervars(true)]),writeln(F),fail.
 
 test:- 
 	term_to_atom('$VAR'('Foo'),F),writeln(F),fail.
