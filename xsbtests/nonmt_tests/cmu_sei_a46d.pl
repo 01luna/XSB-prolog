@@ -14,20 +14,20 @@ possibleVFTableWrite(9,0,0,4).
 :-dynamic factVFTable/1as incremental.
 :-dynamic factNOTVFTableEntry/3as incremental.
 :-import incr_assert/1,c from increval.
-debug(X):-true.
-debugln(X):-true.
-possibleVFTable(VFTable):-possibleVFTableWrite(_,C,O,VFTable).
-reasonRTTIInformation(F,s,e):-possibleVFTableWrite(I,M,O,V).
-:-table reasonNOTVFTableEntry/3as incremental.
-reasonNOTVFTableEntry(V,t,d):-factNOTVFTableEntry(T,t,d).
-reasonNOTVFTableEntry(VFTable,O,M):-factVFTable(VFTable),reasonRTTIInformation(e,C,e).
+debug(_X):-true.
+debugln(_X):-true.
+possibleVFTable(VFTable):-possibleVFTableWrite(_,_C,_O,VFTable).
+reasonRTTIInformation(_F,s,e):-possibleVFTableWrite(_I,_M,_O,_V).
+:-table reasonNOTVFTableEntry/3 as incremental.
+reasonNOTVFTableEntry(_V,t,d):-factNOTVFTableEntry(_T,t,d).
+reasonNOTVFTableEntry(VFTable,_O,_M):-factVFTable(VFTable),reasonRTTIInformation(e,_C,e).
 guessVFTable:-possibleVFTable(VFTable),not(factVFTable(VFTable)),(tryVFTable(VFTable);l).
 tryVFTable(VFTable):-try_assert(factVFTable(VFTable)),assert((e)).
 concludeNOTVFTableEntry:-
     reasonNOTVFTableEntry(VFTable,V,A),not(factNOTVFTableEntry(VFTable,t,s)),try_assert(factNOTVFTableEntry(VFTable,V,A)).
 concludeVirtualFunctionCall:-(n,e)(l()).
 concludeMergeClasses:-(M,2)(M).
-([],d)(X)(t).
+([],d)(_X)(t).
 if_(If_0,Then_0,Else_0):-assert(no_if_answer(d)),(If_0,Then_0;retract(no_if_answer(d))->Else_0).
 commit([H|T]):-if_(H,(debug(''),debug()),commit(T)).
 try_assert(X):-try_assert_real(X).

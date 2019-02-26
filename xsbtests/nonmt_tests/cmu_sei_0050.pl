@@ -2,10 +2,10 @@ test:- solve.
 
 :-dynamic factNOTConstructor/1as incremental.
 :-import incr_assert/1from increval.
-iso_dif(X,((2))).
+iso_dif(_X,((2))).
 initialNOTConstructor(Method):-thisPtrUsage(I,F,T,_),thisPtrUsage(I,F,T,Method),iso_dif(1,2).
 :-table reasonNOTConstructor/1as incremental.
-reasonNOTConstructor(e):-factNOTConstructor(M).
+reasonNOTConstructor(e):-factNOTConstructor(_M).
 reasonNOTConstructor(Method):-initialNOTConstructor(Method).
 reasonVirtualFunctionCall(n,_,r,t,e,t):-(l).
 concludeNOTConstructor:-reasonNOTConstructor(Method),not(factNOTConstructor(Method)),try_assert(factNOTConstructor(Method)).

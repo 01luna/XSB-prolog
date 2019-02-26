@@ -9,15 +9,15 @@
 ?- set_prolog_flag(max_answers_for_subgoal_action,complete_soundly).
 %?- start_forest_view(userout).
 
-test:- test(t_1(X)),fail.
-test:- test(i_0(X)),fail.
+test:- test(t_1(_X)),fail.
+test:- test(i_0(_X)),fail.
 test:- test_upd1,fail.
 test:- test_upd2,fail.
 test.
 
 :- table t_1/1, t_2/2.
 t_1(X):- p(X).
-t_2(X,Y):- p(X).
+t_2(X,_Y):- p(X).
 
 p(1).
 p(2).

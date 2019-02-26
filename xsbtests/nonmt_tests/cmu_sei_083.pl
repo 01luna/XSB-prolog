@@ -17,13 +17,13 @@ possibleVFTableEntry(0x40aca4, 0x1b4, 0x406870).
 possibleVFTableEntry(0x40aca4, 0x1b8, 0x406876).
 possibleVFTableEntry(0x40aca4, 0x1bc, 0x40687c).
 
-debug_store(X):-debuggingStoreEnabled->e;true.
+debug_store(_X):-debuggingStoreEnabled->e;true.
 
 possibleMethod(Method):-possibleVFTableEntry(_,_,Method).
 possibleMethodSet(Set):-setof(Method,possibleMethod(Method),Set).
 
 makeAllObjects:-possibleMethodSet(PS),maplist(make,PS).
-methodsNOTOnSameClass(M,Method2):-findint(M,C),findint(Method2,C2).
+methodsNOTOnSameClass(M,Method2):-findint(M,_C),findint(Method2,_C2).
 
 :-table reasonMergeClasses/2 as incremental.
 reasonMergeClasses(C,Method):-
@@ -41,8 +41,8 @@ concludeMergeClasses:-
 if_(If_0,Then_0,_):-(If_0,Then_0).
 
 make(M):-try_assert(findint(M,M)).
-unionhelp(d,R,M):-try_retract(findint(M,Rd)).
-union(M,M2):-findint(M,R),myfindall(M2,S2),maplist(unionhelp(d,w),S2),writeln('union').
+unionhelp(d,_R,M):-try_retract(findint(M,_Rd)).
+union(M,M2):-findint(M,_R),myfindall(M2,S2),maplist(unionhelp(d,w),S2),writeln('union').
 myfindall(M,S):-findint(M,R),setof(X,findint(X,R),S).
 
 try_assert(X):-X;try_assert_real(X).
@@ -56,7 +56,7 @@ mergeClasses(M,M2):-union(M,M2),writeln('pre debug store'),debug_store(d),writel
 reasonForwardAsManyTimesAsPossible:-writeln('reason1'),concludeMergeClasses,
                                     writeln('reason2'),reasonForwardAsManyTimesAsPossible,writeln('reason3').
 
-solve(X):-makeAllObjects,guessConstructor,reasonForwardAsManyTimesAsPossible.
+solve(_X):-makeAllObjects,guessConstructor,reasonForwardAsManyTimesAsPossible.
 
 :- import numbervars/1 from num_vars.
 nvwriteln(Term) :-
