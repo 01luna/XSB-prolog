@@ -66,6 +66,8 @@ asm_putsym(OStr,Sym) :-
 	 ; sym_prop(tabled(_,_),Sym)
 	 ->	(sym_prop(defined,Sym)
 		 ->	true
+		 ; sym_prop((dynamic),Sym)
+		 ->	true
 		 ; sym_prop(defined(_,_),Sym)
 		 ->	true
 		 ;	(atom_codes(Name,[95,36|_]) -> 
