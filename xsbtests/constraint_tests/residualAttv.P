@@ -27,9 +27,9 @@ query2:-
 	get_residual(p2(X),[q2(X,Y)]),dump([X,Y],[x,y],Xs),
 	writeln(query2(Xs)).
 
-:- table p2/1,q2/2,undefined/0.
-p2(X):- q2(X,Y).
-q2(X,Y):- {Y < 9},undefined.
+:- table p2/1,q2/2.  %,undefined/0.
+p2(X):- q2(X,_Y).
+q2(_X,Y):- {Y < 9},undefined.
 
 %undefined :- tnot(undefined).
 

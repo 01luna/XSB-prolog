@@ -112,8 +112,8 @@ test33:- {1 = cos(X)}, writeln(test33(X)),fail.
 test34:- {-1 = cos(X)}, writeln(test34(X)),fail.
 test35:- {1 = -cos(X)}, writeln(test35(X)),fail.
 % TLS: these two should not fire.
-test36:- { -25 = _X^(-2.5) }, writeln(test36(X)),fail.
-test37:- { -25 = _X^2.5 }, writeln(test37(X)),fail.
+test36:- { -25 = _X^(-2.5) }, writeln(test36(_Y)),fail.
+test37:- { -25 = _X^2.5 }, writeln(test37(_Y)),fail.
 
 /* Below are copied out of Sicstus manual */
 /* Newton method for square root of 2 */

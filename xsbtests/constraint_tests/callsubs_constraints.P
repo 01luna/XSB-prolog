@@ -26,8 +26,8 @@ test:- palt(1),writeln('palt(1) succeeded'),fail.  % shd fail.
 test:- palt(2),writeln('palt(2) succeeded'),fail.
 
 :- table palt/1 as subsumptive.
-palt(X):- palt(1).
-palt(X):- palt(2).
+palt(_X):- palt(1).
+palt(_X):- palt(2).
 palt(X):- when((nonvar(X)),X\=1).
 
 

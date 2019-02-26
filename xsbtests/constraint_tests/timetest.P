@@ -58,7 +58,7 @@ test_ii:-
         test_arcs([arc([3,3],X,[during],i-i),X = [2,5]]),  % c
 	test_arcs([arc([3,3],X,[during],i-i),X = [2,3]]),  % i 
 	test_arcs([arc(X,Y,[during],i-i),arc(X,Y,[before],i-i)]), %i
-	test_arcs([arc(X,Y,[during],i-i),arc(Y,Z,[before],i-i),arc(Y,W,[after],i-i)]), %c
+	test_arcs([arc(X,Y,[during],i-i),arc(Y,_Z,[before],i-i),arc(Y,_W,[after],i-i)]), %c
         test_arcs([arc([3,4],X,[before],i-i),X = [5,6]]). %c
 
 test_pp:- 
