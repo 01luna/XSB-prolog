@@ -3,7 +3,7 @@
 tw :- a(X,Y),write(X),write(' '),write(Y),nl,fail.
 tw.	
 
-ts :- statistics, a(X,Y), fail.
+ts :- statistics, a(_X,_Y), fail.
 ts :- statistics.
 
 a(X,Y) :- p(X,Y).

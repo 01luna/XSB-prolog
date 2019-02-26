@@ -5,9 +5,9 @@
 /* ?- a(Q,W), a(W,W), a(f(F),f(F)) , a([F],[F]) */
 
 testcombo:- 
-	(tw(Q,W),fail ; tw(A,A),fail ; tw(f(F),f(F)),fail ; tw([F],[F]),fail).
+	(tw(_Q,_W),fail ; tw(A,A),fail ; tw(f(F),f(F)),fail ; tw([F],[F]),fail).
 
-tw(Q,W):- a(Q,W),T = a(Q,W),numbervars(T,0,T1),writeq(T),nl.
+tw(Q,W):- a(Q,W),T = a(Q,W),numbervars(T,0,_T1),writeq(T),nl.
 
 a(X,Y):-a(X,Z),a(Z,Y).
 a(X,Y):-p(X,Y).

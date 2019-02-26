@@ -7,7 +7,7 @@
 a(X,Y) :- p(X,Y).
 a(X,Y) :- a(X,Z), a(Z,Y).
 
-tw :- a(Q,W), T = a(Q,W), numbervars(T,0,T1), writeq(T), nl.
+tw :- a(Q,W), T = a(Q,W), numbervars(T,0,_T1), writeq(T), nl.
 
 p(f(a,b),f(c,d)).
 p(f(c,d),f(e,f)).

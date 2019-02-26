@@ -8,13 +8,13 @@ testcombo :- 	(a4w(A,B,C),fail ;
 		 abolish_table_pred(b/2),a5w(A,B,C),fail ;
 		 abolish_table_pred(b/2),a6w(A,B,C),fail).
 
-a4w(A,B,C) :- a4(A,B,C),T = a4(A,B,C),numbervars(T,0,T1),writeq(T),nl.
+a4w(A,B,C) :- a4(A,B,C),T = a4(A,B,C),numbervars(T,0,_T1),writeq(T),nl.
 
-a5w(A,B,C) :- a5(A,B,C),T = a5(A,B,C),numbervars(T,0,T1),writeq(T),nl.
+a5w(A,B,C) :- a5(A,B,C),T = a5(A,B,C),numbervars(T,0,_T1),writeq(T),nl.
 
-a6w(A,B,C) :- a6(A,B,C),T = a6(A,B,C),numbervars(T,0,T1),writeq(T),nl.
+a6w(A,B,C) :- a6(A,B,C),T = a6(A,B,C),numbervars(T,0,_T1),writeq(T),nl.
 
-a4(A,B,L) :- b(X,Y), tfindall(X-Y,b(X,Y),L1), sort(L1,L).
+a4(_A,_B,L) :- b(X,Y), tfindall(X-Y,b(X,Y),L1), sort(L1,L).
 
 a5(X,Y,L) :- b(X,Y), tfindall(X-Y,b(X,Y),L1), sort(L1,L).
 

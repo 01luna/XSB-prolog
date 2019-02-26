@@ -19,7 +19,7 @@ q(c).
 
 
 testcombo:-
-	a(W,E),fail
+	a(_W,_E),fail
 	 ; abolish_table_pred(r/1),abolish_table_pred(q/1),
 	   abolish_table_pred(p/1),b(X,F),fail
 	 ; abolish_table_pred(r/1),abolish_table_pred(q/1),

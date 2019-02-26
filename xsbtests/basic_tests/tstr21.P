@@ -4,7 +4,7 @@
 
 /* ?- a(Q,W). */
 
-tw :- a(Q,W),T = a(Q,W),numbervars(T,0,T1),writeq(T),nl.
+tw :- a(Q,W),T = a(Q,W),numbervars(T,0,_T1),writeq(T),nl.
 
 a(X,Y) :- a(X,Z), p(Z,Y).
 a(X,Y) :- p(X,Y).

@@ -13,10 +13,10 @@ testcombo:-   c(W,E),T = c(W,E),numbervars(T,0,T1),writeq(T),nl,fail
 	   ;  d(W,E),T = d(W,E),numbervars(T,0,T1),writeq(T),nl,fail 
 	   ; true.
 
-tc1:-d(W,E),T = d(W,E),numbervars(T,0,T1),writeq(T),nl,fail.
+tc1:-d(W,E),T = d(W,E),numbervars(T,0,_T1),writeq(T),nl,fail.
 tc1.
 
-tc2:-e(W,E),T = e(W,E),numbervars(T,0,T1),writeq(T),nl,fail.
+tc2:-e(W,E),T = e(W,E),numbervars(T,0,_T1),writeq(T),nl,fail.
 
 c(X,Y):-p(X,Y).
 c(X,Y):-p(X,Z),

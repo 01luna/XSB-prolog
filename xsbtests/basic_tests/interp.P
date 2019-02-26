@@ -40,7 +40,7 @@ myclause(split(_,[],[],[]),true).
 myclause(split(X,[Y|R],[Y|L1],L2),(ge(X,Y), split(X,R,L1,L2))).
 myclause(split(X,[Y|R],L1,[Y|L2]),(lt(X,Y), split(X,R,L1,L2))).
 
-myclause(p(A,B,B),true).
+myclause(p(_A,B,B),true).
 myclause(p(f(g(h(A,B))),g(f(h(B,C))),h(f(g(C,A)))),true).
 myclause(p(f(g(f(A,B))),f(g(h(A,B))),f(g(h(A,B)))),true).
 myclause(p(A,f(B,[g(1),A]),[f(B,[1,A,g(1)])]),true).

@@ -2,7 +2,7 @@
 
 :- table sg/2.
 
-test :- statistics, sg(1,F), fail.
+test :- statistics, sg(1,_F), fail.
 test :- statistics.
 
 tw :- sg(1,F), write(sg(1,F)), nl, fail.
