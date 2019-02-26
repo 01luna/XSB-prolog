@@ -512,6 +512,33 @@ int utf8_char_to_codepoint(byte **s_ptr){
   return c;
 }
 
+/* for single byte code systems */
+int non_ascii_chars(char *string) {
+  int n = 0;
+  while (*string != '\0') {
+    if (*(string++) > 127) n++;
+  }
+  return n;
+}  
+
+int chars_to_utf_string(byte *from, int charset, byte *to, size_t to_len) {
+  char *to_end;
+  if (charset == UTF_8) {
+    printf("ERROR: chars_to_utf_string: Don't convert from utf-8 to utf-8!!");
+    return 1;
+  }
+  to_end = to + to_len - 5;
+  while (*from != '\0' && to < to_end) {
+    to = utf8_codepoint_to_str(char_to_codepoint(charset,&from),to);
+  }
+  *to = '\0';
+  if (*from == '\0') return 0;
+  else {
+    printf("ERROR: chars_to_utf_string: conversion to utf-8 string truncated!!");
+    return 1;
+  }
+}
+
 extern int utf8_GetCode(FILE *, STRFILE *, int);
 
 int GetCode(int charset, FILE *curr_in, STRFILE *instr) {
@@ -943,7 +970,8 @@ READ_ERROR:
 	        return '`';
 	    default:			/* return the \, not an escape */
 	      (void) unGetC(c, card, instr);
-	      return '\\';
+	      /* printf("un-escaped backslash: %d\n",c); */
+	      return '\\';  /* give warning? or have flag to give error here */
         }
     }
  
@@ -967,7 +995,8 @@ READ_ERROR:
     "following" character.
  
 */
-#define EOL_COMMENT_WARN_LENGTH 300
+/* very long, so essentially never used */
+#define EOL_COMMENT_WARN_LENGTH 10000
 
 static int com0plain(CTXTdeclc register FILE *card,	/* source file */
        		     register STRFILE *instr,	/* source string, if non-NULL */
@@ -1027,7 +1056,7 @@ static int com2plain(register FILE *card,	/* source file */
 }
 
 #ifndef MULTI_THREAD 
-int token_too_long_warning = 1;
+int token_too_long_warning = 0;  // turn off for now. Too much chatter?
 #endif
 
 void realloc_strbuff(CTXTdeclc byte **pstrbuff, byte **ps, int *pn)
