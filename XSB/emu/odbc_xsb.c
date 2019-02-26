@@ -64,12 +64,15 @@
 //#include "error_xsb.h"
 #include "varstring_xsb.h"
 #include "thread_xsb.h"
+#include "token_defs_xsb.h"
 
 #define MAXCURSORNUM                    200
 #define MAXVARSTRLEN                    65000
 #define MAXI(a,b)                       ((a)>(b)?(a):(b))
 
 extern xsbBool unify(CTXTdecltypec Cell, Cell);
+extern int non_ascii_chars(char *);
+extern int chars_to_utf_string(byte *, int, byte *, size_t);
 
 static Psc     nullFctPsc = NULL;
 /* static int      numberOfCursors = 0; */
@@ -1811,7 +1814,20 @@ int GetColumn(CTXTdecl)
     /* compare strings here, so don't intern strings unnecessarily*/
     XSB_Deref(op);
     if (isref(op)) {
-      return unify(CTXTc op, makestring(string_find((char *)cur->Data[ColCurNum],1)));
+      int na;
+      if (flags[CHARACTER_SET] != UTF_8 && (na = non_ascii_chars((char *)cur->Data[ColCurNum])) > 0) {
+	char *temp_str;
+	size_t nalen;
+	int res;
+	nalen = len + 3 * na + 1;
+	temp_str = mem_alloc(nalen,OTHER_SPACE);
+	chars_to_utf_string((char *)cur->Data[ColCurNum],(int)flags[CHARACTER_SET],temp_str,nalen);
+	res = unify(CTXTc op, makestring(string_find(temp_str,1)));
+	free(temp_str);
+	return res;	  
+      } else {
+	return unify(CTXTc op, makestring(string_find((char *)cur->Data[ColCurNum],1)));
+      }
     }
     if (isconstr(op) && get_arity(get_str_psc(op)) == 1) {
       if (!strcmp(get_name(get_str_psc(op)),"string")) {
@@ -1845,8 +1861,10 @@ int GetColumn(CTXTdecl)
 
     /* compare strings here, so don't intern strings unnecessarily*/
     XSB_Deref(op);
-    if (isref(op))
+    if (isref(op)) { // this may be a problem, since atoms are assumed utf-8
+      fprintf(stderr,"WARNING: [odbc] Binary field as atom, which should be utf-8; use string()\n");
       return unify(CTXTc op, makestring(string_find((char *)cur->Data[ColCurNum],1)));
+    }
     if (isconstr(op) && get_arity(get_str_psc(op)) == 1) {
       if (!strcmp(get_name(get_str_psc(op)),"string")) {
 	return unify(CTXTc get_str_arg(ptoc_tag(CTXTc 4),1),  /* op might have moved! */
