@@ -45,12 +45,12 @@ pRG(*, s_2_2, overlinein(p, s_2_2)).
 
 calI(Top, Star, Mu) :-
         amb(Mu) = T_1, pRG(Top, Star, T_1).
-calI(Top_1, Star_2, T_1_4) :-
-        in(Mu_3) = T_1_4,
-        pRG(Top_1, tar_2,T_1_4).
+calI(Top_1, _Star_2, T_1_4) :-
+        in(_Mu_3) = T_1_4,
+        pRG(Top_1, tar_2,T_1_4).  % should be Star_2??
 calI(Mup, Mu_3, Mua) :-
         in(Mu_3) = T_1_4,
-        pRG(Top_1, Star_2, T_1_4),
+        pRG(_Top_1, _Star_2, T_1_4),
         overlinein(Mua, Mu_3) = T_2,
         ccalI(Mup, Mu_3, T_2),
         ccalI(Muq, Mup, Mu_3),
@@ -58,7 +58,7 @@ calI(Mup, Mu_3, Mua) :-
         ccalI(Muq, Mup, Mua).
 calI(Mu_3, Mua, U_1) :-
         in(Mu_3) = T_1_4,
-        pRG(Top_1, Star_2, T_1_4),
+        pRG(_Top_1, _Star_2, T_1_4),
         overlinein(Mua, Mu_3) = T_2,
         ccalI(Mup, Mu_3, T_2),
         ccalI(Muq, Mup, Mu_3),
@@ -66,11 +66,11 @@ calI(Mu_3, Mua, U_1) :-
         ccalI(Muq, Mup, Mua),
         ccalI(Mup, Mua, U_1).
 calI(Top_5, Star_6, T_1_8) :-
-        out(Mu_7) = T_1_8,
+        out(_Mu_7) = T_1_8,
         pRG(Top_5, Star_6,T_1_8).
 calI(Muq_10, Mug, Mua_9) :-
         out(Mu_7) = T_1_8,
-        pRG(Top_5, Star_6,T_1_8),
+        pRG(_Top_5, _Star_6,T_1_8),
         overlineout(Mua_9, Mu_7) = T_2_11,
         ccalI(Mug,Mu_7, T_2_11),
         ccalI(Muq_10, Mug, Mu_7),
@@ -78,29 +78,29 @@ calI(Muq_10, Mug, Mua_9) :-
         ccalI(Mug, Mu_7,Mua_9).
 calI(Mug, Mua_9, U_1_12) :-
         out(Mu_7) = T_1_8,
-        pRG(Top_5, Star_6,T_1_8),
+        pRG(_Top_5, _Star_6,T_1_8),
         overlineout(Mua_9, Mu_7) = T_2_11,
         ccalI(Mug,Mu_7, T_2_11),
-        ccalI(Muq_10, Mug, Mu_7),
+        ccalI(_Muq_10, Mug, Mu_7),
         ccalI(Mu_7, Mua_9, T_1_8),
         ccalI(Mug, Mu_7,Mua_9),
         ccalI(Mu_7, Mua_9, U_1_12).
 calI(Top_13, Star_14, T_1_16) :-
-        open(Mu_15) = T_1_16,
+        open(_Mu_15) = T_1_16,
         pRG(Top_13,Star_14, T_1_16).
 calI(Muq_18, Mup_17, U_1_20) :-
         open(Mu_15) = T_1_16,
-        pRG(Top_13,Star_14, T_1_16),
+        pRG(_Top_13,_Star_14, T_1_16),
         overlineopen(Mup_17, Mu_15) = T_2_19,
         ccalI(Mup_17,Mu_15, T_2_19),
         ccalI(Muq_18, Mup_17, Mu_15),
         ccalI(Muq_18, Mup_17,T_1_16),
         ccalI(Mup_17, Mu_15, U_1_20).
 calI(Top_21, Star_22, T_1_24) :-
-        overlinein(Mu_23,MuPr) = T_1_24,
+        overlinein(_Mu_23,_MuPr) = T_1_24,
         pRG(Top_21, Star_22, T_1_24).
 calI(Top_25, Star_26, T_1_29) :-
-        overlineout(Mu_27,MuPr_28) = T_1_29,
+        overlineout(_Mu_27,_MuPr_28) = T_1_29,
         pRG(Top_25, Star_26, T_1_29).
 calI(Top_30, Star_31, overlineopen(Mu, Mu1)) :-
         pRG(Top_30, Star_31, overlineopen(Mu, Mu1)).
@@ -117,7 +117,7 @@ ccalI(A,B,C) :- calI(A,B,C).
 test :-
 %%      shell('rm -f tablexsb2.P.al'),
 %%      tell('tablexsb2.P.al'),
-        cputime(A0),
+%%      cputime(_A0),
 %%      write('calI/3 = '),
         setof((X1,Y1,Z1),ccalI(X1,Y1,Z1),Q1), write(Q1),
         true.
