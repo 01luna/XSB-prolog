@@ -38,7 +38,7 @@ test4:- gc_dynamic(N),writeln((4-3,gc(N))).
 test5:- init,fail.
 test5:- q(X,Y),retractall(q(_,_)),writeln((5-1,q(X,Y))),fail.
 test5:- init,fail.
-test5:- q(X,Y),retract(q(f(1),_)),fail.
+test5:- q(_X,_Y),retract(q(f(1),_)),fail.
 test5:- q(X,Y),retractall(q(_,_)),gc_dynamic(N),writeln((5-2,q(X,Y),gc(N))),fail.
 test5:- init,fail.
 test5:- retract(q(f(1),_)),fail.

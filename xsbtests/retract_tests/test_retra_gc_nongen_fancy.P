@@ -22,7 +22,7 @@ test11:- p(X,_),retractall(p(f(1),_)),writeln((11-1,p(X))),fail.
 test11:- p(X,_),writeln((11-2,p(X))),fail.
 test11:- q(X,_),retractall(p(f(2),_)),writeln((11-3,q(X))),fail.
 test11:- init2,fail.
-test11:- gc_dynamic(N),fail.
+test11:- gc_dynamic(_N),fail.
 test11.
 
 test12:- init2,fail.
@@ -30,7 +30,7 @@ test12:- p(_,X),retractall(p(_,1)),writeln((12-1,p(X))),fail.
 test12:- p(_,X),writeln((12-2,p(X))),fail.
 test12:- q(_,X),retractall(p(_,2)),writeln((12-3,q(X))),fail.
 test12:- init2,fail.
-test12:- gc_dynamic(N),fail.
+test12:- gc_dynamic(_N),fail.
 test12.
 
 /* Test delay and gc of 2 retracted clauses */

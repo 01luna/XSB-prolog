@@ -21,7 +21,7 @@ test1:- p(X),retract(p(1)),writeln((1-1,p(X))),fail.
 test1:- p(X),writeln((1-2,p(X))),fail.
 test1:- q(X),retract(p(2)),writeln((1-3,q(X))),fail.
 test1:- init2,fail.
-test1:- gc_dynamic(N),fail.
+test1:- gc_dynamic(_N),fail.
 test1.
 
 /* Test delay and gc of 2 retracted clauses */
