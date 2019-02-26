@@ -1718,9 +1718,9 @@ else
     java_compiler="$JAVA_HOME/bin/javac"
 fi
 
-java_platform_specific_hdr_path="`ls "${java_path}/"*/jni_md.h`"
+java_platform_specific_hdr_path="`ls "${java_path}/"*/jni_md.h 2> /dev/null`"
 java_platform_specific_hdr_path="`dirname "${java_platform_specific_hdr_path}"`"
-java_platform_specific_hdr_path_alt="`ls "${java_path}/"jni_md.h`"
+java_platform_specific_hdr_path_alt="`ls "${java_path}/"jni_md.h 2> /dev/null`"
 java_platform_specific_hdr_path_alt="`dirname "${java_platform_specific_hdr_path_alt}"`"
 
 if test -f "$java_path/jni.h" -a -f "$java_platform_specific_hdr_path/jni_md.h" ; then
