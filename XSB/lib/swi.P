@@ -38,6 +38,7 @@
         call/1,call/2,call/3,call/4,call/5,call/6,call/7,
         write/2,get/1,'=..'/2 
    from standard.
+:- import call/4, call/5, call/6, call/7 from standard.
 :- import sort/2 from setof.
 
 :- import
@@ -49,28 +50,34 @@
 :- import  ith/3 from basics.
 :- import  delete_ith/4 from listutil.
 
+:- mode print_message(+,?).
 print_message(Str,Term):- write(Str,Term).
 
+:- mode get_single_char(?).
 get_single_char(Char):- get(Char).
 
+:- mode atomic_concat(?,+,?).
 atomic_concat(A,B,C):- concat_atom(A,B,C).
 
 % emulating non-backtrackable "global" variables using private tries.
 
+:- mode nb_delete(+).
 nb_delete(Key):- (trie_delete(swi_global,pair(Key,_)) ; true),!.
 
+:- mode nb_getval(+,?).
 nb_getval(Key,Val):- trie_unify(swi_global,pair(Key,Val)).
 
+:- mode nb_setval(+,?).
 nb_setval(Key,Val):- (trie_delete(swi_global,pair(Key,_)) ; true),
 	             trie_insert(swi_global,pair(Key,Val)),!.
 
 ?- trie_create(Tid,[alias(swi_global),type(pras)]).
 
 :- import set_arg/3 from machine.
+:- mode setarg(+,?,?).
 setarg(N,T,A):-  set_arg(T, N, A).
 
-
-
+:- mode term_variables_swi(?,?).
 %% MK: renamed from term_variables/2 to avoid clashes with XSB standard
 %%     predicate term_variables/2 in setof and also in constraintLib.
 %%     The one in constraintLib is identical to the one below.
@@ -91,20 +98,24 @@ listofvars1([T|Ts], Vh, Vt) :-
 	listofvars(T, Vh, Vm),
 	listofvars1(Ts, Vm, Vt).
 
+:- mode ignore(?).
 ignore(G):- G,!.
 ignore(_).
 
 % SWI returns current module for second clause -- usermod is a guess,
 % as XSB does not have a "current" module.
+:- mode strip_module(?,?,?).
 strip_module(QClause, Module, Clause):- 
 	ground(QClause),
 	QClause = Module:Clause,
 	!.
 strip_module(Clause, usermod, Clause).
 
+:- mode unifiable(?,?).
 unifiable(T1,T2):-
 	\+ \+(T1 = T2).
 
+:- mode freeze(?,?).
 freeze(X,G):- when(nonvar(X),G).
 
 nth0(I,L,E):-
@@ -180,7 +191,8 @@ delete([H|R],Elem,[H|R1]):-
     POSSIBILITY OF SUCH DAMAGE.
 */
 /*
-:- module(apply,
+%%:- module(apply,
+:- module(swi,
           [ include/3,                  % :Pred, +List, -Ok
             exclude/3,                  % :Pred. +List, -NotOk
             partition/4,                % :Pred, +List, -Included, -Excluded

@@ -34,6 +34,7 @@
 
 
 /* need ldoption at compile time for ELF systems, so compile_H is done 1st. */
+:- mode compile_cH(+,+,+,+,?,+).
 compile_cH(Modname, Base, Ext, Options, ExList, Dir) :-
 	compile_H(Modname,Base,Options,ExList,LdOption,CompComm,TempFile),
 	compile_c(Modname,Base,Ext,Options,Dir,LdOption,CompComm,TempFile).
@@ -45,6 +46,7 @@ compile_cH(Modname, Base, Ext, Options, ExList, Dir) :-
 %%
 %% COptions have the usual format: [cc(CC), cc_opts(Opts), ...]
 %% LdOption is a string to pass to the loader (like what is put in ldoptions)
+:- mode compile_so(+,+,?).
 compile_so(Path, COptions, LdOptions) :-
 	parse_filename(Path, Dir, BaseName, _Extension),
 	fmt_write_string(PathSansExt, '%s/%s', args(Dir,BaseName)),
@@ -68,6 +70,7 @@ respectful_message(M) :-
 %% dynamically.
 %%
 %% runtime_loader_flag(+Compiler,+LibraryDir,-Flag)
+:- mode runtime_loader_flag(+,+,?).
 runtime_loader_flag(_Compiler,'','') :- !.
 runtime_loader_flag(Compiler,LibraryDir,Flag):-
 	xsb_configuration(configuration, Configuration),
@@ -90,6 +93,7 @@ runtime_loader_flag(Compiler,LibraryDir,Flag):-
 
 %% This should really be used in compile_c, and in consult.P
 %% but needs to be tested - mk
+:- mode foreign_module_library_extension(+,-).
 foreign_module_library_extension(Configuration,Extension) :-
 	( ( str_sub('solaris', Configuration)
 	  ; str_sub('linux', Configuration)
@@ -109,14 +113,14 @@ foreign_module_library_extension(Configuration,Extension) :-
 	    Extension = '.o'
 	).
 
-
-
+:- import writeln/2 from standard.
 %% Options: C options
 %% LdOptions: Loader options
 %% CompCom: compiler command--for testing?
 %% TempFile: Directory
 compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
-	xsb_configuration(configuration, Configuration),
+    xsb_configuration(configuration, Configuration),
+    writeln(userout,entered_compile_c(Modname,OrigBase,Ext,Options,Configuration)),
 	xsb_configuration(compiler_flags, XSB_CC_Opts),
 	xsb_configuration(loader_flags, LD_Opts),
 	escape_path(OrigBase,Base),
@@ -130,15 +134,15 @@ compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
 	;  CC_Opts = CC_Opts0
 	),
 	respectful_message(('[Compiling C file ', Base, Ext ,'using ', CC_Name, ']')),
-	( var(LdOption) -> LdOption = '' ; true ),
-	( var(TempFile) -> TempFile = '' ; true ),
+	( var(LdOption) -> LdOption = '' ; atom(LdOption) ),
+	( var(TempFile) -> TempFile = '' ; atom(TempFile) ),
 	%% If not debugging, then strip the symbol table from the result
 	(  str_sub(' -g', CC_Opts)
 	-> SymbolTableFlag = ' '
 	;  SymbolTableFlag = ' -s'
 	),
 	(   var(CompComm)
-	->  (	str_sub('solaris', Configuration)
+	 -> ( str_sub('solaris', Configuration)
 	    ->	shell([CC_Name, SymbolTableFlag, ' -o ', Base, '.so', ' -G ',
 		       Base, Ext, TempFile, ' ', CC_Opts, ' ',LD_Opts,' ',LdOption])
 #ifdef FOREIGN_DEBUG
@@ -187,7 +191,7 @@ compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
 		       Base, Ext, TempFile, ' ', CC_Opts, ' ',LD_Opts,' ',LdOption])
 	    ;	str_sub('alpha', Configuration)
 	    ->	shell([CC_Name, ' -c ', Base, Ext, TempFile, ' ',CC_Opts]),
-		shell(['ld -expect_unresolved \* -O1 -shared -o ',
+		shell(['ld -expect_unresolved \\* -O1 -shared -o ',
 		       Base, '.so ', Base, '.o ', LdOption])
 	    ; str_sub('apple-darwin', Configuration)
 	    ->	shell([CC_Name,' -dynamiclib -undefined dynamic_lookup -fPIC -o ', Base, '.dylib ', Base, Ext, TempFile, ' ', CC_Opts, ' ', XSB_CC_Opts, ' ',LD_Opts,' ',LdOption])
@@ -236,14 +240,18 @@ compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
 		       %% NOTE: It is IMPORTANT that LdOption & LD_Opts are at the end!
 		       Obj,' ',TempObj,' ',LdOption, ' ', LD_Opts,' -lxsb'])
 	    ;	str_sub('windows', Configuration)
-	    ->  %% check if Module.dll exists in the bindir or current dir
-		%% If not - issue a warning
-		%%% TLS: dont really understand -- shd this throw an error?
-		fmt_write_string(DLLhere, '%s.dll', arg(Modname)),
-		xsb_configuration(config_bindir,BINDIR),
-		fmt_write_string(DLLbin, '%s\%s.dll', arg(BINDIR,Modname)),
-		((file_exists(DLLhere) ; file_exists(DLLbin)) -> true
-		; misc_error(('You must create the DLL ', Modname,'.dll first'))
+	     ->	((Ext == '.c ' ; Ext == '.c')
+		 -> fmt_write_string(DLLhere, '%s.dll', arg(Modname)),
+		    xsb_configuration(config_bindir,BINDIR),
+		    fmt_write_string(DLLbin, '%s\\%s.dll', arg(BINDIR,Modname)),
+		    ((file_exists(DLLhere) ; file_exists(DLLbin))
+		     ->	true
+		     ;	concat_atom([BINDIR,'setvcvars.bat'],Setvcfile),
+			file_exists(Setvcfile)
+		     ->	compile_windows_c_to_dll(Base)
+		     ;	misc_error(('[foreign] ERROR: DLL is not found: ', Modname,'.dll first'))
+		    )
+		 ;  misc_error(('[foreign] ERROR: DLL must have been created for ',Base,Ext))
 		)
 	    ;	shell([CC_Name, ' -c ', Base, Ext, TempFile, ' ', CC_Opts]),
 	        /* The following is here because C compilers usually put 
@@ -251,12 +259,47 @@ compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
 	           and not in the source one. */
 	        (   Dir == './'
 		->  true
-		;   shell(['mv ', Modname, '.o ', Dir])
+		 ;  shell(['mv ', Modname, '.o ', Dir])
 		)
 	    )
-        ;   shell([CompComm])
+        ;   atom(CompComm),
+	    shell([CompComm])
         ).
 
+compile_windows_c_to_dll(Base) :-
+    xsb_configuration(config_bindir,ConfigBinDir),
+%%    concat_atom([ConfigBinDir,'\\setvcvars.bat'],Setvcvarsfile),
+    Ext = '.c',
+    xsb_configuration(compiler, CC_Name),
+    xsb_configuration(config_dir,ConfigDir),
+    xsb_configuration(emudir,EmuDir),
+    xsb_configuration(install_dir,InstallDir),
+    xsb_configuration(host_cpu,HostCpu),
+    CompCmdL = [CC_Name,' /c ',Base,Ext,
+		' /nologo /MT /W3 /EHsc /O2',
+		' /I"',ConfigDir,'"',
+		' /I"',EmuDir,'"',
+		' /I"',InstallDir,'\\prolog_includes"',
+		' /DWIN64 /DNDEBUG /D_WINDOWS /D_MBCS /DXSB_DLL /Fo".\\" /Fd".\\"'
+		],
+    concat_atom(CompCmdL,CompCmd),
+    LinkCmdL = ['link.exe kernel32.lib user32.lib gdi32.lib winspool.lib',
+		' comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib',
+		' uuid.lib odbc32.lib odbccp32.lib xsb.lib /nologo /DLL',
+		' /machine:',HostCpu,
+		' /out:"',Base,'.dll"',
+		' /libpath:"',ConfigBinDir,'"',
+		' "',Base,'.obj"'
+		],
+    concat_atom(LinkCmdL,LinkCmd),
+    SetvcvarsL = ['"',ConfigBinDir,'\\setvcvars.bat','"'],
+    concat_atom(SetvcvarsL,Setvcvars),
+    str_repl(Setvcvars,['\\','"'],['\\\\','""'],SetvcvarsR),
+    str_repl(CompCmd,['\\','"'],['\\\\','""'],CompCmdR),
+    str_repl(LinkCmd,['\\','"'],['\\\\','""'],LinkCmdR),   %"
+    concat_atom(['cmd /c "',SetvcvarsR,' & ',CompCmdR,' & ',LinkCmdR,'"'],ShellCmd),
+    atom(ShellCmd),
+    shell(ShellCmd).
 
 cc_name(Options, CC_Name) :-
 	( memberchk(cc(CC_Name), Options), atom(CC_Name) -> true
@@ -375,8 +418,10 @@ read_clauses(ModName, ExList, LdOptionIn, LdOptionOut, CompComm, TempFile) :-
 			 CompComm, TempFile)
         ).
 
-proper_declaration((':-'(foreign_pred(PredDecl))),PredDecl,nocontext).
-proper_declaration((':-'(private_foreign_pred(PredDecl))),PredDecl,context).
+proper_declaration((':-'(foreign_pred(PredDecl))),PredDecl,nocontext) :-
+    check_ground(PredDecl,'foreign_pred/1',1).
+proper_declaration((':-'(private_foreign_pred(PredDecl))),PredDecl,context) :-
+    check_ground(PredDecl,'foreign_pred/1',1).
 
 form_ld_option([], In, In) :- !.
 form_ld_option([Opt|Opts], In , Out) :- !,
@@ -384,7 +429,10 @@ form_ld_option([Opt|Opts], In , Out) :- !,
 form_ld_option(Opt, In, Out) :-
 	str_cat(In, Opt, M), str_cat(M, ' ', Out).
 
-add_to_exlist(P/A, ExList) :- !, attach(P/A, ExList).
+add_to_exlist(P/A, ExList) :- !,
+	check_atom(P,'export/1',1),
+	check_integer(A,'export/1',1),
+	attach(P/A, ExList).
 add_to_exlist((Pred, Preds), ListType) :- !,
         add_to_exlist(Pred, ListType),
         add_to_exlist(Preds, ListType).
@@ -411,7 +459,8 @@ co_asmsym(OStr,[One|ExList]) :- co_one(OStr,One), co_asmsym(OStr,ExList).
 
 co_one(OStr,P/A) :-
 	str_len(P, L),
-	file_put(OStr,0),		% domain = ex(ported)
+	integer(A),
+	file_put(OStr,0),	% domain = ex(ported)
 	file_put(OStr,T_FORN),		% type = T_FORN (in psc_xsb.h)
 	file_put(OStr,A),		% arity = a
 	asm_putlength(OStr,L),		% length

@@ -28,15 +28,19 @@ file, where @var{FileName} is the file to load, @var{PSpec} is either
 Name/Arity or Name(_,_,...,_) of the predicate to load the facts
 into.").
 
+:- mode load_csv(+,?).
 load_csv(FileName,PSpec) :-
-    load_dsv(FileName,PSpec,[]). %"
+    load_dsv(FileName,PSpec,[]).
 	
+:- mode load_csv(+,?,+).
 load_csv(FileName,PSpec,Options) :-
-    load_dsv(FileName,PSpec,Options). %"
+    load_dsv(FileName,PSpec,Options).
 
+:- mode load_psv(+,?).
 load_psv(FileName,PSpec) :-
-    load_dsv(FileName,PSpec,[separator="|"]). %"
+    load_dsv(FileName,PSpec,[separator="|"]).
 
+:- mode read_dsv(+,+,?).
 read_dsv(FileName,Options,Term) :-
     conset('__errcnt',0),
     conset('__recsread',0),
@@ -142,13 +146,14 @@ issued.
 @end{itemize}	   
 ").
 
+:- mode load_dsv(+,?,+).
 load_dsv(FileName,PSpec,Options0) :-
     conset('__errcnt',0),
     conset('__recsread',0),
     conset('__linesread',0),
     (member(order=reverse,Options0) -> Reverse = 1 ; Reverse = 0),
     process_predspec(PSpec,Spec,Types,Args),
-    (nonvar(Types)
+    (ground(Types)
      ->	Options = [types=Types|Options0]
      ;	Options = Options0
     ),
@@ -213,91 +218,64 @@ process_predspec(PSpec,Spec,Types,Args) :-
 	Spec =.. [_|Args]
     ).
 
-cvt_types([],[],[],_,_) :- !.
-cvt_types([],_,_,_Fields,_Options) :- !,
-    misc_error('[proc_files] Error: internal, too few fields in type conversion.').
-cvt_types(_,_,[],_Fields,_Options) :- !,
+:- mode cvt_types(+,?,?,?,+).
+cvt_types([],_,[],_,_) :- !.
+cvt_types(_,[],[],_Fields,_Options) :- !,
     misc_error('[proc_files] Error: internal, too many fields in type conversion.').
 cvt_types([F|Fs],Types,[A|As],Fields,Options) :-
-        (Types = [T|Ts]
-        ->	true
-        ;	T = string      % pad as string
-        ),
-        (F = 'NULL'(_)
-        ->	A = F           % null padding
-        ; var(T)
-        ->	atom_codes(A,F)
-        ; T == atom
-        ->	atom_codes(A,F)
-        ; T == integer
-        ->	remove_commas_and_spaces(F,FC),
-            (FC == []
-            -> A = 0
-            ;  catch(number_codes(AN,FC),_,fail)
-            -> A is floor(AN)
-            ; cannot_convert_errwarn(T,FC,Options,A)
-            /*
-                write(user_error,'[proc_files] Warning: Cannot convert to integer, line '),
-                conget('__linesread',LinesRead),
-                write(user_error,''(LinesRead)),write(user_error,': '),
-                atom_codes(A,F),
-                writeq(user_error,A), nl(user_error),
-                (member(error,Options)
-                ->	misc_error(('[proc_files] Error: Cannot convert to integer: ',F, ' on line ', LinesRead))
-                ;	true
-                ),
-                writeln(user_error,'\tConverting to atom instead')
-            */
-            )
-        ; T == float
-        ->	remove_commas_and_spaces(F,FC),
-            (FC == []
-            -> A = 0.0
-            ;  catch(number_codes(AN,FC),_,fail)
-            -> A is float(AN)
-            ; cannot_convert_errwarn(T,FC,Options,A)
-            /*
-                write(user_error,'[proc_files] Warning: Cannot convert to float, line '),
-                conget('__linesread',LinesRead),
-                write(user_error,''(LinesRead)), write(user_error,': '),
-                atom_codes(A,F),
-                writeq(user_error,A), nl(user_error),
-                (member(error,Options)
-                ->	misc_error(('[proc_files] Error: Cannot convert to float: ',F, ' on line ', LinesRead))
-                ;	true
-                ),
-                writeln(user_error,'\tConverting to atom instead')
-            */
-            )
-        ; T == term ->
-            remove_spaces(F,FC),
-            (atom_codes(AF,F),
-                (FC == [] -> A=''
-                ; atom_to_term(AF,A)
-                ),
-                !
-            ; cannot_convert_errwarn(T,F,Options,A)
-            )
-        ; T == string
-        ->	A = F
-        %% Hook is a binary predicate: +In,-Out
-        ; cvt_type_hook(T,Hook) ->
-            remove_spaces(F,FC),
-            arg(1,Hook,InVar),
-            arg(2,Hook,OutVar),
-            (var(InVar), var(OutVar), InVar \== OutVar ->
-                atom_codes(InVar,FC),
-                (call(Hook) -> A=OutVar
-                ; cannot_convert_errwarn(T,FC,Options,A)
-                )
+    (Types = [T|Ts]
+     ->	true
+     ;	T = string		% pad as string
+    ),
+    (var(T)
+     ->	atom_codes(A,F)
+     ;	T == atom
+     ->	atom_codes(A,F)
+     ;	T == integer
+     ->	remove_commas_and_spaces(F,FC),
+	(FC == []
+	 -> A = 0
+	 ;  catch(number_codes(AN,FC),_,fail)
+	 -> A is floor(AN)
+	 ;  cannot_convert_errwarn(T,FC,Options,A)
+	)
+     ; T == float
+     ->	remove_commas_and_spaces(F,FC),
+	(FC == []
+	 -> A = 0.0
+	 ;  catch(number_codes(AN,FC),_,fail)
+	 -> A is float(AN)
+	 ;  cannot_convert_errwarn(T,FC,Options,A)
+	)
+        ;  T == term ->
+	remove_spaces(F,FC),
+	(atom_codes(AF,F),
+	 (FC == [] -> A=''
+	  ;  atom_to_term(AF,A)
+	 ),
+	 !
+	 ;  cannot_convert_errwarn(T,F,Options,A)
+	)
+     ; T == string
+     ->	A = F
+     %% Hook is a binary predicate: +In,-Out
+     ; cvt_type_hook(T,Hook)
+     ->	remove_spaces(F,FC),
+	arg(1,Hook,InVar),
+	arg(2,Hook,OutVar),
+	(var(InVar), var(OutVar), InVar \== OutVar
+	 -> atom_codes(InVar,FC),
+	    (call(Hook)
+	     ->	A=OutVar
+	     ;	cannot_convert_errwarn(T,FC,Options,A)
+	    )
             %% This is checked at hook insertion time, but just in case
-            ;   misc_error(('[proc_files] type = ', T, ', hook = ', Hook, ': field type conversion hook must have two unbound distinct arguments.'))
-            )
-        ;
-            misc_error(('Unknown field type ''',T,''' in proc_files load/read operation.')),
-            atom_codes(A,F)
-        ),
-        cvt_types(Fs,Ts,As,Fields,Options).
+            ;  misc_error(('[proc_files] type = ', T, ', hook = ', Hook, ': field type conversion hook must have two unbound distinct arguments.'))
+	)
+     ;  misc_error(('Unknown field type ''',T,''' in proc_files load/read operation.')),
+	atom_codes(A,F)
+    ),
+    cvt_types(Fs,Ts,As,Fields,Options).
 
 %% over-general since removes all commas and spaces; could/should
 %% remove only leading/trailing blanks, and commas between triples of
@@ -326,12 +304,10 @@ append_fields([X|L1],Returns,L2,[X|L3]) :- append_fields(L1,Returns,L2,L3).
 :- index atom_codes_list/2-2.
 atom_codes_list([],[]).
 atom_codes_list([Atom|Atoms],[Code|Codes]) :-
-    (Code = 'NULL'(_)
-     ->	Atom = Code		% NULL padding
-     ;	atom_codes(Atom,Code)
-    ),
+    atom_codes(Atom,Code),
     atom_codes_list(Atoms,Codes).
 
+:- mode break_into_code_fields(+,?,+,+,+).
 break_into_code_fields(Stream,AllFields,Line,Sep,Delim) :-
     break_into_code_fields(Stream,AllFields,Line,Sep,Delim,[]).
 
@@ -343,14 +319,19 @@ break_into_code_fields(Stream,AllFields,Line,Sep,Delim,Options) :-
         break_into_code_fields(Stream,Fields,Rest,Sep,Delim,Options)
     ).
 
-
 next_code_field(Stream,Line,Sep,Delim,Options,Field,Rest) :-
     (Line == []
      ->	Field = [], Rest = []
      ;	Line = [C|Cs],
         (C == Delim
          -> delim_parse_quoted(Stream,Cs,Sep,Delim,Options,OField,Flg,Rest),
-	    (var(Flg) -> Field = OField ; Field = [Delim|OField])
+	    (var(Flg)  % delimiters OK
+	     ->	Field = OField 
+	     ;	(append(Field,[Delim],OField)
+		 -> true	% ends with delim, assume meant to be delimmed fld
+		 ;  Field = [Delim|OField] % otw initial delim was part of field
+		)
+	    )
          ;  delim_parse_unquoted(Line,Sep,Field,Rest)
 	)
     ).
@@ -442,6 +423,7 @@ std_separator(InpSep,Sep) :-
      ;	Sep = InpSep
     ).
 
+:- mode save_dsv(+,?,+).
 save_dsv(FileName,PSpec,Options) :-
     get_opt_params(Options,Sep,Delim,_Titles,_Types,_Returns),
     save_dsv(FileName,PSpec,Sep,Delim,Options).
@@ -503,8 +485,10 @@ write_field(Field,Stream,SepA,Delim,DelimA) :-
 	    write(Stream,DelimA),
 	    put_list(Stream,FieldCodes,Delim),
 	    write(Stream,DelimA)
-	 ;  (str_match(SepA,Field,f,_,_) ;
-	     str_match('\n',Field,f,_,_))
+	 ;  (str_match(SepA,Field,f,_,_)
+	     ;
+	     str_match('\n',Field,f,_,_)
+	    )
 	 -> write(Stream,DelimA),
 	    write(Stream,Field),
 	    write(Stream,DelimA)
@@ -520,7 +504,7 @@ write_field(Field,Stream,SepA,Delim,DelimA) :-
 % Just output code list 
 :- index put_list/2-2.
 put_list(_Stream,[]).
-put_list(Stream,[C|Cs]) :- file_put(Stream,C),put_list(Stream,Cs).
+put_list(Stream,[C|Cs]) :- integer(C),file_put(Stream,C),put_list(Stream,Cs).
 
 % Output code list doubling occurrences of Delim
 :- index put_list/3-2.
@@ -528,12 +512,13 @@ put_list(_Stream,[],_Delim) :- !.
 put_list(Stream,Field,Delim) :-
     (append(Delim,Rest,Field)
      ->	put_list(Stream,Delim),put_list(Stream,Delim)
-     ;	Field = [C|Rest],file_put(Stream,C)
+     ;	Field = [C|Rest],integer(C),file_put(Stream,C)
     ),
     put_list(Stream,Rest,Delim).
 
 
 /* this converts to atoms to copy; look into not filling atom table...*/
+:- mode copy_dsv(+,+,+,+).
 copy_dsv(InFileName,NumFields,OutFileName,Options) :-
     get_opt_params(Options,InSep,InDelim,_Titles,_Types,_Returns),
     ((member(out_separator=OutSep0,Options) ; member(out_separator(OutSep0),Options))
@@ -578,6 +563,7 @@ first line of the file, and the file name.  ").
 
 :- dynamic file_header/4.
 
+:- mode load_with_header(+,+).
 load_with_header(FileNameList,Options) :-
     (flat_member(FileName,FileNameList),
      atom_codes(FileName,FileNameCodes),
@@ -682,11 +668,12 @@ pad_args(ArgsIn,Options,N,ArgsOut) :-
 	N = 0
     ).
 
-pad_fields_with_null(ArgsIn,PadNum,ArgsOut) :-
+pad_fields_with_null(ArgsIn,PadNum,ArgsOut,NullList) :-
     (PadNum > 0
-     ->	make_null_list(PadNum,NullList),
-	append(ArgsIn,NullList,ArgsOut)
-     ;	length(ArgsIn,ArgsLen),
+     ->	ArgsOut = ArgsIn,
+	make_null_list(PadNum,NullList)
+     ;	NullList = [],
+	length(ArgsIn,ArgsLen),
 	KeepNum is ArgsLen + PadNum, % PadNum is neg
 	take_upto(KeepNum,ArgsIn,ArgsOut)
     ).
@@ -703,6 +690,7 @@ make_null_list(K,List) :-
 
 /* nondeterministically return the records in a file */
 
+:- mode data_records(+,+,?).
 data_records(FileName,Format,RecTerm) :-
     (Format = sql(_,_)
      ->	db_records(FileName,Format,RecTerm)
@@ -789,6 +777,7 @@ db_records(SQL,sql(BindVars,ConnectionStr),RecTerm) :-
 
 /*******************************************************/
 
+:- mode read_can(+,?).
 read_can(FileName,Term) :-
     open(FileName,read,IStr),
     repeat,
@@ -800,6 +789,7 @@ read_can(FileName,Term) :-
      ;	Term = Term0
     ).
 
+:- mode read_pro(+,?).
 read_pro(FileName,Term) :-
     open(FileName,read,IStr),
     repeat,
@@ -816,7 +806,7 @@ read_pro(FileName,Term) :-
 delim_file_record(InStream,NumFields,Options,RecNum,Fields) :-
     get_opt_params(Options,Sep,Delim,Titles,Types,Returns),
     (member(strings,Options) -> Strings = 1 ; Strings = 0),
-    (Returns =:= 0
+    (Returns =:= 0  % bug in how returns parameter is handled....
      ->	delim_file_process(InStream,Sep,Delim,Titles,Options,RecNum,CodeFields_aux)
      ;	delim_file_process_fixed(InStream,NumFields,Sep,Delim,Returns,Titles,Options,RecNum,CodeFields_aux)
     ),
@@ -824,7 +814,8 @@ delim_file_record(InStream,NumFields,Options,RecNum,Fields) :-
     (NumFields > 0
      ->	(ActNum =:= NumFields
 	 -> CodeFields=CodeFields_aux,
-	    DesiredNum = ActNum
+	    DesiredNum = ActNum,
+	    NullFields = []
 	 ;  coninc('__errcnt',ECnt),
 	    (ECnt < 10
 	     ->	conget('__linesread',LinesRead), % deal with wrong number of args
@@ -847,18 +838,27 @@ delim_file_record(InStream,NumFields,Options,RecNum,Fields) :-
 	     ;	true
 	    ),
 	    PadNum is NumFields-ActNum,
-	    pad_fields_with_null(CodeFields_aux,PadNum,CodeFields),
+	    %% better to trancate here, but return padding as extra list appended after other processing.
+	    pad_fields_with_null(CodeFields_aux,PadNum,CodeFields,NullFields),  
 	    DesiredNum = NumFields
 	)
-     ;	CodeFields=CodeFields_aux,
+     ;	NullFields = [],
+	CodeFields=CodeFields_aux,
 	DesiredNum = ActNum
     ),
     length(Fields,DesiredNum),
     (Strings =:= 1		% wants all strings, overrides types
-     ->	Fields = CodeFields
+     ->	(NullFields == []
+	 -> Fields = CodeFields
+	 ;  append(CodeFields,NullFields,Fields)
+	)
      ;	(nonvar(Types)
-	 -> cvt_types(CodeFields,Types,Fields,CodeFields,Options)
-	 ;  atom_codes_list(Fields,CodeFields) % convert all to atoms
+	 -> cvt_types(CodeFields,Types,Fields0,CodeFields,Options)
+	 ;  atom_codes_list(Fields0,CodeFields) % convert all to atoms
+	),
+	(NullFields == []
+	 -> Fields = Fields0
+	 ;  append(Fields0,NullFields,Fields)
 	)
     ).
 
@@ -866,7 +866,7 @@ delim_file_record(InStream,NumFields,Options,RecNum,Fields) :-
 it is a return in the middle of a field, and read the next line and
 append it. Used if Options contains 'returns'.").
 
-
+:- mode delim_file_process_fixed(+,+,+,+,+,+,+,?,?).
 delim_file_process_fixed(InStream,NumFields,Sep,Delim,Return,Titles,Options,RecNum,CodeFields) :-
     get_max_int(Max),
     for(RecNum,1,Max),
@@ -882,6 +882,7 @@ delim_file_process_fixed(InStream,NumFields,Sep,Delim,Return,Titles,Options,RecN
 :- table get_max_int/1.
 get_max_int(Int) :-
     xsb_configuration(word_size,WSA),
+    atom(WSA),
     atom_codes(WSA,WSC),
     number_codes(WSN,WSC),
     Int0 is floor(2 ** (WSN-2)),
@@ -904,6 +905,7 @@ delim_file_process_fixed(Stream,Sep,Delim,Returns,Options,NumFields,PrevFields,F
      ;  fail
     ).
 
+:- mode delim_file_process(+,+,+,+,+,?,?).
 delim_file_process(InStream,Sep,Delim,Titles,Options,RecNum,CodeFields) :-
     get_max_int(Max),
     for(RecNum,1,Max),
@@ -923,6 +925,7 @@ delim_file_process(InStream,Sep,Delim,Titles,Options,RecNum,CodeFields) :-
 :- comment(remove_cvt_type_hook/1, "@pred{remove_cvt_type_hook(+Type)}
 removes type conversion hook associated with @var{Type}.
 If no hook is associated with @var{Type}, succeeds silently.").
+:- mode remove_cvt_type_hook(+).
 remove_cvt_type_hook(Type) :- retractall(cvt_type_hook(Type,_)).
 
 :- comment(add_cvt_type_hook/2, " @pred{add_cvt_type_hook(+Type,+Hook)}
@@ -933,6 +936,7 @@ a hook could be a predicate of the form @pred{convert_date(+InField,-OutField)}.
 If a field declared as being of type @var{Type} is encountered, @var{Hook}
 will be called to convert the field according to the supplied hook-predicate.
 If a hook associated with @var{Type} already exists, an error is issued.").
+:- mode add_cvt_type_hook(+,+).
 add_cvt_type_hook(Type,Hook) :-
         (cvt_type_hook(Type,_) ->
             misc_error(('[proc_files] conversion hook for type ', Type, ' already exists. Remove it prior to changing.'))

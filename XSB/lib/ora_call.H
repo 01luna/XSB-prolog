@@ -43,3 +43,4 @@
 :- import nl/0, functor/3, number/1, call/1, (not)/1 from standard.
 :- import findall/3, bagof/3 from setof.
 :- import copy_term/2, append/3, member/2 from basics.
+:- import check_atomic/3, check_atom/3 from error_handler.

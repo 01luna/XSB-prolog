@@ -528,7 +528,7 @@ table_once(Call) :-
 %:- import between/3 from basics.
 :- import random/3 from random.
 :- import get_call/3,get_answer_number/2,table_status/5 from tables.
-:- import writeln/1 from standard.
+%:- import writeln/1 from standard.
 :- import conget/2,conset/2,coninc/1 from gensym.
 table_random(Call) :- 
  	table_status(table_random_1(Call), _PredTypeCode, _CallTypeCode, AnsSetStatusCode,_SF),

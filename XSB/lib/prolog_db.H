@@ -39,7 +39,7 @@
 
 :- import write_canonical_lettervar/2 from xsb_writ.
 
-:- import (multifile)/1 from standard.
+%%:- import (multifile)/1 from standard.
 
 :- import intern_termhash/2, term_hash/3, term_compare/3,
    term_arg/3, term_new/2, psc_arity/2, term_psc/2, term_type/2

@@ -662,8 +662,8 @@ action_sequence --> action, dump_db(userout).
 action_sequence --> action_sequence, action, dump_db(userout).
 
 test(Source,Target) :-
-    assert_in_db([(handEmpty :- \+ holds(_))|Source],SDB),
-    assert_in_db([(handEmpty :- \+ holds(_))|Target],TDB),
+    assert_in_db([(handEmpty :- \\+ holds(_))|Source],SDB),
+    assert_in_db([(handEmpty :- \\+ holds(_))|Target],TDB),
     action_sequence(SDB,TDB).
 @end{verbatim}
 
@@ -710,7 +710,7 @@ holds(d).
 on(b,c).
 onTable(a).
 onTable(c).
-:-(handEmpty,\+(holds(A))).
+:-(handEmpty,\\+(holds(A))).
 
 clear(d).
 clear(b).
@@ -718,7 +718,7 @@ holds(a).
 on(b,c).
 onTable(d).
 onTable(c).
-:-(handEmpty,\+(holds(A))).
+:-(handEmpty,\\+(holds(A))).
 
 .......
 
@@ -727,14 +727,14 @@ holds(d).
 on(a,c).
 on(c,b).
 onTable(b).
-:-(handEmpty,\+(holds(A))).
+:-(handEmpty,\\+(holds(A))).
 
 clear(d).
 on(d,a).
 on(a,c).
 on(c,b).
 onTable(b).
-:-(handEmpty,\+(holds(A))).
+:-(handEmpty,\\+(holds(A))).
 
 yes
 | ?- 
@@ -891,7 +891,7 @@ short-hand for the actual prefix term @pred{r(_,_,_)}.
 :- comment(assert_in_db/3, "@pred{assert_in_db(+Clause,+DB0,?DB)} adds
 a clause, @var{Clause}, (or a sequence of clauses, if @var{Clause} is
 a list of clauses) to @var{DB0} to generate @var{DB}. ").
-
+:- mode assert_in_db(?,+,?).
 assert_in_db(Clauses,H0,H) :-
     (H0 == module
      ->	H = H0,
@@ -931,7 +931,7 @@ asserts a single clause, @var{Clause}, into @var{DB0}, generating
 this predicate.  This predicate is needed @em{only} in cases in which
 the ``clause'' to be asserted is itself a list, and so interpreting it
 as a list of clauses would be incorrect. ").
-
+:- mode assert1_in_db(?,+,?).
 assert1_in_db(Clause,H0,H) :-
     tab_intern_termhash(DB0,H0),
     assert1_in_db_b(Clause,DB0,DB),
@@ -948,7 +948,7 @@ assert1_in_db_b(Clause,DB0,DB) :-
 :- comment(assert_in_db/2, "@pred{assert_in_db(+Clause,?DB)} adds a
 clause, @var{Clause}, (or a sequence of clauses, if @var{Clause} is a
 list) to the empty DB to generate @var{DB}.").
-
+:- mode assert_in_db(?,?).
 assert_in_db(Clauses,H) :-
     new_db(DB0),
     assert_in_db(Clauses,DB0,DB),
@@ -983,7 +983,6 @@ order_insert(ACVs,V,NVs) :-
 	 ;  NVs = ACVs
 	)
     ).
-
 
 %%:- table hash_key/2. % breaks it, why? Certainly looks like a
 %%bug. Maybe complications with in_db metainterp
@@ -1095,7 +1094,7 @@ add_pair(14/*3,2*/,NRTL,ORTL,rt([],[],ORTL,NRTL)).
 :- comment(clause_in_db/3,"@pred{clause_in_db(?Head,?Body,+DB)}
 unifies, in turn, @var{Head} and @var{Body} with the head and body of
 rules in @var{DB}.").
-
+:- mode clause_in_db(?,?,+).
 clause_in_db(Head,Body,H) :-
     (H == module
      ->	clause(Head,Body)
@@ -1106,7 +1105,7 @@ clause_in_db(Head,Body,H) :-
 :- comment(fact_in_db/2, "@pred{fact_in_db(?Fact,+DB)} unifies, in
 turn, @var{Fact} with each fact in DB, @var{DB}.  The order of
 returned facts is indeterminate.").
-
+:- mode fact_in_db(?,+).
 fact_in_db(Head,H) :-
     tab_intern_termhash(DB,H),
     clause_in_db_b(Head,true,DB).
@@ -1199,14 +1198,13 @@ find_in_right_radix_tree(rt(_,_,RT3,_),HashCode,Key,Val,2) :-
 find_in_right_radix_tree(rt(_,_,_,RT4),HashCode,Key,Val,3) :-
     find_in_radix_tree(RT4,HashCode,Key,Val).
 
-
 /***********************************************************/
 
 :- comment(retractall_in_db/3,"@pred{retractall_in_db(+Goal,+DB0,?DB)}
 retracts all clauses whose heads unify with @var{Goal} (or a term in
 @var{Goal} if @var{Goal} is a list) from @var{DB0} generating
 @var{DB1}.").
-
+:- mode retractall_in_db(?,+,?).
 retractall_in_db(Clauses,H0,H) :-
     (H0 == module
      ->	(Clauses = [Clause|MClauses]
@@ -1234,8 +1232,15 @@ retractall_in_db_b(Clauses0,DB0,DB) :-
     ).
 
 retractall1_in_db(Clause,DB0,DB) :-
-    (Clause = (Head:-Body)
-     ->	true
+    (Clause = (Head:-Body0)
+     ->	(ground(Head)
+	 -> (ground(Body0)
+	     ->	Body = Body0
+	     ;	copy_term(Body0,Body),
+		my_numbervars(Body,0,_)
+	    )
+	 ;  misc_error(('Body of rule in retractall_in_db/3 must be empty if Head is nonground:',Clause))
+	)
      ;	Head = Clause
     ),
     delete_from_trie_b(Head,Body,DB0,_Vars,DB).
@@ -1267,6 +1272,7 @@ delete_tuple_from_trie(Terms,Body,Vars,Trie0,Trie) :- Terms = [Frst|NTermsT],
 	)
     ).
 
+:- mode order_delete(+,?,?,?).
 order_delete([CV|CVs],V,Vars,NVs) :-
     (varno(CV,VNo)
      ->	log_ith(VNo,Vars,VV),
@@ -1343,7 +1349,7 @@ rtl_delete(rtl(OK,OVs,RTLr),K,ValTrans,Vars,NRTL) :-
 	  varno(K,VNo1),
 	  log_ith(VNo,Vars,X), log_ith(VNo1,Vars,X)
 	 )
-	 -> ValTrans(OVs,NVs),
+	 -> appl(ValTrans,OVs,NVs),
 	    (NVs == []
 	     ->	NRTL = RTLr
 	     ;	NRTL = rtl(OK,NVs,RTLr)
@@ -1356,7 +1362,7 @@ rtl_delete(rtl(OK,OVs,RTLr),K,ValTrans,Vars,NRTL) :-
 	 -> NRTL = rtl(OK,OVs,NRTLr),
 	    rtl_delete(RTLr,K,ValTrans,Vars,NRTLr)
 	 ;  Cmp =:= 0
-	 -> ValTrans(OVs,NVs), % HiLog, for old Vals compute new Vals
+	 -> appl(ValTrans,OVs,NVs), % HiLog, for old Vals compute new Vals
 	    (NVs == []	       % raising is nec here!
 	     ->	NRTL = RTLr
 	     ;	NRTL = rtl(OK,NVs,RTLr)
@@ -1388,7 +1394,7 @@ trie that points to entire definitions of the predicates in the input
 tries, so such a union is done in time proportional to the number of
 predicates, and completely independent of the size (i.e., the number
 of tuples) of the predicates.").
-
+:- mode union_db(+,+,?).
 union_db(H1,H2,H) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -1404,7 +1410,7 @@ in @var{DB}.  The input tries are determined by the prefix terms of
 @var{P1} and @var{P2}, and the place of the resulting trie is
 determined by prefix term @var{P3}.  (See @pred{is_prefix_term/2} and
 @pred{apply_op_in_db/6} for discussions of prefix terms.)").
-
+:- mode union_in_db(?,?,?,+,?).
 union_in_db(P1,P2,P3,H0,H) :-
     apply_op_in_db(lambda(A,B,C,union_db_b(A,B,C)),P1,P2,P3,H0,H).
 
@@ -1549,9 +1555,9 @@ union_tries_ind_recur_b(RT1,RT2,D,rt([],[],[],RT),3) :-
 makes a copy of @var{PrefI} into @var{Pref0} generating @var{DB} from
 @var{DB0}.  @var{PrefI} and @var{PrefO} must be prefix terms and have
 the same number of variables.  (See the discussin of Prefix Terms
-above.)  This is a very fast operation since it simple copies the
+above.)  This is a very fast operation since it simply copies the
 pointer to the appropriate subtrie.").
-
+:- mode copy_in_db(?,?,+,?).
 /** now requires variables to match */
 copy_in_db(PrefI,PrefO,DB0,DB) :-
     cvt_pa(PrefI,PrefO,PrefIs,PrefOs),
@@ -1563,7 +1569,7 @@ copy_in_db(PrefI,PrefO,DB0,DB) :-
 generates @var{DB} that is the same as @var{DB0} except that the
 tuples of @var{Pref1} are copied to @var{Pref2} and the tuples of
 @var{Pref1} are deleted.  ").
-
+:- mode move_in_db(?,?,+,?).
 move_in_db(Pref1,Pref2,DB0,DB) :-
     copy_in_db(Pref1,Pref2,DB0,DB1),
     retractall_in_db(Pref1,DB1,DB).
@@ -1573,7 +1579,7 @@ move_in_db(Pref1,Pref2,DB0,DB) :-
 :- comment(is_empty_in_db/2, " @pred{is_empty_in_db(+Pref,+DB)}
 succeeds if the relation determined by prefix term @var{Pref} in
 database @var{DB} is empty.  It fails otherwise.").
-
+:- mode is_empty_in_db(?,+).
 is_empty_in_db(Pref,H) :-
     tab_intern_termhash(DB,H),
     cvt_pa(Pref,Prefa),
@@ -1583,7 +1589,7 @@ is_empty_in_db(Pref,H) :-
 is a version of @pred{is_empty_in_db/2} that returns its input
 database so that it can be used as an identity transformation in a
 DCG rule.").
-
+:- mode is_empty_in_db(?,+,?).
 is_empty_in_db(Pref,H,H) :-
     is_empty_in_db(Pref,H).
 
@@ -1592,7 +1598,7 @@ is_empty_in_db(Pref,H,H) :-
 :- comment(equal_in_db/3, "@pred{equal_in_db(P1,P2,DB)} succeeds if
 the set of tuples specified by prefix term @var{P1} is the same as the
 set of tuples specified by prefix term @var{P2} in @var{DB}.").
-
+:- mode equal_in_db(?,?,+).
 equal_in_db(P1,P2,DB) :-
     apply_rel_op_in_db(lambda(A,B,(A==B)),P1,P2,DB).
 
@@ -1605,7 +1611,7 @@ returns in @var{Count} the number of tuples specified by prefix term
 %% should it use clause_in_db instead of in_db?
 %% this is simple way...
 %% might be faster if done by traversing the DB trie.
-
+:- mode count_in_db(?,+,?).
 count_in_db(Pref,DB,Count) :-
     cvt_pa(Pref,Prefa),
     gensym(ctr,Ctr),
@@ -1620,7 +1626,7 @@ count_in_db(Pref,DB,Count) :-
 
 :- comment(size_db/2," @pred{size_db(+DB,?Count)} returns the number
 of clauses in @var{DB} in @var{Count}.  ").
-
+:- mode size_db(+,?).
 size_db(H,Cnt) :-
     tab_intern_termhash(DB,H),
     size_db_b(DB,Cnt).
@@ -1653,7 +1659,7 @@ databases.  This is done by traversing the two input tries in concert
 and in the process generating the output trie.  This allows the output
 trie to share subterms with the input tries, and to perhaps avoid
 traversing large portions of the input tries.  ").
-
+:- mode intersect_db(+,+,?).
 intersect_db(H1,H2,H) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -1667,7 +1673,7 @@ input tries are determined by the prefix terms of @var{P1} and
 @var{P2}, and the place of the resulting trie is determined by prefix
 term @var{P3}.  (See @pred{is_prefix_term/2} and
 @pred{apply_op_in_db/6} for discussions of prefix terms.)").
-
+:- mode intersect_in_db(?,?,?,+,?).
 intersect_in_db(P1,P2,P3,DB0,DB) :-
     apply_op_in_db(lambda(A,B,C,intersect_db_b(A,B,C)),P1,P2,P3,DB0,DB).
 
@@ -1795,7 +1801,7 @@ sub index trees) with the input tries, and to perhaps avoid traversing
 large portions of the input tries.  For example, if the two input
 databases contain the same sets of tuples, the difference immediately
 detects that and returns the empty database.").
-
+:- mode difference_db(+,+,?).
 difference_db(H1,H2,H) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -1809,7 +1815,7 @@ subtrie in @var{DB}.  The input tries are determined by the prefix
 terms of @var{P1} and @var{P2}, and the place of the resulting trie is
 determined by prefix term @var{P3}.  (See @pred{is_prefix_term/2} and
 @pred{apply_op_in_db/6} for discussions of prefix terms.)").
-
+:- mode difference_in_db(?,?,?,+,?).
 difference_in_db(P1,P2,P3,DB0,DB) :-
     apply_op_in_db(lambda(A,B,C,difference_db_b(A,B,C)),P1,P2,P3,DB0,DB).
 
@@ -1929,7 +1935,7 @@ difference_tries_ind_recur_r(rt(RT1,RT2,RT3,RT4),RT,D,rt(RT1,RT2,RT3,ST),3) :-
 :- comment(subset_db/2, "@pred{subset_db(+DB1,+DB2)} succeeds if the
 terms in prolog DB, @var{DB1}, are a subset of the terms in prolog DB,
 @pred{DB2}, and fails otherwise.").
-
+:- mode subset_db(+,+).
 subset_db(H1,H2) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -1939,7 +1945,7 @@ subset_db(H1,H2) :-
 succeeds if the tuples specified by prefix term @var{Pref1} are a
 subset of those specified by @var{Pref2} in @var{DB}.  The number of
 variables in @var{Pref1} and @var{Pref2} must be the same.").
-
+:- mode subset_in_db(?,?,+).
 subset_in_db(P1,P2,DB) :-
     apply_rel_op_in_db(lambda(A,B,subset_db_b(A,B)),P1,P2,DB).
 
@@ -2052,7 +2058,7 @@ databases, i.e., all tuples in one but not both of @var{DB1} and
 and in the process generating the output trie.  This allows the output
 trie to share subterms with the input tries, and to perhaps avoid
 traversing large portions of the input tries.").
-
+:- mode sym_diff_db(+,+,-).
 sym_diff_db(H1,H2,H) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -2066,7 +2072,7 @@ subtrie in @var{DB}.  The input tries are determined by the prefix
 terms of @var{P1} and @var{P2}, and the place of the resulting trie is
 determined by prefix term @var{P3}.  (See @pred{is_prefix_term/2} and
 @pred{apply_op_in_db/6} for discussions of prefix terms.)").
-
+:- mode sym_diff_in_db(?,?,?,+,?).
 sym_diff_in_db(P1,P2,P3,DB0,DB) :-
     apply_op_in_db(lambda(A,B,C,sym_diff_db_b(A,B,C)),P1,P2,P3,DB0,DB).
 
@@ -2186,7 +2192,7 @@ sym_diff_tries_ind_recur_r(rt(RT1,RT2,RT3,RT4),RT,D,rt(RT1,RT2,RT3,ST),3) :-
 
 :- comment(disjoint_db/2, "@pred{disjoint_db(+DB1,+DB2)} succeeds if
 the prolog databases @var{DB1} and @var{DB2} are disjoint.").
-
+:- mode disjoint_db(+,+).
 disjoint_db(H1,H2) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -2196,7 +2202,7 @@ disjoint_db(H1,H2) :-
 succeeds if the tuples specified by prefix term @var{Pref1} are
 disjoint from those specified by @var{Pref2} in @var{DB}.  The number
 of variables in @var{Pref1} and @var{Pref2} must be the same.").
-
+:- mode disjoint_in_db(?,?,+).
 disjoint_in_db(P1,P2,DB) :-
     apply_rel_op_in_db(lambda(A,B,disjoint_db_b(A,B)),P1,P2,DB).
 
@@ -2327,7 +2333,7 @@ The @var{Pref1} values must be facts (i.e., clauses without (non-true)
 bodies.)  The complexity of this operation is the size of the
 @var{Pref1} trie, since every leaf of the @var{Pref1} trie is
 essentially extended with a pointer to the @var{Pref2} trie.").
-
+:- mode xprod_in_db(?,?,?,+,?).
 xprod_in_db(Pref1,Pref2,Pref3,H0,H) :-
     tab_intern_termhash(DB0,H0),
     xprod_in_db_b(Pref1,Pref2,Pref3,DB0,DB),
@@ -2379,7 +2385,7 @@ xprod_tries_extend(rtl(K,V,RTL),RTB,rtl(K,NV,NRTL)) :-
 @var{PrefI} in @var{DB0} and asserts the term @var{Pref0} into
 @var{DB} for every answer.  Normally every variable in @var{Pref0}
 will be in the prefix term @var{PrefI}.").
-
+:- mode materialize_in_db(?,?,+,?).
 materialize_in_db(PrefI,PrefO,H0,H) :-
     tab_intern_termhash(DB0,H0),
     materialize_in_db_b(PrefI,PrefO,DB0,DB),
@@ -2400,7 +2406,7 @@ databases contain only facts, then this succeeds if the set of ground
 instances of @var{DB1} is a subset of the set of ground instances of
 @var{DB2}. If the databases contain rules, then an approximation is
 attempted by comparing individual rules. ").
-
+:- mode subsumed_db(+,+).
 subsumed_db(H1,H2) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -2575,6 +2581,7 @@ bound terms followed by a sequence of distinct variables.  If this
 condition does not hold, the predicate fails.  ").
 
 %% DSW: can we combine this with assert_ref_with_trie, and have both efficient?
+:- mode update_subtrie_for_prefix(?,+,?,?,+,?).
 update_subtrie_for_prefix(HeadTail,NSHT,OSHT,TailLen,HT0,HT) :-
     (NSHT == []
      ->	check_prefix_term(HeadTail,TailLen,'*_in_db/5'),
@@ -2721,9 +2728,8 @@ rtl_insert(rtl(OK,OVal0,RTLr),K,Val,OVal,NRTL) :-
 	NRTL = rtl(K,Val,rtl(OK,OVal0,RTLr))
     ).
 
-
-lambda(X,Y,G)(X,Y) :- call_c(G). % HiLog
-lambda(X,G)(X) :- call_c(G).	 % HiLog
+appl(lambda(X,Y,G),X,Y) :- call_c(G). % HiLog
+%%appl(lambda(X,G),X) :- call_c(G).	 % HiLog
 
 
 cvt_pa(PA,PSkel) :-
@@ -2732,7 +2738,7 @@ cvt_pa(PA,PSkel) :-
      ;	PSkel = PA
     ).
 
-cvt_pa(PA1,PA2,PSkel1,PSkel2) :-
+cvt_pa(PA1,PA2,PSkel1,PSkel2) :- 
     (PA1 = P1/A1
      ->	functor(PSkel1,P1,A1),
 	PSkel1 =.. [P1|Args],
@@ -2842,9 +2848,11 @@ my_tab_functor(Term,Mod,Fun,Ari) :-
 in the database @var{DB}, binding variables in @var{Goal} for each
 instance of @var{Goal} that is proved using the clauses of
 @var{DB}.").
-
+:- mode in_db(?,+).
 in_db(Goal,H) :-
-    (H == module
+    (var(Goal)
+     ->	misc_error('[prolog_db] in_db/2, Illegal argument 1, must not be a variable')
+     ; H == module
      ->	call(Goal)
      ;	tab_intern_termhash(DB,H),
 	in_db_b(Goal,DB)
@@ -2853,7 +2861,7 @@ in_db(Goal,H) :-
 :- comment(in_db/3, "@pred{in_db(+Goal,+DB0,-DB)} is a
 version of @pred{in_db/2} that returns the input database so that
 it can be used as an identity transformation in a DCG rule.").
-
+:- mode in_db(?,+,?).
 in_db(Goal,H,H) :-
     in_db(Goal,H).
 
@@ -2896,7 +2904,7 @@ db_to_list(H,L) :-
 :- comment(dump_db/2,"@var{dump_db(+Filename,+DB)} writes the clauses
 in DB, @var{DB}, to the file @var{Filename}.  If @var{Filename} is
 'userout', the clauses will be written to userout. ").
-
+:- mode dump_db(+,+).
 dump_db(FileName,H) :-
     tab_intern_termhash(DB,H),
     dump_db_b(FileName,DB).
@@ -2905,7 +2913,7 @@ dump_db(FileName,H) :-
 :- comment(dump_db/3,"@var{dump_db(+Filename,+DB0,+DB)} is a version
 of @pred{dump_db/2} that returns the input database, so that it can be
 used as an identity transformation in a DCG rule.").
-
+:- mode dump_db(+,+,?).
 dump_db(FileName,H,H) :-
     dump_db(FileName,H).
 
@@ -2931,7 +2939,7 @@ dump_db_b(Filename,DB) :-
 same functionality as @pred{in_db(G,DB)}, but it is implemented
 without cuts, so it can be used when this file is loaded into a DB by
 @pred{load_in_db/2}. ").
-
+:- mode pure_in_db(?,+).
 pure_in_db(G,H) :-
     (H == module
      ->	call(G)
@@ -2972,7 +2980,7 @@ new_db([]).
 
 :- comment(is_db/1, "@pred{is_db(+DB)} succeeds if @var{DB} looks to
 have the form of a valid database reference."  ).
-	   
+:- mode is_db(+).	   
 is_db(H) :-
     atom(H),
     (H == []
@@ -2984,7 +2992,7 @@ is_db(H) :-
 :- comment(load_in_db/2, "@pred{load_in_db(+FileName,-DB)} reads the
 clauses in @file{FileName} and creates the database @var{DB} that
 contains them. ").
-
+:- mode load_in_db(+,?).
 load_in_db(FileName,DB) :-
     new_db(DB0),
     load_in_db(FileName,DB0,DB).
@@ -2993,7 +3001,7 @@ load_in_db(FileName,DB) :-
 @tt{read_canonical} to read the clauses in @file{FileName} and creates
 the database @var{DB} that contains them. The clauses in the file must
 be in canonical form.  ").
-
+:- mode loadc_in_db(+,-).
 loadc_in_db(FileName,DB) :-
     new_db(DB0),
     loadc_in_db(FileName,DB0,DB).
@@ -3001,7 +3009,7 @@ loadc_in_db(FileName,DB) :-
 :- comment(load_in_db/3, "@pred{load_in_db(+FileName,+DB0,-DB)} reads
 the clauses in @file{FileName} and adds them to the database
 @var{DB0}, creating a new database @var{DB}. ").
-
+:- mode load_in_db(+,+,?).
 load_in_db(FileName,H0,H) :-
     tab_intern_termhash(DB0,H0),
     load_in_db_b(FileName,DB0,DB),
@@ -3011,7 +3019,7 @@ load_in_db(FileName,H0,H) :-
 @tt{read_canonical} to read the clauses in @file{FileName} and adds
 them to the database @var{DB0}, creating a new database @var{DB}. The
 clauses in the file must be in canonical vorm.").
-
+:- mode loadc_in_db(+,+,?).
 loadc_in_db(FileName,H0,H) :-
     tab_intern_termhash(DB0,H0),
     loadc_in_db_b(FileName,DB0,DB),
@@ -3023,7 +3031,7 @@ loadc_in_db(FileName,H0,H) :-
 @var{ExclSet}, asserts them into @var{DB0} generating @var{DB}.  The
 most common use of the @var{ExclSet} is to avoid adding unwanted
 directives.  ").
-
+:- mode load_in_db(+,+,+,-).
 load_in_db(FileName,HExcl,H0,H) :-
     tab_intern_termhash(DB0,H0),
     tab_intern_termhash(EDB,HExcl),
@@ -3037,7 +3045,7 @@ for those that unify with clauses in the DB @var{ExclSet}, asserts
 them into @var{DB0} generating @var{DB}.  The most common use of the
 @var{ExclSet} is to avoid adding unwanted directives.  The clauses in
 the file must be in canonical form.  ").
-
+:- mode loadc_in_db(+,+,+,?).
 loadc_in_db(FileName,HExcl,H0,H) :-
     tab_intern_termhash(DB0,H0),
     tab_intern_termhash(EDB,HExcl),
@@ -3146,7 +3154,7 @@ r(J,P2,P3,Q2,Q3,Q4) :- p(J,P2,P3), q(J,Q2,Q3,Q4).
 
 The p/3 clauses must be ground facts. (q/4 could have rules with
 non-empty bodies, but I don't see any application for this.)  ").
-
+:- mode join_in_db(?,?,+,?,+,?).
 join_in_db(Pref1,Pref2,NJoin,Pref3,H0,H) :-
     tab_intern_termhash(DB0,H0),
     join_in_db_b(Pref1,Pref2,NJoin,Pref3,DB0,DB),
@@ -3283,7 +3291,7 @@ in @var{DB0} to create @tt{q/4} in @var{DB}:
 
 Note that reordering can bring a later argument to the beginning to
 make it available for use in a call to @pred{join_in_db/6}. ").
-
+:- mode reorder_in_db(?,?,+,?).
 reorder_in_db(PrefI,PrefO,H0,H) :-
     tab_intern_termhash(DB0,H0),
     reorder_in_db_b(PrefI,PrefO,DB0,DB),
@@ -3362,7 +3370,7 @@ number of variables in @var{PrefO}.  An example of its use is:
 
 which projects away the first two arguments of the @tt{p/4} relation
 in @var{DB0} to generate the @tt{q/2} relation in @var{DB}. ").
-
+:- mode project_in_db(?,+,?,+,?).
 project_in_db(PrefI,NArgs,PrefO,H0,H) :-
     tab_intern_termhash(DB0,H0),
     project_in_db_b(PrefI,NArgs,PrefO,DB0,DB),
@@ -3416,7 +3424,7 @@ sets can be done more efficiently if one knows which set is the smaller
 one.  This predicate can be used to determine the smaller set.  It
 runs (at worst) in time proportional to the size of the smaller set. "
 ).
-
+:- mode compare_size_db(+,+,?).
 compare_size_db(H1,H2,Order) :-
     tab_intern_termhash(DB1,H1),
     tab_intern_termhash(DB2,H2),
@@ -3484,7 +3492,7 @@ append_ne([X|L1],L2,L3) :-
 Prolog's findall/3 except it returns the found answers in an internal
 prolog_db, DB, instead of in a list.  It uses tabling to avoid having
 to build the list of (possibly duplicated) answers").
-
+:- mode findall_db(?,?,?).
 findall_db(Template,Goal,DB) :-
     copy_term((Template,Goal),(NTemplate,NGoal)), % protect incoming vars
     (findall_db0(NTemplate,NGoal,DB0)
@@ -3500,6 +3508,8 @@ findall_db0(Template,Goal,NTemplate) :-
     numbervars((Template,Goal),0,_), % aggr doesnt handle vars in group-by vars
     call(NGoal).
 
+:- export add_to_db/3.
+:- mode add_to_db(+,+,?).
 add_to_db(DB0,Ans,DB) :-
     (DB0 == 0
      ->	new_db(IDB), assert1_in_db(Ans,IDB,DB)
@@ -3513,15 +3523,18 @@ add_to_db(DB0,Ans,DB) :-
 DB. ").
 
 :- dynamic '_$global_db'/1.
-
+:- mode sgdb(+).
 sgdb(DB) :-
-    retractall('_$global_db'(_)),
-    assert('_$global_db'(DB)).
+    ('_$global_db'(DB)
+     ->	true
+     ;	retractall('_$global_db'(_)),
+	assert('_$global_db'(DB))
+    ).
 
 :- comment(gdb/1,"@pred{sgdb(?DB)} unifies @var{DB} with the global
 DB.  If no global DB has been set (by sgdb/1), it returns an empty
 DB.  ").
-
+:- mode gdb(?).
 gdb(DB) :-
     ('_$global_db'(DB)
      ->	true
