@@ -54,7 +54,7 @@ d8_13(_).
 
 :- table ni_1/1,ni_2/1.
 ni_1(X):- ni_2(X).
-ni_2(X).
+ni_2(_X).
 
 :- table s_1(_),s_2(_) as incremental.
 s_1(_):- s_2(_).

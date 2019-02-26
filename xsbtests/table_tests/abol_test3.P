@@ -25,7 +25,7 @@ test:-  tpred(X),tr(Y),
 	writeln((X,Y)),fail.
 
 test:- tpred(_X),fail.
-test:-  tpred(X),tr(Y),
+test:-  tpred(_X),tr(_Y),
 	abolish_table_pred(tpred/1),
 	fail.
 

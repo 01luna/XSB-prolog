@@ -7,4 +7,4 @@ p(a).
 
 :- p(X),fail.
 
-test :- get_calls(p(a),C,R), writeln(a(R)),fail.
+test :- get_calls(p(a),_C,R), writeln(a(R)),fail.

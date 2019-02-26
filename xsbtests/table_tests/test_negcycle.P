@@ -61,8 +61,8 @@ test:- X = f(X),catch(tnot(p(X)),_E,(writeln(error(ca4)),fail)),writeln(success(
 test:- X = f(X),catch(abolish_table_call(p(X)),_E,(writeln(error(cae4)),fail)),fail.
 test:- abolish_all_tables,fail.
 %
-test:- catch(tnot(p(_X)),E,(writeln(error(f1)),fail)),fail.
+test:- catch(tnot(p(_X)),_E,(writeln(error(f1)),fail)),fail.
 %%
-test:- X = f(X),catch(tnot(X),E,(writeln(error(c1)),fail)),fail.
+test:- X = f(X),catch(tnot(X),_E,(writeln(error(c1)),fail)),fail.
 %%
 test.

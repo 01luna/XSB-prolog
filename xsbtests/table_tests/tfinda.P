@@ -1,4 +1,4 @@
-:- table p1/0, q1/0, p2/0, q2/0.
+:- table p2/0, q2/0.
 
 
 p2 :- tnot(q2).

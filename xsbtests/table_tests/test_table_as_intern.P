@@ -11,7 +11,7 @@ buildlist(N,[N|T]):-
 	buildlist(N1,T).
 
 test_1(N):- 
-	  buildlist_1(N,L).
+	  buildlist_1(N,_L).
 
 :- table buildlist_1/2.
 buildlist_1(0,[]):- !.

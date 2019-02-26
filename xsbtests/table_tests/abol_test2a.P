@@ -14,7 +14,7 @@ upath(X,Y) :- upath(X,Z), arc(Z,Y).
 
 test:- upath(1,_),fail.
 test:- mpath(1,_),fail.
-test:- mpath(1,X),abolish_module_tables(abol_test2_module),fail.
+test:- mpath(1,_X),abolish_module_tables(abol_test2_module),fail.
 test:- abolish_module_tables(abol_test2_module),fail.
 test:- upath(1,_),abolish_module_tables(usermod),fail.
 test:- get_residual(upath(1,Y),_),writeln(answer(u(a,Y))),fail.

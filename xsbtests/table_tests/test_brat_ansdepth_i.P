@@ -28,7 +28,7 @@ test.
 test1:- s(A,B),writeln(s(A,B)),fail.
 test1:- s1(A,B),writeln(s1(A,B)),fail.
 
-testp:- p(X),get_residual(p(X),L),numbervars([X,Y,L]),
+testp:- p(X),get_residual(p(X),L),numbervars([X,_Y,L]),
 	writeln(get_residual(p(X),L)),fail.
 testq1:- q1(X,Y),get_residual(q1(X,Y),L),numbervars([X,Y,L]),
 	 writeln(get_residual(q1(X,Y),L)),fail.

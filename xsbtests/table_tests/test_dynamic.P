@@ -23,11 +23,11 @@ test:-
 % test some error conditions.
 test:- 	catch((dynamic [a,b]),error(domain_error(_,_),context(_,_)),writeln(caught_domain_error)),fail.
 test:- 	
-	catch((dynamic X),error(instantiation_error,context(_,_)),
+	catch((dynamic _X),error(instantiation_error,context(_,_)),
 	      writeln(caught_instantiation_error_1)),
 	fail.
 test:- 	
-	catch((dynamic X,Y),error(instantiation_error,context(_,_)),
+	catch((dynamic _X,_Y),error(instantiation_error,context(_,_)),
 	      writeln(caught_instantiation_error_2)),
 	fail.
 test:- 	

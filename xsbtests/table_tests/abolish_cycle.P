@@ -21,7 +21,7 @@ show_model(_).
 
 :- table p/3.
 p(0,Lim,X):- p(Lim,Lim,X).
-p(0,_,X):- undefined.
+p(0,_,_X):- undefined.
 p(N,Lim,X):- N > 0,N1 is N - 1,p(N1,Lim,X).
 
 

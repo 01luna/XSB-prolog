@@ -73,7 +73,7 @@ test8:- writeln('---------------'),fail.
 /* check on safety of gc -- old subgoal */
 test9:- p(a,X),abolish_table_call(p(a,b)),
 	       writeln(a9(X)),fail.
-test9:- p(a,X),gc_tables(N),writeln(N),fail.
+test9:- p(a,_X),gc_tables(N),writeln(N),fail.
 test9:- gc_tables(N),writeln(N),fail.
 test9:- get_residual(p(a,X),_),writeln(a9_3(X)),fail.
 test9:- writeln('---------------'),fail.

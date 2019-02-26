@@ -50,7 +50,7 @@ occurs(1,toxicDischarge,'Squamish'):-
 justify_pred(reach(_,_)).
 justify_pred(edge(_,_)).
 
-jp(reach(X,Y)).
+jp(reach(_X,_Y)).
 
 :- table reach/2.
 reach(X,Y):- reach(X,Z),edge(Z,Y).

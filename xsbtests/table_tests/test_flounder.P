@@ -26,7 +26,7 @@ p(1,2).
 
 
 :- table r1/1.
-r1(1):- u_not(q(X)),u_not(q(Y)),u_not(p(X)).
+r1(1):- u_not(q(X)),u_not(q(_Y)),u_not(p(X)).
 testr1:- r1(X),get_residual(r1(1),R),numbervars(R),writeln(test(r1(X),R)),fail.
 
 :- table r2/1.
@@ -34,7 +34,7 @@ r2(1):- u_not(q(X)),u_not(q(Y)),u_not(p(X)),u_not(p(Y)).
 testr2:- r2(X),get_residual(r2(1),R),numbervars(R),writeln(test(r2(X),R)),fail.
 
 :- table r3/1.
-r3(Z):- u_not(q(X)),u_not(q(Y)),u_not(p(X)),u_not(p(Y)).
+r3(_Z):- u_not(q(X)),u_not(q(Y)),u_not(p(X)),u_not(p(Y)).
 testr3:- r3(X),get_residual(r3(X),R),numbervars([r3(X),R]),writeln(test(r3(X),R)),fail.
 
 :- table r4/1.

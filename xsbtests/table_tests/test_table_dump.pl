@@ -62,7 +62,7 @@ test_6:-
 
 test_7:- 
 	write('test 7 '),
-	catch(table_dump(p(_,_),[badopt]),error(A,context(B,C)),writeln(caughtit_2(A))),
+	catch(table_dump(p(_,_),[badopt]),error(A,context(_B,_C)),writeln(caughtit_2(A))),
 	writeln('----------------------').
 
 :- table inc/1.

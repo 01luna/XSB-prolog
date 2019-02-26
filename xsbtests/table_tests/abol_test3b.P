@@ -27,7 +27,7 @@ test:-  tpred(X),tr(Y),
 	writeln((X,Y)),fail.
 
 test:- upred(_X),fail.
-test:-  upred(X),tr(Y),
+test:-  upred(_X),tr(_Y),
 	abolish_table_pred(upred/1),
 	fail.
 

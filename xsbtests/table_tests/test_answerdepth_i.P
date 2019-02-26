@@ -30,5 +30,5 @@ test_warn:-
 	p_w([1,a],_X).
 
 :- table p_w/2 as answer_abstract(4).
-p_w(Y,f(f(f(f(f(X)))))).
+p_w(_Y,f(f(f(f(f(_X)))))).
 p_w(_,a).
