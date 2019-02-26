@@ -13,11 +13,11 @@ test1:- incr_retractall(q(a,_X)),fail.
 test1:- p(X,Y),incr_writeln(third_p(X,Y)),fail.
 test1:- incr_retract(q(b,_X)),fail.
 test1:- get_residual(p(X,Y),_),incr_writeln(fourth_p(X,Y)),fail.
-test1:- p(X,Y),fail.
+test1:- p(_X,_Y),fail.
 test1:- get_residual(p(X,Y),_),incr_writeln(fifth_p(X,Y)),fail.
 test1:- incr_assert(q(e,2)),fail.
 test1:- get_residual(p(X,Y),_),incr_writeln(sixth_p(X,Y)),fail.
-test1:- p(X,Y),fail.
+test1:- p(_X,_Y),fail.
 test1:- get_residual(p(X,Y),_),incr_writeln(seventh_p(X,Y)),fail.
 test1.
 

@@ -15,7 +15,7 @@ test:- test1.
 :- import get_attr/3, put_attr/3 from machine.
 
 test0:- 
-	put_attr(X,verbose,Y),
+	put_attr(X,verbose,_Y),
 	p1(X),
 	writeln('test1t: X = '(X)),fail.
 test0.
@@ -27,10 +27,10 @@ p1(X):- X = 2.
 
 test1:- 
        retractall(answer(_)),
-       put_attr(X,verbose,X1),
+       put_attr(X,verbose,_X1),
        t1(X),register(first(t1(X))),
        (d1(4) -> true ; incr_assert(d1(4))),
-       put_attr(Y,verbose,Y1),
+       put_attr(Y,verbose,_Y1),
        t1(Y),register(second(t1(Y))),
        fail.
 test1:- validate(test1(_)).

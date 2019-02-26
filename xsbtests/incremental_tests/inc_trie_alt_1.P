@@ -23,11 +23,11 @@ test_trie:- trie_interned(qt(a,_X),1,L,_S),incr_trie_unintern_nr(1,L),fail.
 test_trie:- pt(1,X,Y),incr_writeln(third_pt(1,X,Y)),fail.
 test_trie:- trie_interned(qt(b,_X),1,L,_S),incr_trie_unintern_nr(1,L),fail.
 test_trie:- get_residual(pt(1,X,Y),_),incr_writeln(fourth_p(X,Y)),fail.
-test_trie:- pt(1,X,Y),fail.
+test_trie:- pt(1,_X,_Y),fail.
 test_trie:- get_residual(pt(1,X,Y),_),incr_writeln(fifth_p(X,Y)),fail.
-test_trie:- incr_trie_intern(1,qt(e,2),L,F),fail.
+test_trie:- incr_trie_intern(1,qt(e,2),_L,_F),fail.
 test_trie:- get_residual(pt(1,X,Y),_),incr_writeln(sixth_p(X,Y)),fail.
-test_trie:- pt(1,X,Y),fail.
+test_trie:- pt(1,_X,_Y),fail.
 test_trie:- get_residual(pt(1,X,Y),_),incr_writeln(seventh_p(X,Y)),fail.
 test_trie.
 

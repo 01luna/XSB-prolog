@@ -54,7 +54,7 @@ test:- incr_directly_depends(t_1a(X),Y),numbervars(incr_directly_depends(t_1a(X)
         writeln(after_recall(incr_directly_depends(t_1a(X),Y))),fail.
 test:- incr_directly_depends(Y,t_3(X)),numbervars(incr_directly_depends(Y,t_3(X))),
         writeln(after_recall(incr_directly_depends(Y,t_3(X)))),fail.
-test:- catch(test1,E,writeln(caught_update_error)).
+test:- catch(test1,_E,writeln(caught_update_error)).
 test.
 
 print_results(Atom):- get_residual(t_1a(X),_),write(Atom),writeln(t_1a(X)),fail.
