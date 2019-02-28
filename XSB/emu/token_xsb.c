@@ -527,8 +527,8 @@ int chars_to_utf_string(byte *from, int charset, byte *to, size_t to_len) {
     printf("ERROR: chars_to_utf_string: Don't convert from utf-8 to utf-8!!");
     return 1;
   }
-  to_end = to + to_len - 5;
-  while (*from != '\0' && to < to_end) {
+  to_end = (char *) (to + to_len - 5);
+  while (*from != (byte)'\0' && (char *)to < to_end) {
     to = utf8_codepoint_to_str(char_to_codepoint(charset,&from),to);
   }
   *to = '\0';

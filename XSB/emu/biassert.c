@@ -155,7 +155,7 @@ PrRef dynpredep_to_prref(CTXTdeclc void *pred_ep) {
    empty switch statements like the ones below, if DEBUG is not set
    (in which case xsb_dbgmsg is empty)                    --lfcastro */
 
-static inline void dbgen_printinst3(Opcode, Arg1, Arg2, Arg3)
+static inline void dbgen_printinst3(Cell Opcode, Integer Arg1, Integer Arg2, Integer Arg3)
 {
   switch (Opcode) {
   case getlist_tvar_tvar:
@@ -178,7 +178,7 @@ static inline void dbgen_printinst3(Opcode, Arg1, Arg2, Arg3)
   }
 }
 
-static inline void dbgen_printinst(Opcode, Arg1, Arg2)
+static inline void dbgen_printinst(Cell Opcode, Integer Arg1, Integer Arg2)
 {
   switch (Opcode) {
   case getpvar:	/* PRV */
