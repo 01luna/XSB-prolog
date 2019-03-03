@@ -179,16 +179,14 @@ read_ambigop(F, L1, O1, R1, L2, O2) :-
      a+(b/c) */
 read4([Token|RestTokens], Precedence, Term, LeftOver) :-
         read5(Token, RestTokens, Precedence, LeftTerm, LeftLeftOver),
-        (  (LeftLeftOver = [func(Functor)|Remain],
-	 read_infixop(Functor, _L, O, _R),
-	 Precedence >= O,
-	 \+ '_$hilog_symbol'(Functor),
-	 read4(Remain,O,RightTerm,LeftOver),
-	 'read=..'(Term,[Functor,LeftTerm,RightTerm]))
-          ; (Term = LeftTerm,
-	  LeftOver = LeftLeftOver)  ),
-%	  Tokens = [Token|RestTokens],
-	  !.
+        (LeftLeftOver = [func(Functor)|Remain],
+	 \+ '_$hilog_symbol'(Functor), % see if infix operator
+	 read_exprtl0([atom(Functor)|Remain],LeftTerm,Precedence,Term,LeftOver)
+	 ;
+	 Term = LeftTerm,
+	 LeftOver = LeftLeftOver
+	),
+	!.
 %read4([Token|RestTokens], Precedence, Term, LeftOver) :-
 %        read5(Token, RestTokens, Precedence, Term, LeftOver).
 read4([], _, _, _) :-  
@@ -253,6 +251,7 @@ read5(func(Functor), [punc(CH_LPAREN)|S1], Precedence, Answer, S) :-
 	).
 
 % Term ::= PreOp Term
+
 read5(atom(Functor), S0, Precedence, Answer, S) :-
         read_prefixop(Functor, Prec, Right),
 	avoid_nonsense_parentheses(S0),
@@ -525,7 +524,6 @@ hilog_read_exprtl0(Tokens, Term, Precedence, Answer, S) :-
 %   read_exprtl0(+Tokens, +Term, +Prec, -Answer, -LeftOver)
 %   is called by read/4 after it has read a primary (the Term).
 %   It checks for following postfix or infix operators.
-
 read_exprtl0([Tok|S1], Term, Precedence, Answer, S) :-
 	read_exprtl01(Tok,Term,Precedence,Answer,S,S1), 
         !.
