@@ -29,7 +29,12 @@
           nth0/4,
           nth1/3,
           nth1/4,
-          delete/3.
+          delete/3,
+          option/3,
+          numbervars/1,
+          random/3,
+          numlist/3,
+          sum_list/2.
 
 
 /* Should now take out setarg/3 and use one in constraintlib */
@@ -47,8 +52,10 @@
 :- import when/2 from constraintLib.
 :- import concat_atom/3 from string.
 
-:- import  ith/3 from basics.
+:- import  ith/3, member/2 from basics.
 :- import  delete_ith/4 from listutil.
+:- import numbervars/3 from num_vars.
+:- import random/1 from random.
 
 :- mode print_message(+,?).
 print_message(Str,Term):- write(Str,Term).
@@ -544,3 +551,50 @@ scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
 % safe_api.
 
 /* end of file apply.pl of SWI-Prolog */
+
+option(Option, OptionList, _Default):-
+  member(Option,OptionList),!.
+
+option(Option,_,Default):-
+  Option=..[_F,Default].
+
+numbervars(A):-
+  numbervars(A,0,_).
+
+random(L,U,R):-
+  Range is U-L,
+  random(V),
+  R is L+floor(V*Range).
+
+
+%!  numlist(+Low, +High, -List) is semidet.
+%
+%   List is a list [Low, Low+1, ... High].  Fails if High < Low.
+%
+%   @error type_error(integer, Low)
+%   @error type_error(integer, High)
+
+numlist(L, U, Ns) :-
+    L =< U,
+    numlist_(L, U, Ns).
+
+numlist_(U, U, List) :-
+    !,
+    List = [U].
+numlist_(L, U, [L|Ns]) :-
+    L2 is L+1,
+    numlist_(L2, U, Ns).
+
+%!  sum_list(+List, -Sum) is det.
+%
+%   Sum is the result of adding all numbers in List.
+
+sum_list(Xs, Sum) :-
+    sum_list(Xs, 0, Sum).
+
+sum_list([], Sum, Sum).
+sum_list([X|Xs], Sum0, Sum) :-
+    Sum1 is Sum0 + X,
+    sum_list(Xs, Sum1, Sum).
+
+
