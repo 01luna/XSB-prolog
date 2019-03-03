@@ -2068,17 +2068,17 @@ argument positions.
 	Float temp;
 	if (isfiint(fiop1)) {
 	  if (isfiint(fiop2)) {
-	    temp = (Float)fiint_val(fiop1) / (Float)fiint_val(fiop2);
+	    temp = (Float)fiint_val(fiop2) / (Float)fiint_val(fiop1);
 	    bld_boxedfloat(CTXTc op3,temp);
 	  } else {
-	    temp = (Float)fiint_val(fiop1) / fiflt_val(fiop2);
+	    temp = (Float)fiflt_val(fiop2) / fiint_val(fiop1);
 	    bld_boxedfloat(CTXTc op3, temp);
 	  }
 	} else {
 	  if (isfiint(fiop2)) {
-	    temp = fiflt_val(fiop1) / (Float)fiint_val(fiop2);
+	    temp = fiint_val(fiop2) / (Float)fiflt_val(fiop1);
 	  } else {
-	    temp = fiflt_val(fiop1) / fiflt_val(fiop2);
+	    temp = fiflt_val(fiop2) / fiflt_val(fiop1);
 	  }
 	  bld_boxedfloat(CTXTc op3,temp);
 	}
