@@ -181,7 +181,7 @@ read4([Token|RestTokens], Precedence, Term, LeftOver) :-
         read5(Token, RestTokens, Precedence, LeftTerm, LeftLeftOver),
         (LeftLeftOver = [func(Functor)|Remain],
 	 \+ '_$hilog_symbol'(Functor), % see if infix operator
-	 read_exprtl0([atom(Functor)|Remain],LeftTerm,Precedence,Term,LeftOver)
+	 read_exprtl01(atom(Functor),LeftTerm,Precedence,Term,LeftOver,Remain)
 	 ;
 	 Term = LeftTerm,
 	 LeftOver = LeftLeftOver

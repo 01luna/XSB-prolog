@@ -104,9 +104,9 @@
 :- mode_on_success read_exprtl0(A,B,C,B,A).
 :- mode_on_success read_exprtl0(A,B,g,C,A).
 :- mode_on_success read_exprtl0(ng,A,g,B,C).
-:- mode_on_success read_exprtl01(g,A,g,B,C,C).
 :- mode_on_success read_exprtl01(g,A,g,B,C,ng).
 :- mode_on_success read_exprtl01(g,A,ng,A,B,B).
+:- mode_on_success read_exprtl01(g,A,g,B,C,C).
 :- mode_on_success read_exprtl1(A,g,B,g,C,D,D).
 :- mode_on_success read_exprtl1(A,g,B,g,C,D,ng).
 :- mode_on_success read_getcon(A,A).
