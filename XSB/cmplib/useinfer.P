@@ -199,6 +199,8 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 			  sym_insert(Pred, A, [used], SymTab, _)
 		  ; sym_prop((dynamic), Sym) ->  % maybe this should be improved...
 			  true
+		  ; sym_prop(ex, Sym) ->
+		      true	% exporting function symbol, OK
 		  ; sym_name(Sym, P, A),
 		    sym_propin(undef, Sym),
 		    warning(('Undefined predicate ', P, '/', A))
