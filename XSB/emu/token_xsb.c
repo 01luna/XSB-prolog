@@ -513,7 +513,7 @@ int utf8_char_to_codepoint(byte **s_ptr){
 }
 
 /* for single byte code systems */
-int non_ascii_chars(char *string) {
+int non_ascii_chars(byte *string) {
   int n = 0;
   while (*string != '\0') {
     if (*(string++) > 127) n++;
@@ -524,7 +524,7 @@ int non_ascii_chars(char *string) {
 int chars_to_utf_string(byte *from, int charset, byte *to, size_t to_len) {
   char *to_end;
   if (charset == UTF_8) {
-    printf("ERROR: chars_to_utf_string: Don't convert from utf-8 to utf-8!!");
+    printf("ERROR: chars_to_utf_string: Don't convert from utf-8 to utf-8!!\n");
     return 1;
   }
   to_end = (char *) (to + to_len - 5);
@@ -534,7 +534,26 @@ int chars_to_utf_string(byte *from, int charset, byte *to, size_t to_len) {
   *to = '\0';
   if (*from == '\0') return 0;
   else {
-    printf("ERROR: chars_to_utf_string: conversion to utf-8 string truncated!!");
+    printf("ERROR: chars_to_utf_string: conversion to utf-8 string"
+	   "truncated, %zd too small with\n%s\n",to_len,to);
+    return 1;
+  }
+}
+
+int utf_string_to_chars(byte *from, int charset, byte *to, size_t to_len) {
+  char *to_end;
+  if (charset == UTF_8) {
+    printf("ERROR: chars_to_utf_string: Don't convert from utf-8 to utf-8!!\n");
+    return 1;
+  }
+  to_end = (char *) (to + to_len - 1);
+  while (*from != (byte)'\0' && (char *)to < to_end) {
+    to = codepoint_to_str(utf8_char_to_codepoint(&from),charset,to);
+  }
+  *to = '\0';
+  if (*from == '\0') return 0;
+  else {
+    printf("ERROR: utf_string_to_chars: conversion from utf-8 string truncated!!\n");
     return 1;
   }
 }

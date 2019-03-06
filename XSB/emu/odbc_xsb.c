@@ -73,6 +73,7 @@
 extern xsbBool unify(CTXTdecltypec Cell, Cell);
 extern int non_ascii_chars(char *);
 extern int chars_to_utf_string(byte *, int, byte *, size_t);
+extern int utf_string_to_chars(byte *from, int charset, byte *to, size_t to_len);
 
 static Psc     nullFctPsc = NULL;
 /* static int      numberOfCursors = 0; */
@@ -365,6 +366,22 @@ int GetInfoTypeType(int SQL_INFO_TYPE)
 			type= -1;
 	}
 	return type;
+}
+
+char *cvt_utf8_to_str(char *in_str, size_t *lennew) {
+  int na;
+  if (flags[CHARACTER_SET] != UTF_8 && (na = non_ascii_chars(in_str)) > 0) {
+    char *temp_str;
+    size_t outlen;
+    outlen = strlen(in_str) + 1;  // assume target charset is single character!!
+    temp_str = mem_alloc(outlen,OTHER_SPACE);
+    *lennew = outlen;
+    utf_string_to_chars(in_str,(int)flags[CHARACTER_SET],temp_str,outlen);
+    return temp_str;
+  } else {
+    *lennew = 0;
+    return in_str;
+  }
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -708,10 +725,11 @@ void FindFreeCursor(CTXTdecl)
   struct ODBC_Cursor *curi = FCursor, *curj = NULL, *curk = NULL;
   struct NumberofCursors *num = FCurNum;
   HDBC hdbc = (HDBC)ptoc_int(CTXTc 2);
-  char *Sql_stmt = ptoc_longstring(CTXTc 3);
+  char *Sql_stmt;
   RETCODE rc;
   char drname[25]; SQLSMALLINT drnamelen;
-
+  size_t lennew;
+  Sql_stmt = cvt_utf8_to_str(ptoc_longstring(CTXTc 3),&lennew);
   /* search */
   while (curi != NULL) {
     if (curi->hdbc == hdbc) { /* only look at stmt handles for this connection */
@@ -733,6 +751,7 @@ void FindFreeCursor(CTXTdecl)
 	    ctop_int(CTXTc 4, (UInteger)curi);
 	    /*printf("reuse cursor: %p\n",curi);*/
 	    ctop_int(CTXTc 5, 0);
+	    if (lennew) mem_dealloc(Sql_stmt,lennew,OTHER_SPACE);
 	    return;
 	  } else {
 	    curk = curi;                      /* otherwise just record it*/
@@ -777,9 +796,9 @@ void FindFreeCursor(CTXTdecl)
       ctop_int(CTXTc 4, 0);
       unify(CTXTc ptoc_tag(CTXTc 5), 
 	    GenErrorMsgBall(detailed_error("ERROR while trying to allocate ODBC statement","",hdbc,SQL_HANDLE_DBC)));
+      if (lennew) mem_dealloc(Sql_stmt,lennew,OTHER_SPACE);
       return;
     }
-
     num->CursorCount++;
 
     /*printf("allocate a new cursor: %p\n",curi);*/
@@ -787,6 +806,7 @@ void FindFreeCursor(CTXTdecl)
     else if (curk == NULL) {  /* no cursor left*/
       ctop_int(CTXTc 4, 0);
       unify(CTXTc ptoc_tag(CTXTc 5), GenErrorMsgBall("No Cursors Left"));
+      if (lennew) mem_dealloc(Sql_stmt,lennew,OTHER_SPACE);
       return;
     }
     else {                    /* steal a cursor*/
@@ -817,9 +837,11 @@ void FindFreeCursor(CTXTdecl)
   if (!curi->Sql) {
     ctop_int(CTXTc 4, 0);
     unify(CTXTc ptoc_tag(CTXTc 5), GenErrorMsgBall("Not enough memory for SQL stmt in FindFreeCursor!"));
+    if (lennew) mem_dealloc(Sql_stmt,lennew,OTHER_SPACE);
     return;
   }
   strcpy((char *)curi->Sql,Sql_stmt);
+  if (lennew) mem_dealloc(Sql_stmt,lennew,OTHER_SPACE);
   curi->Status = 3;
   ctop_int(CTXTc 4, (UInteger)curi);
   ctop_int(CTXTc 5, 0);
@@ -1765,6 +1787,23 @@ Cell build_codes_list(CTXTdeclc byte *charptr) {
     return makelist(this_term);
   }
 }
+
+char *cvt_str_to_utf8(char *in_str, size_t *lennew) {
+  int na;
+  if (flags[CHARACTER_SET] != UTF_8 && (na = non_ascii_chars(in_str)) > 0) {
+    char *temp_str;
+    size_t nalen;
+    nalen = strlen(in_str) + 6 * na + 4;
+    temp_str = mem_alloc(nalen,OTHER_SPACE);
+    *lennew = nalen;
+    chars_to_utf_string(in_str,(int)flags[CHARACTER_SET],temp_str,nalen);
+    return temp_str;
+  } else {
+    *lennew = 0;
+    return in_str;
+  }
+}
+
 /*-----------------------------------------------------------------------------*/
 /*  FUNCTION NAME:*/
 /*     GetColumn() */
@@ -1779,6 +1818,9 @@ Cell build_codes_list(CTXTdeclc byte *charptr) {
 /*-----------------------------------------------------------------------------*/
 int GetColumn(CTXTdecl)
 {
+  int res;
+  size_t lennew;
+  char *temp_str;
   struct ODBC_Cursor *cur = (struct ODBC_Cursor *)ptoc_int(CTXTc 2);
   int ColCurNum = (int)ptoc_int(CTXTc 3);
   Cell op = ptoc_tag(CTXTc 4);
@@ -1814,20 +1856,10 @@ int GetColumn(CTXTdecl)
     /* compare strings here, so don't intern strings unnecessarily*/
     XSB_Deref(op);
     if (isref(op)) {
-      int na;
-      if (flags[CHARACTER_SET] != UTF_8 && (na = non_ascii_chars((char *)cur->Data[ColCurNum])) > 0) {
-	char *temp_str;
-	size_t nalen;
-	int res;
-	nalen = len + 3 * na + 1;
-	temp_str = mem_alloc(nalen,OTHER_SPACE);
-	chars_to_utf_string((char *)cur->Data[ColCurNum],(int)flags[CHARACTER_SET],temp_str,nalen);
-	res = unify(CTXTc op, makestring(string_find(temp_str,1)));
-	free(temp_str);
-	return res;	  
-      } else {
-	return unify(CTXTc op, makestring(string_find((char *)cur->Data[ColCurNum],1)));
-      }
+      temp_str = cvt_str_to_utf8((char *)cur->Data[ColCurNum],&lennew);
+      res = unify(CTXTc op, makestring(string_find(temp_str,1)));
+      if (lennew) mem_dealloc(temp_str,lennew,OTHER_SPACE);
+      return res;	  
     }
     if (isconstr(op) && get_arity(get_str_psc(op)) == 1) {
       if (!strcmp(get_name(get_str_psc(op)),"string")) {
@@ -1851,8 +1883,10 @@ int GetColumn(CTXTdecl)
       }
     }
     if (!isstring(op)) return FALSE;
-    if (strcmp(string_val(op),(char *)cur->Data[ColCurNum])) return FALSE;
-    return TRUE;
+    temp_str = cvt_str_to_utf8((char *)cur->Data[ColCurNum],&lennew);
+    res = !strcmp(string_val(op),(char *)cur->Data[ColCurNum]);
+    if (lennew) mem_dealloc(temp_str,lennew,OTHER_SPACE);
+    return res;
   case SQL_C_BINARY:
     /* convert the column string to a C string */
     len = ((cur->ColLen[ColCurNum] < (unsigned)cur->OutLen[ColCurNum])?
@@ -1880,8 +1914,10 @@ int GetColumn(CTXTdecl)
       }
     }
     if (!isstring(op)) return FALSE;
-    if (strcmp(string_val(op),(char *)cur->Data[ColCurNum])) return FALSE;
-    return TRUE;
+    temp_str = cvt_str_to_utf8((char *)cur->Data[ColCurNum],&lennew);
+    res = !strcmp(string_val(op),(char *)cur->Data[ColCurNum]);
+    if (lennew) mem_dealloc(temp_str,lennew,OTHER_SPACE);
+    return res;
   case SQL_C_SLONG:
     {
       Cell h;
