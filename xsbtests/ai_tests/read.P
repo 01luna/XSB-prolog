@@ -206,9 +206,9 @@ read_string__1(_327,_329,_331) :-
                          [_327,_329,_331]).
 read_string__1(_363,_365,_367,_369) :- 
         [num] = _371, [_283] = _373, [_325] = _375, [num] = _377, 
-        display([atom]),
+        my_display([atom]),
         ttyput([_325]),
-        display([atom]),
+        my_display([atom]),
         ttyput([_325]),
         ttynl,
         fail,
@@ -257,7 +257,7 @@ read_solidus__1(_407,_409,_411) :-
                          [_407,_409,_411]).
 read_solidus__1(_175,_177) :- 
         [num] = _179, [num] = _181, 
-        display([atom]),
+        my_display([atom]),
         ttynl,
         normalize_result([_179,_181],
                          [_175,_177]).
@@ -375,7 +375,7 @@ check_special__1(_93) :-
                           [_93]).
 read_fullstop__1(_221,_223,_225) :- 
         [num] = _227, [_175] = _229, [_179] = _231, 
-        display([atom]),
+        my_display([atom]),
         ttynl,
         fail,
         normalize_result([_227,_229,_231],
@@ -973,7 +973,7 @@ read_tokens(_63,_65,_67) :-
 my_get0(_63) :- 
         my_get0__1(_65),
         unify_sets([_63], [_65]).
-display(_63) :- 
+my_display(_63) :- 
         display__1(_65),
         unify_sets([_63], [_65]).
 read_tokens(_63,_65) :- 
