@@ -903,7 +903,7 @@ if test -n "$with_includes"; then
     echo "    Appending directories to the C include path:"
     for arg in $with_includes; do
         dnl strip trailing slashes
-        arg=`echo "-I${arg}" | sed 's,\([[^/]]\)/*$,\1,'`
+        arg=`echo "-I\"${arg}\"" | sed 's,\([[^/]]\)/*$,\1,'`
         c_site_includes="${c_site_includes} $arg"
         echo "		$arg"
     done
@@ -1652,8 +1652,8 @@ else
     if test  "$os_type" = "windows"; then
         XASPLIBNAME=xasppkg.dll
         XASPDEFFILE=xasppkg.def
-        smoCFLAGS="-I${arch_config_prefix} -I${with_smodels}"
-        smoLDFLAGS="-L${arch_config_prefix}/bin -L${with_smodels}"
+        smoCFLAGS="-I\"${arch_config_prefix}\" -I\"${with_smodels}\""
+        smoLDFLAGS="-L\"${arch_config_prefix}/bin\" -L\"${with_smodels}\""
         smoLIB="-lsmodels -lxsb"
         if test "${enable_no_cygwin}" = "yes"; then
             CXX="${CXX} -mno-cygwin"
@@ -1661,7 +1661,7 @@ else
     else
         XASPLIBNAME=xasppkg.so
         XASPDEFFILE=
-        smoCFLAGS="-I${arch_config_prefix} -I${with_smodels}"
+        smoCFLAGS="-I\"${arch_config_prefix}\" -I\"${with_smodels}\""
         smoLDFLAGS="-L${arch_config_prefix}/bin"
         smoLIB="${with_smodels}/.libs/libsmodels.a"
     fi
@@ -1759,11 +1759,11 @@ if test "$interprolog_native_engine" = "yes"; then
     INTERPROLOGOBJ="interprolog_callback.o"
     
     if test -n "$JAVA_HEADER_PATH" ; then
-	loaderCFLAGS=" -I${JAVA_HEADER_PATH} ${loaderCFLAGS}"
-	builtinsCFLAGS=" -I${JAVA_HEADER_PATH} ${builtinsCFLAGS}"
-	emuloopCFLAGS=" -I${JAVA_HEADER_PATH} ${emuloopCFLAGS}"
-	trutilsCFLAGS=" -I${JAVA_HEADER_PATH} ${trutilsCFLAGS}"
-	CFLAGS=" -I${JAVA_HEADER_PATH} $CFLAGS"
+	loaderCFLAGS=" -I\"${JAVA_HEADER_PATH}\" ${loaderCFLAGS}"
+	builtinsCFLAGS=" -I\"${JAVA_HEADER_PATH}\" ${builtinsCFLAGS}"
+	emuloopCFLAGS=" -I\"${JAVA_HEADER_PATH}\" ${emuloopCFLAGS}"
+	trutilsCFLAGS=" -I\"${JAVA_HEADER_PATH}\" ${trutilsCFLAGS}"
+	CFLAGS=" -I\"${JAVA_HEADER_PATH}\" $CFLAGS"
     fi
 fi
 

@@ -221,10 +221,10 @@ nodll:
 cygdll: $(allOBJS) $(HEADERS) xsbmod
 	@echo "$(CC) -Wl,--add-stdcall-alias -shared -o $(arch_config_prefix)/bin/$(DLLNAME) $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ} -Wl,--out-implib=xsb.a -Wl,--export-all-symbols -Wl,--enable-auto-import $(DLL_LIBS)"
 	@$(CC) -Wl,--add-stdcall-alias -shared -o $(arch_config_prefix)/bin/$(DLLNAME) $(OBJS) ${ODBCOBJ} ${INTERPROLOGOBJ} -Wl,--out-implib=xsb.a -Wl,--export-all-symbols -Wl,--enable-auto-import $(DLL_LIBS)
-	@echo "$(CC) -o $(arch_config_prefix)/bin/xsb.exe  $(CFLAGS) -I$(arch_config_prefix) -L$(arch_config_prefix)/bin main_xsb.c $(XSBMOD_LDFLAGS) $(DLL_LIBS) -lxsb"
+	@echo "$(CC) -o $(arch_config_prefix)/bin/xsb.exe  $(CFLAGS) -I\"$(arch_config_prefix)\" -L$(arch_config_prefix)/bin main_xsb.c $(XSBMOD_LDFLAGS) $(DLL_LIBS) -lxsb"
 	@cp xsb.a $(arch_config_prefix)/bin/xsb.a
 	@$(CC) -o $(arch_config_prefix)/bin/xsb.exe  $(CFLAGS) \
-		-I$(arch_config_prefix) -L$(arch_config_prefix)/bin \
+		-I\"$(arch_config_prefix)\" -L$(arch_config_prefix)/bin \
 		main_xsb.c $(XSBMOD_LDFLAGS) $(DLL_LIBS) -lxsb
 
 
@@ -234,48 +234,48 @@ cygdll: $(allOBJS) $(HEADERS) xsbmod
 
 interprolog_callback.o: interprolog_callback.c
 	@echo -e "\t[$(CC)] interprolog_callback.c"
-	@$(CC) -c -I$(arch_config_prefix) -I$(JAVA_PLATFORM_HEADER_PATH) -I$(JAVA_HEADER_PATH) $(CFLAGS) interprolog_callback.c
+	@$(CC) -c -I"$(arch_config_prefix)" -I"$(JAVA_PLATFORM_HEADER_PATH)" -I"$(JAVA_HEADER_PATH)" $(CFLAGS) interprolog_callback.c
 	@cp interprolog_callback.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 init_xsb.o: init_xsb.c
 	@echo -e "\t[$(CC)] init_xsb.c"
-	@$(CC) -I$(arch_config_prefix)  -c $(CFLAGS) init_xsb.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(CFLAGS) init_xsb.c
 	@cp init_xsb.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 dynload.o: dynload.c
 	@echo -e "\t[$(CC)] dynload.c"
-	@$(CC) -I$(arch_config_prefix)  -c $(CFLAGS) dynload.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(CFLAGS) dynload.c
 	@cp dynload.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 emuloop.o: emuloop.c
 	@echo -e "\t[$(CC)] emuloop.c using $(emuloopCFLAGS)"
-	@$(CC) -I$(arch_config_prefix)  -c $(emuloopCFLAGS) emuloop.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(emuloopCFLAGS) emuloop.c
 	@cp emuloop.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 # Higher optimization level has problem with some versions of gcc
 tr_utils.o: tr_utils.c
 	@echo -e "\t[$(CC)] tr_utils.c using $(trutilsCFLAGS)"
-	@$(CC) -I$(arch_config_prefix)  -c $(trutilsCFLAGS) tr_utils.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(trutilsCFLAGS) tr_utils.c
 	@cp tr_utils.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 builtin.o: builtin.c
 	@echo -e "\t[$(CC)] builtin.c using $(builtinsCFLAGS)"
-	@$(CC) -I$(arch_config_prefix)  -c $(builtinsCFLAGS) builtin.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(builtinsCFLAGS) builtin.c
 	@cp builtin.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 loader_xsb.o: loader_xsb.c
 	@echo -e "\t[$(CC)] loader_xsb.c using $(loaderCFLAGS)"
-	@$(CC) -I$(arch_config_prefix)  -c $(loaderCFLAGS) loader_xsb.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(loaderCFLAGS) loader_xsb.c
 	@cp loader_xsb.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 odbc_xsb.o: odbc_xsb.c
 	@echo -e "\t[$(CC)] odbc_xsb.c"
-	@$(CC) -I$(arch_config_prefix)  -c $(ODBC_CFLAGS) $(CFLAGS) odbc_xsb.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(ODBC_CFLAGS) $(CFLAGS) odbc_xsb.c
 	@cp odbc_xsb.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 .c.o:
 	@echo -e "\t[$(CC)] $*.c"
-	@$(CC) -I$(arch_config_prefix)  -c $(CFLAGS) $*.c
+	@$(CC) -I"$(arch_config_prefix)"  -c $(CFLAGS) $*.c
 	@cp $*.o $(arch_config_objlibdir) 2> /dev/null || echo ""
 
 
