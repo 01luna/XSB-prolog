@@ -930,6 +930,8 @@ dnl If --with-no-dbdrivers is specified then zap with_dbdrivers
 dnl (even if --with-dbdrivers is given explicitly). Else enable dbdrivers.
 if test -n "${with_no_dbdrivers}"; then
     with_dbdrivers=
+elif test "${with_odbc+set}" = "set" -a "${host_os}" = "cygwin"; then
+    with_dbdrivers=
 else
     with_dbdrivers=yes
 fi
@@ -1623,10 +1625,10 @@ if test "${with_odbc}" = yes ; then
 		    XSBMOD_LDFLAGS="$(iodbc-config --libs) ${XSBMOD_LDFLAGS}" || \
 			XSBMOD_LDFLAGS="-L/usr/lib -liodbc ${XSBMOD_LDFLAGS}"
                 else
-		    ODBC_CFLAGS="$(odbc_config --cflags)"
-                    LDFLAGS="$(odbc_config --libs) ${LDFLAGS}" || \
+		    ODBC_CFLAGS="$(odbc_config --cflags 2> /dev/null)"
+                    LDFLAGS="$(odbc_config --libs 2> /dev/null) ${LDFLAGS}" || \
 			LDFLAGS="-L/usr/lib -lodbc ${LDFLAGS}"
-                    XSBMOD_LDFLAGS="$(odbc_config --libs) ${XSBMOD_LDFLAGS}" || \
+                    XSBMOD_LDFLAGS="$(odbc_config --libs 2> /dev/null) ${XSBMOD_LDFLAGS}" || \
 			XSBMOD_LDFLAGS="-L/usr/lib -lodbc ${XSBMOD_LDFLAGS}"
                 fi
     esac
