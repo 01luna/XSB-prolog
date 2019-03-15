@@ -71,7 +71,7 @@
 #define MAXI(a,b)                       ((a)>(b)?(a):(b))
 
 extern xsbBool unify(CTXTdecltypec Cell, Cell);
-extern int non_ascii_chars(char *);
+extern int non_ascii_chars(byte *);
 extern int chars_to_utf_string(byte *, int, byte *, size_t);
 extern int utf_string_to_chars(byte *from, int charset, byte *to, size_t to_len);
 
@@ -368,12 +368,12 @@ int GetInfoTypeType(int SQL_INFO_TYPE)
 	return type;
 }
 
-char *cvt_utf8_to_str(char *in_str, size_t *lennew) {
+byte *cvt_utf8_to_str(byte *in_str, size_t *lennew) {
   int na;
   if (flags[CHARACTER_SET] != UTF_8 && (na = non_ascii_chars(in_str)) > 0) {
-    char *temp_str;
+    byte *temp_str;
     size_t outlen;
-    outlen = strlen(in_str) + 1;  // assume target charset is single character!!
+    outlen = strlen((char *)in_str) + 1;  // assume target charset is single character!!
     temp_str = mem_alloc(outlen,OTHER_SPACE);
     *lennew = outlen;
     utf_string_to_chars(in_str,(int)flags[CHARACTER_SET],temp_str,outlen);
@@ -729,7 +729,7 @@ void FindFreeCursor(CTXTdecl)
   RETCODE rc;
   char drname[25]; SQLSMALLINT drnamelen;
   size_t lennew;
-  Sql_stmt = cvt_utf8_to_str(ptoc_longstring(CTXTc 3),&lennew);
+  Sql_stmt = (char *)cvt_utf8_to_str((byte *)ptoc_longstring(CTXTc 3),&lennew);
   /* search */
   while (curi != NULL) {
     if (curi->hdbc == hdbc) { /* only look at stmt handles for this connection */
@@ -1788,13 +1788,13 @@ Cell build_codes_list(CTXTdeclc byte *charptr) {
   }
 }
 
-char *cvt_str_to_utf8(char *in_str, size_t *lennew) {
+byte *cvt_str_to_utf8(byte *in_str, size_t *lennew) {
   int na;
   if (flags[CHARACTER_SET] != UTF_8 && (na = non_ascii_chars(in_str)) > 0) {
-    char *temp_str;
+    byte *temp_str;
     size_t nalen;
-    nalen = strlen(in_str) + 6 * na + 4;
-    temp_str = mem_alloc(nalen,OTHER_SPACE);
+    nalen = strlen((char *)in_str) + 6 * na + 4;
+    temp_str = (byte *)mem_alloc(nalen,OTHER_SPACE);
     *lennew = nalen;
     chars_to_utf_string(in_str,(int)flags[CHARACTER_SET],temp_str,nalen);
     return temp_str;
@@ -1856,7 +1856,7 @@ int GetColumn(CTXTdecl)
     /* compare strings here, so don't intern strings unnecessarily*/
     XSB_Deref(op);
     if (isref(op)) {
-      temp_str = cvt_str_to_utf8((char *)cur->Data[ColCurNum],&lennew);
+      temp_str = (char *)cvt_str_to_utf8(cur->Data[ColCurNum],&lennew);
       res = unify(CTXTc op, makestring(string_find(temp_str,1)));
       if (lennew) mem_dealloc(temp_str,lennew,OTHER_SPACE);
       return res;	  
@@ -1883,7 +1883,7 @@ int GetColumn(CTXTdecl)
       }
     }
     if (!isstring(op)) return FALSE;
-    temp_str = cvt_str_to_utf8((char *)cur->Data[ColCurNum],&lennew);
+    temp_str = (char *)cvt_str_to_utf8(cur->Data[ColCurNum],&lennew);
     res = !strcmp(string_val(op),(char *)cur->Data[ColCurNum]);
     if (lennew) mem_dealloc(temp_str,lennew,OTHER_SPACE);
     return res;
@@ -1914,7 +1914,7 @@ int GetColumn(CTXTdecl)
       }
     }
     if (!isstring(op)) return FALSE;
-    temp_str = cvt_str_to_utf8((char *)cur->Data[ColCurNum],&lennew);
+    temp_str = (char *)cvt_str_to_utf8(cur->Data[ColCurNum],&lennew);
     res = !strcmp(string_val(op),(char *)cur->Data[ColCurNum]);
     if (lennew) mem_dealloc(temp_str,lennew,OTHER_SPACE);
     return res;
