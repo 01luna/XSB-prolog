@@ -126,8 +126,16 @@ module \texttt{minizinc}:
     %% 
     \begin{itemize}
     \item  An \emph{atom} representing an output (``decision'') variable
-      defined in the model file \texttt{MznF}.
-      In the result, this atom will be replaced with the value of that variable.
+      defined in the model file \texttt{MznF} or an atom representing an
+      arithmetic expression (in the syntax of MiniZinc, which is close to
+      XSB) involving one or more decision variables.
+      In the result, this atom will be replaced with the value of that
+      variable or expression. Example: 'P*100'.
+    \item A simple arithmetic expression involving decision variables,
+      numbers, and +, $-$, *, /.  Example: p*100+9. The difference with the
+      above is that the single quotes are omitted, for convenience.
+      Note that if the MiniZinc variable name were P then it would have to
+      be quoted---to protect it from Prolog: 'P'*100+9.
     \item  A term of the form \texttt{+}(\emph{atom}) or
       \texttt{str}(\emph{atom}).  In the result, this will be replaced with
       \emph{atom} verbatim. Note: if \texttt{atom} is not alphanumerical or
