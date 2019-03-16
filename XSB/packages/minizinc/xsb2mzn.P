@@ -185,7 +185,7 @@ write_one_output_spec(MZNVar,Stream) :-
             write(Stream,' ++ "]"')
         ; MZNVar = (MZNVarLeft = MZNVarRight) ->
             write_one_output_spec(MZNVarLeft,Stream),
-            write(Stream,' ++ "=" ++ '),
+            write(Stream,' ++ " = " ++ '),
             write_one_output_spec(MZNVarRight,Stream)
         %%; is_alphanum(MZNVar) -> fmt_write(Stream,'show(%S)', arg(MZNVar))
         %% we want to be able to pass arithmetic expressions
