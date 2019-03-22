@@ -568,7 +568,6 @@ local_cwd(Name) :- local_sys_syscall(SYS_cwd, Res, Name, _), Res =:= 0.
 local_cd(Dir) :- local_sys_syscall(SYS_chdir, Res, Dir, _), Res =:= 0.
 
 local_cd_throw(Dir,Ball) :-
-	local_fmt_write(STDMSG, "Caught: %s, %S\n", arg(Dir,Ball)),
 	local_cd(Dir),
 	throw(Ball).
 
