@@ -385,10 +385,10 @@ is_arithmetic(E,ES) :-
 
 check_system_path :-
         (platform(windows) ->
-            shell('minizinc --version > NUL',EC),
-            ErrMsg2 = '\n\t   set PATH=\%PATH\%;path-to-\\bin\\minizinc\n\t     E.g., set PATH=\%PATH\%;"C:\progs\minizinc\MiniZincIDE-2.2.3-bundle-windows\bin"'
+            shell('minizinc --version 2> NUL',EC),
+            ErrMsg2 = '\n\t   set PATH=%PATH%;path-to-\\bin\\minizinc\n\t     E.g., set PATH=%PATH%;"C:\\progs\\minizinc\\MiniZincIDE-2.2.3-bundle-windows\\bin"'
         ;
-            shell('minizinc --version > /dev/null',EC),
+            shell('minizinc --version 2> /dev/null',EC),
             ErrMsg2 = '\n\t\t export PATH=$PATH:path-to-/bin/minizinc\n\t\t E.g., export PATH=$PATH:$HOME/progs/minizinc/MiniZincIDE-2.2.3-bundle-linux/bin'
         ),
         ErrMsg1 = 'the minizinc command not found.\n\t +++ Please set the environment variable PATH via the shell command',
