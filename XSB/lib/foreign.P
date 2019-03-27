@@ -113,14 +113,13 @@ foreign_module_library_extension(Configuration,Extension) :-
 	    Extension = '.o'
 	).
 
-:- import writeln/2 from standard.
+%%:- import writeln/2 from standard.
 %% Options: C options
 %% LdOptions: Loader options
 %% CompCom: compiler command--for testing?
 %% TempFile: Directory
 compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
-    xsb_configuration(configuration, Configuration),
-    writeln(userout,entered_compile_c(Modname,OrigBase,Ext,Options,Configuration)),
+	xsb_configuration(configuration, Configuration),
 	xsb_configuration(compiler_flags, XSB_CC_Opts),
 	xsb_configuration(loader_flags, LD_Opts),
 	escape_path(OrigBase,Base),
