@@ -242,7 +242,7 @@ xpp_process_file(FileName,XPP_process,IOportFromProc,Make_XPP_Command) :-
 	%% Redirect xpp's stderr to XSB's STDWARN
 	spawn_process(FullXPP_command, InputStream, IOportFromProc, STDWARN, XPP_process),
 	(xppdump_is_on ->
-	    open(Dump_file,w,DumpPort),
+	    open(Dump_file,write,DumpPort),
 	    copyIOport(IOportFromProc,DumpPort),
 	    close(DumpPort),
 	    file_reopen(Dump_file,r,IOportFromProc,_),
