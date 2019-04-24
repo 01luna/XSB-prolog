@@ -55,4 +55,4 @@ REM Must build curl before sgml and xpath
 
 @cd ..\build
 
-..\bin\xsb --noprompt --quietload --nofeedback --nobanner -e "writeln('### Running XSB for the first time.\\n'), halt."
+..\bin\xsb --noprompt --quietload --nofeedback --nobanner -e "writeln('### Running XSB for the first time.\n'), halt."
