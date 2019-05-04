@@ -2571,11 +2571,8 @@ unless otherwise noted.
   of {\tt Path2}. Also succeeds if {\tt Path1} exists but {\tt Path2} does
   not.
   \standarditem{path\_sysop(size, +Path, -Size)}{path\_sysop/3}
-  Returns a list that represents the byte size of {\tt Path}.
-  Succeeds if the file exists. In this case {\tt Size} is bound to the list
-  of the form {\tt [high,low]} where {\tt low} is the least significant 24
-  bits of the byte-size and {\tt high} is the most significant bits (25th)
-  and up. The actual value is thus $\tt high*2^{24} + low$.
+  Returns the byte size of {\tt Path}.
+  Succeeds if the file exists.
   \standarditem{path\_sysop(tmpfilename, -Name)}{path\_sysop/2}
   Returns the name of a new temporary file. This is useful when the
   application needs to open a completely new temporary file.
