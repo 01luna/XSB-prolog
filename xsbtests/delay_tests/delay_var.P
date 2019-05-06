@@ -5,10 +5,12 @@
 :- import numbervars/1 from num_vars.
 :- import get_residual/2 from tables.
 
+test:- abolish_all_tables,fail.
 test :-	test(C,D), numbervars((C,D)), 
 	write(C),
 	( D \== [] -> write(' :- ') ; true ),
-	write('['), write_body(D),
+	sort(D,Dsort),
+	write('['), write_body(Dsort),
 	fail.
 test.
 
