@@ -166,7 +166,7 @@ int findall_init_c(CTXTdecl)
 	}
 
   if (nextfree < 0) /* could realloc here - too lazy to do it */
-	xsb_abort("[FINDALL] Maximum number of active findalls reached");
+	xsb_abort("[FINDALL] Maximum number of active findalls reached; probably runaway recursion through findall.");
   thisfree = nextfree;
 	/* no checking - no trailing - just use findall_init correctly :-) */
   p = findall_solutions + thisfree ;
