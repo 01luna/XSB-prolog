@@ -2502,26 +2502,18 @@ eval_dl_in_residual([G|Gs]) :-
 	
 :- table eval_subgoal_in_residual/2 as variant,opaque.
 eval_subgoal_in_residual(Gs,Tmp) :-
-	(is_answer_completed(Gs)
-	 ->	true		%,writeln(userout,already_ac(Gs))
-	 ;	get_returns_and_dls(Gs,Tmp,DelayLists),
-		%%writeq(userout,dl(Gs,DelayLists)),nl(userout),
-		(DelayLists == []
-		 ->	true  %,writeln(userout,'MISSING DELAY LIST? '(Gs,Tmp))
-		 ;	member(DL,DelayLists),
-			eval_dl_in_residual(DL)
-		)
-	).
+    get_returns_and_dls(Gs,Tmp,DelayLists),
+    (DelayLists == []
+     ->	true  %%,writeln(userout,'MISSING DELAY LIST? '(Gs,Tmp))
+     ;	member(DL,DelayLists),
+	eval_dl_in_residual(DL)
+    ).
 
 set_answer_completed(SGF) :-
 	answer_completion_ops(1,SGF,_).
 
 is_answer_completed(SGF,Flag) :-
 	answer_completion_ops(2,SGF,Flag).
-
-is_answer_completed(SGF) :-
-	answer_completion_ops(2,SGF,Flag),
-	Flag =:= 1.
 
 answer_completion_ops(_Op,_SGF,_Res) :-
 	'_$builtin'(ANSWER_COMPLETION_OPS).
@@ -2648,10 +2640,8 @@ table_counts(Module,Pred,Arity,CallCnt,AnsCnt) :-
 	).
 
 
-%end_of_file.
-
 :- export explain_u_val/4.
-:- import brat_undefined/0 from xsbbrat.
+
 explain_u_val(Call,Answer,Reason,Type):-
 	get_answer_leaf(Call,Answer,AnswerLeaf),
 %	brat_undefined,

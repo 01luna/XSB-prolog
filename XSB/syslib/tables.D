@@ -150,7 +150,6 @@
 :- mode immed_ans_depends_ptr(+,?).
 :- mode inc_subg_analysis_info(?,?).
 :- mode invalidate_tables_for(?,?).
-:- mode is_answer_completed(+).
 :- mode is_answer_completed(+,?).
 :- mode is_conditional_answer(+,?).
 :- mode is_incomplete(+,+).
@@ -442,7 +441,6 @@
 :- mode_on_success immed_ans_depends_ptr(g,g).
 :- mode_on_success inc_subg_analysis_info(g,g).
 :- mode_on_success invalidate_tables_for(A,B).
-:- mode_on_success is_answer_completed(g).
 :- mode_on_success is_answer_completed(g,g).
 :- mode_on_success is_conditional_answer(g,g).
 :- mode_on_success is_incomplete(g,g).
