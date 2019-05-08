@@ -62,15 +62,18 @@
 (f(s5) :- [])
 (f(s6) :- [])
 (f(s6) :- [])
-(g(p6) :- [[tnot g(p7)]])
+(g(p6) :- [[g(t6)],[tnot g(p7)]])
+(g(p6) :- [[tnot g(p7)],[g(t6)]])
 (g(p7) :- [[tnot g(p8)]])
 (g(p7) :- [[tnot g(p8)]])
 (g(p8) :- [[undefined]])
 (g(p8) :- [[undefined]])
 (g(r6) :- [])
 (g(r6) :- [])
-(g(s6) :- [])
-(g(s6) :- [])
+(g(s6) :- [[tnot g(p6)]])
+(g(s6) :- [[tnot g(p6)]])
+(g(t6) :- [[g(p6)]])
+(g(t6) :- [[g(p6)]])
 (p1(b,A) :- [[p13a(f(B),b,f(B))],[p13a(f(b),b,f(c))],[p13a(a,b,c)]])
 (p13a(a,b,c) :- [[undefined]])
 (p13a(f(A),b,f(A)) :- [[undefined]])
@@ -147,7 +150,8 @@ g(p6) - undefined
 g(p7) - undefined
 g(p8) - undefined
 g(r6) - true
-g(s6) - true
+g(s6) - undefined
+g(t6) - undefined
 p1(Var0,Var1)
 p1(b,A) - undefined
 p2
