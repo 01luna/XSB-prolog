@@ -203,6 +203,7 @@ extern "C" {
 #define extern_p2p_unify(term1, term2) p2p_unify(CTXTc term1, term2)
 
 #define extern_print_pterm(Cell, int, VS) print_pterm(CTXTc Cell, int, VS)
+#define extern_print_pterm_fun(Cell) print_pterm_fun(CTXTc Cell)
 
 #define extern_reg_term(regnum) reg_term(CTXTc regnum)
 
