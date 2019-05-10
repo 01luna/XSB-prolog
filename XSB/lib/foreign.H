@@ -46,7 +46,8 @@
    from file_io.
 :- import attach/2, length/2 from listutil.
 :- import stat_flag/2 from machine.
-:- import str_len/2, str_cat/3, substring/4
+:- import
+        str_length/2, str_cat/3, substring/4
    from string.
 :- import parse_filename/4 from machine.
 :- import

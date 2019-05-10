@@ -439,11 +439,11 @@ add_to_exlist((Pred, Preds), ListType) :- !,
 co_asmhead(OStr, Modname, LdOption, PSC_Count) :-
 	get_foreign_magic_number(LastDigit),
 	asm_magic(OStr,LastDigit),
-	str_len(Modname, Length),
+	str_length(Modname, Length),
 	file_put(OStr,Length),
 	write(OStr,Modname),
 	( LdOption == '' -> file_put(OStr,0) % No ldoption was specified (length is 0).
-	; str_len(LdOption, LdoLen), asm_putlength(OStr,LdoLen), write(OStr,LdOption)
+	; str_length(LdOption, LdoLen), asm_putlength(OStr,LdoLen), write(OStr,LdOption)
 	),
 	write_int(OStr,PSC_Count).
 
@@ -457,7 +457,7 @@ co_asmsym(_OStr,[]).
 co_asmsym(OStr,[One|ExList]) :- co_one(OStr,One), co_asmsym(OStr,ExList).
 
 co_one(OStr,P/A) :-
-	str_len(P, L),
+	str_length(P, L),
 	integer(A),
 	file_put(OStr,0),	% domain = ex(ported)
 	file_put(OStr,T_FORN),		% type = T_FORN (in psc_xsb.h)
