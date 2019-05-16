@@ -66,6 +66,7 @@ standard_metapredicate(abolish_table_subgoal,2,1).
 standard_metapredicate_template(abolish_table_subgoal,2,(:,*)).
 
 standard_symbol(abolish_table_pred, 1, tables).		
+standard_metapredicate(abolish_table_pred,1,1).		
 standard_symbol(abolish_table_pred, 2, tables).		
 standard_symbol(abolish_table_index_pred, 1, standard).
 standard_symbol(table_index, 2, standard).
@@ -324,6 +325,7 @@ standard_symbol(listing, 0, standard).
 standard_symbol(listing, 1, standard).
 standard_symbol(load_dyn, 1, consult).			% Not ISO
 standard_symbol(load_dync, 1, consult).			% Not ISO
+standard_symbol(load_dynca, 1, consult).			% Not ISO
 standard_symbol(read_canonical, 1, consult).
 standard_symbol(read_canonical, 2, consult).
 standard_symbol(ls, 0, shell).
