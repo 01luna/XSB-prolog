@@ -339,7 +339,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	 ;	Init = (OVar = Id, OpSpec1)
 	),
 	sym_propin(tabled,Sym),
-	arg(1,OpSpec1,OVar), arg(2,OpSpec1,Var1), arg(3,OpSpec1,Var),
+	arg(1,OpSpec1,OVar), arg(2,OpSpec1,Var1), arg(3,OpSpec1,Var), 
 	get_actions_for_lattice_aggr_success(Sym,[Cs,Leaf,Var,OVar,Breg],Actions),
 	Body = ('_$savecp'(Breg),
 		breg_retskel(Breg,Arity,Skel,Cs),
@@ -493,7 +493,8 @@ get_actions_for_lattice_aggr_success(Sym,[Cs,Leaf,Var,Ovar,Breg],Actions):-
 get_actions_for_lattice_aggr_success(_Sym,[Cs,Leaf|_],delete_return(Cs,Leaf)).
 
 spec_skel(F/A,Term,Ar) :- integer(A), nonvar(F), !, Ar = A, functor(Term,F,A).
-spec_skel(Term0,Term,Ar) :- functor(Term0,_,Ar), copy_term(Term0,Term).
+spec_skel(Term0,Term,Ar) :- term_psc(Term0,PSC), psc_arity(PSC,Ar0), Ar0 = Ar, term_new(PSC,Term).
+  %%functor(Term0,_,Ar), copy_term(Term0,Term).
 
 equate_but_argno([],[],_,[],[],_,_,_).
 equate_but_argno([X|PArgs],[Y|P1Args],CurArg,ArgList,VarList,A,B,ArgNo) :-

@@ -5,7 +5,7 @@
 ** Copyright (C) The Research Foundation of SUNY, 1986, 1993-1998
 ** 
 ** XSB is free software; you can redistribute it and/or modify it under the
-** terms of the GNU Library General Public License as published by the Free
+** s of the GNU Library General Public License as published by the Free
 ** Software Foundation; either version 2 of the License, or (at your option)
 ** any later version.
 ** 
@@ -45,6 +45,7 @@
 :- import memberchk/2 from basics.
 :- import xwam_state/2 from machine.
 :- import parsort/4 from machine.
+:- import term_psc/2, psc_arity/2, term_new/2 from machine.
 :- import findall/3, sort/2 from setof.
 :- import concat_atom/3 from string.
 :- import ith/3, member/2 from basics.
