@@ -325,6 +325,16 @@ fi
 
 # ---------------------- end testing inconsistencies  ---------------------- 
 
+chmod +x makexsb
+chmod +x MSVC.sh
+chmod +x config.guess
+chmod +x config.sub
+chmod +x touch.sh
+chmod +x clean_pkgs.sh
+chmod +x pkg_config.sh
+chmod +x ../syslib/CompileChangedFiles.sh
+
+
 # make sure new files are readable
 umask 022
 
