@@ -753,6 +753,10 @@ read_and_assert(Dir,Base,Module) :- read_and_assert(Dir,Base,Module).
 load_dync(File) :-
 	load_dync(File,1,usermod,1).	% assertz in usermod
 
+:- mode load_dynca(+).
+load_dynca(File) :-
+	load_dync(File,0,usermod,1).
+
 :- mode load_dync(+,+).
 load_dync(File,DirIn) :-
 	load_dync(File,DirIn,usermod,1).

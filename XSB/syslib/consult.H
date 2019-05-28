@@ -36,7 +36,7 @@
         get_magic_num/2,
         load_dyn/1, load_dyn/2, load_dyn/3,
         load_dyn_module/1,
-   load_dync/1, load_dync/2, load_dync/3, load_dync/4,
+	load_dync/1, load_dync/2, load_dync/3, load_dync/4, load_dynca/1,
         read_canonical/1,read_canonical/2,
         if_file_loaded/1,
         (thread_shared)/1,
