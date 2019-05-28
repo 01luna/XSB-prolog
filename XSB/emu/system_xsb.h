@@ -49,7 +49,7 @@ extern int kill(pid_t pid, int sig);
 #ifdef WIN_NT
 /* MK: Changed pipe type to binary (_O_BINARY). Was text (_O_TEXT) mode before,
    which was causing characters to go missing sometimes. */
-#define PIPE(filedes_array)  _pipe(filedes_array, 5*MAXBUFSIZE, _O_BINARY)
+#define PIPE(filedes_array)  _pipe(filedes_array, 30*MAXBUFSIZE, _O_BINARY)
 #define WAIT(pid, status)    _cwait(&status, pid, 0)
 #define KILL_FAILED(pid)     !TerminateProcess((HANDLE) pid,-1) /* -1=retval */
 #else
