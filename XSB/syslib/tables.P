@@ -2476,7 +2476,7 @@ delete_answers_for_failing_calls.
 
 mark_succeeding_calls_as_answer_completed_and_fail :-
 	get_calls(eval_subgoal_in_residual(ASGF,ATmp),_,_),
-	once(get_returns(ASGF,ATmp)),
+	once(get_returns_and_dls(ASGF,ATmp,[])),
 	set_answer_completed(ASGF),
 	%writeln(userout,set_answer_completed(ASGF)),
 	fail.
