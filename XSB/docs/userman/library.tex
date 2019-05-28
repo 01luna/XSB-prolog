@@ -944,7 +944,7 @@ position movement to @var{N}, where @var{N} defaults to @key{SPC}.
     symbol of the term, if it is the same as that of the previously
     read term, and the current term is a ground (non 0-ary) fact.
     (This is used for efficiency in the implementation of {\tt
-    load\_dync/1}).  Otherwise {\tt Psc} is set to 0.  To initialize
+    load\_dync/1} and {\tt load\_dynca/1}).  Otherwise {\tt Psc} is set to 0.  To initialize
     its previous psc value to zero, this predicate can be called with
     {\tt IOport} of -1000.
 
@@ -2611,7 +2611,7 @@ once for each record in the file, returning the record contents in
 {\tt RecTerm}.  The details of how it works depend on the value of
 {\tt Format}.  The {\tt FileName} denotes a file, and is found by
 looking through the {\tt file\_directory/1} directors, just as for
-{\tt load\_dyn/1} or dynmaically loaded predicates.
+{\tt load\_dyn/1} or dynamically loaded predicates.
 
 The permissible values for {\tt Format} are:
 \begin{itemize}

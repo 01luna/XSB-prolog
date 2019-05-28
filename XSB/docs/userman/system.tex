@@ -769,18 +769,18 @@ invoked if there is more than one active XSB thread.
 
 The program area (the area into which XSB byte-code is loaded) is also
 dynamically expanded as needed.  For dynamic code (created using {\tt
-  assert/1}, or standard predicates such as {\tt load\_dyn/1} and {\tt
-  load\_dync/1}) index size is also automatically reconfigured.  Space
-reclaimed for dynamic code depends on several factors.  If there is
-only one active thread, space is reclaimed for retracted clauses and
-abolished predicates as long as (1) there are no choice points that
-may backtrack into the retracted or abolished code, and (2) if the
-dynamic predicate is tabled, all of its tables are completed.
-Otherwise, the code is marked for later garbage collection.  If more
-than one thread is active, private predicates behave as just
-described, however space reclamation for shared predicates will be
-delayed until there is a single active thread.  See
-Section~\ref{sec:assert} for details.
+  assert/1}, or standard predicates such as {\tt load\_dyn/1}, {\tt
+  load\_dync/1}, and {\tt load\_dynca/1}) index size is also
+automatically reconfigured.  Space reclaimed for dynamic code depends
+on several factors.  If there is only one active thread, space is
+reclaimed for retracted clauses and abolished predicates as long as
+(1) there are no choice points that may backtrack into the retracted
+or abolished code, and (2) if the dynamic predicate is tabled, all of
+its tables are completed.  Otherwise, the code is marked for later
+garbage collection.  If more than one thread is active, private
+predicates behave as just described, however space reclamation for
+shared predicates will be delayed until there is a single active
+thread.  See Section~\ref{sec:assert} for details.
 
 Space for tables is dynamically allocated as needed and reclaimed
 through use of {\tt abolish\_all\_tables/0}, {\tt
@@ -925,7 +925,7 @@ is fully documented in Section~\ref{sec:LoadDyn}.
 \subsection{Dynamic Code}
 % 
 In XSB, most source code file can also be ``consulted'' dynamically
-via the predicates {\tt load\_dyn/[1,2]}, {\tt load\_dync/[1,2]} and
+via the predicates {\tt load\_dyn/[1,2]}, {\tt load\_dync/[1,2]}, {\tt load\_dynca/1} and
 {\tt ensure\_loaded/2}.  These predicates act as {\tt consult/2} in
 that if a given file {\tt File} has already been dynamically loaded,
 old versions of predicates defined in {\tt File} will be retracted and
@@ -933,7 +933,7 @@ their new definitions made to correspond to those in {\tt File}
 (except for predicates in which a {\tt multifile/1} declaration is
 present in {\tt File}).  Dynamic loading can be performed using XSB's
 reader of canonical terms (which does not include operators, but does
-allow list and comma-list notation) via {\tt load\_dync/2}; dynamic
+allow list and comma-list notation) via {\tt load\_dync/2} and {\tt load\_dynca/1}; dynamic
 loading using XSB's general reader for Hilog terms is performed via
 {\tt load\_dyn/2}.  
 

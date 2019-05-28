@@ -961,6 +961,17 @@ backward compatibility, {\tt 0} and {\tt 1} are also allowed.}:
 Acts as {\tt load\_dync/2}, but loads the named file into the module named
 {\tt Module}.
 
+\standarditem{load\_dynca(+FileName)}{load\_dynca/1}
+\index{canonical format}
+Acts as {\tt load\_dync/1}, but loads predicates in the reverse order
+of their appearance in the loaded file.  If the order of clauses
+doesn't matter to the program, this is generally the fastest way to
+load clauses.  It uses {\tt asserta/1} to add clauses to the dynamic
+database, which avoids running index hash chains.  For files that
+define predicates with clauses with very many hash collisions (for
+example, if many clauses have the same value for an indexed argument),
+use of this load predicate can provide significant speed up.
+
 \standarditem{ensure\_loaded(+FileName,+Action)}{ensure\_loaded/2}
 %
 This predicate does nothing if {\tt FileName} has been loaded or
