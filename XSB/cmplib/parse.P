@@ -149,7 +149,10 @@ parse1(Modname, File, Module) :-
 
 
 %% If xpp_on option is not set, just open the file.
-%% Otherwise, pass it through the C preprocessor
+%% Otherwise, pass it through the registered preprocessors (gpp by default).
+%% The result is pumped to current output.
+%% Preprocessors are registered via register_xsb_preprocessor/2.
+%% This predicate is higher-level and is easier to use than xpp_process_file/4
 :- mode open_or_xpp_file(+).
 open_or_xpp_file(File) :- open_or_xpp_file(File,_).
 
@@ -177,15 +180,14 @@ open_or_xpp_file(File,XPP_process) :-
 
 
 %% Make_XPP_Command has the form predicate(File,XPP_Name,Options,XPP_command).
-%% It is supposed to create
-%% the actual shell command that will invoke the preprocessor of choice.
+%% It is supposed to create the actual shell command (in XPP_command)
+%% out of File, XPP_Name, and Options
+%% that is supposed to invoke the preprocessor of choice in the shell.
 %%
 %% File is the name of the original file being preprocessed.
 %% XPPName should be replaced with the name of the actual preprocessor.
-%%       In most cases the above two parameters are not used
-%%       by the predicate used in Make_XPP_Command
-%% Options is an argument that may be passed with additional info for
-%%       the creation of XPP_command.
+%% Options is an argument that may be passed to the preprocessor 
+%%       with additional info for the creation of XPP_command.
 %% XPP_command should be such that if a file is given as the last arg then
 %%       that file would be  preprocessed by the external preprocessor.
 %%       If no file is given, input stream is going to be processed.
@@ -412,13 +414,13 @@ make_gpp_options(X) :- xpp_options(X), !.
 make_gpp_options(' -P -m -nostdinc -curdirinclast ').
 
 %% register_xsb_preprocessor(+Name,+CallTemplate)
-%% Call template is supposed to be a template of the form Pred(_,_,_).
-%% Pred is supposed to be a predicate for making preprocessor shell command
-%% (see xpp_process_file).
-%% Arg 2 - finename of the file being processed
-%% Arg 2 - options to pass for creation of that command.
-%% If arg 1 is a variable - ignore.
-%% Arg 2 is the output shell command made by Pred/2.
+%% CallTemplate is supposed to be a template of the form Pred(_,_,_).
+%%    Pred is supposed to be a predicate for making preprocessor shell command
+%%    (see xpp_process_file).
+%%    Arg 2 - finename of the file being processed
+%%    Arg 2 - options to pass for creation of that command.
+%%    If arg 1 is a variable - ignore.
+%%    Arg 2 is the output shell command made by Pred/2.
 :- mode register_xsb_preprocessor(+,?).
 register_xsb_preprocessor(Name,_) :-
 	var(Name),
