@@ -212,17 +212,14 @@ ensure_answer_completed(AnsSetStatus,Subgoal,SF) :-
 	 ;	stat_flag(ANSWER_COMPLETION,AC),
 		(AC =:= 0	% not doing answer_completion
 		 ->	true
-		 ;	is_answer_completed(SF,SAC),
-			(SAC =:= 1
-			 ->	true
-			 ;	%writeln(userout,'AC in slg_not '(Subgoal)),
+		 ;	(is_answer_completed(SF,SAC), SAC =:= 1
+			 -> true
+			 ; %writeln(userout,'AC in slg_not '(Subgoal)),
 				excess_vars(Subgoal,[],[],Vars),
 				Tmp =.. [ret|Vars],
 				stat_set_flag(ANSWER_COMPLETION,0),
-				(answer_completion(SF,Tmp),
-				 fail
-				 ;	
-				 true
+				(do_all
+				 answer_completion(SF,Tmp)
 				)
 			)
 		)
@@ -755,20 +752,27 @@ abolish_table_subgoal(Call,Options) :-
 abolish_table_subgoal(Call) :-
 	abolish_table_subgoal_internal(Call,ABOLISH_TABLES_DEFAULT).
 
-check_abolish_options_list(Options,_ActionType,Pred):- 
-	check_nonvar(Options,Pred,2),
-	fail.
-check_abolish_options_list([],ActionType,_Pred):- !,
-	(var(ActionType) -> ActionType = ABOLISH_TABLES_DEFAULT ; true).
-check_abolish_options_list([Option|_Rest],ActionType,Pred):- !,
+check_abolish_options_list(Options,ActionType,Pred) :- 
+    check_nonvar(Options,Pred,2),
+    (Options == []
+     ->	ActionType = ABOLISH_TABLES_DEFAULT
+     ;	check_abolish_options_list0(Options,ActionType,Pred)
+    ).
+
+check_abolish_options_list0([],0,_Pred):- !.
+check_abolish_options_list0([Option|Rest],ActionType,Pred):- !,
 	check_nonvar(Option,Pred,2),
-	(Option = abolish_tables_transitively -> 
-	    ActionType = ABOLISH_TABLES_TRANSITIVELY
-	  ; (Option = abolish_tables_singly -> 
-	       ActionType = ABOLISH_TABLES_SINGLY
-	     ; domain_error([abolish_tables,transitively,
-	                    abolish_tables_singly],Option,Pred,2,'') ) ).
-check_abolish_options_list(Culprit,_ActionType,Pred):- 
+	check_abolish_options_list0(Rest,ActionType0,Pred),
+	(Option == abolish_tables_transitively
+	 -> ActionType is ActionType0 +  ABOLISH_TABLES_TRANSITIVELY
+	 ; Option == abolish_tables_singly
+	 -> ActionType is ActionType0 + ABOLISH_TABLES_SINGLY
+	 ; Option == no_cps_check
+	 -> ActionType is ActionType0 + ABOLISH_TABLES_NO_CPS_CHECK
+	 ;  domain_error([abolish_tables,transitively,
+			  abolish_tables_singly],Option,Pred,2,'')
+	).
+check_abolish_options_list0(Culprit,_ActionType,Pred):- 
 	type_error(list,Culprit,Pred,2).
 
 /* TES: Action on call subsumption is to delete producer for consumer
@@ -2437,6 +2441,7 @@ get_tabling_option_psc(PSC,Option):-
 /*======================================================================*/
 % ANSWER COMPLETION CODE
 /*======================================================================*/
+%%:- gensym:conset('_ac_ctr',0).
 
 /* Conditionally called after check_complete and in table_try, when
 answers are returned from a completed table and the subgoal may need
@@ -2444,7 +2449,8 @@ answer completion. */
 %% answer_completion(+LeaderSubGoalFrameAddr,+Template)
 :- mode answer_completion(+,?).
 answer_completion(SGF,Template) :-
-	%%writeln(userout,answer_completion(SGF,Template)),
+	%%sgf_goal(SGF,Template,Goal), standard:writeln(userout,answer_completion(Goal,Template)),
+	%%print_residual_pgm(SGF,Template),
 	ac_loop(SGF,Template),	% iterate answer-completion
 	fail.			% not strictly nec since ac_loop will fail
 answer_completion(SGF,Template) :-
@@ -2453,14 +2459,16 @@ answer_completion(SGF,Template) :-
 	trie_get_return(SGF,Template,1).
 
 ac_loop(SGF,Tmp) :-
-	%%print_residual_pgm(SGF,Tmp),
-	abolish_table_pred(eval_subgoal_in_residual(_,_),[abolish_tables_singly]),
-	stat_set_flag(SIMPLIFICATION_DONE,0),  % reset SIMPLIFICATION_DONE
-	(eval_subgoal_in_residual(SGF,Tmp),fail ; true),
+%%	print_residual_pgm(SGF,Tmp),
+%%	gensym:coninc('_ac_ctr'),
+	%% special call to turn off ancestor check and gc call, for efficiency
+	abolish_table_pred(eval_subgoal_in_residual(_,_),[abolish_tables_singly,no_cps_check]),
+	stat_set_flag(SIMPLIFICATION_DONE,0), % reset SIMPLIFICATION_DONE
+	(do_all eval_subgoal_in_residual(SGF,Tmp)),
 	delete_answers_for_failing_calls,
 	stat_flag(SIMPLIFICATION_DONE,SimpFlg),
 	(SimpFlg =:= 1
-	 ->	%%writeln(userout,iterate),
+	 ->	%%standard:writeln(userout,iterate),
 		ac_loop(SGF,Tmp)
 	 ;	mark_succeeding_calls_as_answer_completed_and_fail
 	).
@@ -2470,15 +2478,15 @@ delete_answers_for_failing_calls :-
 	\+ trie_get_return(ESGF,ETmp,0),
 	get_returns(ASGF,ATmp,ALeaf),
 	force_truth_value(ALeaf,false),
-	%%writeq(userout,made_false(ASGF,ALeaf)),nl(userout),
+	%%sgf_goal(ASGF,ATmp,Goal), standard:writeq(userout,made_false(Goal)),standard:nl(userout),
 	fail.
 delete_answers_for_failing_calls.
 
 mark_succeeding_calls_as_answer_completed_and_fail :-
 	get_calls(eval_subgoal_in_residual(ASGF,ATmp),_,_),
-	once(get_returns_and_dls(ASGF,ATmp,[])),
+	once(get_returns(ASGF,ATmp)),  % mark all goals as answer-completed (esp undef)
 	set_answer_completed(ASGF),
-	%writeln(userout,set_answer_completed(ASGF)),
+	%%standard:writeln(userout,set_answer_completed(ASGF)),
 	fail.
 
 eval_dl_in_residual([]).
@@ -2502,15 +2510,29 @@ eval_dl_in_residual([G|Gs]) :-
 	
 :- table eval_subgoal_in_residual/2 as variant,opaque.
 eval_subgoal_in_residual(Gs,Tmp) :-
+    %%standard:writeln(eval(Gs,Tmp)),
     get_returns_and_dls(Gs,Tmp,DelayLists),
+    %%standard:writeln(call(Gs,Tmp,DelayLists)),
     (DelayLists == []
-     ->	true  %%,writeln(userout,'MISSING DELAY LIST? '(Gs,Tmp))
-     ;	member(DL,DelayLists),
-	eval_dl_in_residual(DL)
+     ->	true
+     ;	(is_answer_completed(Gs)
+	 -> undefined	       % dont recurse, just constant-sized undefined
+	 ;  member(DL,DelayLists),
+	    eval_dl_in_residual(DL)
+	)
     ).
+/**    machine:xwam_state(2,DelayReg),
+    (DelayReg =:= 0
+     ->	standard:writeln(retu(Gs,true))
+     ;	standard:writeln(retu(Gs,undef))
+    ).**/
 
 set_answer_completed(SGF) :-
 	answer_completion_ops(1,SGF,_).
+
+is_answer_completed(SGF) :-
+    answer_completion_ops(2,SGF,Flag),
+    Flag =:= 1.
 
 is_answer_completed(SGF,Flag) :-
 	answer_completion_ops(2,SGF,Flag).
@@ -2531,11 +2553,31 @@ print_residual_pgm(Goal) :-
 	print_residual_pgm(Goal,SGF,Tmp).
 print_residual_pgm(_Goal) :- writeln(userout,end_of_pgm).
 
+sgf_goal(SGF,Tmp,Goal) :-
+    (sgf_goal(SGF,Tmp,SGF0,Goal),
+     SGF0 = SGF
+     ->	true
+     ;	Goal = SGF
+    ).
+
+:- table sgf_goal/4.
+sgf_goal(SGFP,Tmp,SGF,Goal) :-
+    get_returns_and_dls(SGFP,Tmp,DelayLists),
+    member(DL,DelayLists),
+    member(Goal0,DL),
+    (Goal0 = tnot(Goal1) -> true ; Goal1 = Goal0),
+    get_call(Goal1,SGF0,Tmp0),
+    (Goal = Goal1, SGF = SGF0
+     ;
+     sgf_goal(SGF0,Tmp0,SGF,Goal)
+    ).
+
 print_residual_pgm(SGF,Tmp) :-
 	abolish_table_pred(print_residual_pgm(_,_,_)),
 	writeln(userout,''),
 	writeln(userout,'Residual Program:'),
-	print_residual_pgm(unknown,SGF,Tmp).
+	sgf_goal(SGF,Tmp,Goal),
+	print_residual_pgm(Goal,SGF,Tmp).
 print_residual_pgm(_SGF,_Tmp) :- writeln(userout,end_of_pgm).
 
 :- table print_residual_pgm/3 as variant, opaque.
@@ -2543,12 +2585,10 @@ print_residual_pgm(Goal,SGF,Tmp) :-
 	get_returns_and_dls(SGF,Tmp,DelayLists),
 	nl(userout),
 	(DelayLists == []
-	 ->	print_clause([Goal,SGF,Tmp])
-	 ;	(member(DL,DelayLists),
-		 print_clause(([Goal,SGF,Tmp] :- DL)),
-		 fail
-		 ;
-		 true
+	 ->	print_clause([Goal,Tmp])
+	 ;	(do_all
+		 member(DL,DelayLists),
+		 print_clause(([Goal,Tmp] :- DL))
 		),
 		(member(DL,DelayLists),
 		 member(Goal0,DL),
@@ -2572,16 +2612,14 @@ print_residual_pgm(Goal,SGF,Tmp) :-
 print_clause((Head:-Body)) :- !,
 	writeq(userout,Head),
 	writeln(userout,' :- '),
-	(append(_,[Goal|Goals],Body),
+	(do_all
+	 append(_,[Goal|Goals],Body),
 	 write(userout,'    '),
 	 writeq(userout,Goal),
 	 (Goals == []
 	  ->	 writeln(userout,'.')
 	  ;	 writeln(userout,',')
-	 ),
-	 fail
-	 ;
-	 true
+	 )
 	).
 print_clause(Head) :-
 	writeq(userout,Head),
