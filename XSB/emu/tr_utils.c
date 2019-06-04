@@ -937,7 +937,7 @@ answers: delay dependencies may be corrupted flags %d.\n",
 	  //	  if (incr) hashtable1_destroy(pSF->callnode->outedges->hasht,0);
 	  free_answer_list(pSF);
 	  FreeProducerSF(pSF);
-	} /* callTrie node is leaf */
+	  } /* callTrie node is leaf */
 	else 
 	  push_node(BTN_Child(node));
       } /* there is a child of "node" */
@@ -953,7 +953,7 @@ answers: delay dependencies may be corrupted flags %d.\n",
 /* Low-level abolish, called by abolish_table_predwhen it is now known
    whether a predicate is variant or subsumptive.  Assumes incremental
    check has already been made.*/
-  void delete_predicate_table(CTXTdeclc TIFptr tif, xsbBool warn) {
+void delete_predicate_table(CTXTdeclc TIFptr tif, xsbBool warn) {
   if ( TIF_CallTrie(tif) != NULL ) {
     SET_TRIE_ALLOCATION_TYPE_TIP(tif);
     if ( IsVariantPredicate(tif) ) {
@@ -3877,7 +3877,7 @@ static inline void abolish_table_pred_single(CTXTdeclc TIFptr tif, int cps_check
     fprintf(fview_ptr,"ta(pred('/'(%s,%d)),%d).\n",get_name(TIF_PSC(tif)), get_arity(TIF_PSC(tif)),ctrace_ctr++);
   }
 
-  if (flags[NUM_THREADS] == 1 || !get_shared(TIF_PSC(tif))) {
+ if (flags[NUM_THREADS] == 1 || !get_shared(TIF_PSC(tif))) {
     if (cps_check_flag) action = abolish_table_pred_cps_check(CTXTc TIF_PSC(tif));
     else action = TIF_Mark(tif);  /* 1 = CANT_RECLAIM; 0 = CAN_RECLAIM */
   }
@@ -3977,18 +3977,23 @@ inline void abolish_table_predicate_switch(CTXTdeclc TIFptr tif, Psc psc, int in
     }
 }
 
-/* When calling a_t_p_switch, cps_check_flag is set to true, to ensure a check. 
- invocation_flag (default, transitive) has been set on Prolog side. */
+/* When calling a_t_p_switch, cps_check_flag are set from the second argument from Prolog:
+  invocation_flag = Arg2 & 3.
+  cps_check_flag is set off (0) if (Arg2 & 4) == 4 (to preserve default.)
+*/
 
 inline void abolish_table_predicate(CTXTdeclc Psc psc, int invocation_flag) {
   TIFptr tif;
+  int cps_check_flag;
   declare_timer
 
+  if (invocation_flag & 4) cps_check_flag = FALSE; else cps_check_flag = TRUE;
+  invocation_flag = invocation_flag & 3;
   tif = get_tip(CTXTc psc);
 
   start_table_gc_time(timer);
 
-  gc_tabled_preds(CTXT);
+  if (cps_check_flag) gc_tabled_preds(CTXT);  // DSW can be quadratic...
   if ( IsNULL(tif) ) {
     xsb_abort("[abolish_table_pred] Attempt to delete non-tabled predicate (%s/%d)\n",
 	      get_name(psc), get_arity(psc));
@@ -4005,7 +4010,7 @@ inline void abolish_table_predicate(CTXTdeclc Psc psc, int invocation_flag) {
   }
 
   /* Check CPS stack = TRUE, ERROR if table is incomplete */
-  abolish_table_predicate_switch(CTXTc tif, psc, invocation_flag, TRUE,ERROR_ON_INCOMPLETE);
+  abolish_table_predicate_switch(CTXTc tif, psc, invocation_flag, cps_check_flag,ERROR_ON_INCOMPLETE);
 
   end_table_gc_time(timer);
 

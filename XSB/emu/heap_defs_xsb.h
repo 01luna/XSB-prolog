@@ -38,6 +38,7 @@
 #define ABOLISH_TABLES_TRANSITIVELY  0
 #define ABOLISH_TABLES_SINGLY        1
 #define ABOLISH_TABLES_DEFAULT       2
+#define ABOLISH_TABLES_NO_CPS_CHECK  4
 
 /*--- The following are used for string-space collection ---------------*/
 #define mark_string_safe(tstr,msg)		\
