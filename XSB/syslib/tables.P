@@ -200,29 +200,27 @@ t_not_variant(Subgoal,AnsSetStatus,SF,PTCP):-
 	        (tcall(Subgoal), fail 
 	          ;  get_producer_call(Subgoal,ProducerSF,_AnswerTmplt),
 		     is_incomplete(ProducerSF,PTCP),
+		     %% do answer_completed here??
 		     slg_not(ProducerSF) 
 		 )
           ;  %get_producer_call(Subgoal,ProducerSF,_AnswerTmplt),
-	     ensure_answer_completed(AnsSetStatus,Subgoal,SF),
-	     is_incomplete(SF,PTCP),slg_not(SF) ).
+	     is_incomplete(SF,PTCP), % suspend if is incomplete, succeed if complete
+	     ensure_answer_completed(Subgoal,SF),
+	     slg_not(SF) ).
 
-ensure_answer_completed(AnsSetStatus,Subgoal,SF) :-
-	(AnsSetStatus =\= COMPLETED_ANSWER_SET
-	 ->	true		% not completed
-	 ;	stat_flag(ANSWER_COMPLETION,AC),
-		(AC =:= 0	% not doing answer_completion
-		 ->	true
-		 ;	(is_answer_completed(SF,SAC), SAC =:= 1
-			 -> true
-			 ; %writeln(userout,'AC in slg_not '(Subgoal)),
-				excess_vars(Subgoal,[],[],Vars),
-				Tmp =.. [ret|Vars],
-				stat_set_flag(ANSWER_COMPLETION,0),
-				(do_all
-				 answer_completion(SF,Tmp)
-				)
-			)
-		)
+ensure_answer_completed(Subgoal,SF) :-
+	stat_flag(ANSWER_COMPLETION,AC),
+	(AC =:= 0		% not doing answer_completion
+	 -> true
+	 ;  is_answer_completed(SF,SAC), SAC =:= 1
+	 -> true
+	 ;  excess_vars(Subgoal,[],[],Vars),
+	    Tmp =.. [ret|Vars],
+	    stat_set_flag(ANSWER_COMPLETION,0),
+	    (do_all
+	     %%standard:writeln(userout,ac_from_tnot(Subgoal)),
+	     answer_completion(SF,Tmp)
+	    )
 	).
 
 % needs to be optimized!
@@ -282,8 +280,10 @@ t_not_subsumptive_sf_incomp_1(Subgoal,ConsumerSF,PTCP):-
 	get_producer_call(Subgoal,ProducerSF,_Answertmplt),
 	is_incomplete(ProducerSF,PTCP),
 	((var(ConsumerSF) ; ConsumerSF == 0) -> 
+	    %%ensure_answer_completed(Subgoal,ProducerSF),
 	    slg_not(ProducerSF) 
-	  ; slg_not(ConsumerSF)).
+	 ;  %%ensure_answer_completed(Subgoal,ConsumerSF),
+	    slg_not(ConsumerSF)).
 
 
 /*
@@ -2585,10 +2585,10 @@ print_residual_pgm(Goal,SGF,Tmp) :-
 	get_returns_and_dls(SGF,Tmp,DelayLists),
 	nl(userout),
 	(DelayLists == []
-	 ->	print_clause([Goal,Tmp])
+	 ->	print_clause([Goal,SGF,Tmp])
 	 ;	(do_all
 		 member(DL,DelayLists),
-		 print_clause(([Goal,Tmp] :- DL))
+		 print_clause(([Goal,SGF,Tmp] :- DL))
 		),
 		(member(DL,DelayLists),
 		 member(Goal0,DL),
