@@ -221,7 +221,7 @@ inline_builtin(get_lastnode_cs_retskel, 4, GET_LASTNODE_CS_RETSKEL).
 inline_builtin(get_producer_call, 3, GET_PRODUCER_CALL).
 inline_builtin(get_ptcp, 1, GET_PTCP).
 inline_builtin(getenv, 2, GETENV).
-inline_builtin(putenv, 2, PUTENV).
+inline_builtin(putenv, 1, PUTENV).
 inline_builtin(hilog_arg, 3, HiLog_ARG).
 %% inline_builtin(hilog_univ, 2, HiLog_UNIV).
 inline_builtin(intern_string, 2, INTERN_STRING).
