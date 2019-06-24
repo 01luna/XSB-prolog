@@ -518,12 +518,14 @@ struct ascc_edge {
 /*----------------------------------------------------------------------*/
 
 #define DELAYED		-1
+#define leader_tag	1
 
 struct completion_stack_frame {
   VariantSF subgoal_ptr;
   ALNptr  del_ret_list;   /* to reclaim deleted returns */
   int     _level_num;
   int     visited;
+  CPtr    to_leader_csf; // chain to leader; if (tagged) leader, ptr to next shallower leader.
 #ifndef LOCAL_EVAL
   EPtr    DG_edges;
   EPtr    DGT_edges;
@@ -536,8 +538,10 @@ struct completion_stack_frame {
 #define COMPLFRAMESIZE	(sizeof(struct completion_stack_frame)/sizeof(CPtr))
 #define COMPLSTACKSIZE (COMPLSTACKBOTTOM - openreg)/COMPLFRAMESIZE
 
+#define compl_to_leader(b)	((ComplStackFrame)(b))->to_leader_csf
 #define compl_subgoal_ptr(b)	((ComplStackFrame)(b))->subgoal_ptr
-#define compl_level(b)		((ComplStackFrame)(b))->_level_num
+#define compl_frame_level(b)	((ComplStackFrame)(b))->_level_num
+#define compl_leader_level(b)		((ComplStackFrame)(compl_leader(b)))->_level_num
 #define compl_del_ret_list(b)	((ComplStackFrame)(b))->del_ret_list
 #define compl_visited(b)	((ComplStackFrame)(b))->visited
 #ifndef LOCAL_EVAL
@@ -565,26 +569,16 @@ struct completion_stack_frame {
   }
 
 #define adjust_level(CS_FRAME) {					\
-    int new_level = compl_level(CS_FRAME);				\
-    UInteger subgoals_in_scc = 0;					\
-    if ( new_level < compl_level(openreg) ) {				\
-      CPtr csf = CS_FRAME;						\
-      while ( (csf >= openreg) && (compl_level(csf) >= new_level) ) {	\
-	compl_level(csf) = new_level;					\
-	csf = next_compl_frame(csf);					\
-      }									\
-      /* if flag is turned on, and complstacksize is "big" need to find leader */\
-      if (COMPLSTACKSIZE > flags[MAX_SCC_SUBGOALS]) {   \
-	csf = CS_FRAME;							\
-	while (csf < COMPLSTACKBOTTOM && compl_level(csf) == new_level) { \
-	  csf = prev_compl_frame(csf);					\
-	} /* finding frame right before leader */			\
-	subgoals_in_scc = (csf-openreg)/COMPLFRAMESIZE;			\
-	/*	printf("subgoals in SCC: %d\n",subgoals_in_scc);*/	\
+    if (CS_FRAME != openreg) {						\
+      adjust_level_ptrs(CS_FRAME,openreg);				\
+      /* if flag is turned on, and complstacksize is "big" need to find leader */ \
+      if (COMPLSTACKSIZE > flags[MAX_SCC_SUBGOALS]) {			\
+	UInteger subgoals_in_scc;					\
+	subgoals_in_scc = 1+(compl_leader(openreg)-openreg)/COMPLFRAMESIZE; \
 	check_scc_subgoals_tripwire;					\
       }									\
     }									\
-  }									
+  }
 
 /*
  *  The overflow test MUST be placed after the initialization of the
@@ -610,15 +604,17 @@ struct completion_stack_frame {
   }
 
 
-
-
 #define push_completion_frame_common(subgoal) \
   check_incomplete_subgoals_tripwire; \
   level_num++; \
   openreg -= COMPLFRAMESIZE; \
-  compl_subgoal_ptr(openreg) = subgoal; \
-  compl_level(openreg) = level_num; \
-  compl_del_ret_list(openreg) = NULL; \
+  /*if ((COMPLSTACKBOTTOM-openreg)/COMPLFRAMESIZE != level_num) printf("Oops: level_num=%d, level_loc=%lld\n",level_num,(COMPLSTACKBOTTOM-openreg)/COMPLFRAMESIZE);*/ \
+  compl_subgoal_ptr(openreg) = subgoal;					\
+  compl_frame_level(openreg) = level_num; \
+  compl_to_leader(openreg) = (CPtr)leader_tag; \
+  if (prev_compl_frame(openreg) != COMPLSTACKBOTTOM) \
+    compl_to_leader(compl_leader(prev_compl_frame(openreg))) = (CPtr)((Integer)openreg | leader_tag); \
+  compl_del_ret_list(openreg) = NULL;		\
   compl_visited(openreg) = FALSE
 
 #define push_completion_frame_batched(subgoal) \
@@ -638,7 +634,7 @@ struct completion_stack_frame {
 #if (!defined(LOCAL_EVAL))
 #define compact_completion_frame(cp_frame,cs_frame,subgoal)	\
   compl_subgoal_ptr(cp_frame) = subgoal;			\
-  compl_level(cp_frame) = compl_level(cs_frame);		\
+  compl_frame_level(cp_frame) = compl_leader_level(cs_frame);		\
   compl_visited(cp_frame) = FALSE;				\
   compl_DG_edges(cp_frame) = compl_DGT_edges(cp_frame) = NULL;  \
   cp_frame = next_compl_frame(cp_frame)
@@ -1051,13 +1047,13 @@ void tstCreateTSIs(struct th_context *,TSTNptr);
 #define set_min(a,b,c)	if (b < c) a = b; else a = c
 
 #define tab_level(SUBG_PTR)     \
-        compl_level((subg_compl_stack_ptr(SUBG_PTR)))
+        compl_leader_level((subg_compl_stack_ptr(SUBG_PTR)))
 #define next_tab_level(CSF_PTR) \
-        compl_level(prev_compl_frame(CSF_PTR))
+        compl_leader_level(prev_compl_frame(CSF_PTR))
 
-#define is_leader(CSF_PTR)				\
-  (prev_compl_frame(CSF_PTR) >= COMPLSTACKBOTTOM	\
-   || next_tab_level(CSF_PTR) < compl_level(CSF_PTR))
+
+#define is_leader(CSF_PTR) \
+  (((Integer)compl_to_leader(CSF_PTR) & leader_tag) || !compl_to_leader(CSF_PTR))
 
 /*----------------------------------------------------------------------*/
 /* Codes for completed subgoals (assigned to subg_answers)              */
@@ -1292,5 +1288,7 @@ void tstCreateTSIs(struct th_context *,TSTNptr);
 
 
 /*----------------------------------------------------------------------*/
+extern CPtr compl_leader(CPtr csf);
+extern void adjust_level_ptrs(CPtr to_csf, CPtr from_csf);
 
 #endif /* __MACRO_XSB_H__ */

@@ -90,10 +90,10 @@ int count_sccs(CTXTdecl) {
 
   //  printf("open %x COMPL %x\n",openreg,COMPLSTACKBOTTOM);
   while (csf < COMPLSTACKBOTTOM) {
-    //    printf("comp level %d\n",compl_level(csf));
-    if (compl_level(csf) != last_scc) {
+    //    printf("comp level %d\n",compl_leader_level(csf));
+    if (compl_leader_level(csf) != last_scc) {
       ctr++;
-      last_scc = compl_level(csf);
+      last_scc = compl_leader_level(csf);
       //      printf("ctr: %d\n",ctr);
     }
     csf = prev_compl_frame(csf);	       

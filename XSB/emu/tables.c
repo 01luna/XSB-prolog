@@ -1025,3 +1025,52 @@ VariantSF tnotNewSubConsSF(CTXTdeclc BTNptr Leaf,TIFptr TableInfo,VariantSF prod
 
 /*=========================================================================*/
 
+
+/* find leader of a csf (completion stack frame) by running (and
+   collapsing) chain. */
+#define is_leader_tagged(csfr) \
+  ((Integer)compl_to_leader(csfr) & leader_tag)
+
+CPtr compl_leader(CPtr csf) {
+  CPtr tcsf, ncsf;
+  //  printf("find leader: %p, tol=%p",csf,compl_to_leader(csf));
+  if (is_leader_tagged(csf))  return csf;
+  if (!compl_to_leader(csf)) {  /* new uninitialized leader */
+    compl_to_leader(csf) = (CPtr)leader_tag;
+    if (prev_compl_frame(csf) != COMPLSTACKBOTTOM)
+      compl_to_leader(compl_leader(prev_compl_frame(csf)))
+	= (CPtr)((Integer)csf | leader_tag);
+    return csf;
+  }
+  tcsf = csf = compl_to_leader(csf);
+  while (!is_leader_tagged(csf)) { // run chain to leader
+    csf = compl_to_leader(csf);
+  }
+  while (!is_leader_tagged(tcsf)) { // collapse chain
+    ncsf = compl_to_leader(tcsf);
+    compl_to_leader(tcsf) = csf;
+    tcsf = ncsf;
+  }
+  return csf;
+}
+
+/* Temporary, will be moved to macro in tab_structs.h.  adjust_level
+updates new leaders due to a reference from shallower in the cpstack
+to deeper in the cpstack.  to_csf is the (deeper) target of the
+reference; from_csf is the csf of the (shallower) source of the
+reference (openreg, global in macro) */
+
+void adjust_level_ptrs(CPtr to_csf, CPtr from_csf) {
+  CPtr tarleader = compl_leader(to_csf);
+  CPtr souleader = compl_leader(from_csf);
+  CPtr tleader, nleader;
+  if (tarleader == souleader) return;
+  tleader = (CPtr)((Integer)compl_to_leader(tarleader) & ~leader_tag);
+  while (tleader != souleader) {
+    nleader = (CPtr)((Integer)compl_to_leader(tleader) & ~leader_tag);
+    compl_to_leader(tleader) = tarleader;
+    tleader = nleader;
+  }
+  compl_to_leader(tarleader) = compl_to_leader(tleader);
+  compl_to_leader(tleader) = tarleader;
+}

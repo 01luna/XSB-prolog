@@ -1384,15 +1384,15 @@ void print_completion_stack(CTXTdeclc FILE *fptr)
   VariantSF subg;
   CPtr temp = COMPLSTACKBOTTOM-COMPLFRAMESIZE;
   printf("----------- scc -----------\n");
-  lastSCCnum = compl_level(temp);
+  lastSCCnum = compl_leader_level(temp);
 
  while (temp >= openreg) {
-   if (compl_level(temp) != lastSCCnum) {
-     SCCnum++; lastSCCnum = compl_level(temp);
+   if (compl_leader_level(temp) != lastSCCnum) {
+     SCCnum++; lastSCCnum = compl_leader_level(temp);
    }
    subg = (VariantSF) *temp;
    print_subgoal(CTXTc fptr,subg);
-   fprintf(fptr," - scc(%d,%d).\n",SCCnum,compl_level(temp));
+   fprintf(fptr," - scc(%d,%d).\n",SCCnum,compl_leader_level(temp));
    temp = next_compl_frame(temp);
   }
 }
@@ -1679,7 +1679,7 @@ void print_deltf_chain(CTXTdecl) {
 
 /** not used, but in commented-out code..
 static char *compl_stk_frame_field[] = {
-  "subgoal_ptr",   "del_ret_list", "level_num","visited",
+  "subgoal_ptr",   "del_ret_list", "level_num","visited", "to_leader_csf"
 #ifndef LOCAL_EVAL
 "DG_edges", "DGT_edges"
 #endif
@@ -2263,7 +2263,7 @@ void print_help(void)
 /*** already defined above ???
 static char *compl_stk_frame_field[] = {
   "subgoal_ptr", "level_num",
-  "del_ret_list", "visited",
+  "del_ret_list", "visited", "to_leader_csf"
 #ifndef LOCAL_EVAL
 "DG_edges", "DGT_edges"
 #endif

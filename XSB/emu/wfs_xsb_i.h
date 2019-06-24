@@ -475,6 +475,7 @@ static void batched_compute_wfs(CTXTdeclc CPtr leader_compl_frame,
       ComplStkFrame = next_compl_frame(ComplStkFrame);
     }
     openreg = prev_compl_frame(CopyFrame);
+    level_num = compl_frame_level(openreg); // DSWDSW???
 
 /*----------------------------------------------------------------------*/
 
@@ -535,6 +536,7 @@ static void batched_compute_wfs(CTXTdeclc CPtr leader_compl_frame,
     }
     /* point openreg to first empty space */
     openreg = prev_compl_frame(leader_compl_frame);	
+    level_num = compl_frame_level(openreg); // DSWDSW ???????
   }
   
   xsb_dbgmsg((LOG_COMPLETION, "------ Completed an ASCC..."));

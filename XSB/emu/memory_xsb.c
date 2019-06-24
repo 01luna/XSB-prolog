@@ -748,6 +748,10 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
 #endif
     subg_compl_stack_ptr(subg_ptr) =
       (CPtr)((byte *)subg_compl_stack_ptr(subg_ptr) + bottom_offset);
+
+    if ((Integer)compl_to_leader(csf_ptr) & ~leader_tag) {
+      compl_to_leader(csf_ptr) += bottom_offset/sizeof(CPtr); // adjust internal complstack ptr
+    }
   } 
 
 #ifdef CONC_COMPL

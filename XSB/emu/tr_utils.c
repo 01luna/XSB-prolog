@@ -4879,6 +4879,7 @@ void abolish_all_tables(CTXTdeclc int action) {
   }
   reset_freeze_registers;
   openreg = COMPLSTACKBOTTOM;
+  level_num = 0;
   hashtable1_destroy_all(CTXTc 0);             /* free all incr hashtables in use */
   release_all_tabling_resources(CTXT);
   current_call_node_count_gl = 0; current_call_edge_count_gl = 0;
@@ -5017,7 +5018,7 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
   }
   //  printf("new complstacksize %d\n",COMPLSTACKSIZE);
   if (openreg < COMPLSTACKBOTTOM) 
-      level_num = compl_level(openreg);
+    level_num = compl_frame_level(openreg);
   else level_num = 0;
 }
 
@@ -6047,7 +6048,7 @@ case CALL_SUBS_SLG_NOT: {
     VariantSF subgoal_frame;
     subgoal_frame = (VariantSF) ptoc_int(CTXTc 2);
     if (subg_is_completed(subgoal_frame) || subg_is_ec_scheduled(subgoal_frame)) return FALSE;
-    ctop_int(CTXTc 3, compl_level(subg_compl_stack_ptr(subgoal_frame)));
+    ctop_int(CTXTc 3, compl_leader_level(subg_compl_stack_ptr(subgoal_frame)));
     break;
   }
 
@@ -6288,7 +6289,7 @@ case CALL_SUBS_SLG_NOT: {
     if (newcsf >= COMPLSTACKBOTTOM) newcsf = NULL;
     ctop_int(CTXTc 3,(Integer)newcsf);
     if (csf != NULL) {
-      ctop_int(CTXTc 4,compl_level(csf));
+      ctop_int(CTXTc 4,compl_leader_level(csf));
       ctop_int(CTXTc 5,(Integer)compl_subgoal_ptr(csf));
       ctop_int(CTXTc 6,subg_callsto_number(compl_subgoal_ptr(csf)));
       ctop_int(CTXTc 7,subg_ans_ctr(compl_subgoal_ptr(csf)));
