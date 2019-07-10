@@ -27,7 +27,7 @@
 :- mode abstract_modes(?,?).
 :- mode abstract_modes_args(?,?).
 :- mode abstract_term(+,?,?,?).
-:- mode ac_loop(+,?).
+:- mode ac_loop(+,?,+).
 :- mode add_incr_table(?,+).
 :- mode add_table(?).
 :- mode analyze_an_scc(+,+).
@@ -72,9 +72,9 @@
 :- mode dump_table_counts.
 :- mode early_complete_on_delta(+,+,+,+).
 :- mode early_complete_on_nth(+,+).
-:- mode ensure_answer_completed(+,+,+).
-:- mode eval_dl_in_residual(?).
-:- mode eval_subgoal_in_residual(+,?).
+:- mode ensure_answer_completed(+,+).
+:- mode eval_dl_in_residual(?,+).
+:- mode eval_subgoal_in_residual(+,?,+).
 :- mode explain_u_val(?,?,?).
 :- mode explain_u_val(?,?,?,?).
 :- mode explain_u_val(?,?,?,?,+,?,?).
@@ -357,9 +357,9 @@
 :- mode_on_success delete_return(g,g,g).
 :- mode_on_success early_complete_on_delta(g,g,g,g).
 :- mode_on_success early_complete_on_nth(g,g).
-:- mode_on_success ensure_answer_completed(g,g,g).
-:- mode_on_success eval_dl_in_residual(A).
-:- mode_on_success eval_subgoal_in_residual(g,A).
+:- mode_on_success ensure_answer_completed(g,g).
+:- mode_on_success eval_dl_in_residual(A,g).
+:- mode_on_success eval_subgoal_in_residual(g,A,g).
 :- mode_on_success explain_u_val(A,B,g).
 :- mode_on_success explain_u_val(A,B,g,C).
 :- mode_on_success explain_u_val(A,B,C,D,g,E,g).
