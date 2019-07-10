@@ -36,12 +36,13 @@ This draft version of the technical reference manual is intended to
 document features which are common to both systems.  Most of the
 material in Section~\ref{sec:compiler} was written by Kostis Sagonas.
 Sections~\ref{sec:comp-emu}--\ref{sec:libs} were written long ago by
-Jiyand Xu and not seriously updated ever since --- rely upon them at
+Jiyang Xu and not seriously updated ever since --- rely upon them at
 your own risk!  Section~\ref{sec:tabling} was written by Terry Swift.
+Sections~\ref{sec:leader} and \ref{sec:fixpoint} were written by David S. Warren.
 The remaining sections were written more or less by all authors of
 this technical manual.
 
-Fuller credits can be fount in the {\it The XSB Programmer's Manual}.
+Fuller credits can be found in the {\it The XSB Programmer's Manual}.
 \newpage
 
 \tableofcontents
@@ -631,7 +632,7 @@ in the psc record.  The high-order 2 bits are used to store spy
 information used by the debugger.  Bits x10 and x20 are used to
 indicate that the predicate is a shared predicate (for
 multi-threading).  Bit x20 is 1 for a thread-shared predicate and 0
-for thread_private.  Bit x10 is 1 if Bit x20 has been explicitly set
+for thread-private.  Bit x10 is 1 if Bit x20 has been explicitly set
 and is unchangeable, and is 0 if it hasn't yet been set and can still
 be defaulted.  Bits x04 and x08 indicate that the predicate is tabled:
 If they are both 0, the predicate is not tabled.  If they are both 1,
@@ -1986,5 +1987,6 @@ flags[53--63]	& 48--63    & user defined flags \\
 \end{tabular}
 \end{center}
 
-
+\input{leader_determination}
+\input{sched_fixpoint}
 \end{document}
