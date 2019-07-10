@@ -1031,14 +1031,14 @@ VariantSF tnotNewSubConsSF(CTXTdeclc BTNptr Leaf,TIFptr TableInfo,VariantSF prod
 #define is_leader_tagged(csfr) \
   ((Integer)compl_to_leader(csfr) & leader_tag)
 
-CPtr compl_leader(CPtr csf) {
+CPtr compl_leader(CTXTdeclc CPtr csf) {
   CPtr tcsf, ncsf;
   //  printf("find leader: %p, tol=%p",csf,compl_to_leader(csf));
   if (is_leader_tagged(csf))  return csf;
   if (!compl_to_leader(csf)) {  /* new uninitialized leader */
     compl_to_leader(csf) = (CPtr)leader_tag;
     if (prev_compl_frame(csf) != COMPLSTACKBOTTOM)
-      compl_to_leader(compl_leader(prev_compl_frame(csf)))
+      compl_to_leader(compl_leader(CTXTc prev_compl_frame(csf)))
 	= (CPtr)((Integer)csf | leader_tag);
     return csf;
   }
@@ -1060,9 +1060,9 @@ to deeper in the cpstack.  to_csf is the (deeper) target of the
 reference; from_csf is the csf of the (shallower) source of the
 reference (openreg, global in macro) */
 
-void adjust_level_ptrs(CPtr to_csf, CPtr from_csf) {
-  CPtr tarleader = compl_leader(to_csf);
-  CPtr souleader = compl_leader(from_csf);
+void adjust_level_ptrs(CTXTdeclc CPtr to_csf, CPtr from_csf) {
+  CPtr tarleader = compl_leader(CTXTc to_csf);
+  CPtr souleader = compl_leader(CTXTc from_csf);
   CPtr tleader, nleader;
   if (tarleader == souleader) return;
   tleader = (CPtr)((Integer)compl_to_leader(tarleader) & ~leader_tag);
@@ -1071,6 +1071,6 @@ void adjust_level_ptrs(CPtr to_csf, CPtr from_csf) {
     compl_to_leader(tleader) = tarleader;
     tleader = nleader;
   }
-  compl_to_leader(tarleader) = compl_to_leader(tleader);
+  compl_to_leader(tarleader) = (CPtr)leader_tag; // end of leader chain
   compl_to_leader(tleader) = tarleader;
 }

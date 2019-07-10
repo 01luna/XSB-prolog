@@ -28,6 +28,7 @@
 #include "debug_xsb.h"
 
 #include "basictypes.h"
+#include "context.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -519,6 +520,7 @@ struct ascc_edge {
 
 #define DELAYED		-1
 #define leader_tag	1
+#define in_fp_sched_tag	1
 
 struct completion_stack_frame {
   VariantSF subgoal_ptr;
@@ -526,6 +528,9 @@ struct completion_stack_frame {
   int     _level_num;
   int     visited;
   CPtr    to_leader_csf; // chain to leader; if (tagged) leader, ptr to next shallower leader.
+  CPtr    fp_sched_csf; // chain of csfs to be scheduled in one fp iteration
+  			// rooted at global fp_sched_list
+			// 1 bit on if in chain (to handle last one)
 #ifndef LOCAL_EVAL
   EPtr    DG_edges;
   EPtr    DGT_edges;
@@ -539,9 +544,10 @@ struct completion_stack_frame {
 #define COMPLSTACKSIZE (COMPLSTACKBOTTOM - openreg)/COMPLFRAMESIZE
 
 #define compl_to_leader(b)	((ComplStackFrame)(b))->to_leader_csf
+#define compl_fp_sched_csf(b)	((ComplStackFrame)(b))->fp_sched_csf
 #define compl_subgoal_ptr(b)	((ComplStackFrame)(b))->subgoal_ptr
 #define compl_frame_level(b)	((ComplStackFrame)(b))->_level_num
-#define compl_leader_level(b)		((ComplStackFrame)(compl_leader(b)))->_level_num
+#define compl_leader_level(b)	((ComplStackFrame)(compl_leader(CTXTc b)))->_level_num
 #define compl_del_ret_list(b)	((ComplStackFrame)(b))->del_ret_list
 #define compl_visited(b)	((ComplStackFrame)(b))->visited
 #ifndef LOCAL_EVAL
@@ -570,11 +576,11 @@ struct completion_stack_frame {
 
 #define adjust_level(CS_FRAME) {					\
     if (CS_FRAME != openreg) {						\
-      adjust_level_ptrs(CS_FRAME,openreg);				\
+      adjust_level_ptrs(CTXTc CS_FRAME,openreg);				\
       /* if flag is turned on, and complstacksize is "big" need to find leader */ \
       if (COMPLSTACKSIZE > flags[MAX_SCC_SUBGOALS]) {			\
 	UInteger subgoals_in_scc;					\
-	subgoals_in_scc = 1+(compl_leader(openreg)-openreg)/COMPLFRAMESIZE; \
+	subgoals_in_scc = 1+(compl_leader(CTXTc openreg)-openreg)/COMPLFRAMESIZE; \
 	check_scc_subgoals_tripwire;					\
       }									\
     }									\
@@ -608,13 +614,14 @@ struct completion_stack_frame {
   check_incomplete_subgoals_tripwire; \
   level_num++; \
   openreg -= COMPLFRAMESIZE; \
-  /*if ((COMPLSTACKBOTTOM-openreg)/COMPLFRAMESIZE != level_num) printf("Oops: level_num=%d, level_loc=%lld\n",level_num,(COMPLSTACKBOTTOM-openreg)/COMPLFRAMESIZE);*/ \
   compl_subgoal_ptr(openreg) = subgoal;					\
   compl_frame_level(openreg) = level_num; \
   compl_to_leader(openreg) = (CPtr)leader_tag; \
   if (prev_compl_frame(openreg) != COMPLSTACKBOTTOM) \
-    compl_to_leader(compl_leader(prev_compl_frame(openreg))) = (CPtr)((Integer)openreg | leader_tag); \
+    compl_to_leader(compl_leader(CTXTc prev_compl_frame(openreg))) \
+      = (CPtr)((Integer)openreg | leader_tag);			   \
   compl_del_ret_list(openreg) = NULL;		\
+  compl_fp_sched_csf(openreg) = NULL;		\
   compl_visited(openreg) = FALSE
 
 #define push_completion_frame_batched(subgoal) \
@@ -1288,7 +1295,7 @@ void tstCreateTSIs(struct th_context *,TSTNptr);
 
 
 /*----------------------------------------------------------------------*/
-extern CPtr compl_leader(CPtr csf);
-extern void adjust_level_ptrs(CPtr to_csf, CPtr from_csf);
+extern CPtr compl_leader(CTXTdeclc CPtr csf);
+extern void adjust_level_ptrs(CTXTdeclc CPtr to_csf, CPtr from_csf);
 
 #endif /* __MACRO_XSB_H__ */

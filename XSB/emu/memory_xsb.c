@@ -656,6 +656,7 @@ void handle_tcpstack_overflow(CTXTdecl)
  * Re-allocate the space for the completion stack data area to "newsize"
  * K-byte blocks.
  */
+extern CPtr fp_sched_list; 
 
 void complstack_realloc (CTXTdeclc size_t newsize) {
 
@@ -750,9 +751,18 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
       (CPtr)((byte *)subg_compl_stack_ptr(subg_ptr) + bottom_offset);
 
     if ((Integer)compl_to_leader(csf_ptr) & ~leader_tag) {
-      compl_to_leader(csf_ptr) += bottom_offset/sizeof(CPtr); // adjust internal complstack ptr
+      // adjust internal complstack ptr
+      compl_to_leader(csf_ptr) += bottom_offset/sizeof(CPtr);
     }
-  } 
+    if ((Integer)compl_fp_sched_csf(csf_ptr) & ~in_fp_sched_tag) {
+      // adjust scheduling list link
+      compl_fp_sched_csf(csf_ptr) += bottom_offset/sizeof(CPtr);
+    }
+  }
+  if ((Integer)fp_sched_list & ~in_fp_sched_tag) {
+    // adjust base of scheduling list
+    fp_sched_list += bottom_offset/sizeof(CPtr);
+  }
 
 #ifdef CONC_COMPL
   /* In CONC_COMPL there are pointers from the choice points into

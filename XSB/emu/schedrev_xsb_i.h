@@ -172,6 +172,7 @@ static CPtr find_fixpoint(CTXTdeclc CPtr leader_csf, CPtr producer_cpf)
 
   VariantSF currSubg;
   CPtr complFrame; /* completion frame for currSubg */
+  CPtr next_complFrame; /* temp completion frame ptr */
   CPtr last_cons = 0; /* last consumer scheduled */
   CPtr sched_chain = 0, prev_sched = 0, tmp_sched = 0; /* build sched chain */
 
@@ -192,7 +193,13 @@ static CPtr find_fixpoint(CTXTdeclc CPtr leader_csf, CPtr producer_cpf)
 
   while(complFrame <= leader_csf) {
 #else
-  while(complFrame < leader_csf) {
+    //    while(complFrame < leader_csf) {
+    complFrame = (CPtr)((Integer)(fp_sched_list) & ~in_fp_sched_tag);
+
+    while (complFrame && complFrame <= leader_csf) {
+      next_complFrame = (CPtr)((Integer)compl_fp_sched_csf(complFrame) & ~in_fp_sched_tag);
+      if (complFrame < leader_csf) {
+	// nonleader answers handled here; leader's handled by backtracking after these (see below)
 #endif
 #ifdef PROFILE
     subinst_table[ITER_FIXPOINT][1]++;
@@ -227,7 +234,7 @@ static CPtr find_fixpoint(CTXTdeclc CPtr leader_csf, CPtr producer_cpf)
 #endif
 
     if ((tmp_sched = sched_answers(CTXTc currSubg, &last_cons))) {
-#endif
+#endif // (else of) CONC_COMPL
       if (prev_sched) { /* if there is a prev subgoal scheduled */
 	/* link new node to the previous one */
 	nlcp_prevbreg(prev_sched) = tmp_sched;
@@ -238,8 +245,18 @@ static CPtr find_fixpoint(CTXTdeclc CPtr leader_csf, CPtr producer_cpf)
       if( last_cons == NULL ) printf("lc NULL");
       prev_sched = last_cons;
     }
+#ifndef CONC_COMPL    
+    }
+    compl_fp_sched_csf(complFrame) = NULL; // these answers handled (or if leader will be below)
+    complFrame = next_complFrame;
+  }  /* while */
+  // set new scheduling list to be the remainder of old
+  fp_sched_list = (CPtr)((Integer)complFrame | in_fp_sched_tag);
+
+#else
     complFrame = prev_compl_frame(complFrame);	
   }  /* while */
+#endif    
 
   if (prev_sched)  /* if anything has been scheduled */
     /* the first generator should backtrack to leader */

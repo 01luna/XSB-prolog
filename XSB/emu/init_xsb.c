@@ -448,7 +448,7 @@ static int process_long_option(CTXTdeclc char *option,int *ctr,char *argv[],int 
   } else if (!strcmp(option,"max_subgoal_size")) {
     if ((int) (*ctr) < argc) {
       (*ctr)++;
-      if (sscanf(argv[*ctr], "%d", (int*) &flags[MAX_TABLE_SUBGOAL_SIZE]) < 1)
+      if (sscanf(argv[*ctr], "%" Intfmt, (Integer*) &flags[MAX_TABLE_SUBGOAL_SIZE]) < 1)
 	xsb_warn(CTXTc "Invalid size value for --max_subgoal_size");
     }
     else xsb_warn(CTXTc "Missing size value for --max_subgoal_size");

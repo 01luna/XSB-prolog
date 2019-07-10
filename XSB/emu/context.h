@@ -186,6 +186,7 @@ struct th_context
   xsbBool _neg_delay;
   int _xwammode;
   int _level_num;
+  CPtr _fp_sched_list;
   CPtr _root_address;
 
   byte *_biarg;  /* builtin argument indexes */
@@ -581,6 +582,7 @@ typedef struct th_context th_context ;
 #define neg_delay		(th->_neg_delay)
 #define xwammode		(th->_xwammode)
 #define level_num		(th->_level_num)
+#define fp_sched_list		(th->_fp_sched_list)
 #define biarg			((th)->_biarg)
 #define bioldarg		((th)->_bioldarg)
 #define root_address		(th->_root_address)

@@ -1153,7 +1153,10 @@ if (wasRederived) {
  }
 
   if ( isNewAnswer ) {   /* go ahead -- look for more answers */
-
+    if (!((Integer)compl_fp_sched_csf(producer_csf) & in_fp_sched_tag)) {
+      compl_fp_sched_csf(producer_csf) = (CPtr)((Integer)fp_sched_list | in_fp_sched_tag);
+      fp_sched_list = (CPtr)((Integer)producer_csf | in_fp_sched_tag);
+    }
     LOG_NEW_ANSWER(producer_sf,answer_template,template_size);
 
 #ifdef DEBUG_ABSTRACTION
