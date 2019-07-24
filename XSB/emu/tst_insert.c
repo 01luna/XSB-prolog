@@ -133,7 +133,8 @@ inline static  TSINptr tsiHeadInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
 #define SN_MAX_DISTANCE 10
 
 #ifndef MULTI_THREAD
-SL_node_ptr SL_header = NULL; // currently use just 1 (turn into array if nec)
+SL_node_ptr SL_header[10] = {NULL,NULL}; // currently use just 1 (turn into array if nec)
+int SL_max_level = 0;
 #endif
 
 #define new_SL_node(SN_new)  \
@@ -141,14 +142,17 @@ SL_node_ptr SL_header = NULL; // currently use just 1 (turn into array if nec)
 
 #define free_SL_nodes						\
   do {								\
-    SL_node_ptr SN_node = SL_header;				\
-    SL_node_ptr SN_next;					\
-    while (SN_node != NULL) {					\
-      SN_next = SN_node->SL_next;				\
-      mem_dealloc(SN_node,sizeof(SL_node),OTHER_SPACE);		\
-      SN_node = SN_next;					\
+    int i;							\
+    SL_node_ptr SN_node, SN_next;				\
+    for (i = 0; i <= SL_max_level; i++) {			\
+      SN_node = SL_header[i];					\
+      while (SN_node != NULL) {					\
+	SN_next = SN_node->SL_next;				\
+	mem_dealloc(SN_node,sizeof(SL_node),OTHER_SPACE);	\
+	SN_node = SN_next;					\
+      }								\
+      SL_header[i] = NULL;					\
     }								\
-    SL_header = NULL;						\
   } while(0)
 
 inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
@@ -169,11 +173,11 @@ inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
      of 200K inserts.  Message given if should recurse levels.  Turn
      SN_header into arrow SN_headers[10] */
 
-  if (SL_header != NULL) { 
+  if (SL_header[SL_max_level] != NULL) { 
     // there is a skip-node list, so run it
     SN_cnt = 0;
     SN_prev = NULL;
-    SN_next = SL_header;
+    SN_next = SL_header[SL_max_level];
     while ((SN_next != NULL) && 
 	   (TSIN_TimeStamp(newTSIN) < SN_next->SL_ts)) {
       SN_cnt++;
@@ -210,8 +214,8 @@ inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
     SN_new->SL_down = midTSIN;
     SN_new->SL_ts = TSIN_TimeStamp(midTSIN);
     if (SN_prev == NULL) {
-      SN_new->SL_next = SL_header;
-      SL_header = SN_new;
+      SN_new->SL_next = SL_header[SL_max_level];
+      SL_header[SL_max_level] = SN_new;
     } else {
       SN_new->SL_next = SN_prev->SL_next;
       SN_prev->SL_next = SN_new;
@@ -324,7 +328,7 @@ void tstCreateTSIs(CTXTdeclc TSTNptr pTST) {
   /*** For each hash table ... ***/
   for ( ht = TSTRoot_GetHTList(pTST);  IsNonNULL(ht);
         ht = TSTHT_InternalLink(ht) ) {
-    SL_header = NULL;     // init skip list here (same list for same ht)
+    SL_header[SL_max_level] = NULL;     // init skip list here (same list for same ht)
     /*** For each bucket in this hash table ... ***/
     for ( pBucket = TSTHT_BucketArray(ht), bucketNum = 0;
 	  (unsigned int)bucketNum < TSTHT_NumBuckets(ht);

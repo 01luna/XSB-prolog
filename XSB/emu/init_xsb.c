@@ -1239,6 +1239,10 @@ void init_thread_structures(CTXTdecl)
 
   incr_hashtable_chain = NULL;
 
+  sched_heap = NULL;
+  sched_heap_size = 0;
+  num_in_sched_heap = 0;
+
   /***************/
 
 /* This is here just for the first thread - others initialize its xsb tid

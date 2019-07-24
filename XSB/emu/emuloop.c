@@ -380,7 +380,6 @@ extern void log_prog_ctr(byte *);
 #ifndef MULTI_THREAD
 xsbBool neg_delay;
 int  xwammode, level_num;
-CPtr fp_sched_list = (CPtr)in_fp_sched_tag;
 #endif
 
 #ifdef DEBUG_VM

@@ -96,6 +96,7 @@
 
 /*-------------------------------------------------------------------------*/
 
+
 #ifdef MULTI_THREAD
 
 #define TABLE_IS_SHARED()	(threads_current_sm == SHARED_SM)
@@ -1153,9 +1154,9 @@ if (wasRederived) {
  }
 
   if ( isNewAnswer ) {   /* go ahead -- look for more answers */
-    if (!((Integer)compl_fp_sched_csf(producer_csf) & in_fp_sched_tag)) {
-      compl_fp_sched_csf(producer_csf) = (CPtr)((Integer)fp_sched_list | in_fp_sched_tag);
-      fp_sched_list = (CPtr)((Integer)producer_csf | in_fp_sched_tag);
+    if (!compl_scheduled(producer_csf)) {
+      add_to_sched_heap(CTXTc producer_csf);
+      compl_scheduled(producer_csf) = TRUE;
     }
     LOG_NEW_ANSWER(producer_sf,answer_template,template_size);
 

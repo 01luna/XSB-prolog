@@ -520,7 +520,6 @@ struct ascc_edge {
 
 #define DELAYED		-1
 #define leader_tag	1
-#define in_fp_sched_tag	1
 
 struct completion_stack_frame {
   VariantSF subgoal_ptr;
@@ -528,9 +527,7 @@ struct completion_stack_frame {
   int     _level_num;
   int     visited;
   CPtr    to_leader_csf; // chain to leader; if (tagged) leader, ptr to next shallower leader.
-  CPtr    fp_sched_csf; // chain of csfs to be scheduled in one fp iteration
-  			// rooted at global fp_sched_list
-			// 1 bit on if in chain (to handle last one)
+  int     in_sched_heap;  // if already in scheduling heap; needs just one bit, could combine with visited.
 #ifndef LOCAL_EVAL
   EPtr    DG_edges;
   EPtr    DGT_edges;
@@ -544,12 +541,12 @@ struct completion_stack_frame {
 #define COMPLSTACKSIZE (COMPLSTACKBOTTOM - openreg)/COMPLFRAMESIZE
 
 #define compl_to_leader(b)	((ComplStackFrame)(b))->to_leader_csf
-#define compl_fp_sched_csf(b)	((ComplStackFrame)(b))->fp_sched_csf
 #define compl_subgoal_ptr(b)	((ComplStackFrame)(b))->subgoal_ptr
 #define compl_frame_level(b)	((ComplStackFrame)(b))->_level_num
 #define compl_leader_level(b)	((ComplStackFrame)(compl_leader(CTXTc b)))->_level_num
 #define compl_del_ret_list(b)	((ComplStackFrame)(b))->del_ret_list
 #define compl_visited(b)	((ComplStackFrame)(b))->visited
+#define compl_scheduled(b)	((ComplStackFrame)(b))->in_sched_heap
 #ifndef LOCAL_EVAL
 #define compl_DG_edges(b)	((ComplStackFrame)(b))->DG_edges
 #define compl_DGT_edges(b)	((ComplStackFrame)(b))->DGT_edges
@@ -621,7 +618,7 @@ struct completion_stack_frame {
     compl_to_leader(compl_leader(CTXTc prev_compl_frame(openreg))) \
       = (CPtr)((Integer)openreg | leader_tag);			   \
   compl_del_ret_list(openreg) = NULL;		\
-  compl_fp_sched_csf(openreg) = NULL;		\
+  compl_scheduled(openreg) = FALSE;		\
   compl_visited(openreg) = FALSE
 
 #define push_completion_frame_batched(subgoal) \

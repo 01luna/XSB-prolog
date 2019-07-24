@@ -656,7 +656,8 @@ void handle_tcpstack_overflow(CTXTdecl)
  * Re-allocate the space for the completion stack data area to "newsize"
  * K-byte blocks.
  */
-extern CPtr fp_sched_list; 
+extern CPtr sched_heap[];
+extern Integer num_in_sched_heap;
 
 void complstack_realloc (CTXTdeclc size_t newsize) {
 
@@ -671,6 +672,7 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
   ComplStackFrame csf_ptr;
   VariantSF subg_ptr;
 
+  Integer i;
 #ifdef CONC_COMPL
   byte **cp_ptr ;
 #endif
@@ -754,14 +756,10 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
       // adjust internal complstack ptr
       compl_to_leader(csf_ptr) += bottom_offset/sizeof(CPtr);
     }
-    if ((Integer)compl_fp_sched_csf(csf_ptr) & ~in_fp_sched_tag) {
-      // adjust scheduling list link
-      compl_fp_sched_csf(csf_ptr) += bottom_offset/sizeof(CPtr);
-    }
   }
-  if ((Integer)fp_sched_list & ~in_fp_sched_tag) {
-    // adjust base of scheduling list
-    fp_sched_list += bottom_offset/sizeof(CPtr);
+  
+  for (i=0; i<num_in_sched_heap; i++) {
+    sched_heap[i] += bottom_offset/sizeof(CPtr);
   }
 
 #ifdef CONC_COMPL
