@@ -1145,6 +1145,10 @@ XSB_Start_Instr(new_answer_dealloc,_new_answer_dealloc)
 
 if (wasRederived) {
   //  printf("           was rederived answer ");print_subgoal(stddbg,producer_sf);printf("\n");
+  if (!compl_scheduled(producer_csf)) {
+    add_to_sched_heap(CTXTc producer_csf);
+    compl_scheduled(producer_csf) = TRUE;
+  }
   LOG_NEW_ANSWER(producer_sf,answer_template,template_size);
   SUBG_INCREMENT_ANSWER_CTR(producer_sf,template_size);
   subg_callnode_ptr(producer_sf)->no_of_answers++;

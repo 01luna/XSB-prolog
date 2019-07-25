@@ -213,17 +213,21 @@ void remove_min_from_sched_heap(CTXTdecl) {
   while (rt < num_in_sched_heap) {
     rt1 = 2*rt+1;
     rt2 = rt1+1;
-    if (rt2 < num_in_sched_heap) { // has child2
-      if (rcsf < sched_heap[rt1] && rcsf < sched_heap[rt2]) {
-	sched_heap[rt] = rcsf;
-	break;
-      }
-      if (sched_heap[rt1] < sched_heap[rt2]) {
+    if (rt2 < num_in_sched_heap) { // has 2 children
+      if (rcsf < sched_heap[rt1]) {
+	if (rcsf < sched_heap[rt2]) {
+	  sched_heap[rt] = rcsf;
+	  break;
+	} else {
+	  sched_heap[rt] = sched_heap[rt2];
+	  rt = rt2;
+	}
+      } else if (sched_heap[rt1] < sched_heap[rt2]) {
 	sched_heap[rt] = sched_heap[rt1];
 	rt = rt1;
       } else {
-	sched_heap[rt] = sched_heap[rt2];
-	rt = rt2;
+	  sched_heap[rt] = sched_heap[rt2];
+	  rt = rt2;
       }
     } else if (rt1 < num_in_sched_heap) { // has child1 but no child2
       if (rcsf < sched_heap[rt1]) {
@@ -281,7 +285,7 @@ static CPtr find_fixpoint(CTXTdeclc CPtr leader_csf, CPtr producer_cpf)
       complFrame = min_from_sched_heap;
       remove_min_from_sched_heap(CTXT);
       compl_scheduled(complFrame) = FALSE;
-      if (complFrame < leader_csf && complFrame >= openreg) {
+      if (complFrame < leader_csf && complFrame >= openreg) { 
 #endif
 #ifdef PROFILE
     subinst_table[ITER_FIXPOINT][1]++;
@@ -332,8 +336,8 @@ static CPtr find_fixpoint(CTXTdeclc CPtr leader_csf, CPtr producer_cpf)
   }  // while 
 #else
     complFrame = prev_compl_frame(complFrame);	
-  }  /* while */
-#endif    
+  }  // while
+#endif
 
   if (prev_sched)  /* if anything has been scheduled */
     /* the first generator should backtrack to leader */
