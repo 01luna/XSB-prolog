@@ -40,6 +40,7 @@
 #define LIST_DIRECTORY           13
 #define STATISTICS_2             14
 #define SLEEP_FOR_MILLISECS    	 15
+#define STAT_FILE_TIME_NANOSECS  16
 
 // For statistics/2
 #define RUNTIME 0

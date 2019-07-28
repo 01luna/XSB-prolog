@@ -194,7 +194,7 @@
 
 :- export close_open_tables/0.
 :- export constraint_portray_hook/4.	% used in [x_interp]
-:- export epoch_seconds/1, epoch_milliseconds/2.
+:- export epoch_seconds/1, epoch_milliseconds/2, epoch_nanoseconds/2.
 
 :- export 
 	file_function/7, file_function/3, conname/2, conpsc/2, 

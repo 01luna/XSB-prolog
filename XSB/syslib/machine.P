@@ -484,6 +484,10 @@ epoch_seconds(Secs):-
 epoch_milliseconds(Secs,Milli):- 
 	sys_syscall(SYS_epoch_msecs, _Res, Secs, Milli).
 
+:- mode epoch_nanoseconds(?,?).
+epoch_nanoseconds(Secs,Nano):- 
+	sys_syscall(SYS_epoch_nsecs, _Res, Secs, Nano).
+
 /*======================================================================*/
 /* Some other stuff for convenience here;                               */
 /*======================================================================*/

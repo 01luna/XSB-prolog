@@ -23,6 +23,8 @@
 ** 
 */
 
+#define _POSIX_C_SOURCE 200809L
+
 #include "xsb_config.h"
 
 #include <stdio.h>
@@ -251,6 +253,28 @@ int sys_syscall(CTXTdeclc int callno)
     ctop_int(CTXTc 4,(Integer)(time_epoch.millitm));
     break;
   }
+  case SYS_epoch_nsecs: {
+#ifdef WIN_NT
+    /*
+    // use millisecs*1000000 in Windows, as clock_gettime unimplemented there
+    static struct timeb time_epoch;
+    ftime(&time_epoch);
+    ctop_int(CTXTc 3,(Integer)(time_epoch.time));
+    // convert milisec to nanosec
+    ctop_int(CTXTc 4,(Integer)(time_epoch.millitm)*1000000);
+    */
+    static struct timespec time_epoch;
+    timespec_get(&time_epoch, TIME_UTC);
+    ctop_int(CTXTc 3,(Integer)(time_epoch.tv_sec));
+    ctop_int(CTXTc 4,(Integer)(time_epoch.tv_nsec));
+#else
+    static struct timespec time_epoch;
+    clock_gettime(CLOCK_REALTIME, &time_epoch);
+    ctop_int(CTXTc 3,(Integer)(time_epoch.tv_sec));
+    ctop_int(CTXTc 4,(Integer)(time_epoch.tv_nsec));
+#endif
+    break;
+  }
   case SYS_main_memory_size: {
     size_t memory_size = getMemorySize();
     ctop_int(CTXTc 3,(UInteger)memory_size);
@@ -351,6 +375,7 @@ xsbBool sys_system(CTXTdeclc int callno)
   case IS_PLAIN_FILE:
   case IS_DIRECTORY:
   case STAT_FILE_TIME:
+  case STAT_FILE_TIME_NANOSECS:
   case STAT_FILE_SIZE:
     return file_stat(CTXTc callno, ptoc_longstring(CTXTc 2));
   case EXEC: {
@@ -1166,6 +1191,23 @@ xsbBool file_stat(CTXTdeclc int callno, char *file)
       /* no file, no functor: return 0 */
       ctop_int(CTXTc 3, 0);
     }
+    return TRUE;
+  }
+  case STAT_FILE_TIME_NANOSECS: {
+    if (!retcode) {
+#ifdef WIN_NT
+      // Windows does not have st_mtim.tv_nsec so nsecs are set to 0
+      ctop_int(CTXTc 3, (prolog_int)stat_buff.st_mtime);
+      ctop_int(CTXTc 4, 0);
+#else
+      ctop_int(CTXTc 3, (prolog_int)stat_buff.st_mtim.tv_sec);
+      ctop_int(CTXTc 4, (prolog_int)stat_buff.st_mtim.tv_nsec);
+#endif
+    } else { /* no file: return 0 */
+      ctop_int(CTXTc 3, 0);
+      ctop_int(CTXTc 4, 0);
+    }
+
     return TRUE;
   }
   case STAT_FILE_SIZE: { /* Return size in bytes. */
