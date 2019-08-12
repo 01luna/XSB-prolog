@@ -97,6 +97,12 @@ CPtr trieinstr_unif_stkptr;
 Integer  trieinstr_unif_stk_size = DEFAULT_ARRAYSIZ;
 #endif
 
+#ifndef MULTI_THREAD
+CPtr *sched_heap = NULL;
+Integer sched_heap_size = 0;
+Integer num_in_sched_heap = 0;
+#endif
+
 /*
  * Variable ans_var_pos_reg is a pointer to substitution factor of an
  * answer in the heap.  It is used and set in function
