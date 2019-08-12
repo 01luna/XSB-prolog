@@ -158,12 +158,6 @@ static CPtr sched_answers(CTXTdeclc VariantSF producer_sf, CPtr *last_consumer)
   return first_sched_cons;
 }
 
-#ifndef MULTI_THREAD
-CPtr *sched_heap = NULL;
-Integer sched_heap_size = 0;
-Integer num_in_sched_heap = 0;
-#endif
-
 #define empty_sched_heap (num_in_sched_heap == 0)
 #define min_from_sched_heap (sched_heap[0])
 #define SCHED_HEAP_INIT_SIZE 50
