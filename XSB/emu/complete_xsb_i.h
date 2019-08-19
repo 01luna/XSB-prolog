@@ -218,7 +218,7 @@ XSB_Start_Instr(check_complete,_check_complete)
 	/* there is nothing else to be done for this SCC */
 	cc_tbreg = tcp_prevbreg(orig_breg); /* go to prev SCC */
 	openreg = prev_compl_frame(cs_ptr); 
-	level_num = compl_frame_level(openreg);
+	reset_level_num(openreg);
 	reclaim_stacks(orig_breg);
       } 
       breg = cc_tbreg; /* either orig, prev_cp or compl_susp */

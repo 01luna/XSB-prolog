@@ -532,7 +532,7 @@ static inline void SetupReturnFromLeader(CTXTdeclc CPtr orig_breg, CPtr cs_ptr,
 
   /* reclaim stacks, including leader */
   openreg = prev_compl_frame(cs_ptr);
-  level_num = compl_frame_level(openreg);
+  reset_level_num(openreg);
   reclaim_stacks(orig_breg);
   answer_template = tcp_template(breg);
   tmp = int_val(cell(answer_template));

@@ -5017,9 +5017,7 @@ void remove_incomplete_tries(CTXTdeclc CPtr bottom_parameter)
     openreg += COMPLFRAMESIZE;
   }
   //  printf("new complstacksize %d\n",COMPLSTACKSIZE);
-  if (openreg < COMPLSTACKBOTTOM) 
-    level_num = compl_frame_level(openreg);
-  else level_num = 0;
+  reset_level_num(openreg);
 }
 
 

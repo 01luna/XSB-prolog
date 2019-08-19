@@ -558,6 +558,12 @@ struct completion_stack_frame {
 #define prev_compl_frame(b)	(((CPtr)(b))+COMPLFRAMESIZE)
 #define next_compl_frame(b)	(((CPtr)(b))-COMPLFRAMESIZE)
 
+#define reset_level_num(b) \
+  do {								\
+    if (b != COMPLSTACKBOTTOM) level_num = compl_frame_level(b);	\
+    else level_num = 0;							\
+  } while (0)
+
 #define check_scc_subgoals_tripwire {					\
     if (subgoals_in_scc > flags[MAX_SCC_SUBGOALS]) { /* account for 0-index */ \
       if (flags[MAX_SCC_SUBGOALS_ACTION] == XSB_ERROR)			\
