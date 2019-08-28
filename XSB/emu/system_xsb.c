@@ -206,7 +206,12 @@ int sys_syscall(CTXTdeclc int callno)
     break;
   }
   case SYS_create: {
+    // TES: need to use different macro forms with clang when updating the POSIX vzaersion
+#if defined(DARWIN)
+    result = open(ptoc_longstring(CTXTc 3),O_CREAT|O_EXCL,S_IRUSR|S_IWUSR);
+#else
     result = open(ptoc_longstring(CTXTc 3),O_CREAT|O_EXCL,S_IREAD|S_IWRITE);
+#endif
     if (result >= 0) close(result);
     break;
   }
@@ -1195,10 +1200,13 @@ xsbBool file_stat(CTXTdeclc int callno, char *file)
   }
   case STAT_FILE_TIME_NANOSECS: {
     if (!retcode) {
-#ifdef WIN_NT
+#if defined(WIN_NT)
       // Windows does not have st_mtim.tv_nsec so nsecs are set to 0
       ctop_int(CTXTc 3, (prolog_int)stat_buff.st_mtime);
       ctop_int(CTXTc 4, 0);
+#elif defined(DARWIN)
+      ctop_int(CTXTc 3, (prolog_int)stat_buff.st_mtime);
+      ctop_int(CTXTc 4, (prolog_int)stat_buff.st_mtimensec);
 #else
       ctop_int(CTXTc 3, (prolog_int)stat_buff.st_mtim.tv_sec);
       ctop_int(CTXTc 4, (prolog_int)stat_buff.st_mtim.tv_nsec);
