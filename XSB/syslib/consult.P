@@ -561,22 +561,22 @@ load_dyn(File) :-
 load_dyn(File,DirIn) :-
 	load_dyn(File,DirIn,usermod).
 
-%% TLS: changed behavior to throw error rather than fail to make
+%% TES: changed behavior to throw error rather than fail to make
 %% compatable with other ISO type errors, e.g. open/[3,4].  
-%% TLS allow calling with a or z 
+%% TES allow calling with a or z 
 :- mode load_dyn(+,+,+).
-load_dyn(File,DirIn,Module) :-
+load_dyn(File,AZIn,Module) :-
 	check_nonvar(File,'load_dyn/1',1),
 	check_atom(File,'load_dyn/1',1),
 	check_one_thread(load,file,'load_dyn/2'),
-	load_dyn_nocheck(File,DirIn,Module).
+	load_dyn_nocheck(File,AZIn,Module).
 
-load_dyn_nocheck(File,DirIn,Module) :-
-	load_dyn_convert(DirIn,Dir,load_dyn),
+load_dyn_nocheck(File,AZIn,Module) :-
+	load_dyn_convert(AZIn,AZ,load_dyn),
 	get_fname(File,Dirctry,SExt,Base,Mod),
 	(SExt == XSB_OBJ_EXTENSION_ATOM_SANS_DOT
 	 ->	existence_error('Prolog file/module',Base,load_dyn/[1,2],1)
-	 ;	load_dyn0(Dirctry,SExt,Base,Mod,Dir,Module)
+	 ;	load_dyn0(Dirctry,SExt,Base,Mod,AZ,Module)
 	).
 
 load_dyn_convert(a,0,_):- !.
@@ -592,16 +592,16 @@ get_fname(Filename,Dirctry,SExt,Base,Mod) :-
 %	; warning('Cannot find file'(Filename)), fail
 	).
 
-load_dyn0(Dirctry,SExt,Base,Mod,Dir,Module) :-
+load_dyn0(Dirctry,SExt,Base,Mod,AZ,Module) :-
 	get_HRname(SExt,Base,Hfname,Rfname),
 	expand_filename(Rfname,ARfname),
 	init_for_load(ARfname, Mod),
 	fmod_from_base(Base,FMod),
 	(Hfname == []
          ->     true
-         ;      load_dyn1(Hfname,Dirctry,Dir,FMod,Module) % ? into module?
+         ;      load_dyn1(Hfname,Dirctry,AZ,FMod,Module) % ? into module?
         ),
-	load_dyn1(ARfname,Dirctry,Dir,FMod,Module),
+	load_dyn1(ARfname,Dirctry,AZ,FMod,Module),
 	cleanup_for_load.
 
 get_HRname(SExt,Base,Hfname,Rfname) :-
@@ -633,12 +633,12 @@ fmod_from_base(Base,FMod) :-
 llappend([X|L1],L2,[X|L3]) :- llappend(L1,L2,L3).
 llappend([],L,L).
 
-load_dyn1(Rfname,Dirctry,Dir,Base,Module) :-
+load_dyn1(Rfname,Dirctry,AZ,Base,Module) :-
 	cputime(T0),
 	seeing(OldFile),
 	open_or_xpp_file(Rfname, XPP_process),
 	current_input_port(XPPport), %% port from process, if it was launched
-	(   catch(read_and_assert(Dir,Base,Module),Ball,close_and_throw(XPP_process,XPPport,Ball))
+	(   catch(read_and_assert(AZ,Base,Module),Ball,close_and_throw(XPP_process,XPPport,Ball))
 	%% If needs restart, close old file and skip to the second load_dyn1
 	 -> ( conget(needs_restart,1)
 	     ->	seen, see(OldFile),
@@ -664,10 +664,10 @@ load_dyn1(Rfname,Dirctry,Dir,Base,Module) :-
 	->  true
 	;   time_message(T0,(Rfname,' dynamically loaded'))
 	).
-load_dyn1(Rfname,Dirctry,Dir,Base,Module) :- 
+load_dyn1(Rfname,Dirctry,AZ,Base,Module) :- 
 	%% If we are restarting due to gpp, then reset needs_restart.
 	conget(needs_restart,1), conset(needs_restart, 0),
-	load_dyn1(Rfname,Dirctry,Dir,Base,Module).
+	load_dyn1(Rfname,Dirctry,AZ,Base,Module).
 
 close_and_throw(XPP_process,XPPport,Ball) :-
 	(XPP_process == skip
@@ -734,7 +734,7 @@ cleanup_for_load :-
 %%	retractall(in_mod(_,_,_)).
 
 %% This version is used for load_dyn1 only!
-read_and_assert(Dir,Base,Module) :-
+read_and_assert(AZ,Base,Module) :-
 	read(Term1),
 	expand_term(Term1,Terms),
 	(is_list(Terms)
@@ -743,11 +743,11 @@ read_and_assert(Dir,Base,Module) :-
 	),
 	(Term == end_of_file
 	 ->	!, fail
-	 ;	do_assert_and_fail(Term,Dir,Base,Module)
+	 ;	do_assert_and_fail(Term,AZ,Base,Module)
 	).
 %% Don''t loop, if restart is requested
 read_and_assert(_,_,_) :- conget(needs_restart,1), !.
-read_and_assert(Dir,Base,Module) :- read_and_assert(Dir,Base,Module).
+read_and_assert(AZ,Base,Module) :- read_and_assert(AZ,Base,Module).
 
 :- mode load_dync(+).
 load_dync(File) :-
@@ -772,23 +772,23 @@ load_dync(File,Dirin,Module,FactFlg) :-
 	load_dync_nocheck(File,Dirin,Module,FactFlg).
 	
 load_dync_nocheck(File,Dirin,Module,FactFlg) :-
-	load_dyn_convert(Dirin,Dir,load_dync),
+	load_dyn_convert(Dirin,AZ,load_dync),
 	get_fname(File,Dirctry,SExt,Base,Mod),
-	load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg).
+	load_dync0(Dirctry,SExt,Base,Mod,AZ,Module,FactFlg).
 
-load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg) :-
+load_dync0(Dirctry,SExt,Base,Mod,AZ,Module,FactFlg) :-
 	get_HRname(SExt,Base,Hfname,Rfname),
 	expand_filename(Rfname,ARfname),
 	init_for_load(ARfname, Mod),
 	fmod_from_base(Base,FMod),
 	(Hfname == []
          ->     true
-         ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,FactFlg)
+         ;      load_dync1(Hfname,Dirctry,AZ,FMod,Module,FactFlg)
         ),
-	load_dync1(ARfname,Dirctry,Dir,FMod,Module,FactFlg),
+	load_dync1(ARfname,Dirctry,AZ,FMod,Module,FactFlg),
 	cleanup_for_load.
 
-load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
+load_dync1(Rfname,Dirctry,AZ,Base,Module,FactFlg) :-
 	cputime(T0),
 	seeing(OldFile),
 	open_or_xpp_file(Rfname, XPP_process),
@@ -801,7 +801,7 @@ load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
 %%		stat_set_flag(CURRENT_MODULE,ModPsc)
 %%	),
 	file_read_canonical(-1000,0,0),	% initialize previous psc
-	(   read_and_assert(XPPport,Dir,Base,Module,FactFlg)
+	(   read_and_assert(XPPport,AZ,Base,Module,FactFlg)
 	%% If needs restart, close old file and skip to the second load_dync1
 	->  (conget(needs_restart,1) -> seen, see(OldFile), fail ; true)
 	;   conset(needs_restart, 0), conset(xpp_on,0)
@@ -821,14 +821,14 @@ load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
 	->  true
 	;   time_message(T0,(Rfname,' dynamically loaded'))
 	).
-load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :- 
+load_dync1(Rfname,Dirctry,AZ,Base,Module,FactFlg) :- 
 	%% If we are restarting due to gpp, then reset needs_restart.
 	conget(needs_restart,1), conset(needs_restart, 0),
-	load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg).
+	load_dync1(Rfname,Dirctry,AZ,Base,Module,FactFlg).
 
 
 %% This version is used for load_dync1 only!
-read_and_assert(IPort,Dir,Base,Module,FactFlg) :-
+read_and_assert(IPort,AZ,Base,Module,FactFlg) :-
 	coninc('_$load_dync_line_no'),
 	file_read_canonical(IPort,Term,Opsc),	% Opsc: PSC ptr of prev (and this) if prev same; otw 0
 	(Opsc =:= 0
@@ -854,7 +854,7 @@ read_and_assert(IPort,Dir,Base,Module,FactFlg) :-
 			t_assert(Term1, _Flag)
 		 ;	load_dyn_retracted(Opsc,Prref,NArity,Index,Hashsize),
 			se_assert_code_to_buff(Term1),
-			assert_buff_to_clref(Term1,NArity,Prref,Dir,Index,Hashsize)
+			assert_buff_to_clref(Term1,NArity,Prref,AZ,Index,Hashsize)
 		),
 		fail
 	),
@@ -874,15 +874,15 @@ read_and_assert(IPort,Dir,Base,Module,FactFlg) :-
 		 ;	true
 		),
 		fail
-	 ;	do_assert_and_fail(Term,Dir,Base,Module)
+	 ;	do_assert_and_fail(Term,AZ,Base,Module)
 	).
-read_and_assert(_IPort,_Dir,_Base,_Module,_FactFlg) :-
+read_and_assert(_IPort,_AZ,_Base,_Module,_FactFlg) :-
 	conget(needs_restart,1), % if needs restart
 	!,			% don't continue to read
 	conset('_$load_dync_line_no',0),
 	conset('_$load_dync_error_cnt',0).
-read_and_assert(IPort,Dir,Base,Module,FactFlg) :-
-	read_and_assert(IPort,Dir,Base,Module,FactFlg).
+read_and_assert(IPort,AZ,Base,Module,FactFlg) :-
+	read_and_assert(IPort,AZ,Base,Module,FactFlg).
 
 
 not_asserted_term(:-(_)).
@@ -910,7 +910,7 @@ execute_accumulated_commands(Dir) :-
 	).
 
 do_assert_and_fail([],_,_,_) :- !, fail.
-do_assert_and_fail(:-(Cmd),_Dir,Base,Mod) :- !, % DIRECTIVE
+do_assert_and_fail(:-(Cmd),_AZ,Base,Mod) :- !, % DIRECTIVE
 	(load_dyn_module(RMod)
 	 ->	true
 	 ;	RMod = Mod
@@ -933,7 +933,7 @@ do_assert_and_fail(:-(Cmd),_Dir,Base,Mod) :- !, % DIRECTIVE
 		assert(load_dyn_cmds(Cmd1))
 	),
 	fail.
-do_assert_and_fail(?-(Cmd),_Dir,_Base,Mod) :- !, % COMMAND
+do_assert_and_fail(?-(Cmd),_AZ,_Base,Mod) :- !, % COMMAND
 	(load_dyn_module(RMod)
 	 ->	true
 	 ;	RMod = Mod
@@ -941,7 +941,7 @@ do_assert_and_fail(?-(Cmd),_Dir,_Base,Mod) :- !, % COMMAND
 	fix_body_goal(Cmd,RMod,Cmd1),
 	assert(load_dyn_cmds(Cmd1)),
 	fail.
-do_assert_and_fail(:-(Head0,Body0),Dir,_Base,Mod) :- !, % RULE
+do_assert_and_fail(:-(Head0,Body0),AZ,_Base,Mod) :- !, % RULE
 	(load_dyn_module(RMod)
 	 ->	true
 	 ;	RMod = Mod
@@ -997,9 +997,9 @@ do_assert_and_fail(:-(Head0,Body0),Dir,_Base,Mod) :- !, % RULE
 		se_assert_code_to_buff((Nhead:-Nbody))
 	 ;	se_assert_code_to_buff((MHead:-Body))
 	),
-	assert_buff_to_clref(MHead,NArity,Prref,Dir,Index,Hashsize),
+	assert_buff_to_clref(MHead,NArity,Prref,AZ,Index,Hashsize),
 	fail.
-do_assert_and_fail(Head0,Dir,_Base,Mod) :- % FACT
+do_assert_and_fail(Head0,AZ,_Base,Mod) :- % FACT
 	(load_dyn_module(RMod)
 	 ->	true
 	 ;	RMod = Mod
@@ -1046,7 +1046,7 @@ do_assert_and_fail(Head0,Dir,_Base,Mod) :- % FACT
 			NArity is Arity+1
 		),
 		se_assert_code_to_buff(MHead),
-		assert_buff_to_clref(MHead,NArity,Prref,Dir,Index,Hashsize)
+		assert_buff_to_clref(MHead,NArity,Prref,AZ,Index,Hashsize)
 	),
 	fail.
 
@@ -1271,13 +1271,13 @@ thread_private(PredSpec) :-
 	psc_set_private(PSC,1).
 
 :- mode ensure_loaded(+,+).
-ensure_loaded(File,Dir):- 
-	ensure_loaded(File,Dir,usermod).
+ensure_loaded(File,Behavior):- 
+	ensure_loaded(File,Behavior,usermod).
 
 :- mode ensure_loaded(+,+,+).
-ensure_loaded(File,Dir,Module):- 
-	check_nonvar(Dir,'ensure_loaded/2',1),
-	ensure_loaded_novarcheck(File,Dir,Module).
+ensure_loaded(File,Behavior,Module):- 
+	check_nonvar(Behavior,'ensure_loaded/2',1),
+	ensure_loaded_novarcheck(File,Behavior,Module).
 
 :- index ensure_loaded_novarcheck/3-2.
 ensure_loaded_novarcheck(File,dyn,Module) :- !, ensure_dyn_loaded(File,1,Module).
@@ -1285,8 +1285,8 @@ ensure_loaded_novarcheck(File,dyna,Module) :- !, ensure_dyn_loaded(File,0,Module
 ensure_loaded_novarcheck(File,dync,Module) :- !, ensure_dync_loaded(File,1,Module).
 ensure_loaded_novarcheck(File,dynca,Module) :- !, ensure_dync_loaded(File,0,Module).
 ensure_loaded_novarcheck(File,consult,_Module) :- !, ensure_loaded(File).
-ensure_loaded_novarcheck(_File,Dir,_Module) :- 
-	domain_error(load_action([dyn,dyna,dync,dynca,consult]),Dir,ensure_loaded/2,2).
+ensure_loaded_novarcheck(_File,Behavior,_Module) :- 
+	domain_error(load_action([dyn,dyna,dync,dynca,consult]),Behavior,ensure_loaded/2,2).
 
 
 /* In the ensure loadeds, I'm relying on underlying reconsult,
