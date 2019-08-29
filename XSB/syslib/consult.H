@@ -30,8 +30,6 @@
         consult/1, consult/2, '.'/2, reconsult/1, reconsult/2,
         current_loaded_file/1, is_loaded/1, add_this_lib_dir/0,
         engine_mode_magic_num/3,
-        ensure_dyn_loaded/1, ensure_dync_loaded/1,
-        ensure_dyn_loaded/3, ensure_dync_loaded/3,
         ensure_loaded/1, ensure_loaded/2, ensure_loaded/3,
         get_magic_num/2,
         load_dyn/1, load_dyn/2, load_dyn/3,
@@ -47,8 +45,10 @@
         remove_file_consultloaded/1,
         file_is_consultloaded/1,
         consult_file_loaded/1.
-:- export
-	xsb_filename/2.
+:- export   xsb_filename/2.
+%TES: obsolescent -- use ensure_laded/2,3.
+:- export   ensure_dyn_loaded/1, ensure_dync_loaded/1,
+            ensure_dyn_loaded/3, ensure_dync_loaded/3.
 
 :- local load_dyn_retracted/5,
          load_dyn_trie_retracted/1,
