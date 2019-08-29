@@ -213,11 +213,11 @@ to be thrown during program execution.
 \end{itemize}
 
 In addition, regardless of the state of predicates in $PredList$, if
-options contains an unsupported set of declarations, a permission error
-will be thrown (see Table~\ref{table:table} for a list of supported
-and non-supported combinations of tabling modes and predicate
-properties).  {\tt Options} throws a table error in the following
-cases:
+options contains an unsupported set of declarations, a permission
+error will be thrown (see Section~\ref{sec:tabling-compatibility} for
+a list of supported and non-supported combinations of tabling modes
+and predicate properties).  {\tt Options} throws a table error in the
+following cases:
 %
 \bi
 \item {\tt Options} contains {\tt dynamic} and either {\tt opaque} or
@@ -1065,7 +1065,7 @@ values for tabled predicates.
 }
 
 \subsection{Predicates for Table Inspection: Lower-level} \label{sec:table-inspection-low}
-\label{sec:TablePred:Inspection}
+%\label{sec:TablePred:Inspection}
 \index{tabling!table inspection}
 \index{tabling!call subsumption}
 \index{tabling!call variance}
