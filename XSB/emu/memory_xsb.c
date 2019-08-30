@@ -656,7 +656,7 @@ void handle_tcpstack_overflow(CTXTdecl)
  * Re-allocate the space for the completion stack data area to "newsize"
  * K-byte blocks.
  */
-extern CPtr sched_heap[];
+extern CPtr *sched_heap;
 extern Integer num_in_sched_heap;
 
 void complstack_realloc (CTXTdeclc size_t newsize) {
