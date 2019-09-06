@@ -240,6 +240,9 @@ static int print_anyway = 0 ;
 #define print_on_gc 0
 #endif
 
+/* set to 1 while GC-ing (or other general memory mgmnt) to tell profiler */
+int garbage_collecting = 0;
+
 /* Whether to garbage collect strings on this heap gc or not. */
 int gc_strings = FALSE;
 
@@ -449,6 +452,7 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
 #endif
 
   if (pflags[STACK_REALLOC] == FALSE) xsb_basic_abort(local_global_exception);
+  garbage_collecting = 1;
 
   if (new_size <= glstack.size) { // asked to shrink
     // new_size is space needed + half of init_size, rounded to K
@@ -515,6 +519,7 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
 	  //	  xsb_error("Not enough core to resize the Heap/Local Stack! (current: %"Intfmt"; resize %"Intfmt")",
 	  //   glstack.size*K,new_size_in_bytes);
 	  //return 1; /* return an error output -- will be picked up later */
+	  garbage_collecting = 0;
 	  xsb_throw_memory_error(encode_memory_error(GL_SPACE,SYSTEM_MEMORY_LIMIT));
 	}
     } 
@@ -628,6 +633,7 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
   xsb_dbgmsg((LOG_REALLOC,
 	     "Heap/Local Stack data area expansion - finished in %lf secs\n",
 	     expandtime));
+  garbage_collecting = 0;
   return 0;
 } /* glstack_realloc */
 
@@ -635,7 +641,6 @@ xsbBool glstack_realloc(CTXTdeclc size_t new_size, int arity)
 /*======================================================================*/
 /* The main routine that performs garbage collection.                   */
 /*======================================================================*/
-int garbage_collecting = 0;
 
 int gc_heap(CTXTdeclc int arity, int ifStringGC)
 {
