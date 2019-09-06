@@ -435,6 +435,7 @@ DllExport void call_conv mem_dealloc(void *addr, size_t size, int category)
 
 
 /* === reallocate stack memory ============================================= */
+extern int garbage_collecting;
 
 /*
  * Re-allocate the space for the trail and choice point stack data area
@@ -469,6 +470,7 @@ Please use -c N or cpsize(N) to start with a larger choice point stack"
   if (newsize == tcpstack.size)
     return;
 
+  garbage_collecting = 1;
   cps_top = (byte *)top_of_cpstack;
   trail_top = (byte *)top_of_trail;
 
@@ -507,6 +509,7 @@ Please use -c N or cpsize(N) to start with a larger choice point stack"
       }
     }
     if (!new_trail) {
+      garbage_collecting = 0;
       xsb_throw_memory_error(encode_memory_error(TCP_SPACE,SYSTEM_MEMORY_LIMIT));
     }
     else {
@@ -631,6 +634,7 @@ Please use -c N or cpsize(N) to start with a larger choice point stack"
   if ( IsNonNULL(root_address) )
     root_address = (CPtr)((byte *)root_address + cps_offset);
 
+  garbage_collecting = 0;
   xsb_dbgmsg((LOG_DEBUG, "\tNew Bottom:\t%p\t\tNew Size: %ldK",
 	     tcpstack.low, tcpstack.size));
   xsb_dbgmsg((LOG_DEBUG, "\tNew Top:\t%p\n", tcpstack.high));
@@ -680,6 +684,7 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
   //  printf("reallocing complstack\n");
   if (newsize == complstack.size)
     return;
+  garbage_collecting = 1;
   
   cs_top = (byte *)top_of_complstk;
   
@@ -700,6 +705,7 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
      */
     if (STACK_USER_MEMORY_LIMIT_OVERFLOW(complstack.size, newsize)) {
       flags[MAX_MEMORY] = (int) (flags[MAX_MEMORY]*1.2);			
+      garbage_collecting = 0;
       if (flags[MAX_MEMORY_ACTION] == XSB_ERROR)			
 	xsb_throw_memory_error(encode_memory_error(COMPL_SPACE,USER_MEMORY_LIMIT)); 
       else {								
@@ -708,6 +714,7 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
     }
     new_top = (byte *)realloc(complstack.low, newsize * K);
     if ( IsNULL(new_top) ) {
+        garbage_collecting = 0;
 	xsb_throw_memory_error(encode_memory_error(COMPL_SPACE,SYSTEM_MEMORY_LIMIT));
     }
     new_bottom = new_top + newsize * K;
@@ -782,6 +789,7 @@ void complstack_realloc (CTXTdeclc size_t newsize) {
   
   openreg = (CPtr)((byte *)openreg + bottom_offset);
 
+  garbage_collecting = 0;
   xsb_dbgmsg((LOG_DEBUG, "\tNew Bottom:\t%p\t\tNew Size: %ldK",
 	     complstack.low, complstack.size));
   xsb_dbgmsg((LOG_DEBUG, "\tNew Top:\t%p\n", complstack.high));
