@@ -87,7 +87,8 @@ Integer intern_term_size(CTXTdeclc Cell term)
   case XSB_INT:
   case XSB_STRING:
   case XSB_FLOAT:
-    return size ;
+  case XSB_ATTV:
+    return size;
   case XSB_LIST: {
     if (isinternstr(term)) {return size;}
     else {
@@ -119,8 +120,6 @@ Integer intern_term_size(CTXTdeclc Cell term)
       goto recur;
     }
   }
-  case XSB_ATTV:
-    return size;
   }
   return FALSE;
 }
@@ -135,10 +134,11 @@ struct hc_block_rec *hc_block[400] = {0};
 int big_arities[140] = {0};
 
 UInteger it_hash(Integer ht_size, int reclen, CPtr termrec) {
-  UInteger hsh = 0;
+  UInteger hsh;
   int i;
   // termrec is untagged address!
-  for (i = 0; i<reclen; i++) {
+  hsh = cell(termrec);
+  for (i = 1; i<reclen; i++) {
     hsh = (hsh << 2*(i % 16)) + cell(termrec+i); 
   }
   return hsh % ht_size;
@@ -171,6 +171,7 @@ int is_interned_rec(Cell term) {
   CPtr term_rec;
   UInteger hashindex; 
   struct hc_block_rec *hc_blk_ptr;
+  struct it_hashtab_rec *hashtab_rec;
 
   if (islist(term)) {
     areaindex = LIST_INDEX;
@@ -186,53 +187,70 @@ int is_interned_rec(Cell term) {
   if (!hc_blk_ptr) return FALSE;
   term_rec = (CPtr)cs_val(term);
 
-  hashindex = it_hash(hc_blk_ptr->hashtab_size,reclen,term_rec);
-  recptr = hc_blk_ptr->hashtab[hashindex];
-  while (recptr) {
-    if (term_rec == (CPtr)&(recptr->intterm_psc)) {return TRUE;}
-    recptr = clean_addr(recptr->next);
+  hashtab_rec = hc_blk_ptr->hashtab_rec;
+  while (hashtab_rec) {
+    hashindex = it_hash(hashtab_rec->hashtab_size,reclen,term_rec);
+    recptr = hashtab_rec->hashtab[hashindex];
+    while (recptr) {
+      if (term_rec == (CPtr)&(recptr->intterm_psc)) {return TRUE;}
+      recptr = clean_addr(recptr->next);
+    }
+    hashtab_rec = hashtab_rec->next;
   }
   return FALSE;
 }
 
+#define num_ht_sizes 10
+Integer hashtable_sizes[num_ht_sizes] =
+  {1009,10067,1000603,8000009,32000011,100000007,
+   100000007,100000007,100000007,100000007};
 
-#define it_hashtab_size 1048573
 CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termrec) {
   struct intterm_rec *recptr, *prev;
+  struct it_hashtab_rec *hashtab_rec, *nhashtab_rec;
   Integer hashindex; 
-  int i, found;
+  int i, found, ht_cnt;
   CPtr hc_term;
-  
+
   if (!hc_blk_ptr->base) { /* allocate first block */
     hc_blk_ptr->base = 
       mem_calloc(sizeof(Cell),(1+hc_num_in_block*(1+reclen)),OTHER_SPACE); /* for now, make own space*/
     if (!hc_blk_ptr->base) {
       xsb_error("No memory for interned terms\n");
     }
-    hc_blk_ptr->hashtab = 0;
-    hc_blk_ptr->hashtab_size = 0;
     hc_blk_ptr->freechain = 0;
     hc_blk_ptr->freedisp = &(hc_blk_ptr->base->recs);
   }
-  if (!hc_blk_ptr->hashtab) {
-    hc_blk_ptr->hashtab = mem_calloc(sizeof(Cell),it_hashtab_size,OTHER_SPACE);
-    if (!hc_blk_ptr->hashtab) xsb_abort("No memory for interned terms\n");
-    hc_blk_ptr->hashtab_size = it_hashtab_size;
+  hashtab_rec = hc_blk_ptr->hashtab_rec;
+  ht_cnt = 0;
+  if (!hashtab_rec) {
+    hashtab_rec = hc_blk_ptr->hashtab_rec = mem_calloc(sizeof(struct it_hashtab_rec),1,OTHER_SPACE);
+    if (!hashtab_rec) xsb_abort("No memory for interned term hash table block\n");
+    hashtab_rec->next = 0;
+    hashtab_rec->hashtab_size = hashtable_sizes[ht_cnt];
+    hashtab_rec->num_in_hashtab = 0;
+    hashtab_rec->hashtab = mem_calloc(sizeof(Cell),hashtab_rec->hashtab_size,OTHER_SPACE);
+    if (!hashtab_rec->hashtab) xsb_abort("No memory for interned term hash table\n");
   }
-
-  hashindex = it_hash(hc_blk_ptr->hashtab_size,reclen,termrec);
-  prev = recptr = clean_addr(hc_blk_ptr->hashtab[hashindex]);
-  while (recptr) {
-    found = 1;
-    hc_term = (CPtr)&(recptr->intterm_psc);
-    for (i=0; i<reclen; i++) {
-      if (cell(hc_term+i) != cell(termrec+i)) {
-	found = 0; break;
+  while (hashtab_rec) {
+    hashindex = it_hash(hashtab_rec->hashtab_size,reclen,termrec);
+    prev = recptr = clean_addr(hashtab_rec->hashtab[hashindex]);
+    while (recptr) {
+      found = 1;
+      hc_term = (CPtr)&(recptr->intterm_psc);
+      for (i=0; i<reclen; i++) {
+	if (cell(hc_term+i) != cell(termrec+i)) {
+	  found = 0; break;
+	}
       }
+      if (found) {
+	return hc_term;
+      }
+      prev = recptr;
+      recptr = clean_addr(recptr->next);
     }
-    if (found) {/*printf("old %p\n",hc_term);*/ return hc_term;}
-    prev = recptr;
-    recptr = clean_addr(recptr->next);
+    ht_cnt++;
+    hashtab_rec = hashtab_rec->next;
   }
   if ((recptr = hc_blk_ptr->freechain)) { // take available rec from freechain if is one
     hc_blk_ptr->freechain = recptr->next;
@@ -251,13 +269,28 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     }
     hc_blk_ptr->freedisp = (struct intterm_rec *)((CPtr)(hc_blk_ptr->freedisp) + reclen+1);
   }
-  if (prev) prev->next = recptr; else hc_blk_ptr->hashtab[hashindex] = recptr;
-  recptr->next = 0;
-  hc_term = (CPtr)&(recptr->intterm_psc);
-  for (i=0; i<reclen; i++) {
-    cell(hc_term+i) = cell(termrec+i);
+  // put at beginning of hash chain of first hashtable
+  hashtab_rec = hc_blk_ptr->hashtab_rec;
+  if (hashtab_rec->num_in_hashtab > hashtab_rec->hashtab_size) {
+    //    printf("new ht size=%lld, reclen=%d, num_hts=%d\n",hashtab_rec->hashtab_size,reclen,ht_cnt);
+    nhashtab_rec = mem_calloc(sizeof(struct it_hashtab_rec),1,OTHER_SPACE);
+    if (!nhashtab_rec) xsb_abort("No memory for interned term hash table block\n");
+    nhashtab_rec->hashtab_size = (ht_cnt<10)?hashtable_sizes[ht_cnt]:hashtable_sizes[num_ht_sizes-1];
+    nhashtab_rec->num_in_hashtab = 0;
+    nhashtab_rec->hashtab = mem_calloc(sizeof(Cell),nhashtab_rec->hashtab_size,OTHER_SPACE);
+    if (!nhashtab_rec->hashtab)
+      xsb_abort("No memory for interned term hash table of size \n",nhashtab_rec->hashtab_size);
+    nhashtab_rec->next = hashtab_rec;
+    hc_blk_ptr->hashtab_rec = nhashtab_rec;
+    hashtab_rec = nhashtab_rec;
   }
-  //  xsb_log("alloc intern: "); log_irec(reclen,recptr);
+  hashindex = it_hash(hashtab_rec->hashtab_size,reclen,termrec);
+  recptr->next = hashtab_rec->hashtab[hashindex];
+  hashtab_rec->hashtab[hashindex] = recptr;
+  hashtab_rec->num_in_hashtab++;
+
+  hc_term = (CPtr)&(recptr->intterm_psc);
+  memcpy(hc_term,termrec,reclen*sizeof(Cell));
   return hc_term;
 }
 
@@ -304,7 +337,9 @@ Cell intern_rec(CTXTdeclc prolog_term term) {
       dterm_len = reclen;
     }
     j=0;
-  } else return 0;
+  } else {
+    return 0;
+  }
   hc_blk_ptr = hc_block[areaindex];
   if (!hc_blk_ptr) {
     hc_blk_ptr = (struct hc_block_rec *)mem_calloc(sizeof(struct hc_block_rec),1,OTHER_SPACE);
@@ -321,7 +356,11 @@ Cell intern_rec(CTXTdeclc prolog_term term) {
   }
 
   hc_term = insert_interned_rec(reclen, hc_blk_ptr, dterm);
-  if (islist(term)) return makelist(hc_term); else return makecs(hc_term);
+  if (islist(term)) {
+    return makelist(hc_term);
+  } else {
+    return makecs(hc_term);
+  }
 }
 
 
@@ -444,10 +483,11 @@ void reclaim_internstr_recs() {
   struct intterm_block *block_ptr;
   struct intterm_rec *rec_ptr, *lrec_ptr;
   struct intterm_rec *prec_ptr = NULL;
-  int areaindex, reclen;
+  int areaindex, reclen, found;
   UInteger hashindex; 
+  struct it_hashtab_rec *hashtab_rec;
   struct hc_block_rec *hc_blk_ptr;
-
+  
   for (areaindex = 0; areaindex < 400; areaindex++) {
     if (areaindex == LIST_INDEX) reclen = 3; // including next pointer
     else if (areaindex > 255) reclen = get_big_arity_from_index(areaindex)+2;
@@ -469,24 +509,30 @@ void reclaim_internstr_recs() {
 	while (((CPtr)rec_ptr < (CPtr)block_ptr+1+hc_num_in_block*reclen)
 	       && IsNonNULL(rec_ptr->intterm_psc)) {
 	  if (!((UInteger)rec_ptr->next & intern_mark_bit)) { // unmarked, so free
-	    hashindex = it_hash(hc_blk_ptr->hashtab_size,
-				reclen-1,(CPtr)&(rec_ptr->intterm_psc));
-	    lrec_ptr = (struct intterm_rec *)&hc_blk_ptr->hashtab[hashindex];
-	    //	    xsb_log("free intern: ");  log_irec(reclen,rec_ptr);
-	    while (lrec_ptr) { // find in hash chain to delete
-	      if (lrec_ptr == rec_ptr) {
-		if ((UInteger)(prec_ptr->next) & intern_mark_bit) {
-		  prec_ptr->next = (struct intterm_rec *)
-		    ((UInteger)clean_addr(lrec_ptr->next) | intern_mark_bit);
-		} else prec_ptr->next = clean_addr(lrec_ptr->next);
-		lrec_ptr->next = hc_blk_ptr->freechain;
-		hc_blk_ptr->freechain = lrec_ptr;
-		break;
+	    hashtab_rec = hc_blk_ptr->hashtab_rec;
+	    found = 0;
+	    while (hashtab_rec && !found) {
+	      hashindex = it_hash(hashtab_rec->hashtab_size,
+				  reclen-1,(CPtr)&(rec_ptr->intterm_psc));
+	      lrec_ptr = (struct intterm_rec *)&hashtab_rec->hashtab[hashindex];
+	      while (lrec_ptr) { // find in hash chain to delete
+		if (lrec_ptr == rec_ptr) {
+		  if ((UInteger)(prec_ptr->next) & intern_mark_bit) {
+		    prec_ptr->next = (struct intterm_rec *)
+		      ((UInteger)clean_addr(lrec_ptr->next) | intern_mark_bit);
+		  } else prec_ptr->next = clean_addr(lrec_ptr->next);
+		  lrec_ptr->next = hc_blk_ptr->freechain;
+		  hc_blk_ptr->freechain = lrec_ptr;
+		  hashtab_rec->num_in_hashtab--;
+		  found = 1;
+		  break;
+		}
+		prec_ptr = lrec_ptr;
+		lrec_ptr = clean_addr(lrec_ptr->next);
 	      }
-	      prec_ptr = lrec_ptr;
-	      lrec_ptr = clean_addr(lrec_ptr->next);
+	      hashtab_rec = hashtab_rec->next;
 	    }
-	    if (!lrec_ptr) xsb_error("ERROR: (internal) Intern record not found!\n");
+	    if (!found) xsb_error("ERROR: (internal) Intern record not found!\n");
 	  } else rec_ptr->next = clean_addr(rec_ptr->next); // reset mark
 	  rec_ptr = (struct intterm_rec *)(((CPtr)rec_ptr) + reclen);  // to next rec in this block
 	}

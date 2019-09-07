@@ -31,32 +31,42 @@ pointer to a hash-table to get to them faster, c) the size of the
 hash-table, d) the head of a chain of free intterm_rec's, and e) the
 displacement in the current intterm_block of the first available
 intterm_rec.  An intterm_rec for a functor of arity i is a record of
-length i+2: a pointer to the next intterm_rec, the address of the psc
-record and i argument fields, containing constants or pointers to
-other intterm_rec's.  Note that fields 2 through i+2 correspond
-exactly to a structure record on the heap, and function as such.
+length i+2: a pointer to the next intterm_rec (in its hash chain), the
+address of the psc record and i argument fields, containing constants
+or pointers to other intterm_rec's.  Note that fields 2 through i+2
+correspond exactly to a structure record on the heap, and function as
+such.
 
 The low-order bit of the next pointer in a intterm_rec is used by
 garbage collection for marking records in use.
 */
 
+// record containing next-ptr followed by a functor-args record
 struct intterm_rec {
   struct intterm_rec *next;
   Psc intterm_psc; /* followed by arity fields. */
 };
 
+// record to contain a next-ptr and an array of intterm_rec's
 struct intterm_block {
   struct intterm_block *nextblock;
-  struct intterm_rec recs; /* multiple of these */
+  struct intterm_rec recs; /* hc_num_in_block of these */
 };
   
+// record to anchor a hashtab
+struct it_hashtab_rec {
+  struct it_hashtab_rec *next;
+  Integer hashtab_size;
+  Integer num_in_hashtab;
+  struct intterm_rec **hashtab;
+};
 
-/* record for the hash table for interned terms. */
+/* record to anchor the chain of intterm_block records to store
+   functor records for records of a given arity. */
 
 struct hc_block_rec {
   struct intterm_block *base; /* base of chain of blocks for arity i records */
-  struct intterm_rec **hashtab;  /* address of hash table for thse blocks */
-  Integer hashtab_size;
+  struct it_hashtab_rec *hashtab_rec; /* chain of hashtab recs */
   struct intterm_rec *freechain; /* base of chain of free arity i structure records (filled by gc) */
   struct intterm_rec *freedisp; /* address of first free record in (first on chain) block */
 };
