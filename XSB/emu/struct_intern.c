@@ -206,7 +206,7 @@ Integer hashtable_sizes[num_ht_sizes] =
    100000007,100000007,100000007,100000007};
 
 CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termrec) {
-  struct intterm_rec *recptr, *prev;
+  struct intterm_rec *recptr;
   struct it_hashtab_rec *hashtab_rec, *nhashtab_rec;
   Integer hashindex; 
   int i, found, ht_cnt;
@@ -234,7 +234,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
   }
   while (hashtab_rec) {
     hashindex = it_hash(hashtab_rec->hashtab_size,reclen,termrec);
-    prev = recptr = clean_addr(hashtab_rec->hashtab[hashindex]);
+    recptr = clean_addr(hashtab_rec->hashtab[hashindex]);
     while (recptr) {
       found = 1;
       hc_term = (CPtr)&(recptr->intterm_psc);
@@ -246,7 +246,6 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
       if (found) {
 	return hc_term;
       }
-      prev = recptr;
       recptr = clean_addr(recptr->next);
     }
     ht_cnt++;
