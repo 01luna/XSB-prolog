@@ -221,6 +221,7 @@ sys_exit(ExitCode) :- sys_syscall(SYS_exit,_,ExitCode,_).
 %% probably have a typecheck for 'file'.
 %% Get process id -- Unix and Windows
 sys_pid(Pid)     	    :-	sys_syscall(SYS_getpid, Pid, _, _).
+sys_hostname(HostName,Res)  :-  sys_syscall(SYS_gethostname, Res, HostName, _).
 %% Link file -- Unix only
 sys_link(Source, Dest, Res) :-	sys_syscall(SYS_link, Res, Source, Dest).
 sys_unlink(Path, Res) 	    :-	sys_syscall(SYS_unlink, Res, Path, _).

@@ -26,7 +26,7 @@
 
 :- export cd/1, ls/0, rename/2, rm/1, rmdir/1, rmdir_rec/1, edit/1,
 	expand_filename_no_prepend/2,
-	cwd/1, create_lockfile/1, sys_cwd/2, sys_pid/1,
+	cwd/1, create_lockfile/1, sys_cwd/2, sys_pid/1, sys_hostname/2,
 	shell/5, shell/2, shell/1, shell_to_list/3,
         sleep/1, sleep_ms/1,
 	copy/2, append/2,

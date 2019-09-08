@@ -26,10 +26,12 @@
 :- export 
         add_lib_dir/1, add_lib_dir/2,
         remove_lib_dir/1, removeall_lib_dir/1, has_lib_dir/1,
-        compile/1, compile/2, search_module/6,
+	compile/1, compile/2, compile_opt_checked/3, search_module/6,
         consult/1, consult/2, '.'/2, reconsult/1, reconsult/2,
         current_loaded_file/1, is_loaded/1, add_this_lib_dir/0,
         engine_mode_magic_num/3,
+        ensure_dyn_loaded/1, ensure_dync_loaded/1,
+        ensure_dyn_loaded/3, ensure_dync_loaded/3,
         ensure_loaded/1, ensure_loaded/2, ensure_loaded/3,
         get_magic_num/2,
         load_dyn/1, load_dyn/2, load_dyn/3,
@@ -44,11 +46,11 @@
         record_file_consultloaded/1,
         remove_file_consultloaded/1,
         file_is_consultloaded/1,
-        consult_file_loaded/1.
-:- export   xsb_filename/2.
-%TES: obsolescent -- use ensure_laded/2,3.
-:- export   ensure_dyn_loaded/1, ensure_dync_loaded/1,
-            ensure_dyn_loaded/3, ensure_dync_loaded/3.
+	consult_file_loaded/1,
+	push_loaded_file/2,
+	pop_loaded_file/1.
+:- export
+	xsb_filename/2.
 
 :- local load_dyn_retracted/5,
          load_dyn_trie_retracted/1,
@@ -63,23 +65,25 @@
 :- import asserta/1, (dynamic)/1, retractall/1, assert/1, retract/1, t_assert/2
      from assert.
 :- import check_file_compiler_options/1, setoptions1/1, valid_charset/1 from auxlry.
-:- import warning/1, time_message/2, current_xsb_compiler_option/1 from auxlry.
+:- import warning/1, time_message/2 from auxlry.
 :- import xpp_is_off/0 from parse.
 :- import banner_control/1 from banner.
 :- import append/3, memberchk/2, member/2 from basics.
-:- import compile/5 from compile.
+:- import compile/6, check_compile_options/1 from compile.
 :- import predicate_property/2, current_input_port/1 from curr_sym.
 :- import default_assert_size/1 from config.
 :- import check_open_stream_or_alias/5, 
 	path_sysop/3,
    file_close/1,file_get/2, file_open/3, file_time/2, file_set_character_set/2 from file_io.
 :- import '_$index'/3, '_$trie_asserted'/1, mpa_to_skel/2 from file_op.
-:- import compile_cH/6 from foreign.
+:- import compile_cH/7 from foreign.
 :- import conset/2, conget/2, coninc/1, coninc/2, gensym/2  from gensym.
 :- import add_hilog_symbol/1 from hilogsym.
-:- import libpath/1 from loader.
-:- import code_load/4, code_call/3, file_read_canonical/3,
-	  expand_filename/2, unload_seg/1, 
+:- import libpath/1, load_object_file/3, rename_private_obj_file/2, private_obj_filename/2
+   from loader.
+:- import %%code_load/4, code_call/3,
+	  file_read_canonical/3,
+	  expand_filename/2, %%unload_seg/1, 
 	  assert_code_to_buff/1, assert_buff_to_clref/6,
 	  conpsc/2, psc_type/2, slash/1, psc_arity/2, 
 	  existing_file_extension/2, almost_search_module/5, db_get_prref/2,
@@ -110,3 +114,4 @@
 :- import parse_filename/4 from machine.
 :- import standard_symbol/3, standard_metapredicate/3 from std_xsb.
 :- import atom_codes/2 from standard.
+%%:- import fmt_write/3 from file_io.

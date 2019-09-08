@@ -40,6 +40,7 @@
 :- mode sys_file_realpath(+,?,?).
 :- mode sys_fileappend(+,?,?).
 :- mode sys_filecopy(+,?,?).
+:- mode sys_hostname(?,?).
 :- mode sys_link(?,?,?).
 :- mode sys_main_memory(?).
 :- mode sys_mkdir(+,?).
@@ -88,6 +89,7 @@
 :- mode_on_success sys_file_realpath(g,g,g).
 :- mode_on_success sys_fileappend(g,g,g).
 :- mode_on_success sys_filecopy(g,g,g).
+:- mode_on_success sys_hostname(g,g).
 :- mode_on_success sys_link(g,g,g).
 :- mode_on_success sys_main_memory(g).
 :- mode_on_success sys_mkdir(g,g).

@@ -157,7 +157,9 @@ int sys_syscall(CTXTdeclc int callno)
 #endif
     break;
   }
-  case SYS_unlink: result = unlink(ptoc_longstring(CTXTc 3)); break;
+  case SYS_unlink:
+    result = unlink(ptoc_longstring(CTXTc 3));
+    break;
   case SYS_chdir : result = chdir(ptoc_longstring(CTXTc 3)); break;
   case SYS_access: {
     switch(*ptoc_string(CTXTc 4)) {
@@ -182,9 +184,20 @@ int sys_syscall(CTXTdeclc int callno)
     result = stat(ptoc_longstring(CTXTc 3), &stat_buff);
     break;
   }
-  case SYS_rename: 
-    result = rename(ptoc_longstring(CTXTc 3), ptoc_longstring(CTXTc 4)); 
+  case SYS_rename: {
+    char soufile[MAXFILENAME+1];
+    char tarfile[MAXFILENAME+1];
+    strncpy(soufile,ptoc_longstring(CTXTc 3),MAXFILENAME);
+    strncpy(tarfile,ptoc_longstring(CTXTc 4),MAXFILENAME);
+#ifdef WIN_NT
+    /* rename on windows returns error if target file exists, so delete first if nec */
+    if (access(tarfile,W_OK_XSB) != -1) {
+      unlink(tarfile);
+    }
+#endif    
+    result = rename(soufile,tarfile);
     break;
+  }
   case SYS_cwd: {
     char current_dir[MAX_CMD_LEN];
     /* returns 0, if != NULL, 1 otherwise */
@@ -283,6 +296,13 @@ int sys_syscall(CTXTdeclc int callno)
   case SYS_main_memory_size: {
     size_t memory_size = getMemorySize();
     ctop_int(CTXTc 3,(UInteger)memory_size);
+    break;
+  }
+  case SYS_gethostname: {
+    char hostname[1024];
+    result = gethostname(hostname,1024);
+    if (result) hostname[0]='\0'; /* if error, return empty atom */
+    ctop_string(CTXTc 3,hostname);
     break;
   }
   default: xsb_abort("[SYS_SYSCALL] Unknown system call number, %d", callno);

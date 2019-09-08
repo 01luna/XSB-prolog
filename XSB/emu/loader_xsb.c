@@ -40,6 +40,7 @@
 #include <errno.h>
 
 #ifdef WIN_NT
+#include <windows.h>
 #include <direct.h>
 #include <ctype.h>
 #else
@@ -788,6 +789,15 @@ int file_strncmp(char *fn1, char *fn2, size_t len) {
 #define file_strncmp(fn1,fn2,len) strncmp(fn1,fn2,len)
 #endif
 
+size_t get_len_wo_ext(char *filename, size_t len) {
+  size_t len_wo_ext = len - XSB_OBJ_EXTENSION_LENGTH;
+  while (len_wo_ext > 0 && filename[len_wo_ext] != '\\' && filename[len_wo_ext] != '/' &&
+	 file_strncmp(filename+len_wo_ext,XSB_OBJ_EXTENSION_STRING,XSB_OBJ_EXTENSION_LENGTH) != 0)
+    len_wo_ext--;
+  if (filename[len_wo_ext] == '\\' || filename[len_wo_ext] == '/') len_wo_ext = 0;
+  return len_wo_ext;
+}
+
 /* compare forms: either may be full_path.xwam or usermod(modname) or modname.
    If first is full modname, then the second must also be.
    If both full then if different ret true else ret false.
@@ -800,15 +810,14 @@ int nec_different_xwam_files(char *datafilename, char *currfilename) {
   //  printf("nec_diff: %s, %s\n",datafilename, currfilename);
   if (file_strcmp(datafilename,currfilename) == 0) return FALSE;
   dlen = strlen(datafilename);
-  dlen_wo_ext = dlen - XSB_OBJ_EXTENSION_LENGTH;
+  dlen_wo_ext = get_len_wo_ext(datafilename,dlen);
   clen = strlen(currfilename);
-  clen_wo_ext = clen - XSB_OBJ_EXTENSION_LENGTH;
-  if (file_strcmp(datafilename+dlen_wo_ext,XSB_OBJ_EXTENSION_STRING) == 0 &&
-      file_strcmp(currfilename+clen_wo_ext,XSB_OBJ_EXTENSION_STRING) == 0)
-    // both full names and different
-    return TRUE;
+  clen_wo_ext = get_len_wo_ext(currfilename,clen);
+  if (dlen_wo_ext > 0 && clen_wo_ext > 0 &&
+      (dlen_wo_ext != clen_wo_ext || file_strncmp(datafilename,currfilename,clen_wo_ext) != 0))
+    return TRUE;    // both full names and different
   // at least one is a module or usermod().
-  if (file_strcmp(datafilename+dlen_wo_ext,XSB_OBJ_EXTENSION_STRING) != 0) {
+  if (dlen_wo_ext == 0) {
     if (file_strncmp(datafilename,"usermod(",sizeof("usermod(")-1) == 0) {
       if (datafilename[sizeof("usermod(")-1] == '\'') {
 	ddisp = sizeof("usermod('")-1;  //9
@@ -826,7 +835,7 @@ int nec_different_xwam_files(char *datafilename, char *currfilename) {
     dmlen = 0;
   }
   
-  if (file_strcmp(currfilename+clen_wo_ext,XSB_OBJ_EXTENSION_STRING) != 0) {
+  if (clen_wo_ext == 0) {
     if (file_strncmp(currfilename,"usermod(",8) == 0) {
       if (currfilename[8] == '\'') {
 	cdisp = sizeof("usermod('")-1; //9;
@@ -846,15 +855,14 @@ int nec_different_xwam_files(char *datafilename, char *currfilename) {
   
   if (dmlen == 0) dmlen = cmlen; // one or other must be nonzero
   if (dmlen != cmlen) return TRUE;
-  if ((ddisp == -1) &&
-      strncmp(datafilename+dlen-dmlen-XSB_OBJ_EXTENSION_LENGTH,
-		   currfilename+cdisp,dmlen) == 0)
+  if ((ddisp == -1) && dlen_wo_ext > 0
+      && strncmp(datafilename+dlen_wo_ext-dmlen,currfilename+cdisp,dmlen) == 0)
     return FALSE;
-  if ((cdisp == -1) &&
-      file_strncmp(datafilename+ddisp,
-		   currfilename+clen-cmlen-XSB_OBJ_EXTENSION_LENGTH,dmlen) == 0)
+  if ((cdisp == -1) && clen_wo_ext > 0
+      && file_strncmp(datafilename+ddisp,currfilename+clen_wo_ext-cmlen,dmlen) == 0)
     return FALSE;
-  if (file_strncmp(datafilename+ddisp,currfilename+cdisp,dmlen) == 0)
+  if (dlen_wo_ext == 0 && clen_wo_ext == 0 &&
+      file_strncmp(datafilename+ddisp,currfilename+cdisp,dmlen) == 0)
     return FALSE;
   return TRUE;
 }
@@ -1388,11 +1396,7 @@ byte *loader(CTXTdeclc char *file, int exp, prolog_term modpars) // add arg of a
 
   fd = fopen(file, "rb"); /* "b" needed for DOS. -smd */
   //  fprintf(logfile,"opening: %s (%s)\n",file,"rb");
-  if (!fd) return NULL;
-  /*  {
-    printf("Error opening file: %s, errno=%d\n",file,errno);
-    return NULL;
-    } */
+  if (!fd) {printf("open failed for %s\n",file); return NULL;}
   if (flags[LOG_ALL_FILES_USED]) {
     char *dummy; /* to squash a warning */
     char current_dir[MAX_CMD_LEN];
