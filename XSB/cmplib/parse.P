@@ -605,7 +605,7 @@ embedded_number((A->B)) :- !,
 get_p_mod(P, ModName, P_Mod) :-
 	atom_codes(P,PChars), 
 	atom_codes(ModName, ModNameChars),
-	append(PChars, [0'_|ModNameChars], P_ModChars),  % ' for pp
+	append(PChars, [0'$,0'_,0'$|ModNameChars], P_ModChars),  % ' for pp
 	atom_codes(P_Mod, P_ModChars).
 
 %-------------------------------------------------------------------------

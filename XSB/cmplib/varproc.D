@@ -72,8 +72,8 @@
 :- mode vprag_use(?,?).
 
 :- mode_on_success accum_pre_uses(A,B,C,C,g,g).
-:- mode_on_success accum_pre_uses(ng,A,g,B,g,g).
 :- mode_on_success accum_pre_uses(ng,A,B,ng,g,g).
+:- mode_on_success accum_pre_uses(ng,A,g,B,g,g).
 :- mode_on_success add_branch_occs(A,ng,B,ng).
 :- mode_on_success add_branch_occs(g,g,A,A).
 :- mode_on_success add_branch_occs(ng,g,A,ng).
@@ -86,17 +86,17 @@
 :- mode_on_success addkey(ng,A,B,ng).
 :- mode_on_success alloc_vars(A,B,g,g).
 :- mode_on_success cmb0(A,A).
+:- mode_on_success cmb1(A,g,g,A).
 :- mode_on_success cmb1(A,B,ng,ng).
 :- mode_on_success cmb1(A,ng,g,ng).
-:- mode_on_success cmb1(A,g,g,A).
 :- mode_on_success cmb2(g,A,ng,ng).
 :- mode_on_success cmb2(g,A,g,A).
 :- mode_on_success cmb2(ng,A,B,ng).
+:- mode_on_success cmb3(A,g,g,g,g,A).
 :- mode_on_success cmb3(A,B,C,D,ng,ng).
 :- mode_on_success cmb3(A,B,C,ng,g,ng).
 :- mode_on_success cmb3(A,B,ng,g,g,ng).
 :- mode_on_success cmb3(A,ng,g,g,g,ng).
-:- mode_on_success cmb3(A,g,g,g,g,A).
 :- mode_on_success cmb4(g,A,B,C,ng,ng).
 :- mode_on_success cmb4(g,A,B,ng,g,ng).
 :- mode_on_success cmb4(g,A,ng,g,g,ng).
