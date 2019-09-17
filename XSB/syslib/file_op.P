@@ -269,7 +269,15 @@ table to use. */
 :- mode add_trie_index(?).
 add_trie_index(Spec) :-
 	mpa_to_skel(Spec,Pcall),
-	assert_trie_index(Pcall).
+	('_$multifile'(Pcall)
+	 -> ('_$multifile_comp'(Comp,Pcall), '_$trie_asserted'(Comp)
+	     ->	true
+	     ; '_$multifile_comp'(Comp,Pcall), '_$index'(Comp,Ind,_)
+	     ->	warning(('Inconsistent multifile indexes: ',trie,', used ',Ind))
+	     ;	assert_trie_index(Pcall)
+	    )
+	 ;  assert_trie_index(Pcall)
+	).
 
 assert_trie_index(Pcall) :-
     ('_$multifile_comp'(Pcall,MPred),
