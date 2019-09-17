@@ -210,12 +210,23 @@ assert(Clause,AZL,Index1,ErrPred) :-
 		get_p_mod(Pred,usermod,LinkPred),
 		LHead =.. [LinkPred|Args],
 		(clause(Head,LHead)
-		 ->	true
-		 ;	functor(Head,Pred,Arity),
-			functor(NHead,Pred,Arity),
-			NHead =.. [Pred|GArgs],
-			LBody =.. [LinkPred|GArgs],
-			assert0((NHead:-LBody),1,1,'assert/1')
+		 -> true
+		 ;  functor(Head,Pred,Arity),
+		    functor(NHead,Pred,Arity),
+		    NHead =.. [Pred|GArgs],
+		    LBody =.. [LinkPred|GArgs],
+		    ('_$index'(LBody,_,_)
+		     ->	true
+		     ; '_$trie_asserted'(LBody)
+		     ->	true
+		     ; '_$multifile_comp'(Cmp,NHead),'_$index'(Cmp,Ind,HSize)
+		     ->	add_index(LBody,Ind,HSize)
+		     ; '_$multifile_comp'(Cmp,NHead),'_$trie_asserted'(Cmp)
+		     ->	add_trie_index(LBody)
+		     ;	true
+		    ),
+		    assert0((NHead:-LBody),1,1,'assert/1'),
+		    assert0('_$multifile_comp'(LBody,NHead),1,1,(multifile))
 		),
 		(Body == true -> NClause = LHead ; NClause = (LHead:-Body)),
 		assert0(NClause,AZL,Index1,ErrPred)

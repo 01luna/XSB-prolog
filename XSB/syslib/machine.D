@@ -66,6 +66,7 @@
 :- mode dynamic_code_function(?,?,?,?,?).
 :- mode dynamic_code_function(?,?,?,?,?,?).
 :- mode epoch_milliseconds(?,?).
+:- mode epoch_nanoseconds(?,?).
 :- mode epoch_seconds(?).
 :- mode existing_file_extension(?,?).
 :- mode expand_filename(?,?).
@@ -297,6 +298,7 @@
 :- mode_on_success dynamic_code_function(g,A,g,g,g).
 :- mode_on_success dynamic_code_function(g,A,g,g,g,g).
 :- mode_on_success epoch_milliseconds(g,g).
+:- mode_on_success epoch_nanoseconds(g,g).
 :- mode_on_success epoch_seconds(g).
 :- mode_on_success existing_file_extension(g,g).
 :- mode_on_success expand_filename(g,g).

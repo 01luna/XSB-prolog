@@ -273,10 +273,15 @@ add_trie_index(Spec) :-
 	mpa_to_skel(Spec,Pcall),
 	assert_trie_index(Pcall).
 
-
 assert_trie_index(Pcall) :-
-	retract_index(Pcall),
-	assert('_$trie_asserted1'(Pcall)).
+    ('_$multifile_comp'(Pcall,MPred),
+     '_$multifile_comp'(MComp,MPred),
+     '_$index'(MComp,Ind0,HTS)
+     ->	warning(('Inconsistent multifile indexes: ',trie,', used ',Ind0)),
+	add_index(Pcall,Ind0,HTS)
+     ;	retract_index(Pcall),
+	assert('_$trie_asserted1'(Pcall))
+     ).
 
 :- mode retract_trie_index(?).
 retract_trie_index(Pcall) :-
@@ -292,13 +297,26 @@ add_index(Pred,Arg,Size) :-
 	 ;	fix_arg(Arg,Arity,Targ),
 		Narg = 1
 	),
-	retract_trie_index(Pcall),
-	(Narg =< 0
+	('_$trie_asserted'(Pcall)
+	 -> warn_if_existing_clauses(Pcall,trie,Targ),
+	    retract_trie_index(Pcall)
+	 ;  true
+	),
+	('_$multifile_comp'(Pcall,MPred),
+	 '_$multifile_comp'(MComp,MPred),
+	 ('_$index'(MComp,Ind0,HTS) ; '_$trie_asserted'(MComp),Ind0=trie),
+	 Ind0 \== Targ
+	 -> warning(('Inconsistent multifile indexes: ',Targ,', used ',Ind0)),
+	    (Ind0 == trie
+	     ->	add_trie_index(Pcall)
+	     ;	assertai('_$index1'(Pcall,Ind0,HTS),1)
+	    )
+	 ; Narg =< 0
 	 ->	retractall('_$index1'(Pcall,_,_))
 	 ; '_$index'(Pcall,Oarg,Osize)
 	 ->	(Targ==Oarg, Hsize=:=Osize
 		 ->	true
-		 ;	(Targ \== Oarg % changing Hsize OK
+		 ;	(Targ \== Oarg, \+ '_$multifile'(Pcall) % changing Hsize OK
 			 ->	warn_if_existing_clauses(Pcall,Oarg,Targ)
 			 ;	true
 			),

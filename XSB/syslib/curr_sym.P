@@ -192,12 +192,18 @@ current_index_1(F/N,Index):-
 	functor(Term,F,N),!,
 	current_index_1(Term,Index).
 current_index_1(Term,Index):- 
+	'_$multifile'(Term),
+	'_$multifile_comp'(Comp,Term),
+	!,
+	current_index_1(Comp,Index).
+current_index_1(Term,Index):- 
 	'_$index'(Term,Ind,_Size),!,
 	decode_index(Ind,Index).
 current_index_1(Term,trie):- 
 	'_$trie_asserted'(Term),!.
 current_index_1(_Term,1).
 
+decode_index(0,0) :- !.
 decode_index([],[]):-!.
 decode_index([Ind|Rest],[Index|R]):- !,
 	decode_index_in_list(Ind,Index),

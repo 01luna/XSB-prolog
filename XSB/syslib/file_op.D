@@ -23,13 +23,13 @@
 :- mode retract_index(?).
 :- mode retract_trie_index(?).
 :- mode same_type_op(+,?,+).
-:- mode warn_if_existing_clauses(+,+,+).
+:- mode warn_if_existing_clauses(?,+,+).
 
 :- mode_on_success '_$index'(A,g,g).
 :- mode_on_success '_$op'(g,g,g).
 :- mode_on_success '_$op1'(g,g,g).
 :- mode_on_success '_$trie_asserted'(A).
-:- mode_on_success add_index(g,g,g).
+:- mode_on_success add_index(A,g,g).
 :- mode_on_success add_op(g,g,g).
 :- mode_on_success add_ops(g,g,g).
 :- mode_on_success add_trie_index(g).
@@ -48,4 +48,4 @@
 :- mode_on_success retract_index(g).
 :- mode_on_success retract_trie_index(g).
 :- mode_on_success same_type_op(g,g,g).
-:- mode_on_success warn_if_existing_clauses(g,g,g).
+:- mode_on_success warn_if_existing_clauses(A,g,g).

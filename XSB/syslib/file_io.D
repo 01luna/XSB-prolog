@@ -52,6 +52,7 @@
 :- mode file_set_character_set(+,+).
 :- mode file_size(+,?).
 :- mode file_time(+,?).
+:- mode file_time_ns(+,?,?).
 :- mode file_truncate(+,+,?).
 :- mode file_write_line(+,?).
 :- mode file_write_line(+,+,?).
@@ -144,6 +145,7 @@
 :- mode_on_success file_set_character_set(g,g).
 :- mode_on_success file_size(g,g).
 :- mode_on_success file_time(g,g).
+:- mode_on_success file_time_ns(g,g,g).
 :- mode_on_success file_truncate(g,g,g).
 :- mode_on_success file_write_line(g,g).
 :- mode_on_success file_write_line(g,g,g).

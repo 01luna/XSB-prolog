@@ -975,22 +975,21 @@ get_scc_dumpfile(F):-
 	table_inspection_function(GET_SCC_DUMPFILE,F,_,_,_).
 
 :- mode check_variant(?).
-check_variant(Term):-
-    ('_$trie_asserted'(Term) ->
-	 true
-     ;   type_error('trie-indexed predicate',Term,check_variant/1,1) ),
-    table_inspection_function(CHECK_VARIANT,Term,0,_,_).
-    
+check_variant(Term) :-
+    check_variant(Term,0).
+
 :- mode check_variant(?,?).
-check_variant(Term,DontCares):- 
+check_variant(Term0,DontCares):-
+    ('_$multifile'(Term0)
+     ->	'_$multifile_comp'(Term,Term0)
+     ;	Term = Term0
+    ),
     ('_$trie_asserted'(Term) ->
 	 true
-     ;   type_error('trie-indexed predicate',Term,check_variant/2,1) ),
+     ;   type_error('trie-indexed predicate',Term,check_variant/1,1)
+    ),
     table_inspection_function(CHECK_VARIANT,Term,DontCares,_,_).
-
-%check_variant_1(Term):- 
-%    table_inspection_function(CHECK_VARIANT,Term,0,_,_).
-
+    
 check_variant_1(Term,DontCares):- 
     table_inspection_function(CHECK_VARIANT,Term,DontCares,_,_).
 

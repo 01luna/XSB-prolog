@@ -63,8 +63,8 @@
 :- import check_atom/3 from error_handler.
 :- import table_error/1 from error_handler.
 
-:- import '_$index'/3, '_$trie_asserted'/1, retract_trie_index/1,
-	  retract_index/1, mpa_to_skel/2  from file_op.
+:- import '_$index'/3, '_$trie_asserted'/1, retract_trie_index/1, add_index/3,
+   add_trie_index/1, retract_index/1, mpa_to_skel/2  from file_op.
 
 :- import psc_ep/2, psc_type/2, psc_set_type/2, psc_arity/2,
 	  conpsc/2, assert_code_to_buff/1, assert_buff_to_clref/6,
@@ -85,7 +85,7 @@
 :- import get_p_mod/3 from parse.
 
 :- import (table)/1 from standard.
-:- import '_$multifile'/1 from standard.
+:- import '_$multifile'/1, '_$multifile_comp'/2 from standard.
 :- import call/1, call_c/1 from standard.
 :- import (=..)/2, functor/3, integer/1, callable/1, arg/3,
          goal_cut_trans/3, goal_cut_untrans/2, abort/1, check_arity_integer/3,

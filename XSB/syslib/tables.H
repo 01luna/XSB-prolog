@@ -202,6 +202,7 @@
 :- import writeq/1 from standard.
 :- import warning/1 from standard.
 :- import table_index_predicates/2 from standard.
+:- import '_$multifile'/1, '_$multifile_comp'/2 from standard.
 
 :- import variant/2 from subsumes.
 

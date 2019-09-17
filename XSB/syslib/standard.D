@@ -473,8 +473,8 @@
 :- mode_on_success hilog_functor(ng,A,g).
 :- mode_on_success (import g).
 :- mode_on_success import(g,g).
-:- mode_on_success index(g,g).
-:- mode_on_success index(g,g,g).
+:- mode_on_success index(A,g).
+:- mode_on_success index(A,g,g).
 :- mode_on_success integer(g).
 :- mode_on_success g is g.
 :- mode_on_success is_attv(A).

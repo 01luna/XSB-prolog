@@ -112,7 +112,7 @@
    warningln/1,  % obsolete
    abort/1,	abort/0, abort_all/1, abort_level/1,
 	set_timer/1,
-   (import)/1,	(multifile)/1, '_$multifile'/1, '_$multifile_comp'/1.
+   (import)/1,	(multifile)/1, '_$multifile'/1, '_$multifile_comp'/2.
 :- export cleanup_handler/2.
 :- export statistics/2.
 :- export use_module/3.
@@ -150,7 +150,8 @@
 	  fd2iostream/3      from file_io.
 :- import fmt_write/2 from file_io.
 :- import xsb_stream_lock/1,xsb_stream_unlock/1 from file_io.
-:- import add_ops/3, add_index/3, '_$index'/3, add_trie_index/1  from file_op.
+:- import add_ops/3, add_index/3, '_$index'/3, add_trie_index/1, '_$trie_asserted'/1,
+   retract_trie_index/1, retract_index/1 from file_op.
 
 :- import '_$hilog_symbol'/1, add_hilog_symbol/1 from hilogsym.
 :- import summarize_idg/0 from increval.
