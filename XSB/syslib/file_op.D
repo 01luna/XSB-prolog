@@ -32,8 +32,8 @@
 :- mode_on_success add_index(A,g,g).
 :- mode_on_success add_op(g,g,g).
 :- mode_on_success add_ops(g,g,g).
-:- mode_on_success add_trie_index(g).
-:- mode_on_success assert_trie_index(g).
+:- mode_on_success add_trie_index(A).
+:- mode_on_success assert_trie_index(A).
 :- mode_on_success conv_joint(g,g,g).
 :- mode_on_success conv_joint(g,g,g,g).
 :- mode_on_success conv_one_indx(g,g,g).
