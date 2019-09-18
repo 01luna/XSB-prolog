@@ -2190,26 +2190,26 @@ automatically invoke \\ {\tt invalidate\_tables\_for} whenever {\tt
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\subsection{Indexing using Tables}
+\subsection{Indexing Tables}
 
 \index{table\_index}
 
-Tables are implemented in XSB using Tries, which provide powerful
+Tables are implemented in XSB using tries, which provide powerful
 indexing capabilities.  By default every table has a trie-index based
 on the left-to-right ordering of its arguments.  This means that any
 lookup to a table which is bound on an initial sequence of the tabled
 predicate's arguments is fully indexed.  But if an initial sequence of
 a table lookup is unbound and only a later argument is bound, indexing
-can be very poor.  XSB allows the user to provide {\tt table\_index}
-declarations to improve indexed access to tables.  In fact a {\tt
-  table\_index} can be used to provide very powerful and general
-indexed access to any predicate.
+can be very poor.  To address this, XSB allows the user to provide
+{\tt table\_index} declarations to improve indexed access to tables.
+In fact a {\tt table\_index} can be used to provide very powerful and
+general indexed access to any predicate.
 
 \ourstandarditem{table\_index(+PredSpec,+IndexSpec)}{table\_index/2}{Tabling}
 %
-{\tt table\_index} is a compiler directive that causes the compiler to
-generate code to create tables to provide the requested indexing and
-is normally used with subsumptive tables.  {\tt PredSpec}, of the form
+{\tt table\_index} is a directive that causes the compiler to generate
+code to create tables that provide the requested indexing, and is
+normally used with subsumptive tables.  {\tt PredSpec}, of the form
 {\tt PredName/Arity}, specifies the predicate to be indexed (and
 subsumptively tabled.)  {\tt IndexSpec} is a list of index
 specifications.  Each index specification is a {\tt +}-term that

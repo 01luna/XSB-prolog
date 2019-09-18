@@ -11,10 +11,10 @@ all functionality of ISO-Prolog, XSB includes the following features:
   XSB's tabling implementation supports incremental tabling, as well
   as call and answer subsumption.
 %
-\item A fully multi-threaded engine with thread-shared static code,
-  and that allows dynamic code and tables to be thread-shared or
-  thread-private.  This engine fully supports the draft ISO standard
-  for multi-threading~\cite{Prolog-MT-ISO}.
+%\item A fully multi-threaded engine with thread-shared static code,
+%  and that allows dynamic code and tables to be thread-shared or
+%  thread-private.  This engine fully supports the draft ISO standard
+%  for multi-threading~\cite{Prolog-MT-ISO}.
 %
 \item Constraint handling for tabled programs based on an engine-level
   implementation of annotated variables and various costraint
@@ -145,16 +145,16 @@ Prolog, of course, would enter an infinite loop.  XSB's treatment of
 negation is discussed further in Chapter \ref{chap:TablingOverview}.
 \end{example}
 
-\index{multi-threading}
-\paragraph{Multi-threading} From Version 3.0 onward, XSB has been thoroughly
-revised to support multi-threading using POSIX or Windows threads.
-Detached XSB threads can be created to execute specific tasks, and
-these threads will exit when the query succeeds (or fails, or throws
-an exception) and all thread memory reclaimed.  While a thread's
-execution state is, of course, private, it shares many resources with
-other threads, such as static code and I/O streams.  Dynamic code and
-tables can be either thread-shared or thread-private by default or by
-explicit declaration.
+%\index{multi-threading}
+%\paragraph{Multi-threading} From Version 3.0 onward, XSB has been thoroughly
+%revised to support multi-threading using POSIX or Windows threads.
+%Detached XSB threads can be created to execute specific tasks, and
+%these threads will exit when the query succeeds (or fails, or throws
+%an exception) and all thread memory reclaimed.  While a thread's
+%execution state is, of course, private, it shares many resources with
+%other threads, such as static code and I/O streams.  Dynamic code and
+%tables can be either thread-shared or thread-private by default or by
+%explicit declaration.
 
 \paragraph{Constraint Support}
 \index{attributed variables}

@@ -518,8 +518,6 @@ Flags:
  --max_subgoal_size  N : set maximum tabled subgoal size to N (default is maximum integer)
 --max_subgoal_action A : set action on maximum subgoal depth: e(rror)/a(bstract)/w(arn)
          --max_tries N : allow up to N tries for interning terms
-       --max_threads N : maintain information for up to N threads (MT engine only)
-       --max_mqueues N : allow up to N message queues (MT engine only)
    --shared_predicates : make predicates thread-shared by default
             -g gc_type : choose heap garbage collection ("indirection","none" or "copying")
            -c N [unit] : initially allocate N units (default KB) for the trail/choice-point stack
@@ -531,6 +529,8 @@ Flags:
           unit: k/K memory in kilobytes; m/M in megabytes; g/G in gigabytes
 \end{verbatim}
 }
+%       --max_threads N : maintain information for up to N threads (MT engine only)
+%       --max_mqueues N : allow up to N message queues (MT engine only)
 
 \subsection{Command-line Options}  These options tend to be most useful for developers.
 
@@ -635,11 +635,11 @@ xsb --noprompt --quietload --nobanner --nofeedback -e "writeln(hello),halt."
 hello world
 \end{verbatim}
 So that XSB can be used to write reasonable scripts.
-\item[{\tt --max\_threads N}] Allows XSB to maintain information for
-  up to {\tt N} threads.  This means that XSB can currently run {\tt
-    N} threads that are active, or that are inactive, non-detached,
-  and not yet joined.  Has no effect if the engine has been configured
-  without multi-threading.
+%\item[{\tt --max\_threads N}] Allows XSB to maintain information for
+%  up to {\tt N} threads.  This means that XSB can currently run {\tt
+%    N} threads that are active, or that are inactive, non-detached,
+%  and not yet joined.  Has no effect if the engine has been configured
+%  without multi-threading.
 \index{tabling!call subsumption}
 \index{tabling!shared}
 \item[{\tt -S}] Indicates that tabled predicates are to be evaluated
@@ -693,9 +693,10 @@ So that XSB can be used to write reasonable scripts.
   not provided or is {\tt k} or {\tt K}, the size is allocated in
   kilobytes; if {\tt m} or {\tt M} in megabytes; and if {\tt g} or
   {\tt G} in gigabytes.  Because this region is expanded
-  automatically, this option is rarely needed.  If this option is not
-  specified a default initial size is used; this size may differ for
-  the single-threaded and multi-threaded engine.
+  automatically, this option is rarely needed.
+%  If this option is not
+%  specified a default initial size is used; this size may differ for
+%  the single-threaded and multi-threaded engine.
 %
 \item[{\tt -m} {\em size [units]}] Allocates {\em initial size\/}
   units of space to the local/global stack area.  The global stack
@@ -704,18 +705,20 @@ So that XSB can be used to write reasonable scripts.
   or is {\tt k} or {\tt K}, the size is allocated in kilobytes; if
   {\tt m} or {\tt M} in megabytes; and if {\tt g} or {\tt G} in
   gigabytes.  Because this region is expanded automatically, this
-  option is rarely needed.  If this option is not
-  specified a default initial size is used; this size may differ for
-  the single-threaded and multi-threaded engine.
+  option is rarely needed.
+%  If this option is not
+%  specified a default initial size is used; this size may differ for
+%  the single-threaded and multi-threaded engine.
 %
 \item[{\tt -o} {\em size [units]}] Allocates {\em initial size\/}
   units of space to the completion stack area.  If units is not
   provided or is {\tt k} or {\tt K}, the size is allocated in
   kilobytes; if {\tt m} or {\tt M} in megabytes; and if {\tt g} or
   {\tt G} in gigabytes.  Because this region is expanded
-  automatically, this option is rarely needed. If this option is not
-  specified a default initial size is used; this size may differ for
-  the single-threaded and multi-threaded engine.
+  automatically, this option is rarely needed.
+%  If this option is not
+%  specified a default initial size is used; this size may differ for
+%  the single-threaded and multi-threaded engine.
 
 \item[{\tt -r}] Turns off automatic stack expansion.  This can
   occasionally be useful for isolating memory management problems.
@@ -747,13 +750,16 @@ system memory.  At that point XSB tries to find the maximal amount of
 space that will still fit in system memory.  For the main thread, each
 of these regions begin with an initial value set by the user at the
 command-line or with a default value (see
-Section~\ref{sec:EmuOptions}).  When a thread is created within an XSB
-process, the size of the thread's execution stacks may be set by {\tt
-  thread\_create/3}, otherwise the default values indicated in
-Section~\ref{sec:EmuOptions} are used.  Once XSB is running, these
+Section~\ref{sec:EmuOptions}).
+%When a thread is created within an XSB
+%process, the size of the thread's execution stacks may be set by {\tt
+%  thread\_create/3}, otherwise the default values indicated in
+%Section~\ref{sec:EmuOptions} are used.
+Once XSB is running, these
 default values may be modified using the appropriate Prolog flags (see
-Section~\ref{State}).  In addition, whenever a thread exits, memory
-specific to that thread is reclaimed.
+Section~\ref{State}).
+%In addition, whenever a thread exits, memory
+%specific to that thread is reclaimed.
 
 Heap garbage collection is automatically included in XSB
 \cite{CaSC01,CATmem@ISMM-98}.  (To change the algorithm used for heap
@@ -762,38 +768,42 @@ garbage collection or to turn it off altogether, see the predicate
 command-line options).  In \version{} the default behavior is indirect
 garbage collection.  Starting with Version 3.0, heap garbage
 collection may automatically invokes garbage collection of XSB's
-``string'' table, which stores Prolog's atomic constants.  Expansion
-and garbage collection of execution stacks can occur when multiple
-threads are active; however atom garbage collection will not be
-invoked if there is more than one active XSB thread.
+``string'' table, which stores Prolog's atomic constants.
+%Expansion and garbage collection of execution stacks can occur when
+%multiple threads are active; however atom garbage collection will not
+%be invoked if there is more than one active XSB thread.
 
 The program area (the area into which XSB byte-code is loaded) is also
 dynamically expanded as needed.  For dynamic code (created using {\tt
   assert/1}, or standard predicates such as {\tt load\_dyn/1}, {\tt
   load\_dync/1}, and {\tt load\_dynca/1}) index size is also
 automatically reconfigured.  Space reclaimed for dynamic code depends
-on several factors.  If there is only one active thread, space is
-reclaimed for retracted clauses and abolished predicates as long as
-(1) there are no choice points that may backtrack into the retracted
-or abolished code, and (2) if the dynamic predicate is tabled, all of
-its tables are completed.  Otherwise, the code is marked for later
-garbage collection.  If more than one thread is active, private
-predicates behave as just described, however space reclamation for
-shared predicates will be delayed until there is a single active
-thread.  See Section~\ref{sec:assert} for details.
+on several factors.
+%If there is only one active thread,
+Space is reclaimed for retracted clauses and abolished predicates as
+long as (1) there are no choice points that may backtrack into the
+retracted or abolished code, and (2) if the dynamic predicate is
+tabled, all of its tables are completed.  Otherwise, the code is
+marked for later garbage collection.
+%If more than one thread is active, private predicates behave as just
+%described, however space reclamation for shared predicates will be
+%delayed until there is a single active thread.  See
+%Section~\ref{sec:assert} for details.
 
 Space for tables is dynamically allocated as needed and reclaimed
 through use of {\tt abolish\_all\_tables/0}, {\tt
   abolish\_table\_pred/1}, {\tt abolish\_table\_call/1} and other
 predicates.  As with dynamic code, space for tables may be reclaimed
 immediately or marked for later garbage collection depending on
-whether choice points may backtrack into the abolished tables, on the
-number of active threads, etc.  Tabling also includes various stacks
+whether choice points may backtrack into the abolished tables,
+% on the number of active threads,
+etc.  Tabling also includes various stacks
 used to copy information into or out of tables, most of which are
-dynamically allocated and expanded.  These stacks may be
-thread-private or shared among threads: space for thread-private
-stacks is reclaimed when a thread exits.  See
-Section~\ref{sec:TablePred:Deleting} for details.
+dynamically allocated and expanded.
+%These stacks may be
+%thread-private or shared among threads: space for thread-private
+%stacks is reclaimed when a thread exits.
+See Section~\ref{sec:TablePred:Deleting} for details.
 
 \index{Prolog flags!{\tt max\_memory}}
 \predref{bounded\_call/4}
@@ -897,10 +907,11 @@ Error conditions for {\tt consult(+File,+Options)} are as follows:
 \item 	{\tt permission\_error(compile,file,File)}
 \ei
 %
-\item {\tt File} has been loaded previously in the session {\em and}
-  there is more than one active thread.  \bi
-\item 	{\tt misc\_error}
-\ei
+%\item {\tt File} has been loaded previously in the session {\em and}
+%  there is more than one active thread.
+%\bi
+%\item 	{\tt misc\_error}
+%\ei
 \ei
 Error conditions of compiler options are determined by {\tt compile/2}
 which {\tt consult/[1,2]} calls.
@@ -1138,11 +1149,11 @@ In the cases below, {\tt File} refers to an element of {\tt Files} if
 \item 	{\tt permission\_error(compile,file,File)}
 \ei
 %
-\item {\tt File} has been loaded previously in the session {\em and}
-  there is more than one active thread.  
-\bi
-\item 	{\tt misc\_error}
-\ei
+%\item {\tt File} has been loaded previously in the session {\em and}
+%  there is more than one active thread.  
+%\bi
+%\item 	{\tt misc\_error}
+%\ei
 \item 	{\tt OptionList} is a partial list or contains an option that is a variable
 \bi
 \item 	{\tt instantiation\_error}
@@ -2407,11 +2418,12 @@ ever cause a problem for applciations.
 XSB supports most new features mentioned in the revisions to the core
 standard~\cite{ISO-Revision}, including {\tt call\_cleanup/2} and
 various library predicates such as {\tt subsumes/2}, {\tt
-  numbervars/3} and so on.  XSB also has strong support for the
-working multi-threading Prolog standard~\cite{Prolog-MT-ISO}, and XSB
-has been one of the first Prologs to support this standard.  However,
-because XSB has an atom-based module system it does {\em not} support
-the ISO standard for Prolog modules.
+  numbervars/3} and so on.
+%XSB also has strong support for the working multi-threading Prolog
+%standard~\cite{Prolog-MT-ISO}, and XSB has been one of the first
+%Prologs to support this standard.
+However, because XSB has an atom-based module system it does {\em not}
+support the ISO standard for Prolog modules.
 
 %%% Local Variables: 
 %%% mode: latex

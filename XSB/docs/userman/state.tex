@@ -1556,6 +1556,38 @@ for the tabled subgoal that is a variant of {\tt Subgoal}.DF
     specify a predicate indicator of the form {\tt Module:Name/Arity} 
     as argument of {\tt listing/1}.
 
+\ourmoditem{user\_dyn\_clause\_count}{user\_dyn\_clause\_count/0}{curr\_sym}
+%
+Debugging and analysis of complex applications sometimes involves an
+exact understanding of how many dynamic clauses are present in each
+user module, and {user\_dyn\_clause\_count} gives a report of the
+count of the clauses of all dynamic predicates in all loaded user
+modules.  (System modules are not reported.)  User modules are
+displayed alphabetically, as are predicate counts within each modules.
+A snippet of such a report might look like that displayed below.  Note
+that this predicate is written using predicates such as {\tt
+  current\_module/2} and {\tt predicate\_property/2}, indicating how
+useful such predicates can be.
+
+There are no error conditions for this predicate.
+
+\begin{verbatim}
+:
+ont:
+    smt/3                                          11898
+ref:
+    smt/3                                         823320
+usermod:
+    clChildF/3                                     17522
+    clConfF/3                                      18318
+    clIn/3                                             5
+    matchT/4                                       19530
+    smt/3                                         823320
+    smtR/5                                         30451
+    mytrie/1                                           1
+:
+\end{verbatim}
+
 \standarditem{xsb\_configuration(Feature\_Name, ?Value)}
 {xsb\_configuration/2}
     Succeeds iff the current value of the XSB  feature {\tt
