@@ -25,7 +25,7 @@
 
 
 :- export
-   compile_cH/6,
+   compile_cH/7,
    compile_so/3,
    runtime_loader_flag/3,
    foreign_module_library_extension/2.
@@ -65,5 +65,6 @@
 :- import write_header/0, process_from/3 from wrapping.
 :- import write_int/2 from xsb_writ.
 :- import xsb_configuration/2 from xsb_configuration.
+:- import private_obj_filename/2 from loader.
 
 :- import banner_control/1 from banner.

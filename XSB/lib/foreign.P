@@ -34,9 +34,10 @@
 
 
 /* need ldoption at compile time for ELF systems, so compile_H is done 1st. */
-:- mode compile_cH(+,+,+,+,?,+).
-compile_cH(Modname, Base, Ext, Options, ExList, Dir) :-
-	compile_H(Modname,Base,Options,ExList,LdOption,CompComm,TempFile),
+/* ToLoc >= 1 means to compile to private.  */
+:- mode compile_cH(+,+,+,+,+,?,+).
+compile_cH(Modname, Base, Ext, Options, ToLoc, ExList, Dir) :-
+	compile_H(Modname,Base,Options,ToLoc,ExList,LdOption,CompComm,TempFile),
 	compile_c(Modname,Base,Ext,Options,Dir,LdOption,CompComm,TempFile).
 
 
@@ -321,7 +322,7 @@ cc_options(CC_Name, Options, CC_Opts) :-
 
 /* TLS: Problem somehow when debugging from gdb -- open_or_xpp_file
    doesn't seem to return the right thing... havent figured it out. */
-compile_H(Modname, Base, Options, ExList, LdOption, CompComm, TempFile) :-
+compile_H(Modname, Base, Options, ToLoc, ExList, LdOption, CompComm, TempFile) :-
 	str_cat(Base, XSB_HDR_EXTENSION_ATOM, HFile),
 	( file_exists(HFile) ->
 	    (	Options == [] 
@@ -352,7 +353,11 @@ compile_H(Modname, Base, Options, ExList, LdOption, CompComm, TempFile) :-
 	    conset(xpp_on,0),
 %%%         seen,
 	    length(ExList, Count),
-	    str_cat(Base, XSB_OBJ_EXTENSION_ATOM, OFile),
+	    str_cat(Base, XSB_OBJ_EXTENSION_ATOM, OFile1),
+	    (ToLoc >= 1
+	     ->	private_obj_filename(OFile1,OFile)
+	     ;	OFile = OFile1
+	    ),
 %%	    tell(OFile),
 	    open(OFile,write,OStr),
 	    co_asmhead(OStr, Modname, LdOption, Count),
