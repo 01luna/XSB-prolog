@@ -986,7 +986,7 @@ check_variant(Term0,DontCares):-
     ),
     ('_$trie_asserted'(Term) ->
 	 true
-     ;   type_error('trie-indexed predicate',Term,check_variant/1,1)
+     ;   type_error('trie-indexed predicate',Term0,check_variant/1,1)
     ),
     table_inspection_function(CHECK_VARIANT,Term,DontCares,_,_).
     

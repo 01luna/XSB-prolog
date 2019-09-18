@@ -571,7 +571,7 @@
 :- mode_on_success trie_assert(g).
 :- mode_on_success trie_assert(g,g).
 :- mode_on_success trie_delete_return(g,g,g).
-:- mode_on_success trie_dynamic(g).
+:- mode_on_success trie_dynamic(A).
 :- mode_on_success trie_get_return(g,A).
 :- mode_on_success trie_get_return(g,A,g).
 :- mode_on_success trie_retract(A).
