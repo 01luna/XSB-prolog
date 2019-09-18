@@ -826,6 +826,62 @@ subgoal_property_2(_CallType,INCOMPLETE_ANSWER_SET,incomplete).
 subgoal_property_2(_CallType,COMPLETED_ANSWER_SET,completed).
 
 /* ===== current_prolog_flag/2 ================================== */
+:- export report_user_dyn_code.
+       
+user_dyn_clause_count:-
+    setof(Mod,(current_module(Mod),\+ system_module(Mod)),ModList),
+    member(Module,ModList),
+    setof(F1/A1-P,(predicates_for_module(Module,P),predicate_property(P,dynamic),functor(P,F1,A1)),PredList),
+    write(Module),writeln(':'),
+    member(F/A-Pred,PredList),
+    count(Module,Pred,Count),
+    str_length(F,Flen),
+    Tabbing is max(10,(40 - Flen)),
+    number_codes(Count,NList),
+    atom_codes(ACount,NList),
+    str_length(ACount,ALen),
+    NumTab is 10 - ALen,
+    tab(4),write(F),write('/'),write(A),tab(Tabbing),tab(NumTab),writeln(Count),
+    fail.
+user_dyn_clause_count.
+
+system_module(Module):- 
+    xsb_configuration(srcdir,XSBroot),
+    current_module(Module,File),
+    str_sub(XSBroot,File).
+
+predicates_for_module(Module,Pred):- 
+    current_predicate(Module:F/A),
+    functor(Pred,F,A),
+    (Module = usermod -> \+ system_pred(Pred) ; true).
+
+system_pred(cmp(_,_,_)).
+system_pred(del(_,_,_)).
+system_pred(default_user_error_handler(_)).
+system_pred(interpreter_index_hook(_)).
+system_pred(max_answers_for_subgoal_user_handler).
+system_pred(max_incomplete_subgoals_user_handler).
+system_pred(max_memory_user_handler).
+system_pred(max_scc_subgoals_user_handler).
+system_pred(max_table_answer_size_user_handler).
+system_pred(max_table_subgoal_size_user_handler).
+system_pred(invalidate_table_for(_,_)).
+system_pred(library_directory(_)).
+system_pred(na(_,_,_)).
+system_pred(ns_smpl(_,_,_)).
+system_pred(nf_smpl(_,_,_)).
+system_pred(nc(_,_,_,_)).
+system_pred(nda(_,_,_,_)).
+system_pred(puc_smpl(_,_,_,_,_)).
+system_pred(pus_smpl(_,_,_,_)).
+system_pred(tc(_,_,_,_)).
+system_pred('_$thread_exit_ball'(_,_)).
+
+count(Module,Pred,Count):-
+    findall(1,clause(Module:Pred,_),List),
+    length(List,Count).
+
+/* ===== current_prolog_flag/2 ================================== */
 :- import tripwire/1 from usermod.
 
 :- mode current_prolog_flag(+,?).
