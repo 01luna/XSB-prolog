@@ -182,61 +182,51 @@ inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
      of 200K inserts.  
      DSW (9/10/2019): made iterative to support multiple levels of skip-chains.
   */
+  SN_above = SN_prev = NULL;
 
-  if (SL_max_level > 0) {   // there is a skip-node list, so run it
-    SL_curr_level = SL_max_level-1;
-    SN_above = SN_prev = NULL;
-    SN_next = SL_header[SL_curr_level];
+  for (SL_curr_level = SL_max_level-1; SL_curr_level >=0; SL_curr_level--) {
+    if (SN_prev == NULL) SN_next = SL_header[SL_curr_level];
+    else SN_next = SN_prev->SL_down;
 
-    while (SL_curr_level >= 0) {
-      SN_cnt = 0;
-      SN_prev = NULL;
-      while ((SN_next != NULL) && 
-	     (TSIN_TimeStamp(newTSIN) < SN_next->SL_ts)) {
-	SN_cnt++;
-	SN_prev = SN_next;
-	SN_next = SN_next->SL_next;
-      }
-
-      if (SN_cnt > SN_MAX_DISTANCE) { // if happens, then add new skip node
-	if (SN_above == NULL) SN_mid = SL_header[SL_curr_level];
-	else SN_mid = SN_above->SL_down;
-	while (SN_cnt > 1) {
-	  SN_cnt -= 2;
-	  SN_mid = SN_mid->SL_next;
-	}
-	new_SL_node(SN_new);
-	SN_new->SL_down = SN_mid;
-	SN_new->SL_ts = SN_mid->SL_ts;
-	if (SN_above == NULL) {
-	  SN_new->SL_next = SL_header[SL_curr_level+1];
-	  SL_header[SL_curr_level+1] = SN_new;
-	  if (SL_max_level == SL_curr_level+1) SL_max_level++;
-	  if (SL_max_level >= MAX_SKIP_CHAINS) xsb_abort("Overflow of skip-chain array\n");
-	} else {
-	  SN_new->SL_next = SN_above->SL_next;
-	  SN_above->SL_next = SN_new;
-	}
-      }
-      SL_curr_level--;
-      if (SL_curr_level < 0) {
-	if (SN_prev == NULL) nextTSIN = TSTHT_IndexHead(ht); 
-	else nextTSIN = SN_prev->SL_down;
-      } else {
-	if (SN_prev == NULL) SN_next = SL_header[SL_curr_level];
-	else SN_next = SN_prev->SL_down;
-      }
-      SN_above = SN_prev;
+    SN_prev = NULL;
+    SN_cnt = 0;
+    while ((SN_next != NULL) && (TSIN_TimeStamp(newTSIN) < SN_next->SL_ts)) {
+      SN_cnt++;
+      SN_prev = SN_next;
+      SN_next = SN_next->SL_next;
     }
-  } else { // start at beginning of base ordered list
-    SN_above = NULL;
-    nextTSIN = TSTHT_IndexHead(ht);
+    
+    if (SN_cnt > SN_MAX_DISTANCE) { // need new skip node
+      if (SN_above == NULL) SN_mid = SL_header[SL_curr_level];
+      else SN_mid = SN_above->SL_down;
+      while (SN_cnt > 1) {
+	SN_cnt -= 2;
+	SN_mid = SN_mid->SL_next;
+      }
+      new_SL_node(SN_new);
+      SN_new->SL_down = SN_mid;
+      SN_new->SL_ts = SN_mid->SL_ts;
+      if (SN_above == NULL) {
+	SN_new->SL_next = SL_header[SL_curr_level+1];
+	SL_header[SL_curr_level+1] = SN_new;
+	if (SL_max_level == SL_curr_level+1) {
+	  SL_max_level++;
+	  if (SL_max_level >= MAX_SKIP_CHAINS)
+	    xsb_abort("Overflow of skip-chain array\n");
+	}
+      } else {
+	SN_new->SL_next = SN_above->SL_next;
+	SN_above->SL_next = SN_new;
+      }
+    }
+    SN_above = SN_prev;
   }
+  if (SN_prev == NULL) nextTSIN = TSTHT_IndexHead(ht); 
+  else nextTSIN = SN_prev->SL_down;
 
   /* nextTSIN and SN_above are set; now scan base ordered list */
   SN_cnt = 0;
-  while ( IsNonNULL(nextTSIN) &&
-	  (TSIN_TimeStamp(newTSIN) < TSIN_TimeStamp(nextTSIN)) ) {
+  while (IsNonNULL(nextTSIN) && (TSIN_TimeStamp(newTSIN) < TSIN_TimeStamp(nextTSIN))) {
     SN_cnt++;
     nextTSIN = TSIN_Next(nextTSIN);
   }
