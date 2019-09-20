@@ -34,7 +34,8 @@
           numbervars/1,
           random/3,
           numlist/3,
-          sum_list/2.
+          sum_list/2,
+          max_list/2.
 
 
 /* Should now take out setarg/3 and use one in constraintlib */
@@ -598,3 +599,17 @@ sum_list([X|Xs], Sum0, Sum) :-
     sum_list(Xs, Sum1, Sum).
 
 
+%!  max_list(+List:list(number), -Max:number) is semidet.
+%
+%   True if Max is the largest number in List.  Fails if List is
+%   empty.
+%
+%   @see max_member/2.
+
+max_list([H|T], Max) :-
+    max_list(T, H, Max).
+
+max_list([], Max, Max).
+max_list([H|T], Max0, Max) :-
+    Max1 is max(H, Max0),
+    max_list(T, Max1, Max).
