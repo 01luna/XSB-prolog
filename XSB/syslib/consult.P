@@ -66,7 +66,8 @@ compile0(Path, Options, ToLoc) :-
 	(SExt \== XSB_OBJ_EXTENSION_ATOM_SANS_DOT
 	 -> compile_f(SExt, Base, Options, ToLoc, _, Mod, Dir),
 	    (ToLoc =:= 2
-	     ->	str_cat(Mod,XSB_OBJ_EXTENSION_ATOM,OFileName),
+	     ->	str_cat(Dir,Mod,FileBase),
+		str_cat(FileBase,XSB_OBJ_EXTENSION_ATOM,OFileName),
 		private_obj_filename(OFileName,UFileName),
 		rename_private_obj_file(UFileName,OFileName)
 	     ;	true
