@@ -28,7 +28,7 @@ Proceedings of the 23rd international conference on Machine learning. ACM, 2006.
 %
 :- import append/3, member/2, length/2, reverse/2 from basics.
 
-
+:- import max_list/2 from swi.
 
 compute_areas(LG,AUCROC,ROC,AUCPR,PR):-
   findall(E,member(_- \+(E),LG),Neg),
