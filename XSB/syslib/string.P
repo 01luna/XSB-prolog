@@ -245,8 +245,7 @@ term_to_atom(Term,Atom) :-
 
 :- mode term_to_atom(?,?,+).
 term_to_atom(Term,Atom,OptionList) :-
-	copy_term(Term,Term1),  % protect Term's variables
-	term_to_codes(Term1,OptionList,Codes),
+	term_to_codes(Term,OptionList,Codes),
 	atom_codes(Atom,Codes).
 
 :- mode term_to_codes(?,?).
@@ -255,9 +254,14 @@ term_to_codes(Term,Codes) :-
 
 :- mode term_to_codes(?,+,?).
 term_to_codes(Term,OptionList,Codes) :-
+        check_cyclic(Term,'term_to_atom/3-term_to_codes/3',1),
 	check_nonvar_list(OptionList,term_to_atom/3,3),
 	compute_options(OptionList,Structure),
-	term_to_codes(Term,Structure,0,_,Codes,[]).
+	copy_term(Term,Term1),  % protect Terms variables
+        ( (Structure = option(_IgOpts,_Quoted,Nvars),Nvars = true) ->
+             local_numbervars(Term1)
+           ; true),
+	term_to_codes(Term1,Structure,0,_,Codes,[]).
 
 compute_options([],option(IgOpts,Quoted,Nvars)):- 
 	(var(Quoted) -> Quoted = false ; true),
@@ -287,6 +291,11 @@ option_structure(option(IgOpts,Qtd,NumVars),IgOpts,Qtd,NumVars).
 ignore_ops(option(V,_,_),V).
 numbervars(option(_,_,V),V).
 quoted(option(_,V,_),V).
+
+/* local_numbervars is needed since (for compatability) we want to use
+   numbervars/1 both as a boolean option and as the usual predicate */
+local_numbervars(Term) :-
+        numbervars(Term, 0, _).
 
 term_to_codes(Term,Structure,Var0,Var,Codes0,Codes) :-
 	(var(Term)
