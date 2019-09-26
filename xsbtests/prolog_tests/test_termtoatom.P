@@ -20,6 +20,9 @@ test:-
 	term_to_atom('$VAR'("Foo"),F,[numbervars(true)]),writeln(F),fail.
 
 test:- 
+        term_to_atom(p7(_A),Atom,[numbervars(true)]),writeln(Atom),fail.
+
+test:- 
 	term_to_atom('3cpio',F),writeln(F),fail.
 test:- 
 	term_to_atom('3cpio',F,[quoted(true)]),writeln(F),fail.
