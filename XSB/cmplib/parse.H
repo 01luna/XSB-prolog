@@ -71,8 +71,8 @@
    from curr_sym.
 
 :- import
-	preprocessing_error/1,
-   existence_error/4, syntax_error/1, check_ground/3, check_integer/3, check_atom/3
+        preprocessing_error/1,domain_error/4,
+        existence_error/4, syntax_error/1, check_ground/3, check_integer/3, check_atom/3
    from error_handler.
 
 :- import
