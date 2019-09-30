@@ -203,6 +203,8 @@ rm -f aggregs_test_2.xwam
 ../gentest.sh "$XEMU -l $options" test_intern_combo "test."
 #-------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_mf_index "test."
+#-------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_table_index "test."
 #--------------------------------
 # h series is hilog/tabling tests
 #------------------------------------

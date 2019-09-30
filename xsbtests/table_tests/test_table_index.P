@@ -1,0 +1,15 @@
+:- import xsb_error_get_tag/2 from error_handler.
+
+:- table p/2 as subsumptive.
+:- table_index(p/2,[0]).
+
+p(X,Y):- r(X,Y),writeln(p1(X,Y)).
+
+r(a,1).
+r(a,2).
+r(b,3).
+r(b,4).
+
+test:- p(X,Y),fail.
+test:- catch(compile(test_table_index_1),E,(xsb_error_get_tag(E,M),writeln(M))),fail.
+test.
