@@ -30,9 +30,10 @@
         set_prolog_flag/2,xsb_flag/2, set_xsb_flag/2, 
 	garbage_collection/1, hilog_symbol/1.
 :- export current_input_port/1, current_output_port/1.
+:- export user_dyn_clause_count.
 
-:- import retractall/1, (dynamic)/1, asserta/1 from assert.
-:- import member/2,append/3 from basics.
+:- import retractall/1, (dynamic)/1, asserta/1,clause/2 from assert.
+:- import member/2,append/3,length/2 from basics.
    :- import check_nonvar/3, check_ground/3, check_integer/3, check_atomic/3,
           domain_error/5, type_error/4, permission_error/4,misc_error/1,
           instantiation_error/3, domain_error/4 from error_handler.
@@ -49,12 +50,13 @@
 %	  psc_get_incr/2, psc_shared/2, psc_tabled/2,
 	  file_function/3,
 	  term_new_mod/3 from machine.
-:- import atom_codes/2, number_codes/2,catch/3,(index)/2 from standard.
+:- import findall/3, setof/3 from setof.
+:- import sys_main_memory/1 from shell.
+:- import atom_codes/2, number_codes/2,catch/3,(index)/2,tab/1,write/1 from standard.
 :- import functor/3, warning/1, abort/1, integer/1, atom/1, structure/1 from standard.
 :- import '_$multifile'/1, '_$multifile_comp'/2 from standard.
 :- import standard_symbol/3, standard_metapredicate_template/3 from std_xsb.
-:- import sys_main_memory/1 from shell.
-:- import atom_to_term/2 from string.
+:- import atom_to_term/2,str_length/2,str_sub/2 from string.
 :- import get_callsto_number/2, get_answer_number/2,table_status/5,
           get_calls/3,get_call/3,get_tabling_options/2 from tables.	
 :- import xsb_configuration/2 from xsb_configuration.
