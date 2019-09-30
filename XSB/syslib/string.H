@@ -37,6 +37,7 @@
 
 :- import append/3, memberchk/2, copy_term/2, ith/3 from basics.
 :- import str_len/2 from machine.
+:- import numbervars/3 from num_vars.
 :- import
         atom/1, atom_codes/2, number/1, integer/1, structure/1,
         '=..'/2,
@@ -51,6 +52,6 @@
         file_read_foe/3
    from xsb_read.
 :- import domain_error/4, check_nonvar_list/3, type_error/4, check_atom/3,
-   check_integer/3, instantiation_error/3, misc_error/1 from error_handler.
+   check_integer/3, instantiation_error/3, misc_error/1,check_cyclic/3 from error_handler.
 
 /* ---------------------- end of file string.H ------------------------ */
