@@ -40,7 +40,7 @@
 :- import warning/1 from auxlry.
 :- import syntax_error/1 from error_handler.
 :- import excess_vars/4 from setof.
-:- import concat_atom/2 from string.
+   :- import concat_atom/2,term_to_atom/3 from string.
 :- import trans_head/5, trans_goals/5, ensure_gensym_num_larger/1 from parse.
 :- import memberchk/2 from basics.
 :- import xwam_state/2 from machine.

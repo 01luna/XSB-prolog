@@ -1,5 +1,5 @@
 /* File:      cp_opt.P
-** Author(s): Terrance Swift
+** Author(s): Swift, Warren
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 1986, 1993-1998
@@ -510,7 +510,6 @@ equate_but_argno([X|PArgs],[Y|P1Args],CurArg,ArgList,VarList,A,B,ArgNo) :-
 	CurArg1 is CurArg + 1,
 	equate_but_argno(PArgs,P1Args,CurArg1,ArgList0,VarList0,A,B,ArgNo).
 
-%:- import console_writeln/1 from standard.
 :- mode extract_aggr_spec(?,?,?,?).
 extract_aggr_spec(Spec,ArgNo,ExistArgList,AggSpec) :-
 	functor(Spec,_,Arity),
@@ -567,9 +566,10 @@ subsumption_modes_trans_pred(Sym,Pscs,Oth,Modes,[pred(Sym1,Pscs,Oth)|NewClList],
 	parse_preddef_closed(PredCall,Body,NewClList,SymTab),
 	NewTerm =.. [Pred1|PArgs],
 	parse_preddef_closed(NewTerm,true,[pred(Sym1,_,_)],SymTab), % add to symtab
-	ensure_imported(table_error/1,error_handler,SymTab).
+	ensure_imported(table_error/1,error_handler,SymTab),
+	ensure_imported(term_to_atom/3,string,SymTab).
 
-/*** for when debugging 
+/*** for when debugging ***
 print_rule(Label,Head,Body) :-
 	(do_all
 	 num_vars:numbervars(p(Head,Body)),
@@ -624,13 +624,14 @@ build_plus_orig_minus_equates([-|Mode],[Var|PArgs],[NV|VListMNew],[Var=NV|Equate
 table_index_trans_pred(Sym,Pscs,Oth,Indexes,ClList,SymTab) :-
 	sym_name(Sym,Pred,Arity),
 	collect_orders_from_indexes(Indexes,Arity,OrdSets,IndexOrds),
+%	console_writeln(collect_orders_from_indexes(Indexes,Arity,OrdSets,IndexOrds)),
 	collect_inds_and_perms(OrdSets,IndexOrds,IndPerms0),
 	parsort(IndPerms0,[asc(2)],0,IndPerms1),
 	simplify_ind_and_perms(IndPerms1,IndPerms),
-
+%	console_writeln(simplify_ind_and_perms(IndPerms1,IndPerms)),
 	gen_sel_clause(Pred,Arity,IndPerms,(SelHead:-SelBody)),
 	ClList = [pred(Sym1,Pscs,Oth)|NewClList],
-	%%print_rule(sel_rule,SelHead,SelBody), % dsw
+%	print_rule(sel_rule,SelHead,SelBody), % dsw
 	parse_preddef_closed(SelHead,SelBody,NewClList,SymTab),
 	tail_var(NewClList,NewClList1),
 
@@ -659,6 +660,7 @@ table_index_trans_pred(Sym,Pscs,Oth,Indexes,ClList,SymTab) :-
 	
 	% generate_rest_index_clauses
 	ensure_imported_list([im(table_error/1,error_handler),
+			      im(term_to_atom/3,string),
 			      im(pred_table_pred/2,tables),
 			      im(assert/1,assert),
 			      im(retractall/1,assert)
@@ -716,13 +718,14 @@ gen_sel_clause(Pred,Arity,IndPerms,(Head:-Body)) :-
 	Head =.. [Pred|HeadArgs],
 	gen_tests(IndPerms,Pred,HeadArgs,Body).
 
+%TES: better error handling.
 gen_tests([IndPerm],Pred,HeadArgs,Condition) :- !,
 	gen_test_call(IndPerm,Pred,HeadArgs,Test,Call),
 	(Test == true
 	 ->	Condition = Call
 	 ;	length(HeadArgs,Arity),
-		concat_atom(['Illegal Mode in call to ',Pred,'/',Arity],Msg),
-		Condition = (Test->Call;table_error(Msg))
+		Msg = ['The table_indexed predicate ',Pred,'/',Arity,' executed a subgoal of non-declared mode (the predicate symbol may be different): ',Atom],
+		Condition = (Test->Call ; string:term_to_atom(Call,Atom,[numbervars(true)]),table_error(Msg))
 	).
 gen_tests([IndPerm|IndPerms],Pred,HeadArgs,(Test->Call;Clause)) :-
 	gen_test_call(IndPerm,Pred,HeadArgs,Test,Call),
@@ -964,7 +967,6 @@ approximation_transform(module(Symtab,DcList,ClList,QrList,Par),
 approx_transform([],_Symtab).
 approx_transform([pred(Sym,Pscs,Oth)|ClList0],Symtab):-
 	sym_type(Sym,approximation(_Spec)),!,
-	console_writeln(pred(Pscs)),
 %	approx_trans_pred(Pscs,Sym,Oth,_NewClList,Symtab),
 	approx_transform(ClList0,Symtab).
 approx_transform([pred(_Sym,_Pscs,_Oth)|ClList0],Symtab):-
@@ -973,7 +975,6 @@ approx_transform([pred(_Sym,_Pscs,_Oth)|ClList0],Symtab):-
 approx_trans_pred([],_Sym,_Oth,_NewClList,_Symtab).
 approx_trans_pred([Clause|R],Sym,Oth,NewClList,_Symtab):- 
 	get_max_varocc(Clause,MaxV),
-	console_writeln(MaxV),
 	approx_trans_pred(R,Sym,Oth,NewClList,_Symtab). 
 
 % Original, before changes of Sept 2014
