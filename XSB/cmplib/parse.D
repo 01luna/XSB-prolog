@@ -208,7 +208,6 @@
 :- mode_on_success parse_preddef_sym(A,B,C,g,D).
 :- mode_on_success parse_query(A,B,C).
 :- mode_on_success parse_subsumptive_modes(A,B,C).
-:- mode_on_success parse_table_index(A,ng,B).
 :- mode_on_success parse_table_index(A,g,B).
 :- mode_on_success parse_ti(g,g,A).
 :- mode_on_success parsing_file_name(g).

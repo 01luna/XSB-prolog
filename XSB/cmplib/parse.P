@@ -1267,11 +1267,12 @@ parse_table_index(PredSpec,IndexSpec,SymTab) :-
 		check_integer(Arity,'parse_table_index/3','1.2')
 	  ;	 functor(PredSpec,Pred,Arity)
 	),
-        (IndexSpec = [_|_] -> 
-	   true
-	 ; domain_error(non_empty_list,IndexSpec,'table_index/2',2)),
-	(valid_index_spec(IndexSpec,Arity)
-	 ->	sym_insert(Pred,Arity,[table_index(IndexSpec)],SymTab,_)
+        (IndexSpec = [_|_]
+	 -> RIndexSpec = IndexSpec
+	 ;  RIndexSpec = [IndexSpec]
+	),
+	(valid_index_spec(RIndexSpec,Arity)
+	 ->	sym_insert(Pred,Arity,[table_index(RIndexSpec)],SymTab,_)
 	 ;	domain_error('Illegal index specification: ',IndexSpec,'table_index/2',2)).
 
 valid_index_spec([],_Arity) :- !.
@@ -1622,21 +1623,21 @@ trans_arg(RawArg, structure(Sym, ArgList), SymTab, VidIn, VidOut) :-
 %%	),
 %%	is_list_of_atoms(L).
 
-prime(401).
-prime(809).
-prime(1601).
-prime(3203).
-prime(6421).
-prime(12809).
-prime(25601).
-prime(51203).
-prime(102407).
-prime(204803).
-prime(409609).
-prime(819229).
-prime(1638431).
-prime(3276803).
-prime(6553621).
+prime(     401).
+prime(     809).
+prime(    1601).
+prime(    3203).
+prime(    6421).
+prime(   12809).
+prime(   25601).
+prime(   51203).
+prime(  102407).
+prime(  204803).
+prime(  409609).
+prime(  819229).
+prime( 1638431).
+prime( 3276803).
+prime( 6553621).
 prime(13107229).
 prime(24999983).
 prime(_).  % to generate an error!

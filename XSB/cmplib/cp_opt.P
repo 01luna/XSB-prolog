@@ -254,6 +254,11 @@ aggr_trans([pred(Sym,Pscs,Oth)|ClList0],ClList,SymTab) :-
 aggr_trans([pred(Sym,Pscs,Oth)|ClList0],ClList,SymTab) :-
 	sym_type(Sym,table_index(IndexSpec)),
 	!,
+	(sym_type(Sym,tabled(_,_))
+	 -> sym_name(Sym,Pred,Arity),
+	    warning(('table_index-ed predicate ',Pred/Arity,' should *not* be explicitly tabled.'))
+	 ;  true
+	),
 	table_index_trans_pred(Sym,Pscs,Oth,IndexSpec,ClList,SymTab),
 	tail_var(ClList,ClList1),
 	aggr_trans(ClList0,ClList1,SymTab).	

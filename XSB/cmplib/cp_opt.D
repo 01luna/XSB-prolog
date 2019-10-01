@@ -163,8 +163,7 @@
 :- mode_on_success gen_test_call(A,g,ng,ng,B).
 :- mode_on_success gen_test_call(A,g,ng,g,ng).
 :- mode_on_success gen_test_call(A,g,B,g,g).
-:- mode_on_success gen_tests(A,g,ng,ng).
-:- mode_on_success gen_tests(A,g,B,g).
+:- mode_on_success gen_tests(A,g,B,C).
 :- mode_on_success generate_agg_clauses(A,B,ng,C,g,D,E,F,G).
 :- mode_on_success generate_agg_clauses(A,B,g,ng,g,ng,g,C,D).
 :- mode_on_success generate_agg_clauses(A,B,C,D,ng,ng,E,F,G).
