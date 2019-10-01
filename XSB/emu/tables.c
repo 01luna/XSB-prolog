@@ -22,6 +22,12 @@
 ** 
 */
 
+#ifdef DEBUG_INCR
+#define debug_incr(X) printf X
+#else
+#define debug_incr(X)
+#endif
+
 
 #include "xsb_config.h"
 #include "xsb_debug.h"
@@ -189,46 +195,13 @@ inline static  BTNptr newCallTrie(CTXTdeclc Psc predicate) {
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-/*
- * Note that the call trie of the TIF is not allocated until the first
- * call is entered.  Upon exit, CallLUR_AnsTempl(*results) points to
- * the size of the answer template on the CPS.  See slginsts_xsb_i.h
- * for answer template layout.
- * Assumes that private/shared switch for SMs has been set.
- */
-
-int table_call_search(CTXTdeclc TabledCallInfo *call_info,
- 		       CallLookupResults *results) {
-  TIFptr tif;
-
-  //#ifndef MULTI_THREAD
-  /* for incremental evaluation begin */ 
+int handle_incremental_recomputation(CallLookupResults *results) {
   int call_found_flag;
+  BTNptr leaf,Paren;  
+  ALNptr pALN;
   callnodeptr c;
   VariantSF sf;
-  ALNptr pALN;
-  BTNptr leaf,Paren;  
-  /* for incremental evaluation end */     
-  //#endif
 
-#ifdef CALL_ABSTRACTION
-  CallAbsStk_ResetTOS; 
-#endif
-
-  tif = CallInfo_TableInfo(*call_info);
-  if ( IsNULL(TIF_CallTrie(tif)) )
-    TIF_CallTrie(tif) = newCallTrie(CTXTc TIF_PSC(tif));
-  if ( IsVariantPredicate(tif) ){
-    // Return value for term-depth check.
-#if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
-    var_subg_chk_ins_gl++;
-    //    printf("var_subg_chk_ins\n");
-#endif
-    if (variant_call_search(CTXTc call_info,results) == XSB_FAILURE) {
-      return XSB_FAILURE;
-    }
-    
-    //#ifndef MULTI_THREAD
     /* incremental evaluation: checking whether falsecount is zero */
     /*
       In call check insert if a call is reinserted and was already
@@ -306,6 +279,38 @@ int table_call_search(CTXTdeclc TabledCallInfo *call_info,
       CallLUR_VariantFound(*results) = call_found_flag;
       /* incremental evaluation: end */
       //#endif /* not MULTI_THREAD (incremental evaluation) */
+      return XSB_SUCCESS;
+}
+/*
+ * Note that the call trie of the TIF is not allocated until the first
+ * call is entered.  Upon exit, CallLUR_AnsTempl(*results) points to
+ * the size of the answer template on the CPS.  See slginsts_xsb_i.h
+ * for answer template layout.
+ * Assumes that private/shared switch for SMs has been set.
+ */
+
+int table_call_search(CTXTdeclc TabledCallInfo *call_info,
+ 		       CallLookupResults *results) {
+  TIFptr tif;
+
+#ifdef CALL_ABSTRACTION
+  CallAbsStk_ResetTOS; 
+#endif
+
+v  tif = CallInfo_TableInfo(*call_info);
+  if ( IsNULL(TIF_CallTrie(tif)) )
+    TIF_CallTrie(tif) = newCallTrie(CTXTc TIF_PSC(tif));
+  if ( IsVariantPredicate(tif) ){
+    // Return value for term-depth check.
+#if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
+    var_subg_chk_ins_gl++;
+    //    printf("var_subg_chk_ins\n");
+#endif
+    if (variant_call_search(CTXTc call_info,results) == XSB_FAILURE) {
+      return XSB_FAILURE;
+    }
+    if (handle_incremental_recomputation(results) == XSB_SPECIAL_RETURN)
+      return XSB_SPECIAL_RETURN;
   }  //IsVariantPredicate
   else
     subsumptive_call_search(CTXTc call_info,results);
