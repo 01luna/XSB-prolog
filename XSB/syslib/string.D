@@ -31,6 +31,7 @@
 :- mode if_not_need_quote1(+).
 :- mode ignore_ops(?,+).
 :- mode is_numeric_list(?).
+:- mode local_numbervars(?).
 :- mode next_token(+,?,?,?,?).
 :- mode numbervars(?,+).
 :- mode option_structure(?,?,?,+).
@@ -92,6 +93,7 @@
 :- mode_on_success if_not_need_quote1(g).
 :- mode_on_success ignore_ops(A,g).
 :- mode_on_success is_numeric_list(g).
+:- mode_on_success local_numbervars(A).
 :- mode_on_success next_token(g,g,A,A,B).
 :- mode_on_success next_token(g,g,g,ng,ng).
 :- mode_on_success numbervars(A,g).
@@ -121,6 +123,6 @@
 :- mode_on_success substring(g,g,g,g).
 :- mode_on_success term_to_atom(A,g).
 :- mode_on_success term_to_atom(A,g,g).
-:- mode_on_success term_to_codes(g,g).
-:- mode_on_success term_to_codes(g,g,g).
+:- mode_on_success term_to_codes(A,g).
+:- mode_on_success term_to_codes(A,g,g).
 :- mode_on_success term_to_codes(g,A,B,B,C,C).

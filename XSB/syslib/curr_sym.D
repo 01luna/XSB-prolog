@@ -6,6 +6,7 @@
 :- mode check_operator_type(?).
 :- mode check_precedence(?).
 :- mode check_tripwire_param_list(+).
+:- mode count(?,?,?).
 :- mode current_atom(?).
 :- mode current_functor(?).
 :- mode current_functor(?,?).
@@ -47,6 +48,7 @@
 :- mode predicate_property(?,?).
 :- mode predicate_property_1(+,?,?).
 :- mode predicate_property_20180213(+,?).
+:- mode predicates_for_module(?,?).
 :- mode prolog_commons_flag(+).
 :- mode prolog_commons_flag(+,?).
 :- mode psc_properties(+,?).
@@ -68,10 +70,12 @@
 :- mode subgoal_property(?,?).
 :- mode subgoal_property_1(?,+,?,?).
 :- mode subgoal_property_2(+,+,?).
+:- mode system_pred(?).
 :- mode translate_tabling_option(+,?).
 :- mode translate_tabling_options(+,?).
 :- mode tripwire_1(+).
 :- mode tripwire_action(+,?).
+:- mode user_dyn_clause_count.
 :- mode variant_subgoal_property(?,?).
 :- mode xsb_flag(+).
 :- mode xsb_flag(?,?).
@@ -81,6 +85,7 @@
 :- mode_on_success check_operator_type(A).
 :- mode_on_success check_precedence(A).
 :- mode_on_success check_tripwire_param_list(g).
+:- mode_on_success count(A,B,g).
 :- mode_on_success current_atom(g).
 :- mode_on_success current_functor(g).
 :- mode_on_success current_functor(g,A).
@@ -126,6 +131,7 @@
 :- mode_on_success predicate_property(A,g).
 :- mode_on_success predicate_property_1(g,A,g).
 :- mode_on_success predicate_property_20180213(g,g).
+:- mode_on_success predicates_for_module(A,B).
 :- mode_on_success prolog_commons_flag(g).
 :- mode_on_success prolog_commons_flag(g,A).
 :- mode_on_success psc_properties(g,g).
@@ -147,10 +153,13 @@
 :- mode_on_success subgoal_property(A,g).
 :- mode_on_success subgoal_property_1(A,g,g,g).
 :- mode_on_success subgoal_property_2(g,g,g).
+:- mode_on_success system_module(A).
+:- mode_on_success system_pred(A).
 :- mode_on_success translate_tabling_option(g,g).
 :- mode_on_success translate_tabling_options(g,g).
 :- mode_on_success tripwire_1(g).
 :- mode_on_success tripwire_action(g,g).
+:- mode_on_success user_dyn_clause_count.
 :- mode_on_success variant_subgoal_property(A,g).
 :- mode_on_success xsb_flag(g).
 :- mode_on_success xsb_flag(g,g).
