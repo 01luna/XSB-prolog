@@ -25,7 +25,7 @@
 :- mode local_cd(+).
 :- mode local_cd_throw(+,?).
 :- mode local_cwd(?).
-:- mode local_file_exists(+).
+:- mode local_file_exists(?).
 :- mode local_fmt_write(+,+,+).
 :- mode local_fmt_write_string(?,+,+).
 :- mode local_is_directory(+).
@@ -89,7 +89,7 @@
 :- mode_on_success local_sys_syscall(g,g,g,g).
 :- mode_on_success possibly_structured(g).
 :- mode_on_success print_load_msg(g,A,g).
-:- mode_on_success rename_private_obj_file(g,g).
+:- mode_on_success rename_private_obj_file(A,B).
 :- mode_on_success search_file(g,A,A).
 :- mode_on_success set_current_input.
 :- mode_on_success set_current_module.

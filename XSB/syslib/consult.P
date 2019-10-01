@@ -990,16 +990,20 @@ do_assert_and_fail(Head0,Dir,_Base,Mod) :- % FACT
 	 ;	true
 	),
 	('_$multifile'(Head)
-	 ->	(functor(Head,apply,AArity)
+	 -> multifile_cvt_head(Head,MHead),
+	    (('_$multifile_comp'(MHead,Head) ; load_dyn_cmds(Head))
+	     ->	true % was multifile, and this one is, too
+	     ;	permission_error('Non-multifile predicate',Head,'but previously loaded as multifile','load_dyn')
+	    ),
+	    (functor(Head,apply,AArity)
 		 ->	(load_dyn_apply(AArity)
 			 ->	true
 			 ;	proc_multifile(Head),
 				assert(load_dyn_apply(AArity))
 			)
 		 ;	true
-		),			
-		multifile_cvt_head(Head,MHead),
-		conpsc(MHead,Psc), conpsc(Head0,OPsc)
+	    ),			
+	    conpsc(MHead,Psc), conpsc(Head0,OPsc)
 	 ; functor(Head,apply,AArity)  % an apply that has not been declared mf
 	 ->	proc_multifile(Head),
 		assert(load_dyn_apply(AArity)),

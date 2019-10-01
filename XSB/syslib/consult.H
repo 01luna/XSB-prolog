@@ -98,7 +98,7 @@
 	rm/1, sys_link/3, sys_filecopy/3, cwd/1, cd/1, is_directory/1
    from shell.
 :- import exec_table_option/2 from standard.
-:- import (multifile)/1, '_$multifile'/1 from standard.
+:- import (multifile)/1, '_$multifile'/1, '_$multifile_comp'/2 from standard.
 :- import abort/1, call/1, file_exists/1, atom/1, repeat/0,
 	  seeing/1, see/1, seen/0, call/1, goal_cut_trans/3,
 	  expand_term/2, read/1, op/3, (table)/1, (index)/3, (index)/2,

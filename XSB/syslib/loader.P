@@ -565,7 +565,7 @@ load_object_file(FileName_O,ModPars,IfConsult) :-
     %%local_fmt_write(STDMSG, "Loading: %S\n", arg(FileName_O)),
     (IfConsult =\= 0 -> cputime(LoadStartTime) ; true),
     code_load(FileName_O, Init, IfConsult, ModPars), % use the C loader
-    (Init =\= 0					     % load succeeded
+    (Init =\= 0			% load succeeded
      ->	print_load_msg(IfConsult,LoadStartTime,ModPars),
 	(Init =\= 4		% prolog byte-code succeeded
 	 -> (FileName_O = [Dir,_,_]
@@ -596,7 +596,16 @@ load_object_file(FileName_O,ModPars,IfConsult) :-
 	    unload_seg(Init)	% delete code for '_$main'
 	 ;  true		% load foreign obj code succeeded
 	)
-     ;	abort(['Error in loading file ',FileName_O])
+     ;  (FileName_O = [_,_,XSB_OBJ_EXTENSION_ATOM]  %% also check if immutable
+	 -> true
+	 ;  local_sys_syscall(SYS_unlink,_Res0,FileName_O,_)
+	),
+	(machine:psc_insertmod(ModPars,0,MPSC),
+	 psc_immutable(MPSC,Immutable),
+	 Immutable =\= 1
+	 -> abort(['Error in loading file ',FileName_O])
+	 ;  true
+	)
     ).
 
 local_cwd(Name) :- local_sys_syscall(SYS_cwd, Res, Name, _), Res =:= 0.
@@ -645,10 +654,13 @@ rename_private_objfile_list(FileNameList) :-
     rename_private_obj_file(FileName_LObj,FileName_Obj).
 
 rename_private_obj_file(UFile,OFile) :-
-    local_sys_syscall(SYS_rename,Res,UFile,OFile),
-    (Res =:= 0
-     ->	true
-     ;	local_sys_syscall(SYS_unlink,_Res0,UFile,_) % dont leave private around if rename failed
+    (local_file_exists(UFile)
+     ->	local_sys_syscall(SYS_rename,Res,UFile,OFile),
+	(Res =:= 0
+	 -> true
+	 ;  local_sys_syscall(SYS_unlink,_Res0,UFile,_) % dont leave private around if rename failed
+	)
+     ;  true
     ).
 %%    local_fmt_write(STDMSG, "obj renamed %s to %s\n", arg(UFile,OFile)).
 
