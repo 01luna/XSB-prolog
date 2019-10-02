@@ -436,6 +436,9 @@ cut_transform(Head,Head). /* leave unchanged, Arity is one less */
 
  */
 
+:- import abstract/1 from usermod.
+%:- import console_writeln/1 from standard.
+ 
 :- mode dynamic(?).
 dynamic(Spec):- 
 	check_nonvar(Spec,(dynamic)/1,1),
@@ -447,7 +450,8 @@ dynamic_1(as(Preds,Options)):- !,
 	check_predicate_type(Preds),
 	check_dynamic_options(Options,Preds),
 	exec_pre_dynamic_options(Options,Preds),
-        dynamic_2(Preds).
+        dynamic_2(Preds),
+	exec_post_dynamic_options(Options,Preds).
 dynamic_1(Preds) :-   
         is_list(Preds),!,
 	domain_error(comma_list_or_non_builtin_callable,Preds,(dynamic)/2,1).
@@ -456,7 +460,7 @@ dynamic_1(Preds) :-
 	check_predicate_type(Preds),
         dynamic_2(Preds).
 
-% At this point we know that preds are all ok.
+% At this point we know that preds are all ok, so create prref and tif.
 dynamic_2((P1,P2)) :- !, dynamic_2(P1), dynamic_2(P2).
 dynamic_2(Spec) :-
 	mpa_to_skel(Spec,Head), 
@@ -478,8 +482,9 @@ check_predicate_type(Pred) :-
 exec_pre_dynamic_options((Option,Options),PredList) :- !,
 	exec_pre_dynamic_option(Option,PredList),
 	exec_pre_dynamic_options(Options,PredList).
+% abstract needs to be executed after convert_to_dyna was called.
 exec_pre_dynamic_options(Option,PredList) :- 
-	atom(Option),!,
+	(atom(Option) ; Option = abstract(_)),!,
 	exec_pre_dynamic_option(Option,PredList).
 exec_pre_dynamic_options(Culprit,_PredList) :- 
 	domain_error(comma_list_or_dynamic_option,Culprit,(dynamic)/2,1).
@@ -498,7 +503,14 @@ exec_pre_dynamic_option(shared,PredList) :- !,
 	thread_shared(PredList).
 exec_pre_dynamic_option(intern,PredList) :- !,
 	set_predlist_intern(PredList).
+exec_pre_dynamic_option(abstract(_Val),_PredSpec) :- !.
 exec_pre_dynamic_option(none,_PredList) :- !.
+
+% Already been checked -- doesn't need recheck.
+exec_post_dynamic_options(Options,PredList) :- !,
+	(comma_member(abstract(Val),Options) ->
+	   set_predlist_abstract(PredList,Val)
+	 ; true).
 
 set_predlist_intern((Pred,Preds)):- !,
 	set_predlist_intern(Pred),
@@ -506,9 +518,15 @@ set_predlist_intern((Pred,Preds)):- !,
 set_predlist_intern(Pred):- 
 	mpa_to_skel(Pred,Call),
 	term_psc(Call,Psc),
-%	psc_type(Psc,Type),
-%	writeln(psc_type(Type)),
 	psc_set_intern(Psc,T_INTERN).
+
+set_predlist_abstract((Pred,Preds),Val):- !,
+	set_predlist_abstract(Pred,Val),
+	set_predlist_abstract(Preds,Val).
+set_predlist_abstract(Pred,_Val):-  % at this stage, Val must = 0
+%    writeln(set_predlist_abstract(Pred,Val)),
+	mpa_to_skel(Pred,Call),
+	set_tif_property(Call,subgoal_size,FULL_IDG_ABSTRACTION).
 
 set_predlist_incremental((Pred,Preds),Option):- !,
 	set_predlist_incremental(Pred,Option),
@@ -595,9 +613,20 @@ check_dynamic_option(intern,Options,PredCList) :- !,
 	 ;	true
 	).
 check_dynamic_option(none,_,_PredCList) :- !.
+check_dynamic_option(abstract(N),_Options,_PredCList):- !,
+    % incompatabilities with other dynamic options will be caught by incremental.
+%    console_writeln(check_dynamic_option(abstract(N),_Options,_PredCList)),
+    (N = 0 ->
+	 true
+      ;  misc_error(('IDG abstraction for dynamic predicates is currently supported only at level 0'))),
+	(comma_member(incremental,Options) 
+	->	true
+	; 	misc_error(('Cannot declare ',PredCList,
+			    ' as abstract/n without option incremental'))
+	).
 check_dynamic_option(Option,_,_PredCList) :- !,
 	domain_error(dynamic_option,Option,(dynamic)/1,1,
-	'must be one of tabled,variant,incremental,opaque,private,shared').
+	'must be one of tabled,variant,incremental,opaque,private,shared,abstract/1').
 
 /*======================================================================*/
 /* get_dynamic_pred_ep(+PHead,+Operation,+CallingRef,-PredEP,-PSC):     */

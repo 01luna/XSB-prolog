@@ -95,7 +95,7 @@
 :- import standard_symbol/3, standard_dynamic_symbol/2 from std_xsb.
 
 :- import (use_variant_tabling)/1 from tables.
-:- import retract_table/1 from tables.
+:- import retract_table/1, set_tif_property/3 from tables.
 
 :- import call_xsb_hook/3, xsb_assert_hook/1, xsb_intercept_assert_hook/1,
    xsb_retract_hook/1, xsb_intercept_retractall_hook/1, xsb_hook_class_active/1
