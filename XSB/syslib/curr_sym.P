@@ -826,7 +826,6 @@ subgoal_property_2(_CallType,INCOMPLETE_ANSWER_SET,incomplete).
 subgoal_property_2(_CallType,COMPLETED_ANSWER_SET,completed).
 
 /* ===== current_prolog_flag/2 ================================== */
-:- export report_user_dyn_code.
        
 user_dyn_clause_count:-
     setof(Mod,(current_module(Mod),\+ system_module(Mod)),ModList),
