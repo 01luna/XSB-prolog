@@ -562,50 +562,45 @@ check_times_and_load(FileName_O,FileName_H,SourceFileNames,PModName,ModPars) :-
 %% =0 if initial loading, or loading through import.
 %% must be careful that when called with IfConsult=0, no imported predicates can be used.  (Bootstrapping)
 load_object_file(FileName_O,ModPars,IfConsult) :-
-    %%local_fmt_write(STDMSG, "Loading: %S\n", arg(FileName_O)),
+    %%local_fmt_write(STDMSG, "Loading: %S, %S, %d\n", arg(FileName_O,ModPars,IfConsult)),
     (IfConsult =\= 0 -> cputime(LoadStartTime) ; true),
     code_load(FileName_O, Init, IfConsult, ModPars), % use the C loader
-    (Init =\= 0			% load succeeded
-     ->	print_load_msg(IfConsult,LoadStartTime,ModPars),
-	(Init =\= 4		% prolog byte-code succeeded
-	 -> (FileName_O = [Dir,_,_]
-	     ->	(IfConsult =\= 0
-		 -> concat_atom(FileName_O,FullFile),
-		    push_loaded_file(FullFile,Rand)
-		 ;  true
-		),
-		local_cwd(CurDir),
-		local_cd(Dir),
-		%%local_fmt_write(STDMSG, "calling main for: %S\n", arg(FileName_O)),
-		(system_mod(FileName_O) % cant use catch during system startup
-		 -> ll_code_call(Init, true, 2) % '_$main'
-		 ;  catch(
-			  ll_code_call(Init, true, 2), % '_$main'
-			  Ball,
-			  local_cd_throw(CurDir,Ball)
-			 )
-		),
-		%%local_fmt_write(STDMSG, "returned from main for: %S\n", arg(FileName_O)),
-		local_cd(CurDir),
-		(IfConsult =\= 0
-		 -> pop_loaded_file(Rand)
-		 ;  true
-		)
-	     ;	ll_code_call(Init, true, 2) % call '_$main'
+    %%local_fmt_write(STDMSG, "Loaded: %S, RC: %d\n", arg(FileName_O,Init)),
+    (Init > 4			% Prolog bc successfully loaded
+     ->	print_load_msg(IfConsult,LoadStartTime,ModPars), 
+	(FileName_O = [Dir,_,_]
+	 -> (IfConsult =\= 0
+	     ->	concat_atom(FileName_O,FullFile),
+		push_loaded_file(FullFile,Rand)
+	     ;	true
 	    ),
-	    unload_seg(Init)	% delete code for '_$main'
-	 ;  true		% load foreign obj code succeeded
-	)
-     ;  (FileName_O = [_,_,XSB_OBJ_EXTENSION_ATOM]  %% also check if immutable
-	 -> true
-	 ;  local_sys_syscall(SYS_unlink,_Res0,FileName_O,_)
+	    local_cwd(CurDir),
+	    local_cd(Dir),
+	    %%local_fmt_write(STDMSG, "calling main for: %S\n", arg(FileName_O)),
+	    (system_mod(FileName_O) % cant use catch during system startup
+	     ->	ll_code_call(Init, true, 2) % '_$main'
+	     ;	catch(
+		      ll_code_call(Init, true, 2), % '_$main'
+		      Ball,
+		      local_cd_throw(CurDir,Ball)
+		     )
+	    ),
+	    %%local_fmt_write(STDMSG, "returned from main for: %S\n", arg(FileName_O)),
+	    local_cd(CurDir),
+	    (IfConsult =\= 0
+	     ->	pop_loaded_file(Rand)
+	     ;	true
+	    )
+	    ;  ll_code_call(Init, true, 2) % call '_$main'
 	),
-	(machine:psc_insertmod(ModPars,0,MPSC),
-	 psc_immutable(MPSC,Immutable),
-	 Immutable =\= 1
-	 -> abort(['Error in loading file ',FileName_O])
-	 ;  true
-	)
+	unload_seg(Init)	% delete code for '_$main'
+     ; Init =:= 4		% load foreign obj code succeeded
+     ->	print_load_msg(IfConsult,LoadStartTime,ModPars)
+     ; Init =:= 0		% load failed for some reason
+     ->	abort(['Error in loading file ',FileName_O])
+     ; Init =:= 2 		% not loaded, attempted reload of immutable
+     ->	true			% silence
+     ;	abort(('Unknown return code when loading ',FileName_O,': ',Init))
     ).
 
 local_cwd(Name) :- local_sys_syscall(SYS_cwd, Res, Name, _), Res =:= 0.

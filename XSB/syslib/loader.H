@@ -53,8 +53,7 @@
         stat_flag/2, stat_set_flag/2, expand_filename/2,
         tilde_expand_filename/2, is_absolute_filename/1,
         unload_seg/1, call0/1,
-	formatted_io/5, slash/1, dirname_canonic/2, xsb_backtrace/1,
-	psc_immutable/2
+	formatted_io/5, slash/1, dirname_canonic/2, xsb_backtrace/1
    from machine.
 
 :- import xsb_sys_mutex_unlock/1 from thread.
