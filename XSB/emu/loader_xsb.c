@@ -1202,7 +1202,7 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp, int immutable,
 	psc_set_immutable(ptr->psc_ptr,1);
       } else { 
 	if (pflags[VERBOSENESS_LEVEL]) { printf("Immutable: re-load of module prohibited: %s\n",name);}
-	return(NULL); 
+	return((byte *)2); // continue silently
       }
     }
     cur_mod = ptr->psc_ptr;
