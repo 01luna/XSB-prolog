@@ -297,7 +297,7 @@ int table_call_search(CTXTdeclc TabledCallInfo *call_info,
   CallAbsStk_ResetTOS; 
 #endif
 
-v  tif = CallInfo_TableInfo(*call_info);
+  tif = CallInfo_TableInfo(*call_info);
   if ( IsNULL(TIF_CallTrie(tif)) )
     TIF_CallTrie(tif) = newCallTrie(CTXTc TIF_PSC(tif));
   if ( IsVariantPredicate(tif) ){
