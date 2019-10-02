@@ -54,6 +54,8 @@
 #define INCREMENTAL 1
 #define OPAQUE 2
 
+#define FULL_IDG_ABSTRACTION 65535
+
 /* callnode-> recomputable values */
 #define COMPUTE_DEPENDENCIES_FIRST 0
 #define COMPUTE_DIRECTLY           1
