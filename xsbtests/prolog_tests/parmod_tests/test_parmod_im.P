@@ -1,7 +1,7 @@
 :- import abolish_persistent_table_calls/1 from persistent_tables.
 
-test :- shell('rm *.xwam'),fail.
-test :- shell('rm pm_subdir/*.xwam'),fail.
+test :- shell('rm -f *.xwam'),fail.
+test :- shell('rm -f pm_subdir/*.xwam'),fail.
 
 :- import out/2 from join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in) as pred1/2.
 test :- write('testing: '),my_writeln(join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in):out(_A,_B)),fail.
