@@ -19,7 +19,8 @@ test :-
 	test0a,
 	test1,
 	test2,
-	test5,  %testretract3
+	test5_3, %testretract3
+	test5,   %testretract4
 	test6,
 	test7,
 	test8,
