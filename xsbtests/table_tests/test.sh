@@ -17,7 +17,7 @@ valgrind=$3
 
 $XEMU -m 4000 -c 4000 -g none << EOF
 
-compile(lists).
+compile(lists,[sysmod]).
 compile(sets).
 compile(correct).
 compile(utils).
