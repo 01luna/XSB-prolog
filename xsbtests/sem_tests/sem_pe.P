@@ -24,7 +24,7 @@
 :- dynamic sem_switch/1.
 
 :- import dnf/2 from sem_dnf.
-:- import 't not'/1 from tables.
+%%:- import 't not'/1 from tables.
 :- import is_true/1 from sem_parse.
 :- import sem_switch/1 from usermod.
 :- import sem_mode/1 from semantica.
