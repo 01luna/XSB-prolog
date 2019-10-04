@@ -72,8 +72,8 @@
 :- mode vprag_use(?,?).
 
 :- mode_on_success accum_pre_uses(A,B,C,C,g,g).
-:- mode_on_success accum_pre_uses(ng,A,g,B,g,g).
 :- mode_on_success accum_pre_uses(ng,A,B,ng,g,g).
+:- mode_on_success accum_pre_uses(ng,A,g,B,g,g).
 :- mode_on_success add_branch_occs(A,ng,B,ng).
 :- mode_on_success add_branch_occs(g,g,A,A).
 :- mode_on_success add_branch_occs(ng,g,A,ng).

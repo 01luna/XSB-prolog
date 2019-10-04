@@ -1162,10 +1162,13 @@ parse_comma_list_import(X,_Mod,_SymTab) :-
 insert_compiler_based_options(Options,P/A,SymTab):-
     check_atom(P,'insert_compiler_based_options/3','2.1'),
     check_integer(A,'insert_compiler_based_options/3','2.2'),
-    comma_member(approximate(Cond),Options) -> 
-%	        standard:console_writeln(approximate(Cond)),
-		sym_insert(P, A, [approximation(Cond)], SymTab, _)
-	;       true.
+    (comma_member(approximate(Cond),Options)
+     ->	%	        standard:console_writeln(approximate(Cond)),
+	sym_insert(P, A, [approximation(Cond)], SymTab, _)
+     ; comma_member(index(IndexSpec),Options)
+     ->	parse_table_index(P/A,IndexSpec,SymTab)
+     ;	true
+     ).
 
 parse_comma_list_table((Pred, Preds), SymTab,Options) :- 
 	!,
@@ -1174,13 +1177,19 @@ parse_comma_list_table((Pred, Preds), SymTab,Options) :-
 parse_comma_list_table(P/A, SymTab,Options) :- 
 	atom(P), integer(A), 
 	!,
-	sym_insert(P, A, [tabled], SymTab, _),
+	(comma_member(index(_),Options)
+	 -> true
+	 ;  sym_insert(P, A, [tabled], SymTab, _)
+	),
 	insert_compiler_based_options(Options,P/A,SymTab).
 parse_comma_list_table(Spec, SymTab,Options) :- 
 	is_most_general_term(Spec),
 	!,
 	functor(Spec,P,A),
-	sym_insert(P, A, [tabled], SymTab, _),
+	(comma_member(index(_),Options)
+	 -> true
+	 ;  sym_insert(P, A, [tabled], SymTab, _)
+	),
 	insert_compiler_based_options(Options,P/A,SymTab).
 parse_comma_list_table(Spec, SymTab,Options) :- 
 	is_aggregation_spec(Spec,SymTab),
