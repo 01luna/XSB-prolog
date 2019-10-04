@@ -19,7 +19,9 @@
 :- mode check_body(?).
 :- mode check_clause(?).
 :- mode check_dynamic_option(?,?,?).
+:- mode check_dynamic_option(+,?,?).
 :- mode check_dynamic_options(?,?).
+:- mode check_dynamic_options(?,?,?).
 :- mode check_predicate_type(?).
 :- mode check_retract(?,+).
 :- mode clause(?,?).
@@ -33,6 +35,7 @@
 :- mode dynamic_2(?).
 :- mode dynamic_pred_has_clauses(?,?).
 :- mode exchange_definitions(?,?).
+:- mode exec_post_dynamic_options(+,?).
 :- mode exec_pre_dynamic_option(+,?).
 :- mode exec_pre_dynamic_options(+,?).
 :- mode get_dynamic_pred_ep(?,+,+,?,?).
@@ -47,6 +50,7 @@
 :- mode retract_nr(?).
 :- mode retractall(?).
 :- mode retractall0(?).
+:- mode set_predlist_abstract(?,+).
 :- mode set_predlist_incremental(?,+).
 :- mode set_predlist_intern(?).
 :- mode set_var_occurrences(?).
@@ -82,6 +86,7 @@
 :- mode_on_success check_clause(A).
 :- mode_on_success check_dynamic_option(g,A,B).
 :- mode_on_success check_dynamic_options(g,A).
+:- mode_on_success check_dynamic_options(g,g,A).
 :- mode_on_success check_predicate_type(A).
 :- mode_on_success check_retract(A,g).
 :- mode_on_success clause(A,B).
@@ -99,6 +104,7 @@
 :- mode_on_success dynamic_2(A).
 :- mode_on_success dynamic_pred_has_clauses(A,g).
 :- mode_on_success exchange_definitions(g,g).
+:- mode_on_success exec_post_dynamic_options(g,A).
 :- mode_on_success exec_pre_dynamic_option(g,A).
 :- mode_on_success exec_pre_dynamic_options(g,A).
 :- mode_on_success get_dynamic_pred_ep(g,g,g,g,g).
@@ -112,6 +118,7 @@
 :- mode_on_success retract_nr(A).
 :- mode_on_success retractall(A).
 :- mode_on_success retractall0(A).
+:- mode_on_success set_predlist_abstract(g,g).
 :- mode_on_success set_predlist_incremental(A,g).
 :- mode_on_success set_predlist_intern(A).
 :- mode_on_success set_var_occurrences(A).

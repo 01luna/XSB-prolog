@@ -250,8 +250,7 @@
 :- mode t_not_subsumptive_sf_incomp_1(+,+,+).
 :- mode t_not_variant(+,+,+,+).
 :- mode table_counts(?,?,?,?,?).
-:- mode table_opts_intersect(?,+,?,?).
-:- mode table_opts_intersect(+,?,?,?).
+:- mode table_opts_intersect(?,?,?,?).
 :- mode table_state(?,?,?,?).
 :- mode table_status(?,?,?,?,?).
 :- mode tabled_call(?).
@@ -554,8 +553,7 @@
 :- mode_on_success t_not_subsumptive_sf_incomp_1(g,g,g).
 :- mode_on_success t_not_variant(g,g,g,g).
 :- mode_on_success table_counts(A,g,g,g,g).
-:- mode_on_success table_opts_intersect(A,g,B,C).
-:- mode_on_success table_opts_intersect(g,A,B,C).
+:- mode_on_success table_opts_intersect(A,B,C,D).
 :- mode_on_success table_state(A,g,g,g).
 :- mode_on_success table_status(A,g,g,g,g).
 :- mode_on_success tabled_call(A).

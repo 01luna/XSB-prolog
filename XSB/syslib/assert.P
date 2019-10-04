@@ -552,11 +552,14 @@ set_predlist_incremental(Pred,Option):-
 %---
 
 :- mode check_dynamic_options(?,?).
-check_dynamic_options((Option,Options),PredCList) :- !,
+check_dynamic_options(Options,PredCList) :-
+    check_dynamic_options(Options,Options,PredCList).
+
+check_dynamic_options((Option,OptionsR),Options,PredCList) :- !,
 	check_dynamic_option(Option,Options,PredCList),
-	check_dynamic_options(Options,PredCList).
-check_dynamic_options(Option,PredCList) :- !,
-	check_dynamic_option(Option,Option,PredCList).
+	check_dynamic_options(OptionsR,Options,PredCList).
+check_dynamic_options(Option,Options,PredCList) :- !,
+	check_dynamic_option(Option,Options,PredCList).
 
 check_dynamic_option(tabled,Options,PredCList) :- !,
         (comma_member(incremental,Options) -> 
@@ -613,17 +616,17 @@ check_dynamic_option(intern,Options,PredCList) :- !,
 	 ;	true
 	).
 check_dynamic_option(none,_,_PredCList) :- !.
-check_dynamic_option(abstract(N),_Options,_PredCList):- !,
+check_dynamic_option(abstract(N),Options,PredCList):- !,
     % incompatabilities with other dynamic options will be caught by incremental.
 %    console_writeln(check_dynamic_option(abstract(N),_Options,_PredCList)),
     (N = 0 ->
 	 true
-      ;  misc_error(('IDG abstraction for dynamic predicates is currently supported only at level 0'))),
-	(comma_member(incremental,Options) 
-	->	true
-	; 	misc_error(('Cannot declare ',PredCList,
-			    ' as abstract/n without option incremental'))
-	).
+     ;  misc_error(('IDG abstraction for dynamic predicates is currently supported only at level 0'))
+    ),
+    (comma_member(incremental,Options) 
+     ->	true
+     ;	misc_error(('Cannot declare ',PredCList,' as abstract/n without option incremental'))
+    ).
 check_dynamic_option(Option,_,_PredCList) :- !,
 	domain_error(dynamic_option,Option,(dynamic)/1,1,
 	'must be one of tabled,variant,incremental,opaque,private,shared,abstract/1').

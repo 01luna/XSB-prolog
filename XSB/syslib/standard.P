@@ -1306,7 +1306,10 @@ table(Options) :-
 	check_nonvar(Options,(table)/1,1),
 	(Options = as(Ps,List) ->
 	    check_table_options(List,Ps,no),  % dont override other values
-	    table_1(Ps),
+	    (comma_member(index(_),List)
+	     ->	true
+	     ;	table_1(Ps)
+	    ),
             ( (comma_member(dynamic,List) ; comma_member(dyn,List)) -> 
 	      exec_dyn_on_predlist(Ps) ; true),
 	    exec_table_options(List,Ps)
@@ -1322,7 +1325,7 @@ table_1(Ps):-
 	\+ is_list(Ps),!,
 	add_table(Ps).
 table_1(Pred):- 
-	domain_error(comma_list_or_predicate_indicator,Pred,(table)/1,1).
+    domain_error(comma_list_or_predicate_indicator,Pred,(table)/1,1).
 
 :- import mpa_to_skel/2 from file_op.
 :- import collect_orders_from_indexes/4 from cp_opt.
@@ -1372,21 +1375,27 @@ abolish_table_index_pred(_PredSpec).
 
 exec_table_options(Options,PredList) :- !,
 	check_ground(Options,(table)/1,1),
-	exec_table_options_1(Options,PredList).
+	exec_table_options_1(Options,Options,PredList).
 
-exec_table_options_1((Option,Options),PredList) :- !,
-	exec_table_option(Option,PredList),
-	exec_table_options_1(Options,PredList).
-exec_table_options_1(Option,PredList) :- 
+exec_table_options_1((Option,OptionsR),Options,PredList) :- !,
+	exec_table_options_1(Option,Options,PredList),
+	exec_table_options_1(OptionsR,Options,PredList).
+exec_table_options_1(Option,Options,PredList) :- 
 	atom(Option),!,
+	(Option \== subsumptive
+	 -> true
+	 ;  \+ comma_member(index(_),Options)
+	),
 	exec_table_option_on_predlist(PredList,Option).
-exec_table_options_1(subgoal_abstract(Val),PredList):- !,
+exec_table_options_1(subgoal_abstract(Val),_Options,PredList):- !,
 	exec_table_option_on_predlist(PredList,subgoal_abstract(Val)).
-exec_table_options_1(answer_abstract(Val),PredList):- !,
+exec_table_options_1(answer_abstract(Val),_Options,PredList):- !,
 	exec_table_option_on_predlist(PredList,answer_abstract(Val)).
-exec_table_options_1(max_answers(Val),PredList):- !,
+exec_table_options_1(max_answers(Val),_Options,PredList):- !,
 	exec_table_option_on_predlist(PredList,max_answers(Val)).
-exec_table_options_1(Culprit,_PredList) :- 
+exec_table_options_1(index(IndexSpec),_Options,PredList):- !,
+	exec_table_option_on_predlist(PredList,index(IndexSpec)).
+exec_table_options_1(Culprit,_Options,_PredList) :- 
 	domain_error(comma_list_or_table_options,Culprit,(table)/1,1).
 
 exec_dyn_on_predlist((P,Ps)) :- !,
@@ -1418,6 +1427,9 @@ exec_table_option(subsumptive,Pred) :- !,
 	use_subsumptive_tabling(Pred).
 exec_table_option(variant,Pred) :- !,
 	use_variant_tabling(Pred).
+exec_table_option(index(IndexSpec),Pred) :- !,
+	ground(IndexSpec),
+	table_index(Pred,IndexSpec).
 exec_table_option(subgoal_abstract(Val),PredSpec) :- !,
 	check_integer(Val,'set_tif_property/3',3),
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
@@ -1460,11 +1472,14 @@ exec_table_option(Option,_Pred) :- !,
 :- import max_answers(_) from usermod.
 :- import set_tif_property/3 from tables.
 
-check_table_options((Option,Options),PredCList,Override) :- !,
+check_table_options(Options,PredCList,Override) :- !,
+    check_table_options(Options,Options,PredCList,Override).
+
+check_table_options((Option,OptionsR),Options,PredCList,Override) :- !,
 	check_table_option(Option,Options,PredCList,Override),
-	check_table_options(Options,PredCList,Override).
-check_table_options(Option,PredCList,Override) :- 
-	check_table_option(Option,Option,PredCList,Override).
+	check_table_options(OptionsR,Options,PredCList,Override).
+check_table_options(Option,Options,PredCList,Override) :- 
+	check_table_option(Option,Options,PredCList,Override).
 
 use_incremental_tabling(PredList):-
 	abort(['use_incremental_dynamic/1 is now obsolete.  Use table ',

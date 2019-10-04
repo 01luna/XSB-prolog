@@ -82,6 +82,8 @@
 :- mode check_read_options(?,+,+).
 :- mode check_statistics_input(?,?).
 :- mode check_table_options(?,?,?).
+:- mode check_table_options(?,?,?,?).
+:- mode check_table_options(?,?,?,?).
 :- mode check_timed_call_options(?,?,?,?,?,?).
 :- mode cleanup_catcher(?,?).
 :- mode cleanup_handler(?,?).
@@ -113,7 +115,7 @@
 :- mode exec_table_option(?,?).
 :- mode exec_table_option_on_predlist(?,+).
 :- mode exec_table_options(?,?).
-:- mode exec_table_options_1(+,?).
+:- mode exec_table_options_1(+,+,?).
 :- mode expand_atom(+,?).
 :- mode expand_atom_1(+,?).
 :- mode expand_term(?,?).
@@ -380,6 +382,8 @@
 :- mode_on_success check_read_options(A,g,g).
 :- mode_on_success check_statistics_input(g,g).
 :- mode_on_success check_table_options(A,B,C).
+:- mode_on_success check_table_options(A,A,B,C).
+:- mode_on_success check_table_options(A,ng,B,C).
 :- mode_on_success check_timed_call_options(A,g,g,g,g,g).
 :- mode_on_success check_timed_call_options(ng,g,g,g,ng,g).
 :- mode_on_success check_timed_call_options(ng,g,ng,g,A,g).
@@ -412,7 +416,7 @@
 :- mode_on_success exec_table_option(g,A).
 :- mode_on_success exec_table_option_on_predlist(A,g).
 :- mode_on_success exec_table_options(g,A).
-:- mode_on_success exec_table_options_1(g,A).
+:- mode_on_success exec_table_options_1(g,g,A).
 :- mode_on_success expand_atom(g,g).
 :- mode_on_success expand_atom_1(g,g).
 :- mode_on_success expand_term(A,B).

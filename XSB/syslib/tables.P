@@ -1047,6 +1047,9 @@ check_table_option(subsumptive,Options,PredCList,Override) :- !,
 	(Override = yes -> 
 	   true
          ; table_opts_intersect([variant],subsumptive,Options,PredCList) ).
+check_table_option(index(_),Options,PredCList,_Override) :- !,
+	table_opts_intersect([incremental,intern,max_answers(_),opaque,shared,variant,
+	                      subgoal_abstract(_),compl_semantics],index(_),Options,PredCList).
 check_table_option(variant,Options,PredCList,Override) :- !,
 	(Override = yes -> 
 	   true
@@ -1080,7 +1083,7 @@ use_variant_tabling(CommaList) :-
 
 :- mode use_subsumptive_tabling(?).
 use_subsumptive_tabling(CommaList) :-
-	set_eval_method_for_comma(CommaList,SUBSUMPTIVE_EVAL_METHOD).
+    set_eval_method_for_comma(CommaList,SUBSUMPTIVE_EVAL_METHOD).
 
 set_eval_method_for_comma((PS1,PS2),EvalMethod) :-
 	!, set_eval_method_for_comma(PS1,EvalMethod),
