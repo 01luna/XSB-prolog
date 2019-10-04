@@ -1,4 +1,4 @@
-query(p11,win(A),[win(a),win(b),win(c),win(d)],[win(b),win(c)],[]).
+query(p11,win(_A),[win(a),win(b),win(c),win(d)],[win(b),win(c)],[]).
 %-----------------------------------------------------------
 
 :- table win / 1.

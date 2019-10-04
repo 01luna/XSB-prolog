@@ -18,4 +18,4 @@ q(b).
 r(A) :- s(A), tnot(n(A)).
 s(a).
 s(c).
-t(A) :- fail.
+t(_A) :- fail.
