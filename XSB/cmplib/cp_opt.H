@@ -28,7 +28,7 @@
 :- export extract_aggr_spec/4.
 :- export get_return_w_tv/4.
 :- export call_join_op/6.
-:- export collect_orders_from_indexes/4.
+:- export collect_orders_from_indexes/5.
 
 :- import nthmember/3 from listutil.
 :- import have_hardcut/2 from preproc.

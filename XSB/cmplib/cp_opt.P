@@ -628,15 +628,14 @@ build_plus_orig_minus_equates([-|Mode],[Var|PArgs],[NV|VListMNew],[Var=NV|Equate
    orders for arbitrary indexing. */
 table_index_trans_pred(Sym,Pscs,Oth,Indexes,ClList,SymTab) :-
 	sym_name(Sym,Pred,Arity),
-	collect_orders_from_indexes(Indexes,Arity,OrdSets,IndexOrds),
-%	console_writeln(collect_orders_from_indexes(Indexes,Arity,OrdSets,IndexOrds)),
+	collect_orders_from_indexes(Indexes,Pred,Arity,OrdSets,IndexOrds),
 	collect_inds_and_perms(OrdSets,IndexOrds,IndPerms0),
 	parsort(IndPerms0,[asc(2)],0,IndPerms1),
 	simplify_ind_and_perms(IndPerms1,IndPerms),
 %	console_writeln(simplify_ind_and_perms(IndPerms1,IndPerms)),
 	gen_sel_clause(Pred,Arity,IndPerms,(SelHead:-SelBody)),
 	ClList = [pred(Sym1,Pscs,Oth)|NewClList],
-%	print_rule(sel_rule,SelHead,SelBody), % dsw
+	%%print_rule(sel_rule,SelHead,SelBody), % dsw
 	parse_preddef_closed(SelHead,SelBody,NewClList,SymTab),
 	tail_var(NewClList,NewClList1),
 
@@ -815,9 +814,9 @@ gen_sel_nonvars(I,Poss,[Arg|RemArgs],NonVars) :-
 	).
 
 
-:- mode collect_orders_from_indexes(?,+,?,?).
-collect_orders_from_indexes(Indexes,Arity,OrdSets,IndexOrds) :-
-	find_orders(Indexes,OrdSets),
+:- mode collect_orders_from_indexes(?,+,+,?,?).
+collect_orders_from_indexes(Indexes,Pred,Arity,OrdSets,IndexOrds) :-
+	find_orders(Indexes,Pred,Arity,OrdSets),
 	collect_arg_perms(OrdSets,Arity,IndexOrds).
 
 tail_var(L,Tail) :- var(L), !, Tail = L.
@@ -851,20 +850,20 @@ collect_arg_pos([set(_,_,List)|Sets],PList,ArgPoses0,ArgPoses) :-
 	append(ArgPoses0,NewArgPoses,ArgPoses1),
 	collect_arg_pos(Sets,List,ArgPoses1,ArgPoses).
 
-%% find_orders(+Indexes,-OrdSets) takes a list of indexes and returns
-%% a list of lists, one for each required argument order.  Such a list
-%% is a list of terms set(Len,I,OrdArgPosList), where Len is the
-%% length of OrdArgPosList, I is the position of this index in the
-%% sequence of indexes, and OrdArgPosList is a list of indexed
+%% find_orders(+Indexes,+Pred,Arity,-OrdSets) takes a list of indexes
+%% and returns a list of lists, one for each required argument order.
+%% Such a list is a list of terms set(Len,I,OrdArgPosList), where Len
+%% is the length of OrdArgPosList, I is the position of this index in
+%% the sequence of indexes, and OrdArgPosList is a list of indexed
 %% argument positions, and each OrdArgPosList in such a list is a
 %% (proper) subset of the following one.
-find_orders(Indexes,OrdSets) :-
+find_orders(Indexes,Pred,Arity,OrdSets) :-
 	%% strange, findall/3 doesn't correctly cause setof mod to be loaded(loops),
 	%%     but findall/4 seems to????  So this is findall/4 (for call from table_index.)
 	findall(set(Len,I,BoundArgs),
 	      an_indexset(Indexes,Len,I,BoundArgs),
 	      IndexSets0),
-	check_for_bad_order(IndexSets0),
+	check_for_bad_order(IndexSets0,Indexes,Pred,Arity),
 	parsort(IndexSets0,[desc(1),asc(2),asc(3)],0,IndexSets),
 	add_all_to_chains(IndexSets,[],OrdSets).
 
@@ -874,16 +873,29 @@ an_indexset(Indexes,Len,I,BoundArgs) :-
 	sort(BoundArgs0,BoundArgs),
 	length(BoundArgs,Len).	
 
-check_for_bad_order(IndexSets) :-
+check_for_bad_order(IndexSets,IndexSpec,Pred,Arity) :-
 	(append(_,[set(_,_,IndList)|Rest],IndexSets),
 	 member(set(_,_,IndList1),Rest),
 	 subset(IndList,IndList1),
-	 warning(('Spurious index declaration: ',IndList1,
-		 ' will never be used, because of earlier: ',IndList)),
+         plusify(IndList,PlusList),
+         plusify(IndList1,PlusList1),
+	 commafy(IndexSpec,CIndexSpec),
+	 warning(('In the table ... as ... index declaration index([',CIndexSpec,']) for ',Pred/Arity,', the index ',PlusList1,
+		 ' will never be used because of the earlier index ',PlusList)),
 	 fail
 	 ;
 	 true
 	).
+
+commafy([],[]).
+commafy([H],[H]):- !.
+commafy([H|T],[H,', '|PlusT]):- 
+    commafy(T,PlusT).
+
+plusify([],[]).
+plusify([H],H):- !.
+plusify([H|T],H+PlusT):- 
+    plusify(T,PlusT).
 
 %% add_all_to_chains(+SetList,+ChainList,-NewChainList) iteratively
 %% adds each "set" in SetList to the beginning of the appropriate chain
