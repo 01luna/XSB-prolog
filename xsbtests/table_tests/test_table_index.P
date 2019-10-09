@@ -1,4 +1,4 @@
-:- import xsb_error_get_tag/2 from error_handler.
+:- import xsb_error_get_tag/2,xsb_error_get_message/2 from error_handler.
 
 :- table p/2 as index(0).
 
@@ -26,5 +26,17 @@ test:- p(X,Y,Z),writeln(pc(X,Y,Z)),fail.
 test:- p(a,Y,v),writeln(pc1(Y)),fail.
 test:- p(X,4,x),writeln(pc2(X)),fail.
 
+%----------------------
+
 test:- catch(compile(test_table_index_1),E,(xsb_error_get_tag(E,M),writeln(M))),fail.
+test:- catch(p_alt(_X,1,_Y),E,(xsb_error_get_message(E,M),writeln(M))),fail.
+test:- catch(table(as(p_bad/2,(dyn,index([0])))),E,(xsb_error_get_message(E,M),writeln(first(M)))),fail.
+test:- catch(table(as(p_bad/2,(index([0]),dyn))),E,(xsb_error_get_message(E,M),writeln(second(M)))),fail.
 test.
+
+% Test error on improper call.
+:- table p_alt/3 as index([1+3,3+2]).
+
+p_alt(X,Y,Z) :- r(X,Y),s(Y,Z), writeln(p_alt(X,Y,Z)).
+
+
