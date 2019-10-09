@@ -207,7 +207,7 @@
 :- import variant/2 from subsumes.
 
 :- import invalidate_table_for/2 from usermod.
-:- import approximate/1 from usermod.
+:- import approximate/1,(index)/1 from usermod.
 :- import answer_abstract/1 from usermod.
 :- import subgoal_abstract(_) from usermod.
 

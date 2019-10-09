@@ -1009,13 +1009,13 @@ check_table_option(approximate(_),Options,PredCList,_Override) :- !,
 check_table_option(dyn,Options,PredCList,_Override) :- !,
 	check_table_option(dynamic,Options,PredCList,_Override).
 check_table_option(dynamic,Options,PredCList,_Override) :- !,
-	table_opts_intersect([ans_subsumption,incremental],dynamic,Options,PredCList).
+	table_opts_intersect([ans_subsumption,incremental,index(_)],dynamic,Options,PredCList).
 % Can't do incremental + intern until get_calls is fixed
 check_table_option(incremental,Options,PredCList,Override) :- !,
 	(Override = yes -> 
 	   true
          ; table_opts_intersect([approximate(_),dynamic,dyn,intern,
-	                      nonincremental,opaque,shared,subsumptive,
+	                      nonincremental,opaque,shared,
 			      compl_semantics],incremental,Options,PredCList)).
 check_table_option(intern,Options,PredCList,_Override) :- !,
 	table_opts_intersect([ans_subsumption,answer_abstract(_),approximate(_),incremental,
@@ -1042,7 +1042,7 @@ check_table_option(subgoal_abstract(_),Options,PredCList,_Override) :- !,
 	table_opts_intersect([subsumptive],subgoal_abstract(_),Options,PredCList).
 % Assuming that we''ll have subsumptive and opaque soon.
 check_table_option(subsumptive,Options,PredCList,Override) :- !,
-	table_opts_intersect([incremental,intern,max_answers(_),opaque,shared,
+	table_opts_intersect([intern,max_answers(_),opaque,shared,
 	                      subgoal_abstract(_),compl_semantics],subsumptive,Options,PredCList),
 	(Override = yes -> 
 	   true
