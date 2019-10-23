@@ -2613,21 +2613,28 @@ table a predicate. Either call subsumption or call variance may be
 used, incremental tabling might or might not be used, and answer
 subsumption might or might not be used.  Ground terms may be interned.
 Furthermore, a tabled predicate, like any other predicate, may be
-static or dynamic and thread-shared or thread-private.  Additionally
-various abstraction methods may be used, such as subgoal abstraction,
-answer abstraction, or maximal answers.  And finally, a tabled
-predicate may be declared as private or shared in the multi-threaded
-engine.  
+static or dynamic.
+%and thread-shared or thread-private.
+Additionally various abstraction methods may be used, such as subgoal
+abstraction, answer abstraction, or maximal answers.
+%And finally, a
+%tabled predicate may be declared as private or shared in the
+%multi-threaded engine.
 
 To analyze further, all combinations are supported for call-variance
-and for thread-private predicates.  However, call subsumption has not
-been fully integrated with dynamic code or thread-shared predicates,
+except for table indexing, which is a means of optimizing call
+subsumption (cf. Section~\ref{sec:table-index}).
+%and for thread-private predicates.
+However, call subsumption has not been fully integrated with dynamic
+code,
+%or thread-shared predicates,
 and cannot currently be combined with incremental tabling or with
-answer subumption.  Similarly incremental tabling is not yet supported
-in the multi-threaded engine (it is supported for ``thread-private''
-computations only in the sequential engine).  All compatibilities are
-listed below: further combinations will be supported in future
-versions of XSB as resources allow.
+answer subumption.
+%Similarly incremental tabling is not yet supported
+%in the multi-threaded engine (it is supported for ``thread-private''
+%computations only in the sequential engine).
+All compatibilities are listed below: further combinations will be
+supported in future versions of XSB as resources allow.
 
 %The combinations in Table~\ref{table:table} allow full well-founded
 %computation, constrained variables in calls and answers (including the
@@ -2638,7 +2645,7 @@ versions of XSB as resources allow.
 
 \begin{itemize}
 \item A predicate $P$ declared with {\tt ans\_subsumption} cannot also
-  be declared with {\tt answer abstract, compl\_semantics, dynamic, incremental, intern,
+  be declared with {\tt answer abstract, compl\_semantics, dynamic, incremental, index/1, intern,
     opaque, subgoal\_abstract} or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt answer\_abstract} cannot also
@@ -2647,24 +2654,29 @@ versions of XSB as resources allow.
 %
 \item A predicate $P$ declared with {\tt compl\_semantics} cannot also
   be declared with {\tt ans\_subsumption, answer\_abstract, dynamic,
-    incremental, intern, opaque, subsumptive} or {\tt subgoal\_abstract}.
+    incremental, index/1, intern, opaque, subsumptive} or {\tt subgoal\_abstract}.
 %
 \item A predicate $P$ declared with {\tt dyn} or {\tt (dynamic)} cannot also
   be declared with {\tt ans\_subsumption} or {\tt incremental}
 %
 \item A predicate $P$ declared with {\tt incremental} cannot also be
-  declared with {\tt compl\_semantics, dynamic, intern,
-    nonincremental, opaque, shared} or {\tt subsumptive}.  However,
-  $P$ may be changed from {\tt incremental} to {\tt nonincremental} or
-  {\tt opaque} via {\tt set\_predicate\_property/2}.
+  declared with {\tt compl\_semantics, dynamic, index/1, intern,
+    nonincremental, opaque}
+  %, shared}
+  or {\tt subsumptive}.  However, $P$ may be changed from {\tt
+    incremental} to {\tt nonincremental} or {\tt opaque} via {\tt
+    set\_predicate\_property/2}.
+%
+\item A predicate $P$ declared with {\tt index/1} cannot also be
+  declared with any option that is incompatable with {\tt subsumptive}
+  since table indexing is a form of call subsumption.
 %
 \item A predicate $P$ declared with {\tt intern} cannot also be
   declared with {\tt ans\_subsumption, answer\_abstract,
-    compl\_semantics, incremental, subgoal\_abstract} {\tt subsumption}
-  intern,Options,PredCList).
+    compl\_semantics, incremental, index/1, subgoal\_abstract} {\tt subsumption}
 %
 \item A predicate $P$ declared with {\tt max\_answers} cannot also be
-  declared with {\tt compl\_semantics} or {\tt subsumptive}.
+  declared with {\tt compl\_semantics,index/1} or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt nonincremental} cannot also
   be declared with {\tt incremental} or {\tt opaque}.  However, $P$
@@ -2676,24 +2688,26 @@ versions of XSB as resources allow.
   $P$ may be changed from {\tt opaque} to {\tt nonincremental} or {\tt
     incremental} via {\tt set\_predicate\_property/2}.
 %
-\item A predicate $P$ declared with {\tt private} cannot also
-  be declared with {\tt shared}.
+%\item A predicate $P$ declared with {\tt private} cannot also
+%  be declared with {\tt shared}.
 %
-\item A predicate $P$ declared with {\tt shared} cannot also be
-  declared with {\tt compl\_semantics, incremental, opaque, private}
-  or {\tt subsumptive}.
+%\item A predicate $P$ declared with {\tt shared} cannot also be
+%  declared with {\tt compl\_semantics, incremental, opaque, private}
+%  or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt subgoal\_abstract} cannot also
-  be declared with {\tt subsumptive}.
+  be declared with {\tt index/1} or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt subsumptive} cannot also be
-  declared with {\tt compl\_semantics, max\_answers, shared} or {\tt
+  declared with {\tt compl\_semantics, max\_answers}
+    %, shared}
+    or {\tt
     subgoal\_abstract}.  However, $P$ may be changed from {\tt
     subsumptive} to {\tt variant} via {\tt
     set\_predicate\_property/2}.
 %
 \item A predicate $P$ declared with {\tt variant} cannot also be
-  declared with {\tt subsumptive}. However, $P$ may be changed from
+  declared with {\tt index/1} or {\tt subsumptive}. However, $P$ may be changed from
   {\tt variant} to {\tt subsumptive} via {\tt
     set\_predicate\_property/2}.
 

@@ -107,8 +107,8 @@ be given either using the notation \code{p/n} or as a skeleton,
 \index{tabling!incremental}
 \index{tabling!opaque}
 \index{tabling!dynamic predicates}
-\index{tabling!private}
-\index{tabling!shared}
+%\index{tabling!private}
+%\index{tabling!shared}
 \index{tabling!sound completion}
 \index{tabling!subgoal abstraction}
 \index{tabling!answer abstraction}
@@ -121,11 +121,13 @@ be given either using the notation \code{p/n} or as a skeleton,
 executable directive.  Used as a compiler declaration, it indicates
 that each predicate denoted by the command is to be compiled using (a
 particular form of) tabling, and may indicate that the predicate
-itself is dynamic or thread-shared or thread-private.  Executed as a
-directive in a state of execution where no clauses exist for each
-denoted predicate {\tt table/1} ensures that any clauses asserted for
-each predicate use tabling and may indicate the mode of tabling to be
-used.  The parameter {\tt Operations} can take one of three forms:
+itself is dynamic.
+%or thread-shared or thread-private.
+Executed as a directive in a state of execution where no clauses exist
+for each denoted predicate {\tt table/1} ensures that any clauses
+asserted for each predicate use tabling and may indicate the mode of
+tabling to be used.  The parameter {\tt Operations} can take one of
+three forms:
 %
 \begin{enumerate}
 \item {\tt Operations} is a predicate indicator, a skeleton, or
@@ -166,12 +168,17 @@ answers entered into the table for the predicate(s) to be interned.
   $p/n$, but that tables for $p/n$ are not themselves incrementally
   maintained.
 %
-\item {\tt private} which causes the predicate(s) to be treated as
-  thread private in addition to being tabled.
+%\item {\tt private} which causes the predicate(s) to be treated as
+%  thread private in addition to being tabled.
 %
-\item {\tt shared} which causes the predicate(s) to be treated as
-  thread shared in addition to being tabled.
+%\item {\tt shared} which causes the predicate(s) to be treated as
+%  thread shared in addition to being tabled.
 %
+\item {\tt index(}{\em index-spec}{\tt )} ensures that the predicates
+  in {\em PredSpec} are subsumptively tabled and are indexed using a
+  technique called (perhaps unimaginatively) {\em table indexing}.  See
+  Section~\ref{sec:table-index} for details.
+  
 \item {\tt subgoal\_abstract(n)}  which enables size-based subgoal abstraction for the predicate(s).
 %
 \item {\tt answer\_abstract(n)} which enables depth-n answer
@@ -208,8 +215,8 @@ to be thrown during program execution.
 %
 \item Otherwise, an attempt to change an attribute of $p/n$ in
   $PredList$ -- i.e. whether $p/n$ is tabled or not, dynamic or not
-  and thread-private or thread-shared -- will throw a permission
-  error.  
+%  and thread-private or thread-shared
+  -- will throw a permission error.
 \end{itemize}
 
 In addition, regardless of the state of predicates in $PredList$, if
@@ -235,7 +242,7 @@ following cases:
 subsumptive} or {\tt approximate} or {\tt incremental} or {\tt opaque}
 or {\tt answer\_abstract} or {\tt subgoal\_abstract})
 %
-\item {\tt Options} contains both {\tt private} and {\tt shared}
+%\item {\tt Options} contains both {\tt private} and {\tt shared}
 %
 \item {\tt Options} contains both {\tt incremental} and {\tt opaque}
 \ei
@@ -1485,10 +1492,11 @@ section is rather unspecific.  For the purpose of deletion a table can
 either refer to a single subgoal and its answers, or to all subgoals
 and answers for a tabled predicate.  Predicates are provided to
 abolish tables not only for particular predicates and subgoals, but
-for all tabled predicates, all tabled predicates in a module, and in
-the multi-threaded engine all thread-private tabled predicates or all
-thread-shared tabled predicates.  Overall, these predicates share
-similar characteristics.
+for all tabled predicates, all tabled predicates in a module.
+%, and in
+%the multi-threaded engine all thread-private tabled predicates or all
+%thread-shared tabled predicates.
+Overall, these predicates share similar characteristics.
 
 \paragraph{Abolishing a Table that is being Computed}
 An incomplete tabled subgoal $S$ may not be directly abolished by the
@@ -1643,19 +1651,19 @@ will be seend to be incrementally invalid and will be recomputed.
 This recomputation will re-insert $T$ into the IDG in a manner that
 reflects the new state of the program.
 
-\index{tabling!multi-threaded}
-\paragraph{Multiple Threads}
-In the multi-threaded engine abolishing tables private to a thread
-behaves exactly as in the sequential engine, regardless of whether the
-tables are complete or incomplete, or contain conditional answers.  In
-addition, when a thread $T$ exits (by normal termination or via an
-exception), tables private to $T$ are abolished automatically and
-their space reclaimed, as are any incomplete shared tables owned by
-$T$ in local evaluation.  Shared tables can be abolished by the user
-at any time, but their space will not be reclaimed until there is a
-single active thread.
+%\index{tabling!multi-threaded}
+%\paragraph{Multiple Threads}
+%In the multi-threaded engine abolishing tables private to a thread
+%behaves exactly as in the sequential engine, regardless of whether the
+%tables are complete or incomplete, or contain conditional answers.  In
+%addition, when a thread $T$ exits (by normal termination or via an
+%exception), tables private to $T$ are abolished automatically and
+%their space reclaimed, as are any incomplete shared tables owned by
+%$T$ in local evaluation.  Shared tables can be abolished by the user
+%at any time, but their space will not be reclaimed until there is a
+%single active thread.
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{Table Deletion Predicates}
 
 \begin{description}
@@ -1690,13 +1698,13 @@ contains a conditional answer, the warning
 
 will be issued.  
 
-\index{tabling!abolishes!multi-threading}
-\index{tabling!multi-threaded}
-In the multi-threaded engine, if {\tt Pred} is shared, reclamation for
-{\tt Pred} will be delayed until there is a single active thread and
-no answer in {\tt Pred} is active in the current execution
-environment.  Otherwise, the behavior of {\tt abolish\_table\_pred/1}
-is the same as in the sequential engine.
+%\index{tabling!abolishes!multi-threading}
+%\index{tabling!multi-threaded}
+%In the multi-threaded engine, if {\tt Pred} is shared, reclamation for
+%{\tt Pred} will be delayed until there is a single active thread and
+%no answer in {\tt Pred} is active in the current execution
+%environment.  Otherwise, the behavior of {\tt abolish\_table\_pred/1}
+%is the same as in the sequential engine.
 
 \index{tabling!incremental}
 Finally, {\tt abolish\_table\_pred/1} will throw an error if the
@@ -1793,13 +1801,13 @@ a conditional answer, the warning
 
 will be issued.  
 
-\index{tabling!abolishes!multi-threading}
-In the multi-threaded engine, if $S$ is a subgoal for a predicate that
-is shared, reclamation for $S$ will be delayed until there is a single
-active thread and no answer in $S$ is active in the current execution
-environment.  Otherwise, the behavior of {\tt abolish\_table\_call/1}
-is the same as in the sequential engine on tabled predicates that are
-thread-private.
+%\index{tabling!abolishes!multi-threading}
+%In the multi-threaded engine, if $S$ is a subgoal for a predicate that
+%is shared, reclamation for $S$ will be delayed until there is a single
+%active thread and no answer in $S$ is active in the current execution
+%environment.  Otherwise, the behavior of {\tt abolish\_table\_call/1}
+%is the same as in the sequential engine on tabled predicates that are
+%thread-private.
 
 \index{Incremental Dependency Graph (IDG)} 
 \index{tabling!abolishes!incremental}
@@ -1876,7 +1884,7 @@ with {\tt Subgoal} they only abolish the table whose subgoal is a {\em
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\index{tabling!abolishes!multi-threading}
+%\index{tabling!abolishes!multi-threading}
 \index{tabling!abolishes}
 \ourstandarditem{abolish\_all\_tables}{abolish\_all\_tables/0}{Tabling}
 %
@@ -1892,10 +1900,10 @@ tables.  {\tt abolish\_all\_tables/0} can be used regardless of
 whether there are incremental tables, or tables that use call or
 answer subsumption.
 
-In the multi-threaded engine {\tt abolish\_all\_tables/0} additionally
-raises an error unless it is called when there is a single active
-thread.  In that case, all shared tables are abolished as well as all
-private tables for the main thread.
+%In the multi-threaded engine {\tt abolish\_all\_tables/0} additionally
+%raises an error unless it is called when there is a single active
+%thread.  In that case, all shared tables are abolished as well as all
+%private tables for the main thread.
 %An error will be thrown if any completed
 %answer $A$ is active in the current environment, regardless of whether
 %$A$ is thread-private or thread-shared.  
@@ -1912,10 +1920,10 @@ private tables for the main thread.
 \bi
 \item 	{\tt permission\_error}
 \ei
-\item (Multi-threaded engine only) More than one thread is active:
-\bi
-\item 	{\tt table\_error}
-\ei
+%\item (Multi-threaded engine only) More than one thread is active:
+%\bi
+%\item 	{\tt table\_error}
+%\ei
 %
 %
 \ei
@@ -1967,80 +1975,80 @@ The argument may be specified either as a list, i.e., {\tt
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\index{tabling!abolishes!multi-threading}
-\index{tabling!abolishes!}
-\ourstandarditem{abolish\_all\_private\_tables}{abolish\_all\_private\_tables/0}{Tabling}
-%
-In the multi-threaded engine, removes all tables private to the thread
-and frees all the memory held by XSB for these structures, including
-space for conditional answers.  Predicates that have been declared
-tabled remain so, but information in their table is deleted.  Like
-{\tt abolish\_all\_tables/0}, {\tt abolish\_all\_private\_tables/0}
-works directly on the memory structures allocated for table space.
-This makes it very fast for abolishing a large amount of tables, and
-to maintain its speed it throws an error if the current execution
-enviornment contains any incomplete tables, or any active completed
-tables.  {\tt abolish\_all\_private\_tables/0} can be used regardless of
-whether there are incremental tables, or tables that use call or
-answer subsumption.
+%\index{tabling!abolishes!multi-threading}
+%\index{tabling!abolishes!}
+%\ourstandarditem{abolish\_all\_private\_tables}{abolish\_all\_private\_tables/0}{Tabling}
+%%
+%In the multi-threaded engine, removes all tables private to the thread
+%and frees all the memory held by XSB for these structures, including
+%space for conditional answers.  Predicates that have been declared
+%tabled remain so, but information in their table is deleted.  Like
+%{\tt abolish\_all\_tables/0}, {\tt abolish\_all\_private\_tables/0}
+%works directly on the memory structures allocated for table space.
+%This makes it very fast for abolishing a large amount of tables, and
+%to maintain its speed it throws an error if the current execution
+%enviornment contains any incomplete tables, or any active completed
+%tables.  {\tt abolish\_all\_private\_tables/0} can be used regardless of
+%whether there are incremental tables, or tables that use call or
+%answer subsumption.
 
 %In the single-threaded engine, {\tt abolish\_all\_private\_tables/0}
 %is defined as {\tt abolish\_all\_tables/0}.
 
-{\bf Error Cases}
-\bi
-\item There are incomplete tables at the time of the predicate's call;
-\bi
-\item 	{\tt permission\_error}
-\ei
-\item The current execution environment for the thread has an active
-  private table $T$ for the current thread
-\bi
-\item 	{\tt table\_error}
-\ei
-%
-\ei
+%{\bf Error Cases}
+%\bi
+%\item There are incomplete tables at the time of the predicate's call;
+%\bi
+%\item 	{\tt permission\_error}
+%\ei
+%\item The current execution environment for the thread has an active
+%  private table $T$ for the current thread
+%\bi
+%\item 	{\tt table\_error}
+%\ei
+%%
+%\ei
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\index{tabling!abolishes!multi-threading}
-\index{tabling!abolishes!}
-\ourstandarditem{abolish\_all\_shared\_tables}{abolish\_all\_shared\_tables/0}{Tabling}
-%
-In the multi-threaded engine, removes all tables private to the thread
-and frees all the memory held by XSB for these structures, including
-space for conditional answers.  Predicates that have been declared
-tabled remain so, but information in their table is deleted.  {\tt
-  abolish\_all\_private\_tables/0} works directly on the memory
-structures allocated for table space.  This makes it very fast for
-abolishing a large amount of tables, and to maintain its speed it
-throws an error if the current execution enviornment contains any
-incomplete tables, or any active completed tables.  {\tt
-  abolish\_all\_private\_tables/0} can be used regardless of whether
-there are incremental tables, or tables that use call or answer
-subsumption.  In addition, {\tt abolish\_all\_shared\_tables/0} raises
-an error unless it is called when there is a single active thread.  If
-called with a single active thread, all shared tables are abolished,
-but private tables for the main thread are unaffected.
-
-
-{\bf Error Cases}
-\bi
-\item There are incomplete tables at the time of the predicate's call;
-\bi
-\item 	{\tt permission\_error}
-\ei
-\item The current execution environment has an active table $T$
-\bi
-\item 	{\tt permission\_error}
-\ei
-\item More than one thread is active:
-\bi
-\item 	{\tt table\_error}
-\ei
+%\index{tabling!abolishes!multi-threading}
+%\index{tabling!abolishes!}
+%\ourstandarditem{abolish\_all\_shared\_tables}{abolish\_all\_shared\_tables/0}{Tabling}
+%%
+%In the multi-threaded engine, removes all tables private to the thread
+%and frees all the memory held by XSB for these structures, including
+%space for conditional answers.  Predicates that have been declared
+%tabled remain so, but information in their table is deleted.  {\tt
+%  abolish\_all\_private\_tables/0} works directly on the memory
+%structures allocated for table space.  This makes it very fast for
+%abolishing a large amount of tables, and to maintain its speed it
+%throws an error if the current execution enviornment contains any
+%incomplete tables, or any active completed tables.  {\tt
+%  abolish\_all\_private\_tables/0} can be used regardless of whether
+%there are incremental tables, or tables that use call or answer
+%subsumption.  In addition, {\tt abolish\_all\_shared\_tables/0} raises
+%an error unless it is called when there is a single active thread.  If
+%called with a single active thread, all shared tables are abolished,
+%but private tables for the main thread are unaffected.
 %
 %
-\ei
+%{\bf Error Cases}
+%\bi
+%\item There are incomplete tables at the time of the predicate's call;
+%\bi
+%\item 	{\tt permission\_error}
+%\ei
+%\item The current execution environment has an active table $T$
+%\bi
+%\item 	{\tt permission\_error}
+%\ei
+%\item More than one thread is active:
+%\bi
+%\item 	{\tt table\_error}
+%\ei
+%%
+%%
+%\ei
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \comment{
@@ -2109,10 +2117,12 @@ user can explicitly call the table garbage collector to reclaim space
 for any deleted tabled predicates or subgoals that no longer have
 active answers.
 
-{\tt gc\_tables/1} always succeeds, unifying {\tt Number} to $-1$ if
-garbage collection was not attempted (due to multiple active threads)
-and otherwise to the number of tables still unreclaimed at the end of
-garbage collection.
+{\tt gc\_tables/1} always succeeds,  unifying {\tt Number}
+%to $-1$ if
+%garbage collection was not attempted (due to multiple active threads)
+%and otherwise
+to the number of tables still unreclaimed at the end of garbage
+collection.
 
 {\bf Error Cases}
 \bi
@@ -2190,75 +2200,214 @@ automatically invoke \\ {\tt invalidate\_tables\_for} whenever {\tt
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\subsection{Indexing Tables}
+\subsection{Indexing Tables} \label{sec:table-index}
 
-\index{table\_index}
+%\index{table\_index}
 
-Tables are implemented in XSB using tries, which provide powerful
-indexing capabilities.  By default every table has a trie-index based
-on the left-to-right ordering of its arguments.  This means that any
-lookup to a table which is bound on an initial sequence of the tabled
-predicate's arguments is fully indexed.  But if an initial sequence of
-a table lookup is unbound and only a later argument is bound, indexing
-can be very poor.  To address this, XSB allows the user to provide
-{\tt table\_index} declarations to improve indexed access to tables.
-In fact a {\tt table\_index} can be used to provide very powerful and
-general indexed access to any predicate.
+%Tables are implemented in XSB using tries, which provide powerful
+%indexing capabilities.  By default every table has a trie-index based
+%on the left-to-right ordering of its arguments.  This means that any
+%lookup to a table which is bound on an initial sequence of the tabled
+%predicate's arguments is fully indexed.  But if an initial sequence of
+%a table lookup is unbound and only a later argument is bound, indexing
+%can be very poor.  To address this, XSB allows the user to provide
+%{\tt table\_index} declarations to improve indexed access to tables.
+%In fact a {\tt table\_index} can be used to provide very powerful and
+%general indexed access to any predicate.
 
-\ourstandarditem{table\_index(+PredSpec,+IndexSpec)}{table\_index/2}{Tabling}
+%\ourstandarditem{table\_index(+PredSpec,+IndexSpec)}{table\_index/2}{Tabling}
 %
-{\tt table\_index} is a directive that causes the compiler to generate
-code to create tables that provide the requested indexing, and is
-normally used with subsumptive tables.  {\tt PredSpec}, of the form
-{\tt PredName/Arity}, specifies the predicate to be indexed (and
-subsumptively tabled.)  {\tt IndexSpec} is a list of index
-specifications.  Each index specification is a {\tt +}-term that
+%{\tt table\_index} is a directive that causes the compiler to generate
+%code to create tables that provide the requested indexing, and is
+%normally used with subsumptive tables.  {\tt PredSpec}, of the form
+%{\tt PredName/Arity}, specifies the predicate to be indexed (and
+%subsumptively tabled.)  {\tt IndexSpec} is a list of index
+%specifications.  Each index specification is a {\tt +}-term that
+%indicates a set of argument positions for which indexes are required.
+%For example, {\tt [1+2+3, 1, 2+3, 2]} indicates that four indexes are
+%desired; a multiple argument index on arguments 1, 2, and 3; a single
+%argument index on argument 1; a multi-argument index on 2 and 3; and a
+%single argument index on argument 2.  In this case, for a call to the
+%indicated predicate, if arguments 1, 2, and 3 are bound, that index
+%will be used; if not, but argument 1 is bound, then that index will be
+%used; if not but arguments 2 and 3 are bound, then that index will be
+%used, and finally if argument 2 is bound, then that index will be
+%used.  If none of these situations obtain, then a {\tt table\_error}
+%will be thrown.
+
+%The declared indexes should describe modes under which the predicate
+%will be called.  Since the transformation assumes that the predicate
+%will be called in all indicated modes, it will normally abstract all
+%calls to a more general call.  So any call will be abstracted to the
+%call to the base predicate that is bound only on argument positions
+%that appear in {\em all} indexes.  For the example above the first
+%call will result in a completely open call to the base predicate,
+%since the intersection of the four indexes is empty.  An index of {\tt
+%  0} can be used (as the last index in the index specification) to
+%indicate that any call is permitted, and this will always ensure the
+%fully open call is made initially.  For example an index specification
+%of {\tt [1,0]} causes the first call to be abstracted to the fully
+%open call and the subsumptive table to be completely filled.  Then
+%every subsequent call will use that constructed table.  A call to a
+%{\tt table\_index}-ed predicate that is not of a mode explicitly
+%declared in the index specification may not be optimally indexed.
+
+%The declared indexes should describe modes under which the
+%predicate will be called.  Since the transformation assumes that the
+%predicate will be called in all indicated modes, it will normally
+%abstract all calls to a more general call.  So any call will be
+%abstracted to the call to the base predicate that is bound only on
+%argument positions that appear in {\em all} indexes.  For the example
+%above the first call will result in a completely open call to the base
+%predicate, since the intersection of the four indexes is empty.  An
+%index of {\tt 0} can be used (as the last index in the index
+%specification) to indicate that any call is permitted, and this will
+%always ensure the fully open call is made initially.  For example an
+%index specification of {\tt [1,0]} causes the first call to be
+%abstracted to the fully open call and the subsumptive table to be
+%completely filled.  Then every subsequent call will use that
+%constructed table.  A call to a {\tt table\_index}-ed predicate that
+%is not of a mode explicitly declared in the index specification may
+%not be optimally indexed.
+
+%As mentioned above, a predicate indicated as {\tt table\_index}-ed
+%should {\bf not} be declared as (normally) tabled.  The indexes are
+%created using subsumptive tables.  An attempt is made to use the
+%smallest number of tables as possible, but each index does take
+%(perhaps significant) memory.  For example the above four indexes can
+%be accommodated using only two subsumptive tables: with argument
+%orders of {\tt [1,2,3,4]} and {\tt [2,3,1,4]}.
+
+%The tables of table-indexed predicates can be abolished by \\ {\tt
+%  abolish\_table\_pred}, which will abolish all the generated
+%subsumptive tables.  But the tables cannot be removed by {\tt
+%  abolish\_table\_subgoals/1} and its finer variants.  Also these
+%predicates cannot be declared as {\tt incremental}.
+
+%A deeper discussion of how {\tt table\_index/2} can be used and its
+%Implications can be found in \cite{warren-tdbu}.
+
+Within XSB, tabled calls and their answers are both implemented using
+tries, which provide powerful indexing capabilities: by default every
+table has a trie-index based on the left-to-right ordering of its
+arguments.  This mechanism works very well for nearly all tabling
+operations and is a major factor in XSB's tabling speed.
+
+However, the use of tries may be slow in certain cases when call
+subsumption is used.  Recall that in call subsumption, a goal
+$G_{subsumed}$ may re-use the table of a subsuming call
+$G_{subsumer}$.  If the initial prefix of $G_{subsumer}$ is used by
+$G_{subsumed}$, the answer trie will provide excellent indexing: for
+instance the table for the goal {\tt p(a,X,Y)} will properly index the
+subsumed call {\tt p(a,b,Y)}.  But if this is not the case, and the
+table for the $G_{subsuming}$ is large, indexing can be very poor: for
+instance the table for goal {\tt p(a,X,Y)} may provide poor indexing
+for {\tt p(a,X,c)}.  (This would occur if there are a number of
+  different instantiations of {\tt X} in the answer trie for {\tt
+    p(a,X,Y)}.)
+
+To address this, XSB allows the user to specify indexing of call
+subsumption via the {\tt index/1} option of a tabling declaration.
+
+{\em :- table PredSpec as index(IndexSpec).}
+
+This option causes the compiler to generate code to create tables that
+provide the requested indexing.  {\tt IndexSpec} is a list of index
+specifications.  Each index specification is a {\tt +/2}-term that
 indicates a set of argument positions for which indexes are required.
-For example, {\tt [1+2+3, 1, 2+3, 2]} indicates that four indexes are
-desired; a multiple argument index on arguments 1, 2, and 3; a single
-argument index on argument 1; a multi-argument index on 2 and 3; and a
-single argument index on argument 2.  In this case, for a call to the
-indicated predicate, if arguments 1, 2, and 3 are bound, that index
-will be used; if not, but argument 1 is bound, then that index will be
-used; if not but arguments 2 and 3 are bound, then that index will be
-used, and finally if argument 2 is bound, then that index will be
-used.  If none of these situations obtain, then a {\tt table\_error}
-will be thrown.
+For instance the index specification {\tt [1+2+3, 1, 2+3, 2]}
+indicates that four indexes are desired; a multiple argument index on
+arguments 1, 2, and 3; a single argument index on argument 1; a
+multi-argument index on 2 and 3; and a single argument index on
+argument 2.
 
-The declared indexes should describe modes under which the predicate
-will be called.  Since the transformation assumes that the predicate
-will be called in all indicated modes, it will normally abstract all
-calls to a more general call.  So any call will be abstracted to the
-call to the base predicate that is bound only on argument positions
-that appear in {\em all} indexes.  For the example above the first
-call will result in a completely open call to the base predicate,
-since the intersection of the four indexes is empty.  An index of {\tt
-  0} can be used (as the last index in the index specification) to
-indicate that any call is permitted, and this will always ensure the
-fully open call is made initially.  For example an index specification
-of {\tt [1,0]} causes the first call to be abstracted to the fully
-open call and the subsumptive table to be completely filled.  Then
-every subsequent call will use that constructed table.  A call to a
-{\tt table\_index}-ed predicate that is not of a mode explicitly
-declared in the index specification may not be optimally indexed.
+Although the syntax used to specify table indexing is similar to that
+used to specify (non-trie) indexing on dynamic predicates, its
+behavior is somewhat different.  First, trie indexing provides full
+indexing of each term in each argument of an answer, and the {\tt
+  index/1} option of the {\tt table} directive makes use of tries to
+create multiple answer tries for different orders of arguments.  And
+second, {\bf {\em  the index declaration is expected to be a true mode
+declaration so that any calls outside of that declaration will throw
+errors.}}
 
-As mentioned above, a predicate indicated as {\tt table\_index}-ed
-should {\bf not} be declared as (normally) tabled.  The indexes are
-created using subsumptive tables.  An attempt is made to use the
-smallest number of tables as possible, but each index does take
-(perhaps significant) memory.  For example the above four indexes can
-be accommodated using only two subsumptive tables: with argument
-orders of {\tt [1,2,3,4]} and {\tt [2,3,1,4]}.
+This operational aspect of table indexing is perhaps best seen on a
+simpler example:
 
-The tables of table-indexed predicates can be abolished by \\ {\tt
-  abolish\_table\_pred}, which will abolish all the generated
-subsumptive tables.  But the tables cannot be removed by {\tt
-  abolish\_table\_subgoals/1} and its finer variants.  Also these
-predicates cannot be declared as {\tt incremental}.
+{\tt :- table triple/3 as index([1,2,3]).}
 
-A deeper discussion of how {\tt table\_index/2} can be used and its
-implications can be found in \cite{warren-tdbu}.
+Suppose a goal {\tt triple(e1,Rel,Target)} is called.  This call will
+create a table $T_{1,2,3}$ whose trie has argument order
+1,2,3 \footnote{Due to the indexing specification this first order is
+  the default order used by tables, but the form of the first ordering
+  may be different for different specifications.}.  In creating
+$T_{1,2,3}$ the original call is abstracted to {\tt
+  triple(Source,Rel,Target)}.  Once $T_{1,2,3}$ is completed, other
+calls with a nonground first argument can efficiently use this trie.
+Next, if a call {\tt triple(Source,r1,Target)} is made, a new table
+with argument order 2,1,3 is made for an abstracted call {\tt
+  triple(Rel,Source,Target)}.  Finally, if the call {\tt
+  triple(Source,Rel,e2)} is made, a third abstracted table will be
+created with argument order 3,1,2.
 
+Table indexing is performed by hidden rules generated by a program
+transformation executed by XSB's compiler.  These hidden rules ensure
+that the proper tries are created on demand and the tries thus created
+are properly reused.  As part of the transformation, the compiler will
+try to support the desired indexing with as few tries as possible, in
+order to save space.  All tables created by the transformation can be
+abolished by {\tt abolish\_table\_pred/[1,2]}, which will abolish all
+the generated subsumptive tables.  But the tables cannot be removed by
+{\tt abolish\_table\_subgoals/1} and its finer variants.  See
+Section~\ref{} for the compatability of table indexing with other
+tabling options.
+
+A fuller discussion of how {\tt table\_index/2} can be used and its
+Implications can be found in \cite{warren-tdbu}.
+
+\paragraph*{Example}
+Consider the declaration
+
+{\tt table p/4 as index([3+2+1, 1, 2+3, 2]})
+
+that was discussed above.  The compiler can satisfy this specification
+using only two subsumptive tables havng with argument orders {\tt
+  [1,2,3,4]} and {\tt [2,3,1,4]}.  Note that this is because the {\tt
+  3+2+1} is equivalent to {\tt 1+2+3}, so an argument ordering of {\tt
+  [1,2,3,4]} satisfies both {\tt 1+2+3} and {\tt 1}.  Similarly the
+argumet ordering {\tt [2,3,1,4]} -- or any argument ordering beginning
+with {\tt [2,3...]}. satisfies both {\tt 2+3} and {2}.
+
+{\em Exceptions}
+\bi
+\item A call is made to a predicate in {\tt PredSpec} that is not of declared mode:
+\bi
+\item {\tt table\_error}
+\ei
+\item The tabling declaration contains an option that is not supported
+  together with table indexing.
+  \bi
+  \item {\tt permission\_error}
+  \ei
+\ei
+
+%In addition, an index of {\tt 0} can be used (as the last index in the
+%index specification) to indicate that any call is permitted, and this
+%will always ensure the fully open call is made initially.  For example
+%an index specification of {\tt [1,0]} causes the first call to be
+%abstracted to the fully open call and the subsumptive table to be
+%completely filled.  Then every subsequent call will use that
+%constructed table.  A call to a {\tt table\_index}-ed predicate that
+%is not of a mode explicitly declared in the index specification may
+%not be optimally indexed.
+
+%As mentioned above, a predicate indicated as {\tt table\_index}-ed
+%should {\bf not} be declared as (normally) tabled.  The indexes are
+%created using subsumptive tables.  An attempt is made to use the
+%smallest number of tables as possible, but each index does take
+%(perhaps significant) memory.  For example the above four indexes can
+%be accommodated using only two subsumptive tables: with argument
+%orders of {\tt [1,2,3,4]} and {\tt [2,3,1,4]}.
 
 \end{description}
 
