@@ -17,14 +17,16 @@
 :- mode build_subs_abs_clause_body(?,+,+,?,?).
 :- mode build_var_test(?,?).
 :- mode call_join_op(+,?,?,?,?,?).
-:- mode check_for_bad_order(?).
+:- mode check_for_bad_order(+,?,+,+).
+:- mode check_for_bad_order(?,?,+,+).
 :- mode collect_arg_perms(?,+,?).
 :- mode collect_arg_pos(?,?,?,?).
 :- mode collect_arg_pos(+,+,?,?).
 :- mode collect_arg_pos(?,?,?,?).
 :- mode collect_arg_pos(?,?,?,?).
 :- mode collect_inds_and_perms(?,?,?).
-:- mode collect_orders_from_indexes(?,+,?,?).
+:- mode collect_orders_from_indexes(?,+,+,?,?).
+:- mode commafy(?,?).
 :- mode compl(+,+,?,?).
 :- mode cp_opt(?,?).
 :- mode cp_opt0(?,?,?).
@@ -39,7 +41,7 @@
 :- mode equate_but_argno(?,?,+,+,?,?,?,?).
 :- mode equate_vars(?,+,?,?).
 :- mode extract_aggr_spec(?,?,?,?).
-:- mode find_orders(?,?).
+:- mode find_orders(?,+,+,?).
 :- mode fix_main_dynamics(?,?,?,?).
 :- mode fix_main_dynamics(+,?,?,?).
 :- mode gen_ind_clause(?,+,+,+,?,?,+,?).
@@ -65,6 +67,7 @@
 :- mode non_cpopt_var(?).
 :- mode parse_preddef_closed(?,?,?,?).
 :- mode perform_tabling_transforms(?,?).
+:- mode plusify(?,?).
 :- mode proper_subset(?,?).
 :- mode replace_dyn_sym(?,?,?,?).
 :- mode select_indir_vars(+,+,?,?).
@@ -115,7 +118,8 @@
 :- mode_on_success call_join_op(g,A,B,ng,g,g).
 :- mode_on_success call_join_op(g,A,ng,g,g,g).
 :- mode_on_success call_join_op(g,A,g,g,g,g).
-:- mode_on_success check_for_bad_order(A).
+:- mode_on_success check_for_bad_order(g,A,g,g).
+:- mode_on_success check_for_bad_order(ng,ng,g,g).
 :- mode_on_success collect_arg_perms(A,g,g).
 :- mode_on_success collect_arg_perms(ng,g,ng).
 :- mode_on_success collect_arg_pos(A,g,ng,ng).
@@ -126,8 +130,9 @@
 :- mode_on_success collect_inds_and_perms(A,ng,ng).
 :- mode_on_success collect_inds_and_perms(A,B,g).
 :- mode_on_success collect_inds_and_perms(ng,g,ng).
-:- mode_on_success collect_orders_from_indexes(A,g,g,g).
-:- mode_on_success collect_orders_from_indexes(ng,g,ng,A).
+:- mode_on_success collect_orders_from_indexes(A,g,g,g,g).
+:- mode_on_success collect_orders_from_indexes(ng,g,g,ng,A).
+:- mode_on_success commafy(A,A).
 :- mode_on_success compl(g,g,A,g).
 :- mode_on_success cp_opt(A,ng).
 :- mode_on_success cp_opt(A,A).
@@ -150,8 +155,8 @@
 :- mode_on_success equate_but_argno(ng,ng,g,g,g,A,B,C).
 :- mode_on_success equate_vars(g,g,A,B).
 :- mode_on_success extract_aggr_spec(A,B,g,C).
-:- mode_on_success find_orders(A,g).
-:- mode_on_success find_orders(ng,ng).
+:- mode_on_success find_orders(A,g,g,g).
+:- mode_on_success find_orders(ng,g,g,ng).
 :- mode_on_success fix_main_dynamics(g,A,B,B).
 :- mode_on_success fix_main_dynamics(g,A,B,ng).
 :- mode_on_success fix_main_dynamics(ng,ng,A,B).
@@ -190,6 +195,7 @@
 :- mode_on_success perform_tabling_transforms(A,A).
 :- mode_on_success perform_tabling_transforms(A,ng).
 :- mode_on_success perform_tabling_transforms(ng,A).
+:- mode_on_success plusify(A,A).
 :- mode_on_success proper_subset(A,B).
 :- mode_on_success replace_dyn_sym(g,A,g,g).
 :- mode_on_success replace_dyn_sym(g,g,ng,A).
