@@ -77,6 +77,8 @@ static char *create_bin_dll_path(char *xsb_config_file_location, char *dll_file_
   return xsb_bin_dll;
 }
 
+extern char *expand_filename(char *);
+
 static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_option)
 {
   char	*name;
@@ -88,6 +90,7 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
 #endif
   Pair	search_ptr;
   char	sofilename[MAXFILENAME];
+  char  *sofilenameA;
   HMODULE handle;
   void	*funcep;
   char  *file_extension_ptr;
@@ -104,6 +107,7 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
   file_extension_ptr = xsb_strrstr(sofilename, XSB_OBJ_EXTENSION_STRING);
   /* replace the OBJ file suffix with the so suffix */
   strcpy(file_extension_ptr+1, "dll");
+  sofilenameA = expand_filename(sofilename);
 
   xsb_bin_dir = strip_names_from_path(executable_path_gl,1);
   // SetDllDirectory ensures that all the DLLs in the config/.../bin/ dir
@@ -111,18 +115,18 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
   SetDllDirectory(xsb_bin_dir);
   
   /* (2) open the needed object */
-  if (( handle = LoadLibrary(sofilename)) == 0 ) {
+  if (( handle = LoadLibrary(sofilenameA)) == 0 ) {
     // if DLL is not found in c file's path
     // look for it in bin path, if still not found
     // let OS find it
-    basename_ptr = strrchr(sofilename, SLASH); // get \file.dll
+    basename_ptr = strrchr(sofilenameA, SLASH); // get \file.dll
     if(basename_ptr != NULL){
       basename_ptr = basename_ptr + 1;
       xsb_bin_dll = create_bin_dll_path(xsb_config_file_gl, basename_ptr,&dirlen);
       if(( handle = LoadLibrary(xsb_bin_dll)) == 0 ){
 	if (( handle = LoadLibrary(basename_ptr)) == 0 ) {
 	  mem_dealloc(xsb_bin_dll,dirlen,FOR_CODE_SPACE);
-	  xsb_warn(CTXTc "Cannot load library %s or %s; error #%d",basename_ptr,sofilename,GetLastError());
+	  xsb_warn(CTXTc "Cannot load library %s or %s; error #%d",basename_ptr,sofilenameA,GetLastError());
 	  return 0;
 	}
       }
