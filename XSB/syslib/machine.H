@@ -206,8 +206,8 @@
 
 :- export breg_retskel/4.
 
-:- export intern_term/2, intern_termhash/2, term_name/2, term_name_rec/2,
-   intern_termhash_test/2.
+:- export intern_term/2, intern_termhash/2, term_name/2, term_number/2,
+   term_name_rec/2, intern_termhash_test/2.
 
 :- export module_of_term/2.
 

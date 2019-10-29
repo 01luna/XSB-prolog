@@ -207,6 +207,7 @@
 :- mode term_new_mod1(?,?,?).
 :- mode term_new_mod_inline(?,?,?).
 :- mode term_new_skel(?,?).
+:- mode term_number(?,?).
 :- mode term_psc(?,?).
 :- mode term_set_arg(?,?,?,?).
 :- mode term_size(?,?).
@@ -441,6 +442,7 @@
 :- mode_on_success term_new_mod1(A,B,B).
 :- mode_on_success term_new_mod_inline(g,A,A).
 :- mode_on_success term_new_skel(A,B).
+:- mode_on_success term_number(A,A).
 :- mode_on_success term_psc(A,g).
 :- mode_on_success term_set_arg(A,g,B,g).
 :- mode_on_success term_size(A,g).

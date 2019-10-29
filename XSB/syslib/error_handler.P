@@ -711,6 +711,7 @@ memory_type(THREAD_SPACE,' (currently expanding thread  space)').
 memory_type(READ_CAN_SPACE,' (currently expanding canonical i/o space)').
 memory_type(LEAK_SPACE,' (currently expanding leak space)').
 memory_type(SPECIAL_SPACE,' (currently expanding special space)').
+memory_type(INTERN_SPACE,' (currently expanding intern space)').
 memory_type(OTHER_SPACE,' (currently expanding other space)').
 memory_type(INCR_TABLE_SPACE,' (currently expanding incremental tabling space)').
 memory_type(ODBC_SPACE,' (currently expanding odbc space)').
