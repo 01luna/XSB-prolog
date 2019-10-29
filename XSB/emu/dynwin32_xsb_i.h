@@ -127,12 +127,14 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
 	if (( handle = LoadLibrary(basename_ptr)) == 0 ) {
 	  mem_dealloc(xsb_bin_dll,dirlen,FOR_CODE_SPACE);
 	  xsb_warn(CTXTc "Cannot load library %s or %s; error #%d",basename_ptr,sofilenameA,GetLastError());
+	  free(sofilenameA);
 	  return 0;
 	}
       }
       mem_dealloc(xsb_bin_dll,dirlen,FOR_CODE_SPACE);
     }
   }
+  free(sofilenameA);
   
   /* (3) find address of function and data objects
   **

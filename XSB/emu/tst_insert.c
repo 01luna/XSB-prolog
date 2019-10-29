@@ -160,6 +160,12 @@ int SL_max_level = 0;
     SL_max_level = 0;						\
   } while(0)
 
+#define add_skip_node_after(new,prevNext)	\
+  do {						\
+    new->SL_next = prevNext;			\
+    prevNext = new;				\
+  } while (0)
+
 inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
 
   TSINptr nextTSIN;     /* Steps thru each TSIN inspecting time stamp */
@@ -207,17 +213,13 @@ inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
       SN_new->SL_down = SN_mid;
       SN_new->SL_ts = SN_mid->SL_ts;
       if (SN_above == NULL) {
-	SN_new->SL_next = SL_header[SL_curr_level+1];
-	SL_header[SL_curr_level+1] = SN_new;
+	add_skip_node_after(SN_new,SL_header[SL_curr_level+1]);
 	if (SL_max_level == SL_curr_level+1) {
 	  SL_max_level++;
 	  if (SL_max_level >= MAX_SKIP_CHAINS)
 	    xsb_abort("Overflow of skip-chain array\n");
 	}
-      } else {
-	SN_new->SL_next = SN_above->SL_next;
-	SN_above->SL_next = SN_new;
-      }
+      } else add_skip_node_after(SN_new,SN_above->SL_next);
     }
     SN_above = SN_prev;
   }
@@ -242,21 +244,14 @@ inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
     SN_new->SL_down = midTSIN;
     SN_new->SL_ts = TSIN_TimeStamp(midTSIN);
     if (SN_above == NULL) {
-      SN_new->SL_next = SL_header[0];
-      SL_header[0] = SN_new;
+      add_skip_node_after(SN_new,SL_header[0]);
       if (SL_max_level == 0) SL_max_level = 1;
-    } else {
-      SN_new->SL_next = SN_above->SL_next;
-      SN_above->SL_next = SN_new;
-    }
+    } else add_skip_node_after(SN_new,SN_above->SL_next);
   }
 
   /* Splice newTSIN between nextTSIN and its predecessor
      --------------------------------------------------- */
   if ( IsNonNULL(nextTSIN) ) {
-    //    if (TSIN_Prev(nextTSIN) != NULL)
-    //      printf("add %lld after: %lld\n",TSIN_TimeStamp(newTSIN),TSIN_TimeStamp(TSIN_Prev(nextTSIN)));
-    //    else printf("add at beginning\n");
     TSIN_Prev(newTSIN) = TSIN_Prev(nextTSIN);
     TSIN_Next(newTSIN) = nextTSIN;
     if ( IsTSindexHead(nextTSIN) )
@@ -266,7 +261,6 @@ inline static  TSINptr tsiOrderedInsert(CTXTdeclc TSTHTptr ht, TSTNptr tstn) {
     TSIN_Prev(nextTSIN) = newTSIN;
   }
   else {   /* Insertion is at the end of the TSIN list */
-    //    printf("add at end\n");
     TSIN_Prev(newTSIN) = TSTHT_IndexTail(ht);
     TSIN_Next(newTSIN) = NULL;
     if ( IsNULL(TSTHT_IndexHead(ht)) )  /* First insertion into TSI */

@@ -128,10 +128,11 @@ Integer intern_term_size(CTXTdeclc Cell term)
 /* block headers, 1 for each arity; 256 for lists */
 #define LIST_INDEX 256
 #define BIG_ARITY_INDEX_BASE 257
-#define MAX_INTERN_BIG_ARITIES 140
+#define NUM_INTERN_BIG_ARITIES 140
+#define NUM_INTERN_INDEXES (BIG_ARITY_INDEX_BASE+NUM_INTERN_BIG_ARITIES)
 
-struct hc_block_rec *hc_block[400] = {0};
-int big_arities[140] = {0};
+struct hc_block_rec *hc_block[NUM_INTERN_INDEXES] = {0};
+int big_arities[NUM_INTERN_BIG_ARITIES] = {0};
 
 UInteger it_hash(Integer ht_size, int reclen, CPtr termrec) {
   UInteger hsh;
@@ -149,14 +150,14 @@ int get_big_arity_index(int big_arity) {
 
   if (big_arity < BIG_ARITY_INDEX_BASE)
     xsb_abort("Internal error: Should be big arity!");
-  for (i=0; i<MAX_INTERN_BIG_ARITIES; i++) {
+  for (i=0; i<NUM_INTERN_BIG_ARITIES; i++) {
     if (big_arities[i] == 0) {
       big_arities[i] = big_arity;
       break;
     } else if (big_arities[i] == big_arity)
       break;
   }
-  if (i >= MAX_INTERN_BIG_ARITIES)
+  if (i >= NUM_INTERN_BIG_ARITIES)
     xsb_abort("[intern_term] Too many big arity functors\n");
   return i + BIG_ARITY_INDEX_BASE;
 }
@@ -181,7 +182,7 @@ int is_interned_rec(Cell term) {
     reclen = areaindex + 1;
   } else return FALSE;
 
-  if (areaindex > 256) areaindex = get_big_arity_index(areaindex);
+  if (areaindex >= BIG_ARITY_INDEX_BASE) areaindex = get_big_arity_index(areaindex);
   hc_blk_ptr = hc_block[areaindex];
 
   if (!hc_blk_ptr) return FALSE;
@@ -214,7 +215,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
 
   if (!hc_blk_ptr->base) { /* allocate first block */
     hc_blk_ptr->base = 
-      mem_calloc(sizeof(Cell),(1+hc_num_in_block*(1+reclen)),OTHER_SPACE); /* for now, make own space*/
+      mem_calloc(sizeof(Cell),(1+hc_num_in_block*(1+reclen)),INTERN_SPACE); /* for now, make own space*/
     if (!hc_blk_ptr->base) {
       xsb_error("No memory for interned terms\n");
     }
@@ -224,12 +225,12 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
   hashtab_rec = hc_blk_ptr->hashtab_rec;
   ht_cnt = 0;
   if (!hashtab_rec) {
-    hashtab_rec = hc_blk_ptr->hashtab_rec = mem_calloc(sizeof(struct it_hashtab_rec),1,OTHER_SPACE);
+    hashtab_rec = hc_blk_ptr->hashtab_rec = mem_calloc(sizeof(struct it_hashtab_rec),1,INTERN_SPACE);
     if (!hashtab_rec) xsb_abort("No memory for interned term hash table block\n");
     hashtab_rec->next = 0;
     hashtab_rec->hashtab_size = hashtable_sizes[ht_cnt];
     hashtab_rec->num_in_hashtab = 0;
-    hashtab_rec->hashtab = mem_calloc(sizeof(Cell),hashtab_rec->hashtab_size,OTHER_SPACE);
+    hashtab_rec->hashtab = mem_calloc(sizeof(Cell),hashtab_rec->hashtab_size,INTERN_SPACE);
     if (!hashtab_rec->hashtab) xsb_abort("No memory for interned term hash table\n");
   }
   while (hashtab_rec) {
@@ -257,7 +258,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     recptr = hc_blk_ptr->freedisp;
     if ((CPtr)recptr >= (CPtr)(&(hc_blk_ptr->base->recs)) + (hc_num_in_block*(1+reclen))) { 
       struct intterm_block *newblock;
-      newblock = mem_calloc(sizeof(Cell),(1+hc_num_in_block*(1+reclen)),OTHER_SPACE);
+      newblock = mem_calloc(sizeof(Cell),(1+hc_num_in_block*(1+reclen)),INTERN_SPACE);
       if (!newblock) {
 	xsb_error("No memory for interned terms\n");
       }
@@ -272,11 +273,11 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
   hashtab_rec = hc_blk_ptr->hashtab_rec;
   if (hashtab_rec->num_in_hashtab > hashtab_rec->hashtab_size) {
     //    printf("new ht size=%lld, reclen=%d, num_hts=%d\n",hashtab_rec->hashtab_size,reclen,ht_cnt);
-    nhashtab_rec = mem_calloc(sizeof(struct it_hashtab_rec),1,OTHER_SPACE);
+    nhashtab_rec = mem_calloc(sizeof(struct it_hashtab_rec),1,INTERN_SPACE);
     if (!nhashtab_rec) xsb_abort("No memory for interned term hash table block\n");
     nhashtab_rec->hashtab_size = (ht_cnt<10)?hashtable_sizes[ht_cnt]:hashtable_sizes[num_ht_sizes-1];
     nhashtab_rec->num_in_hashtab = 0;
-    nhashtab_rec->hashtab = mem_calloc(sizeof(Cell),nhashtab_rec->hashtab_size,OTHER_SPACE);
+    nhashtab_rec->hashtab = mem_calloc(sizeof(Cell),nhashtab_rec->hashtab_size,INTERN_SPACE);
     if (!nhashtab_rec->hashtab)
       xsb_abort("No memory for interned term hash table of size \n",nhashtab_rec->hashtab_size);
     nhashtab_rec->next = hashtab_rec;
@@ -341,7 +342,7 @@ Cell intern_rec(CTXTdeclc prolog_term term) {
   }
   hc_blk_ptr = hc_block[areaindex];
   if (!hc_blk_ptr) {
-    hc_blk_ptr = (struct hc_block_rec *)mem_calloc(sizeof(struct hc_block_rec),1,OTHER_SPACE);
+    hc_blk_ptr = (struct hc_block_rec *)mem_calloc(sizeof(struct hc_block_rec),1,INTERN_SPACE);
     hc_block[areaindex] = hc_blk_ptr;
   }
   if (!hc_blk_ptr) xsb_abort("[intern_term] No space for hc_block\n");
@@ -369,7 +370,7 @@ Integer ts_array_len = 0;
 #define check_ts_array_overflow \
   if (ti >= ts_array_len) {						\
     ts_array = mem_realloc(ts_array,ts_array_len*sizeof(*ts_array),	\
-			   ts_array_len*2*sizeof(*ts_array),OTHER_SPACE); \
+			   ts_array_len*2*sizeof(*ts_array),INTERN_SPACE); \
     ts_array_len = ts_array_len*2;					\
   }
 
@@ -388,7 +389,7 @@ prolog_term intern_term(CTXTdeclc prolog_term term) {
   if (is_cyclic(CTXTc term)) {xsb_abort("[intern_term/2] Cannot intern a cyclic term\n");}
 
   if (!ts_array) {
-    ts_array = mem_alloc(init_ts_array_len*sizeof(*ts_array),OTHER_SPACE);
+    ts_array = mem_alloc(init_ts_array_len*sizeof(*ts_array),INTERN_SPACE);
     if (!ts_array) xsb_abort("No space for interning term\n");
     ts_array_len = init_ts_array_len;
   }
@@ -487,7 +488,7 @@ void reclaim_internstr_recs() {
   struct it_hashtab_rec *hashtab_rec;
   struct hc_block_rec *hc_blk_ptr;
   
-  for (areaindex = 0; areaindex < 400; areaindex++) {
+  for (areaindex = 0; areaindex < NUM_INTERN_INDEXES; areaindex++) {
     if (areaindex == LIST_INDEX) reclen = 3; // including next pointer
     else if (areaindex > 255) reclen = get_big_arity_from_index(areaindex)+2;
     else reclen = areaindex+2;

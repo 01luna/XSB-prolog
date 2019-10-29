@@ -3217,18 +3217,22 @@ case WRITE_OUT_PROFILE:
     prolog_term term = ptoc_tag(CTXTc 1); // term
     prolog_term iterm = ptoc_tag(CTXTc 2); // interned term, or termhash
     prolog_term iiterm;
-    Integer ifHashIntern = ptoc_int(CTXTc 3); // 0->intern, 1->termhash, 2->test termhash
+    Integer ifHashIntern = ptoc_int(CTXTc 3); // 0:intern, 1:termhashstr, 2:termhashint, 2:test termhash
 
     XSB_Deref(term);
     XSB_Deref(iterm);
 
-    if (isstring(term) || isinteger(term) || isinteger(iterm)) {
+    if (isstring(term) || isinteger(term)) {
       return unify(CTXTc term,iterm);
     } else if (isstring(iterm)) {
       iiterm = stringhash_to_term(CTXTc string_val(iterm));
       if (iiterm) return unify(CTXTc term,iiterm);
-      else if (ifHashIntern == 2) return FALSE;
+      else if (ifHashIntern == 3) return FALSE;
       else return unify(CTXTc term,iterm);
+    } else if (isinteger(iterm)) {
+      iiterm = makecs(oint_val(iterm));
+      if (!isinternstr_really(iiterm)) xsb_abort("ERROR: term number not valid.");
+      return unify(CTXTc term,iiterm);
     } else if (isconstr(term) || islist(term)) { // forward
       if (ifHashIntern && !ground(term)) {
 	xsb_instantiation_error(CTXTc "intern_term/hash/2",1);
@@ -3244,10 +3248,14 @@ case WRITE_OUT_PROFILE:
 	term = intern_term(CTXTc term);
       }
       if (term) {  // term is interned
-	if (!ifHashIntern) {
+	if (ifHashIntern == 0) {
 	  return unify(CTXTc term, iterm);
 	} else {  // build structured term for hash
-	  iiterm = term_to_stringhash(CTXTc term);
+	  if (ifHashIntern == 1) {
+	    iiterm = term_to_stringhash(CTXTc term);
+	  } else {
+	    iiterm = makeint(cs_val(term)); // hope no overflow
+	  }
 	  return unify(CTXTc iterm, iiterm);
 	  }
       } else {
