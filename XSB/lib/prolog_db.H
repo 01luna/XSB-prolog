@@ -1,10 +1,13 @@
 :- export new_db/1, is_db/1, assert_in_db/3, assert1_in_db/3,
    assert_in_db/2, retractall_in_db/3, clause_in_db/3, fact_in_db/2,
+   variant_clause_in_db/3,
    in_db/2, in_db/3, load_in_db/3, load_in_db/2, subset_db/2,
    loadc_in_db/2, loadc_in_db/3, loadc_in_db/4,
    subsumed_db/2, size_db/2,
    union_db/3, intersect_db/3, difference_db/3, sym_diff_db/3, disjoint_db/2,
-   db_to_list/2, dump_db/2, dump_db/3, pure_in_db/2, load_in_db/4.
+   db_to_list/2, dump_db/2, dump_db/3, pure_in_db/2, load_in_db/4,
+   write_db/1, write_db/2, writeln_db/1, writeln_db/2, write_label_db/2, write_label_db/3,
+   write_label_db/2, write_label_db/3, writeln_label_db/2, writeln_label_db/3.
 
 :- export union_in_db/5,
    intersect_in_db/5, difference_in_db/5, sym_diff_in_db/5,
@@ -18,8 +21,8 @@
 :- export sgdb/1, gdb/1.
 
 :- import gensym/2, conset/2, coninc/1, conget/2 from gensym.
-:- import close/1, writeln/2, nl/1, '=..'/2, file_exists/1,
-   functor/3, functor/4, open/3, call/1, read/2, (\=)/2
+:- import close/1, writeln/2, '=..'/2, file_exists/1, write/1,
+   functor/3, functor/4, open/3, call/1, read/2, (\=)/2, write/2
    from standard.
 :- import ','/2, ';'/2, (:)/2, is_most_general_term/1 from standard.
 :- import clause/2, assert/1, retractall/1, (dynamic)/1 from assert.

@@ -28,7 +28,9 @@
    compile_cH/7,
    compile_so/3,
    runtime_loader_flag/3,
-   foreign_module_library_extension/2.
+   foreign_module_library_extension/2,
+   compile_windows_c_to_exe/1,
+   compile_windows_c_to_dll/1.
 
 :- import asm_magic/2 from asm.
 :- import asm_putlength/2 from asmpass2.
@@ -56,7 +58,7 @@
    from parse.
 :- import shell/1 from shell.
 :- import read/1, see/1, seen/0, open/3, close/1, tell/1, told/0, repeat/0,
-	atom_codes/2,
+	atom_codes/2, warning/1,
 	write/2, atom/1, file_exists/1, cputime/1, abort/1, seeing/1, telling/1
      from standard.
 :- import str_sub/2 from string.

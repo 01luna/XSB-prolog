@@ -10,6 +10,31 @@ xsb -e "[xsbdoc], xsbdoc(prolog_db_format,pdf),halt."
 
 ************/
 
+/*** New pred to add:
+
+select_db(+PrefixTerm,+TemplPrefixTerm,+DB0,?DB): takes a prefix term, a
+template prefix term, and a DB0 and produces a new DB that contains
+terms that are instances of TemplPrefixTerm.  The arities of
+PrefixTerm and TemplPrefixTerm (i.e., the number of variables in each)
+must be the same.  The resulting database contains terms that are
+instances of TemplPrefixTerm whose variables are instantiated by
+instances of PrefixTerm in DB0.
+
+For example, select_db(r(a,f(_,_),_),res(_,_,_),DB0,DB) would produce
+the same DB as
+findall_db(res(A,B,C),fact_in_db(r(a,f(A,B),C),DB0),DB).
+But it runs in log time, since it just finds the point in the trie of
+PrefixTerm and then constructs the TemplPrefixTerm sequence and points
+it to that trie.
+
+Another possibly useful predicate might be in_proj_db(Pref,N,DB) where
+Pref is a prefix term with M variables, N is an integer =< M, and DB
+is a DB. E.g., in_proj_db(p(A,B,_,_),2,DB) succeeds for instances of
+p/4 in DB, binding A and B to values of those terms in DB.  It
+succeeds only once for each distinct pair of values A and B.
+
+***/
+
 :- comment(title,"Trie-Terms for Sets and Prolog Databases").
 :- comment(subtitle,"Efficient Representation of Sets of Clauses and Terms").
 :- comment(author,"David S. Warren").
@@ -1108,7 +1133,10 @@ returned facts is indeterminate.").
 :- mode fact_in_db(?,+).
 fact_in_db(Head,H) :-
     tab_intern_termhash(DB,H),
-    clause_in_db_b(Head,true,DB).
+    (DB == internalDB
+     ->	call_c(Head)
+     ;	clause_in_db_b(Head,true,DB)
+    ).
 
 
 clause_in_db_b(Head,Body,Trie) :-
@@ -1135,6 +1163,25 @@ find_tuple_in_trie(Terms,Body,Vars,Trie) :- Terms = [Term|RTerms],
      )
     ).
 
+variant_clause_in_db(Head,Body,H) :-
+    tab_intern_termhash(DB,H),
+    copy_term((Head,Body),(HeadC,BodyC)),
+    my_numbervars((HeadC,BodyC),0,_),
+    find_variant_tuple_in_trie([HeadC],BodyC,DB).
+
+find_variant_tuple_in_trie([],Body,Trie) :- 
+    member(Body,Trie).
+%% Use nonstandard '_$Var$' to not conflict with normal numbervar (hack)
+find_variant_tuple_in_trie(Terms,Body,Trie) :-
+    get_key_new_terms(Terms,Key,NTerms),
+    (nonvar(Key)
+     ->	find_in_radix_tree_b(Key,Val,Trie),
+	find_variant_tuple_in_trie(NTerms,Body,Val)
+     ;	find_in_radix_tree_b(Key,Val,Trie),
+	Key =.. [_|NArgs],
+	append(NArgs,NTerms,NNTerms),
+	find_variant_tuple_in_trie(NNTerms,Body,Val)
+    ).
 
 varno(Var) :- Var = '_$Var$'(VNo), integer(VNo).
 
@@ -2470,7 +2517,7 @@ the tuples of p/3 and q/3 and put the result into r/3, one could do:
 @begin{verbatim}
 | ?- assert_in_db([p(a,c,d),p(a,d,e),q(a,c,d),q(b,c,d)],DB1),
 	   apply_op_in_db(lambda(A,B,C,union_db_b(A,B,C)),p/3,q/3,r/3,DB1,DB2),
-	   dump_db(DB2,userout).
+	   dump_db(userout,DB2).
 @end{verbatim}
 
 Here we have put tuples for @tt{p/3} and @tt{q/3} into @var{DB1}.
@@ -2892,8 +2939,8 @@ clauses in @var{DB} in the list @var{List}, in sorted order.  A fact
 is represented as its term; a rule is represented as a @tt{:-/2}
 term.").
 
-db_to_list(H,L) :-
-    tab_intern_termhash(DB,H),
+db_to_list(HDB,L) :-
+    tab_intern_termhash(DB,HDB),
     findall(C,(clause_in_db_b(H,B,DB),
 	       (B == true
 		-> C = H
@@ -2931,8 +2978,75 @@ dump_db_b(Filename,DB) :-
      writeln(OStr,'.')
     ),
     (Filename == userout
-     ->	nl(userout)
+     ->	true
      ;	close(OStr)
+    ).
+
+write_db(DB) :- write_db(userout,DB).
+
+write_label_db(Label,DB) :-
+    write(Label), write(': '),
+    write_db(userout,DB).
+
+write_label_db(Filename,Label,DB) :-
+    write(Filename,Label), write(Filename,': '),
+    write_db(Filename,DB).
+
+writeln_db(DB) :- writeln_db(userout,DB).
+
+writeln_label_db(Label,DB) :-
+    write(Label), write(': '),
+    writeln_db(DB).
+
+writeln_label_db(Filename,Label,DB) :-
+    write(Filename,Label), write(Filename,': '),
+    writeln_db(Filename,DB).
+
+write_db(Filename,DB) :-
+    (Filename == userout
+     ->	OStr = userout
+     ;	open(Filename,write,OStr)
+    ),
+    findall((Head:-Body),clause_in_db(Head,Body,DB),Clauses),
+    (Clauses = [Clause1|ClauseR]
+     ->	write_clause(OStr,Clause1),
+	write_db_list(OStr,ClauseR),
+	write(OStr,'.')
+     ;	write(OStr,'(empty).')
+    ),    
+    (Filename == userout
+     ->	true
+     ;	close(OStr)
+    ).
+    
+writeln_db(Filename,DB) :-
+    (Filename == userout
+     ->	OStr = userout
+     ;	open(Filename,write,OStr)
+    ),
+    findall((Head:-Body),clause_in_db(Head,Body,DB),Clauses),
+    (Clauses = [Clause1|ClauseR]
+     ->	write_clause(OStr,Clause1),
+	write_db_list(OStr,ClauseR),
+	writeln(OStr,'.')
+     ;	writeln(OStr,'(empty).')
+    ),    
+    (Filename == userout
+     ->	true
+     ;	close(OStr)
+    ).
+
+:- index write_db_list/2-2.
+write_db_list(_,[]).
+write_db_list(OStr,[Clause|Clauses]) :-
+    write(OStr,', '),
+    write_clause(OStr,Clause),
+    write_db_list(OStr,Clauses).
+
+write_clause(OStr,Clause) :-
+    (Clause = (Head :- true)
+     ->	write(OStr,Head)
+     ;	write(OStr,Clause)
     ).
 
 :- comment(pure_in_db/2,"@pred{pure_in_db(+G,+DB)} has the
@@ -3491,7 +3605,7 @@ append_ne([X|L1],L2,L3) :-
 :- comment(findall_db/3, "@pred{findall_db(Template,Goal,DB)} is like
 Prolog's findall/3 except it returns the found answers in an internal
 prolog_db, DB, instead of in a list.  It uses tabling to avoid having
-to build the list of (possibly duplicated) answers").
+to build the list of (possibly duplicated) answers.  DOES NOT NEST! (but should)").
 :- mode findall_db(?,?,?).
 findall_db(Template,Goal,DB) :-
     copy_term((Template,Goal),(NTemplate,NGoal)), % protect incoming vars
