@@ -2620,7 +2620,7 @@ void check_insert_private_delcf_clause(CTXTdeclc PrRef prref,
 
    If a DelCF represents a deleted prref, reclamation is complicated
    by the fact that clauses can be repeatedly asserted for a predicate
-   and retractalled.  If GC cannot occur right away, this leads to
+   and retracted.  If GC cannot occur right away, this leads to
    "generations" of DelCFs.  Probably the best solution for this is to
    put ISO-style timestamps in clrefs and prrefs: until then, however,
    I'm marking all prrefs for a predicate P if any clause for P is in
