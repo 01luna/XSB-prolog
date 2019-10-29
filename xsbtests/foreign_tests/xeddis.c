@@ -4,6 +4,11 @@
 #include "cinterf.h"
 #include "context.h"
 
+int WinMain(int argc, char *argv[]) {
+  printf("Error: WinMain called\n");
+  return 4;
+}
+
 static int mymin(int a, int b, int c)
 {
   if (a < b) {

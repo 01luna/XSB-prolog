@@ -1,4 +1,5 @@
-%% This compiles the examples below on Unix
+%% This compiles the examples below on Unix and Windows
+:- import compile_windows_c_to_exe/1 from foreign.
 
 test:- \+ windows_os,
         xsb_configuration(compiler_flags,CFLAGS),
@@ -20,13 +21,7 @@ test:- \+ windows_os,
 	shell('rm temp1').
 test :- windows_os,
 	xsb_configuration(install_dir,InstallDir),
-	xsb_configuration(config_dir,CONFDIR),
-	writeln(userout,['cl.exe /nologo /MT /W3 /GX /O2 /I "',CONFDIR,'" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D XSB_DLL /c cvarconstr.c']),
-	shell(['cl.exe /nologo /MT /W3 /GX /O2 /I "',CONFDIR,'" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D XSB_DLL /c cvarconstr.c']),
-
-	writeln(userout,['link.exe xsb.lib /nologo /machine:I386 /libpath:"',CONFDIR,'\\bin" /out:"cvarstring.exe" cvarconstr.obj']),
-	shell(['link.exe xsb.lib /nologo /machine:I386 /libpath:"',CONFDIR,'\\bin" /out:"cvarstring.exe" cvarconstr.obj']),
-	writeln(userout,starting_cvarstring),
+	compile_windows_c_to_exe(cvarconstr),
 	shell(['cvarconstr.exe ',InstallDir,' > temp1']),
 	writeln(userout,completed_cvarstring),
 	told,

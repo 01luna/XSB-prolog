@@ -1,5 +1,5 @@
-:- (windows_os -> shell('nmake /f MakefileCinter2') ; true).
 
+%% why is this following necessary?
 :- xsb_configuration(compiler, CC), consult(zero, [CC]).
 
 :- import member/2 from basics.

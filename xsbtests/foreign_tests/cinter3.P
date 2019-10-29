@@ -1,7 +1,7 @@
 /* test of high-level C interface */
 :- (windows_os
     ->	   (xsb_configuration(word_size,'64')
-	    ->	   shell('bash -c "./make_cinter3_w64.bat"')
+	    ->	   shell('cmd /c "setvcvars & nmake MakefileCinter3_w64"')
 	    ;	   shell('bash -c "./make_cinter3.bat"')
 	    )
     ; true
