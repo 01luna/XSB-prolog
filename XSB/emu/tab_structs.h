@@ -689,13 +689,13 @@ enum SubgoalFrameType {
    -------------------------------- */
 
 typedef struct subgoal_frame {
-  byte sf_type;		  /* The type of subgoal frame */
+  byte sf_type;		  /* The type of subgoal frame: variant/subsumptiveXproducer/consumer */
   byte is_complete;	  /* If producer, whether its answer set is complete */
   byte is_reclaimed:1;	  /* Whether structs for supporting answer res from an
 			     incomplete table have been reclaimed */
-  byte negative_initial_call:1;
+  byte negative_initial_call:1; /* used for abstraction */
   byte unused:6;
-  byte visited;
+  byte visited;                 /* used with abolishing */
   TIFptr tif_ptr;	  /* Table of which this call is a part */
   BTNptr leaf_ptr;	  /* Handle for call in the CallTrie */
   BTNptr ans_root_ptr;	  /* Root of the return trie */
@@ -1035,6 +1035,7 @@ void tstCreateTSIs(struct th_context *,TSTNptr);
 								\
    void *pNewSF;						\
 								\
+   /*   printf("NewSubConsSF\n");			*/	\
    SM_AllocateStruct(smConsSF,pNewSF);				\
    pNewSF = memset(pNewSF,0,sizeof(subsumptive_consumer_sf));	\
    subg_sf_type(pNewSF) = SUBSUMED_CONSUMER_SFT;		\
@@ -1050,6 +1051,7 @@ void tstCreateTSIs(struct th_context *,TSTNptr);
    subg_consumers(Producer) = (SubConsSF)pNewSF;		\
    SF = (VariantSF)pNewSF;					\
 }
+
 
 /*----------------------------------------------------------------------*/
 /*----------------------------------------------------------------------*/
