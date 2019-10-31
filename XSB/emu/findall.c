@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "auxlry.h"
 #include "context.h"
@@ -173,7 +174,10 @@ int findall_init_c(CTXTdecl)
 
   if (p->first_chunk == NULL) {
     w = (CPtr)mem_calloc(FINDALL_CHUNCK_SIZE,sizeof(Cell),FINDALL_SPACE);
-  } else w = p->first_chunk;  /* already a first chunk, so use it */
+  } else {
+    w = p->first_chunk;  /* already a first chunk, so use it */
+    memset(w,0,FINDALL_CHUNCK_SIZE*sizeof(Cell));
+  }
   *w = 0 ;
   p->first_chunk = p->current_chunk = w ;
   w++ ; 
