@@ -209,16 +209,17 @@ Integer hashtable_sizes[num_ht_sizes] =
 CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termrec) {
   struct intterm_rec *recptr;
   struct it_hashtab_rec *hashtab_rec, *nhashtab_rec;
-  Integer hashindex; 
+  Integer hashindex, num_intern_recs; 
   int i, found, ht_cnt;
   CPtr hc_term;
 
   if (!hc_blk_ptr->base) { /* allocate first block */
     hc_blk_ptr->base = 
-      mem_calloc(sizeof(Cell),(1+hc_num_in_block*(1+reclen)),INTERN_SPACE); /* for now, make own space*/
+      mem_calloc(sizeof(Cell),(2+hc_num_in_block*(1+reclen)),INTERN_SPACE); /* for now, make own space*/
     if (!hc_blk_ptr->base) {
       xsb_error("No memory for interned terms\n");
     }
+    hc_blk_ptr->base->num_intern_recs = hc_num_in_block;
     hc_blk_ptr->freechain = 0;
     hc_blk_ptr->freedisp = &(hc_blk_ptr->base->recs);
   }
@@ -252,23 +253,55 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     ht_cnt++;
     hashtab_rec = hashtab_rec->next;
   }
+
+  recptr = hc_blk_ptr->freedisp;
+  num_intern_recs = hc_blk_ptr->base->num_intern_recs;
+  if ((CPtr)recptr < (CPtr)(&(hc_blk_ptr->base->recs)) + (num_intern_recs*(1+reclen))) { 
+    hc_blk_ptr->freedisp = (struct intterm_rec *)((CPtr)(hc_blk_ptr->freedisp) + reclen+1);
+  } else if ((recptr = hc_blk_ptr->freechain)) { // take available rec from freechain if is one
+    hc_blk_ptr->freechain = recptr->next;
+  } else {
+    struct intterm_block *newblock;
+    Integer new_num_intern_recs;
+    if (num_intern_recs >= max_num_intern_recs)
+      new_num_intern_recs = num_intern_recs;
+    else new_num_intern_recs = size_multiple*num_intern_recs;
+    newblock = mem_calloc(sizeof(Cell),(2+new_num_intern_recs*(1+reclen)),INTERN_SPACE);
+    if (!newblock) {
+      xsb_error("No memory for interned terms\n");
+    }
+    newblock->num_intern_recs = new_num_intern_recs;
+    newblock->nextblock =  hc_blk_ptr->base;
+    hc_blk_ptr->base = newblock;
+    hc_blk_ptr->freedisp = &(newblock->recs);
+    recptr = &(newblock->recs);
+    hc_blk_ptr->freedisp = (struct intterm_rec *)((CPtr)(hc_blk_ptr->freedisp) + reclen+1);
+  }
+
+  /*****
   if ((recptr = hc_blk_ptr->freechain)) { // take available rec from freechain if is one
     hc_blk_ptr->freechain = recptr->next;
   } else {
     recptr = hc_blk_ptr->freedisp;
-    if ((CPtr)recptr >= (CPtr)(&(hc_blk_ptr->base->recs)) + (hc_num_in_block*(1+reclen))) { 
+    num_intern_recs = hc_blk_ptr->base->num_intern_recs;
+    if ((CPtr)recptr >= (CPtr)(&(hc_blk_ptr->base->recs)) + (num_intern_recs*(1+reclen))) { 
       struct intterm_block *newblock;
-      newblock = mem_calloc(sizeof(Cell),(1+hc_num_in_block*(1+reclen)),INTERN_SPACE);
+      Integer new_num_intern_recs;
+      if (num_intern_recs >= max_num_intern_recs)
+	new_num_intern_recs = num_intern_recs;
+      else new_num_intern_recs = size_multiple*num_intern_recs;
+      newblock = mem_calloc(sizeof(Cell),(2+new_num_intern_recs*(1+reclen)),INTERN_SPACE);
       if (!newblock) {
 	xsb_error("No memory for interned terms\n");
       }
+      newblock->num_intern_recs = new_num_intern_recs;
       newblock->nextblock =  hc_blk_ptr->base;
       hc_blk_ptr->base = newblock;
       hc_blk_ptr->freedisp = &(newblock->recs);
       recptr = &(newblock->recs);
     }
     hc_blk_ptr->freedisp = (struct intterm_rec *)((CPtr)(hc_blk_ptr->freedisp) + reclen+1);
-  }
+  } ****/
   // put at beginning of hash chain of first hashtable
   hashtab_rec = hc_blk_ptr->hashtab_rec;
   if (hashtab_rec->num_in_hashtab > hashtab_rec->hashtab_size) {
@@ -294,9 +327,40 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
   return hc_term;
 }
 
-/* should be passed a term which is dereffed for which isinternstr is true! */
+/* should be passed a term which is dereffed for which isinternstr is true! 
 int isinternstr_really(prolog_term term) {
   return is_interned_rec(term);
+  } */
+
+int isinternstr_really(prolog_term term) {
+  int areaindex, reclen;
+  struct intterm_block *intterm_blk_ptr;
+  CPtr tptr;
+  
+  if (islist(term)) {
+    areaindex = LIST_INDEX;
+    if (!hc_block[areaindex]) return FALSE;
+    reclen = 3;
+  } else if (isstr(term)) {
+    areaindex = get_arity(get_str_psc(term));
+    if (!hc_block[areaindex]) return FALSE;
+    reclen = areaindex + 2;
+  } else return FALSE;
+  tptr = clref_val(term);
+  if (tptr>=(CPtr)glstack.low && tptr<=(CPtr)glstack.high)
+    return FALSE;
+  if (areaindex >= BIG_ARITY_INDEX_BASE) {
+    areaindex = get_big_arity_index(areaindex);
+    if (!hc_block[areaindex]) return FALSE;
+  }
+  intterm_blk_ptr = hc_block[areaindex]->base;
+  while (intterm_blk_ptr) {
+    if (tptr>(CPtr)intterm_blk_ptr &&
+	tptr<(CPtr)intterm_blk_ptr+2+(intterm_blk_ptr->num_intern_recs)*reclen)
+      return TRUE;
+    intterm_blk_ptr = intterm_blk_ptr->nextblock;
+  }
+  return FALSE;
 }
 
 /* intern_rec takes a reference to struct record with all subfields
@@ -490,7 +554,10 @@ void reclaim_internstr_recs() {
   
   for (areaindex = 0; areaindex < NUM_INTERN_INDEXES; areaindex++) {
     if (areaindex == LIST_INDEX) reclen = 3; // including next pointer
-    else if (areaindex > 255) reclen = get_big_arity_from_index(areaindex)+2;
+    else if (areaindex > 255) {
+      reclen = get_big_arity_from_index(areaindex);
+      if (reclen == 0) break; else reclen += 2;
+    }
     else reclen = areaindex+2;
     
     /* mark freechain recs so don't have to go thru hashtable to not find them */
@@ -506,7 +573,7 @@ void reclaim_internstr_recs() {
       block_ptr = hc_blk_ptr->base;
       while (block_ptr) {
 	rec_ptr = &(block_ptr->recs);
-	while (((CPtr)rec_ptr < (CPtr)block_ptr+1+hc_num_in_block*reclen)
+	while (((CPtr)rec_ptr < (CPtr)block_ptr+2+block_ptr->num_intern_recs*reclen)
 	       && IsNonNULL(rec_ptr->intterm_psc)) {
 	  if (!((UInteger)rec_ptr->next & intern_mark_bit)) { // unmarked, so free
 	    hashtab_rec = hc_blk_ptr->hashtab_rec;
@@ -542,7 +609,7 @@ void reclaim_internstr_recs() {
       block_ptr = hc_blk_ptr->base;
       while (block_ptr) {
 	rec_ptr = &(block_ptr->recs);
-	while (((CPtr)rec_ptr < (CPtr)block_ptr+1+hc_num_in_block*reclen)) {
+	while (((CPtr)rec_ptr < (CPtr)block_ptr+2+block_ptr->num_intern_recs*reclen)) {
 	  if ((UInteger)rec_ptr->next & intern_mark_bit)
 	    printf("Error: Intern node in block should not be marked!\n");
 	  rec_ptr = (struct intterm_rec *)(((CPtr)rec_ptr) + reclen);  // to next rec in this block

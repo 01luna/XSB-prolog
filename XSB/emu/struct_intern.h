@@ -50,6 +50,7 @@ struct intterm_rec {
 // record to contain a next-ptr and an array of intterm_rec's
 struct intterm_block {
   struct intterm_block *nextblock;
+  Integer num_intern_recs;
   struct intterm_rec recs; /* hc_num_in_block of these */
 };
   
@@ -72,8 +73,9 @@ struct hc_block_rec {
 };
 
 // num recs in blocks for recs of arity 0-255
-#define hc_num_in_block 100
-
+#define hc_num_in_block 50
+#define size_multiple 4
+#define max_num_intern_recs 500000
 
 /* record for stack to traverse term to intern it. */
 struct term_subterm {
