@@ -278,33 +278,13 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     hc_blk_ptr->freedisp = (struct intterm_rec *)((CPtr)(hc_blk_ptr->freedisp) + reclen+1);
   }
 
-  /*****
-  if ((recptr = hc_blk_ptr->freechain)) { // take available rec from freechain if is one
-    hc_blk_ptr->freechain = recptr->next;
-  } else {
-    recptr = hc_blk_ptr->freedisp;
-    num_intern_recs = hc_blk_ptr->base->num_intern_recs;
-    if ((CPtr)recptr >= (CPtr)(&(hc_blk_ptr->base->recs)) + (num_intern_recs*(1+reclen))) { 
-      struct intterm_block *newblock;
-      Integer new_num_intern_recs;
-      if (num_intern_recs >= max_num_intern_recs)
-	new_num_intern_recs = num_intern_recs;
-      else new_num_intern_recs = size_multiple*num_intern_recs;
-      newblock = mem_calloc(sizeof(Cell),(2+new_num_intern_recs*(1+reclen)),INTERN_SPACE);
-      if (!newblock) {
-	xsb_error("No memory for interned terms\n");
-      }
-      newblock->num_intern_recs = new_num_intern_recs;
-      newblock->nextblock =  hc_blk_ptr->base;
-      hc_blk_ptr->base = newblock;
-      hc_blk_ptr->freedisp = &(newblock->recs);
-      recptr = &(newblock->recs);
-    }
-    hc_blk_ptr->freedisp = (struct intterm_rec *)((CPtr)(hc_blk_ptr->freedisp) + reclen+1);
-  } ****/
-  // put at beginning of hash chain of first hashtable
   hashtab_rec = hc_blk_ptr->hashtab_rec;
-  if (hashtab_rec->num_in_hashtab > hashtab_rec->hashtab_size) {
+  // find hashtab with space... take smaller only after bigger is filled
+  while (hashtab_rec && (hashtab_rec->num_in_hashtab > hashtab_rec->hashtab_size)) {
+    hashtab_rec = hashtab_rec->next;
+  }
+  if (!hashtab_rec) {
+    hashtab_rec = hc_blk_ptr->hashtab_rec;
     //    printf("new ht size=%lld, reclen=%d, num_hts=%d\n",hashtab_rec->hashtab_size,reclen,ht_cnt);
     nhashtab_rec = mem_calloc(sizeof(struct it_hashtab_rec),1,INTERN_SPACE);
     if (!nhashtab_rec) xsb_abort("No memory for interned term hash table block\n");
@@ -313,6 +293,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     nhashtab_rec->hashtab = mem_calloc(sizeof(Cell),nhashtab_rec->hashtab_size,INTERN_SPACE);
     if (!nhashtab_rec->hashtab)
       xsb_abort("No memory for interned term hash table of size \n",nhashtab_rec->hashtab_size);
+    // put at beginning of hash chain of first hashtable
     nhashtab_rec->next = hashtab_rec;
     hc_blk_ptr->hashtab_rec = nhashtab_rec;
     hashtab_rec = nhashtab_rec;
@@ -326,11 +307,6 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
   memcpy(hc_term,termrec,reclen*sizeof(Cell));
   return hc_term;
 }
-
-/* should be passed a term which is dereffed for which isinternstr is true! 
-int isinternstr_really(prolog_term term) {
-  return is_interned_rec(term);
-  } */
 
 int isinternstr_really(prolog_term term) {
   int areaindex, reclen;
