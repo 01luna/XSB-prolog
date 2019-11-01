@@ -176,7 +176,7 @@ int findall_init_c(CTXTdecl)
     w = (CPtr)mem_calloc(FINDALL_CHUNCK_SIZE,sizeof(Cell),FINDALL_SPACE);
   } else {
     w = p->first_chunk;  /* already a first chunk, so use it */
-    memset(w,0,FINDALL_CHUNCK_SIZE*sizeof(Cell));
+    //    memset(w,0,FINDALL_CHUNCK_SIZE*sizeof(Cell));
   }
   *w = 0 ;
   p->first_chunk = p->current_chunk = w ;
@@ -209,6 +209,8 @@ void findall_free(CTXTdeclc int i)
 
   /* Leave first chunk, so no need to realloc later */
   p = (CPtr) *(this_solution->first_chunk) ;
+  // Clear first chunk so gc doesn't unnecessarily scan it and get confused.
+  memset(this_solution->first_chunk,0,FINDALL_CHUNCK_SIZE*sizeof(Cell));
   while (p != NULL)
     { to_free = p ; p = (CPtr)(*p) ; mem_dealloc(to_free,FINDALL_CHUNCK_SIZE * sizeof(Cell),FINDALL_SPACE) ; }
   this_solution->tail = 0 ;
