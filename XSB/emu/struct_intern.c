@@ -131,8 +131,10 @@ Integer intern_term_size(CTXTdeclc Cell term)
 #define NUM_INTERN_BIG_ARITIES 140
 #define NUM_INTERN_INDEXES (BIG_ARITY_INDEX_BASE+NUM_INTERN_BIG_ARITIES)
 
-struct hc_block_rec *hc_block[NUM_INTERN_INDEXES] = {0};
-int big_arities[NUM_INTERN_BIG_ARITIES] = {0};
+//struct hc_block_rec *hc_block[NUM_INTERN_INDEXES] = {0};
+struct hc_block_rec **hc_block = 0;
+//int big_arities[NUM_INTERN_BIG_ARITIES] = {0};
+int *big_arities = 0;
 
 UInteger it_hash(Integer ht_size, int reclen, CPtr termrec) {
   UInteger hsh;
@@ -150,6 +152,10 @@ int get_big_arity_index(int big_arity) {
 
   if (big_arity < BIG_ARITY_INDEX_BASE)
     xsb_abort("Internal error: Should be big arity!");
+  if (!hc_block) {
+    hc_block = mem_calloc(NUM_INTERN_INDEXES,sizeof(void *),INTERN_SPACE);
+    big_arities = mem_calloc(NUM_INTERN_BIG_ARITIES,sizeof(int),INTERN_SPACE);
+  }
   for (i=0; i<NUM_INTERN_BIG_ARITIES; i++) {
     if (big_arities[i] == 0) {
       big_arities[i] = big_arity;
@@ -183,6 +189,10 @@ int is_interned_rec(Cell term) {
   } else return FALSE;
 
   if (areaindex >= BIG_ARITY_INDEX_BASE) areaindex = get_big_arity_index(areaindex);
+  if (!hc_block) {
+    hc_block = mem_calloc(NUM_INTERN_INDEXES,sizeof(void *),INTERN_SPACE);
+    big_arities = mem_calloc(NUM_INTERN_BIG_ARITIES,sizeof(int),INTERN_SPACE);
+  }
   hc_blk_ptr = hc_block[areaindex];
 
   if (!hc_blk_ptr) return FALSE;
@@ -313,6 +323,7 @@ int isinternstr_really(prolog_term term) {
   struct intterm_block *intterm_blk_ptr;
   CPtr tptr;
   
+  if (!hc_block) return FALSE;
   if (islist(term)) {
     areaindex = LIST_INDEX;
     if (!hc_block[areaindex]) return FALSE;
@@ -379,6 +390,10 @@ Cell intern_rec(CTXTdeclc prolog_term term) {
     j=0;
   } else {
     return 0;
+  }
+  if (!hc_block) {
+    hc_block = mem_calloc(NUM_INTERN_INDEXES,sizeof(void *),INTERN_SPACE);
+    big_arities = mem_calloc(NUM_INTERN_BIG_ARITIES,sizeof(int),INTERN_SPACE);
   }
   hc_blk_ptr = hc_block[areaindex];
   if (!hc_blk_ptr) {
@@ -528,6 +543,7 @@ void reclaim_internstr_recs() {
   struct it_hashtab_rec *hashtab_rec;
   struct hc_block_rec *hc_blk_ptr;
   
+  if (!hc_block) return;
   for (areaindex = 0; areaindex < NUM_INTERN_INDEXES; areaindex++) {
     if (areaindex == LIST_INDEX) reclen = 3; // including next pointer
     else if (areaindex > 255) {
