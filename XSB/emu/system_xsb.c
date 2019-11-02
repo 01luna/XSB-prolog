@@ -191,8 +191,15 @@ int sys_syscall(CTXTdeclc int callno)
     strncpy(tarfile,ptoc_longstring(CTXTc 4),MAXFILENAME);
 #ifdef WIN_NT
     /* rename on windows returns error if target file exists, so delete first if nec */
+    /* dont delete is renaming to self... */
     if (access(tarfile,W_OK_XSB) != -1) {
-      unlink(tarfile);
+      char fsoufile[MAXFILENAME+1];
+      char ftarfile[MAXFILENAME+1];
+      char *dummy;
+      dummy = _fullpath(fsoufile,soufile,MAXFILENAME);
+      dummy = _fullpath(ftarfile,tarfile,MAXFILENAME);
+      if (strcmp(fsoufile,ftarfile) != 0)
+	unlink(tarfile);
     }
 #endif    
     result = rename(soufile,tarfile);
