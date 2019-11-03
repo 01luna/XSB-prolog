@@ -3,7 +3,7 @@
 ; A compiled version of XSB must exist in the location pointed by the MyBaseDir variable below.
 
 #define MyAppName "XSB"
-#define XSBVersion "3.6.0"
+#define XSBVersion "3.9.0"
 #define MyAppVerName "XSB "+XSBVersion
 #define MyAppPublisher "XSB"
 #define MyAppURL "http://xsb.sourceforge.net/"
@@ -26,14 +26,14 @@ DefaultDirName={#XSB_DIR}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile={#MyBaseDir}\LICENSE
-InfoBeforeFile={#MyBaseDir}\README
+InfoBeforeFile={#MyBaseDir}\admin\windows\README
 OutputBaseFilename=xsb-{#XSBVersion}
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=none
 
 VersionInfoVersion={#XSBVersion}
-VersionInfoCopyright=© The Research Foundation of SUNY, 1986 - 2015
+VersionInfoCopyright=© The Research Foundation of SUNY, 1986 - 2020
 
 AllowRootDirectory=yes
 UninstallFilesDir="{userdocs}\XSB uninstaller"
@@ -60,7 +60,7 @@ Name: shortcut; Description: "&Create a desktop shortcut to run XSB"; Components
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-BeveledLabel=XSB {#XSBVersion} © The Research Foundation of SUNY, 1986, 1993-2015
+BeveledLabel=XSB {#XSBVersion} © The Research Foundation of SUNY, 1986, 1993-2020
 
 [Dirs]
 Name: "{userdocs}\XSB uninstaller"
@@ -71,7 +71,8 @@ Source: "{#MyBaseDir}\LICENSE"; Excludes: ".*,CVS"; DestDir: "{app}\"; Component
 
 Source: "{#MyBaseDir}\bin\*"; Excludes: ".*,CVS"; DestDir: "{app}\bin"; Components: base; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyBaseDir}\build\*"; Excludes: ".*,CVS,*.cache"; DestDir: "{app}\build"; Components: base; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#MyBaseDir}\config\*"; Excludes: ".*,CVS"; DestDir: "{app}\config"; Components: base; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyBaseDir}\config\x86-pc-windows\*"; Excludes: ".*,CVS"; DestDir: "{app}\config\x86-pc-windows"; Components: base; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyBaseDir}\config\x64-pc-windows\*"; Excludes: ".*,CVS"; DestDir: "{app}\config\x64-pc-windows"; Components: base; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyBaseDir}\pthreads\Pre-built\lib\pthreadVSE1.dll"; Excludes: ".*,CVS"; DestDir: "{app}\config\i686-pc-cygwin-mt\bin"; Components: base; Flags: ignoreversion recursesubdirs createallsubdirs
 
 Source: "{#MyBaseDir}\syslib\*.xwam"; Excludes: ".*,CVS"; DestDir: "{app}\syslib"; Components: base; Flags: ignoreversion recursesubdirs createallsubdirs
