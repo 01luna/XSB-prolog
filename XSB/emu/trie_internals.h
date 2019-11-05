@@ -1040,7 +1040,7 @@ subsumptive tables, which are private in the MT engine.
 /* Term Lookup
    ----------- */
 extern void *var_trie_lookup(CTXTdeclc void *, xsbBool *, Cell *);
-extern void *iter_sub_trie_lookup(CTXTdeclc void *trieNode, TriePathType *);
+extern void *iter_sub_trie_lookup(CTXTdeclc void *trieNode, TriePathType *,int);
 
 #define trie_escape_lookup(Root)		\
    ( IsEscapeNode(TN_Child((BTNptr)Root))	\
