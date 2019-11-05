@@ -468,6 +468,9 @@ extern DynamicStack tstSymbolStack;
   }
 
 
+#define CALL_TRIE_LOOKUP 1
+#define ANSWER_TRIE_LOOKUP 2
+
 /*=========================================================================*/
 
 
