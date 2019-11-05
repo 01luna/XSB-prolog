@@ -22,12 +22,6 @@
 ** 
 */
 
-#ifdef DEBUG_INCR
-#define debug_incr(X) printf X
-#else
-#define debug_incr(X)
-#endif
-
 
 #include "xsb_config.h"
 #include "xsb_debug.h"
@@ -158,7 +152,11 @@ VariantSF NewProducerSF(CTXTdeclc BTNptr Leaf,TIFptr TableInfo,unsigned int is_n
 //   subg_tag(pNewSF) = 0;
    subg_negative_initial_call(pNewSF) = (unsigned int) is_negative_call;
 /* incremental evaluation start */
+#ifdef INCR_SUBST
+if((get_incr(TIF_PSC(TableInfo)))){
+#else
 if((get_incr(TIF_PSC(TableInfo))) &&(IsVariantPredicate(TableInfo))){
+#endif 
   //  sfPrintGoal(stdout,pNewSF,NO);printf(" is marked incr\n");
   subg_callnode_ptr(pNewSF) = makecallnode(CTXTc pNewSF,0,TableInfo);   
  } else{
@@ -281,6 +279,94 @@ int handle_incremental_recomputation(CallLookupResults *results) {
       //#endif /* not MULTI_THREAD (incremental evaluation) */
       return XSB_SUCCESS;
 }
+
+int subsumptive_handle_incremental_recomputation(CallLookupResults *results) {
+  int call_found_flag;
+  BTNptr leaf,Paren;  
+  ALNptr pALN;
+  callnodeptr c;
+  VariantSF sf;
+
+    /* incremental evaluation: checking whether falsecount is zero */
+    /*
+      In call check insert if a call is reinserted and was already
+      invalidated (falsecount>0) we mark all the answers deleted and
+      make sure this call is treated as a new call (flag=0) 
+      
+      If falsecount=0 that means the call is not affected then it
+      should fetch answers from the earlier answer table as any
+      completed call would do.
+    */
+    call_found_flag=CallLUR_VariantFound(*results);
+    Paren=CallLUR_Leaf(*results);
+    sf=CallTrieLeaf_GetSF(Paren);
+    if(call_found_flag!=0){  // the next few lines are executed whether incr or non-oncr.
+      debug_incr(("cff != 0\n"));
+      // var_subg_inserts_gl++;
+      old_call_gl=NULL;
+      old_answer_table_gl=NULL;
+      
+      //#ifdef DEBUG_INCR
+      //      if (IsNonNULL(c))  {
+      //      	printf("        checking the incremental goal flscnt %d ",c->falsecount);
+      //      	print_subgoal(stddbg,sf);printf("\n");
+      //      }
+      //#endif      
+      /* TES: if falsecount == 0 && call_found_flag, we know that call
+         is complete.  Otherwise, dfs_outedges would have aborted */
+      if (IsNonNULL(sf)) {
+	c=sf->callnode;
+      }
+  
+      if(IsNonNULL(c) && !IsSubConsSF(sf) && (c->falsecount!=0)){
+	debug_incr(("           recomputing (recmptable = %s)\n",c->recomputable==COMPUTE_DEPENDENCIES_FIRST?"compute_deps":"direct recomp"));
+	debug_incr(("           "));incr_print_subgoal((sf));debug_incr((" (sf %p)\n",sf));
+	if (c->recomputable == COMPUTE_DEPENDENCIES_FIRST) {
+	  //	  printf("           computing dependencies\n");
+	  lazy_affected = empty_calllist(CTXT);
+	  if ( !dfs_dependency_edges(CTXTc c,  &lazy_affected, CALL_LIST_EVAL) ) {
+	    CallLUR_Subsumer(*results) = CallTrieLeaf_GetSF(Paren);
+	    //  printf("        using recompleted table\n");
+	    return XSB_SPECIAL_RETURN;
+	  } /* otherwise if dfs_dependency_edges, treat as falsecount = 0, use completed table */
+	}
+	else {    /* COMPUTE_DIRECTLY */
+	  debug_incr(("           directly recomputing\n"));
+#if  !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
+	  incr_table_recomputations_gl++;
+#endif
+          subg_ans_ctr(sf) = 0;  // Reset answer counter for incremental recomputation
+	  old_call_gl=c;      
+	  call_found_flag=0;  /* treat as a new call */
+	  if ( has_answers(sf) ) {
+	    pALN = subg_answers(sf); 
+	    do {
+	      leaf=ALN_Answer(pALN);
+
+	      if (!is_conditional_answer(leaf)) {
+		BTN_IncrMarking(leaf) = PREVIOUSLY_UNCONDITIONAL;
+	      }
+		
+	      safe_delete_branch(leaf);      // this will change escape nodes to trie_no_cp_fail 
+	      pALN = ALN_Next(pALN);
+	    } while ( IsNonNULL(pALN) );
+	  }
+	  c->aln=subg_answers(sf);
+	  old_answer_table_gl=sf->ans_root_ptr;
+	  //reclaim_incomplete_table_structs(sf);
+	  CallTrieLeaf_SetSF(Paren,NULL);            
+	  CallLUR_Subsumer(*results) = CallTrieLeaf_GetSF(Paren);
+	} // Compute dependencies
+      }  // Recomputation
+    } // call_found_flag != 0
+    else {
+      var_subg_inserts_gl++;
+    }
+
+    CallLUR_VariantFound(*results) = call_found_flag;
+    //    CallLUR_Subsumer(*results) = CallTrieLeaf_GetSF(Paren);
+    return XSB_SUCCESS;
+}
 /*
  * Note that the call trie of the TIF is not allocated until the first
  * call is entered.  Upon exit, CallLUR_AnsTempl(*results) points to
@@ -311,9 +397,17 @@ int table_call_search(CTXTdeclc TabledCallInfo *call_info,
     }
     if (handle_incremental_recomputation(results) == XSB_SPECIAL_RETURN)
       return XSB_SPECIAL_RETURN;
+    //  TES: maybe tale out the next 2 lines
+    //    CallLUR_Subsumer(*results) = CallTrieLeaf_GetSF(Paren);
+    //    CallLUR_VariantFound(*results) = call_found_flag;
   }  //IsVariantPredicate
-  else
+  else{
     subsumptive_call_search(CTXTc call_info,results);
+#ifdef INCR_SUBST
+    if (subsumptive_handle_incremental_recomputation(results) == XSB_SPECIAL_RETURN)
+      return XSB_SPECIAL_RETURN;
+#endif
+  }
   {
     /*
      * Copy substitution factor from CPS to Heap.  The arrangement of
@@ -527,21 +621,31 @@ BTNptr table_answer_search(CTXTdeclc VariantSF producer, int size, int attv_num,
 
   void *answer;
   xsbBool wasFound = TRUE; xsbBool hasASI = TRUE; xsbBool rederived_flag_loc = TRUE;
-
   if ( IsSubsumptiveProducer(producer) ) {
 
     //    AnsVarCtr = 0;
     ans_var_pos_reg = hreg++;	/* Leave a cell for functor ret/n (needed in subsumption?) */
     answer =
-      subsumptive_answer_search(CTXTc (SubProdSF)producer,size,templ,&wasFound);
+      subsumptive_answer_search(CTXTc (SubProdSF)producer,size,templ,&wasFound,&rederived_flag_loc);
     wasFound = !wasFound;
     if ( !wasFound ) {
       ALNptr newALN;
       New_Private_ALN(newALN,answer,NULL);
       SF_AppendNewAnswer(producer,newALN);
     }
-    //      fprintf(stddbg, "The answer is new: ");printTriePath(stderr, answer, NO);
-    do_delay_stuff(CTXTc (NODEptr)answer, producer, wasFound);
+      if (!IsIncrSF(producer)) {
+	//	printf("wasFound %d delay %p\n",wasFound,delayreg);
+	do_delay_stuff(CTXTc (NODEptr)answer, producer, wasFound);
+      }
+      else {
+	debug_incr(("hasASI %d found %d delay %p\n",hasASI,wasFound,delayreg));
+	//	if (!is_conditional_answer(BTN_Parent(((NODEptr)answer))) || delayreg)  {
+	if (!is_conditional_answer(BTN_Parent(((NODEptr)answer))) )  {
+	  hasASI = FALSE;	
+	} 
+	do_delay_stuff(CTXTc (NODEptr)answer, producer, (hasASI & wasFound));
+      }
+    // do_delay_stuff(CTXTc (NODEptr)answer, producer, wasFound);
 
     VarEnumerator_trail_top = (CPtr *)(& VarEnumerator_trail[0]) - 1;
     undo_answer_bindings;
@@ -565,16 +669,16 @@ BTNptr table_answer_search(CTXTdeclc VariantSF producer, int size, int attv_num,
 	*is_new = ! wasFound;
       }
       else {
-	//	printf("hasASI %d found %d delay %p\n",hasASI,delayreg,wasFound);
+	debug_incr(("hasASI %d found %d delay %p\n",hasASI,wasFound,delayreg));
 	do_delay_stuff(CTXTc (NODEptr)answer, producer, (hasASI & wasFound));
 	*is_new = ! wasFound;
       }
     }
     *is_new = ! wasFound;
-    *rederived_flag = rederived_flag_loc;
     undo_answer_bindings;
 
   }
+  *rederived_flag = rederived_flag_loc;
   return (BTNptr)answer;
 }
 

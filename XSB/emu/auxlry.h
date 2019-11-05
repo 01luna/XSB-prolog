@@ -133,3 +133,14 @@ noticed and needed. */
 //#define DEBUG_ABSTRACTION 
 
 //#define GC_TEST 1
+
+//#define INCR_SUBST
+//#define DEBUG_INCR
+#ifdef DEBUG_INCR
+#define debug_incr(X) printf X
+#define incr_print_subgoal(X) print_subgoal(stdout,X)
+#else
+#define debug_incr(X)
+#define incr_print_subgoal(X)
+#endif
+
