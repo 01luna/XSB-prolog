@@ -284,7 +284,7 @@ int subsumptive_handle_incremental_recomputation(CallLookupResults *results) {
   int call_found_flag;
   BTNptr leaf,Paren;  
   ALNptr pALN;
-  callnodeptr c;
+  callnodeptr c = NULL;
   VariantSF sf;
 
     /* incremental evaluation: checking whether falsecount is zero */
