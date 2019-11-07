@@ -220,20 +220,23 @@ and certain other Prolog.  These flag names are:
 \item {\tt backtrace\_on\_error} The flag is {\tt on} iff
   system-handled errors automatically print out the trace of the
   execution stack where the error arose, {\tt off} otherwise. Default
-  is {\tt on}.  In the multi-threaded engine, this flag is
-  thread-specific and controls whether the backtrace for a current
-  execution will be printed to {\tt STDERR}.
+  is {\tt on}.
+  %In the multi-threaded engine, this flag is
+  %  thread-specific and controls whether the backtrace for a current
+  %  execution will be printed to {\tt STDERR}.
 %\
 \item {\tt dcg\_style}  the DCG style currently used; {\tt xsb} or {\tt
   standard} (standard is used in Quintus, SICSTUS, etc.).  See
 Section~\ref{sec-dcg-differences} for more details. Default is {\tt
-  xsb}. This flag affects all threads in the process.
+  xsb}.
+%This flag affects all threads in the process.
 %
 \index{garbage collection}
 \item {\tt heap\_garbage\_collection} Values: {\tt indirection} or
   {\tt none}.  Indicates the heap garbage collection strategy that is
   currently being employed (see also Section~\ref{sec:EmuOptions}).
-  Default is {\tt indirection}.  This flag is private to each thread.
+  Default is {\tt indirection}.
+  %This flag is private to each thread.
 %\item {\tt heap\_garbage\_collection}  {\tt indirection}, {\tt none}, {\tt
 %  sliding}, or {\tt copying} depending on the heap garbage collection
 %strategy that is currently being employed (see also
@@ -254,14 +257,15 @@ Section~\ref{sec-dcg-differences} for more details. Default is {\tt
 %
 \item {\tt clause\_garbage\_collection} Values: {\tt on} if garbage
   collection for retracted clauses is allowed, and off
-  otherwise. Default is {\tt on}.  This flag is private to each
-  thread.
+  otherwise. Default is {\tt on}.
+%  This flag is private to each  thread.
 %
 \item {\tt atom\_garbage\_collection} Values: {\tt on} if garbage
   collection for atomic constants is allowed, and off
-  otherwise. Default is {\tt on}.  This flag is global for all threads
-  (currently, string garbage collection will only be invoked if there
-  is a single active thread.)
+  otherwise. Default is {\tt on}.
+  %This flag is global for all threads
+  %  (currently, string garbage collection will only be invoked if there
+  %  is a single active thread.)
 
 %
 \item {\tt table\_gc\_action} The setting {\tt
@@ -272,8 +276,8 @@ Section~\ref{sec-dcg-differences} for more details. Default is {\tt
   $T_1$ depends on table $T_2$, and $T_2$ is abolished but $T_1$ is
   not, then predicates that introspect the dependencies of $T_1$ could
   cause memory violations (e.g., {\tt get\_residual/2}).  Default is
-  {\tt abolish\_tables\_transitively}.  This flag affects all threads
-  in the process.
+  {\tt abolish\_tables\_transitively}.
+%This flag affects all threads  in the process.
 %
 \item {\tt goal}  The goal passed to XSB on command line with the `-e'
 switch; or `{\tt true.}' if nothing is passed.  This flag may be
@@ -284,11 +288,12 @@ examined, but not set.
 \index{Prolog flags!{\tt write\_depth}}
 \index{Prolog flags!{\tt write\_attributes}}
 \item {\tt tracing}  Values: {\tt on} iff trace mode is on; {\tt off}
-otherwise. This flag affects all threads in the process. 
+  otherwise.
+  %This flag affects all threads in the process. 
 %
 \item {\tt write\_depth}  The depth to which a term is written by {\tt
-  write}-like predicates.  Default is 64.  This flag affects all
-threads in the process.  
+  write}-like predicates.  Default is 64.
+%  This flag affects all threads in the process.  
 
 \item {\tt warning\_action} The action to take on warnings: the
   default value {\tt print\_warning} prints a warning message to the
@@ -416,11 +421,11 @@ the syntax error message.
 %\index{Prolog flags!{\tt max\_answer\_list\_action}}
 %
 \paragraph*{Tripwire Flags}
-The following flags that pertain to tripwires
-(cf. Section~\ref{sec:tripwire}) are not currently implemented in the
-multi-threaded engine.  Each tripwire has one flag that sets a limit
-on some aspect of derivation along with an action of what to do in
-such a case.
+%The following flags that pertain to tripwires
+%(cf. Section~\ref{sec:tripwire}) are not currently implemented in the
+%multi-threaded engine.
+Each tripwire has one flag that sets a limit on some aspect of
+derivation along with an action of what to do in such a case.
 
 {\em Note: {\tt current\_xsb\_param/2} and {\tt set\_xsb\_param/2}
 provide a simpler interface for tripwires than using Prolog flags.}
@@ -553,10 +558,14 @@ p(f(X)):- p(X).          p(a).
 \end{enumerate}
 
 \index{Prolog flags!{\tt max\_memory}}
-\item {\tt max\_memory} The maximum amount of memory that an XSB
-  thread (in the single-threaded engine) or all XSB threads (in the
-  multi threaded engine) can use for their combined execution stacks,
-  program space, tables, or any other purpose.  If a query exceeds
+\item {\tt max\_memory} The maximum amount of memory that XSB can use
+  for  execution stacks, program space, tables, or any
+  other purpose.
+%  The maximum amount of memory that an XSB
+%  thread (in the single-threaded engine) or all XSB threads (in the
+%  multi threaded engine) can use for their combined execution stacks,
+%  program space, tables, or any other purpose.
+  If a query exceeds
   this amount, XSB will abort the query with a resource exception and
   then try to reclaim space used by the query.  As with other flags,
   this flag can be set during an XSB session.
@@ -601,84 +610,84 @@ p(f(X)):- p(X).          p(a).
 
 %----------------
 
-\paragraph{Flags Pertaining to Multi-Threading}
-The following flags affect only the multi-threaded engine.
+%\paragraph{Flags Pertaining to Multi-Threading}
+%The following flags affect only the multi-threaded engine.
+%
+%\index{Prolog flags!{\tt thread\_glsize}}
+%\index{Prolog flags!{\tt thread\_tcpsize}}
+%\index{Prolog flags!{\tt thread\_complsize}}
+%\index{Prolog flags!{\tt thread\_pdlsize}}
+%\begin{itemize}
+%\item {\tt thread\_glsize} In the multi-threaded engine, the initial
+ % size, in kbytes, of the global and local stack area of a newly
+%  created thread if no such option is explicitly passed.  By default
+%  this is 768 (or 1536 for 64-bit configurations), or whatever was
+%  passed in if the command-line option {\tt -m} was used, but that
+%  value may be modified at any time by resetting the flag.  This flag
+%  affects a thread created by any thread in the process.
+%
+%\item {\tt thread\_tcpsize} In the multi-threaded engine, the initial
+%  size, in kbytes, of the trail and choice point area of a newly
+%  created thread if no such option is explicitly passed.  By default
+%  this is 768 (or 1536 for 64-bit configurations), or whatever was
+%  passed in if the command-line option {\tt -c} was used, but that
+%  value may be modified at any time by resetting the flag.  This flag
+%  affects a thread created by any thread in the process.
 
-\index{Prolog flags!{\tt thread\_glsize}}
-\index{Prolog flags!{\tt thread\_tcpsize}}
-\index{Prolog flags!{\tt thread\_complsize}}
-\index{Prolog flags!{\tt thread\_pdlsize}}
-\begin{itemize}
-\item {\tt thread\_glsize} In the multi-threaded engine, the initial
-  size, in kbytes, of the global and local stack area of a newly
-  created thread if no such option is explicitly passed.  By default
-  this is 768 (or 1536 for 64-bit configurations), or whatever was
-  passed in if the command-line option {\tt -m} was used, but that
-  value may be modified at any time by resetting the flag.  This flag
-  affects a thread created by any thread in the process.
+%\item {\tt thread\_complsize} In the multi-threaded engine, the
+%  initial size, in kbytes, of the completion stack area of a newly
+%  created thread if no such option is explicitly passed.  By default
+%  this is 64 (or 128 for 64-bit configurations), or whatever was
+%  passed in if the command-line option {\tt -0} was used, but that
+%  value may be modified at any time by resetting the flag.  This flag
+%  affects a thread created by any thread in the process.
+%
+%\item {\tt thread\_pdlsize} In the multi-threaded engine, the initial
+%  size, in kbytes, of the unification stack area of a newly created
+%  thread if no such option is explicitly passed.  By default this is
+%  64 (or 128 for 64-bit configurations), or whatever was passed in if
+%  the command-line option {\tt -m} was used, but that value may be
+%  modified at any time by resetting the flag.  This flag affects a
+%  thread created by any thread in the process.
+%
+%\index{Prolog flags!{\tt thread\_detached}}
+%\index{Prolog flags!{\tt max\_threads}}
+%\index{Prolog flags!{\tt max\_queue\_size}}
+%\index{Prolog flags!{\tt shared\_predicates}}
+%\item {\tt thread\_detached} In the multi-threaded engine, this
+%  specifies whether threads are to be created as detached or joinable
+%  if no explicit option is passed.  A value of {\tt true} indicates
+%  that threads are to be created as detached, and {\tt false} as
+%  joinable.  If this flag is not set, its default is {\tt false}.
+%
+%\item {\tt max\_threads} In the multi-threaded engine, the maximum
+%  number of valid threads.  By default this is 1024 and this value may
+%  not be reset at runtime, but it may be set by the command-line
+%  option {\tt --max\_threads}.  This option is settable only by a
+%  command-line argument, and has no effect in the single-threaded
+%  engine.
+%
+%\item {\tt max\_queue\_size} In the multi-threaded engine, the default
+%  maximum number of terms a message queue contains before writes to
+%  the message queue block.  By default this is 1000.  If set to 0,
+%  queues by default will be unbounded.  This option has no effect in
+%  the single-threaded engine.
 
-\item {\tt thread\_tcpsize} In the multi-threaded engine, the initial
-  size, in kbytes, of the trail and choice point area of a newly
-  created thread if no such option is explicitly passed.  By default
-  this is 768 (or 1536 for 64-bit configurations), or whatever was
-  passed in if the command-line option {\tt -c} was used, but that
-  value may be modified at any time by resetting the flag.  This flag
-  affects a thread created by any thread in the process.
-
-\item {\tt thread\_complsize} In the multi-threaded engine, the
-  initial size, in kbytes, of the completion stack area of a newly
-  created thread if no such option is explicitly passed.  By default
-  this is 64 (or 128 for 64-bit configurations), or whatever was
-  passed in if the command-line option {\tt -0} was used, but that
-  value may be modified at any time by resetting the flag.  This flag
-  affects a thread created by any thread in the process.
-
-\item {\tt thread\_pdlsize} In the multi-threaded engine, the initial
-  size, in kbytes, of the unification stack area of a newly created
-  thread if no such option is explicitly passed.  By default this is
-  64 (or 128 for 64-bit configurations), or whatever was passed in if
-  the command-line option {\tt -m} was used, but that value may be
-  modified at any time by resetting the flag.  This flag affects a
-  thread created by any thread in the process.
-
-\index{Prolog flags!{\tt thread\_detached}}
-\index{Prolog flags!{\tt max\_threads}}
-\index{Prolog flags!{\tt max\_queue\_size}}
-\index{Prolog flags!{\tt shared\_predicates}}
-\item {\tt thread\_detached} In the multi-threaded engine, this
-  specifies whether threads are to be created as detached or joinable
-  if no explicit option is passed.  A value of {\tt true} indicates
-  that threads are to be created as detached, and {\tt false} as
-  joinable.  If this flag is not set, its default is {\tt false}.
-
-\item {\tt max\_threads} In the multi-threaded engine, the maximum
-  number of valid threads.  By default this is 1024 and this value may
-  not be reset at runtime, but it may be set by the command-line
-  option {\tt --max\_threads}.  This option is settable only by a
-  command-line argument, and has no effect in the single-threaded
-  engine.
-
-\item {\tt max\_queue\_size} In the multi-threaded engine, the default
-  maximum number of terms a message queue contains before writes to
-  the message queue block.  By default this is 1000.  If set to 0,
-  queues by default will be unbounded.  This option has no effect in
-  the single-threaded engine.
-
-\index{shared\_predicates}
-\item {\tt shared\_predicates} In the multi-threaded engine, indicates
-  whether predicates are considered thread-shared by default -- that
-  is, whether tables or dynamic predicates are shared among threads.
-  By default this is false, and predicates are considered
-  thread-private by default.  This option is settable only by a
-  command-line argument, and has no effect in the
-  single-threaded engine.
-
+%\index{shared\_predicates}
+%\item {\tt shared\_predicates} In the multi-threaded engine, indicates
+%  whether predicates are considered thread-shared by default -- that
+%  is, whether tables or dynamic predicates are shared among threads.
+%  By default this is false, and predicates are considered
+%  thread-private by default.  This option is settable only by a
+%  command-line argument, and has no effect in the
+%  single-threaded engine.
+%
 %\item {\tt float\_display\_precision} Designates the precision with
 %  which floating point numbers are displayed (excluding trailing
 %  zeros). This value can be set to any integer between 1 and 17.  The
 %  default is 16.
 
-\end{itemize}
+%\end{itemize}
     
 \index{tripwires}
 \index{term size}
@@ -700,10 +709,11 @@ and a settable action.  {\tt current\_xsb\_param/2} and {\tt
   set\_xsb\_param/2} provide a means to view or set multiple
 parameters together, or separately.~\footnote{The values of tripwire
   parameters can also be set as Prolog flags in XSB, cf. {\tt
-    current\_prolog\_flag/2} and {\tt set\_prolog\_flag/2}.  The
-  following parameters that pertain to tripwires
-  (cf. Setion~\ref{sec:tripwire}) are not currently implemented in the
-  multi-threaded engine.}
+    current\_prolog\_flag/2} and {\tt set\_prolog\_flag/2}.}
+%  The
+%  following parameters that pertain to tripwires
+%  (cf. Setion~\ref{sec:tripwire}) are not currently implemented in the
+%  multi-threaded engine.}
 
 \begin{itemize}
 \item {\tt max\_table\_subgoal\_size}.  This tripwire parameter passes
@@ -784,14 +794,16 @@ p(f(X)):- p(X).          p(a).
 \item {\tt max\_memory} This tripwire parameter passes back a list of
  the form {\tt [limit(L), action(A)]}.  The parameter {\tt L} is the
  maximum amount of memory that an XSB thread (in the single-threaded
- engine) or all XSB threads (in the multi threaded engine) can use for
- their combined execution stacks, program space, tables, or any other
- purpose.  If the memory taken during an XSB session approaches this
- amount, XSB will take a specified action, which can be {\tt error},
- {\tt suspend} or {\tt custom}.  XSB tries to leave a small amount of
- memory available for the action; therefore custom actions should be
- simple actions that do not require a great deal of memory, as should
- queries from the command-line interpreter during a suspension.
+ engine)
+ %or all XSB threads (in the multi threaded engine)
+ can use for their combined execution stacks, program space, tables,
+ or any other purpose.  If the memory taken during an XSB session
+ approaches this amount, XSB will take a specified action, which can
+ be {\tt error}, {\tt suspend} or {\tt custom}.  XSB tries to leave a
+ small amount of memory available for the action; therefore custom
+ actions should be simple actions that do not require a great deal of
+ memory, as should queries from the command-line interpreter during a
+ suspension.
 
  The memory limit can be set in two ways.  If given a floating point
  number $F, 0 \le F \leq 1$, the maximum will be set to $F$ times the
@@ -1303,18 +1315,21 @@ module {\tt usermod} may be enumerated using:
   abstraction; in such a case the {\tt predicate\_property/2} relation
   does not include any information about this tabling property.
 \end{itemize}
-\item The {\em Thread Sharing} category is active  only if XSB is
-  configured with multi-threading.
-\begin{itemize}
-\item{\tt thread\_sharing=shared}, which indicates that tables for
-  this predicate are shared among threads.
-\item{\tt thread\_sharing-private}, which indicates that tables for
-  this predicate are {\tt not} shared among threads.
-\end{itemize}
-\item The {\em Answer Subsumption} property is active only if XSB is
-  configured with multi-threading.  {\tt answer\_subsumption=true}
-  indicates that answer subsumption is used for this predicate.  If
-  answer subsumption is not used, no return is made.
+%\item The {\em Thread Sharing} category is active  only if XSB is
+%  configured with multi-threading.
+%\begin{itemize}
+%\item{\tt thread\_sharing=shared}, which indicates that tables for
+%  this predicate are shared among threads.
+%\item{\tt thread\_sharing-private}, which indicates that tables for
+%  this predicate are {\tt not} shared among threads.
+%\end{itemize}
+\item {\tt answer\_subsumption=true} indicates that answer subsumption
+  is used for this predicate.  If answer subsumption is not used, no
+  return is made.
+%\item The {\em Answer Subsumption} property is active only if XSB is
+%  configured with multi-threading.  {\tt answer\_subsumption=true}
+%  indicates that answer subsumption is used for this predicate.  If
+%  answer subsumption is not used, no return is made.
 \end{itemize}
 %
 \item{\tt spied} The predicate symbol has been declared spied (either
@@ -1837,19 +1852,20 @@ A call to {\tt trimcore/0} reallocates an XSB thread's execution
 stacks (and some tabling stacks) to their initial allocation size, the
 action affecting only the memory areas for the calling thread.  When
 XSB is called in standalone or server mode, {\tt trimcore/0} is
-automatically called when the top interpreter level is reached.  When
-XSB is embedded in a process, {\tt trimcore/0} is called at the top
-interpreter level for any thread created through
-{\ xsb\_ccall\_thread\_create()} (see Volume 2, Chapter 3 {\em
-  Embedding XSB in a Process}).
+automatically called when the top interpreter level is reached.
+%  When XSB is embedded in a process, {\tt trimcore/0} is called at the
+%   top interpreter level for any thread created through
+%   {\ xsb\_ccall\_thread\_create()} (see Volume 2, Chapter 3 {\em
+%     Embedding XSB in a Process}).
 
 \standarditem{gc\_heap}{gc\_heap/0}
 \index{garbage collection!heap}
 \index{Prolog flags!{\tt heap\_garbage\_collection}}
 %
 Explicitly invokes the garbage collector for a thread's heap. By
-default, heap garbage collection is called automatically for each
-thread upon stack expansion, unless the Prolog flag {\tt
+default, heap garbage collection is called automatically
+%for each thread
+upon stack expansion, unless the Prolog flag {\tt
   heap\_garbage\_collection} is set to {\tt none}.  Automatic heap
 garbage collection should rarely need to be turned off, and should
 rarely need to be invoked manually.
@@ -1888,9 +1904,11 @@ about tabling operations as well as time.
 \begin{itemize} 
 \item The first subsection of memory statistics, {\tt
   permanent\_space}, summarizes information about certain kinds of
-  memory  that is not generally under user control and is generally
-  process-level tather than thread-specific.  Allocated memory is
-  broken into different classes including the following.
+  memory that is not generally under user control, and is generally
+  process-level
+%rather than thread-specific.
+  Allocated memory is broken into different classes including the
+  following.
 \begin{itemize}
 \item {\tt atoms} Space used to maintain information about all
   predicates and structures. 
@@ -1913,8 +1931,8 @@ about tabling operations as well as time.
   XSB is called with profiling on.  (Not shown in
   Figure~\ref{fig:statistics}.)
 %
-\item {\tt mt-private} Private space used by threads.  (Only for the
-  MT engine and not shown in Figure~\ref{fig:statistics}.)
+%\item {\tt mt-private} Private space used by threads.  (Only for the
+%  MT engine and not shown in Figure~\ref{fig:statistics}.)
 %
 \item {\tt buffer} Space used for buffers used by forest logging,
   message queues and other libraries.  (Not shown in
@@ -1931,9 +1949,9 @@ about tabling operations as well as time.
 \item {\tt interprolog} space allocated for the InterProlog XSB/Java
   interface. (Not shown in Figure~\ref{fig:statistics}.)
 %
-\item {\tt thread} In the MT engine, space allocated for the 
-  thread table, mutex array, and other global structures. (Not shown in
-  Figure~\ref{fig:statistics}.)
+%\item {\tt thread} In the MT engine, space allocated for the 
+%  thread table, mutex array, and other global structures. (Not shown in
+%  Figure~\ref{fig:statistics}.)
 %
 \item {\tt other} Other unclassified memory (usually this is a small
   amount).
@@ -1987,29 +2005,35 @@ about tabling operations as well as time.
 \end{figure}
 
 \item The next section summarizes information about XSB's main stacks.
-  In the MT-engine this information is specific to the calling thread.
+%  In the MT-engine this information is specific to the calling thread.
 
 \begin{itemize} 
 \item Global stack (heap) and local (environment) stack (see e.g.
-  \cite{AitK90}) for the calling thread. Memory for these two WAM
- stacks is allocated as a single unit (per thread) so that each stack
- grows together; information is provided on the current allocation for
- the stacks as well as on the stack sizes themselves.  (See
- Section~\ref{sec:memory-flags} for initialization details.)
+  \cite{AitK90}).
+  %for the calling thread.
+  Memory for these two WAM stacks is
+  allocated as a single unit (per thread) so that each stack grows
+  together; information is provided on the current allocation for the
+  stacks as well as on the stack sizes themselves.  (See
+  Section~\ref{sec:memory-flags} for initialization details.)
 %
-\item Trail and choice point stack (see e.g. \cite{AitK90}) for the
- calling thread.  Memory for these two WAM stacks is allocated as a
+\item Trail and choice point stack (see e.g. \cite{AitK90}).
+  %for the calling thread.
+ Memory for these two WAM stacks is allocated as a
  single unit (per thread) so that each stack grows together;
  information is provided on the current allocation for the stacks as
  well as on the stack sizes themselves.  (See
  Section~\ref{sec:memory-flags} for initialization details.)
 %
-\item SLG unification stack for the calling thread. This stack is used
-  as a space to copy terms from the execution stacks into table space,
-  or back out.  This stack is not be reallocated unless extremely
-  large terms are tabled.
+\item SLG unification stack.
+  %for the calling thread.
+  This stack is used as a space to copy terms from the execution
+  stacks into table space, or back out.  This stack is not be
+  reallocated unless extremely large terms are tabled.
 %
-\item SLG completion stack for the calling thread.  The completion
+\item SLG completion stack
+  %for the calling thread.
+  The completion
   stack is used to perform incremental completion for sets of mutually
   dependent tabled subgoals.  One completion stack frame is allocated
   per tabled subgoal \cite{SaSw98} but the size of these frames is
@@ -2023,7 +2047,9 @@ about tabling operations as well as time.
 %will be output if the {\tt '-s'} command-line option is used
 
 \item Information about the number of tabling operations performed in
- the session by any thread.  Global counts (per-thread) are given
+  the session.
+  %by any thread.
+  Global counts (per-thread) are given
  first, followed by a few breakdowns of these counts by different
  types of tables.
 
@@ -2072,10 +2098,11 @@ redundant consumer encountered ({\tt variants}).
 \end{itemize}
 
 \item Garbage Collection Information.  Time spent garbage collecting
-  by the calling thread and number of heap cells collected.
+  %by the calling thread
+  and number of heap cells collected.
 
-\item Information about process CPU and clock time, as well as the
-  number of active threads.
+\item Information about process CPU and clock time.
+%as well as the number of active threads.
 \end{itemize}
 
 %As mentioned above, if XSB is configured with the single-threaded
@@ -2130,9 +2157,10 @@ dynamic incremental predicates.
   about table space, including breakdowns into variant and subsumptive
   call- and answer- trie nodes and hash tables; answer return list
   nodes, and structures for conditional answers (cf. \cite{SaSw98,
-    RRSSW98, TST99, CuSW99a}).  In the multi-threaded engine, these
-  data structures are reported both for shared tables and for private
-  tables of the calling thread.
+    RRSSW98, TST99, CuSW99a}).
+  %In the multi-threaded engine, these
+  %data structures are reported both for shared tables and for private
+  %tables of the calling thread.
 
   While this option is intended primarily for developers, it can also
   provide valuable information for the serious user of tabling.
@@ -2158,8 +2186,8 @@ with
   the CPU time taken since the last call to {\tt statistics/2}.  Times
   are measured in seconds.  The process-level CPU time includes time
   taken for system calls, as well as time taken for garbage collection
-  and stack-shifting.  Note that in the multi-threaded engine,
-  {\tt statistics/2} measures the time for all threads.
+  and stack-shifting.  %Note that in the multi-threaded engine,
+%  {\tt statistics/2} measures the time for all threads.
 %
 \item {\tt walltime}, which instantiates {\tt Result} to the list {\tt
  [TotalTime,IncrTime]} where {\tt TotalTime} is the total elapsed time
@@ -2170,20 +2198,24 @@ with
 \item {\tt total\_memory} which instantiates {\tt Result} to the list
  {\tt [Alloc,Used]}.  In the single-threaded engine, {\tt Alloc} is
  the total table space allocated and {\tt Used} is the total table
- space used, both in bytes.  In the multi-threaded engine, both refer
- to table space {\em private} to the calling thread.
+ space used, both in bytes.
+ %In the multi-threaded engine, both refer
+% to table space {\em private} to the calling thread.
 %
 \item {\tt tablespace} which instantiates {\tt Result} to the list {\tt
  [Alloc,Used]}.  In the single-threaded engine, {\tt Alloc} is the
  total table space allocated and {\tt Used} is the total table space
- used, both in bytes.  In the multi-threaded engine, both refer to
- table space {\em private} to the calling thread.
+ used, both in bytes.
+ %In the multi-threaded engine, both refer to
+% table space {\em private} to the calling thread.
 %
-\item {\tt shared\_tablespace} which instantiates {\tt Result} to the
- list {\tt [Alloc,Used]}.  In the multi-threaded engine, {\tt Alloc}
- is the total space allocated for {\em shared} tables and {\tt Used}
- is the total table space used, both in bytes.  An error is thrown if
- this option is called by the single-threaded engine.
+%\item {\tt shared\_tablespace} which instantiates {\tt Result} to the
+%  list {\tt [Alloc,Used]}.
+%In the multi-threaded engine, {\tt Alloc}
+% is the total space allocated for {\em shared} tables and {\tt Used}
+% is the total table space used, both in bytes.
+%  An error is thrown if this option is called by the single-threaded
+%  engine.
 %
 \item {\tt trie\_assert} which instantiates {\tt Result} to the list
  {\tt [Alloc,Used]}.  In the single-threaded engine, {\tt Alloc} is
@@ -2205,22 +2237,25 @@ with
 % calling thread.
 %
 \item {\tt heap} which instantiates {\tt Result} to the total number
- of bytes used by XSB's heap.  In the multi-threaded engine, the
- number refers only to the heap of the calling thread.
+  of bytes used by XSB's heap.
+  %In the multi-threaded engine, the
+% number refers only to the heap of the calling thread.
 %
 \item {\tt local} which instantiates {\tt Result} to the total number
- of bytes used by XSB's local (environment) stack.  In the
- multi-threaded engine, the number refers only to the local stack of
- the calling thread.
+  of bytes used by XSB's local (environment) stack.
+  %In the multi-threaded engine, the number refers only to the local stack of
+% the calling thread.
 %
 \item {\tt trail} which instantiates {\tt Result} to the total number
- of bytes used by XSB's trail stack.  In the multi-threaded engine,
- the number refers only to the trail stack of the calling thread.
+  of bytes used by XSB's trail stack.
+  %In the multi-threaded engine,
+% the number refers only to the trail stack of the calling thread.
 %
 \item {\tt choice\_point} which instantiates {\tt Result} to the total
- number of bytes used by XSB's choice point stack.  In the
- multi-threaded engine, the number refers only to the choice point
- stack of the calling thread.
+  number of bytes used by XSB's choice point stack.
+  %In the
+% multi-threaded engine, the number refers only to the choice point
+% stack of the calling thread.
 %
 \index{tabled subgoals!incomplete}
 \item {\tt incomplete\_tables} which instantiates {\tt Result} to a
@@ -2232,9 +2267,9 @@ with
 \item The number of SCCs currently under evaluation in XSB's
  completion stack.  
 \ei 
-In the multi-threaded engine, both of these numbers refer to the
- completion stack of the calling thread, which may contain both
- thread-private and thread-shared tables.
+%In the multi-threaded engine, both of these numbers refer to the
+% completion stack of the calling thread, which may contain both
+% thread-private and thread-shared tables.
 %
 \item {\tt atoms} which instantiates {\tt Result} to the number of
  bytes taken by atoms in the atom table.

@@ -3,16 +3,17 @@
 
 \index{indexing!trie-based}
 XSB offers a mechanism by which large numbers of facts can be directly
-stored and manipulated in {\em tries}, which can either be private to
-a thread or shared among threads.  The mechanism described in this
-chapter is in some ways similar to trie-indexed asserted code as
-described in Section~\ref{sec:assert}, but allows creation of tries
-that are shared between threads, and of associative tries that support
-efficient memory management~\footnote{For nearly all purposes, the
-  predicates in this chapter replace the low-level API for interned
-  tries in previous versions, which included {\tt trie\_intern}, {\tt
-    trie\_unintern}, {\tt trie\_interned} etc.  However that API
-  continues to be supported for low-level systems programming.}.
+stored and manipulated in {\em tries}.
+%, which can either be private to a thread or shared among threads.
+The mechanism described in this chapter is in some ways similar to
+trie-indexed asserted code as described in Section~\ref{sec:assert},
+%but allows creation of tries that are shared between threads,
+and of associative tries that support efficient memory
+management~\footnote{For nearly all purposes, the predicates in this
+  chapter replace the low-level API for interned tries in previous
+  versions, which included {\tt trie\_intern}, {\tt trie\_unintern},
+  {\tt trie\_interned} etc.  However that API continues to be
+  supported for low-level systems programming.}.
 
 When stored in a trie, facts are compiled into trie-instructions
 similar to those used for XSB's tables.  For instance set of facts
@@ -45,30 +46,53 @@ In \version{} of XSB, tries that store facts may have the following
 forms:
 %
 \bi
-\item {\em Private, general} tries allow arbitrary terms to be
-  inserted in a trie.  These tries are thread-private so that
-  inserting a term in a trie $Tr$ in one thread will not be visible to
-  another thread.  Although such tries are general, they have
-  limitations in memory reclamation in \version{} of XSB.  If a term
-  is deleted from $Tr$, memory will be reclaimed if it is safe to do
-  so at the time of deletion~\footnote{That is, if no choice points
-    are around that may cause backtracking into $Tr$.}; otherwise the
-  space will not be reclaimed until all terms in $Tr$ are removed by
-  truncating $Tr$ or until the thread exits.
+\item {\em General} tries allow arbitrary terms to be inserted in a
+  trie.
+  %These tries are thread-private so that inserting a term in a
+  %  trie $Tr$ in one thread will not be visible to another thread.
+  Although such tries are general, they have limitations in memory
+  reclamation in \version{} of XSB.  If a term is deleted from $Tr$,
+  memory will be reclaimed if it is safe to do so at the time of
+  deletion~\footnote{That is, if no choice points are around that may
+    cause backtracking into $Tr$.}; otherwise the space will not be
+  reclaimed until all terms in $Tr$ are removed by truncating $Tr$.
+ %or   until the thread exits.
 
-\item {\em Private, associative} Associative tries are more restricted
+\item {\em Associative} Associative tries are more restricted
   than general tries: an associative trie combines a {\em key} which
   can be any ground term, with a {\em value} which can be any term.
   Memory for deleted key-value pairs in an associative trie is always
   immediately reclaimed, and insert or delete operations can be faster
-  for an associative trie than for a general trie.  These tries are
-  private to a thread, and in addition to reclaiming memory when a
-  term is deleted, memory is reclaimed when the trie is truncated or
-  dropped, and when the thread exits.
+  for an associative trie than for a general trie.
+  %These tries are private to a thread, and I
+  In addition to reclaiming memory when a term is deleted, memory is
+  reclaimed when the trie is truncated or dropped.
+%, and when the thread exits.
 
-\item {\em Shared, associative} tries are associative tries that are
-  shared among threads.  Memory for deleted key-value pairs is always
-  immediately reclaimed, and when the trie is truncated or dropped.
+%\item {\em Private, general} tries allow arbitrary terms to be
+%  inserted in a trie.  These tries are thread-private so that
+%  inserting a term in a trie $Tr$ in one thread will not be visible to
+%  another thread.  Although such tries are general, they have
+%  limitations in memory reclamation in \version{} of XSB.  If a term
+%  is deleted from $Tr$, memory will be reclaimed if it is safe to do
+%  so at the time of deletion~\footnote{That is, if no choice points
+%    are around that may cause backtracking into $Tr$.}; otherwise the
+%  space will not be reclaimed until all terms in $Tr$ are removed by
+%  truncating $Tr$ or until the thread exits.
+%
+%\item {\em Private, associative} Associative tries are more restricted
+%  than general tries: an associative trie combines a {\em key} which
+%  can be any ground term, with a {\em value} which can be any term.
+%  Memory for deleted key-value pairs in an associative trie is always
+%  immediately reclaimed, and insert or delete operations can be faster
+%  for an associative trie than for a general trie.  These tries are
+%  private to a thread, and in addition to reclaiming memory when a
+%  term is deleted, memory is reclaimed when the trie is truncated or
+%  dropped, and when the thread exits.
+%
+%\item {\em Shared, associative} tries are associative tries that are
+%  shared among threads.  Memory for deleted key-value pairs is always
+%  immediately reclaimed, and when the trie is truncated or dropped.
   \ei
 
 \section{Examples of Using Tries}
@@ -132,11 +156,14 @@ no
 The behavior of general tries can be constrasted with that of
 associative tries as seen in the next example.
 \begin{example} \rm
-Now we start by creating a shared associative trie, with abbreviation
-{\tt shas} using the multi-threaded engine
+Now we create an associative trie, with abbreviation
+{\tt assoc}.
+%using the multi-threaded engine
+%Now we start by creating a shared associative trie, with abbreviation
+%{\tt shas} using the multi-threaded engine
 {\small
 \begin{verbatim}
-| ?- trie_create(X,[type(shas),alias(foo)]).
+| ?- trie_create(X,[type(assoc),alias(foo)]).
 X = 1048577
 
 yes
@@ -194,18 +221,19 @@ case of {\tt trie\_truncate/1} or {\tt trie\_drop/1}, an exception is
 thrown if there are active choice points to terms in a trie that is to
 be truncated or dropped.
 
-In the multi-threaded engine the space reclamation problem becomes
-even more difficult for tries that can be shared among threads.  In
-this case, no garbage collection is performed until there is a single
-active thread.  
+%In the multi-threaded engine the space reclamation problem becomes
+%even more difficult for tries that can be shared among threads.  In
+%this case, no garbage collection is performed until there is a single
+%active thread.  
 
 These space reclamation issues arise for non-associative tries only.
 Associative triesessentially contain key-value pairs, and so may have
 their space reclaimed upon deletion of a term, or upon truncation or
-dropping their trie, regardless of the number of active
-threads~\footnote{Future versions of XSB may extend garbage collection
-  to handle trie truncation, trie dropping and better space
-  reclamation in the multi-threaded engine.}.
+dropping their trie.
+%, regardless of the number of active
+%threads~\footnote{Future versions of XSB may extend garbage collection
+%  to handle trie truncation, trie dropping and better space
+%  reclamation in the multi-threaded engine.}.
 
 \section{Predicates for Tries} 
 %
@@ -230,21 +258,22 @@ present version, {\tt OptionList} may contain the following terms
 \bi
 \item {\tt type(Type)} where {\tt Type} can be one of
 \bi
-\item {\tt prge} (private, general) maintains information that is
-  accessable only to the calling thread.  No other restrictions are
-  made for accessing information in a private trie.  In the
-  single-threaded engine, tries are private by default.
+\item {\tt prge} (private, general).
+%maintains information that is accessable only to the calling  thread.
+  No restrictions are made for accessing information in a private
+  trie.
+  %In the single-threaded engine, tries are private by default.
 
 \item {\tt pras} (private, associative) creates a private trie that
   maintains key-value pairs in a manner similar to an associative
   array, using the term {\tt pair(Key,Value)}.  Each key must be ground,
   and there may be only one value per key.
 
-\item {\tt shas} (shared associative) creates a shared trie that
-  maintains key-value pairs in a manner similar to an associative
-  array, using the term {\tt pair(Key,Value)}.  Each key must be
-  ground, and there may be only one value per key.  This option is
-  available only in the multi-threaded engine
+%\item {\tt shas} (shared associative) creates a shared trie that
+%  maintains key-value pairs in a manner similar to an associative
+%  array, using the term {\tt pair(Key,Value)}.  Each key must be
+%  ground, and there may be only one value per key.  This option is
+%  available only in the multi-threaded engine
 
 %\item {\tt shared(full)} Maintains information that is accessable to
 %  all threads, with no restrictions on its access.  In the
@@ -283,7 +312,8 @@ present version, {\tt OptionList} may contain the following terms
 \item 	{\tt domain\_error(trie\_option,Option)}
 \ei
 \item An element of {\tt OptionsList} is alias(A) and A is already
-  associated with an existing thread, queue, mutex or stream 
+  associated with an existing %thread,
+  queue, mutex or stream 
 \bi
 \item {\tt permission\_error(create,alias, A)}
 \ei
@@ -579,12 +609,13 @@ will return the the $N^3 - N^2$ terms still in {\tt TrieIdOrAlias}.
 If {\tt TrieOrAlias} is instantiated, unifies {\tt Property} with
 current properties of the trie; if {\tt TrieOrAlias} is a variable,
 backtracks through all the current tries whose properties unify with
-{\tt Property}.  In the MT engine, {\tt thread\_property/2} accesses
-only tries private to the calling thread and shared tries; however
-note that there is no guarantee that that the information returned
-about shared tries will be valid, due to concurrency
-issues~\footnote{{\tt trie\_property/2} is not yet implemented for
-  shared tries.}.
+{\tt Property}.
+%In the MT engine, {\tt thread\_property/2} accesses
+%only tries private to the calling thread and shared tries; however
+%note that there is no guarantee that that the information returned
+%about shared tries will be valid, due to concurrency
+%issues~\footnote{{\tt trie\_property/2} is not yet implemented for
+%  shared tries.}.
 
 Currently {\tt Property} can have the form 
 \bi
@@ -614,18 +645,19 @@ Currently {\tt Property} can have the form
 
 \section{Low-level Trie Manipulation Utilities}
 
-The previous sections indicate how tries can be used as an efficient
-mechanism to store thread-private and thread-shared terms.  In this
-section we describe lower-level trie manipulation predicates that are
-suitable for implemeting XSB libraries~\footnote{Flora-2, XASP, XSB's
-  {\tt storage} library and others use these predicates.}.  As with
-other tries, these utilities are suitable for storing terms rather
-than exectuable clauses, use a set based semantics, and do not
+%The previous sections indicate how tries can be used as an efficient
+%mechanism to store thread-private and thread-shared terms.
+In this section we describe lower-level trie manipulation predicates
+that are suitable for implemeting XSB libraries~\footnote{Flora-2,
+  XASP, XSB's {\tt storage} library and others use these predicates.}.
+As with other tries, these utilities are suitable for storing terms
+rather than exectuable clauses, use a set based semantics, and do not
 maintain an ordering among these terms.  In addition
 %
 \bi
-\item These predicates create and maintain thread-private, general
-  tries.
+\item These predicates create and maintain
+%thread-private,
+  general tries.
 %
 \item These predicates do not always perform error checking.  If not
   explicitly specified in the description of the predicate, errors

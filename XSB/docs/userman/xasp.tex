@@ -17,9 +17,10 @@ Prolog.  First, stable model semantics applies only to ground
 programs; second stable model semantics is not goal-oriented --
 determining whether a stable model is true in a program involves
 examining each clause in a program, regardless of whether the goal would
-depends on the clause in a traditional evaluation~\footnote{In
-  \version{}, the Smodels API has not been tested with the
-  multi-threaded engine, and Smodels itself is not thread-safe.}.
+depends on the clause in a traditional evaluation.
+%~\footnote{In
+%  \version{}, the Smodels API has not been tested with the
+%  multi-threaded engine, and Smodels itself is not thread-safe.}.
 
 Despite (or perhaps because of) these differences, ASP has proven to
 be a useful paradigm for solving a variety of combinatorial programs.
@@ -142,10 +143,10 @@ which copies them to the XASP directory.
 \begin{center}
   {\tt ?- make.}
 \end{center}
-It is important to note that under \version{}, code compiled by the
-single threaded engine will only be executable by the single threaded
-engine, and code compiled by the multi-threaded engine will only be
-executable by the multi-threaded engine.
+%It is important to note that under \version{}, code compiled by the
+%single threaded engine will only be executable by the single threaded
+%engine, and code compiled by the multi-threaded engine will only be
+%executable by the multi-threaded engine.
 %
 \item {\em Checking the Installation} 
 %
@@ -464,87 +465,87 @@ be useful for debugging.
 
 \end{description}
 
-\subsection{Using the Smodels Interface with Multiple Threads}
+%\subsection{Using the Smodels Interface with Multiple Threads}
 %
-If XASP has been compiled under the multi-threaded engine, the Smodels
-interface will be fully thread-safe: this means that Smodels and all
-interface predicates described in this section can be used
-concurrently by different threads.  In multi-threaded XASP, each XSB
-thread can initialize and query its own instance of Smodels, and build
-up its own private clause store at both the cooked and raw levels
-(shared clause stores are not yet available).
-Figure~\ref{fig:smodelsmt} provides a simple example of how this can
-be done.  For each thread that will generate stable models, a message
-queue is created that will be used to communicate back results.  Two
-threads are then created and these threads concurrently add rules to
-their private clause stores, call Smodels, and send the results back
-to the calling thread using the appropriate message queue.  Of course
-the example here is just one of many possible: answers could be
-returned using different configurations of message queues, through
-shared tables, through shared asserted code, and so on. 
-
+%If XASP has been compiled under the multi-threaded engine, the Smodels
+%interface will be fully thread-safe: this means that Smodels and all
+%interface predicates described in this section can be used
+%concurrently by different threads.  In multi-threaded XASP, each XSB
+%thread can initialize and query its own instance of Smodels, and build
+%up its own private clause store at both the cooked and raw levels
+%(shared clause stores are not yet available).
+%Figure~\ref{fig:smodelsmt} provides a simple example of how this can
+%be done.  For each thread that will generate stable models, a message
+%queue is created that will be used to communicate back results.  Two
+%threads are then created and these threads concurrently add rules to
+%their private clause stores, call Smodels, and send the results back
+%to the calling thread using the appropriate message queue.  Of course
+%the example here is just one of many possible: answers could be
+%returned using different configurations of message queues, through
+%shared tables, through shared asserted code, and so on. 
+%
 %-------------------------------------------------------------------------
-\begin{figure}[hbtp]
-\begin{small}
-\begin{verbatim}
-:- ensure_loaded(xasp).
-:- import smcInit/0, smcAddRule/2, smcCommitProgram/0 smcSetCompute/1, 
-          smComputeModel/0, smcExamineModel/1, smEnd/0 from sm_int.
-:- import thread_create/1 from thread.
-:- import thread_get_message/2,  thread_send_message/2, message_queue_create/1 from mutex_xsb.
-
-test:- 
-     message_queue_create(Queue1),
-     message_queue_create(Queue2),
-     thread_create(test1(Queue1)),
-     thread_create(test2(Queue2)),
-     read_models(Queue1),
-     read_models(Queue2).
-
-test1(Queue) :-
-     smcInit,
-     smcAddRule(a1,[]),
-     smcAddRule(b1,[]),
-     smcAddRule(d1,[a1,not(c1)]),
-     smcAddRule(c1,[b1,not(d1)]),
-     smcCommitProgram,
-     write('All Solutions: '),nl,
-     (   smComputeModel,
-         smcExamineModel(Model),
-         thread_send_message(Queue,solution(program1,Model)),
-         fail
-     ;
-         thread_send_message(Queue,no_more_solutions),
-         smEnd  ).
-
-test2(Queue) :-
-     smcInit,
-     smcAddRule(a2,[]),
-     smcAddRule(b2,[]),
-     smcAddRule(d2,[a2,not(c2)]),
-     smcAddRule(c2,[b2,not(d2)]),
-     smcCommitProgram,
-     write('All Solutions: '),nl,
-     (   smComputeModel,
-         smcExamineModel(Model),
-         thread_send_message(Queue,solution(program2,Model)),
-         fail
-     ;
-         thread_send_message(Queue,no_more_solutions),
-         smEnd  ).
-
-read_models(Queue):- 
-     repeat,
-     thread_get_message(Queue,Message),
-     (Message = no_more_solutions ->
-         true
-       ; writeln(Message),
-         fail ).
-
-\end{verbatim}
-\end{small}
-\caption{Using the Smodels Interface with Multi-Threading} \label{fig:smodelsmt}
-\end{figure}
+%\begin{figure}[hbtp]
+%\begin{small}
+%\begin{verbatim}
+%:- ensure_loaded(xasp).
+%:- import smcInit/0, smcAddRule/2, smcCommitProgram/0 smcSetCompute/1, 
+%          smComputeModel/0, smcExamineModel/1, smEnd/0 from sm_int.
+%:- import thread_create/1 from thread.
+%:- import thread_get_message/2,  thread_send_message/2, message_queue_create/1 from mutex_xsb.
+%
+%test:- 
+%     message_queue_create(Queue1),
+%     message_queue_create(Queue2),
+%     thread_create(test1(Queue1)),
+%     thread_create(test2(Queue2)),
+%     read_models(Queue1),
+%     read_models(Queue2).
+%
+%test1(Queue) :-
+%     smcInit,
+%     smcAddRule(a1,[]),
+%     smcAddRule(b1,[]),
+%     smcAddRule(d1,[a1,not(c1)]),
+%     smcAddRule(c1,[b1,not(d1)]),
+%     smcCommitProgram,
+%     write('All Solutions: '),nl,
+%     (   smComputeModel,
+%         smcExamineModel(Model),
+%         thread_send_message(Queue,solution(program1,Model)),
+%         fail
+%     ;
+%         thread_send_message(Queue,no_more_solutions),
+%         smEnd  ).
+%
+%test2(Queue) :-
+%     smcInit,
+%     smcAddRule(a2,[]),
+%     smcAddRule(b2,[]),
+%     smcAddRule(d2,[a2,not(c2)]),
+%     smcAddRule(c2,[b2,not(d2)]),
+%     smcCommitProgram,
+%     write('All Solutions: '),nl,
+%     (   smComputeModel,
+%         smcExamineModel(Model),
+%         thread_send_message(Queue,solution(program2,Model)),
+%         fail
+%     ;
+%         thread_send_message(Queue,no_more_solutions),
+%         smEnd  ).
+%
+%read_models(Queue):- 
+%     repeat,
+%     thread_get_message(Queue,Message),
+%     (Message = no_more_solutions ->
+%         true
+%       ; writeln(Message),
+%         fail ).
+%
+%\end{verbatim}
+%\end{small}
+%\caption{Using the Smodels Interface with Multi-Threading} \label{fig:smodelsmt}
+%\end{figure}
 %-------------------------------------------------------------------------
 
 

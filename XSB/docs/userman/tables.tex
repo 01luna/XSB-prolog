@@ -2628,8 +2628,9 @@ subsumption (cf. Section~\ref{sec:table-index}).
 However, call subsumption has not been fully integrated with dynamic
 code,
 %or thread-shared predicates,
-and cannot currently be combined with incremental tabling or with
-answer subumption.
+and cannot currently be combined
+%with incremental tabling or
+with answer subumption.
 %Similarly incremental tabling is not yet supported
 %in the multi-threaded engine (it is supported for ``thread-private''
 %computations only in the sequential engine).
@@ -2649,22 +2650,23 @@ supported in future versions of XSB as resources allow.
     opaque, subgoal\_abstract} or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt answer\_abstract} cannot also
-  be declared with {\tt ans\_subsumption, intern} or {\tt
-    compl\_semantics}.
+  be declared with {\tt ans\_subsumption, compl\_semantics, intern} or
+  {\tt subsuptive}.
 %
 \item A predicate $P$ declared with {\tt compl\_semantics} cannot also
   be declared with {\tt ans\_subsumption, answer\_abstract, dynamic,
     incremental, index/1, intern, opaque, subsumptive} or {\tt subgoal\_abstract}.
 %
-\item A predicate $P$ declared with {\tt dyn} or {\tt (dynamic)} cannot also
-  be declared with {\tt ans\_subsumption} or {\tt incremental}
+\item A predicate $P$ declared with {\tt dyn} or {\tt (dynamic)}
+  cannot also be declared with {\tt ans\_subsumption}, {\tt
+    incremental} or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt incremental} cannot also be
   declared with {\tt compl\_semantics, dynamic, index/1, intern,
-    nonincremental, opaque}
-  %, shared}
-  or {\tt subsumptive}.  However, $P$ may be changed from {\tt
-    incremental} to {\tt nonincremental} or {\tt opaque} via {\tt
+    nonincremental} or {\tt opaque}.
+  %, shared} or {\tt subsumptive}.
+  However, $P$ may be changed from {\tt incremental} to {\tt
+    nonincremental} or {\tt opaque} via {\tt
     set\_predicate\_property/2}.
 %
 \item A predicate $P$ declared with {\tt index/1} cannot also be
@@ -2673,10 +2675,11 @@ supported in future versions of XSB as resources allow.
 %
 \item A predicate $P$ declared with {\tt intern} cannot also be
   declared with {\tt ans\_subsumption, answer\_abstract,
-    compl\_semantics, incremental, index/1, subgoal\_abstract} {\tt subsumption}
+    compl\_semantics, incremental, index/1, subgoal\_abstract} or {\tt
+    subsumption}
 %
 \item A predicate $P$ declared with {\tt max\_answers} cannot also be
-  declared with {\tt compl\_semantics,index/1} or {\tt subsumptive}.
+  declared with {\tt compl\_semantics, index/1} or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt nonincremental} cannot also
   be declared with {\tt incremental} or {\tt opaque}.  However, $P$
@@ -2699,12 +2702,11 @@ supported in future versions of XSB as resources allow.
   be declared with {\tt index/1} or {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt subsumptive} cannot also be
-  declared with {\tt compl\_semantics, max\_answers}
-    %, shared}
-    or {\tt
-    subgoal\_abstract}.  However, $P$ may be changed from {\tt
-    subsumptive} to {\tt variant} via {\tt
-    set\_predicate\_property/2}.
+  declared with {\tt compl\_semantics, dynamic, max\_answers}
+%, shared}
+    or {\tt subgoal\_abstract}.  However, $P$ may be changed from {\tt
+      subsumptive} to {\tt variant} via {\tt
+      set\_predicate\_property/2}.
 %
 \item A predicate $P$ declared with {\tt variant} cannot also be
   declared with {\tt index/1} or {\tt subsumptive}. However, $P$ may be changed from

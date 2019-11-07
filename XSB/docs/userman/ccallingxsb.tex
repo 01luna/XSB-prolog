@@ -26,17 +26,17 @@ since all of these interfaces -- Java, Ruby, Delphi and Visual Basic
 threads calling XSB, although each of the examples suitably modified
 can be extended to other calling languages.
 
-New to Version 3.1 are extensions to the C API to allow multiple XSB
-threads to be called from multiple C threads~\footnote{XSB's threading
-  model is based on POSIX threads, which can be called in Windows
-  through a variety of POSIX APIs -- see Volume 1 chapter 8 {\em
-    Multi-threaded Programming in XSB}.}.  In this Chapter, we provide
-an overview of XSB's C API, and then elaborate its use through a
-series of examples, beginning with a single XSB thread called by a
-single C thread, then showing how a C thread can interact with
-multiple XSB threads, and finally discuss how multiple XSB threads can
-interact with multiple POSIX threads.  Finally, Section~\ref{sec:CAPI}
-describes each C function in the API.
+%New to Version 3.1 are extensions to the C API to allow multiple XSB
+%threads to be called from multiple C threads~\footnote{XSB's threading
+%  model is based on POSIX threads, which can be called in Windows
+%  through a variety of POSIX APIs -- see Volume 1 chapter 8 {\em
+%    Multi-threaded Programming in XSB}.}.
+%In this Chapter, we provide an overview of XSB's C API, and then
+%elaborate its use through a series of examples, beginning with a
+%single XSB thread called by a single C thread, then showing how a C
+%thread can interact with multiple XSB threads, and finally discuss how
+%multiple XSB threads can interact with multiple POSIX threads.
+%Finally, Section~\ref{sec:CAPI} describes each C function in the API.
 
 %
 \section{Calling XSB from C}
@@ -64,7 +64,8 @@ interact with XSB in a number of ways.
     xsb\_close\_query()}, before trying to evaluate another using $T$.
 %
 \item Finally, XSB can be closed, so that no more queries can be made
-  to any XSB threads.
+%  to any XSB threads.
+  to XSB.
 \end{itemize}
 
 In general, while any functions in the C API to XSB can be intermixed,
@@ -83,9 +84,9 @@ levels.
   queries by setting registers for XSB which are made globally
   available to calling functions.  The mechanisms for this resemble
   the lower-level C interface discussed in Chapter~\ref{foreign}.
-  This level of interface should only be used for the single-threaded
-  applications, as it is difficult to prevent race-conditions at this
-  level of interface when multiple C threads are used to call XSB.
+%  This level of interface should only be used for the single-threaded
+%  applications, as it is difficult to prevent race-conditions at this
+%  level of interface when multiple C threads are used to call XSB.
 
 \end{itemize}
 %
@@ -101,8 +102,8 @@ applications should use either functions from the {\tt VarString} or
 the fixed-string level, rather than the register-oriented level.  This
 latter level should only be used by programmers who are willing to
 work at a low interface level, when the utmost speed is needed by an
-application, and when multiple threads do not need to interact with
-XSB.
+application.
+%, and when multiple threads do not need to interact with XSB.
 
 
 \section{Examples of Calling XSB}
@@ -115,14 +116,17 @@ and {\tt Makefile}, but are not discussed in this section.
 
 We structure out discussion by first showing how to construct a C
 program to call the single-threaded engine alone in
-Section~\ref{sec:CXSBSeq}.  This example is mostly pedagogic: with a
-small amount of extra coding a C program can be constructed to call
-both the single- and the multi-threaded engine, and these extensions
-are discussed in Section~\ref{sec:CXSB}.  Next, we show how to a C
-program can call and manage multiple XSB threads in Section~\ref{sec:CXSBMT}.
-Finally, we show how multiple XSB threads can interact with multiple C
-threads in Section~\ref{sec:CXSBMT}.
+Section~\ref{sec:CXSBSeq}.
+%This example is mostly pedagogic: with a
+%small amount of extra coding a C program can be constructed to call
+%both the single- and the multi-threaded engine, and these extensions
+%are discussed in Section~\ref{sec:CXSB}.
+%Next, we show how to a C
+%program can call and manage multiple XSB threads in Section~\ref{sec:CXSBMT}.
+%Finally, we show how multiple XSB threads can interact with multiple C
+%threads in Section~\ref{sec:CXSBMT}.
 
+%\subsection{The XSB API for the Sequential Engine Only} \label{sec:CXSBSeq}
 \subsection{The XSB API for the Sequential Engine Only} \label{sec:CXSBSeq}
 
 We start with a simple program shown, in Figure~\ref{fig:varstringex},
@@ -201,10 +205,10 @@ int main(int argc, char *argv[]) {
 \end{figure}
 
 We discuss the program in Figure~\ref{fig:varstringex} in detail.
-This program, slightly modified so that it compiles with the
-multi-threaded engine is in {\tt
-  \$XSBDIR/examples/c\_calling\_xsb/cvartest.c}.  An executable for
-this program can be make most easily by calling {\tt
+%This program, slightly modified so that it compiles with the
+%multi-threaded engine is in {\tt
+%  \$XSBDIR/examples/c\_calling\_xsb/cvartest.c}.
+An executable for this program can be make most easily by calling {\tt
   \$XSBDIR/examples/c\_calling\_xsb/make.P}, which makes the
 executable {\tt cvstest}.
 
@@ -376,353 +380,354 @@ the {\tt VarString} level is that the length of each answer should be
 checked and {\tt xsb\_get\_last\_answer\_string()} called if
 necessary.
 
-\subsection{The General XSB API} \label{sec:CXSB}
+%\subsection{The General XSB API} \label{sec:CXSB}
+%
+%The previous section showed how to use the XSB API with both the {\tt
+%  VarString} type and without.
+%, but did not consider the multi-threaded
+%engine.  In fact, there are different ways to use XSB's
+%multi-threading that can have advantages for various situations.  In
+%the first mode, threads are managed from Prolog, with a single XSB
+%thread called from the API; that XSB thread can then create another
+%XSB thread that does work, and the first thread can return almost
+%immediately to handle more requests from the API's caller.  A second
+%model allows the caller to manipulate a pool of several XSB threads,
+%so that different XSB threads may be called from different threads
+%over the API.  In this model each C, Java, Ruby, or other thread could
+%a number of different Prolog threads.  In this section we sketch how
+%to use the API to illustrate the first model, and sketch the second
+%model in the next section.
 
-The previous section showed how to use the XSB API with both the {\tt
-  VarString} type and without, but did not consider the multi-threaded
-engine.  In fact, there are different ways to use XSB's
-multi-threading that can have advantages for various situations.  In
-the first mode, threads are managed from Prolog, with a single XSB
-thread called from the API; that XSB thread can then create another
-XSB thread that does work, and the first thread can return almost
-immediately to handle more requests from the API's caller.  A second
-model allows the caller to manipulate a pool of several XSB threads,
-so that different XSB threads may be called from different threads
-over the API.  In this model each C, Java, Ruby, or other thread could
-a number of different Prolog threads.  In this section we sketch how
-to use the API to illustrate the first model, and sketch the second
-model in the next section.
+%\begin{figure}[hbtp]
+%\begin{small}
+%\begin{verbatim}
+%.....
+%
+%/* context.h is necessary for the type of a thread context. */
+%#include "context.h"
+%
+%int main(int argc, char *argv[])
+%{ 
+%
+%  char init_string[MAXPATHLEN];
+%  int rc;
+%  XSB_StrDefine(return_string);
+%
+%  strcpy(init_string,strip_names_from_path(xsb_executable_full_path(argv[0]),3));
+%  if (xsb_init_string(init_string) == XSB_ERROR) {
+%    fprintf(stderr,"++initializing XSB: %s/%s\n",xsb_get_init_error_type(),
+%            xsb_get_init_error_message());
+%    exit(XSB_ERROR);
+%  }
+%
+%#ifdef MULTI_THREAD
+%  th_context *th = xsb_get_main_thread();
+%#endif
+%
+%  /* Create command to consult a file: edb.P, and send it. */
+%  if (xsb_command_string(CTXTc "consult('edb.P').") == XSB_ERROR)
+%    fprintf(stderr,"++Error consulting edb.P: %s/%s\n",xsb_get_error_type(CTXT),
+%            xsb_get_error_message(CTXT));
+%
+%  rc = xsb_query_string_string(CTXTc "p(X,Y,Z).",&return_string,"|");
+%  while (rc == XSB_SUCCESS) {
+%    printf("Return %s\n",(return_string.string));
+%    rc = xsb_next_string(CTXTc &return_string,"|");
+%  }
+% 
+% if (rc == XSB_ERROR) 
+%    fprintf(stderr,"++Query Error: %s/%s\n",xsb_get_error_type(CTXT),xsb_get_error_message(CTXT));
+%
+%  xsb_close();     
+%}
+%\end{verbatim}
+%\end{small}
+%\caption{Calling the Single- or Multi-Threaded Engine Using the {\tt VarString} Interface} 
+%\label{fig:varstringex1}
+%\end{figure}
 
-\begin{figure}[hbtp]
-\begin{small}
-\begin{verbatim}
-.....
-
-/* context.h is necessary for the type of a thread context. */
-#include "context.h"
-
-int main(int argc, char *argv[])
-{ 
-
-  char init_string[MAXPATHLEN];
-  int rc;
-  XSB_StrDefine(return_string);
-
-  strcpy(init_string,strip_names_from_path(xsb_executable_full_path(argv[0]),3));
-  if (xsb_init_string(init_string) == XSB_ERROR) {
-    fprintf(stderr,"++initializing XSB: %s/%s\n",xsb_get_init_error_type(),
-            xsb_get_init_error_message());
-    exit(XSB_ERROR);
-  }
-
-#ifdef MULTI_THREAD
-  th_context *th = xsb_get_main_thread();
-#endif
-
-  /* Create command to consult a file: edb.P, and send it. */
-  if (xsb_command_string(CTXTc "consult('edb.P').") == XSB_ERROR)
-    fprintf(stderr,"++Error consulting edb.P: %s/%s\n",xsb_get_error_type(CTXT),
-            xsb_get_error_message(CTXT));
-
-  rc = xsb_query_string_string(CTXTc "p(X,Y,Z).",&return_string,"|");
-  while (rc == XSB_SUCCESS) {
-    printf("Return %s\n",(return_string.string));
-    rc = xsb_next_string(CTXTc &return_string,"|");
-  }
+%Figure~\ref{fig:varstringex1} shows how relevant portions of the
+%previous {\tt VarString} example can be adapted to use the
+%multi-threaded engine.  The main change is that a new variable is
+%introduced on the C side that points to the context of the main
+%thread.  As pointed out in Chapter~\ref{foreign}, each thread in the
+%multi-threaded engine has a {\em context} in which is kept much of its
+%thread-specific data (excluding tables and dynamic code).  Of the
+%threads running in the multi-threaded engine the thread created upon
+%the call to {\tt xsb\_init()} is designated as the {\tt main thread},
+%and is closed only upon calling {\tt xsb\_close()}.
+%
+%Within the multi-threaded engine, a call to an API function such as
+%{\tt xsb\_query\_string\_string()} is actually a call to a specific
+%thread to do some work (using a thread context pointer).  Accordingly,
+%since any errors produced will be specific to a given thread, all
+%calls to error reporting functions are also thread-specific.  If no
+%specific thread is needed, it may be best just to use the main thread,
+%which is what is done in Figure~\ref{fig:varstringex1}.  The thread
+%context pointer {\tt th} is initialized to the main thread using the
+%API macro {\tt xsb\_get\_main\_thread()}.  Afterwards, this pointer is
+%passed into the various interface functions by making use of XSB
+%macros defined in {\tt context.h} In the multi-threaded engine, these
+%macros are defined as
+%%
+%\begin{verbatim}
+%#define CTXT th
+%#define CTXTc th,
+%\end{verbatim}
+%%
+%while in the single-threaded engine they are defined as empty strings,
+%as is {\tt xsb\_get\_main\_thread()}.  As a result the code in
+%Figure~\ref{fig:varstringex1} will compile and run properly both for
+%the single-threaded and the multi-threaded engines.
+%
+%At this stage, suppose one wanted a new thread to execute a specific
+%command, say {\tt do\_foo}.  In this case, a C call such as %
+%%
+%\begin{verbatim}
+%xsb_query_string_string(CTXTc "thread_create(do_foo,Id).",&return_string,"|")
+%\end{verbatim}
+%creates a thread to execute the command, and returns the thread id of
+%the newly created thread in {\tt return\_string}.  The behavior of
+%this newly created thread is exactly the same as if it were created
+%from the XSB command line: in particular the newly created thread will
+%automatically exit upon completion of its command.  As a somewhat
+%technical point, there are two different ways of referring to XSB
+%threads.  The foreign language interfaces described in
+%Chapter~\ref{foreign} and here use pointers to thread contexts so that
+%the interfaces use much of the same code as the XSB engine.  However
+%Prolog refers to threads using thread identifiers.  The two different
+%forms can be converted into each other by the functions {\tt
+%  xsb\_thread\_id\_to\_context()} and {\tt
+%  xsb\_thread\_context\_to\_id()}.
+%
+%\subsection{Managing Multiple XSB Threads through the API} \label{sec:CXSBMT}
+%
+%The ability to pass thread contexts into query and command functions
+%allows a great deal of flexibility~\footnote{For the sake of brevity,
+%  we sometimes abuse notation and do not always distinguish between
+%%  thread-contexts and their pointers.}.  Once XSB is initialized, XSB
+%threads can be created from C and can execute independently of each
+%other, effectively giving the ability for different calling threads to
+%query XSB in a mechanism reminiscent of database cursors.
+%
+%\begin{figure}[hbtp]
+%\begin{small}
+%\begin{verbatim}
+%.....
+%/* context.h is necessary for the type of a thread context. */
+%#include "context.h"
+%
+%int main(int argc, char *argv[])
+%{ 
+%
+%  static th_context *p_th, *r_th;
+%  char init_string[MAXPATHLEN];
+%  int rcp, rcr;
+%  XSB_StrDefine(p_return_string);
+%  XSB_StrDefine(r_return_string);
+%
+%  strcpy(init_string,strip_names_from_path(xsb_executable_full_path(argv[0]),3));
+%%
+%  if (xsb_init_string(init_string)) {
+%    fprintf(stderr,"%s initializing XSB: %s/%s\n",xsb_get_init_error_type(),
+%            xsb_get_init_error_message());cin
+%    exit(XSB_ERROR);
+%  }
+%
+%  p_th = xsb_get_main_thread();
+%
+%  /* Create command to consult a file: edb.P, and send it. */
+%  if (xsb_command_string(p_th, "consult('edb.P').") == XSB_ERROR)
+%    fprintf(stderr,"++Error consulting edb.P: %s/%s\n",xsb_get_error_type(p_th),
+%	    xsb_get_error_message(p_th));
+%
+%  xsb_ccall_thread_create(p_th,&r_th);
+%
+%  rcp = xsb_query_string_string(p_th,"p(X,Y,Z).",&p_return_string,"|");
+%  rcr = xsb_query_string_string(r_th,"r(X,Y,Z).",&r_return_string,"|");
+%
+%  while (rcp == XSB_SUCCESS && rcr == XSB_SUCCESS) {
+%
+%    printf("Return p %s\n",(p_return_string.string));
+%    rcp = xsb_next_string(p_th, &p_return_string,"|");
+%
+%    printf("Return r %s\n",(r_return_string.string));
+%    rcr = xsb_next_string(r_th, &r_return_string,"|");
+%  }
+%
+% if (rcp == XSB_ERROR) 
+%   fprintf(stderr,"++Query Error p: %s/%s\n",xsb_get_error_type(p_th),xsb_get_error_message(p_th));
+% if (rcr == XSB_ERROR) 
+%   fprintf(stderr,"++Query Error r: %s/%s\n",xsb_get_error_type(r_th),xsb_get_error_message(r_th));
+%
+% xsb_close();      
+%}
+%
+%\end{verbatim}\end{small}
+%\caption{Manipulating Multiple Threads Using the {\tt VarString} Interface} 
+%\label{fig:varstringex2}
+%\end{figure}
+%
+%Figure~\ref{fig:varstringex2} illustrates a very simple example of
+%this.  XSB is initialized and the file {\tt edb.P} consulted exactly as
+%in Figure~\ref{fig:varstringex2}.  However, the function {\tt
+%  xsb\_ccall\_thread\_create()} causes the XSB thread {\tt p\_th} to
+%create a new thread, causes the new thread to call the same command
+%loop as the main thread, and sets {\tt r\_th} to point to the context
+%of the new thread.  The new thread {\tt r\_th} can be used for
+%commands or queries just as {\tt p\_th}.
+%Figure~\ref{fig:varstringex2} shows that queries to the two threads
+%\end{verbatim}can be interleaved, and errors for both threads can be checked and
+%reported independently.
  
- if (rc == XSB_ERROR) 
-    fprintf(stderr,"++Query Error: %s/%s\n",xsb_get_error_type(CTXT),xsb_get_error_message(CTXT));
+%It is important to note that since each thread created by {\tt
+%  xsb\_ccall\_thread\_create()} goes into a command-loop similar to
+%the command loop, it will stay around until it is explicitly killed or
+%until XSB is closed.  The call 
+%\begin{verbatim}
+%  xsb_kill_thread(r_th);
+%\end{verbatim}
+%is needed to make {\tt r\_th} to exit.  Once a thread is exited, all
+%of its data structures will be freed, including those that support
+%{\tt xsb\_get\_error\_type()} and {\tt
+%  xsb\_get\_error\_message()}~\footnote{Note that causing XSB's main
+%  thread to exit will cause the entire process to exit -- not just
+%  XSB.}.
 
-  xsb_close();     
-}
-\end{verbatim}
-\end{small}
-\caption{Calling the Single- or Multi-Threaded Engine Using the {\tt VarString} Interface} 
-\label{fig:varstringex1}
-\end{figure}
+%\subsection{Calling Multiple XSB Threads using Multiple C Threads} \label{sec:CXSBMTMT}
 
-Figure~\ref{fig:varstringex1} shows how relevant portions of the
-previous {\tt VarString} example can be adapted to use the
-multi-threaded engine.  The main change is that a new variable is
-introduced on the C side that points to the context of the main
-thread.  As pointed out in Chapter~\ref{foreign}, each thread in the
-multi-threaded engine has a {\em context} in which is kept much of its
-thread-specific data (excluding tables and dynamic code).  Of the
-threads running in the multi-threaded engine the thread created upon
-the call to {\tt xsb\_init()} is designated as the {\tt main thread},
-and is closed only upon calling {\tt xsb\_close()}.
-
-Within the multi-threaded engine, a call to an API function such as
-{\tt xsb\_query\_string\_string()} is actually a call to a specific
-thread to do some work (using a thread context pointer).  Accordingly,
-since any errors produced will be specific to a given thread, all
-calls to error reporting functions are also thread-specific.  If no
-specific thread is needed, it may be best just to use the main thread,
-which is what is done in Figure~\ref{fig:varstringex1}.  The thread
-context pointer {\tt th} is initialized to the main thread using the
-API macro {\tt xsb\_get\_main\_thread()}.  Afterwards, this pointer is
-passed into the various interface functions by making use of XSB
-macros defined in {\tt context.h} In the multi-threaded engine, these
-macros are defined as
+%Figure~\ref{fig:varstringex2} shows how two XSB threads can be
+%created, can receive different queries and can interleave their
+%backtracking and answer return.  Although
+%Figure~\ref{fig:varstringex2} demonstrated only backtracking through
+%simple predicates, the mechanism employed works for complicated
+%examples using tabling, dynamic code, and other features.  All this
+%provides a sophisticated interface, but it is not ``fully''
+%multi-threaded in the following sense.  When a C thread $T$ causes XSB
+%to execute a command or query the thread must wait until the calling
+%function returns before proceeding.  In certain applications it may be
+%useful, for example, for $T$ to create a C thread $T_{new}$ which runs
+%asynchronously from $T$, executing the XSB command or query and then
+%exiting.  Alternately, an application may want to have a pool of C
+%threads that can interact with a pool of XSB threads.
 %
-\begin{verbatim}
-#define CTXT th
-#define CTXTc th,
-\end{verbatim}
+%XSB's C API has been designed to support these features.
+%Figure~\ref{fig:varstringex3} shows fragments of
+%Figure~\ref{fig:varstringex2} rewritten so that the routines to print
+%out the answers to the queries {\tt p(X,Y,Z)} and {\tt r(X,Y,Z)} can
+%be called from C threads specially designed for this purpose.  More
+%specifically, the routine {\tt query\_ps()} calls {\tt p\_th} to query
+%{\tt p(X,Y,Z)} and backtrack through its answers -- its use of a
+%single {\tt void *} argument and a {\tt void *} return reflect the
+%requirements of functions that are to be called using {\tt
+%  pthread\_create()}.
+
+%We note several points about this example.  First the XSB API is a
+%low-level API that can be used to build application specific
+%interfaces, and some experience with pthread programming is useful if
+%multiple XSB threads are called from multiple C threads.  For
+%instance, one issue is fairness.  When called from the C API each XSB
+%thread $X_T$ makes use of mutexes to ensure that it answers only one
+%query or command at a time.  If multiple C threads are are waiting for
+%$X_T$ to respond to requests or queries, there is no guarantee that
+%the requests will be processed in any sort of order, or even that a
+%request will eventually be handled (In order to ensure this, the
+%calling program would have to use a queue or some other scheduling
+%mechanism to send requests to the XSB thread).  In addition, it is
+%important to note that, {\em the main XSB thread should only be called
+%  from the C thread that initialized XSB.}.  This restriction is due
+%to the current design of synchronizing an XSB thread with calling
+%threads, and may be lifted in the future.
+
+\%begin{figure}[hbtp]
+%\begin{small}
+%\begin{verbatim}
+%.....
 %
-while in the single-threaded engine they are defined as empty strings,
-as is {\tt xsb\_get\_main\_thread()}.  As a result the code in
-Figure~\ref{fig:varstringex1} will compile and run properly both for
-the single-threaded and the multi-threaded engines.
-
-At this stage, suppose one wanted a new thread to execute a specific
-command, say {\tt do\_foo}.  In this case, a C call such as 
+%void *query_ps(void * arg) {
+%  int rc;
+%  th_context *p_th;
+%%  XSB_StrDefine(p_return_string);
+%  p_th = (th_context *)arg;
+%  
+%  rc = xsb_query_string_string(p_th,"p(X,Y,Z).",&p_return_string,"|");
+%  while (rc == XSB_SUCCESS) {
+%    printf("Return p %s\n",(p_return_string.string));
+%    rc = xsb_next_string(p_th, &p_return_string,"|");
+%  }
 %
-\begin{verbatim}
-xsb_query_string_string(CTXTc "thread_create(do_foo,Id).",&return_string,"|")
-\end{verbatim}
-creates a thread to execute the command, and returns the thread id of
-the newly created thread in {\tt return\_string}.  The behavior of
-this newly created thread is exactly the same as if it were created
-from the XSB command line: in particular the newly created thread will
-automatically exit upon completion of its command.  As a somewhat
-technical point, there are two different ways of referring to XSB
-threads.  The foreign language interfaces described in
-Chapter~\ref{foreign} and here use pointers to thread contexts so that
-the interfaces use much of the same code as the XSB engine.  However
-Prolog refers to threads using thread identifiers.  The two different
-forms can be converted into each other by the functions {\tt
-  xsb\_thread\_id\_to\_context()} and {\tt
-  xsb\_thread\_context\_to\_id()}.
+% if (rc == XSB_ERROR) 
+%   fprintf(stderr,"++Query Error p: %s/%s\n",xsb_get_error_type(p_th),xsb_get_error_message(p_th));
+% return NULL;
+%}
 
-\subsection{Managing Multiple XSB Threads through the API} \label{sec:CXSBMT}
-
-The ability to pass thread contexts into query and command functions
-allows a great deal of flexibility~\footnote{For the sake of brevity,
-  we sometimes abuse notation and do not always distinguish between
-  thread-contexts and their pointers.}.  Once XSB is initialized, XSB
-threads can be created from C and can execute independently of each
-other, effectively giving the ability for different calling threads to
-query XSB in a mechanism reminiscent of database cursors.
-
-\begin{figure}[hbtp]
-\begin{small}
-\begin{verbatim}
-.....
-/* context.h is necessary for the type of a thread context. */
-#include "context.h"
-
-int main(int argc, char *argv[])
-{ 
-
-  static th_context *p_th, *r_th;
-  char init_string[MAXPATHLEN];
-  int rcp, rcr;
-  XSB_StrDefine(p_return_string);
-  XSB_StrDefine(r_return_string);
-
-  strcpy(init_string,strip_names_from_path(xsb_executable_full_path(argv[0]),3));
-
-  if (xsb_init_string(init_string)) {
-    fprintf(stderr,"%s initializing XSB: %s/%s\n",xsb_get_init_error_type(),
-            xsb_get_init_error_message());cin
-    exit(XSB_ERROR);
-  }
-
-  p_th = xsb_get_main_thread();
-
-  /* Create command to consult a file: edb.P, and send it. */
-  if (xsb_command_string(p_th, "consult('edb.P').") == XSB_ERROR)
-    fprintf(stderr,"++Error consulting edb.P: %s/%s\n",xsb_get_error_type(p_th),
-	    xsb_get_error_message(p_th));
-
-  xsb_ccall_thread_create(p_th,&r_th);
-
-  rcp = xsb_query_string_string(p_th,"p(X,Y,Z).",&p_return_string,"|");
-  rcr = xsb_query_string_string(r_th,"r(X,Y,Z).",&r_return_string,"|");
-
-  while (rcp == XSB_SUCCESS && rcr == XSB_SUCCESS) {
-
-    printf("Return p %s\n",(p_return_string.string));
-    rcp = xsb_next_string(p_th, &p_return_string,"|");
-
-    printf("Return r %s\n",(r_return_string.string));
-    rcr = xsb_next_string(r_th, &r_return_string,"|");
-  }
-
- if (rcp == XSB_ERROR) 
-   fprintf(stderr,"++Query Error p: %s/%s\n",xsb_get_error_type(p_th),xsb_get_error_message(p_th));
- if (rcr == XSB_ERROR) 
-   fprintf(stderr,"++Query Error r: %s/%s\n",xsb_get_error_type(r_th),xsb_get_error_message(r_th));
-
- xsb_close();      
-}
-\end{verbatim}
-\end{small}
-\caption{Manipulating Multiple Threads Using the {\tt VarString} Interface} 
-\label{fig:varstringex2}
-\end{figure}
-
-Figure~\ref{fig:varstringex2} illustrates a very simple example of
-this.  XSB is initialized and the file {\tt edb.P} consulted exactly as
-in Figure~\ref{fig:varstringex2}.  However, the function {\tt
-  xsb\_ccall\_thread\_create()} causes the XSB thread {\tt p\_th} to
-create a new thread, causes the new thread to call the same command
-loop as the main thread, and sets {\tt r\_th} to point to the context
-of the new thread.  The new thread {\tt r\_th} can be used for
-commands or queries just as {\tt p\_th}.
-Figure~\ref{fig:varstringex2} shows that queries to the two threads
-can be interleaved, and errors for both threads can be checked and
-reported independently.
- 
-It is important to note that since each thread created by {\tt
-  xsb\_ccall\_thread\_create()} goes into a command-loop similar to
-the command loop, it will stay around until it is explicitly killed or
-until XSB is closed.  The call 
-\begin{verbatim}
-  xsb_kill_thread(r_th);
-\end{verbatim}
-is needed to make {\tt r\_th} to exit.  Once a thread is exited, all
-of its data structures will be freed, including those that support
-{\tt xsb\_get\_error\_type()} and {\tt
-  xsb\_get\_error\_message()}~\footnote{Note that causing XSB's main
-  thread to exit will cause the entire process to exit -- not just
-  XSB.}.
-
-\subsection{Calling Multiple XSB Threads using Multiple C Threads} \label{sec:CXSBMTMT}
-
-Figure~\ref{fig:varstringex2} shows how two XSB threads can be
-created, can receive different queries and can interleave their
-backtracking and answer return.  Although
-Figure~\ref{fig:varstringex2} demonstrated only backtracking through
-simple predicates, the mechanism employed works for complicated
-examples using tabling, dynamic code, and other features.  All this
-provides a sophisticated interface, but it is not ``fully''
-multi-threaded in the following sense.  When a C thread $T$ causes XSB
-to execute a command or query the thread must wait until the calling
-function returns before proceeding.  In certain applications it may be
-useful, for example, for $T$ to create a C thread $T_{new}$ which runs
-asynchronously from $T$, executing the XSB command or query and then
-exiting.  Alternately, an application may want to have a pool of C
-threads that can interact with a pool of XSB threads.
-
-XSB's C API has been designed to support these features.
-Figure~\ref{fig:varstringex3} shows fragments of
-Figure~\ref{fig:varstringex2} rewritten so that the routines to print
-out the answers to the queries {\tt p(X,Y,Z)} and {\tt r(X,Y,Z)} can
-be called from C threads specially designed for this purpose.  More
-specifically, the routine {\tt query\_ps()} calls {\tt p\_th} to query
-{\tt p(X,Y,Z)} and backtrack through its answers -- its use of a
-single {\tt void *} argument and a {\tt void *} return reflect the
-requirements of functions that are to be called using {\tt
-  pthread\_create()}.
-
-We note several points about this example.  First the XSB API is a
-low-level API that can be used to build application specific
-interfaces, and some experience with pthread programming is useful if
-multiple XSB threads are called from multiple C threads.  For
-instance, one issue is fairness.  When called from the C API each XSB
-thread $X_T$ makes use of mutexes to ensure that it answers only one
-query or command at a time.  If multiple C threads are are waiting for
-$X_T$ to respond to requests or queries, there is no guarantee that
-the requests will be processed in any sort of order, or even that a
-request will eventually be handled (In order to ensure this, the
-calling program would have to use a queue or some other scheduling
-mechanism to send requests to the XSB thread).  In addition, it is
-important to note that, {\em the main XSB thread should only be called
-  from the C thread that initialized XSB.}.  This restriction is due
-to the current design of synchronizing an XSB thread with calling
-threads, and may be lifted in the future.
-
-\begin{figure}[hbtp]
-\begin{small}
-\begin{verbatim}
-.....
-
-void *query_ps(void * arg) {
-  int rc;
-  th_context *p_th;
-  XSB_StrDefine(p_return_string);
-  p_th = (th_context *)arg;
-  
-  rc = xsb_query_string_string(p_th,"p(X,Y,Z).",&p_return_string,"|");
-  while (rc == XSB_SUCCESS) {
-    printf("Return p %s\n",(p_return_string.string));
-    rc = xsb_next_string(p_th, &p_return_string,"|");
-  }
-
- if (rc == XSB_ERROR) 
-   fprintf(stderr,"++Query Error p: %s/%s\n",xsb_get_error_type(p_th),xsb_get_error_message(p_th));
- return NULL;
-}
-
-
-int main(int argc, char *argv[]) { 
-
-  char init_string[MAXPATHLEN];
-  static th_context *p_th, *r_th;
-  int pstatus, rstatus;
-  pthread_t pthread_id,rthread_id;
-  XSB_StrDefine(p_return_string);
-  XSB_StrDefine(r_return_string);
-
-.....
-
-  main_th = xsb_get_main_thread();
-
-  /* Create command to consult a file: edb.P, and send it. */
-  if (xsb_command_string(xsb_get_main_thread(), "consult('edb.P').") == XSB_ERROR)
-    fprintf(stderr,"++Error consulting edb.P: %s/%s\n",xsb_get_error_type(main_th),
-	    xsb_get_error_message(main_th));
-
-  xsb_ccall_thread_create(main_th,&r_th);
-  xsb_ccall_thread_create(main_th,&p_th);
-
-  pthread_create(&rthread_id,NULL,command_rs,r_th);
-  pthread_create(&pthread_id,NULL,command_ps,p_th);
-  pthread_create(&rthread_id,NULL,command_rs,r_th);
-  pthread_create(&pthread_id,NULL,command_ps,p_th);
-
-  rstatus = pthread_join(rthread_id,&rreturn);
-  if (rstatus != 0) fprintf(stderr,"R join returns status %d\n",rstatus);
-  pstatus = pthread_join(pthread_id,&preturn);
-  if (pstatus != 0) fprintf(stderr,"P join returns status %d\n",pstatus);
-
- xsb_kill_thread(r_th);
- xsb_close();      
-}
-\end{verbatim}
-\end{small}
-\caption{Manipulating Multiple XSB Threads Using Multiple C Threads} 
-\label{fig:varstringex3}
-\end{figure}
-
-\subsubsection{Protected and Non-Protected API Functions} 
-
-Example~\ref{fig:varstringex3} shows that, when the {\tt Varstring}
-functions are used, if a single calling thread opens a query to an XSB
-thread $X_T$, $X_T$ will be protected from queries and commands posed
-by other C threads until the query is closed, failed out of, or exits
-via an error.  In fact, queries (and commands) are protected when the
-{\tt Varstring} or fixed string interfaces are used.  However,
-consider what may happen when the register level interface is used.
-In this case, a calling thread may call one or more API functions to
-set up the registers, execute a command or query, call several more
-API functions to obtain the output, and so on.  For this reason, if an
-application uses API commands that depend on user manipulation of
-registers ({\tt xsb\_command()},{\tt xsb\_query()},{\tt
-  xsb\_query\_string()}, and {\tt xsb\_next()}) the user must ensure
-that only one calling thread interacts with an XSB thread when that
-thread in the course of executing a command or query.  See {\tt
-  \$XSB\_DIR/examples/c\_calling\_xsb/cregs\_thread2.c} for an example
-of how mutexes can be used to protect XSB threads.
-
-When writing multi-threaded applications in XSB, be sure to be aware
-of how multiple threads share (and do not share) dynamic data and
-tables.  By default dynamic predicates (and tables) are unique to a
-given thread.  For data to be shared by multiple threads, a predicate
-must be declared to be {\tt shared}.  See section \ref{sec:shared} for
-details.
+%
+%int main(int argc, char *argv[]) { 
+%%
+%  char init_string[MAXPATHLEN];
+%  static th_context *p_th, *r_th;
+%  int pstatus, rstatus;
+%  pthread_t pthread_id,rthread_id;
+%  XSB_StrDefine(p_return_string);
+%  XSB_StrDefine(r_return_string);
+%
+%.....
+%
+%  main_th = xsb_get_main_thread();
+%
+%  /* Create command to consult a file: edb.P, and send it. */
+%  if (xsb_command_string(xsb_get_main_thread(), "consult('edb.P').") == XSB_ERROR)
+%    fprintf(stderr,"++Error consulting edb.P: %s/%s\n",xsb_get_error_type(main_th),
+%	    xsb_get_error_message(main_th));
+%
+%  xsb_ccall_thread_create(main_th,&r_th);
+%  xsb_ccall_thread_create(main_th,&p_th);
+%
+%  pthread_create(&rthread_id,NULL,command_rs,r_th);
+%  pthread_create(&pthread_id,NULL,command_ps,p_th);
+%  pthread_create(&rthread_id,NULL,command_rs,r_th);
+%  pthread_create(&pthread_id,NULL,command_ps,p_th);
+%
+%  rstatus = pthread_join(rthread_id,&rreturn);
+%  if (rstatus != 0) fprintf(stderr,"R join returns status %d\n",rstatus);
+%  pstatus = pthread_join(pthread_id,&preturn);
+%  if (pstatus != 0) fprintf(stderr,"P join returns status %d\n",pstatus);
+%
+% xsb_kill_thread(r_th);
+% xsb_close();      
+%}
+%\end{verbatim}
+%\end{small}
+%\caption{Manipulating Multiple XSB Threads Using Multiple C Threads} 
+%\label{fig:varstringex3}
+%\end{figure}
+%
+%\subsubsection{Protected and Non-Protected API Functions} 
+%
+%Example~\ref{fig:varstringex3} shows that, when the {\tt Varstring}
+%functions are used, if a single calling thread opens a query to an XSB
+%thread $X_T$, $X_T$ will be protected from queries and commands posed
+%by other C threads until the query is closed, failed out of, or exits
+%via an error.  In fact, queries (and commands) are protected when the
+%{\tt Varstring} or fixed string interfaces are used.  However,
+%consider what may happen when the register level interface is used.
+%In this case, a calling thread may call one or more API functions to
+%set up the registers, execute a command or query, call several more
+%API functions to obtain the output, and so on.  For this reason, if an
+%application uses API commands that depend on user manipulation of
+%registers ({\tt xsb\_command()},{\tt xsb\_query()},{\tt
+%  xsb\_query\_string()}, and {\tt xsb\_next()}) the user must ensure
+%that only one calling thread interacts with an XSB thread when that
+%thread in the course of executing a command or query.  See {\tt
+%  \$XSB\_DIR/examples/c\_calling\_xsb/cregs\_thread2.c} for an example
+%of how mutexes can be used to protect XSB threads.
+%
+%When writing multi-threaded applications in XSB, be sure to be aware
+%of how multiple threads share (and do not share) dynamic data and
+%tables.  By default dynamic predicates (and tables) are unique to a
+%given thread.  For data to be shared by multiple threads, a predicate
+%must be declared to be {\tt shared}.  See section \ref{sec:shared} for
+%details.
 
 \section{A C API for XSB} \label{sec:CAPI}
 %
@@ -820,7 +825,8 @@ is freed.
 \end{description}
 
 \subsection{Passing Commands to XSB}
-
+           {\bf {\em Unforunately, in the commands below, calling the multi-threaded XSB engine from C is no longer supported.}}
+             
 \begin{description}
 \ourCitem{int xsb\_command\_string(th\_context *th, char *cmd)}{xsb\_command\_string}
 %
@@ -883,6 +889,7 @@ codes.
 \end{description}
 
 \subsection{Querying XSB}
+           {\bf {\em Unforunately, in the commands below, calling the multi-threaded XSB engine from C is no longer supported.}}
 
 \begin{description}
 \ourCitem{int xsb\_query\_string\_string(th\_context *th, char *query, VarString *buff,char *sep)}{xsb\_query\_string\_string}
@@ -1203,6 +1210,7 @@ The {\tt th\_context} argument is used only for the multi-threaded XSB engine.
 \end{description}
 
 \subsection{Obtaining Information about Errors}
+           {\bf {\em Unforunately, in the commands below, calling the multi-threaded XSB engine from C is no longer supported.}}
 
 \begin{description}
 \ourCitem{char * xsb\_get\_init\_error\_message()}{xsb\_get\_error\_message}
@@ -1233,32 +1241,32 @@ portion of execution, messages are as in Volume 1 {\em Exception
 
 \end{description}
 
-\subsection{Thread Management from Calling Programs}
-
-\begin{description}
-
-\ourCitem{int xsb\_ccall\_thread\_create(th\_context *callingThread, th\_context **newThread)}{xsb\_ccall\_thread\_create}
+%\subsection{Thread Management from Calling Programs}
 %
-Causes {\tt callingThread} to create a thread pointed to by {\tt
-  newThread}.  {\tt newThread} runs exactly the same interpreter loop
-as {\tt callingThread} and all API functions will work on {\tt
-  newThread} just as on the main thread, or any other thread.  {\tt
-  newThread} will be non-detached, and will inherit any private
-parameters from {\tt callingThread}.  To create a thread to do a
-specific task or a detached thread, rather than one that executes a
-command loop, simply call the query {\tt thread\_create/[2,3]} from
-one of the query functions.
-
-\ourCitem{th\_context *xsb\_get\_main\_thread()}{xsb\_get\_main\_thread}
+%\begin{description}
 %
-Returns a pointer to the thread context of XSB's main thread.  If XSB
-has not been initialized or has been closed this function returns 0.
-
-\ourCitem{xsb\_tid xsb\_thread\_id\_to\_context(th\_context *th)}{xsb\_thread\_id\_to\_context}
-
-\ourCitem{th\_context *xsb\_thread\_context\_to\_id(xsb\_tid id)}{xsb\_thread\_context\_to\_id}
-
-\end{description}
+%\ourCitem{int xsb\_ccall\_thread\_create(th\_context *callingThread, th\_context **newThread)}{xsb\_ccall\_thread\_create}
+%%
+%Causes {\tt callingThread} to create a thread pointed to by {\tt
+%  newThread}.  {\tt newThread} runs exactly the same interpreter loop
+%as {\tt callingThread} and all API functions will work on {\tt
+%  newThread} just as on the main thread, or any other thread.  {\tt
+%  newThread} will be non-detached, and will inherit any private
+%parameters from {\tt callingThread}.  To create a thread to do a
+%specific task or a detached thread, rather than one that executes a
+%command loop, simply call the query {\tt thread\_create/[2,3]} from
+%one of the query functions.
+%
+%\ourCitem{th\_context *xsb\_get\_main\_thread()}{xsb\_get\_main\_thread}
+%%
+%Returns a pointer to the thread context of XSB's main thread.  If XSB
+%has not been initialized or has been closed this function returns 0.
+%
+%\ourCitem{xsb\_tid xsb\_thread\_id\_to\_context(th\_context *th)}{xsb\_thread\_id\_to\_context}
+%
+%\ourCitem{th\_context *xsb\_thread\_context\_to\_id(xsb\_tid id)}{xsb\_thread\_context\_to\_id}
+%
+%\end{description}
 
 \section{The Variable-length String Data Type}\label{sec-varstring}
 
