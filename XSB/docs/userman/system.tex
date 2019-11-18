@@ -1928,22 +1928,22 @@ Section~\ref{sec:CompilerOptions} described a way of performing
 conditional compilation using XSB's interation with GPP.  Conditional
 compilation can also be done through XSB's compiler, using the
 directives {\tt \mif{} if(+Condition)}, {\tt \mif{}
-  elseif(+Condition)}, {\tt \mif{} else}, and {\tt \mif{} endif}.  For
+  elif(+Condition)}, {\tt \mif{} else}, and {\tt \mif{} endif}.  For
 instance the fragment
 
 \begin{verbatim}
 :- if(current_prolog_flag(dialect,xsb)).
 :- include('file2.P').
-:- elseif(current_prolog_flag(dialect,swi)).
+:- elif(current_prolog_flag(dialect,swi)).
 :- include('file3.P').
 :- endif.
 \end{verbatim}
 
 allows different Prolog code to be included for XSB and for another
 Prolog.  This framework is very general: for instance, as long as {\tt
-  if...elseif...endif} blocks are not nested, any Prolog code can be
+  if...elif...endif} blocks are not nested, any Prolog code can be
 used in the consequents of the (else)if.  The condition of {\tt if/1}
-or {\tt elseif/1} can be any Prolog goal, although care should be used
+or {\tt elif/1} can be any Prolog goal, although care should be used
 in selecting {\tt Condition}.  For instance, the goal
 
 \begin{verbatim}
@@ -1955,7 +1955,7 @@ the compilation is moved, the condition might no longer be true.
 
 \begin{description}
 \repeatstandarditem{if(?Condition)}{if/1}
-\repeatstandarditem{elseif(?Condition)}{elseif/1}
+\repeatstandarditem{elif(?Condition)}{elif/1}
 \repeatstandarditem{else}{else/0}
 \standarditem{endif}{endif/0}
 %
