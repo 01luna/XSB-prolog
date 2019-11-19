@@ -16,7 +16,6 @@ test_seq.
 
 %:- dynamic p/1 as incremental.
 :- dynamic p/1 as incremental.
-%:- use_incremental_dynamic p/1.
 
 :- table t/1 as incremental.
 t(X):- p(X).
