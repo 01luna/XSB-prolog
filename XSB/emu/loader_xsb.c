@@ -1435,6 +1435,11 @@ byte *loader(CTXTdeclc char *file, int exp, prolog_term modpars) // add arg of a
     if (magic_num == 0x11121307 || magic_num == 0x11121305 || magic_num == 0x1112130a) {
       //      printf("Prolog magic num 0x%x\n",magic_num);
     char *efilename = expand_filename(file);
+    char *xwamaddr;
+    // take off trailing privatizer if nec, for messages
+    if ((xwamaddr = strstr(efilename,XSB_OBJ_EXTENSION_STRING))) {
+      *(xwamaddr+XSB_OBJ_EXTENSION_LENGTH) = '\0';
+    }
     char *filename = string_find(efilename,1);
     mem_dealloc(efilename,MAXPATHLEN,OTHER_SPACE);
     first_inst = loader1(CTXTc fd,filename,exp,is_immutable,modpars);  // pass actual par list as arg
