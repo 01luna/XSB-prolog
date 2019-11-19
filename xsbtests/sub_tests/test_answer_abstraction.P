@@ -11,7 +11,14 @@ p1(X):- data(X).
 
 data(1).
 
-test:- (p1(X),fail ; true),write_answers(test1_1,p1(X)).
+:- table p2/1 as subsumptive.
+p2(_X).
+p2(1).
+
+
+test:- (p1(X),fail ; true),write_answers(test1,p1(X)),fail.
+test:- (p2(X),fail ; true),write_answers(test2,p2(X)),fail.
+test.
 
 :- import numbervars/1 from num_vars.
 
