@@ -127,15 +127,24 @@ subtestlist=$default_subsumptive_testlist
 for tst in $subtestlist ; do
   if member "${tst}_subsumption" "$excluded_tests" ; then
     continue
-  else if member "$tst" "$testlist" ; then
-    cd $tst
-    if test -f core ; then
-	rm -f core
-    fi
-    ./stest.sh "$XEMU" "-e segfault_handler(warn). -S $options"
-    cd ..
-    fi
+  else
+      cd $tst
+      if test -f core ; then
+	  rm -f core
+      fi
+      ./stest.sh "$XEMU" "-e segfault_handler(warn). -S $options"
+      cd ..
   fi
+done
+
+subinctestlist="incremental_tests"
+for tst in $subinctestlist ; do
+      cd $tst
+      if test -f core ; then
+	  rm -f core
+      fi
+      ./stest.sh "$XEMU" "-e segfault_handler(warn).  $options"
+      cd ..
 done
 
 # now test call abstraction
