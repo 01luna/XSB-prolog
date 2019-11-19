@@ -585,7 +585,7 @@ load_object_file(FileName_O,ModPars,IfCmd,IfConsult) :-
 	 ;  catch(
 		  ll_code_call(Init, true, 2), % '_$main'
 		  Ball,
-		  local_cd_throw(CurDir,Ball)
+		  local_cd_throw(FileName_O,CurDir,Ball)
 		 )
 	),
 	local_cd(CurDir),
@@ -607,8 +607,14 @@ local_cwd(Name) :- local_sys_syscall(SYS_cwd, Res, Name, _), Res =:= 0.
 
 local_cd(Dir) :- local_sys_syscall(SYS_chdir, Res, Dir, _), Res =:= 0.
 
-local_cd_throw(Dir,Ball) :-
+local_cd_throw(FileName_O,Dir,Ball) :-
 	local_cd(Dir),
+	concat_atom(FileName_O,UFile),
+	(concat_atom([OFileN,XSB_OBJ_EXTENSION_ATOM,'.',_],UFile)
+	 -> concat_atom([OFileN,XSB_OBJ_EXTENSION_ATOM],OFile),
+	    rename_private_obj_file(UFile,OFile)
+	 ;  true
+	),
 	throw(Ball).
 
 local_is_directory(File) :- sys_system(IS_DIRECTORY, File,_,_,_,_,_).

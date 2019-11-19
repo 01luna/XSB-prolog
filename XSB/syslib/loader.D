@@ -26,7 +26,7 @@
 :- mode local_append(+,?,?).
 :- mode local_atom_codes(+,?).
 :- mode local_cd(+).
-:- mode local_cd_throw(+,?).
+:- mode local_cd_throw(+,+,?).
 :- mode local_cwd(?).
 :- mode local_file_exists(?).
 :- mode local_fmt_write(+,+,+).

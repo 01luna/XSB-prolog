@@ -112,8 +112,8 @@ variant1(X,Y,N) :-
 
 /******* Version that handles attributed variables **********/
 :- mode variant(?,?).
-variant(X,Y) :- X == Y.		% for efficiency
-variant(X,Y) :- \+ (X=Y), !, fail. % for efficiency; may call attribute handler(?)
+variant(X,Y) :- X == Y, !.		% for efficiency
+variant(X,Y) :- \+ (X=Y), !, fail. % NOT for efficiency, required; may call attribute handler(?)
 variant(X,Y) :- \+ variant1(X,Y,0,_), !, fail.
 variant(_,_).
 
