@@ -3030,9 +3030,11 @@ case WRITE_OUT_PROFILE:
 	}
       }
     } else if ((eval_meth == SUBSUMPTIVE_EVAL_METHOD) && (get_tabled(psc) != T_TABLED_SUB)) {
+#ifndef INCR_SUBST      
       if (get_incr(psc))
 	xsb_abort("cannot change %s/%n to use call subsumption as it is tabled incremental\n",
 		  get_name(psc),get_arity(psc));
+#endif      
       psc_set_tabled(psc,T_TABLED_SUB);
       /* T_TABLED if the predicate is known to be tabled, but no specific eval method */
       if (get_tip(CTXTc psc)) {

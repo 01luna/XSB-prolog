@@ -24,7 +24,6 @@
 ** 
 */
 
-
 #include "xsb_config.h"
 #include "xsb_debug.h"
 
@@ -1170,8 +1169,7 @@ static int *depth_stack;
 #include "ptoc_tag_xsb_i.h"
 extern void abolish_release_all_dls(CTXTdeclc ASI);
 
-static inline int handle_incrementally_rederived_answer(CTXTdeclc VariantSF subgoal_ptr,BTNptr Paren,int tag,
-							 xsbBool found_flag,int ans_subst_size,xsbBool * uncond_or_hasASI) {
+static inline int handle_incrementally_rederived_answer(CTXTdeclc VariantSF subgoal_ptr,BTNptr Paren,int tag, xsbBool found_flag,xsbBool * uncond_or_hasASI) {
   xsbBool rederived_flag = FALSE;
   byte choicepttype;  /* for incremental evaluation */ 
   byte typeofinstr;   /* for incremental evaluation */ 
@@ -1224,6 +1222,66 @@ static inline int handle_incrementally_rederived_answer(CTXTdeclc VariantSF subg
 	New_ALN(subgoal_ptr,answer_node,Paren,NULL);
 	SF_AppendNewAnswer(subgoal_ptr,answer_node);
       }
+    return rederived_flag;
+}
+    
+int subsumptive_handle_incrementally_rederived_answer(CTXTdeclc VariantSF subgoal_ptr,BTNptr Paren,xsbBool found_flag) {
+  xsbBool rederived_flag = FALSE;
+  byte choicepttype;  /* for incremental evaluation */ 
+  byte typeofinstr;   /* for incremental evaluation */ 
+  ALNptr answer_node;
+  
+  /* If a new answer is inserted, the call is changed */
+    if((IsNonNULL(subgoal_ptr->callnode->prev_call))&&(found_flag==0)){
+      subgoal_ptr->callnode->prev_call->changed=1;
+      debug_incr(("call was changed\n"));
+    }
+
+    /* The answer already exists and is marked deleted, which means it
+       is rederiving an old answer. In this case we remove the
+       deletion marking and reduce no_of_answers.
+
+       If the answer is conditional, we need to remove its delay
+       lists: we'll regenerate them again.  uncond_or_hasASI is a new
+       flag to ensure that do_delay_stuff() traverses the correct
+       paths, adding delay lists and/or simplifying
+    */
+    if((found_flag==1) && (IsDeletedNode(Paren))){
+      if (is_conditional_answer(Paren) && delayreg) {
+	abolish_release_all_dls(CTXTc Delay(Paren));
+	//	print_pdes(asi_pdes(Delay(Paren)));
+	asi_dl_list(Delay(Paren)) = NULL;
+      }
+
+      // uncond_or_hasASI is true by default
+      //      if (!is_conditional_answer(Paren) || delayreg)  {
+      //      	*uncond_or_hasASI = FALSE;	
+      //      } 
+
+      choicepttype = 0x3 &  BTN_Instr(Paren);
+      typeofinstr = (~0x3) & BTN_Status(Paren);
+      BTN_Instr(Paren) = choicepttype | typeofinstr;
+      MakeStatusValid(Paren);
+      
+      found_flag=0;
+
+      subgoal_ptr->callnode->prev_call->no_of_answers--;
+
+      // This handles the case of deleted nodes -- really new nodes will be handled in table_answer_search
+      New_ALN(subgoal_ptr,answer_node,Paren,NULL);
+      SF_AppendNewAnswer(subgoal_ptr,answer_node);	
+      rederived_flag  = TRUE;
+    }
+    //    else
+    //      if ( found_flag == 0 ) {
+    //	MakeTSTNLeafNode(Paren);
+    //	TN_UpgradeInstrTypeToSUCCESS(Paren,tag);
+    //#if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
+    //	ans_inserts++;
+    //#endif
+    //	New_ALN(subgoal_ptr,answer_node,Paren,NULL);
+    //	SF_AppendNewAnswer(subgoal_ptr,answer_node);
+    //}
     return rederived_flag;
 }
     
@@ -1495,7 +1553,7 @@ BTNptr variant_answer_search(CTXTdeclc int ans_sf_size, int attv_num, CPtr ans_s
   }
  
   if(IsIncrSF(subgoal_ptr)){
-    rederived_flag = handle_incrementally_rederived_answer(CTXTc subgoal_ptr,Paren,tag,found_flag,ans_sf_size,uncond_or_hasASI);
+    rederived_flag = handle_incrementally_rederived_answer(CTXTc subgoal_ptr,Paren,tag,found_flag,uncond_or_hasASI);
     
   } else
   /*  If an insertion was performed, do some maintenance on the new leaf,
@@ -1706,7 +1764,7 @@ void add_empty_conditional_answer (CTXTdeclc int ans_subst_size,VariantSF subgoa
   schedule_ec(subgoal_ptr); 
 
   if(IsIncrSF(subgoal_ptr)){
-    handle_incrementally_rederived_answer(CTXTc subgoal_ptr,Paren,tag,found_flag,ans_subst_size,&uncond_or_hasASI);
+    handle_incrementally_rederived_answer(CTXTc subgoal_ptr,Paren,tag,found_flag,&uncond_or_hasASI);
   } else {
   /*  If an insertion was performed, do some maintenance on the new
    *  leaf, and place the answer handle onto the answer list. (Also

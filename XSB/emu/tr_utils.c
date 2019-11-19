@@ -4376,6 +4376,7 @@ int abolish_nonincremental_tables(CTXTdeclc int incomplete_action)
 	if (type == T_DYNA || type == T_PRED) {
 	  if (!get_data(psc) || isstring(get_data(psc)) ||!strcmp(get_name(get_data(psc)),"usermod") ||  !strcmp(get_name(get_data(psc)),"global"))
 	    if (get_tabled(psc) && !get_incr(psc)) {
+	      //	      printf("%s/%d tabled %d incr %d\n",get_name(psc),get_arity(psc),get_tabled(psc),get_incr(psc));
 	      tif = get_tip(CTXTc psc);
 	      if (tif) {
 		if (IsVariantPredicate(tif)) {
@@ -4897,16 +4898,21 @@ void abolish_all_tables(CTXTdeclc int action) {
 
 /* Checks are either done in abolish_call or in throw
    Do not delete branch here, as this may be called by gc. */
-void abolish_incremental_call_single_nocheck_no_nothin(CTXTdeclc VariantSF goal, int cond_warn_flag) {
+void abolish_incremental_call_single_nocheck_no_nothin(CTXTdeclc VariantSF subgoal, int cond_warn_flag) {
   #ifdef DEBUG_ABOLISH
-  abolish_dbg(("abolish incr call single: %p ",goal)); print_subgoal(CTXTc stddbg,goal); 
+  abolish_dbg(("abolish incr call single: %p ",subgoal)); print_subgoal(CTXTc stddbg,subgoal); 
   //  printf("(id %d flag %d)\n",callnode->id,invalidate_flag);
   //  print_call_list(CTXTc affected_gl," affected_gl ");
   #endif
-  SET_TRIE_ALLOCATION_TYPE_SF(goal); // set smBTN to private/shared
+  SET_TRIE_ALLOCATION_TYPE_SF(subgoal); // set smBTN to private/shared
   //  tif = subg_tif_ptr(goal);
   //  delete_branch(CTXTc goal->leaf_ptr, &tif->call_trie,VARIANT_EVAL_METHOD); /* delete call */
-  delete_variant_call(CTXTc goal,cond_warn_flag); // delete answers + subgoal
+  if (IsVariantSF(subgoal)) {
+    delete_variant_call(CTXTc subgoal,cond_warn_flag); // delete answers + subgoal
+  }
+  else {
+    delete_subsumptive_call(CTXTc (SubProdSF) subgoal);
+  }
   abolish_dbg(("end aics\n"));
 }
 

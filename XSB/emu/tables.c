@@ -291,7 +291,7 @@ int subsumptive_handle_incremental_recomputation(CallLookupResults *results) {
     /*
       In call check insert if a call is reinserted and was already
       invalidated (falsecount>0) we mark all the answers deleted and
-      make sure this call is treated as a new call (flag=0) 
+      make sure this call is treated as a new call (flag=call_found_flag=0) 
       
       If falsecount=0 that means the call is not affected then it
       should fetch answers from the earlier answer table as any
@@ -306,23 +306,18 @@ int subsumptive_handle_incremental_recomputation(CallLookupResults *results) {
       old_call_gl=NULL;
       old_answer_table_gl=NULL;
       
-      //#ifdef DEBUG_INCR
-      //      if (IsNonNULL(c))  {
-      //      	printf("        checking the incremental goal flscnt %d ",c->falsecount);
-      //      	print_subgoal(stddbg,sf);printf("\n");
-      //      }
-      //#endif      
       /* TES: if falsecount == 0 && call_found_flag, we know that call
-         is complete.  Otherwise, dfs_outedges would have aborted */
+         is complete.  Otherwise, dfs_outedges would have aborted.
+         Also note that the SubsConsSF frame is small, and does not
+         contain a callnode, so we need to be careful here.  */
       if (IsNonNULL(sf)) {
 	c=sf->callnode;
       }
-  
+      
       if(IsNonNULL(c) && !IsSubConsSF(sf) && (c->falsecount!=0)){
 	debug_incr(("           recomputing (recmptable = %s)\n",c->recomputable==COMPUTE_DEPENDENCIES_FIRST?"compute_deps":"direct recomp"));
 	debug_incr(("           "));incr_print_subgoal((sf));debug_incr((" (sf %p)\n",sf));
 	if (c->recomputable == COMPUTE_DEPENDENCIES_FIRST) {
-	  //	  printf("           computing dependencies\n");
 	  lazy_affected = empty_calllist(CTXT);
 	  if ( !dfs_dependency_edges(CTXTc c,  &lazy_affected, CALL_LIST_EVAL) ) {
 	    CallLUR_Subsumer(*results) = CallTrieLeaf_GetSF(Paren);
@@ -638,11 +633,11 @@ BTNptr table_answer_search(CTXTdeclc VariantSF producer, int size, int attv_num,
 	do_delay_stuff(CTXTc (NODEptr)answer, producer, wasFound);
       }
       else {
-	debug_incr(("hasASI %d found %d delay %p\n",hasASI,wasFound,delayreg));
-	//	if (!is_conditional_answer(BTN_Parent(((NODEptr)answer))) || delayreg)  {
-	if (!is_conditional_answer(BTN_Parent(((NODEptr)answer))) )  {
+	if (!is_conditional_answer(BTN_Parent(((NODEptr)answer))) || delayreg)  {
+	//	if (!is_conditional_answer(BTN_Parent(((NODEptr)answer))) )  {
 	  hasASI = FALSE;	
 	} 
+	debug_incr(("hasASI %d found %d delay %p\n",hasASI,wasFound,delayreg));
 	do_delay_stuff(CTXTc (NODEptr)answer, producer, (hasASI & wasFound));
       }
     // do_delay_stuff(CTXTc (NODEptr)answer, producer, wasFound);

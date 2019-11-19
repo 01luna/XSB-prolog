@@ -293,8 +293,7 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
      }
      else { /* ret == XSB_SPECIAL_RETURN: needs incr reeval */
        Psc psc = (Psc) pflags[LAZY_REEVAL_INTERRUPT+INT_HANDLERS_FLAGS_START];
-       //       printf("setting up lazy reeval for ");
-       //       print_subgoal(stddbg,CallLUR_Subsumer(lookupResults));printf("\n");
+       debug_incr(("setting up lazy reeval for "));incr_print_subgoal(CallLUR_Subsumer(lookupResults));debug_incr(("\n"));
        bld_cs(reg+1, build_call(CTXTc TIF_PSC(tip)));
        bld_int(reg+2, 0);
        lpcreg = get_ep(psc);
@@ -444,7 +443,10 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
   } /* end new producer case */
 
   else if ( is_completed(producer_sf) ) {
-
+#ifdef DEBUG_INCR
+    if (IsSubProdSF( producer_sf))
+      traverse_materialized_consumers((SubProdSF) producer_sf);
+#endif
     LOG_TABLE_CALL("cmp");
     //    printf("completed table "); print_n_registers(stddbg, 6 , 8);printf("\n");
 
@@ -546,7 +548,7 @@ if ((ret = table_call_search(CTXTc &callInfo,&lookupResults))) {
 		   CallInfo_TableInfo(callInfo), producer_sf );
     SUBG_INCREMENT_CALLSTO_SUBGOAL(producer_sf);
 
-}
+  }
 
   
   /*
@@ -782,9 +784,10 @@ XSB_Start_Instr(tabletrysinglenoanswers,_tabletrysinglenoanswers)
   Op1(get_xxxxl);
   tip =  (TIFptr) get_xxxxl;
 
-//  printf("TTSNY: Subgoal Depth %d\n",TIF_SubgoalDepth(tip));
+//  printf("TTSNA: Subgoal Depth %d\n",TIF_SubgoalDepth(tip));
   if ( TIF_SubgoalDepth(tip) == 65535) {
     int i;
+    //    printf("abstracting\n");
     //    new_heap_functor(hreg, TIF_PSC(tip)); /* set str psc ptr */
     CallInfo_Arguments(callInfo) = hreg;
     for (i=1; i <= (int)get_arity(TIF_PSC(tip)); i++) {
@@ -1077,13 +1080,10 @@ XSB_Start_Instr(new_answer_dealloc,_new_answer_dealloc)
   producer_sf = (VariantSF)cell(ereg-Yn);
   producer_cpf = subg_cp_ptr(producer_sf);
 
-#ifdef DEBUG_DELAYVAR
-  printf(">>>> New answer for %s subgoal: ",
-	 (is_completed(producer_sf) ? "completed" : "incomplete"));
-  fprintf(stddbg, ">>>> ");
-  dbg_print_subgoal(LOG_DEBUG, stddbg, producer_sf);
-  xsb_dbgmsg((LOG_DEBUG,">>>> has delayreg = %p", delayreg));
-#endif
+//  printf(">>>> New answer for %s subgoal: ",
+//	 (is_completed(producer_sf) ? "completed" : "incomplete"));
+//  fprintf(stddbg, ">>>> ");
+//  print_subgoal(stddbg, producer_sf);
 
   producer_csf = subg_compl_stack_ptr(producer_sf);
 
@@ -1173,7 +1173,10 @@ if (wasRederived) {
 
     SUBG_INCREMENT_ANSWER_CTR(producer_sf,template_size);
     /* incremental evaluation */
-    if(IsIncrSF(producer_sf)) subg_callnode_ptr(producer_sf)->no_of_answers++;
+    if(IsIncrSF(producer_sf)) {
+      subg_callnode_ptr(producer_sf)->no_of_answers++;
+      debug_incr(("number of answers %d\n",subg_callnode_ptr(producer_sf)->no_of_answers));
+    }
 
     delayreg = tcp_pdreg(producer_cpf);      /* restore delayreg of parent */
     if (is_conditional_answer(answer_leaf)) {   /* positive delay */

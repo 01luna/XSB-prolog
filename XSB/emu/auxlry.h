@@ -134,7 +134,7 @@ noticed and needed. */
 
 //#define GC_TEST 1
 
-//#define INCR_SUBST
+#define INCR_SUBST
 //#define DEBUG_INCR
 #ifdef DEBUG_INCR
 #define debug_incr(X) printf X
