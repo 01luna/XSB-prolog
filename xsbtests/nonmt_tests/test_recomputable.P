@@ -1,8 +1,11 @@
 %:- import start_forest_view/1 from tables.
 %?- start_forest_view(userout).
-
+:- import prepare/1 from gensym.
 :- import print_idg_info/0 from tables.
 :- import incr_is_invalid/3 from increval.
+
+?- prepare(100).
+
 test:- add,show(1),
         add,show(2),
         refresh(1),
