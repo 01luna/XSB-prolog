@@ -679,8 +679,36 @@ read_handler(error(_,context(Message,_Trace))) :-
         error_writeln(Message),
         fail.
 
-/* ---------------------- end of file string.P ------------------------ */
+%---------
+   
+:- mode split_atom(+,+,?).
+split_atom(Atom,Sep,List_of_atoms):-
+    check_nonvar(Atom,split_atom/3,1),
+    check_nonvar(Sep,split_atom/3,2),
+    atom_chars(Atom,List_of_chars),
+    split_atom_1(List_of_chars,Sep,List_of_strings),
+    atomize_list(List_of_strings,List_of_atoms).
+   
+split_atom_1([],_Sep,[]).
+split_atom_1(InList,Sep,[String|Rest]):- 
+    split_atom_2(InList,Sep,String,MidList),
+    split_atom_1(MidList,Sep,Rest).
 
+split_atom_2([],_Sep,[],[]):- !.
+split_atom_2([Sep|R],Sep,[],R):- !.
+split_atom_2([Char|RestAtom],Sep,[Char|RestString],Remaining):- 
+    split_atom_2(RestAtom,Sep,RestString,Remaining).
+
+atomize_list([],[]).
+atomize_list([String|Strings],Atoms):-
+    (String = [] -> 
+       atomize_list(Strings,Atoms)
+     ; atom_chars(Atom,String),
+       Atoms = [Atom|Atoms1],
+       atomize_list(Strings,Atoms1) ).
+
+
+/* ---------------------- end of file string.P ------------------------ */
 end_of_file.
 
 term_to_codes(Term,Structure,Var0,Var,Codes0,Codes) :-
