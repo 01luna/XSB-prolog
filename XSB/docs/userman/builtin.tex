@@ -376,7 +376,9 @@ the addition:
 \item {\tt domain\_error(stream\_option,O)}
 \ei
 \item An element of {\tt OptionsList} is alias(A) and A is already
-  associated with an existing thread, queue, mutex or stream 
+  associated with an existing
+  %thread,
+  queue, mutex or stream 
 \bi
 \item {\tt permission\_error(create,alias, A)}
 \ei
@@ -4157,10 +4159,11 @@ unification.
 %-----------------------------------------------------------------------------------------------
 \section{Manipulation of Atomic Terms}
 
-This section lists some of XSB's standard predicates for manipulating
-atomic terms.  See also in Volume 2, Section 1.5 for other library
-predicates. Section 7 for wildcard matching, and Section 8 for an
-interfae to the PCRE library.
+This section lists some of XSB's predicates for manipulating atomic
+terms.  For other libraries pertaining to atoms, see
+Chapter~\ref{library_utilities} along with Volume 2, Chapter 7 7 for
+wildcard matching, and Volume 2 Section 8 for an interfae to the PCRE
+library.
 
 \begin{description}
 \index{Unicode!UTF-8}
@@ -4501,12 +4504,14 @@ L = 9
 
 \ourmoditem{concat\_atom(+AtomList,?Atom)}{concat\_atom/2}{string}
 %
-If {\tt Atom} is a variable, then
-{\tt AtomList} must be a list structure containing atoms, integers
-and/or floats.  This predicate flattens {\tt AtomList} and
-concatenates the atoms and integers into a single atom, returned in
-{\tt Atom}.  Integers and floats are converted to character strings
-using {\tt number\_codes/2}.
+If {\tt Atom} is a variable, then {\tt AtomList} must be a list
+structure containing atoms, integers and/or floats.  This predicate
+flattens {\tt AtomList} and concatenates the atoms and integers into a
+single atom, returned in {\tt Atom}.  Integers and floats are
+converted to character strings using {\tt
+  number\_codes/2}. \footnote{Admittedly, the module {\tt string}
+  should have been named something else, but it's too late to change
+  the name.}
 
 If {\tt Atom} is an atom, then {\tt AtomList} must be a list
 containing atoms, and/or variables.  In this case {\tt atom\_codes}
