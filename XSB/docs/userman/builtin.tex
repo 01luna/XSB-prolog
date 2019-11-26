@@ -4859,6 +4859,12 @@ defined using the default options for {\tt term\_to\_atom/3},
 e.g. {\tt ignore\_ops(canonical)}, {\tt quoted(false)}, and {\tt
   numbervars(false)}.
 
+\ourmoditem{split\_atom(+Atom,+Sep,-AtomList)}{split\_atom/3}{string}
+%
+Splits the atom, {\tt Atom} into a list of atoms using the separator
+character {\tt Sep}.  In this manner its functionality is similar to
+the split methods in Python, Java and other languages.
+
 \standarditem{gc\_atoms}{gc\_atoms/0}
 \index{garbage collection!atoms}
 \index{Prolog flags!{\tt atom\_garbage\_collection}}
