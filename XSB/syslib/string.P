@@ -689,7 +689,7 @@ split_atom(Atom,Sep,List_of_atoms):-
     split_atom_1(List_of_chars,Sep,List_of_strings),
     atomize_list(List_of_strings,List_of_atoms).
    
-split_atom_1([],_Sep,[]).
+split_atom_1([],_Sep,[]):- !.
 split_atom_1(InList,Sep,[String|Rest]):- 
     split_atom_2(InList,Sep,String,MidList),
     split_atom_1(MidList,Sep,Rest).
