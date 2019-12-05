@@ -347,9 +347,10 @@ read5(_Token, S0, _, _, _) :-
 % handling of atoms who also happen to be operators with precedence > 1000.
 % by Kostis.
 avoid_nonsense_parentheses([punc(Punc)|_]) :-
-	!,
+	!, 
 	Punc =\= CH_RPAREN, Punc =\= CH_COMMA,
-	Punc =\= CH_RBRACKET, Punc =\= CH_BAR.
+	Punc =\= CH_RBRACKET, Punc =\= CH_BAR,
+	Punc =\= CH_SEMICOL.
 avoid_nonsense_parentheses(_).
 
 %   rest_read_structure(+Functor, +FirstArg, +TermList, 

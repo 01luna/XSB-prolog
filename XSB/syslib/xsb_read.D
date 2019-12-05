@@ -81,8 +81,8 @@
 :- mode_on_success print_token(A).
 :- mode_on_success read4(A,B,C,A).
 :- mode_on_success read4(ng,A,B,C).
-:- mode_on_success read5(A,B,C,D,B).
 :- mode_on_success read5(A,ng,B,C,D).
+:- mode_on_success read5(A,B,C,D,B).
 :- mode_on_success 'read=..'(A,B).
 :- mode_on_success read_add(A,g).
 :- mode_on_success read_add(ng,ng).
