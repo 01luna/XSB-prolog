@@ -1070,6 +1070,15 @@ contcase:     /* the main loop */
     new_heap_free(hreg);
   XSB_End_Instr()
 
+  XSB_Start_Instr(bldkavars,_bldkavars) /* PPR */
+    Def1op
+    Op1(get_xxa);
+    ADVANCE_PC(size_xxx);
+    while (op1-- > 0) {
+      new_heap_free(hreg);
+    }
+  XSB_End_Instr()
+
   XSB_Start_Instr(bldtval,_bldtval) /* PPR */
     Def1op
     Op1(Register(get_xxr));

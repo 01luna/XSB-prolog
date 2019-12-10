@@ -49,8 +49,8 @@ XSB_INST(0x27, getinternstr, _getinternstr, PP, R, H,X); // H for interned_term
 XSB_INST(0x28, uniinternstr, _uniinternstr, PPP, H, X,X);
 XSB_INST(0x29, bldinternstr, _bldinternstr, PPP, H, X,X);
 XSB_INST(0x2a, unikavars, _unikavars, PP, A,X,X);
+XSB_INST(0x2b, bldkavars, _bldkavars, PP, A,X,X);
 
-XSB_INST(0x2b, no_inst, _no_inst, PPP,X,X,X);
 XSB_INST(0x2c, cmpreg,  _cmpreg,  P,R,R,X);
 XSB_INST(0x2d, addintfastuni, _addintfastuni, RRR,X,X,X);
 XSB_INST(0x2e, addintfastasgn, _addintfastasgn, RRR,X,X,X);

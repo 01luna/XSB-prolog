@@ -225,6 +225,7 @@ extern Cell inst_table[BUILTIN_TBL_SZ][5];
 #define uniinternstr	0x28
 #define bldinternstr	0x29
 #define unikavars	0x2a /* k consecutive uniavar's */
+#define bldkavars	0x2b /* k consecutive bldavar's */
 
 #define cmpreg		0x2c /* numeric compare op1 to op2 and put -1,0,1 in op2, op2 cmp op1 */
 #define addintfastuni	0x2d /* add int to t/p var and unify with t/p var */
