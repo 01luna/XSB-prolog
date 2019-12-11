@@ -1011,6 +1011,8 @@ order_insert(ACVs,V,NVs) :-
 
 %%:- table hash_key/2. % breaks it, why? Certainly looks like a
 %%bug. Maybe complications with in_db metainterp
+%%#define HASHBASE 536870027
+
 hash_key(Key,HashCode) :-
     (Key @= functor(_,_,_)
      ->	Key = functor(_Mod,Fun,_Ari),
@@ -3616,7 +3618,7 @@ findall_db(Template,Goal,DB) :-
 	new_db(DB)
     ).
     
-:- table findall_db0(_,_,fold(add_to_db(_,_,_),0)).
+:- table findall_db0(_,_,fold(add_to_db(_,_,_),[])).
 findall_db0(Template,Goal,NTemplate) :-
     copy_term((Template,Goal),(NTemplate,NGoal)), % need copy to call
     numbervars((Template,Goal),0,_), % aggr doesnt handle vars in group-by vars
@@ -3625,11 +3627,7 @@ findall_db0(Template,Goal,NTemplate) :-
 :- export add_to_db/3.
 :- mode add_to_db(+,+,?).
 add_to_db(DB0,Ans,DB) :-
-    (DB0 == 0
-     ->	new_db(IDB), assert1_in_db(Ans,IDB,DB)
-     ;	assert1_in_db(Ans,DB0,DB)
-    ).
-
+    assert1_in_db(Ans,DB0,DB).
 
 /********************************************************/
 
