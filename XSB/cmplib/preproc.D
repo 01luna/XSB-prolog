@@ -31,8 +31,8 @@
 :- mode_on_success have_hardcut_1(A,g).
 :- mode_on_success inline_test(g,g).
 :- mode_on_success pre_body(A,B,C).
-:- mode_on_success pre_clauses(A,A).
 :- mode_on_success pre_clauses(A,ng).
+:- mode_on_success pre_clauses(A,A).
 :- mode_on_success pre_clauses(ng,A).
 :- mode_on_success pre_cutclauses(A,B).
 :- mode_on_success pre_else(g,A,B,g).

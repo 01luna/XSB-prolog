@@ -76,6 +76,9 @@ compile_popt11(getpvar(V,R), [getpvar(V1,R1)|PilRest], [getkpvars(Cnt,V,R)|OptPi
 compile_popt11(uniavar, [uniavar|PilRest], [unikavars(Cnt)|OptPilRest]) :-
 	trim_count_uniavars(PilRest,2,Cnt,PilRest1),
 	compile_popt1(PilRest1,OptPilRest).
+compile_popt11(bldavar, [bldavar|PilRest], [bldkavars(Cnt)|OptPilRest]) :-
+	trim_count_bldavars(PilRest,2,Cnt,PilRest1),
+	compile_popt1(PilRest1,OptPilRest).
 compile_popt11(getpvar(V,R), [putpval(V,R)|PilRest], OptPilRest) :-
 	compile_popt1([getpvar(V,R)|PilRest], OptPilRest).
 compile_popt11(putpvar(V,R), [getpval(V,R)|PilRest],
@@ -343,6 +346,17 @@ trim_count_uniavars(PilInsts,Cnt0,Cnt,OutPilRest) :-
 	 ;	(PilInsts = [uniavar|PilRest]
 		 ->	Cnt1 is Cnt0+1,
 			trim_count_uniavars(PilRest,Cnt1,Cnt,OutPilRest)
+		 ;	Cnt = Cnt0,
+			OutPilRest = PilInsts
+		)
+	).
+
+trim_count_bldavars(PilInsts,Cnt0,Cnt,OutPilRest) :-
+	(PilInsts == []
+	 ->	Cnt = Cnt0, OutPilRest = []
+	 ;	(PilInsts = [bldavar|PilRest]
+		 ->	Cnt1 is Cnt0+1,
+			trim_count_bldavars(PilRest,Cnt1,Cnt,OutPilRest)
 		 ;	Cnt = Cnt0,
 			OutPilRest = PilInsts
 		)

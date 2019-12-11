@@ -112,17 +112,17 @@
 :- mode_on_success 'index euristic'(g,g,g,g).
 :- mode_on_success index_euristic(A,g).
 :- mode_on_success initialise.
-:- mode_on_success 'interesting calls'(A,ng,B).
-:- mode_on_success 'interesting calls'(A,g,g).
-:- mode_on_success 'interesting calls'(ng,g,ng).
-:- mode_on_success interesting_calls(A,B,g).
-:- mode_on_success interesting_calls(A,ng,A).
+:- mode_on_success 'interesting calls'(g,A,g).
+:- mode_on_success 'interesting calls'(g,ng,ng).
+:- mode_on_success 'interesting calls'(ng,A,B).
 :- mode_on_success interesting_calls(A,ng,ng).
+:- mode_on_success interesting_calls(A,ng,A).
+:- mode_on_success interesting_calls(A,B,g).
 :- mode_on_success interesting_calls(ng,A,ng).
 :- mode_on_success interesting_calls(ng,ng,A).
-:- mode_on_success interesting_indeed(g,g,g).
-:- mode_on_success interesting_indeed(g,ng,A).
-:- mode_on_success interesting_indeed(ng,A,ng).
+:- mode_on_success interesting_indeed(A,ng,ng).
+:- mode_on_success interesting_indeed(g,A,g).
+:- mode_on_success interesting_indeed(ng,g,ng).
 :- mode_on_success make_arg_vars_unique(A,g,A).
 :- mode_on_success make_new_arg(g,A,B,B).
 :- mode_on_success make_new_arg(ng,A,ng,B).
@@ -130,23 +130,21 @@
 :- mode_on_success make_new_args(g,A,B,B).
 :- mode_on_success make_new_args(ng,A,ng,B).
 :- mode_on_success make_new_args(ng,ng,A,A).
-:- mode_on_success make_special_call(g,A,B,B).
-:- mode_on_success make_special_call(ng,g,A,ng).
+:- mode_on_success make_special_call(A,B,ng,ng).
+:- mode_on_success make_special_call(g,A,g,g).
+:- mode_on_success make_special_call(ng,g,g,ng).
 :- mode_on_success make_special_call(ng,ng,g,A).
-:- mode_on_success make_special_call(ng,ng,ng,ng).
+:- mode_on_success make_special_calls(A,B,ng,ng).
 :- mode_on_success make_special_calls(g,A,B,g).
-:- mode_on_success make_special_calls(g,A,ng,ng).
-:- mode_on_success make_special_calls(ng,g,A,ng).
+:- mode_on_success make_special_calls(ng,g,g,ng).
 :- mode_on_success make_special_calls(ng,ng,g,A).
-:- mode_on_success make_special_calls(ng,ng,ng,ng).
 :- mode_on_success make_special_clauses(g,A,g,g).
 :- mode_on_success make_special_clauses(ng,A,ng,B).
 :- mode_on_success make_special_clauses(ng,ng,g,g).
+:- mode_on_success make_special_pred(A,B,ng,ng).
 :- mode_on_success make_special_pred(g,A,g,B).
-:- mode_on_success make_special_pred(g,A,ng,ng).
-:- mode_on_success make_special_pred(ng,g,A,ng).
+:- mode_on_success make_special_pred(ng,g,g,ng).
 :- mode_on_success make_special_pred(ng,ng,g,A).
-:- mode_on_success make_special_pred(ng,ng,ng,ng).
 :- mode_on_success 'merge calls'(A,B,ng).
 :- mode_on_success 'merge calls'(g,g,g).
 :- mode_on_success merge_calls(A,ng).
@@ -162,11 +160,11 @@
 :- mode_on_success needs_new_body(A,g,B,ng,ng,g).
 :- mode_on_success needs_new_body(ng,g,ng,A,B,g).
 :- mode_on_success needs_new_body(ng,ng,A,B,C,g).
-:- mode_on_success 'new clause list'(A,ng,B,ng,g).
 :- mode_on_success 'new clause list'(A,B,C,D,D).
 :- mode_on_success 'new clause list'(g,g,g,ng,g).
+:- mode_on_success 'new clause list'(g,ng,A,ng,g).
+:- mode_on_success 'new clause list'(ng,A,B,ng,g).
 :- mode_on_success 'new clause list'(ng,g,A,g,ng).
-:- mode_on_success 'new clause list'(ng,g,A,ng,g).
 :- mode_on_success new_clause_list(A,B,B).
 :- mode_on_success new_clause_list(A,ng,B).
 :- mode_on_success new_clause_list(ng,g,ng).

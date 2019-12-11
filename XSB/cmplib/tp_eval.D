@@ -32,8 +32,8 @@
 :- mode_on_success arithrelop(g).
 :- mode_on_success 'eval relop'(g,A,B,C,D,ng,ng,E,E,F).
 :- mode_on_success 'eval relop'(g,A,B,C,D,D,g,E,E,F).
-:- mode_on_success 'eval relop'(g,A,ng,B,C,ng,ng,D,ng,E).
 :- mode_on_success 'eval relop'(g,A,ng,B,g,C,g,D,D,E).
+:- mode_on_success 'eval relop'(g,A,ng,B,C,ng,ng,D,ng,E).
 :- mode_on_success 'eval relop'(g,A,ng,B,C,ng,g,D,ng,E).
 :- mode_on_success 'eval relop'(g,ng,A,B,C,ng,g,D,D,E).
 :- mode_on_success 'eval relop'(g,ng,A,B,C,ng,D,E,ng,F).
@@ -44,10 +44,10 @@
 :- mode_on_success eval_arithreloptab(g,A,B,ng,ng).
 :- mode_on_success eval_arithreloptab(g,A,ng,g,ng).
 :- mode_on_success eval_binop(g).
+:- mode_on_success eval_binop(g,A,B,g,C,C,D,E,E,F).
 :- mode_on_success eval_binop(g,A,ng,g,ng,B,C,D,D,E).
 :- mode_on_success eval_binop(g,A,ng,g,ng,B,C,D,ng,E).
 :- mode_on_success eval_binop(g,A,ng,g,B,g,C,g,g,D).
-:- mode_on_success eval_binop(g,A,B,g,C,C,D,E,E,F).
 :- mode_on_success eval_binop(g,ng,A,g,ng,B,C,g,ng,D).
 :- mode_on_success eval_binop(g,ng,A,g,ng,B,C,g,g,D).
 :- mode_on_success eval_binop(g,ng,A,g,B,g,C,g,g,D).
@@ -71,8 +71,8 @@
 :- mode_on_success eval_numgetinst(ng,g,A,g,g,g).
 :- mode_on_success eval_numgetinst(ng,g,ng,A,g,g).
 :- mode_on_success eval_relop(g,A,B,C,ng,ng,D,E,E,F).
-:- mode_on_success eval_relop(g,A,B,C,g,g,g,D,D,E).
 :- mode_on_success eval_relop(g,A,B,C,D,ng,ng,E,E,F).
+:- mode_on_success eval_relop(g,A,B,C,g,g,g,D,D,E).
 :- mode_on_success eval_relop(g,A,ng,B,g,ng,C,D,D,E).
 :- mode_on_success eval_relop(g,A,ng,B,g,C,g,D,D,E).
 :- mode_on_success eval_relop(g,A,ng,B,C,ng,g,D,ng,E).
@@ -85,8 +85,8 @@
 :- mode_on_success eval_uniop(g,A,g,B,B,C,D,D,E).
 :- mode_on_success eval_uniop(g,ng,A,B,B,C,D,D,E).
 :- mode_on_success eval_uniop(g,ng,g,A,g,B,g,g,C).
-:- mode_on_success eval_uniop(g,ng,g,ng,A,B,g,g,C).
 :- mode_on_success eval_uniop(g,ng,g,ng,A,B,g,ng,C).
+:- mode_on_success eval_uniop(g,ng,g,ng,A,B,g,g,C).
 :- mode_on_success eval_uniop(g,ng,ng,ng,A,B,C,C,D).
 :- mode_on_success eval_var(A,g,B,B,C,C,D).
 :- mode_on_success eval_var(ng,A,B,B,C,C,D).
@@ -99,39 +99,39 @@
 :- mode_on_success eval_var_target(ng,A,g,g,B,B,C).
 :- mode_on_success force_tp_eval_loaded.
 :- mode_on_success geninline_isindeed(A,B,C,D,D,E,E,F).
-:- mode_on_success geninline_isindeed(A,ng,B,ng,C,D,ng,E).
 :- mode_on_success geninline_isindeed(A,ng,B,ng,C,D,D,E).
+:- mode_on_success geninline_isindeed(A,ng,B,ng,C,D,ng,E).
 :- mode_on_success geninline_isindeed(A,ng,B,C,g,g,g,D).
 :- mode_on_success geninline_isindeed(ng,A,B,ng,C,D,D,E).
 :- mode_on_success geninline_isindeed(ng,A,B,C,g,D,D,E).
 :- mode_on_success int_eq(g,A,A).
 :- mode_on_success isindeed_binary(A,g,g,ng,B,C,g,g,g,D).
+:- mode_on_success isindeed_binary(A,g,ng,g,B,ng,C,D,ng,E).
+:- mode_on_success isindeed_binary(A,g,ng,g,B,ng,C,D,D,E).
+:- mode_on_success isindeed_binary(A,g,B,ng,C,ng,D,E,ng,F).
+:- mode_on_success isindeed_binary(A,g,B,ng,C,ng,D,E,E,F).
 :- mode_on_success isindeed_binary(A,g,ng,B,C,ng,D,g,ng,E).
 :- mode_on_success isindeed_binary(A,g,ng,B,C,ng,D,g,g,E).
 :- mode_on_success isindeed_binary(A,g,B,C,D,E,E,F,F,G).
 :- mode_on_success isindeed_binary(A,g,ng,B,C,D,g,g,g,E).
-:- mode_on_success isindeed_binary(A,g,B,ng,C,ng,D,E,ng,F).
-:- mode_on_success isindeed_binary(A,g,B,ng,C,ng,D,E,E,F).
-:- mode_on_success isindeed_binary(A,g,ng,g,B,ng,C,D,ng,E).
-:- mode_on_success isindeed_binary(A,g,ng,g,B,ng,C,D,D,E).
-:- mode_on_success isindeed_binary(ng,g,A,B,C,D,g,E,E,F).
 :- mode_on_success isindeed_binary(ng,g,A,B,C,ng,D,E,E,F).
+:- mode_on_success isindeed_binary(ng,g,A,B,C,D,g,E,E,F).
 :- mode_on_success isindeed_int(A,B,C,D,D,E,E,F).
 :- mode_on_success isindeed_int(A,ng,B,ng,g,g,g,C).
 :- mode_on_success isindeed_int(ng,A,B,ng,C,g,g,D).
 :- mode_on_success isindeed_real(A,B,C,D,D,E,E,F).
 :- mode_on_success isindeed_real(A,ng,B,ng,g,g,g,C).
 :- mode_on_success isindeed_real(ng,A,B,ng,C,g,g,D).
-:- mode_on_success isindeed_struct(A,ng,B,C,g,g,g,D,E).
-:- mode_on_success isindeed_struct(A,ng,B,ng,C,D,D,E,F).
-:- mode_on_success isindeed_struct(A,ng,B,ng,C,D,ng,E,F).
-:- mode_on_success isindeed_struct(A,B,C,D,g,E,E,F,ng).
 :- mode_on_success isindeed_struct(A,B,C,D,D,E,E,F,G).
+:- mode_on_success isindeed_struct(A,B,C,D,g,E,E,F,ng).
 :- mode_on_success isindeed_struct(A,B,C,ng,D,E,E,F,ng).
-:- mode_on_success isindeed_unary(A,g,B,C,D,D,E,E,F).
+:- mode_on_success isindeed_struct(A,ng,B,ng,C,D,ng,E,F).
+:- mode_on_success isindeed_struct(A,ng,B,ng,C,D,D,E,F).
+:- mode_on_success isindeed_struct(A,ng,B,C,g,g,g,D,E).
 :- mode_on_success isindeed_unary(A,g,ng,B,ng,C,g,ng,D).
 :- mode_on_success isindeed_unary(A,g,ng,B,ng,C,g,g,D).
 :- mode_on_success isindeed_unary(A,g,ng,B,C,g,g,g,D).
+:- mode_on_success isindeed_unary(A,g,B,C,D,D,E,E,F).
 :- mode_on_success isindeed_unary(ng,g,A,B,ng,C,D,D,E).
 :- mode_on_success isindeed_unary(ng,g,A,B,C,g,D,D,E).
 :- mode_on_success isindeed_var(A,B,C,A,g,g,g,D,E).
@@ -148,5 +148,5 @@
 :- mode_on_success test_with_int(g,A,B,C,ng,ng,D,E,E,F).
 :- mode_on_success test_with_int(g,ng,A,B,g,ng,C,D,ng,E).
 :- mode_on_success test_with_int(g,ng,A,B,ng,ng,C,D,ng,E).
-:- mode_on_success test_with_int(g,ng,g,A,g,ng,B,C,C,D).
 :- mode_on_success test_with_int(g,ng,g,A,g,B,g,g,g,C).
+:- mode_on_success test_with_int(g,ng,g,A,g,ng,B,C,C,D).

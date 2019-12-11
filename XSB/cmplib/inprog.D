@@ -22,9 +22,9 @@
 :- mode_on_success inp_args(A,ng,g,ng,g,g,g,g,B).
 :- mode_on_success inp_body(A,A,g,ng,ng,g,g,B,B).
 :- mode_on_success inp_body(A,A,g,ng,ng,g,g,B,ng).
-:- mode_on_success inp_body(A,ng,g,ng,B,g,g,g,C).
 :- mode_on_success inp_body(A,ng,g,ng,B,g,g,C,C).
 :- mode_on_success inp_body(A,ng,g,ng,B,g,g,C,ng).
+:- mode_on_success inp_body(A,ng,g,ng,B,g,g,g,C).
 :- mode_on_success inp_body(g,g,g,g,g,g,g,A,A).
 :- mode_on_success inp_body(g,g,g,g,g,g,g,A,ng).
 :- mode_on_success inp_body(ng,A,g,ng,ng,g,g,B,ng).
@@ -33,9 +33,9 @@
 :- mode_on_success inp_body(ng,A,g,g,g,g,g,B,ng).
 :- mode_on_success inp_body_test(A,A,g,g,B,B,g).
 :- mode_on_success inp_body_test(A,A,g,g,B,ng,g).
-:- mode_on_success inp_body_test(A,ng,ng,B,g,C,g).
 :- mode_on_success inp_body_test(A,ng,ng,B,C,C,g).
 :- mode_on_success inp_body_test(A,ng,ng,B,C,ng,g).
+:- mode_on_success inp_body_test(A,ng,ng,B,g,C,g).
 :- mode_on_success inp_body_test(A,A,ng,ng,B,B,g).
 :- mode_on_success inp_body_test(A,A,ng,ng,B,ng,g).
 :- mode_on_success inp_subargs(A,A,g,B,B,g,g,C,ng).

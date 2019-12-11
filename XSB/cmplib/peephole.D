@@ -13,6 +13,7 @@
 :- mode compile_popt4(?,?,?).
 :- mode force_peephole_loaded.
 :- mode popt_chkmember(?,?,?).
+:- mode trim_count_bldavars(?,+,?,?).
 :- mode trim_count_getpvars(?,+,+,+,?,?).
 :- mode trim_count_uniavars(?,+,?,?).
 
@@ -41,5 +42,6 @@
 :- mode_on_success force_peephole_loaded.
 :- mode_on_success popt_chkmember(g,A,g).
 :- mode_on_success popt_chkmember(ng,ng,g).
+:- mode_on_success trim_count_bldavars(A,g,g,A).
 :- mode_on_success trim_count_getpvars(A,g,g,g,g,A).
 :- mode_on_success trim_count_uniavars(A,g,g,A).

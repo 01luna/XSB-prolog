@@ -361,8 +361,8 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 			 ->	(Vars = Vars1,
 				 '_$$get_returns'(Cs,OSkel,Leaf)
 				 ->	OpSpec1,
-					%%Var \== OVar,
-				    	\+ variant(Var,OVar),
+					Var \== OVar,
+				    	%%\+ variant(Var,OVar),
 				    	Actions
 				 ;	Init
 				)
@@ -378,8 +378,8 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 				 Var == OVar
 				 ->	fail % a subsuming answer as good or better
 				 ;	('_$member'(t(OVar,Var,Leaf,_,1),AllRets),
-					 %%Var \== OVar,
-					 \+ variant(Var,OVar),
+					 Var \== OVar,
+					 %%\+ variant(Var,OVar),
 					 Actions, % delete answer this one is better than
 					 fail
 					 ;
