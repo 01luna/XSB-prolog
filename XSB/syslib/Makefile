@@ -39,7 +39,7 @@ ALL =	assert${OBJEXT} basics${OBJEXT} consult${OBJEXT} \
 	term_exp${OBJEXT} thread${OBJEXT} sub_atom${OBJEXT} write_term${OBJEXT} \
 	unix${OBJEXT} x_interp${OBJEXT} xsb_hook${OBJEXT} xsb_read${OBJEXT}  \
 	xsb_writ${OBJEXT} xcallxsb${OBJEXT} ccallxsb${OBJEXT} increval${OBJEXT} \
-	open_url${OBJEXT}
+	open_url${OBJEXT} xsbbrat${OBJEXT}
 
 EMU_INCLUDES = ../emu/builtin.h ../emu/celltags_xsb.h ../emu/flag_defs_xsb.h \
 	../emu/io_defs_xsb.h ../emu/syscall_xsb.h ../emu/sig_xsb.h \
@@ -48,12 +48,12 @@ EMU_INCLUDES = ../emu/builtin.h ../emu/celltags_xsb.h ../emu/flag_defs_xsb.h \
 PROLOG_INCLUDES = ../prolog_includes/char_defs.h ../prolog_includes/standard.h
 
 
-Option = [sysmod,optimize,quit_on_error]
+Option = [sysmod,optimize,quit_on_error,modeinfer]
 
 #-------------------------------------------------------------------#
 #
-XSB=../bin/xsb
-#XSB=../config/x64-pc-windows/bin/xsb.exe
+#XSB=../bin/xsb
+XSB=../config/x64-pc-windows/bin/xsb.exe
 Prolog = $(XSB) -e "segfault_handler(warn)."
 #
 #-------------------------------------------------------------------#

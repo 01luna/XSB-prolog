@@ -35,8 +35,8 @@
 :- mode_on_success assert_word_list(g,g,g).
 :- mode_on_success dcg(A,B).
 :- mode_on_success dcg_body(A,B,C,ng).
-:- mode_on_success dcg_body(A,g,B,B).
 :- mode_on_success dcg_body(A,g,g,B).
+:- mode_on_success dcg_body(A,g,B,B).
 :- mode_on_success dcg_body(g,A,A,g).
 :- mode_on_success dcg_body_nonvar(A,B,C,ng).
 :- mode_on_success dcg_body_nonvar(A,g,g,B).
@@ -46,8 +46,8 @@
 :- mode_on_success dcg_body_var(A,ng,g,ng).
 :- mode_on_success dcg_body_var(A,g,g,A).
 :- mode_on_success dcg_fillin_arguments(g,A,B).
-:- mode_on_success dcg_list_of_terminals(A,B,g,ng).
 :- mode_on_success dcg_list_of_terminals(A,B,ng,ng).
+:- mode_on_success dcg_list_of_terminals(A,B,g,ng).
 :- mode_on_success dcg_list_of_terminals(g,g,g,A).
 :- mode_on_success dcg_terminal_functor(A,B).
 :- mode_on_success dcg_with_pushback_list(A,B,C,D).
@@ -55,8 +55,8 @@
 :- mode_on_success expand_dcg_body(A,g,g,B).
 :- mode_on_success expand_dcg_body(A,B,C,ng).
 :- mode_on_success expand_dcg_body(g,A,A,g).
-:- mode_on_success expand_dcg_non_ternimal(A,g,g,g).
 :- mode_on_success expand_dcg_non_ternimal(A,B,C,ng).
+:- mode_on_success expand_dcg_non_ternimal(A,g,g,g).
 :- mode_on_success phrase(A,B).
 :- mode_on_success phrase(A,B,C).
 :- mode_on_success reset_dcg_mode.
@@ -76,7 +76,7 @@
 :- mode_on_success tphrase_set_string_auto_abolish(g).
 :- mode_on_success tphrase_set_string_keeping_tables(g).
 :- mode_on_success tphrase_string_length(A).
-:- mode_on_success xsb_dcg_body_nonvar(A,B,C,ng).
-:- mode_on_success xsb_dcg_body_nonvar(A,g,g,B).
 :- mode_on_success xsb_dcg_body_nonvar(A,g,B,B).
+:- mode_on_success xsb_dcg_body_nonvar(A,g,g,B).
+:- mode_on_success xsb_dcg_body_nonvar(A,B,C,ng).
 :- mode_on_success xsb_dcg_body_nonvar(g,A,A,g).

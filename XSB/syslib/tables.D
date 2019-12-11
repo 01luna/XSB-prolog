@@ -419,9 +419,9 @@
 :- mode_on_success get_sdg_subgoal_info(g,A).
 :- mode_on_success get_subgoal_avl(g,g).
 :- mode_on_success get_subgoal_avl(ng,A).
-:- mode_on_success get_subgoal_list(A,B,g).
+:- mode_on_success get_subgoal_list(g,A,g).
 :- mode_on_success get_subgoal_list(g,ng,ng).
-:- mode_on_success get_subgoal_list(ng,A,ng).
+:- mode_on_success get_subgoal_list(ng,A,B).
 :- mode_on_success get_subgoals_base_level(A,g).
 :- mode_on_success get_subgoals_base_level(ng,A).
 :- mode_on_success get_tabling_option(A,g).
@@ -473,7 +473,7 @@
 :- mode_on_success max_table_subgoal_size_default_handler.
 :- mode_on_success max_table_subgoal_size_handler.
 :- mode_on_success max_table_subgoal_size_header.
-:- mode_on_success merge(A,g,g,g,g,g,g,B,B).
+:- mode_on_success merge(A,g,g,g,g,ng,ng,B,B).
 :- mode_on_success merge(g,A,A,B,B,C,C,D,D).
 :- mode_on_success merge(ng,g,g,g,g,A,ng,g,A).
 :- mode_on_success merge(ng,g,g,g,g,g,A,B,ng).

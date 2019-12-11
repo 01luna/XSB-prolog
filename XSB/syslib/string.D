@@ -3,6 +3,7 @@
 
 :- mode atom_codes_sou_tar_list(+,+,?,?).
 :- mode atom_to_term(+,?).
+:- mode atomize_list(+,?).
 :- mode atomlist_to_codelist(?,?).
 :- mode bind_atoms(?,+).
 :- mode boolean(+).
@@ -49,6 +50,9 @@
 :- mode scan_quoted_con(+,?,?,+).
 :- mode scan_to_delim(+,?,?,+).
 :- mode scan_variable(+,?,?,?,?).
+:- mode split_atom(+,+,?).
+:- mode split_atom_1(+,+,?).
+:- mode split_atom_2(+,+,?,?).
 :- mode str_cat(+,+,?).
 :- mode str_length(?,?).
 :- mode str_match(+,+,+,?,?).
@@ -66,6 +70,7 @@
 
 :- mode_on_success atom_codes_sou_tar_list(g,g,g,g).
 :- mode_on_success atom_to_term(g,A).
+:- mode_on_success atomize_list(g,g).
 :- mode_on_success atomlist_to_codelist(A,A).
 :- mode_on_success bind_atoms(g,g).
 :- mode_on_success boolean(g).
@@ -113,6 +118,9 @@
 :- mode_on_success scan_to_delim(g,g,g,g).
 :- mode_on_success scan_variable(g,g,A,A,B).
 :- mode_on_success scan_variable(g,g,g,ng,ng).
+:- mode_on_success split_atom(g,g,g).
+:- mode_on_success split_atom_1(g,g,g).
+:- mode_on_success split_atom_2(g,g,g,g).
 :- mode_on_success str_cat(g,g,g).
 :- mode_on_success str_length(g,g).
 :- mode_on_success str_match(g,g,g,g,g).
