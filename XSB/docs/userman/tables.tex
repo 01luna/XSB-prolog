@@ -2012,7 +2012,7 @@ head of a rule is ``unsafe'' in that it contains variables that do not
 occur in the body of that rule~\footnote{Evaluations that call
   non-ground negative literals will terminate through floundering,
   although this can be avoided in most cases by using {\tt
-    not\_exists/1}.}.  Such programs are sometimes called datalog
+    not\_exists/1}.}.  Such programs are sometimes called \emph{datalog}
 programs.
 
 While datalog programs are useful for certain kinds of knowledge
@@ -2046,7 +2046,7 @@ The goal {\tt ?- p(1)} can create an infinite number of tabled
 subgoals: {\tt p(f(1))}, {\tt p(f(f(1)))}, {\tt p(f(f(f(1))))} and so
 on.  Note that since all of the subgoals are ground, none subsume one
 another, so that call subsumption will not help here. (Although call
-subsumption is extremely useful in other circumstances, and would help
+subsumption is extremely useful in other circumstances, and would terminate
 if the goal were {\tt ?- p(X)}).
 
 \paragraph*{Infinite Answers}
@@ -2056,6 +2056,7 @@ infinite number of answers, as in the program fragment:
 %
 \begin{verbatim}
 p(f(X)) :- p(X).
+p(1).
 \end{verbatim}
 %
 when given the query {\tt ?- p(X)}.  
@@ -2068,7 +2069,7 @@ We consider each case in turn.
 Both subgoal and answer abstraction in XSB are based on limiting the
 size of any argument of a term $T$ that forms a subgoal or answer.
 The specific definition of size used is slightly complicated, but
-offeres advantages discussed below.  Each argument $T_a$ of $T$ is
+offeres advantages as discussed below.  Each argument $T_a$ of $T$ is
 traversed as follows.  The size of $T_i$ is initialized to 0, then
 $T_a$ is traversed from left to right.  Each time a non-constant
 functor or list symbol is encountered, the size of $T_i$ is
@@ -2087,7 +2088,7 @@ arguments of $T$ will be traversed in the exact same manner.
 Applying the above definition of size abstraction with limit 2 to the
 term 
 
-{\tt p(d(e(1),a,f(c$_1$)),b,g(c$_2$),[c$_3$,[c$_4$,c$_5$]))}
+{\tt p(d(e(1),a,f(c$_1$)),b,g(c$_2$),[c$_3$,[c$_4$,c$_5$]]))}
 
 \noindent
   produces the term 
@@ -2165,7 +2166,7 @@ without abstraction will not terminate after abstraction.  Note that
 any program containing {\tt member/2} and at least one constant does
 not have a finite model (although any given ground query will have a
 finite number of answers).  While an experienced programmer would not
-usually table {\tt member/2}, he well may want to table a grammar or
+usually table {\tt member/2}, s/he well may want to table a grammar or
 other program that performs recursion through a finite structure.
 
 \index{tripwires!max\_table\_answer\_size}
@@ -2236,10 +2237,10 @@ guaranteed to arrive at a decision ``quickly''.  By bounding
 reasoning, an agent may be used in a setting that requires reactivity
 or where a simulation of human reasoning is needed.
 
-Thus, the approximation that XSB computes is {\em
-  informationally sound} in the sense that no incorrect answer will be
-derived, although the truth value of some atoms won't be known that
-might have been if the size bound had been set higher.  
+%Thus, the approximation that XSB computes is {\em
+%  informationally sound} in the sense that no incorrect answer will be
+%derived, although the truth value of some atoms won't be known that
+%might have been if the size bound had been set higher.  
 
 XSB's approach to bounded rationality computes a finite approximation
 to the well-founded model that is {\em informationally sound} in the
@@ -2302,7 +2303,7 @@ general what size to set for answer abstraction, or whether any bound
 needs to be set at all.
 
 If a restrained model is derived, answers that are directly undefined
-through radial restraint can be desinguished from answers that are
+through radial restraint can be distinguished from answers that are
 undefined in the well-founded model of a program, or for other reasons
 such as unsafe negation.  If an answer $A$ was abstracted due to a
 size check, the query {\tt get\_residual(A,Delay)} would bind {\tt
@@ -2323,9 +2324,9 @@ variance.  However it works with most other tabling features, such as
 call abstraction, and incremental tabling.
 %
 Similarly to the use of subgal abstraction, answer abstraction is the
-implementational basis of radial restraint.  {\em It is important to note
-that the size limit applies to the answer substitution, not to the 
-of the answer itself.}
+implementational basis of radial restraint.  As shown in the following
+example, {\em it is important to note that the size limit applies to
+  the answer substitution, not to the size of the answer itself.}
 
 \begin{example}
 Suppose an answer size limit is set to 1, and consider the goal {\tt
@@ -2345,7 +2346,7 @@ encountered that reaches that size.
 %
 \bi
 \item {\bf size} The maximum size can be set to {\tt n} for a set of
-  predicates via including the specifier {\tt answer\_abstract(n)} as
+  predicates by including the specifier {\tt answer\_abstract(n)} as
   part of their tabling declaration
 
 {\tt :- table $<PredSpec>$ as ...,answer\_abstract(n),...}
@@ -2359,9 +2360,10 @@ encountered that reaches that size.
 
 \item {\bf action} When an answer is encountered of maximum size,
   abstraction is enabled if the Prolog flag {\tt
-    max\_table\_answer\_action} to {\tt bounded\_rationality}.  Other
-  possible values for the action are {\tt error}, {\tt suspend}  and {\tt fail}
-  (cf. Section \ref{sec:tripwire} for further information).  \ei
+    max\_table\_answer\_action} to {\tt abstract} (or, equivalently,
+  to {\tt bounded\_rationality}).  Other possible values for the
+  action are {\tt error}, {\tt suspend} and {\tt custom} (cf. Section
+  \ref{sec:tripwire} for further information).  \ei
 
 
 \index{Prolog flags!{\tt max\_table\_answer\_action}} 
@@ -2372,14 +2374,14 @@ Unless otherwise specified, XSB starts up with {\tt
   max\_table\_answer\_size} set to 0.  
 %
 
-\subsubsection{\MAXANS Restraint} \label{sec:answer-count-restraint}
+\subsubsection{\MAXANS{} Restraint} \label{sec:answer-count-restraint}
 \index{tripwires!max\_answers\_for\_subgoal}
 \index{restraint!answer count}
 
-As discussed above, finite termination can always be ensured through a
-mixture of subgoal abstraction and radial restraint.  Alternately, it
-can also be ensured through subgoal abstraction and \maxans()
-restraint.  
+As discussed above, finite termination -- and some types of bounded
+rationality -- can always be ensured through a mixture of subgoal
+abstraction and radial restraint.  Alternately, these features can
+also be ensured through subgoal abstraction and \maxans{} restraint.
 
 \begin{example} \label{ex:maxans}
 Consider the program
@@ -2424,10 +2426,9 @@ follows.
 
 \item {\bf action} When an answer is encountered of maximum size,
   abstraction is enabled if the Prolog flag {\tt
-    max\_table\_answer\_action} to {\tt bounded\_rationality}.  Other
-  possible values for the action are {\tt error} and {\tt suspend}
-  (cf. Section \ref{sec:tripwire} for further information).  
-\ei
+    max\_table\_answer\_action} to {\tt complete\_soundly}.  Other
+  possible values for the action are {\tt error}, {\tt suspend} and {\tt custom}
+  (cf. Section \ref{sec:tripwire} for further information).  \ei
 
 \subsubsection{Justifying or Explaining Restraint}
 
