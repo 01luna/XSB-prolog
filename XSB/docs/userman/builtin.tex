@@ -3020,7 +3020,7 @@ If {\tt +P} is a non-tabled predicate {\tt not\_exists/1} ensures that
 regardless of whether {\tt +P} is ground or not~\footnote{In previous
   versions of XSB, {\tt not\_exists/1} was called {\tt sk\_not/1}.}.
 
-{\tt not\_exists/1} uses an auxiliary tabled predicate, {\tt tunnumcall/1}
+{\tt not\_exists/1} uses an auxiliary tabled predicate, {\tt tabled\_call/1}
 in its execution.  Therefore to reclaim space at the predicate or call
 level (e.g. using {\tt abolish\_table\_pred/1} or similar predicates),
 {\tt tunnumcall/1} must be explicitly abolished.
