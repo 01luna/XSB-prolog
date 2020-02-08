@@ -356,6 +356,10 @@ struct th_context
   struct opstktype *_opstk;
   struct vartype *_rc_vars;
 
+  Integer _eval_stk_size;
+  Integer _eval_stk_toprec;
+  FltInt *_eval_stk;
+
   forestLogBuffer _forest_log_buffer_1;
   forestLogBuffer _forest_log_buffer_2;
   forestLogBuffer _forest_log_buffer_3;
@@ -695,6 +699,10 @@ typedef struct th_context th_context ;
 #define funstk			(th->_funstk)
 #define opstk			(th->_opstk)
 #define rc_vars			(th->_rc_vars)
+
+#define eval_stk_size		(th->_eval_stk_size)
+#define eval_stk		(th->_eval_stk)  
+#define eval_stk_toprec		(th->_eval_stk_toprec)
 
 #define token			(th->_token)
 #define lastc			(th->_lastc)

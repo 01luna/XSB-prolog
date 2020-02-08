@@ -468,6 +468,7 @@ jmp_buf xsb_abort_fallback_environment;
 #endif
 
 char *xsb_segfault_message;
+int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
 
 /*======================================================================*/
 /* the main emulator loop.						*/

@@ -1042,6 +1042,10 @@ void init_thread_structures(CTXTdecl)
   opstk = NULL;
   rc_vars = (struct vartype *)mem_alloc(MAXVAR*sizeof(struct vartype),OTHER_SPACE);
 
+  /* vars for eval stack */
+  eval_stk_size = 0;
+  eval_stk = NULL;
+
   /* vars for token_xsb_XXX */
   token = (struct xsb_token_t *)mem_alloc(sizeof(struct xsb_token_t),OTHER_SPACE);
   strbuff = NULL;

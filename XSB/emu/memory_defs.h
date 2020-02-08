@@ -20,10 +20,12 @@
 #define OTHER_SPACE		18
 #define INCR_TABLE_SPACE	19
 #define ODBC_SPACE		20
-// The next two are for printing out memory errors
+
+#define NUM_CATS_SPACE		21
+
+// The next two are for printing out memory errors, and size is not accumulated for them
 #define TCP_SPACE		21
 #define COMPL_SPACE		22
 #define GL_SPACE                23
 // VARSTRING_SPACE??  some other to thread?
 
-#define NUM_CATS_SPACE		21
