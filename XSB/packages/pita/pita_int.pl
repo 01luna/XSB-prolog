@@ -1198,7 +1198,11 @@ tab_dir(M,[H:P|T],[(:- table HT)|TD],[H1:P|HL]):-
 
 load_cpl(File):-
 	atom_concat(File,'.cpl',FileCpl),
-  load(FileCpl).
+  	prolog_load_context(module, M),
+	pita_input_mod(M),
+	assert(M:pita_on),
+  load(FileCpl),
+	retract(M:pita_on).
 
 load_pl(File):-
 	atom_concat(File,'.pl',Filepl),
