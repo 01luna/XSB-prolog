@@ -53,7 +53,7 @@ typedef struct
 typedef struct
 {
   DdManager * mgr; //Cudd manager
-  int * bVar2mVar; //array that maps Boolena vars to multi-valued vars
+  int * bVar2mVar; //array that maps Boolean vars to multi-valued vars
   variable * vars; // multivalued variables
   int nVars;  // number of multivalued variables
   double * probs; // probabilities of Boolean variables
@@ -70,7 +70,7 @@ typedef struct
   int ex;  // number of examples
   double * sigma; // sigma array for taking into account deleted paths
   double ***eta;  // eta array: for each rule, each Bool var stores two doubles
-  double ***eta_temp; // eta arrau storing the contribution of the current example
+  double ***eta_temp; // eta array storing the contribution of the current example
   int * rules; // array with the number of head atoms for each rule
   int * tunable_rules; // array with 1 if the parameters of the rule are tunable, 0 otherwise
   int nRules; // number of rules
@@ -194,7 +194,7 @@ int length(prolog_term list);
 
 void write_dot(environment * env, DdNode * bdd, FILE * file);
 
-explan_t * insert(assign assignment,explan_t * head);
+explan_t * insert_ass(assign assignment,explan_t * head);
 explan_t * duplicate(explan_t * head);
 void free_list(explan_t * head);
 
@@ -468,11 +468,12 @@ long init_pl()
   environment * env;
 
   env=(environment *)malloc(sizeof(environment));
-  env->mgr=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,5120);
+  // env->mgr=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,0);
+  env->mgr=Cudd_Init(0,0,CUDD_UNIQUE_SLOTS,CACHE_SLOTS,0);
   env->n_abd=0;
   env->n_abd_boolVars=0;
 
-  Cudd_AutodynEnable(env->mgr, CUDD_REORDER_GROUP_SIFT);
+  //Cudd_AutodynEnable(env->mgr, CUDD_REORDER_GROUP_SIFT);
   Cudd_SetMaxCacheHard(env->mgr, 0);
   Cudd_SetLooseUpTo(env->mgr, 0);
   Cudd_SetMinHit(env->mgr, 15);
@@ -483,8 +484,10 @@ long init_pl()
   env->probs=NULL;
   env->boolVars=0;
   env->nRules=0;
-
   env->rules= NULL;
+  env->n_abd=0;
+  env->n_abd_boolVars=0;
+  
   return((long) env);
 }
 
@@ -494,9 +497,10 @@ void end_pl(long env_int)
 
   env=(environment *)env_int;
 
+  Cudd_Quit(env->mgr);
+
   free(env->bVar2mVar);
   free(env->vars);
-  Cudd_Quit(env->mgr);
   free(env->probs);
   free(env->rules);
   free(env);
@@ -667,7 +671,6 @@ double ret_abd_prob_pl(long env_int, long node_int, prolog_term *expl)
     expltable=expl_init_table(env->boolVars);
     table=init_table(env->boolVars);
     //abdtable=init_abd_table(env->n_abd);
-
     delta=abd_Prob(node,env,expltable,table,0);
     p=delta.prob;
     mpa=delta.mpa;
@@ -801,7 +804,7 @@ long make_query_var_pl(long env_int, int varIndex)
       tmp2=Cudd_bddAnd(env->mgr,cons,tmp1);
       Cudd_Ref(tmp2);
       cons=tmp2;
-    Cudd_Ref(cons);//added
+      Cudd_Ref(cons);//added
     }
   }
   varlast=Cudd_bddIthVar(env->mgr,var.firstBoolVar+var.nVal-1);
@@ -850,7 +853,7 @@ void clist_to_pllist(explan_t *mpa, environment * env, prolog_term out)
   {
 
     for (; mpa; mpa=mpa->next)
-    { 
+    {
       a=mpa->a;
       bvar=a.var;
       value=a.val;
@@ -998,7 +1001,6 @@ so that it is not recomputed
 
     delta.prob=p1;
     delta.mpa=NULL;
-
     return delta;
   }
   else
@@ -1011,13 +1013,11 @@ so that it is not recomputed
     }
     else
     {
-
       T = Cudd_T(node);
       F = Cudd_E(node);
       deltaf=abd_Prob(F,env,expltable,table,comp);
       deltat=abd_Prob(T,env,expltable,table,comp);
       p=env->probs[index];
-
       if (p==1.0)
       {
         p0=deltaf.prob;
@@ -1036,7 +1036,7 @@ so that it is not recomputed
       {
         assignment.var=env->bVar2mVar[index];
         assignment.val=1;
-        mpa=insert(assignment,mpa1);
+        mpa=insert_ass(assignment,mpa1);
         delta.prob=p1;
         delta.mpa=mpa;
       }
@@ -1044,7 +1044,7 @@ so that it is not recomputed
       {
         assignment.var=env->bVar2mVar[index];
         assignment.val=0;
-        mpa=insert(assignment,mpa0);
+        mpa=insert_ass(assignment,mpa0);
         delta.prob=p0;
         delta.mpa=mpa;
       }
@@ -1110,7 +1110,7 @@ so that it is not recomputed
     {
       assignment.var=index;
       assignment.val=1;
-      mpa=insert(assignment,mpa1);
+      mpa=insert_ass(assignment,mpa1);
       delta.prob=p1;
       delta.mpa=mpa;
     }
@@ -1118,7 +1118,7 @@ so that it is not recomputed
     {
       assignment.var=index;
       assignment.val=0;
-      mpa=insert(assignment,mpa0);
+      mpa=insert_ass(assignment,mpa0);
       delta.prob=p0;
       delta.mpa=mpa;
     }
@@ -1186,7 +1186,7 @@ so that it is not recomputed
       {
         assignment.var=index;
         assignment.val=1;
-        mpa=insert(assignment,mpa1);
+        mpa=insert_ass(assignment,mpa1);
         delta.prob=p1;
         delta.mpa=mpa;
       }
@@ -1194,7 +1194,7 @@ so that it is not recomputed
       {
         assignment.var=index;
         assignment.val=0;
-        mpa=insert(assignment,mpa0);
+        mpa=insert_ass(assignment,mpa0);
         delta.prob=p0;
         delta.mpa=mpa;
       }
@@ -1204,10 +1204,9 @@ so that it is not recomputed
   }
 }
 
-explan_t * insert(assign assignment,explan_t * head)
+explan_t * insert_ass(assign assignment,explan_t * head)
 {
   explan_t * newhead;
-
   newhead=malloc(sizeof(explan_t));
   newhead->a=assignment;
   newhead->next=duplicate(head);
@@ -1466,10 +1465,7 @@ long zero_pl(long env_int)
 }
 long bdd_not_pl(long env_int, long node_int)
 {
-  environment *env;
   DdNode * node;
-
-  env=(environment *)env_int;
 
   node=(DdNode*)node_int;
   node=Cudd_Not(node);
