@@ -570,8 +570,8 @@ invocation.  @tt{reset_unfinished/2} uses the name to identify the
 view instances that a particular invocation of this process is
 responsible for.  ").
 
-update_views(ViewSys,all,ProcName,NProcs) :-
-	update_views(ViewSys,all,ProcName,NProcs,userout).
+update_views(ViewSys,ViewSpec,ProcName,NProcs) :-
+	update_views(ViewSys,ViewSpec,ProcName,NProcs,userout).
 
 update_views(ViewSys,all,ProcName,NProcs,OutStream) :-
 	!,
