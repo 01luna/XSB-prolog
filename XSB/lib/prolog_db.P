@@ -10,7 +10,17 @@ xsb -e "[xsbdoc], xsbdoc(prolog_db_format,pdf),halt."
 
 ************/
 
-/*** New pred to add:
+/***
+For better performance, could do:
+
+1. implement my_unnumbervars in C.  This would speed up retrieving
+rules (since only bodies need unnumbervarring), important when calling
+rule-defined predicates in DB.
+
+2. implement find_in_radix_tree for lookup (i.e. when key is given) as
+a builtin.
+
+New pred to add:
 
 select_db(+PrefixTerm,+TemplPrefixTerm,+DB0,?DB): takes a prefix term, a
 template prefix term, and a DB0 and produces a new DB that contains
@@ -26,6 +36,16 @@ findall_db(res(A,B,C),fact_in_db(r(a,f(A,B),C),DB0),DB).
 But it runs in log time, since it just finds the point in the trie of
 PrefixTerm and then constructs the TemplPrefixTerm sequence and points
 it to that trie.
+
+Or maybe more useful, a minor variant that doesn't require PrefixTerm
+to be a prefix term, but allows variables in the "prefix" portion, and
+then is nondeterministic; for each binding those variables, produce
+the res(_,_,_) form for that (now instantiated) prefix term.
+
+So select(r(X,f(_,_),_),DB0,DB) would, for X such that there is
+r(X,f(_,_),_) in DB0, bind DB to a prolog_db representing ans(_,_,_)
+for the tails...
+
 
 Another possibly useful predicate might be in_proj_db(Pref,N,DB) where
 Pref is a prefix term with M variables, N is an integer =< M, and DB
@@ -1137,13 +1157,16 @@ fact_in_db(Head,H) :-
     tab_intern_termhash(DB,H),
     (DB == internalDB
      ->	call_c(Head)
-     ;	clause_in_db_b(Head,true,DB)
+     ;	find_tuple_in_trie([Head],true,_Vars,DB)
     ).
 
 
 clause_in_db_b(Head,Body,Trie) :-
     find_tuple_in_trie([Head],Body0,Vars,Trie),
-    my_unnumbervars(Body0,0,Body,Vars).
+    (Body0 == true
+     ->	Body = true
+     ;	my_unnumbervars(Body0,0,Body,Vars)
+    ).
 
 find_tuple_in_trie([],Body,_Vars,Trie) :- 
     member(Body,Trie).
@@ -1195,7 +1218,7 @@ find_in_radix_tree_b(Key,Val,Tree) :-
      ->	rtl_member(Key,Val,Tree)
      ;	nonvar(Key)
      ->	hash_key(Key,HashCode),
-	find_in_radix_tree(Tree,HashCode,Key,Val)
+	find_in_radix_tree(Tree,HashCode,Key,Val) % key bound, det (make builtin?)
      ;	find_in_radix_tree(Tree,HashCode,Key,Val)
     ).
 
@@ -1798,7 +1821,7 @@ order_intersect_list(L1,L2,L3) :- L1 = [V1|L1r],
 	)
     ).
 
-rtl_intersect(_,[],[]).
+rtl_intersect([],_,[]).
 rtl_intersect(RTL1,RTL2,RTL3) :- RTL1 = rtl(K1,Vs1,RTL1r),
     (RTL2 == []
      ->	RTL3 = []
@@ -1813,7 +1836,7 @@ rtl_intersect(RTL1,RTL2,RTL3) :- RTL1 = rtl(K1,Vs1,RTL1r),
 	     ;	RTL3 = rtl(K1,Vs3,RTL3r),
 		rtl_intersect(RTL1r,RTL2r,RTL3r)
 	    )
-	    ;  rtl_intersect(RTL1,RTL2r,RTL3)
+	 ;  rtl_intersect(RTL1,RTL2r,RTL3)
 	)
     ).
 
@@ -3277,6 +3300,7 @@ join_in_db(Pref1,Pref2,NJoin,Pref3,H0,H) :-
     tab_intern_termhash(DB,H).
 
 join_in_db_b(Pref1,Pref2,NJoin,Pref3,DB0,DB) :-
+%%    writeln(userout,DB0),
     cvt_pa(Pref1,Pref1a),
     cvt_pa(Pref2,Pref2a),
     cvt_pa(Pref3,Pref3a),
@@ -3284,6 +3308,8 @@ join_in_db_b(Pref1,Pref2,NJoin,Pref3,DB0,DB) :-
     find_subtrie_for_prefix([Pref2a],DB0,TLen2,HT2),
     OutLen is TLen1+TLen2-NJoin,
     check_prefix_term([Pref3a],OutLen,'join_in_db/6'),
+%%    writeln(userout,HT1),
+%%    writeln(userout,HT2),
     join_tries(HT1,HT2,NJoin,HT3),
     (HT3 == []
      ->	retractall_in_db_b(Pref3a,DB0,DB)
@@ -3370,8 +3396,9 @@ rtl_join(RTL1,RTL2,NJoin,RTL3) :- RTL1 = rtl(K1,Vs1,RTL1r),
     ).
 
 order_join([],L2,_NJoin,L2).
-order_join(L1,_L2,_NJoin,_L3) :- L1 = [_|_],
-    misc_error('ERROR: Illegal join').
+order_join([_|_],L2,_NJoin,L2).
+%order_join(L1,_L2,_NJoin,_L3) :- L1 = [_|_],
+%    misc_error('ERROR: Illegal join').
 order_join(L1,L2,NJoin,L3) :- L1 = rtl(_,_,_),
     order_join_tr(L1,L2,NJoin,L3).
 order_join(L1,L2,NJoin,L3) :- L1 = rt(_,_,_,_),
