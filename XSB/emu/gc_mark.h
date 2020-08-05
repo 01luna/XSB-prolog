@@ -155,23 +155,20 @@ inline static CPtr hp_pointer_from_cell(CTXTdeclc Cell cell, int *tag)
   int t;
   CPtr retp;
 
-  // unlikely to be right....  don't know what to do here...
-  if (isinternstr(cell)) {
-    if (!is_interned_rec(cell)) printf("GC: interned str not found %p\n", (void *)cell);
-    return NULL;
-  }
   t = cell_tag(cell) ;
 
   /* the use of if-tests rather than a switch is for efficiency ! */
   /* as this function is very heavily used - do not modify */
   if (t == XSB_LIST)
     {
+      if (isinternstr(cell)) return NULL;
       *tag = XSB_LIST;
       retp = clref_val(cell);
       testreturnit(retp);
     }
   if (t == XSB_STRUCT)
     {
+      if (isinternstr(cell)) return NULL;
       *tag = XSB_STRUCT;
       retp = (CPtr)(cs_val(cell));
       testreturnit(retp);
