@@ -157,7 +157,7 @@ int check_big_arity_index(int big_arity) {
       return i + BIG_ARITY_INDEX_BASE;
     }
   }
-  xsb_abort("[intern_term] Too many big arity functors\n");
+  return 0;  /* not there (and no more room, but that's OK) */
 }
 
 int get_big_arity_index(int big_arity) {
