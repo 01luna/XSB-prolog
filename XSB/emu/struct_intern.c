@@ -147,6 +147,19 @@ UInteger it_hash(Integer ht_size, int reclen, CPtr termrec) {
   return hsh % ht_size;
 }
 
+int check_big_arity_index(int big_arity) {
+  int i;
+  
+  for (i=0; i<NUM_INTERN_BIG_ARITIES; i++) {
+    if (big_arities[i] == 0) {
+      return 0;
+    } else if (big_arities[i] == big_arity) {
+      return i + BIG_ARITY_INDEX_BASE;
+    }
+  }
+  xsb_abort("[intern_term] Too many big arity functors\n");
+}
+
 int get_big_arity_index(int big_arity) {
   int i;
 
@@ -183,7 +196,7 @@ int is_interned_rec(Cell term) {
   if (islist(term)) {
     areaindex = LIST_INDEX;
     reclen = 2;
-  } else if (isstr(term)) {
+  } else if (isconstr(term)) {
     areaindex = get_arity(get_str_psc(term));
     reclen = areaindex + 1;
   } else return FALSE;
@@ -241,7 +254,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     hashtab_rec->next = 0;
     hashtab_rec->hashtab_size = hashtable_sizes[ht_cnt];
     hashtab_rec->num_in_hashtab = 0;
-    hashtab_rec->hashtab = mem_calloc(sizeof(Cell),hashtab_rec->hashtab_size,INTERN_SPACE);
+    hashtab_rec->hashtab = mem_calloc(sizeof(Cell),(size_t)hashtab_rec->hashtab_size,INTERN_SPACE);
     if (!hashtab_rec->hashtab) xsb_abort("No memory for interned term hash table\n");
   }
   while (hashtab_rec) {
@@ -276,7 +289,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     if (num_intern_recs >= max_num_intern_recs)
       new_num_intern_recs = num_intern_recs;
     else new_num_intern_recs = size_multiple*num_intern_recs;
-    newblock = mem_calloc(sizeof(Cell),(2+new_num_intern_recs*(1+reclen)),INTERN_SPACE);
+    newblock = mem_calloc(sizeof(Cell),(size_t)(2+new_num_intern_recs*(1+reclen)),INTERN_SPACE);
     if (!newblock) {
       xsb_error("No memory for interned terms\n");
     }
@@ -300,7 +313,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
     if (!nhashtab_rec) xsb_abort("No memory for interned term hash table block\n");
     nhashtab_rec->hashtab_size = (ht_cnt<10)?hashtable_sizes[ht_cnt]:hashtable_sizes[num_ht_sizes-1];
     nhashtab_rec->num_in_hashtab = 0;
-    nhashtab_rec->hashtab = mem_calloc(sizeof(Cell),nhashtab_rec->hashtab_size,INTERN_SPACE);
+    nhashtab_rec->hashtab = mem_calloc(sizeof(Cell),(size_t)nhashtab_rec->hashtab_size,INTERN_SPACE);
     if (!nhashtab_rec->hashtab)
       xsb_abort("No memory for interned term hash table of size \n",nhashtab_rec->hashtab_size);
     // put at beginning of hash chain of first hashtable
@@ -328,18 +341,19 @@ int isinternstr_really(prolog_term term) {
     areaindex = LIST_INDEX;
     if (!hc_block[areaindex]) return FALSE;
     reclen = 3;
-  } else if (isstr(term)) {
+  } else if (isconstr(term)) {
     areaindex = get_arity(get_str_psc(term));
-    if (!hc_block[areaindex]) return FALSE;
     reclen = areaindex + 2;
+    if (areaindex >= BIG_ARITY_INDEX_BASE) {
+      areaindex = check_big_arity_index(areaindex); 
+      /* 0 if not there */
+      if (!areaindex) return FALSE;
+    }
+    if (!hc_block[areaindex]) return FALSE;
   } else return FALSE;
   tptr = clref_val(term);
   if (tptr>=(CPtr)glstack.low && tptr<=(CPtr)glstack.high)
     return FALSE;
-  if (areaindex >= BIG_ARITY_INDEX_BASE) {
-    areaindex = get_big_arity_index(areaindex);
-    if (!hc_block[areaindex]) return FALSE;
-  }
   intterm_blk_ptr = hc_block[areaindex]->base;
   while (intterm_blk_ptr) {
     if (tptr>(CPtr)intterm_blk_ptr &&
@@ -424,8 +438,8 @@ Integer ts_array_len = 0;
 #define init_ts_array_len 5000  
 #define check_ts_array_overflow \
   if (ti >= ts_array_len) {						\
-    ts_array = mem_realloc(ts_array,ts_array_len*sizeof(*ts_array),	\
-			   ts_array_len*2*sizeof(*ts_array),INTERN_SPACE); \
+    ts_array = mem_realloc(ts_array,(size_t)ts_array_len*sizeof(*ts_array), \
+			   (size_t)ts_array_len*2*sizeof(*ts_array),INTERN_SPACE); \
     ts_array_len = ts_array_len*2;					\
   }
 
@@ -544,6 +558,7 @@ void reclaim_internstr_recs() {
   struct hc_block_rec *hc_blk_ptr;
   
   if (!hc_block) return;
+  //  printf("reclaiming internstr records\n");
   for (areaindex = 0; areaindex < NUM_INTERN_INDEXES; areaindex++) {
     if (areaindex == LIST_INDEX) reclen = 3; // including next pointer
     else if (areaindex > 255) {
