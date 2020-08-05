@@ -274,6 +274,7 @@ static void init_flags(CTXTdecl)
   flags[MAX_ANSWERS_FOR_SUBGOAL_ACTION] = XSB_ERROR;
   flags[MAX_TABLE_SUBGOAL_VAR_NUM] = 64000;
   flags[MAX_TABLE_ANSWER_VAR_NUM] = 64000;
+  flags[MAX_MEMORY] = 0;  /* i.e., no user memory max set */
   flags[MAX_MEMORY_ACTION] = XSB_ERROR;
 
   flags[CYCLIC_CHECK_SIZE] = 1000;
