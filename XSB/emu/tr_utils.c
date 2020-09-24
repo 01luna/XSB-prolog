@@ -1383,7 +1383,7 @@ void delete_return(CTXTdeclc BTNptr leaf, VariantSF sg_frame,int eval_method)
   TChoice  tc;
 #endif
 
-  //  printf("DELETE_NODE: %d - Par: %d\n", leaf, BTN_Parent(leaf));
+  //  printf("DELETE_NODE: %p - Par: %p\n", leaf, BTN_Parent(leaf));
   //    ans_deletes++;
 
     // already simplified this return away
@@ -1423,12 +1423,17 @@ void delete_return(CTXTdeclc BTNptr leaf, VariantSF sg_frame,int eval_method)
       }
 #endif
     }
-    if (ALN_Next(n) && ALN_Next(ALN_Next(n)) &&
-	hasALNtag(ALN_Answer(ALN_Next(ALN_Next(n))))) {
-	Child(ALN_Answer(ALN_Next(ALN_Next(n)))) = Child(leaf);
+    a = ALN_Next(n);
+    next = ALN_Next(a);
+    if (next &&	hasALNtag(ALN_Answer(next))) {
+      if (hasALNtag(ALN_Answer(a)) || !Child(ALN_Answer(a))) {
+	/* reset previous ptr that went to deleted node */
+	Child(ALN_Answer(next)) = Child(leaf);
+      } else {
+	/* reset to untagged ptr; must be unconditional node to have had ALNtag */
+	Child(ALN_Answer(next)) = (BTNptr)((word)next | UNCONDITIONAL_MARK);
       }
-    a               = ALN_Next(n);
-    next            = ALN_Next(a);
+    }
     ALN_Answer(a)   = NULL; /* since we eagerly release trie nodes, this is
 			       necessary to keep garbage collection sane */
     ALN_Next(a) = compl_del_ret_list(subg_compl_stack_ptr(sg_frame));
