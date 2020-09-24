@@ -199,6 +199,26 @@ int findall_init(CTXTdecl)
   return TRUE;
 } /* findall_init */
 
+/* in bytes... */
+#define MEMSET_INCR 800
+void incr_memset_0(byte *Loc, size_t size) {
+  size_t disp = 0;
+  size_t nextdisp = MEMSET_INCR;
+  size_t followdisp = 2*MEMSET_INCR;
+  memset(Loc,0,MEMSET_INCR);
+  while (followdisp <= FINDALL_CHUNCK_SIZE*sizeof(word)
+	 && memcmp(Loc+disp,Loc+nextdisp,MEMSET_INCR) != 0) {
+    memset(Loc+nextdisp,0,MEMSET_INCR);
+    disp = nextdisp;
+    nextdisp = followdisp;
+    followdisp  += MEMSET_INCR;
+  }
+  if (followdisp > size) {
+    memset(Loc+nextdisp,0,size-nextdisp);
+  }
+  return;
+}
+
 /* findall_free is called to desactive an entry in the solution_list
    at the end of findall_get_solutions, and from findall_clean
 */
@@ -210,13 +230,15 @@ void findall_free(CTXTdeclc int i)
   /* Leave first chunk, so no need to realloc later */
   p = (CPtr) *(this_solution->first_chunk) ;
   // Clear first chunk so gc doesn't unnecessarily scan it and get confused.
-  memset(this_solution->first_chunk,0,FINDALL_CHUNCK_SIZE*sizeof(Cell));
+  //memset(this_solution->first_chunk,0,FINDALL_CHUNCK_SIZE*sizeof(Cell));
+  incr_memset_0((byte *)(this_solution->first_chunk),FINDALL_CHUNCK_SIZE*sizeof(Cell));
   while (p != NULL)
     { to_free = p ; p = (CPtr)(*p) ; mem_dealloc(to_free,FINDALL_CHUNCK_SIZE * sizeof(Cell),FINDALL_SPACE) ; }
   this_solution->tail = 0 ;
   this_solution->size = nextfree ;
   nextfree = i ;
 } /*findall_free*/
+
 
 /* findall_clean should be called after interrupts or jumps out of the
    interpreter - or just before jumping back into it.
