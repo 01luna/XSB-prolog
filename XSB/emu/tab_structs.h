@@ -938,7 +938,16 @@ extern ALNptr empty_return(struct th_context *,VariantSF);
 #define empty_return_handle(SF) empty_return(th,SF)
 #endif
 
-/* tags for ALP pointers in leaf nodes, for faster delete */
+/* tags for Answer List Node (ALN) pointers on the child field of
+answer trie leaf nodes, for faster delete of unconditional answers: If
+the child field of a leaf node is so tagged, the child pointer is into
+the answer list, to the node *immediately preceding* the node
+corresponding to this unconditional answer; this supports efficient
+deletion from the singly-linked answer list.  If not tagged, child is
+either null, indicating it is an unconditional answer and corresponds
+to the first node in the answer list which has no predecessor, or it
+is a pointer to the delay list if the answer is conditional.  */
+
 #define HasALNPtr 0x2
 #define untag_as_ALNptr(Node) ((ALNptr)((word)(Child(Node)) & ~HasALNPtr))
 #define hasALNtag(Node) ((word)(Child(Node)) & HasALNPtr)

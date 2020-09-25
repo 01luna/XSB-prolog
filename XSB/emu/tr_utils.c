@@ -1426,12 +1426,10 @@ void delete_return(CTXTdeclc BTNptr leaf, VariantSF sg_frame,int eval_method)
     a = ALN_Next(n);
     next = ALN_Next(a);
     if (next &&	hasALNtag(ALN_Answer(next))) {
-      if (hasALNtag(ALN_Answer(a)) || !Child(ALN_Answer(a))) {
-	/* reset previous ptr that went to deleted node */
-	Child(ALN_Answer(next)) = Child(leaf);
+      if (n == subg_ans_list_ptr(sg_frame)) {
+	Child(ALN_Answer(next)) = NULL;
       } else {
-	/* reset to untagged ptr; must be unconditional node to have had ALNtag */
-	Child(ALN_Answer(next)) = (BTNptr)((word)next | UNCONDITIONAL_MARK);
+	Child(ALN_Answer(next)) = (BTNptr)((Integer)n | HasALNPtr);
       }
     }
     ALN_Answer(a)   = NULL; /* since we eagerly release trie nodes, this is
