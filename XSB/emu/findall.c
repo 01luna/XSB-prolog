@@ -200,21 +200,20 @@ int findall_init(CTXTdecl)
 } /* findall_init */
 
 /* in bytes... */
-#define MEMSET_INCR 800
-void incr_memset_0(byte *Loc, size_t size) {
+void incr_memset(byte *Loc, char Char, size_t size, size_t incr) {
   size_t disp = 0;
-  size_t nextdisp = MEMSET_INCR;
-  size_t followdisp = 2*MEMSET_INCR;
-  memset(Loc,0,MEMSET_INCR);
+  size_t nextdisp = incr;
+  size_t followdisp = 2*incr;
+  memset(Loc,Char,incr);
   while (followdisp <= FINDALL_CHUNCK_SIZE*sizeof(word)
-	 && memcmp(Loc+disp,Loc+nextdisp,MEMSET_INCR) != 0) {
-    memset(Loc+nextdisp,0,MEMSET_INCR);
+	 && memcmp(Loc+disp,Loc+nextdisp,incr) != 0) {
+    memset(Loc+nextdisp,0,incr);
     disp = nextdisp;
     nextdisp = followdisp;
-    followdisp  += MEMSET_INCR;
+    followdisp  += incr;
   }
   if (followdisp > size) {
-    memset(Loc+nextdisp,0,size-nextdisp);
+    memset(Loc+nextdisp,Char,size-nextdisp);
   }
   return;
 }
@@ -222,6 +221,7 @@ void incr_memset_0(byte *Loc, size_t size) {
 /* findall_free is called to desactive an entry in the solution_list
    at the end of findall_get_solutions, and from findall_clean
 */
+#define MEMSET_INCR 800
 
 void findall_free(CTXTdeclc int i)
 { CPtr to_free,p ;
@@ -230,8 +230,7 @@ void findall_free(CTXTdeclc int i)
   /* Leave first chunk, so no need to realloc later */
   p = (CPtr) *(this_solution->first_chunk) ;
   // Clear first chunk so gc doesn't unnecessarily scan it and get confused.
-  //memset(this_solution->first_chunk,0,FINDALL_CHUNCK_SIZE*sizeof(Cell));
-  incr_memset_0((byte *)(this_solution->first_chunk),FINDALL_CHUNCK_SIZE*sizeof(Cell));
+  incr_memset((byte *)(this_solution->first_chunk),0,FINDALL_CHUNCK_SIZE*sizeof(Cell),MEMSET_INCR);
   while (p != NULL)
     { to_free = p ; p = (CPtr)(*p) ; mem_dealloc(to_free,FINDALL_CHUNCK_SIZE * sizeof(Cell),FINDALL_SPACE) ; }
   this_solution->tail = 0 ;
