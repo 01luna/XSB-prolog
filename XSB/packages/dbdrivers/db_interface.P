@@ -25,7 +25,9 @@
 
 :- compiler_options([xpp_on]).
 
-#define DB_INTERFACE_TERM_SYMBOL   '\177'
+#define DB_INTERFACE_TERM_SYMBOL   '\177\'
+
+#include "char_defs.h"
 
 :- import file_read_canonical/3 from machine.
 :- import length/2 from basics.
@@ -141,8 +143,20 @@ stringify_compound_terms([X|List], [Z|CanonicalList]) :-
         (X == 'NULL'(_) -> Z = 'NULL' %% 'NULL'(_) is the database NULL
 	; (compound(X) ; X == []) ->
 	    term_to_atom(X, Y, [ignore_ops(canonical),quoted(true)]),
-	    atom_concat(DB_INTERFACE_TERM_SYMBOL,Y,Z)
+	    atom_concat(DB_INTERFACE_TERM_SYMBOL,Y,Z1),
+            escape_single_quotes(Z1,Z)
 	; Z = X
 	),
 	stringify_compound_terms(List, CanonicalList).
 
+escape_single_quotes(In, Out) :-
+        atom_codes(In,InL),
+        escape_single_quotes_in_list(InL,OutL),
+        atom_codes(OutPre,[CH_QUOTE|OutL]),
+        atom_concat(OutPre,'''',Out).
+escape_single_quotes_in_list([],[]) :- !.
+escape_single_quotes_in_list([CH_QUOTE|Rest], [CH_QUOTE,CH_QUOTE|RestConverted]) :-
+	!,
+	escape_single_quotes_in_list(Rest,RestConverted).
+escape_single_quotes_in_list([Ch|Rest],[Ch|RestConverted]) :-
+	escape_single_quotes_in_list(Rest,RestConverted).
