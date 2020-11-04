@@ -1,5 +1,5 @@
-/* File:      io_builtins_xsb.c
-** Author(s): David S. Warren, kifer
+/* File:      io_builtins_xsb.c*
+* Author(s): David S. Warren, kifer
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 1993-1998
@@ -324,6 +324,13 @@ xsbBool fmt_write(CTXTdecl)
     Arg = p2p_arg(ValTerm,i);
 
     if (current_fmt_spec->type == '!') { /* ignore field */
+      int fi = 0;
+      /* fprintf format prints %! as !, so must delete %! from end of fmt */
+      while (current_fmt_spec->fmt[fi+2] != '\0') fi++;
+      if (fi) {
+	current_fmt_spec->fmt[fi] = '\0';
+	PRINT_ARG("");
+      }
     } else if (current_fmt_spec->type == 'S') {
       /* Any type: print as a string */
       XSB_StrSet(&StrArgBuf,"");
@@ -484,6 +491,13 @@ xsbBool fmt_write_string(CTXTdecl)
     Arg = p2p_arg(ValTerm,i);
 
     if (current_fmt_spec->type == '!') { /* ignore field */
+      int fi = 0;
+      /* fprintf prints format %! as !, so must delete %! from end of fmt */
+      while (current_fmt_spec->fmt[fi+2] != '\0') fi++;
+      if (fi) {
+	current_fmt_spec->fmt[fi] = '\0';
+	SPRINT_ARG("");
+      }
     } else if (current_fmt_spec->type == 'S') {
       /* Any type: print as a string */
       XSB_StrSet(&StrArgBuf,"");
@@ -1338,7 +1352,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
 
    FORMAT: format string, INITIALIZE: 1-process new fmt string; 0 - continue
    with old fmt string. READ: 1 if this is called for read op; 0 for write.  */
-void next_format_substr(CTXTdeclc char *format, struct next_fmt_state *fmt_state,
+void  next_format_substr(CTXTdeclc char *format, struct next_fmt_state *fmt_state,
 				    struct fmt_spec *result,
 				    int initialize, int read_op)
 {
@@ -1514,7 +1528,6 @@ void next_format_substr(CTXTdeclc char *format, struct next_fmt_state *fmt_state
       break;
 
     case '!':
-      printf("set !\n");
       result->type = '!';
       keep_going = FALSE;
       break;
