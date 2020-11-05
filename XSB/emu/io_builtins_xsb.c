@@ -1,5 +1,5 @@
-/* File:      io_builtins_xsb.c
-** Author(s): David S. Warren, kifer
+/* File:      io_builtins_xsb.c*
+* Author(s): David S. Warren, kifer
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 1993-1998
