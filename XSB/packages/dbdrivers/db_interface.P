@@ -62,6 +62,10 @@ db_disconnect(Handle) :-
 %% direct querying
 
 db_query(Connhandle, QueryHandle, SQLQueryList, ReturnList) :-
+        (\+is_list(ReturnList) ->
+            throw(dbdrivers_error(0, 'db_query: argument 4 (results) must be a list'))
+        ; true
+        ),
 	(length(ReturnList, N), length(List, N), 
 	    stringify_compound_terms(SQLQueryList, CanSQLQueryList),
 	    queryConnection(Connhandle, QueryHandle, CanSQLQueryList, List)
