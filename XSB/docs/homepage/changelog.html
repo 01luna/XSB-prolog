@@ -17,103 +17,191 @@
 </div>
 
 <h1>ChangeLog</h1>
- up to about 9259
+ up to about 9572 (Mar 2019)
 
-<h2> Version 3.9 (???)</h2> 
+<h2> Version 4.0 (TaB) DRAFT DRAFT DRAFT</h2> 
 <ul>
 <li><b> Enhancements </b></li>
-<ul>
-<li> Numerous improvements to interned tables for robustness and
-efficiency, including better integration of interned terms with
-garbage collection.  The predicate <tt>intern_termhash/2</tt> was
-added which intern a ground term and returns a perfect hash number for
-the term.  Fixes for interning large arity terms.
-<li>Incremental tabling has improved in several ways.  A few remaining
-bugs in incremental tabling have been fixed.  Inspection of the
-dependency graph for incremental tabling has been improved, including
-support for inspecting leaf nodes, and new
-predicates <tt>summarize_idg/0</tt> and <tt>get_idg_info/2</tt>.
-Incremental tabling now also works with XSB is called from C.</li>
-<li>The <tt>proc_files</tt> library has been redesigned.  It now
-supports user-defined types, the option of throwing errors instead of
-warning messages.</li>
-<li>The <tt>prolog_db</tt> library was extended to include set
-operations among Prolog databases, storage of interned as well as
-regular terms, and a new implementation of index trees.  New
-predicates for cross product, join, reindex, and project that work
-directly on trie databases.  The functionality
-of <tt>retractall_in_db</tt> was improved and the predicates made more
-efficient.</li>
-<li>Various updates of PITA, XSB's package for fuzzy and probabilistic
-reasoning.  XSB can now be easily configured with PITA on Linux and
-the Mac, along with Windows under Cygwin.  Also, PITA has been
-extended to 64-bits.</li>
-<li>Restructured <tt>predicate_property/2</tt> to more accurately and
-consistenly indicate tabling properties.
-Introduced <tt>set_predicate_property/2</tt> to allow a consistent
-means to alter the tabling properties of predicates.</li>
-<li>The completion semantics can now be specified on a per-predicate
-basis, using a tabling option.</li>
-<li> XSB now allows specification of the display precision of floating
-point numbers, both through a Prolog flag and through an option
-of <tt>write_term/[1,2]</tt>. Now <tt>write_term/[1,2]</tt> also has
-an option to write out integers in octal and hexidecimal.P.  These
-improvements are reflected in various conversion routines between
-integers and character/code lists. </li>
-<li>Various improvements to the <tt>curl</tt> package, including
-better handling of URLs and their properties.  <tt>post_data/4</tt>
-was added, which returns the server response and warnings.</li>
-<li>A new <tt>encoding</tt> directive allows compilation of files
-according to different character encodings.  (The default is UTF-8.)
-XSB also is now better at reading unicode hexidecimal constants within
-text.</li>
-<li>XSB's compiler was updated to allow more efficient calls to
-builtins, which can be helpful if builtins are called within a tight
-loop.
-<li>The new predicates <tt>subgoal_property/2</tt>
-and <tt>variant_subgoal_property/2</tt> allow inspection of the state
-of various tabled subgoals, including the number of calls to a
-subgoal, the number of its answers, its evaluation state and whether
-it is incremental.</li>
-<li>It is now possible to load into a specific module
-in <tt>load_dyn(c)</tt>, and to specify which character encoding to
-use.  Fixed bugs in <tt>load_dyn/[1,2]</tt>for handling query
-directives, in explicit module qualifications, and in handling
-multifile declarations. </li>
-<li>A priority queue implementation was added to the <tt>assoc</tt> library.</li>
-<li> The <tt>custom</tt> option for tripwires allows a user to specify
-the action to take when a tripwire is hit.</li>
-<li>Added <tt>str_repl/2</tt> which replaces strings inside a string.</li>
-<li> XSB now supports a predicate, <tt>not3/1</tt> which properly
-handles negation of Prolog predicates within a 3-valued
-semantics.</li>
-<li>Added <tt>sleep_ms/1</tt> to sleep for milliseconds rather than seconds.</li>
-<li>XSB's initialization procedures were changed to make XSB easier to
-use as a servlet.</li>
+<ul style="list-style-type:disc;"> 
+<li><it>Incremental tabling</it> has been improved and extended in
+  several ways.
+  <ul>
+    <li>Incremental tabling now works with subsumptive tabling.</li>
+    <li>Inspection of the dependency graph for incremental tabling
+      has been improved, including support for inspecting leaf nodes, and
+      new predicates <tt>summarize_idg/0</tt> and <tt>get_idg_info/2</tt>.</li>
+    <li>Incremental tabling now also works when XSB is called from
+      C, and a few remaining bugs in incremental tabling have been fixed.</li>
+  </ul>
+</li>
+<li><it>Subsumptive tabling has also been improved.</it> In addition to supporting
+  incremental tabling: 
+  <ul>
+    <li>The method of declaring indexing for subsumptive tables is now
+      via <tt>table ... as index(N)</tt> and has clearer semantics than previously.</li>
+    <li>Faster computation on large, incomplete subsumptive tables.</li>
+  </ul>
+</li>
+<li> <it>interned table terms</it> have been improved robustness,
+  efficiency, and scalability including
+  <ul>
+    <li>Better integration of interned terms with garbage
+      collection.</li>
+    <li> The predicate <tt>intern_termhash/2</tt> was added which
+      interns a ground term and returns a perfect hash number for the term.</li>
+    <li> Fixes for interning large arity terms. </li>
+  </ul></li>
+<li><tt>proc_files</tt>, the I/O library for csv, tsv and other
+formats, has been redesigned.  It now supports user-defined types, and
+has the option of throwing errors instead of warning messages.</li>
+<li><tt>prolog_db</tt>, a library, based no tries, for backtrackable
+manipulation of sets and internal datastores was improved in various
+ways.
+  <ul>
+    <li> Set operations among Prolog databases</li>
+    <li> Storage of interned as well as regular terms</li>
+    <li> A new implementation of index trees.</li>
+    <li> New predicates for cross product, join, reindex, and project
+      that work directly on trie databases.</li>
+    <li> The functionality of <tt>retractall_in_db</tt> was improved
+      and the predicates made more efficient.</li>
+  </ul></li>
+<li><it>PITA</it>, XSB's package for fuzzy and probabilistic reasoning
+has been updated in several ways..  XSB can now be easily configured
+with PITA on Linux and the Mac, along with Windows under Cygwin.
+Also, PITA has been extended to 64-bits.</li>
+<li><it>I/O improvements</it>
+  <ul>
+    <li> Unicode support was improved:
+      <ul>
+	<li> The new <tt>encoding</tt> directive and compiler option support
+	  compilation of files according to different character encodings,
+	  including mutiple encodings within a given file.  (The default is
+	  UTF-8.)</li>
+	<li> XSB is also now better at reading unicode hexidecimal constants
+	  within text. These improvements are reflected in various conversion
+	  routines between integers and character/code lists.</li>
+	<li> XSB&#39s ODBC interface has improved Unicode handling resembling
+	  other I/O functionality.</li>
+      </ul>
+    <li> <it> Floating point display precision</it> is now allowed
+      through both a Prolog flag and through an option
+      of <tt>write_term/[1,2]</tt>. Now <tt>write_term/[1,2]</tt> also
+      has an option to write out integers in octal and
+      hexidecimal.  </li>
+    <li> Improvements to <tt>read_term/[1,2]</tt>
+      <ul>
+	<li> Double quotes can now be used to read in atoms
+	  via <tt>read_term/[1,2]</tt> and a global flag.  This non-ISO
+	  option can be useful for reading files in CSV and other
+	  formats.</li>
+	<li><tt>read_term</tt> also has an option to read variables as
+	  atoms.  This option can be useful for reading Prolog-like
+	  terms from otheer systems (e.g., Python).</li>
+    </ul>
+    <li> Various fixes to make <tt>write_canonical/[1,2]</tt> more
+      consistent with other forms of write. </li>
+  </ul></li>
+<li> <it>Python interface.</it> (!! need to explain what was done)</li>
+<li> <it>Meta-information</it> about code and execution state was
+restructured and expanded.
+  <ul style="list-style-type:circle;"> 
+    <li><tt>predicate_property/2</tt> was restructured to indicate a
+      predicate's tabling properties and loading/compilation status
+      more accurately and consistenly.</li>
+    <li> Introduced <tt>set_predicate_property/2</tt> to allow a consistent
+      means to alter the tabling properties of predicates.</li>
+    <li>The new predicates <tt>subgoal_property/2</tt>
+      and <tt>variant_subgoal_property/2</tt> allow inspection of the state
+      of various tabled subgoals, including the number of calls to a
+      subgoal, the number of its answers, its evaluation state and whether
+      it is incremental.</li>  
+    </ul></li>
+<li> Better support for web interfaces
+  <ul>
+    <tt>curl</tt> the XSBs package for I/O over the web has been improved.
+    <ul>
+      <li> There is better handling of URLs and their properties, along
+	with better handling of base64 data.</li>
+      <li> <tt>post_data/4</tt> was added, which returns the server
+	response and warnings.</li>
+    </ul>
+    <li>XSB's initialization procedures were changed to make XSB easier to
+      use as a servlet.</li>
+  </ul></li>
+<li><it>Dynamic Loading</it> (via <tt>load_dyn(c)</tt>) has improved
+speed and expanded functionality.
+  <ul>
+    <li>The loading of fully indexed knowledge graphs has been
+      observed at nearly 200,000 edges per second.</li>
+    <li> It is now possible to dynamically load into a specified module, and
+      to specify which character encoding to use.</li>
+    <li>Increased the maximum number of indexes allowed on a dynamic
+      predicate</li>
+    <li> Various bug fixes have been made for handling query directives, to allow explicit
+      module qualifications, and to properly handle multifile declarations.</li>
+  </ul></li>
+<li>Minizinc interface (!! need to explain)</li>
+<li>Speed Improvements
+  <ul>
+    <li> Various changes in tabling to avoid unnecessary quadric
+    behavior in certain cases </li>
+    <li> XSB&#39s compiler was updated to allow more efficient calls
+      to builtins, which can be helpful if builtins are called within a
+      tight loop.</li>
+    <li>Improvements were made that allow programs that use a large
+      number of atoms to run much faster</li>
+    <li>Compilation improvements to speed predicates that include
+    larger-arity Prolog functions.</li>
+  </ul></li>
 </ul>
 
-<li><b> Smaller Bug fixes and Minor Changes </b></li>
+<li><b> Smaller Improvements and Bug Fixes </b></li>
 <ul>
-<li>Added the declaration <tt>table ... as maxans(N)</tt> which allows
-a predicate to be tabled using answer set cardinality restraint.</li>
-<li>Various improvements in the <tt>multifile</tt> directive,
-including integrating <tt>multifile</tt> with the unknown predicate
-check.</li>
-<li>Fixes were made that allow programs that use a large number of
-atoms run much faster</li>
-<li>Fixed a transient and obscure bug with cycle detection for terms,
-along with bug fix for <tt>ground_and_cyclic/1</tt>.
-Also <tt>writeq/1</tt> now properly writes out cyclic terms.</li>
-<li>Fixed bug with declaring tabled predicates as dynamic</li>
-<li>Fixed bug in returning errors to C when C calls XSB.</li>
-<li>When using call or answer abstraction, a change was made to
-postpone abstraction when the limit is hit during traversal of an
-attributed variable, rather than aborting as was done previously.</li>
-<li>Fixed an obscure bug in heap expansion that occurred
-with <tt>atom_codes/2</tt> and similar predicates.</li>
-<li><tt>clause/2</tt> now handles an input of an explicit module as
-well as a predicate.</li>
-<li>Various small improvements to XSB's code profiling functionality.</li>
+  <li>Answer subsumption now works with dynamic predicates and with
+    attributed variables.</li>
+  <li>The completion/weak completion semantics for tabling can now be
+    specified on a per-predicate basis, using a tabling option.</li>
+  <li>Added <tt>str_repl/2</tt> which replaces strings inside a
+  string. Added <tt>split_atom/3</tt> which works similarly to split
+  methods in Python and Java.</li>
+  <li> Various bugs in the answer completion tabling operation were
+  fixed.</li>
+  <li> XSB now supports a predicate, <tt>not3/1</tt> which properly
+    handles negation of Prolog predicates within a 3-valued
+    semantics.</li>
+  <li>Added <tt>xsb_intercept_assert_hook</tt> and
+    <tt>xsb_intercept_retractall_hook</tt> to allow clause transformations
+    on asserts and retracts.</li>
+  <li>Various improvements in the <tt>multifile</tt> directive,
+    including integrating <tt>multifile</tt> with the unknown predicate
+    check and <tt>check_index/1</tt>.</li>
+  <li>Fixed a transient and obscure bug with cycle detection for terms,
+    along with bug fix for <tt>ground_and_cyclic/1</tt>.
+    Also <tt>writeq/1</tt> now properly writes out cyclic terms.</li>
+  <li>A priority queue implementation was added to the <tt>assoc</tt>
+  library.</li>
+  <li> The <tt>custom</tt> option for tripwires allows a user to specify
+    the action to take when a tripwire is hit.</li>
+  <li>Added the declaration <tt>table ... as maxans(N)</tt> which allows
+    a predicate to be tabled using answer set cardinality restraint.</li>
+  <li>Added <tt>sleep_ms/1</tt> to sleep for milliseconds rather than
+    seconds.</li>
+  <li>Fixed bug with declaring tabled predicates as dynamic</li>
+  <li>Fixed bug in returning errors to C when C calls XSB.</li>
+  <li>Fixed bug in <tt>setof/3</tt> and <tt>bagof/3</tt> in handling of
+    attributed variables.</li>
+  <li>Handling of escapes within atoms is now more ISO-compliant.</li>
+  <li>When using call or answer abstraction, a change was made to
+    postpone abstraction when the limit is hit during traversal of an
+    attributed variable, rather than aborting as was done previously.</li>
+  <li>Fixed an obscure bug in heap expansion that occurred
+    with <tt>atom_codes/2</tt> and similar predicates.</li>
+  <li> More efficient garbage collection of retracted and abolished
+    dynamic clauses.</li>
+  <li><tt>clause/2</tt> now handles an input of an explicit module as
+    well as a predicate.</li>
+  <li>Various small improvements to XSB's code profiling functionality.</li>
 </ul>
 </ul>
 
