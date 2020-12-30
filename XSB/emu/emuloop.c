@@ -114,7 +114,6 @@ Integer num_in_sched_heap = 0;
 CPtr	ans_var_pos_reg;
 #endif
 
-
 //int instr_flag = 0;    // Used for switching on PIL_TRACE
 // CPtr hreg_pos; // for debugging iso incremental tables.  Can be removed once these are stable.
 
@@ -502,6 +501,21 @@ int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
  * (In 64-bit machines there are 4 bytes of extra padding space for each 
  *  instruction)
  */
+
+// TES -- used for debugging
+//void traverse_materialized_consumers(SubProdSF Producer) {
+//  SubConsSF consumer = subg_consumers(Producer);
+//  ALNptr answer;
+//  while (consumer != NULL) {
+//    printf("Consumer: %p\n",consumer);
+//    answer = subg_ans_list_ptr(consumer);
+//    while (answer != NULL) {
+//      printf("   Answer: %p\n",answer);
+//      answer = NULL;
+//    }
+//    consumer = conssf_consumers(consumer);
+//  }
+//}
 
 int emuloop(CTXTdeclc byte *startaddr)
 {
