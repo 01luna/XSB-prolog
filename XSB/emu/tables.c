@@ -210,21 +210,22 @@ int handle_incremental_recomputation(CallLookupResults *results) {
       should fetch answers from the earlier answer table as any
       completed call would do.
     */
-    call_found_flag=CallLUR_VariantFound(*results);
     Paren=CallLUR_Leaf(*results);
 
-    if(call_found_flag!=0){  // the next few lines are executed whether incr or non-oncr.
-      //      printf("cff = 0\n");
+    // TES: its possible that the found flag will be true but there
+    // will be no sf.  So I changed the following call to use
+    // CallLUR_Subsumer rather than CallLUR_VariantFound
+    // call_found_flag used below, so keep.
+    call_found_flag=CallLUR_VariantFound(*results);
+    
+    if(CallLUR_Subsumer(*results)){
+      // the next few lines are executed whether incr or non-incr.
       //      var_subg_inserts_gl++;
       old_call_gl=NULL;
       old_answer_table_gl=NULL;
       
       sf=CallTrieLeaf_GetSF(Paren);
       c=sf->callnode;
-      if (IsNonNULL(c))  {
-	//	printf("        checking the incremental goal flscnt %d ",c->falsecount);
-	//      print_subgoal(stddbg,sf);printf("\n");
-      }
       /* TES: if falsecount == 0 && call_found_flag, we know that call
          is complete.  Otherwise, dfs_outedges would have aborted */
 

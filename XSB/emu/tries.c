@@ -2130,7 +2130,7 @@ int vcs_tnot_call = 0;
 	Cell newElement;						\
 	CPtr pElement = xtemp1;						\
 	/*	printf("begin abs reg1 dc %d ",subgoal_size_ctr);printterm(stddbg,reg[1],8);printf("\n");*/ \
-	/*      printf("abstracting %p @ %p\n",pElement,*pElement);		*/ \
+	/*	printf("abstracting %p @ %p\n",pElement,*pElement);printterm(stddbg,pElement,8);printf("\n"); */ \
 	XSB_Deref(*pElement);						\
 	newElement = (Cell) hreg;new_heap_free(hreg);			\
 	hbreg = hreg;							\
@@ -2541,6 +2541,15 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
   /*
    *  If an insertion was performed, do some maintenance on the new leaf.
    */
+  if (vcs_tnot_call && ctr > 0) {
+    vcs_tnot_call = 0;
+    sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(CallInfo_TableInfo(*call_info)));
+    clean_up_subgoal_table_structures_for_throw; 
+    xsb_abort("Floundering goal in tnot/1 %s\n",forest_log_buffer_1->fl_buffer);
+  }
+    
+  vcs_tnot_call = 0;
+
   if ( flag == 0 ) {
     //#if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
     //    subg_inserts++;
@@ -2548,13 +2557,6 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
     MakeLeafNode(Paren);
     TN_UpgradeInstrTypeToSUCCESS_wi(Paren,tag);
   }
-
-  if (vcs_tnot_call && ctr > 0) {
-      sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(CallInfo_TableInfo(*call_info))); 
-      xsb_abort("Floundering goal in tnot/1 %s\n",forest_log_buffer_1->fl_buffer);
-  }
-    
-  vcs_tnot_call = 0;
 
   //  printf("ctr %d attvs %d allAbsStk_index %d\n",ctr,attv_ctr,callAbsStk_index);
   if (ctr > (int)flags[MAX_TABLE_SUBGOAL_VAR_NUM]) { 
