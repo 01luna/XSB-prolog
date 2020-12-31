@@ -3012,7 +3012,8 @@ is equivalent to
 \end{quote} 
 %% 
 where {\tt pp} is a new proposition. Thus, the unbound variable $X$ is
-treated as $\tt tnot(\exists X (p(X)))$.
+treated as $\tt tnot(\exists X (p(X)))$.  {\tt not\_exists/1} also
+preserves the incrementality of the tabled goal it calls.
 
 If {\tt +P} is a non-tabled predicate {\tt not\_exists/1} ensures that
 {\tt +P} is ground and called via a tabled predicate so that {\tt
@@ -3020,10 +3021,11 @@ If {\tt +P} is a non-tabled predicate {\tt not\_exists/1} ensures that
 regardless of whether {\tt +P} is ground or not~\footnote{In previous
   versions of XSB, {\tt not\_exists/1} was called {\tt sk\_not/1}.}.
 
-{\tt not\_exists/1} uses an auxiliary tabled predicate, {\tt tabled\_call/1}
-in its execution.  Therefore to reclaim space at the predicate or call
-level (e.g. using {\tt abolish\_table\_pred/1} or similar predicates),
-{\tt tunnumcall/1} must be explicitly abolished.
+{\tt not\_exists/1} uses auxiliary tabled predicates, {\tt
+  tabled\_call/1} and {\tt incr\_tabled\_call/1} in its execution.
+Therefore to reclaim space at the predicate or call level (e.g. using
+{\tt abolish\_table\_pred/1} or similar predicates), these auxiliary
+predicates must be explicitly abolished.
 
 {\bf Error Cases}
 \begin{itemize}
