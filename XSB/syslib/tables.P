@@ -179,6 +179,7 @@ tfindall(T, Call, Result) :-
 %:- import writeln/1 from standard.
 :- mode tnot(?).
 tnot(Subgoal) :-
+    check_callable(Subgoal,tnot,1),
 	table_inspection_function(TNOT_SETUP,Subgoal,PredType,CallType,AnsSetStatus,SF,PTCP),
 %	writeln(table_inspection_function(TNOT_SETUP,Subgoal,PredType,CallType,AnsSetStatus,SF,PTCP)),
 %	table_status(Subgoal,PredType,CallType,AnsSetStatus,SF),
@@ -339,7 +340,31 @@ floundered(_Goal):- floundered_undefined(a).
 %% Gives (tabled) semantics of \+ for calls with variables.
 
 :- mode not_exists(?).
-not_exists(Goal):- sk_not(Goal).
+
+% TES New version added 12/20 to get proper behavior
+% with incremental, tabled non-incremental, and non-tabled.
+% Old versionL not_exists(Goal):- sk_not(Goal).  
+
+not_exists(Call):-
+    not_exists(Call,_Incr).
+
+not_exists(Call,Incr):-
+    check_callable(Call,not_exists,2),
+    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
+    term_psc(NewGoal,Psc),
+    psc_get_incr(Psc,Incr),
+    (Incr == 1 ->
+        incr_sk_not(NewGoal)
+    ;   sk_not(NewGoal) ).
+
+incr_sk_not(Goal) :-
+        (incr_tabled_call(Goal), fail
+	 ;
+	 tnot(incr_tabled_call(Goal))
+        ). 
+
+:- table incr_tabled_call/1 as variant, incremental.
+incr_tabled_call(X) :- call(X).
 
 :- table tabled_call/1 as variant, opaque.
 tabled_call(X) :- call(X).
