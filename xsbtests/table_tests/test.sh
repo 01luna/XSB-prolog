@@ -207,6 +207,8 @@ rm -f aggregs_test_2.xwam
 ../gentest.sh "$XEMU -l $options" test_table_index "test."
 #-------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_floundering_cleanup "test."
+#-------------------------------------------------
+../gentest.sh "$XEMU -l $options" not_exists_test "test."
 #--------------------------------
 # h series is hilog/tabling tests
 #------------------------------------
