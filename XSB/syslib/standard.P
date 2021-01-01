@@ -184,7 +184,8 @@ open(File,Mode,Stream) :- 'open aux'(File,Mode,0,Stream).
 	file_open(File, M, New, Stream),
 	(Stream < 0 -> 
 	    sys_errno(ErrNo),
-	    concat_atom(['open[mode=',M,',errno=',ErrNo,']'],Msg),
+            translate_system_error(ErrNo,ErrString),
+	    concat_atom(['open[mode=',M,',errno=',ErrString,']'],Msg),
 	    permission_error(Msg,file,File,open/3)
 	 ;  true).
 'open aux'(SrcSnk,_,_,_):- 
