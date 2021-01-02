@@ -88,7 +88,8 @@
 	  conpsc/2, psc_type/2, slash/1, psc_arity/2, 
 	  existing_file_extension/2, almost_search_module/5, db_get_prref/2,
 	  term_psc/2, psc_set_shared/2, psc_set_private/2, stat_flag/2,
-	  term_new/2, term_new_mod/3, stat_set_flag/2, psc_import_as/2
+	  term_new/2, term_new_mod/3, stat_set_flag/2, psc_import_as/2,
+	  psc_set_type/2
      from machine.
 :- import
 	check_xpp_process_status/3,

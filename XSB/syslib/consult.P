@@ -585,6 +585,10 @@ load_dyn0(Dirctry,SExt,Base,Mod,Dir,Module) :-
          ;      load_dyn1(Hfname,Dirctry,Dir,FMod,Module) % ? into module?
         ),
 	load_dyn1(ARfname,Dirctry,Dir,FMod,Module),
+	(Module \== FMod
+	 -> set_module_type(Module)
+	 ;  true
+	),
 	cleanup_for_load.
 
 get_HRname(SExt,Base,Hfname,Rfname) :-
@@ -716,6 +720,14 @@ cleanup_for_load :-
 	retractall(load_dyn_apply(_)).
 %%	retractall(in_mod(_,_,_)).
 
+%% set module psc to have module type
+set_module_type(Mod) :-
+    (Mod \== usermod
+     -> conpsc(Mod,MPsc),
+	psc_set_type(MPsc,4)
+     ;  true
+    ).
+
 %% This version is used for load_dyn1 only!
 read_and_assert(Dir,Base,Module) :-
 	read(Term1),
@@ -774,6 +786,10 @@ load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg) :-
          ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,FactFlg)
         ),
 	load_dync1(ARfname,Dirctry,Dir,FMod,Module,FactFlg),
+	(Module \== FMod
+	 -> set_module_type(Module)
+	 ;  true
+	),
 	cleanup_for_load.
 
 load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
