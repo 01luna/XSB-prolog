@@ -585,10 +585,8 @@ load_dyn0(Dirctry,SExt,Base,Mod,Dir,Module) :-
          ;      load_dyn1(Hfname,Dirctry,Dir,FMod,Module) % ? into module?
         ),
 	load_dyn1(ARfname,Dirctry,Dir,FMod,Module),
-	(Module \== FMod
-	 -> set_module_type(Module)
-	 ;  true
-	),
+	set_module_type(Mod),
+	set_module_type(Module),
 	cleanup_for_load.
 
 get_HRname(SExt,Base,Hfname,Rfname) :-
@@ -723,7 +721,7 @@ cleanup_for_load :-
 %% set module psc to have module type
 set_module_type(Mod) :-
     (Mod \== usermod
-     -> conpsc(Mod,MPsc),
+     ->	conpsc(Mod,MPsc),
 	psc_set_type(MPsc,4)
      ;  true
     ).
@@ -786,10 +784,8 @@ load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg) :-
          ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,FactFlg)
         ),
 	load_dync1(ARfname,Dirctry,Dir,FMod,Module,FactFlg),
-	(Module \== FMod
-	 -> set_module_type(Module)
-	 ;  true
-	),
+	set_module_type(Mod),
+	set_module_type(Module),
 	cleanup_for_load.
 
 load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
