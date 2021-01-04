@@ -346,8 +346,8 @@ write\_binary} and {\tt append\_binary}.
 \item 	{\tt domain\_error(io\_mode,Mode)}
 \ei
 %
-\item 	{\tt SourceSink} is a file and cannot be opened, or opened in
-the desired mode 
+\item {\tt SourceSink} is a file and cannot be opened, or opened in
+  the desired mode, does not exist, etc.
 \bi
 \item 	{\tt permission\_error(open,file,SourceSink)}
 \ei
@@ -3023,9 +3023,9 @@ regardless of whether {\tt +P} is ground or not~\footnote{In previous
 
 {\tt not\_exists/1} uses auxiliary tabled predicates, {\tt
   tabled\_call/1} and {\tt incr\_tabled\_call/1} in its execution.
-Therefore to reclaim space at the predicate or call level (e.g. using
-{\tt abolish\_table\_pred/1} or similar predicates), these auxiliary
-predicates must be explicitly abolished.
+The appropriate tables for these auxiliary predicates are abolished
+whenever the subgoal {\tt P} or the predicate for {\tt P} are
+abolished,
 
 {\bf Error Cases}
 \begin{itemize}
