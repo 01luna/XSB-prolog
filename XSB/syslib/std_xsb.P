@@ -326,6 +326,7 @@ standard_symbol(listing, 1, standard).
 standard_symbol(load_dyn, 1, consult).			% Not ISO
 standard_symbol(load_dync, 1, consult).			% Not ISO
 standard_symbol(load_dynca, 1, consult).			% Not ISO
+standard_symbol(load_dynca, 2, consult).			% Not ISO
 standard_symbol(read_canonical, 1, consult).
 standard_symbol(read_canonical, 2, consult).
 standard_symbol(ls, 0, shell).

@@ -711,7 +711,6 @@ abolish_all_tables :-
 	   abolish_table_info,
 	   reinitialize_undefineds.
 
-% TES: predicate does not seem to work if abolish_table_pred_bi is not last (?) 
 :- mode abolish_table_pred(?,+).
 abolish_table_pred(Spec,Options) :-
 	check_nonvar(Spec,abolish_table_pred/2,1),
@@ -725,7 +724,12 @@ abolish_table_pred(Spec,Options) :-
 	 ;	findall(TTerm,table_index_predicates(Term,TTerm),TTerms),
 		%% no failure-driven loop; breaks cascaded abolishes.
 		abolish_table_pred_bi_all(TTerms,ActionType)
-	).
+	),
+	abolish_table_pred_auxiliaries(Term).
+
+% Need to skeletonize.
+abolish_table_pred_auxiliaries(Term):-
+    abolish_table_subgoals_internal(Term,ABOLISH_TABLES_DEFAULT).
 
 abolish_table_pred_bi_all([],_ActionType).
 abolish_table_pred_bi_all([Term|Terms],ActionType) :-
@@ -770,12 +774,16 @@ abolish_table_subgoals(Call) :-
 
 :- mode abolish_table_subgoal(?,+).
 abolish_table_subgoal(Call,Options) :-
-	check_abolish_options_list(Options,ActionType,abolish_table_subgoalb/2),
+	check_abolish_options_list(Options,ActionType,abolish_table_subgoal/2),
 	abolish_table_subgoal_internal(Call,ActionType).
 
 :- mode abolish_table_subgoal(?).
 abolish_table_subgoal(Call) :-
-	abolish_table_subgoal_internal(Call,ABOLISH_TABLES_DEFAULT).
+    abolish_table_subgoal_internal(Call,ABOLISH_TABLES_DEFAULT).
+
+auxiliary_table_subgoal(Goal,Goal).
+auxiliary_table_subgoal(Goal,tabled_call(Goal)).
+auxiliary_table_subgoal(Goal,incr_tabled_call(Goal)).
 
 check_abolish_options_list(Options,ActionType,Pred) :- 
     check_nonvar(Options,Pred,2),
@@ -808,8 +816,9 @@ check_abolish_options_list0(Culprit,_ActionType,Pred):-
    made to determine whether the pointer to the unifying call still exists. */
 abolish_table_subgoals_internal(Call,Action) :-
     check_cyclic(Call,'abolish_table_subgoals/1',1), 
-    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
+    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal1) ; Call = NewGoal1),
     current_prolog_flag(table_gc_action,GCAction),
+    auxiliary_table_subgoal(NewGoal1,NewGoal),
     get_calls(NewGoal,Handle,_Template), 
     (GCAction = abolish_tables_transitively ->
       check_if_subgoal_still_exists(NewGoal,Handle) 
@@ -831,9 +840,11 @@ check_if_subgoal_still_exists(NewGoal,Handle):-
       !.
 
 %---------
+
 abolish_table_subgoal_internal(Call,Action) :-
     check_cyclic(Call,'abolish_table_subgoal/1',1), 
-    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
+    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal1) ; Call = NewGoal1),
+    auxiliary_table_subgoal(NewGoal1,NewGoal),
     get_call(NewGoal,Handle,_Template), 
     table_state(Handle,_PredType,CallType,AnsSetStatus), 
     CallType \== subsumed, 
@@ -841,8 +852,23 @@ abolish_table_subgoal_internal(Call,Action) :-
       table_error(['abolishing undefined tabled call ',Call]) 
     ; AnsSetStatus == incomplete ->
       table_error(['abolishing incomplete tabled call ',Call])
-    ; abolish_table_subgoal_bi(Handle,Action) ),!.
+    ; abolish_table_subgoal_bi(Handle,Action) ),
+   fail.
 abolish_table_subgoal_internal(_Call,_Action).
+
+
+%abolish_table_subgoal_internal(Call,Action) :-
+%    check_cyclic(Call,'abolish_table_subgoal/1',1), 
+%    (Call = M:Goal -> term_new_mod(M,Goal,NewGoal) ; Call = NewGoal),
+%    get_call(NewGoal,Handle,_Template), 
+%    table_state(Handle,_PredType,CallType,AnsSetStatus), 
+%    CallType \== subsumed, 
+%    ( AnsSetStatus == undefined -> 
+%      table_error(['abolishing undefined tabled call ',Call]) 
+%    ; AnsSetStatus == incomplete ->
+%      table_error(['abolishing incomplete tabled call ',Call])
+%   ; abolish_table_subgoal_bi(Handle,Action) ),!.
+%abolish_table_subgoal_internal(_Call,_Action).
 
 abolish_table_subgoal_bi(_Handle,_Action) :-
 	'_$builtin'(ABOLISH_TABLE_CALL).
