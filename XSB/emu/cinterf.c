@@ -1388,8 +1388,8 @@ struct ccall_error_t ccall_error;
 #endif
 
 void create_ccall_error(CTXTdeclc char * type, char * message) {
-  strncpy(xsb_get_error_type(CTXT),type,ERRTYPELEN);
-  strncpy(xsb_get_error_message(CTXT),message,ERRMSGLEN);
+  strncpy(xsb_get_error_type(CTXT),type,ERRTYPELEN-1);
+  strncpy(xsb_get_error_message(CTXT),message,ERRMSGLEN-1);
 }
 
 void reset_ccall_error(CTXTdecl) {
