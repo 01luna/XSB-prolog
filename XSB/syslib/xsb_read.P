@@ -30,6 +30,7 @@
 #include "char_defs.h"
 #include "flag_defs_xsb.h"
 #include "thread_defs_xsb.h"
+#include "token_defs_xsb.h"
 
 %   file_read(+File, -Answer).
 :- mode file_read(+,?).
@@ -906,25 +907,25 @@ read_next_token_c(File, Char, Type, Value, NextChar) :-
 %  Prolog_Token_Type is the corresponding token type to the C_Token_Type.
 
 :- mode token_type(+,?).
-token_type( 0, tk_punc).
-token_type( 1, tk_varfunc).	% Added for HiLog for terms of the form: VAR( ...
-token_type( 2, tk_var).
-token_type( 3, tk_func).
-token_type( 4, tk_int).
-token_type( 5, tk_atom).
-token_type( 6, tk_eoc).
-token_type( 7, tk_vvar).
-token_type( 8, tk_vvarfunc).	% Added for HiLog for terms of the form: _( ...
-token_type( 9, tk_real).
-token_type(10, tk_eof).
-token_type(11, tk_str).
-token_type(12, tk_list).
-token_type(13, tk_hpunc).	% Added for HiLog to distinguish terms of the
+token_type(TK_PUNC, tk_punc).
+token_type(TK_VARFUNC, tk_varfunc). % Added for HiLog for terms of the form: VAR( ...
+token_type(TK_VAR, tk_var).
+token_type(TK_FUNC, tk_func).
+token_type(TK_INT, tk_int).
+token_type(TK_ATOM, tk_atom).
+token_type(TK_EOC, tk_eoc).
+token_type(TK_VVAR, tk_vvar).
+token_type(TK_VVARFUNC, tk_vvarfunc).	% Added for HiLog for terms of the form: _( ...
+token_type(TK_REAL, tk_real).
+token_type(TK_EOF, tk_eof).
+token_type(TK_STR, tk_str).
+token_type(TK_LIST, tk_list).
+token_type(TK_HPUNC, tk_hpunc).	% Added for HiLog to distinguish terms of the
 				% form f(...)(...  from terms of the form 
 				% f(...) (...  All this mess is caused because
 				% the scanner thows away all the spaces. 
-token_type(14, tk_intfunc).	% Added for terms of the form: integer( ...
-token_type(15, tk_realfunc).	% Added for terms of the form: real( ...
+token_type(TK_INTFUNC, tk_intfunc).	% Added for terms of the form: integer( ...
+token_type(TK_REALFUNC, tk_realfunc).	% Added for terms of the form: real( ...
 
 vv(_,_) :- warning('vv/2 is a function symbo and should not be called; noop').
 /* this will go away in the future; its purpose is to make sure that

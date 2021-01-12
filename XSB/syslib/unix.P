@@ -31,6 +31,7 @@
 :- compiler_options([xpp_on,sysmod]).
 #include "extensions_xsb.h"
 #include "builtin.h"
+#include "celltags_xsb.h"
 
 
 :- export unix/2, cd/1, unix/1, ls/0, rename/2, rm/1, edit/1.
@@ -47,8 +48,8 @@
 :- mode unix(+).
 unix(Command) :- 
 	term_type(Command, T),
-	( T =:= 3 -> constr_command(Command, Command1), unix(Command1, Res)
-	; T =:= 5 -> unix(Command, Res)
+	( T =:= XSB_LIST -> constr_command(Command, Command1), unix(Command1, Res)
+	; T =:= XSB_STRING -> unix(Command, Res)
 	),
 	Res =:= 0.
 
@@ -61,8 +62,8 @@ constr_command([H|T], String) :-
 unix(Command, Result) :-
 	obsolete('unix/1, unix/2', 'shell/1, shell/2'),
 	term_type(Command, T),
-	( T =:= 5 -> sys_system(0, Command, R, _, _, _, _), Result = R
-	; T =:= 1 -> term_psc(Command, PSC), psc_name(PSC, RCommand), 
+	( T =:= XSB_STRING -> sys_system(0, Command, R, _, _, _, _), Result = R
+	; T =:= XSB_STRUCT -> term_psc(Command, PSC), psc_name(PSC, RCommand), 
 	             sys_system(0, RCommand, R, _, _, _, _), Result = R
 	).
 
