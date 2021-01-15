@@ -856,7 +856,7 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
       one_btn_chk_ins(flag, EncodeTrieConstant(xtemp1), CZero, TrieType);	\
       break;								\
     case XSB_LIST:							\
-      if (interning_terms && isinternstr(xtemp1)) {					\
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
 	one_btn_chk_ins(flag, EncodeTrieList(xtemp1), (Cell)xtemp1, TrieType); \
       } else {								\
 	one_btn_chk_ins(flag, EncodeTrieList(xtemp1), CZero, TrieType);	\
@@ -867,7 +867,7 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
     case XSB_STRUCT:							\
       psc = get_str_psc(xtemp1);					\
       item = makecs(psc);						\
-      if (interning_terms && isinternstr(xtemp1)) {					\
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
 	one_btn_chk_ins(flag, item, (Cell)xtemp1, TrieType);		\
       }	else {								\
 	one_btn_chk_ins(flag, item, CZero, TrieType);			\
@@ -1455,7 +1455,7 @@ BTNptr variant_answer_search(CTXTdeclc int ans_sf_size, int attv_num, CPtr ans_s
 	  xtemp1 = (CPtr)intern_term(CTXTc reg[1]); 
 	}
       }
-      if (interning_terms && isinternstr(xtemp1)) {
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {
 	one_btn_chk_ins(found_flag, EncodeTrieList(xtemp1), (Cell)xtemp1, BASIC_ANSWER_TRIE_TT);
       } else {
 	one_btn_chk_ins(found_flag, EncodeTrieList(xtemp1), CZero, BASIC_ANSWER_TRIE_TT);
@@ -1477,7 +1477,7 @@ BTNptr variant_answer_search(CTXTdeclc int ans_sf_size, int attv_num, CPtr ans_s
 	  xtemp1 = (CPtr)intern_term(CTXTc reg[1]); 
 	}
       }
-      if (interning_terms && isinternstr(xtemp1)) {
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {
 	one_btn_chk_ins(found_flag, trie_symbol, (Cell)xtemp1, BASIC_ANSWER_TRIE_TT);
       } else {
 	one_btn_chk_ins(found_flag, trie_symbol, CZero, BASIC_ANSWER_TRIE_TT);
@@ -2196,7 +2196,7 @@ int vcs_tnot_call = 0;
   }									
 
 #define	ADD_LIST_TO_SUBGOAL_TRIE(xtemp1,TrieType) {				\
-    if (interning_terms && isinternstr(xtemp1)) {			\
+    if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
       /*printf("obci 3 %X, %X\n",EncodeTrieList(xtemp1), (Cell)xtemp1);*/ \
       one_btn_chk_ins(flag, EncodeTrieList(xtemp1), (Cell)xtemp1, TrieType); \
     } else {								\
@@ -2214,7 +2214,7 @@ int vcs_tnot_call = 0;
 #define	ADD_STRUCTURE_TO_SUBGOAL_TRIE(xtemp1,TrieType) {		\
     psc = get_str_psc(xtemp1);						\
     item = makecs(psc);							\
-    if (interning_terms && isinternstr(xtemp1)) {			\
+    if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
       one_btn_chk_ins(flag, item, (Cell)xtemp1, TrieType);		\
     } else {								\
       one_btn_chk_ins(flag, item, CZero, TrieType);			\
@@ -2464,7 +2464,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
       one_btn_chk_ins(flag, EncodeTrieConstant(call_arg), CZero, CALL_TRIE_TT);
       break;
     case XSB_LIST:
-      if (interning_terms && isinternstr(call_arg)) {
+      if (/*interning_terms &&*/ isinternstr(call_arg)) {
 	one_btn_chk_ins(flag, EncodeTrieList(call_arg), (Cell)call_arg, CALL_TRIE_TT);
       } else {
 	one_btn_chk_ins(flag, EncodeTrieList(call_arg), CZero, CALL_TRIE_TT);
@@ -2477,7 +2477,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
     case XSB_STRUCT:
       psc = get_str_psc(call_arg);
       item = makecs(psc);
-      if (interning_terms && isinternstr(call_arg)) {
+      if (/*interning_terms &&*/ isinternstr(call_arg)) {
 	one_btn_chk_ins(flag, item, (Cell)call_arg, CALL_TRIE_TT);
       } else {
 	one_btn_chk_ins(flag, item, CZero, CALL_TRIE_TT);
