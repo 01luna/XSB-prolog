@@ -920,13 +920,21 @@ do_assert_and_fail(:-(Cmd),_Dir,Base,Mod) :- !, % DIRECTIVE
 	 ->	(load_dyn_module(RMod0)
 		 ->	(RMod0 == Base
 			 ->	true
+                         ; RMod0 == Mod
+			 ->     true
 			 ;	permission_error(redefine,'assumed module, export must precede ANY definition/use',
 						 p/n,load_dyn/1)
+			),
+			NRMod = RMod
+		;       (RMod == usermod
+			 -> assert(load_dyn_module(Base)),
+			    NRMod = Base
+			 ;  assert(load_dyn_module(RMod)),
+			    NRMod = RMod
 			)
-		 ;	assert(load_dyn_module(RMod))
 		),
-		add_to_in_mod(PAs,RMod),
-		assert(load_dyn_cmds(import(from(PAs,RMod))))
+		add_to_in_mod(PAs,NRMod),
+		assert(load_dyn_cmds(import(from(PAs,NRMod))))
 	 ; proc_directive(CmdName,CmdArgs,RMod)
 	 ->	true
 	 ;	fix_body_goal(Cmd,RMod,Cmd1),
