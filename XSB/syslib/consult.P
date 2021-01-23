@@ -34,7 +34,7 @@
 compile(Path) :- compile_opt_checked(Path, [], 2).	% compile with no options
 
 :- mode compile(+,+).
-compile(Paths,Options):- 
+compile(Paths,Options):-
 	check_nonvar(Options,'compile/2',2),
 	check_compile_options(Options),
 	compile_opt_checked(Paths, Options, 2).
@@ -135,9 +135,11 @@ reconsult(Path) :- reconsult(Path, []).
 reconsult(Path, Options) :- reconsult(Path, Options, false).
 
 reconsult(Path, Options, Ensure_loaded) :- 
-	check_nonvar(Path,'reconsult/1',1),
-	check_atom(Path,'reconsult/1',1),
-	\+ (\+ (reconsult0(Path, Options, Ensure_loaded))).
+    check_nonvar(Path,'reconsult/1',1),
+    check_atom(Path,'reconsult/1',1),
+    \+ (\+ (reconsult0(Path, Options, Ensure_loaded))),!.
+reconsult(Path, Options, _Ensure_loaded) :- 
+    misc_error(['Unknown error while (re)consuting ',Path,' with options ',Options]).
 
 /* TLS: restricting to only one thread for now.  Its possible that if
  * the file hasn't been loaded before, we could load it, but I'm not 
