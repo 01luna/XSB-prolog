@@ -14,10 +14,11 @@ xsb_patch_date=`echo Build date: $xsb_build_date`
 #xsb_patch_date=`echo $xsb_patch_date | sed 's,.*Da,Patch da,' | sed 's, *\\$,,'`
 
 
-xsb_major_version=3
-xsb_minor_version=8
-xsb_patch_version=0         # must be present; otherwise, an ugly "." at the end
-#xsb_beta_version=pre"
+xsb_major_version=4
+xsb_minor_version=0
+xsb_patch_version="0-beta" # must be present; otherwise, an ugly "." at the end
+#xsb_beta_version=pre
+xsb_beta_version=""
 #xsb_codename="Skol"        # for Version 2.1
 #xsb_codename="Tsingtao"    # for Version 2.2
 #xsb_codename="Zombie"      # Version 2.3
@@ -33,7 +34,8 @@ xsb_patch_version=0         # must be present; otherwise, an ugly "." at the end
 #xsb_codename="Maotai"      # Version 3.5 Chinese Beer (Neng-Fa)
 #xsb_codename="Gazpatcho"   # Version 3.6 (Paulo Moura)
 #xsb_codename="Clan MacGregor"    # Version 3.7 (David's Scotch)
-xsb_codename="Three-Buck Chuck" 
+#xsb_codename="Three-Buck Chuck" 
+xsb_codename="TaB: RIP"
 
 # Format: YYYY-MM-DD or YYYY.MM.DD or YYYY/MM/DD
 # With this, XSB should become Y2K compliant :-)
@@ -46,5 +48,6 @@ xsb_codename="Three-Buck Chuck"
 #xsb_release_date=2014-07-06
 #xsb_release_date=2015-04-22 
 #xsb_release_date=2016-07-06 
-xsb_release_date=2017-10-28  # target (may be changed)
+#xsb_release_date=2017-10-28  # target (may be changed)
+xsb_release_date=2020-11-30  # target (may be changed)
 

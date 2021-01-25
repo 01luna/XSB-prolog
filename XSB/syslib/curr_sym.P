@@ -40,6 +40,7 @@
 #include "table_status_defs.h"
 #include "psc_defs.h"
 #include "io_defs_xsb.h"
+#include "celltags_xsb.h"
 
 /* ===== current_atom/1 ====================================== */
 
@@ -591,7 +592,7 @@ predicate_property(Term, Property) :-	% This takes care of global
 %	 writeln(dyna),
 		term_psc(Term, PSC),term_new(PSC,Skel),
 		predicate_property_1(PSC,Skel, Search_prop)
-	 ; Type =:= 5 ->  
+	 ; Type =:= XSB_STRING ->  
 %	        warning(('predicate_property/2 called on term of type T_FILE: ',Term)),
 		conpsc(Term, PSC),
 		predicate_property_1(PSC,Term, Search_prop)
@@ -1760,14 +1761,14 @@ predicate_property_20180213(Term_Indicator, Property) :-
 predicate_property_20180213(Term, Property) :-	% This takes care of global 
 					% modules,"usermod" and "global".
 	term_type(Term, Type),
-	( Type =:= 1 ->	% Hacked to make it fast when Term is given.
+	( Type =:= XSB_STRUCT -> % Hacked to make it fast when Term is given.
 			% If Term is given and it is represented as a structure 
 			% (has a PSC record) then using term_psc/2 we get to 
 			% this PSC record directly without having to scan the 
 			% whole PSC-Pair list.
 		term_psc(Term, PSC),
 		psc_properties_20180213(PSC, Property)
-	; Type =:= 5 ->
+	; Type =:= XSB_STRING ->
 		conpsc(Term, PSC),
 		psc_properties_20180213(PSC, Property)
 	; psc_scan_in_hash_table(0, PSC),

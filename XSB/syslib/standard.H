@@ -136,11 +136,13 @@
 :- import dcg/2 from dcg.
 %%:- import eval/2 from eval.
 
-:- import domain_error/4, domain_error/5, check_atom/3, check_nonvar/3,check_var/3, check_callable/3,
-	  check_ground/3,resource_error/2, representation_error/3, check_integer/3,
-	  type_error/4, permission_error/4, check_atomic/3,
-	  instantiation_error/3, instantiation_error/2, check_nonneg_integer/3, check_pos_integer/3,
-	  misc_error/1,misc_error/2  from error_handler.
+:- import domain_error/4, domain_error/5, check_atom/3,
+   check_nonvar/3,check_var/3, check_callable/3,
+   check_ground/3,resource_error/2, representation_error/3, check_integer/3,
+   type_error/4, permission_error/4, check_atomic/3,
+   instantiation_error/3, instantiation_error/2,
+   check_nonneg_integer/3, check_pos_integer/3,translate_system_error/2,
+   misc_error/1,misc_error/2  from error_handler.
 :- import  check_nonvar_list/3 from error_handler.
 
 :- import file_open/3, file_open/4, file_close/2, 
@@ -148,7 +150,7 @@
 	  file_put/2, file_put_code/2, file_put_char/2,
 	  check_stream_or_alias/4, check_open_stream_or_alias/5, add_aliases/4, remove_alias/3,
 	  fd2iostream/3      from file_io.
-:- import fmt_write/2 from file_io.
+%:- import fmt_write/2 from file_io.
 :- import xsb_stream_lock/1,xsb_stream_unlock/1 from file_io.
 :- import add_ops/3, add_index/3, '_$index'/3, add_trie_index/1, '_$trie_asserted'/1,
    retract_trie_index/1, retract_index/1 from file_op.

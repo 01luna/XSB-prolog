@@ -722,46 +722,21 @@ memory_type(COMPL_SPACE,' (currently expanding completion stack space)').
 
 %-------------
 
+/* maybe this could be extended to the mac -- not sure. */
+translate_system_error(Number,Text):-
+    xsb_configuration(os_type,'linux-gnu'),
+    linux_system_error(Number,Text),!.
+translate_system_error(Number,Number).
+  
+linux_system_error(1,' EPERM: Operation not permitted').
+linux_system_error(2,' ENOENT: No such file or directory').
+linux_system_error(3,' ESRCH: No such process').
+linux_system_error(4,' EINTR: Interrupted system call').
+linux_system_error(5,' EIO: I/O error').
+linux_system_error(6,' ENXIO: No such device or address').
+linux_system_error(7,' E2BIG: Arg list too long').
+linux_system_error(8,' ENOEXEC: Exec format error').
+linux_system_error(9,' EBADF: Bad file number').
+linux_system_error(10,' ECHILD: No child processes').
+  
 end_of_file.
-
-get_sys_error_description(error(Error,Msg,_Backtrace), ExceptionDesc) :-
-	get_sys_error_description(error(Error,Msg), ExceptionDescription).
-
-/* messages are handled via abort/1.  */
-/* Obsolete ..
-| default_sys_error_handler('_$abort_ball'(Backtrace)):- 
-| 	% here is where we may do something abt backtraces.
-| 	get_sys_error_description('_$abort_ball'(Backtrace),NewMsg),
-| 	messageln(NewMsg,STDERR),
-| 	xsb_flag(backtrace_on_error,BT),
-| 	(BT == on
-| 	 ->	print_backtrace(Backtrace)
-| 	 ;	true
-| 	).
-| default_sys_error_handler('_$abort_ball'(Msg,Backtrace)) :-
-| 	% here is where we may do something abt backtraces.
-| 	get_sys_error_description('_$abort_ball'(Msg, Backtrace),NewMsg),
-| 	messageln(NewMsg,STDERR),
-| 	xsb_flag(backtrace_on_error,BT),
-| 	(BT == on
-| 	 ->	print_backtrace(Backtrace)
-| 	 ;	true
-| 	).
-*/
-/* Obsolete 
-| get_sys_error_description('_$abort_ball'(AbortMsgs, Backtrace), 
-| 	                  ExceptionDescription, BacktraceList) :- !,
-| 	get_sys_error_description('_$abort_ball'(AbortMsgs, Backtrace), 
-| 	                          ExceptionDescription),
-| 	get_backtrace(Backtrace, BacktraceList).
-| get_sys_error_description('_$abort_ball'(Backtrace),'Aborting...',BacktraceList) :- 
-|	!,
-| 	get_backtrace(Backtrace, BacktraceList).
-*/
-/* Obsolete
-| get_sys_error_description('_$abort_ball'(AbortMsgs, _Backtrace), ExceptionDesc) :- 
-| 	ExceptionDesc = AbortMsgs.
-| get_sys_error_description('_$abort_ball'(_Backtrace), 'Aborting...'). 
-*/
-
-rend

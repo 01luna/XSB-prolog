@@ -2499,7 +2499,12 @@ This is the same as the Weibull distribution with $k = 1$.
 
 \end{description}
 
-\section{Loading Delimiter-Separated Files} \label{sec:procfiles}
+\section{Loading .CSV and Other Delimiter-Separated Files} \label{sec:procfiles}
+
+\index{csv file format}
+\index{dsv file format}
+\index{comma-separated file format}
+\index{delimiter-separated file format}
 
 A common file format uses comma separated values, the so-called csv
 files.  The XSB module, {\tt proc\_files}, supports the loading of
@@ -2685,6 +2690,25 @@ above declaration, the programmer simple calls the predicate (e.g.,
 {\tt pp\_f/4}) whenever she needs those values, and the system
 automatically loads the data on the first call, building the necessary
 indexes.  This can greatly simplify programming with data from files.
+
+\ourmoditem{save\_dsv(+FileName,PSpec,Options)}{save\_dsv/3}{proc\_files}
+Writes out a separated/delimited file from a Prolog predicate.
+{\tt FileName} is the name of the file to create.  {\tt PSpec}
+specifies the predicate to use: it may be of the form Pread/Arity or a
+most-general term, or it may be an atom in which case the unary
+predicate of that name is called to get a list of fields to output.
+
+Options are as in {\tt load\_dsv/3}.
+
+%\begin{itemize}
+%\item
+%\end{itemize}
+
+%{\em Sep} is a separator ascii-code or list of ascii-codes.  Delim is
+%currently ignored, but should get used when necessary.  The final
+%argument is for future expansion if/when we get options. (It should
+%support types, to write the arguments correctly.  In particular it
+%should support the term type.  But this is not (yet) done.)
 
 \end{description}
 

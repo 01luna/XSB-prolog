@@ -34,7 +34,7 @@
 compile(Path) :- compile_opt_checked(Path, [], 2).	% compile with no options
 
 :- mode compile(+,+).
-compile(Paths,Options):- 
+compile(Paths,Options):-
 	check_nonvar(Options,'compile/2',2),
 	check_compile_options(Options),
 	compile_opt_checked(Paths, Options, 2).
@@ -135,9 +135,11 @@ reconsult(Path) :- reconsult(Path, []).
 reconsult(Path, Options) :- reconsult(Path, Options, false).
 
 reconsult(Path, Options, Ensure_loaded) :- 
-	check_nonvar(Path,'reconsult/1',1),
-	check_atom(Path,'reconsult/1',1),
-	\+ (\+ (reconsult0(Path, Options, Ensure_loaded))).
+    check_nonvar(Path,'reconsult/1',1),
+    check_atom(Path,'reconsult/1',1),
+    \+ (\+ (reconsult0(Path, Options, Ensure_loaded))),!.
+reconsult(Path, Options, _Ensure_loaded) :- 
+    misc_error(['Unknown error while (re)consuting ',Path,' with options ',Options]).
 
 /* TLS: restricting to only one thread for now.  Its possible that if
  * the file hasn't been loaded before, we could load it, but I'm not 
@@ -532,6 +534,10 @@ write_canonical_list(Term) :-
     write_canonical(Term),
     writeln('.').
 
+:- export load_dyna/1.
+load_dyna(File) :-
+	load_dyn(File,0,usermod).
+
 :- mode load_dyn(+).
 load_dyn(File) :-
 	load_dyn(File,1,usermod).
@@ -581,6 +587,8 @@ load_dyn0(Dirctry,SExt,Base,Mod,Dir,Module) :-
          ;      load_dyn1(Hfname,Dirctry,Dir,FMod,Module) % ? into module?
         ),
 	load_dyn1(ARfname,Dirctry,Dir,FMod,Module),
+	set_module_type(Mod),
+	set_module_type(Module),
 	cleanup_for_load.
 
 get_HRname(SExt,Base,Hfname,Rfname) :-
@@ -712,6 +720,14 @@ cleanup_for_load :-
 	retractall(load_dyn_apply(_)).
 %%	retractall(in_mod(_,_,_)).
 
+%% set module psc to have module type
+set_module_type(Mod) :-
+    (Mod \== usermod
+     ->	conpsc(Mod,MPsc),
+	psc_set_type(MPsc,4)
+     ;  true
+    ).
+
 %% This version is used for load_dyn1 only!
 read_and_assert(Dir,Base,Module) :-
 	read(Term1),
@@ -735,6 +751,11 @@ load_dync(File) :-
 :- mode load_dynca(+).
 load_dynca(File) :-
 	load_dync(File,0,usermod,1).
+
+:- export load_dynca/2.
+:- mode load_dynca(+,+).
+load_dynca(File,Module) :-
+	load_dync(File,0,Module,1).
 
 :- mode load_dync(+,+).
 load_dync(File,DirIn) :-
@@ -765,6 +786,8 @@ load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg) :-
          ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,FactFlg)
         ),
 	load_dync1(ARfname,Dirctry,Dir,FMod,Module,FactFlg),
+	set_module_type(Mod),
+	set_module_type(Module),
 	cleanup_for_load.
 
 load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
@@ -899,13 +922,21 @@ do_assert_and_fail(:-(Cmd),_Dir,Base,Mod) :- !, % DIRECTIVE
 	 ->	(load_dyn_module(RMod0)
 		 ->	(RMod0 == Base
 			 ->	true
+                         ; RMod0 == Mod
+			 ->     true
 			 ;	permission_error(redefine,'assumed module, export must precede ANY definition/use',
 						 p/n,load_dyn/1)
+			),
+			NRMod = RMod
+		;       (RMod == usermod
+			 -> assert(load_dyn_module(Base)),
+			    NRMod = Base
+			 ;  assert(load_dyn_module(RMod)),
+			    NRMod = RMod
 			)
-		 ;	assert(load_dyn_module(Base))
 		),
-		add_to_in_mod(PAs,Base),
-		assert(load_dyn_cmds(import(from(PAs,Base))))
+		add_to_in_mod(PAs,NRMod),
+		assert(load_dyn_cmds(import(from(PAs,NRMod))))
 	 ; proc_directive(CmdName,CmdArgs,RMod)
 	 ->	true
 	 ;	fix_body_goal(Cmd,RMod,Cmd1),

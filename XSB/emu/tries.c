@@ -856,7 +856,7 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
       one_btn_chk_ins(flag, EncodeTrieConstant(xtemp1), CZero, TrieType);	\
       break;								\
     case XSB_LIST:							\
-      if (interning_terms && isinternstr(xtemp1)) {					\
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
 	one_btn_chk_ins(flag, EncodeTrieList(xtemp1), (Cell)xtemp1, TrieType); \
       } else {								\
 	one_btn_chk_ins(flag, EncodeTrieList(xtemp1), CZero, TrieType);	\
@@ -867,7 +867,7 @@ BTNptr get_next_trie_solution(ALNptr *NextPtrPtr)
     case XSB_STRUCT:							\
       psc = get_str_psc(xtemp1);					\
       item = makecs(psc);						\
-      if (interning_terms && isinternstr(xtemp1)) {					\
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
 	one_btn_chk_ins(flag, item, (Cell)xtemp1, TrieType);		\
       }	else {								\
 	one_btn_chk_ins(flag, item, CZero, TrieType);			\
@@ -1455,7 +1455,7 @@ BTNptr variant_answer_search(CTXTdeclc int ans_sf_size, int attv_num, CPtr ans_s
 	  xtemp1 = (CPtr)intern_term(CTXTc reg[1]); 
 	}
       }
-      if (interning_terms && isinternstr(xtemp1)) {
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {
 	one_btn_chk_ins(found_flag, EncodeTrieList(xtemp1), (Cell)xtemp1, BASIC_ANSWER_TRIE_TT);
       } else {
 	one_btn_chk_ins(found_flag, EncodeTrieList(xtemp1), CZero, BASIC_ANSWER_TRIE_TT);
@@ -1477,7 +1477,7 @@ BTNptr variant_answer_search(CTXTdeclc int ans_sf_size, int attv_num, CPtr ans_s
 	  xtemp1 = (CPtr)intern_term(CTXTc reg[1]); 
 	}
       }
-      if (interning_terms && isinternstr(xtemp1)) {
+      if (/*interning_terms &&*/ isinternstr(xtemp1)) {
 	one_btn_chk_ins(found_flag, trie_symbol, (Cell)xtemp1, BASIC_ANSWER_TRIE_TT);
       } else {
 	one_btn_chk_ins(found_flag, trie_symbol, CZero, BASIC_ANSWER_TRIE_TT);
@@ -2130,7 +2130,7 @@ int vcs_tnot_call = 0;
 	Cell newElement;						\
 	CPtr pElement = xtemp1;						\
 	/*	printf("begin abs reg1 dc %d ",subgoal_size_ctr);printterm(stddbg,reg[1],8);printf("\n");*/ \
-	/*      printf("abstracting %p @ %p\n",pElement,*pElement);		*/ \
+	/*	printf("abstracting %p @ %p\n",pElement,*pElement);printterm(stddbg,pElement,8);printf("\n"); */ \
 	XSB_Deref(*pElement);						\
 	newElement = (Cell) hreg;new_heap_free(hreg);			\
 	hbreg = hreg;							\
@@ -2196,7 +2196,7 @@ int vcs_tnot_call = 0;
   }									
 
 #define	ADD_LIST_TO_SUBGOAL_TRIE(xtemp1,TrieType) {				\
-    if (interning_terms && isinternstr(xtemp1)) {			\
+    if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
       /*printf("obci 3 %X, %X\n",EncodeTrieList(xtemp1), (Cell)xtemp1);*/ \
       one_btn_chk_ins(flag, EncodeTrieList(xtemp1), (Cell)xtemp1, TrieType); \
     } else {								\
@@ -2214,7 +2214,7 @@ int vcs_tnot_call = 0;
 #define	ADD_STRUCTURE_TO_SUBGOAL_TRIE(xtemp1,TrieType) {		\
     psc = get_str_psc(xtemp1);						\
     item = makecs(psc);							\
-    if (interning_terms && isinternstr(xtemp1)) {			\
+    if (/*interning_terms &&*/ isinternstr(xtemp1)) {			\
       one_btn_chk_ins(flag, item, (Cell)xtemp1, TrieType);		\
     } else {								\
       one_btn_chk_ins(flag, item, CZero, TrieType);			\
@@ -2464,7 +2464,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
       one_btn_chk_ins(flag, EncodeTrieConstant(call_arg), CZero, CALL_TRIE_TT);
       break;
     case XSB_LIST:
-      if (interning_terms && isinternstr(call_arg)) {
+      if (/*interning_terms &&*/ isinternstr(call_arg)) {
 	one_btn_chk_ins(flag, EncodeTrieList(call_arg), (Cell)call_arg, CALL_TRIE_TT);
       } else {
 	one_btn_chk_ins(flag, EncodeTrieList(call_arg), CZero, CALL_TRIE_TT);
@@ -2477,7 +2477,7 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
     case XSB_STRUCT:
       psc = get_str_psc(call_arg);
       item = makecs(psc);
-      if (interning_terms && isinternstr(call_arg)) {
+      if (/*interning_terms &&*/ isinternstr(call_arg)) {
 	one_btn_chk_ins(flag, item, (Cell)call_arg, CALL_TRIE_TT);
       } else {
 	one_btn_chk_ins(flag, item, CZero, CALL_TRIE_TT);
@@ -2541,6 +2541,15 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
   /*
    *  If an insertion was performed, do some maintenance on the new leaf.
    */
+  if (vcs_tnot_call && ctr > 0) {
+    vcs_tnot_call = 0;
+    sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(CallInfo_TableInfo(*call_info)));
+    clean_up_subgoal_table_structures_for_throw; 
+    xsb_abort("Floundering goal in tnot/1 %s\n",forest_log_buffer_1->fl_buffer);
+  }
+    
+  vcs_tnot_call = 0;
+
   if ( flag == 0 ) {
     //#if !defined(MULTI_THREAD) || defined(NON_OPT_COMPILE)
     //    subg_inserts++;
@@ -2548,13 +2557,6 @@ int variant_call_search(CTXTdeclc TabledCallInfo *call_info,
     MakeLeafNode(Paren);
     TN_UpgradeInstrTypeToSUCCESS_wi(Paren,tag);
   }
-
-  if (vcs_tnot_call && ctr > 0) {
-      sprintCyclicRegisters(CTXTc forest_log_buffer_1,TIF_PSC(CallInfo_TableInfo(*call_info))); 
-      xsb_abort("Floundering goal in tnot/1 %s\n",forest_log_buffer_1->fl_buffer);
-  }
-    
-  vcs_tnot_call = 0;
 
   //  printf("ctr %d attvs %d allAbsStk_index %d\n",ctr,attv_ctr,callAbsStk_index);
   if (ctr > (int)flags[MAX_TABLE_SUBGOAL_VAR_NUM]) { 

@@ -982,15 +982,19 @@ backward compatibility, {\tt 0} and {\tt 1} are also allowed.}:
   clause is read that is not in canonical format.
 
 
-\standarditem{load\_dync(+FileName,+Dir,+Module)}
-{load\_dync/3}\label{load_dync/3}
-Acts as {\tt load\_dync/2}, but loads {\tt FileName} into the module named
-{\tt Module}.
-
-\standarditem{load\_dynca(+FileName)}{load\_dynca/1} \index{canonical format}
+\index{canonical format}  
+\standarditem{load\_dynca(+FileName)}{load\_dynca/1} \label{load_dync/3}
 %
 Convenience predicate for {\tt load\_dync(FileName,a)}: the fastest
-dynamic loading in XSB.
+dynamic loading in XSB, however it makes use of {\tt asserta/1} and so
+loads facts and clauses in the reverse order that they appear in {\tt
+  FileName}.
+
+\standarditem{load\_dynca(+FileName,+Module)}
+             {load\_dynca/2}\label{load_dynca/2}
+%
+Acts as {\tt load\_dynca/`}, but loads {\tt FileName} into the module
+named {\tt Module}.
 
 \standarditem{ensure\_loaded(+FileSpec,+Action)}{ensure\_loaded/2}
 %

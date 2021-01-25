@@ -31,7 +31,7 @@
    permission_error/4,    preprocessing_error/1,
    representation_error/3, resource_error/2,
    syntax_error/1, system_error/3,
-   table_error/1,    table_error/4, type_error/4, 
+   table_error/1,  table_error/4, translate_system_error/2, type_error/4, 
    check_atom/3, check_atomic/3, check_atom_list/3, check_callable/3, check_cyclic/3,
    check_listable/3, check_ground/3, 
    check_integer/3, check_nonneg_integer/3, check_pos_integer/3,
@@ -55,6 +55,9 @@
           xsb_error_get_goalatom/2.
 
 :- import (dynamic)/1,assert/3 from assert.
+:- import xsb_filename/2 from consult.
+:- import xsb_flag/2 from curr_sym.
+:- import flush_output/1,stream_property/2 from file_io.
 %%:- import reset_undef_pred_handlers/0 from loader.
 :- import close_open_tables/1, psc_data/2, psc_name/2, psc_arity/2, ccall_store_error/2,
    stat_flag/2, xsb_backtrace/1, psc_ep/2,conget/2, conset/2 from machine.
@@ -63,7 +66,5 @@
    :- import atom/1, callable/1, messageln/2, number/1, warningln/1, message/2,
           throw/1,integer/1 from standard.
 :- import concat_atom/2, term_to_atom/2 from string.
-:- import xsb_flag/2 from curr_sym.
 :- import internal_thread_exit/1, thread_property/2 , xsb_thread_self/1 from thread.
-:- import flush_output/1,stream_property/2 from file_io.
-:- import xsb_filename/2 from consult.
+:- import xsb_configuration/2 from xsb_configuration.

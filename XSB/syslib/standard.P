@@ -184,7 +184,8 @@ open(File,Mode,Stream) :- 'open aux'(File,Mode,0,Stream).
 	file_open(File, M, New, Stream),
 	(Stream < 0 -> 
 	    sys_errno(ErrNo),
-	    concat_atom(['open[mode=',M,',errno=',ErrNo,']'],Msg),
+            translate_system_error(ErrNo,ErrString),
+	    concat_atom(['open[mode=',M,',errno=',ErrString,']'],Msg),
 	    permission_error(Msg,file,File,open/3)
 	 ;  true).
 'open aux'(SrcSnk,_,_,_):- 
@@ -2040,7 +2041,9 @@ time(Goal) :-
 	),
 	TimeSecs is UsedTime/1000,
 	WallSecs is Wall/1000,
-	fmt_write("%% %S CPU in %S seconds (%S%% CPU)\n", args(TimeSecs, WallSecs, CPU)),
+%	fmt_write("%% %S CPU in %S seconds (%S%% CPU)\n", args(TimeSecs, WallSecs, CPU)),
+	message('% ',STDFDBK),message(TimeSecs,STDFDBK),message(' CPU in  ',STDFDBK),	message(WallSecs,STDFDBK),
+	message(' seconds (',STDFDBK),message(CPU,STDFDBK),messageln('% CPU)',STDFDBK),
 	(   nonvar(E)
 	->  throw(E)
 	;   Result == yes

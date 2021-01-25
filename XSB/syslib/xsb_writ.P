@@ -606,7 +606,7 @@ l_write_quoted(File, [X|Y], _,Level) :-
 	l_writetail_quoted(File, Y,L1).
 l_write_quoted(File, Atom, _,_Level) :-	% This takes care of all atoms but []
 	term_type(Atom, Type),
-	Type =:= TK_ATOM,
+        Type =:= XSB_STRING,
 	!,
 	('_$op'(_,_,Atom)
 	 ->	file_put(File, CH_LPAREN),  

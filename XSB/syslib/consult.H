@@ -61,7 +61,7 @@
 :- import check_one_thread/3,
    domain_error/4, existence_error/4,instantiation_error/2, permission_error/4,type_error/4,
    check_nonvar/3, check_atom/3, check_ground/3, check_integer/3 from error_handler.
-:- import domain_error/5 from error_handler.
+:- import domain_error/5,misc_error/1 from error_handler.
 :- import asserta/1, (dynamic)/1, retractall/1, assert/1, retract/1, t_assert/2
      from assert.
 :- import check_file_compiler_options/1, setoptions1/1, valid_charset/1 from auxlry.
@@ -88,7 +88,8 @@
 	  conpsc/2, psc_type/2, slash/1, psc_arity/2, 
 	  existing_file_extension/2, almost_search_module/5, db_get_prref/2,
 	  term_psc/2, psc_set_shared/2, psc_set_private/2, stat_flag/2,
-	  term_new/2, term_new_mod/3, stat_set_flag/2, psc_import_as/2
+	  term_new/2, term_new_mod/3, stat_set_flag/2, psc_import_as/2,
+	  psc_set_type/2
      from machine.
 :- import
 	check_xpp_process_status/3,
