@@ -45,10 +45,10 @@
 :- import length/2 from basics.
 :- import member/2 from basics.
 :- import for/3 from basics.
-:- import warning/1, file_exists/1, call_cleanup/2 from standard.
+   :- import warning/1, file_exists/1, call_cleanup/2,atom_chars/2 from standard.
 :- import catch/3 from standard.
 :- import conset/2, coninc/2, conget/2, coninc/1, gensym/2 from gensym.
-:- import file_read_line_list/2, file_put/2 from file_io.
+:- import file_read_line_list/2, file_put/2,file_put_char/2 from file_io.
 :- import atom_codes/2, repeat/0, '=..'/2,
 	functor/3, arg/3, number_codes/2, call/1, 
 	nl/1, writeq/2, write/2, writeln/2, cputime/1,
