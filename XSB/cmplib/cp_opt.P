@@ -415,7 +415,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 		)
 	       ),
 	parse_preddef_closed(PredTerm,Body,ClList2,SymTab),
-	globalize('/',2,SymTab),
+	%%globalize('/',2,SymTab),
 	%%globalize(var,0,SymTab),
 	ensure_imported_list([im(nonvar/1,standard),
 			      im((->)/2,standard),
