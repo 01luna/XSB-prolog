@@ -144,7 +144,7 @@ c_atom(A,S,L0,L) :-
 
 
 %% Get substring of String beginning at from and ending at To.
-%% Negative "To" counts from the end. Unbount "To" means use the end of string
+%% Negative "To" counts from the end. Unbound "To" means use the end of string
 substring(String,From,To,Subst) :- substring(String,From,To,Subst).
 string_substitute(String,SubstSpec,SubstList,ResultStr) :-
 	string_substitute(String,SubstSpec,SubstList,ResultStr).

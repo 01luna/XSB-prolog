@@ -11,7 +11,7 @@ must build XSB using a C compiler that supports POSIX 1.0 (for regular
 expression matching) and the forthcoming POSIX 2.0 (for wildcard
 matching).  The recent versions of GCC and SunPro compiler will do, as
 probably will many other compilers. This also works under Windows,
-provided you install Cygnus' CygWin and use GCC to
+provided you install CygWin and use GCC to
 compile~\footnote{This package has not yet been ported to the
   multi-threaded engine.}.
 
@@ -35,8 +35,7 @@ then you need to include the following directive:
 %%
 \begin{verbatim}
     :- import re_match/5, re_bulkmatch/5,
-              re_substitute/4, re_substring/4,
-              re_charlist_to_string/2
+              re_substitute/4, re_substring/4
        from regmatch.
 \end{verbatim}
 %%
@@ -66,7 +65,7 @@ or a string (list of characters). {\tt Offset} is an integer offset into
 the string. The matching process starts at this offset. {\tt IgnoreCase}
 indicates whether the case of the letters is to be ignored. If this
 argument is an uninstantiated variable, then the case is \emph{not}
-ignored. If this argument is bound to a non-variable, then the case
+ignored. If this argument is bound to an integer then the case
 \emph{is} ignored.
 
 The last argument, {\tt MatchList}, is used to return the results. It
@@ -225,35 +224,17 @@ predicate \verb|re_substring/4|:
 \end{verbatim}
 %%
 
-This predicate works exactly like {\tt substring/4} described in
-Section~\ref{sec-strings}, except that the resulting substring is
-not interned (if it is an atom). All you can do with this
-string is to immediately convert it into a list (using {\tt atom\_codes/2})
-or into a true atom (using {\tt intern\_string/2}, which must be imported
-from module machine).
-
-The reason for these complications is to allow the user to control the size
-of the atom table. At present, XSB does not have atom table garbage
-collection, so heavy use of string manipulation functions can result in
-atom table overflow. This danger is particularly severe when XSB is used
-for processing HTML pages. This predicate will become an alias to {\tt
-  substring/4} when atom garbage collection will be added to XSB.
-
-On the other hand, converting strings into lists (without interning them
-first) is safe, because lists are garbage-collected in XSB Version 2.0.
+This predicate works exactly like {\tt substring/4}
+in XSB module \texttt{string}   described in Part I of this manual.
 
 Here is a complete example that shows matching followed by a subsequent 
 extraction of the matches:
 %%
 \begin{verbatim}
-| ?- import intern_string/2 from machine.
-
 | ?- Str = 'abbbcd\bbo',
       re_match("a(b*)cd\\\\",Str,0,_,[match(X,Y), match(V,W)|L]),
-      re_substring(Str,X,Y,UninternedMatch),
-      intern_string(UninternedMatch,Match),
-      re_substring(Str,V,W,UninternedParen1),
-      atom_codes(UninternedParen1,Paren1).
+      re_substring(Str,X,Y,Match),
+      re_substring(Str,V,W,Paren1).
 
 Str = abbbcd\bbo
 X = 0
@@ -261,24 +242,10 @@ Y = 7
 V = 1
 W = 4
 L = []
-UninternedMatch = abbbcd\
 Match = abbbcd\
-UninternedParen1 = bbb
-Paren1 = [98,98,98]
+Paren1 = bbb
 \end{verbatim}
 %%
-Note that the strings {\tt UninternedMatch} and {\tt UninternedParen1}
-cannot be used by themselves. In the first case, we converted the string
-into a Prolog atom and in the second case into a string. The resulting
-objects ({\tt Match} and {\tt Paren1}) can be used in further computations.
-
-Observe that XSB reports that {\tt UninternedMatch} and {\tt
-UninternedParen1} are both equal the string ``{\tt bbb}'', while {\tt
-Match} --- the atom obtained from {\tt UninternedMatch} --- is different.
-This is because {\tt UninternedMatch} and {\tt UninternedParen1} are
-uninterned and both occupy the same physical space. Thus, the second call
-to \verb|re_substring/4| overrides the value stored in this location by the
-first call.
 
 \paragraph{Substitution.}
 The predicate \verb|re_substitute/4| has the following invocation:
@@ -287,12 +254,8 @@ The predicate \verb|re_substitute/4| has the following invocation:
     re_substitute(+InputStr, +SubstrList, +SubstitutionList, -OutStr)  
 \end{verbatim}
 %%
-This predicate works exactly like {\tt string\_substitute/4} described in
-Section~\ref{sec-strings}, except that the result of the substitution is
-not interned (for the same reason as in {\tt re\_substring/4}. This
-predicate will become an alias to {\tt string\_substitute/4} when atom
-garbage collection will be added to XSB.
-%%
+This predicate works exactly like {\tt string\_substitute/4} 
+in XSB module \texttt{string}   described in Part I of this manual.
 %%
 \begin{verbatim}
 | ?- re_bulkmatch('[^a-zA-Z0-9]+', '123&*-456 )7890| 123', 0, _, X),
@@ -301,50 +264,6 @@ garbage collection will be added to XSB.
 X = [match(3,6),match(9,11),match(15,17)]
 Y = 123+++456+++7890+++123
 \end{verbatim}
-%%
-
-\paragraph{Efficiency considerations.}
-%%
-\begin{itemize}
-  \item  Try not to work with too many regular expressions at once.
-    Before a regular expression can be used, it must be compiled (which
-    {\tt re\_match/5} does automatically).
-    {\tt re\_match/5} maintains a cache of compiled regular expressions, so
-    they do not need to be compiled each time they are used. However, if
-    more than 8--10 expressions are used simultaneously, repeated
-    recompilation might result.
-  \item When a list of characters is passed to any one of the above
-    predicates, it is converted into a C string. This can be expensive, if
-    done too often for the same string.
-    
-    One way to circumvent the problem is to use {\tt atom\_codes/2} to
-    first convert the list into an atom and then use that atom repeatedly
-    in the match operations. One problem here might be the aforementioned
-    overflow of the atom table. So, if this is a concern, the following
-    predicate (which always succeeds) can help:
-%%
-\begin{verbatim}
-   re_charlist_to_string(+ListOfCharacters, -String)  
-\end{verbatim}
-%%
-    This predicate converts lists of characters into uninterned strings,
-    which can be used without the fear of atom table overflow:
-%%
-\begin{verbatim}
-| ?- re_charlist_to_string("abcdefg",L).
-
-L = abcdefg  
-\end{verbatim}
-%%
-    The resulting string can be passed to {\tt re\_match/5}, {\tt
-    re\_substitute/5}, and {\tt re\_substring/4} for further processing.
-  
-  Note, however: you cannot call {\tt re\_charlist\_to\_string} before you
-  finished working with the string generated by the previous call: all
-  calls to this function use the same static buffer to hold the output
-  string, so each subsequent call to {\tt re\_charlist\_to\_string} will
-  override the previously generated strings.
-\end{itemize}
 %%
 
 
@@ -424,7 +343,7 @@ The calling sequence for {\tt convert\_string/3}  is as follows:
 \end{verbatim}
 %%
 The input string must be an atom or a character list. The output string
-must be unbound. Its type will ``atom'' if so was the input and it will be
+must be unbound. Its type will be ``atom'' if so was the input and it will be
 a character list if so was the input string. The conversion flag must be
 the atom {\tt tolower} or {\tt toupper}. 
 
