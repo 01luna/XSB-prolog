@@ -11,7 +11,7 @@ must build XSB using a C compiler that supports
 POSIX 2.0 (for wildcard
 matching).  This includes GCC and
 probably most other compilers. This also works under Windows,
-provided you install Cygnus' CygWin and use GCC to
+provided you install CygWin and use GCC to
 compile~\footnote{This package has not yet been ported to the
   multi-threaded engine.}.
 
@@ -89,7 +89,7 @@ The calling sequence for {\tt convert\_string/3}  is as follows:
 \end{verbatim}
 %%
 The input string must be an atom or a character list. The output string
-must be unbound. Its type will ``atom'' if so was the input and it will be
+must be unbound. Its type will be ``atom'' if so was the input and it will be
 a character list if so was the input string. The conversion flag must be
 the atom {\tt tolower} or {\tt toupper}. 
 

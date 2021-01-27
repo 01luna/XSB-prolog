@@ -296,7 +296,7 @@ int do_regsubstitute__(void)
     subst_str_list_term, subst_str_list_term1;
   char *input_string=NULL;    /* string where matches are to be found */
   char *subst_string=NULL;
-  prolog_term beg_term, end_term;
+  prolog_term beg_term=(prolog_term)0, end_term=(prolog_term)0;
   int beg_offset=0, end_offset=0, input_len;
   int last_pos = 0; /* last scanned pos in input string */
   /* the output buffer is made large enough to include the input string and the
@@ -359,11 +359,14 @@ int do_regsubstitute__(void)
 	xsb_abort("[RE_SUBSTITUTE] Arg 3 must be a list of strings");
     }
 
-    beg_term = p2p_arg(subst_reg_term,1);
-    end_term = p2p_arg(subst_reg_term,2);
+    if (is_functor(subst_reg_term) && extern_p2c_arity(subst_reg_term) == 2) {
+      beg_term = p2p_arg(subst_reg_term,1);
+      end_term = p2p_arg(subst_reg_term,2);
+    } else
+      xsb_abort("[RE_SUBSTITUTE] Arg 2 must be a list [s(B1,E1),s(B2,E2),...]");
 
     if (!is_int(beg_term) || !is_int(end_term))
-      xsb_abort("[RE_SUBSTITUTE] Non-integer in Arg 2");
+      xsb_abort("[RE_SUBSTITUTE] Non-integer in substitution region s(Begpos,Endpos) in Arg 2");
     else{
       beg_offset = int_val(beg_term);
       end_offset = int_val(end_term);
@@ -372,7 +375,7 @@ int do_regsubstitute__(void)
     if (end_offset < 0)
       end_offset = input_len;
     if ((end_offset < beg_offset) || (beg_offset < last_pos))
-      xsb_abort("[RE_SUBSTITUTE] Substitution regions in Arg 2 not sorted");
+      xsb_abort("[RE_SUBSTITUTE] Start of a substitution regions in Arg 2 is > than the end");
 
     /* do the actual replacement */
     XSB_StrAppendBlk(&output_buffer,input_string+last_pos,beg_offset-last_pos);
