@@ -73,7 +73,7 @@ else
 fi
 
 # check if libpcre.so can be found
-# If the ODBC library is missing, set pcre_error
+# If the PCRE library is missing, set pcre_error
 # If libpcre.so is not in a standard place, we must use --with-pcre-libdir
 if test -n "$with_pcre_libdir" ; then
    LDFLAGS="-L${with_pcre_libdir} ${LDFLAGS}"
