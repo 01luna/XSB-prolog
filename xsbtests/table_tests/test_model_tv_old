@@ -1,4 +1,4 @@
-existence_error(procedure,usermod : undef / 2)
+existence_error(predicate,usermod : undef / 2)
 found(nt(a,b),true)
 found(nt(b,a),false)
 found(p(a,b),true)
