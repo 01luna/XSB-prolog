@@ -389,7 +389,7 @@ check_assert_fact(Head0, Pred) :- 	% asserting a fact
 	    ( functor(Head, F, A),
 		standard_symbol(F, A, _Prop),
 		\+ standard_dynamic_symbol(F, A) ->
-		permission_error(modify,static_procedure,F/A,Pred)
+		permission_error(modify,static_predicate,F/A,Pred)
 	    ;	true
 	    )
 	; type_error(callable,Head,Pred,1)
@@ -651,9 +651,9 @@ get_dynamic_pred_ep(Head,Operation,CallingPred,PredEP,PSC) :-
 		% static predicate
 	 	functor(Head,F,A),
 		(	Operation == access ->
-			permission_error(Operation,private_procedure,F/A,CallingPred)
+			permission_error(Operation,private_predicate,F/A,CallingPred)
 		;	% Operation == modify,
-			permission_error(Operation,static_procedure,F/A,CallingPred)
+			permission_error(Operation,static_predicate,F/A,CallingPred)
 		)
 	;	Type =:= T_DYNA,
 		% dynamic predicate; get PredEP 
@@ -862,10 +862,10 @@ check_retract(Head, Pred) :-
 
 /*======================================================================*/
 /* abolish(+Pred/+Arity) or abolish(+PredSpec)				*/
-/*	Removes all procedures specified from the Prolog database.	*/
+/*	Removes all predicates specified from the Prolog database.	*/
 /*	After this command is executed the current program functions	*/
-/*	as if the named procedures had never existed. Predicate		*/
-/*	abolish/[1,2] removes all clauses of the specified procedure	*/
+/*	as if the named predicates had never existed. Predicate		*/
+/*	abolish/[1,2] removes all clauses of the specified predicate	*/
 /*	regardless of whether they are dynamic or compiled, but it	*/
 /*	cannot abolish built-in predicates or predicates in unloaded	*/
 /*	modules.							*/
@@ -968,7 +968,7 @@ immutable_predicate(Term,Immutable):-
 /* clause(+Head, ?Body)							*/
 /*	Predicate clause/2 searches the database for a clause whose	*/
 /*	head matches the given Head and whose body matches Body. So	*/
-/*	Head must be instantiated. This procedure is non-deterministic.	*/
+/*	Head must be instantiated. This predicate is non-deterministic.	*/
 /*	it can be used to backtrack through all the clauses matching	*/
 /*	a given Head and Body. It fails when there are no (or no	*/
 /*	further) matching clauses in the database.			*/
@@ -1005,7 +1005,7 @@ clause0(Head, Body) :-
 /*	  - permission error: If the predicate corresponding to Head	*/
 /*		is one of XSB's built-in predicates (Database error).	*/
 /*	Note that it is not a type error to call clause/2 with Head a	*/
-/*	functor of a non-dynamic procedure, or with body instantiated	*/
+/*	functor of a non-dynamic predicate, or with body instantiated	*/
 /*	to a non-valid Prolog body. In these cases predicate clause/2	*/
 /*	simply fails.							*/
 /*======================================================================*/
@@ -1018,7 +1018,7 @@ check_clause(Head) :-
 	    (	functor(Head, F, A),
 		standard_symbol(F, A, _Prop),
 		\+ standard_dynamic_symbol(F, A)
-	    ->	permission_error(access,private_procedure,F/A,clause/2)
+	    ->	permission_error(access,private_predicate,F/A,clause/2)
 	    ;	true
 	    )
 	  ; type_error(callable,Head,clause/2,1)
