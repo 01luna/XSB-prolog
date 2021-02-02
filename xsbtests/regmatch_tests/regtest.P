@@ -51,7 +51,8 @@ t10 :- Str = 'abbbcd\\bbo',
       writeln(Match),
       writeln(Paren1).
 
-t11 :- re_charlist_to_string("abcdefg",L), writeln(L).
+% took out this test since it was removed from regmatch (21/02)
+%t11 :- re_charlist_to_string("abcdefg",L), writeln(L).
 
 t12 :- substring("abcdefg", 4, -2, L), substring('abcdefg', 3, 5, LL),
 	write(L), write(' '), writeln(LL).
@@ -68,4 +69,5 @@ t13 :- string_substitute('qaddf', [s(2,4)], ['123'] ,L1),
 	writeln([X1,' ',X2]),
 	writeln([X,Y]).
 
-test :- t1,t2,t3,t4,t5,t6,t7,t8, t9,t10,t11, t12,t13.
+%test :- t1,t2,t3,t4,t5,t6,t7,t8, t9,t10,t11, t12,t13.
+test :- t1,t2,t3,t4,t5,t6,t7,t8, t9,t10,t12,t13.
