@@ -37,7 +37,7 @@
 #include "flag_defs_xsb.h"
 #include "incr_xsb_defs.h"
 
-:- dynamic table_index_predicates/2.
+%:- dynamic table_index_predicates/2.
 
 /*----------------------------------------------------------------------*/
 % truth_value/2
@@ -719,13 +719,15 @@ abolish_table_pred(Spec,Options) :-
 	    term_new_mod(M,TermIn,Term)
 	  ; (Spec = F/A -> functor(Term,F,A) ; Term = Spec)),
 	check_abolish_options_list(Options,ActionType,abolish_table_pred/2),
-	(\+table_index_predicates(Term,_)
-	 ->	abolish_table_pred_bi(Term,ActionType)
-	 ;	findall(TTerm,table_index_predicates(Term,TTerm),TTerms),
+	(\+ standard:table_index_predicates(Term,_)
+	->	abolish_table_pred_bi(Term,ActionType),
+		abolish_table_pred_auxiliaries(Term)
+		
+	;	findall(TTerm,table_index_predicates(Term,TTerm),TTerms),
 		%% no failure-driven loop; breaks cascaded abolishes.
 		abolish_table_pred_bi_all(TTerms,ActionType)
-	),
-	abolish_table_pred_auxiliaries(Term).
+	).
+
 
 % Need to skeletonize.
 abolish_table_pred_auxiliaries(Term):-
