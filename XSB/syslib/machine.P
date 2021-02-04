@@ -152,9 +152,6 @@ buff_byte(Buffer, Disp, Value) :- buff_byte(Buffer, Disp, Value).
 buff_set_byte(Buffer, Disp, Value) :- buff_set_byte(Buffer, Disp, Value).
 code_call(CodeAddr, Term, Type) :- code_call(CodeAddr, Term, Type).
 
-:- import numbervars/1 from num_vars.
-:- import copy_term/2 from basics.
-:- export format_term_w_mod/2.
 format_term_w_mod(Term,ModName:CTerm):-
     term_psc(Term, PSC),psc_mod(PSC, ModPSC),psc_name(ModPSC,ModName),
     copy_term(Term,CTerm),

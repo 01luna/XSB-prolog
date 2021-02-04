@@ -338,9 +338,6 @@ add_index(Pred,Arg,Size) :-
 		assertai('_$index1'(Pcall,Targ,Hsize),1)
 	).			
 
-:- import decode_index/2 from curr_sym.
-:- import format_term_w_mod/2 from machine.
-
     warn_if_existing_clauses(Pcall,From,To) :-
 	term_psc(Pcall,Psc),
 	psc_type(Psc,Type),
