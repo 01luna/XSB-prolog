@@ -45,7 +45,7 @@
 :- import term_psc/2 from machine.
 
 % TES: I had to comment this out to get file_op to compile.
-%:- index('_$op1'/3-3).
+   :- index('_$op1'/3-3).
 
 /*
 :- export fx/0, fy/0, yf/0, xf/0, xfx/0, xfy/0, yfx/0, yfy/0.
