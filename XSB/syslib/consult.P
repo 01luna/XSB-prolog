@@ -534,9 +534,40 @@ write_canonical_list(Term) :-
     write_canonical(Term),
     writeln('.').
 
-:- export load_dyna/1.
-load_dyna(File) :-
-	load_dyn(File,0,usermod).
+%-------------------
+	   
+load_dyn_gen(File,Options) :- 
+    check_nonvar(File,'load_dyn_gen/1',1),
+    process_ldg_options(Options,Canonical,AorZ,Module,Limit),
+    (Canonical == yes ->
+	load_dync_nocheck(File,AorZ,Module,1,Limit)  % 1 is factflg
+      ; load_dyn_nocheck(File,AorZ,Module) ).
+
+process_ldg_options([canonical(Canonical)|T],Canonical,AorZ,Module,Limit):- !,
+    ( member(Canonical,[yes,no]) ->
+	 process_ldg_options(T,Canonical,AorZ,Module,Limit)
+       ; domain_error(load_domain_gen_canonical_option,Canonical,load_dyn_gen/2,2) ).
+process_ldg_options([ordering(AorZ)|T],Canonical,AorZ,Module,Limit):- !,
+    ( member(AorZ,[a,z]) ->
+	 process_ldg_options(T,Canonical,AorZ,Module,Limit)
+       ; domain_error(load_domain_gen_ordering_option,AorZ,load_dyn_gen/2,2) ).
+process_ldg_options([module(Module)|T],Canonical,AorZ,Module,Limit):- !,
+    ( atom(Module) ->
+	 process_ldg_options(T,Canonical,AorZ,Module,Limit)
+       ; type_error(atom,Module,load_dyn_gen/2,2) ).
+process_ldg_options([error_limit(Limit)|T],Canonical,AorZ,Module,Limit):- !,
+    ( integer(Limit) ->
+	 process_ldg_options(T,Canonical,AorZ,Module,Limit)
+       ; type_error(atom,Limit,load_dyn_gen/2,2) ).
+process_ldg_options([H|_T],_Canonical,_AorZ,_Module,_Limit):- !,
+    domain_error(load_domain_gen_option,H,load_dyn_gen/2,2).
+process_ldg_options([],Canonical,AorZ,Module,Limit):-
+    (var(AorZ) -> AorZ = z ; true),
+    (var(Canonical) -> Canonical = no ; true),
+    (var(Module) -> Module = usermod ; true),
+    (var(Limit) -> current_prolog_flag(load_dync_error_limit,Limit) ; true).
+
+%------------------- load_dyn
 
 :- mode load_dyn(+).
 load_dyn(File) :-
@@ -546,9 +577,13 @@ load_dyn(File) :-
 load_dyn(File,DirIn) :-
 	load_dyn(File,DirIn,usermod).
 
-%% TLS: changed behavior to throw error rather than fail to make
+:- export load_dyna/1.
+load_dyna(File) :-
+	load_dyn(File,0,usermod).
+
+%% TES: changed behavior to throw error rather than fail to make
 %% compatable with other ISO type errors, e.g. open/[3,4].  
-%% TLS allow calling with a or z 
+%% TES allow calling with a or z 
 :- mode load_dyn(+,+,+).
 load_dyn(File,DirIn,Module) :-
 	check_nonvar(File,'load_dyn/1',1),
@@ -625,7 +660,7 @@ load_dyn1(Rfname,Dirctry,Dir,Base,Module) :-
 	seeing(OldFile),
 	open_or_xpp_file(Rfname, XPP_process),
 	current_input_port(XPPport), %% port from process, if it was launched
-	(   catch(read_and_assert(Dir,Base,Module),Ball,close_and_throw(XPP_process,XPPport,Ball))
+	(   catch(load_dyn_read_and_assert(Dir,Base,Module),Ball,close_and_throw(XPP_process,XPPport,Ball))
 	%% If needs restart, close old file and skip to the second load_dyn1
 	 -> ( conget(needs_restart,1)
 	     ->	seen, see(OldFile),
@@ -729,7 +764,7 @@ set_module_type(Mod) :-
     ).
 
 %% This version is used for load_dyn1 only!
-read_and_assert(Dir,Base,Module) :-
+load_dyn_read_and_assert(Dir,Base,Module) :-
 	read(Term1),
 	expand_term(Term1,Terms),
 	(is_list(Terms)
@@ -741,8 +776,10 @@ read_and_assert(Dir,Base,Module) :-
 	 ;	do_assert_and_fail(Term,Dir,Base,Module)
 	).
 %% Don''t loop, if restart is requested
-read_and_assert(_,_,_) :- conget(needs_restart,1), !.
-read_and_assert(Dir,Base,Module) :- read_and_assert(Dir,Base,Module).
+load_dyn_read_and_assert(_,_,_) :- conget(needs_restart,1), !.
+load_dyn_read_and_assert(Dir,Base,Module) :- load_dyn_read_and_assert(Dir,Base,Module).
+
+%------------------- load_dync
 
 :- mode load_dync(+).
 load_dync(File) :-
@@ -750,7 +787,7 @@ load_dync(File) :-
 
 :- mode load_dynca(+).
 load_dynca(File) :-
-	load_dync(File,0,usermod,1).
+	load_dync(File,0,usermod,1).	% asserta in usermod
 
 :- export load_dynca/2.
 :- mode load_dynca(+,+).
@@ -769,28 +806,29 @@ load_dync(File,Dirin,Module,FactFlg) :-
 	check_one_thread(load,file,'load_dync/[1,2,3]'),
 	check_atom(File,'load_dync/[1,2,3]',1),
 	check_one_thread(load,file,'load_dync/2'),
-	load_dync_nocheck(File,Dirin,Module,FactFlg).
+	stat_flag(LOAD_DYNC_ERROR_LIMIT,ErrLimit),
+	load_dync_nocheck(File,Dirin,Module,FactFlg,ErrLimit).
 	
-load_dync_nocheck(File,Dirin,Module,FactFlg) :-
+load_dync_nocheck(File,Dirin,Module,FactFlg,ErrLimit) :-
 	load_dyn_convert(Dirin,Dir,load_dync),
 	get_fname(File,Dirctry,SExt,Base,Mod),
-	load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg).
+	load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg,ErrLimit).
 
-load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg) :-
+load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg,ErrLimit) :-
 	get_HRname(SExt,Base,Hfname,Rfname),
 	expand_filename(Rfname,ARfname),
 	init_for_load(ARfname, Mod),
 	fmod_from_base(Base,FMod),
 	(Hfname == []
          ->     true
-         ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,FactFlg)
+         ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,FactFlg,ErrLimit)
         ),
-	load_dync1(ARfname,Dirctry,Dir,FMod,Module,FactFlg),
+	load_dync1(ARfname,Dirctry,Dir,FMod,Module,FactFlg,ErrLimit),
 	set_module_type(Mod),
 	set_module_type(Module),
 	cleanup_for_load.
 
-load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
+load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit) :-
 	cputime(T0),
 	seeing(OldFile),
 	open_or_xpp_file(Rfname, XPP_process),
@@ -803,7 +841,9 @@ load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
 %%		stat_set_flag(CURRENT_MODULE,ModPsc)
 %%	),
 	file_read_canonical(-1000,0,0),	% initialize previous psc
-	(   read_and_assert(XPPport,Dir,Base,Module,FactFlg)
+	(   catch(load_dync_read_and_assert(XPPport,Dir,Base,Module,FactFlg,ErrLimit),Ball,
+		  close_and_throw(XPP_process,XPPport,Ball))
+
 	%% If needs restart, close old file and skip to the second load_dync1
 	->  (conget(needs_restart,1) -> seen, see(OldFile), fail ; true)
 	;   conset(needs_restart, 0), conset(xpp_on,0)
@@ -823,14 +863,14 @@ load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :-
 	->  true
 	;   time_message(T0,(Rfname,' dynamically loaded'))
 	).
-load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg) :- 
+load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit) :- 
 	%% If we are restarting due to gpp, then reset needs_restart.
 	conget(needs_restart,1), conset(needs_restart, 0),
-	load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg).
+	load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit).
 
 
 %% This version is used for load_dync1 only!
-read_and_assert(IPort,Dir,Base,Module,FactFlg) :-
+load_dync_read_and_assert(IPort,Dir,Base,Module,FactFlg,ErrLimit) :-
 	coninc('_$load_dync_line_no'),
 	file_read_canonical(IPort,Term,Opsc),	% Opsc: PSC ptr of prev (and this) if prev same; otw 0
 	(Opsc =:= 0
@@ -869,22 +909,23 @@ read_and_assert(IPort,Dir,Base,Module,FactFlg) :-
 		file_write0(STDMSG,BadLineNo),
 		file_nl(STDMSG),
 		coninc('_$load_dync_error_cnt',ErrCnt),
-		(ErrCnt > 25
+		(ErrCnt > ErrLimit
 		 ->	!,
-			file_write0(STDMSG,'Too many read_canonical warnings: loading aborted'),
-			file_nl(STDMSG)
+                        syntax_error('',['More than ',25,' non canonical terms in the input ',Base,': loading aborted'])
+%			file_write0(STDMSG,'Too many read_canonical warnings: loading aborted'),
+%			file_nl(STDMSG)
 		 ;	true
 		),
 		fail
 	 ;	do_assert_and_fail(Term,Dir,Base,Module)
 	).
-read_and_assert(_IPort,_Dir,_Base,_Module,_FactFlg) :-
+load_dync_read_and_assert(_IPort,_Dir,_Base,_Module,_FactFlg,_ErrLimit) :-
 	conget(needs_restart,1), % if needs restart
 	!,			% don't continue to read
 	conset('_$load_dync_line_no',0),
 	conset('_$load_dync_error_cnt',0).
-read_and_assert(IPort,Dir,Base,Module,FactFlg) :-
-	read_and_assert(IPort,Dir,Base,Module,FactFlg).
+load_dync_read_and_assert(IPort,Dir,Base,Module,FactFlg,ErrLimit) :-
+	load_dync_read_and_assert(IPort,Dir,Base,Module,FactFlg,ErrLimit).
 
 
 not_asserted_term(:-(_)).
@@ -1356,7 +1397,8 @@ ensure_dync_loaded_novarcheck([File|Files],Dir,Module,FactFlg) :- !,
 ensure_dync_loaded_novarcheck(File,Dir,Module,FactFlg) :-
 	(if_should_not_reload(File)
 	 ->	true
-	 ;	load_dync_nocheck(File,Dir,Module,FactFlg)   % no thread check
+	;	current_prolog_flag(load_dync_error_limit,ErrLimit),
+		load_dync_nocheck(File,Dir,Module,FactFlg,ErrLimit)   % no thread check
 	).
 
 if_should_not_reload(File) :-

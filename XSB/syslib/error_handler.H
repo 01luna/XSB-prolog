@@ -30,7 +30,7 @@
    misc_error/1, misc_error/2,
    permission_error/4,    preprocessing_error/1,
    representation_error/3, resource_error/2,
-   syntax_error/1, system_error/3,
+   syntax_error/1, syntax_error/2, system_error/3,
    table_error/1,  table_error/4, translate_system_error/2, type_error/4, 
    check_atom/3, check_atomic/3, check_atom_list/3, check_callable/3, check_cyclic/3,
    check_listable/3, check_ground/3, 

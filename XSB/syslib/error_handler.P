@@ -469,10 +469,17 @@ resource_error(Flag,Predicate):-
 
 %------
 % PM: TODO - Replace usage of term syntax_error/1 with syntax_error/2
+% TES: added syntax_error/2 below, but did not replace existing occurrences yet.
 :- mode syntax_error(?).
 syntax_error(Message):- 
 	xsb_backtrace(Bt),
 	SyntaxError =.. [syntax_error,_], % syntax_error/1 term in usermod
+	throw(error(SyntaxError,context(Message,Bt))).
+
+:- mode syntax_error(?,?).
+syntax_error(Culprit,Message):- 
+	xsb_backtrace(Bt),
+	SyntaxError =.. [syntax_error,Culprit], % syntax_error/2 term in usermod
 	throw(error(SyntaxError,context(Message,Bt))).
 %------
 :- mode system_error(+,+,+).
