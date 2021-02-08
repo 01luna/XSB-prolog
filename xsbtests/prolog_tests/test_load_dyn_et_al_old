@@ -1,0 +1,12 @@
+++                                                      b ( X , Y ) :- Y is X + 4 )
+dyn_caught(syntax_error,b ( X , Y ) :- Y is X + 3  <--- HERE? ************ 
+dync_caught(syntax_error(),[More than ,25, non canonical terms in the input ,non_canon,: loading aborted])
+dync_kb1_count(23)
+dync_kb1_count(24)
+dync_kb1_count(26)
+kb_dync_executing_on_load
+kb_dync_executing_on_load
+kb_dync_executing_on_reload
+kb_dync_index([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3])
+kb_dync_index([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3,2])
+kb_dync_index([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3,2])

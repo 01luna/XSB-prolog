@@ -1,0 +1,51 @@
+:- import length/2 from basics.
+:- import load_dyn_gen/2 from consult.
+
+% Test of load dyn/dync/dyn_opt.  The test of the read canonical error
+% gives several warning messages in the log, but they can be ignored.
+
+:- import xsb_error_get_message/2,xsb_error_get_tag/2 from error_handler.
+
+test:- test_dyn,fail.
+test:- test_dync,fail.
+test:- test_dync_mod_1,fail.
+test:- test_dync_mod_2,fail.
+test.
+       
+test_dyn:- catch(load_dyn(bad_syntax),E,
+		 (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
+		  functor(T,F,_),writeln(dyn_caught(F,M)))),
+	   fail.
+test_dyn.
+
+
+test_dync:- catch(load_dync(non_canon),E,
+		  (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
+		   writeln(dync_caught(T,M)))),fail.
+test_dync.
+%test_dync:- catch(load_dync(bad_syntax),E,
+%		  (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
+%		   writeln(dync_caught(T,M)))),fail.
+
+test_dync_mod_1:-
+    load_dync(kb_dync1),fail.
+test_dync_mod_1:-
+    findall(1,kb_dync1:smt(_,_,_),_L),length(_L,Len),writeln(dync_kb1_count(Len)),fail.
+test_dync_mod_1:-
+    current_index(kb_dync1:smt(_S,_P,_O),Index),writeln(kb_dync_index(Index)),fail.
+
+test_dync_mod_2:-
+    load_dyn_gen(kb_dync1,[ordering(a),canonical(yes),module(common_mod)]),fail.
+test_dync_mod_2:-
+    findall(1,common_mod:smt(_,_,_),_L),length(_L,Len),writeln(dync_kb1_count(Len)),fail.
+test_dync_mod_2:-
+    current_index(common_mod:smt(_S,_P,_O),Index),writeln(kb_dync_index(Index)),fail.
+test_dync_mod_2:-
+    load_dyn_gen(kb_dync2,[ordering(a),canonical(yes),module(common_mod)]),fail.
+test_dync_mod_2:-
+    findall(1,common_mod:smt(_,_,_),_L),length(_L,Len),writeln(dync_kb1_count(Len)),fail.
+test_dync_mod_2:-
+    current_index(common_mod:smt(_S,_P,_O),Index),writeln(kb_dync_index(Index)),fail.
+
+
+end_of_file.
