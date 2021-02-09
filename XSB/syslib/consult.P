@@ -540,7 +540,7 @@ load_dyn_gen(File,Options) :-
     check_nonvar(File,'load_dyn_gen/1',1),
     process_ldg_options(Options,Canonical,AorZ,Module,Limit),
     (Canonical == yes ->
-	load_dync_nocheck(File,AorZ,Module,1,Limit)  % 1 is factflg
+	load_dync_nocheck(File,AorZ,Module,Limit)
       ; load_dyn_nocheck(File,AorZ,Module) ).
 
 process_ldg_options([canonical(Canonical)|T],Canonical,AorZ,Module,Limit):- !,
@@ -783,52 +783,49 @@ load_dyn_read_and_assert(Dir,Base,Module) :- load_dyn_read_and_assert(Dir,Base,M
 
 :- mode load_dync(+).
 load_dync(File) :-
-	load_dync(File,1,usermod,1).	% assertz in usermod
+	load_dync(File,1,usermod).	% assertz in usermod
 
 :- mode load_dynca(+).
 load_dynca(File) :-
-	load_dync(File,0,usermod,1).	% asserta in usermod
+	load_dync(File,0,usermod).	% asserta in usermod
 
 :- export load_dynca/2.
 :- mode load_dynca(+,+).
 load_dynca(File,Module) :-
-	load_dync(File,0,Module,1).
+	load_dync(File,0,Module).
 
 :- mode load_dync(+,+).
 load_dync(File,DirIn) :-
-	load_dync(File,DirIn,usermod,1).
+	load_dync(File,DirIn,usermod).
 
 :- mode load_dync(+,+,+).
-load_dync(File,DirIn,Module) :-
-	load_dync(File,DirIn,Module,1).
-
-load_dync(File,Dirin,Module,FactFlg) :-
+load_dync(File,Dirin,Module) :-
 	check_one_thread(load,file,'load_dync/[1,2,3]'),
 	check_atom(File,'load_dync/[1,2,3]',1),
 	check_one_thread(load,file,'load_dync/2'),
 	stat_flag(LOAD_DYNC_ERROR_LIMIT,ErrLimit),
-	load_dync_nocheck(File,Dirin,Module,FactFlg,ErrLimit).
+	load_dync_nocheck(File,Dirin,Module,ErrLimit).
 	
-load_dync_nocheck(File,Dirin,Module,FactFlg,ErrLimit) :-
+load_dync_nocheck(File,Dirin,Module,ErrLimit) :-
 	load_dyn_convert(Dirin,Dir,load_dync),
 	get_fname(File,Dirctry,SExt,Base,Mod),
-	load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg,ErrLimit).
+	load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,ErrLimit).
 
-load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,FactFlg,ErrLimit) :-
+load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,ErrLimit) :-
 	get_HRname(SExt,Base,Hfname,Rfname),
 	expand_filename(Rfname,ARfname),
 	init_for_load(ARfname, Mod),
 	fmod_from_base(Base,FMod),
 	(Hfname == []
          ->     true
-         ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,FactFlg,ErrLimit)
+         ;      load_dync1(Hfname,Dirctry,Dir,FMod,Module,ErrLimit)
         ),
-	load_dync1(ARfname,Dirctry,Dir,FMod,Module,FactFlg,ErrLimit),
+	load_dync1(ARfname,Dirctry,Dir,FMod,Module,ErrLimit),
 	set_module_type(Mod),
 	set_module_type(Module),
 	cleanup_for_load.
 
-load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit) :-
+load_dync1(Rfname,Dirctry,Dir,Base,Module,ErrLimit) :-
 	cputime(T0),
 	seeing(OldFile),
 	open_or_xpp_file(Rfname, XPP_process),
@@ -841,7 +838,7 @@ load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit) :-
 %%		stat_set_flag(CURRENT_MODULE,ModPsc)
 %%	),
 	file_read_canonical(-1000,0,0),	% initialize previous psc
-	(   catch(load_dync_read_and_assert(XPPport,Dir,Base,Module,FactFlg,ErrLimit),Ball,
+	(   catch(load_dync_read_and_assert(XPPport,Dir,Base,Module,ErrLimit),Ball,
 		  close_and_throw(XPP_process,XPPport,Ball))
 
 	%% If needs restart, close old file and skip to the second load_dync1
@@ -863,40 +860,32 @@ load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit) :-
 	->  true
 	;   time_message(T0,(Rfname,' dynamically loaded'))
 	).
-load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit) :- 
+load_dync1(Rfname,Dirctry,Dir,Base,Module,ErrLimit) :- 
 	%% If we are restarting due to gpp, then reset needs_restart.
 	conget(needs_restart,1), conset(needs_restart, 0),
-	load_dync1(Rfname,Dirctry,Dir,Base,Module,FactFlg,ErrLimit).
+	load_dync1(Rfname,Dirctry,Dir,Base,Module,ErrLimit).
 
 
 %% This version is used for load_dync1 only!
-load_dync_read_and_assert(IPort,Dir,Base,Module,FactFlg,ErrLimit) :-
+load_dync_read_and_assert(IPort,Dir,Base,Module,ErrLimit) :-
 	coninc('_$load_dync_line_no'),
 	file_read_canonical(IPort,Term,Opsc),	% Opsc: PSC ptr of prev (and this) if prev same; otw 0
 	(Opsc =:= 0
 	 ->	true
 	 ; not_asserted_term(Term)
 	 ->	true
-	 ;	load_dyn_module(RMod),
-		(FactFlg =:= 1
-		 ->	(RMod == usermod
-			 ->	Term1 = Term
-			 ;	term_new_mod(Module,Term,Term1)
-			)
-		 ;	fix_head_term(Term,RMod,Term1)
-		),
-		('_$trie_asserted'(Term1) 
-		 ->	term_psc(Term1,Psc),
+	 ;	('_$trie_asserted'(Term) 
+		 ->	term_psc(Term,Psc),
 			(load_dyn_trie_retracted(Psc)
 			 ->	true
 			 ;	term_new(Psc,Gen),
 				retractall(Gen),
 				asserta(load_dyn_trie_retracted(Psc))
 			),
-			t_assert(Term1, _Flag)
+			t_assert(Term, _Flag)
 		 ;	load_dyn_retracted(Opsc,Prref,NArity,Index,Hashsize),
-			se_assert_code_to_buff(Term1),
-			assert_buff_to_clref(Term1,NArity,Prref,Dir,Index,Hashsize)
+			se_assert_code_to_buff(Term),
+			assert_buff_to_clref(Term,NArity,Prref,Dir,Index,Hashsize)
 		),
 		fail
 	),
@@ -919,13 +908,13 @@ load_dync_read_and_assert(IPort,Dir,Base,Module,FactFlg,ErrLimit) :-
 		fail
 	 ;	do_assert_and_fail(Term,Dir,Base,Module)
 	).
-load_dync_read_and_assert(_IPort,_Dir,_Base,_Module,_FactFlg,_ErrLimit) :-
+load_dync_read_and_assert(_IPort,_Dir,_Base,_Module,_ErrLimit) :-
 	conget(needs_restart,1), % if needs restart
 	!,			% don't continue to read
 	conset('_$load_dync_line_no',0),
 	conset('_$load_dync_error_cnt',0).
-load_dync_read_and_assert(IPort,Dir,Base,Module,FactFlg,ErrLimit) :-
-	load_dync_read_and_assert(IPort,Dir,Base,Module,FactFlg,ErrLimit).
+load_dync_read_and_assert(IPort,Dir,Base,Module,ErrLimit) :-
+	load_dync_read_and_assert(IPort,Dir,Base,Module,ErrLimit).
 
 
 not_asserted_term(:-(_)).
@@ -1380,25 +1369,21 @@ ensure_dyn_loaded_novarcheck(File,Dir,Module) :-
 
 :- mode ensure_dync_loaded(+).
 ensure_dync_loaded(Files) :-
-	ensure_dync_loaded(Files,1,usermod,1).
+	ensure_dync_loaded(Files,1,usermod).
 
-:- mode ensure_dync_loaded(+,+,+).
 ensure_dync_loaded(File,Dir,Module) :- 
-	ensure_dync_loaded(File,Dir,Module,1).
-
-ensure_dync_loaded(File,Dir,Module,FactFlg) :- 
 	check_nonvar(File,'ensure_dync_loaded/1',1),
-	ensure_dync_loaded_novarcheck(File,Dir,Module,FactFlg).
+	ensure_dync_loaded_novarcheck(File,Dir,Module).
 
-ensure_dync_loaded_novarcheck([],_Dir,_Module,_FactFlg) :- !.
-ensure_dync_loaded_novarcheck([File|Files],Dir,Module,FactFlg) :- !, 
-	ensure_dync_loaded(File,Dir,Module,FactFlg),
-	ensure_dync_loaded(Files,Dir,Module,FactFlg).
-ensure_dync_loaded_novarcheck(File,Dir,Module,FactFlg) :-
+ensure_dync_loaded_novarcheck([],_Dir,_Module) :- !.
+ensure_dync_loaded_novarcheck([File|Files],Dir,Module) :- !, 
+	ensure_dync_loaded(File,Dir,Module),
+	ensure_dync_loaded(Files,Dir,Module).
+ensure_dync_loaded_novarcheck(File,Dir,Module) :-
 	(if_should_not_reload(File)
 	 ->	true
 	;	current_prolog_flag(load_dync_error_limit,ErrLimit),
-		load_dync_nocheck(File,Dir,Module,FactFlg,ErrLimit)   % no thread check
+		load_dync_nocheck(File,Dir,Module,ErrLimit)   % no thread check
 	).
 
 if_should_not_reload(File) :-
@@ -1584,7 +1569,7 @@ cvt_to_mod(Head,Mod,MHead,Type) :-
 		 ->	MHead = Head
 		 ;	term_new_mod(OMod,Head,MHead)
 		)
-	 ; functor(Head,Pred,Arity),standard_symbol(Pred,Arity,SMod)
+	 ; functor(Head,Pred,Arity), Arity=\=0, standard_symbol(Pred,Arity,SMod)
 	 ->	cvt_to_mod_and_add(Head,SMod,Type,MHead)
 	 ;	cvt_to_mod_and_add(Head,Mod,Type,MHead)
 	).
@@ -1612,6 +1597,8 @@ cvt_body_to_mod(Body,_Mod,MBody) :-
 	 ->	abort('ERROR: [load_dyn] number cannot be a goal.')
 	),
 	!.
+cvt_body_to_mod(true,_,true) :- !.  %DSW
+cvt_body_to_mod(fail,_,fail) :- !.  %DSW
 cvt_body_to_mod((G1,G2),Mod,(MG1,MG2)) :- !,
 	cvt_body_to_mod(G1,Mod,MG1),
 	cvt_body_to_mod(G2,Mod,MG2).
