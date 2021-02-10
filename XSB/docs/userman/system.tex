@@ -828,11 +828,12 @@ allocation would exceed the user-defined threshold~\footnote{In rare
 \section{Compiling, Consulting, and Loading} \label{Consulting}
 %====================================================
 Like other Prologs, XSB provides for both statically compiled code and
-dynamically asserted code.  Static compiled code may be more optimized
-than asserted code, particularly for clauses that have large bodies,
-but certain types of indexing, such as trie and star indexing are
-(currently) available only for dynamically asserted predicates (see
-{\tt index/2}).
+dynamically asserted code (or dynamically loaded code).  Both types of
+code have advantages, as discussed further in Section~\ref{}.  Static
+compiled code may be more optimized than asserted code, particularly
+for clauses that have large bodies, but certain types of indexing,
+such as trie and star indexing are (currently) available only for
+dynamically asserted predicates (see {\tt index/2}).
 
 \subsection{Static Code}
 %
@@ -933,35 +934,45 @@ is fully documented in Section~\ref{sec:LoadDyn}.
 
 \index{dynamic loading of files}
 \index{canonical format}
-\subsection{Dynamic Code}
+\subsection{Dynamic Code} \label{sec:dynamic-code}
 % 
 In XSB, most source code file can also be ``consulted'' dynamically
-via the predicates {\tt load\_dyn/[1,2]}, {\tt load\_dync/[1,2]}, {\tt load\_dynca/1} and
-{\tt ensure\_loaded/2}.  These predicates act as {\tt consult/2} in
-that if a given file {\tt File} has already been dynamically loaded,
-old versions of predicates defined in {\tt File} will be retracted and
-their new definitions made to correspond to those in {\tt File}
+via the predicates {\tt load\_dyn/[1,2]}, {\tt load\_dync/[1,2]}, {\tt
+  ensure\_loaded/2} and several other predicates described in
+Section~\ref{sec:LoadDyn}.  These predicates act as {\tt consult/2} in
+that if a given file {\em File} has already been dynamically loaded,
+old versions of predicates defined in {\em File} will be retracted and
+their new definitions made to correspond to those in {\em File}
 (except for predicates in which a {\tt multifile/1} declaration is
-present in {\tt File}).  Dynamic loading can be performed using XSB's
-reader of canonical terms (which does not include operators, but does
-allow list and comma-list notation) via {\tt load\_dync/2} and {\tt load\_dynca/1}; dynamic
-loading using XSB's general reader for Hilog terms is performed via
-{\tt load\_dyn/2}.  
+present in {\em File}).  Dynamic loading can be performed using XSB's
+reader of canonical terms (which does not include operators or HiLog, but does
+allow list and comma-list notation) via {\tt load\_dync/2} and {\tt
+  load\_dynca/1}; dynamic loading using XSB's general reader for Hilog
+terms is performed via {\tt load\_dyn/2}.
 
 The predicates mentioned above are described more fully in
-Chapter~\ref{standard}.  Here, we simply compare the tradeoffs of
+Section~\ref{sec:LoadDyn}.  Here, we overview the tradeoffs of
 static and dynamic loading.
+
 \bi
 \item Advantages for Dynamic Loading
 \bi
-\item For large files, containing $10^4-10^7$ clauses, dynamic loading
-  is much faster than XSB's compiler, especially when the canonical
-  reader is used.
+\item For large files, containing $10^5-10^8$ clauses, dynamic loading
+  can be much faster than XSB's compiler, especially if the clauses do
+  not need to be ordered, as with e.g., knowledge graphs.
 %
 \item Dynamically loaded files have advantages of dynamic code
   including star-, trie, compound, and alternate indexes, as well as
-  being modifiable via assert and retract.
-\ei
+  being modifiable via assert and retract. \footnote{Dynamically
+    loaded code also allows larger atoms than statically loaded code.}
+  %
+  \item Dynamic loading fully supports module import and export,
+    tabling declarations except for those mentioned below, and
+    XPP-based preprocessing before load.  In addition it supports the
+    use of operators and DCGs as long the dynamic load is not
+    based on canonical reading.
+    %
+    \ei
 \item Advantages for Static Compilation
 \bi
 \item Although dynamically loaded predicates are compiled into SLG-WAM
@@ -970,16 +981,23 @@ static and dynamic loading.
   arithmetic is used.  For facts and pure binary predicates (those
   containing a single literal in their body) however, static and
   dynamic byte code is essentially the same.
-%
-\item Dynamic loading does not allow module/export declarations, mode
-  declarations, or unification factoring.  It does however, allow
-  files to import predicates, allows tabling and dynamic declarations (except for
-  {\tt auto\_table} and {\tt suppl\_table}, and operator declarations
-  (when a canonical read is not used).
-% and declarations of a predicate
-%  to be thread\_shared or thread\_private.  
-\ei 
-\ei
+  %
+\item Dynamic loading does not perform usage and definition checks for
+  modules, or other static compilation checks such as singleton
+  variable checks or checks of arithmetic expressions.
+  %
+\item Dynamic loading does not support a few features that are
+  supported by static consulting, such as mode declarations; the
+  predicate tabling declarations answer subsumption or call
+  subsumption with indexing, or the general tabling declarations {\tt
+    auto\_table} and {\tt suppl\_table}.  
+  %
+\item Importantly, statically compiled code has been used longer and
+  tested more thoroughly than dynamically loaded code.  While dynamic
+  loading is safe for most files/modules and recommended for
+  files/modules that contain a large number of facts or simple rules,
+  static compilation may be the safer choice for programs that use
+  complex clauses together with newer forms of tabling.  \ei \ei
 
 \subsection{The multifile directive}
 \index{declarations!\texttt{multifile/2}}

@@ -754,45 +754,77 @@ error will be thrown.
 
 \end{description}
 
-\subsection{Reading Dynamic Code from Files} \label{sec:LoadDyn}
+\subsection{(Fast) Loading of Dynamic Code from Files} \label{sec:LoadDyn}
 %===============================================
 
-Several built-in predicates are available that can assert the contents
-of a file into XSB's database.  These predicates are useful when code
-needs to be dynamic, or when the file contains a large number of
-clauses or facts.  Configured properly, files containing millions of
-facts can be read and asserted into memory in under a minute, making
-XSB suitable for certain kinds of in-memory database
-operations~\footnote{In \version{}, loading code dynamically can also
-be useful when the clauses contain atoms whose length is more than 255
-that cannot be handled by the XSB compiler.}.  
+Several predicates are available that can assert the contents of a
+Prolog file into XSB's database.  These predicates are useful when
+code needs to be dynamic, or when the input file, {\em File} contains
+a large number of clauses or facts that may benefit from the indexing
+offered for dynamic code.  (See Section~\ref{sec:dynamic-code} for a
+comparison of static and dynamic code.)
 
-Each of the predicates in this section allows loading from files with
-proper Prolog extensions, and makes use of the XSB library paths.  See
+The following two considerations can radically affect the speed of
+dynamic loading.
+\begin{itemize}
+\item {\em Whether the file is in canonical format}.  Canonical syntax
+  (Section~\ref{sec:canonical}) is a restricted syntax that is harder
+  for humans to read, but XSB can read files in canonical format
+  significantly faster than files that aren't.
+\item {\tt Ordered}.  Whether or not the clauses are to be asserted in
+  the order in which they are present in {\em File}.  If the ordering
+  of clauses does not need to be preserved, as is often the case with
+  files of facts, XSB often can load {\em File} {\bf much} faster than
+  otherwise. \footnote{Using a server from 2019, a million facts took
+    about 6 seconds to load and index.  The loading rate scales
+    linearly as long as RAM is available.}  
+\end{itemize}  
+
+If the the canonical option is not used, the dynamic loader supports
+the same syntax as XSB's static consulting and loading.  If the
+ordering option is true, dynamic loading preserves virtually the same
+semantics as XSB's (static) compiler
+(cf. Section~\ref{sec:dynamic-code}).
+
+The predicates in this section supports modules, along with the
+execution of directives and declarations.  Each predicate allows
+loading from files with Prolog extensions recognized by XSB ({\tt .P},
+{\tt .pl}, and {\tt .H}) and makes use of the XSB library paths.  See
 Sections~\ref{LibPath} and~\ref{sec:filenames} for details.
 
-\begin{description}
-\standarditem{load\_dyn(+FileName)}{load\_dyn/1}\label{load_dyn/1}
-%\predindex{load\_dyn/1~(L)}
-    This predicate {\em dymamically loads} a file {\tt FileName}.  In
-    other words, it asserts the contents of {\tt FileName} into the
-    Prolog database.  As with compiled static code, the code in {\tt
-      FileName} is loaded as a module if the file contains a module
-    declaration; otherwise the code is loaded into {\tt usermod}.  In
-    either case all clauses of the predicates in {\tt Filename} that
-    have been loaded into the same module as {\tt Filename} are
-    retracted, unless there is a {\tt multifile/1} declaration for
-    them.
+We first describe a general predicate, {\tt load\_dyn\_gen/2} that has
+options that can execute any supported behavior for dynamic loading.
+Afterwards, we present a series of convenience predicates that execute
+commonly used sets of features.
 
-    Effort has been made to make the semantics of dynamic loading
-    resemble that of static compilation as much as possible.  Any
-    syntax supported by {\tt read/[1,2]} is supported by {\tt
-      load\_dyn/1} including support for operators.  However, an
-    indexing declaration of a predicate {\tt p/n} in {\tt FileName}
-    will be observed only when the declaration occur before the first
-    clause of {\tt p/n}.  Dynamically loaded files can be also
-    filtered through the XSB preprocessor.  To do this, put the
-    following declaration into {\tt FileName}:
+\begin{description}
+  \standarditem{load\_dyn\_gen(+FileName,+Options)}{load\_dyn\_gen/2}\label{load_dyn_gen/2}
+%
+   This predicate {\em dymamically loads} a file {\tt FileName}.  In
+   other words, it asserts the contents of {\tt FileName} into the
+   Prolog database, after all clauses of the predicates in {\tt
+     Filename} that have been loaded into the same module as {\tt
+     Filename} are retracted (unless there is a {\tt multifile/1}
+   declaration for them).
+
+   Dynamic loading supports modules in a flexible manner.  Let {\tt
+     Base} be the base name of {\tt FileName}, i.e., {\tt FileName}
+   with any path information of extension removed.  If the file
+   contains a module declaration ({\tt export/1} or {\tt module/2})
+   the code in {\tt FileName} is loaded as into the module {\tt Base}
+   unless {\tt Options} contains the option {\tt module(Mod)} in which
+   case the module {\tt Mod} is used.  otherwise the code is loaded
+   into {\tt usermod}.
+
+   Effort has been made to make the semantics of dynamic loading
+   resemble that of static compilation as much as possible.  unless
+   {\tt Options} contains {\tt canonical(no)}, any syntax supported by
+   {\tt read/[1,2]} is supported including operators.  However, an
+   indexing declaration of a predicate {\tt p/n} in {\tt FileName}
+   will be observed only when the declaration occur before the first
+   clause of {\tt p/n}.  Dynamically loaded files can be also use the
+   XSB preprocessor.  To do this, put the following declaration into
+   {\tt FileName}:
     \footnote{The name {\tt compiler\_options} might seem like a misnomer
     here (since the file is not being compiled), but it is convenient to
     use the same directive both for compiling and loading, in case the same
@@ -800,201 +832,123 @@ Sections~\ref{LibPath} and~\ref{sec:filenames} for details.
     %%{
     \begin{verbatim}
     :- compiler_options([xpp_on]).      
-    \end{verbatim}
+\end{verbatim}
 
-    For files that contain many clauses, loading time may be greatly
-    decreased using {\tt load\_dyn/[2,3]} or {\tt load\_dync/[2,3]}.
-    %%
-
-{\bf Error Cases}
-\bi
-\item 	{\tt FileName} is a variable
- \bi
- \item 	{\tt instantiation\_error}
- \ei
-\item 	{\tt FileName} is not an atom.
- \bi
- \item 	{\tt type\_error(atom,Filename)}
- \ei
-\item {\tt FileName} has been loaded previously in the session {\em and}
-  there is more than one active thread.  
- \bi
- \item 	{\tt misc\_error}
- \ei
-%
-\ei
-
-\standarditem{load\_dyn(+FileName,+Ordering)}
-             {load\_dyn/2}\label{load_dyn/2}
-%
-    Asserts the contents of file {\tt FileName} into the database.
-    {\tt Ordering} indicates the order in which clauses are to be
-    asserted.  If {\tt Ordering} is {\tt z}, then the behavior of {\tt
-      assertz} is used so that clauses are asserted in the order they
-    are read: this is the behavior of {\tt load\_dyn/1}.  If {\tt
-      Ordering} is {\tt a}, then the behavior of {\tt asserta} is used
-    to add the clauses to the database in the {\em reverse} order of
-    their appearance in the input file.  The behavior of {\tt asserta}
-    can be {\em much} faster than {\tt assertz} for predicates whose
-    indexing and data result in many hash collisions.  {\tt Ordering}
-    is ignored for facts in {\tt FileName} that are trie-indexed.
-
-    For files that contain many clauses, loading time may be greatly
-    decreased using {\tt load\_dync/[2,3]}.
-
-    {\bf Error Cases}
-\bi
-\item 	{\tt FileName} is a variable
-\bi
-\item 	{\tt instantiation\_error}
-\ei
-\item 	{\tt FileName} is not an atom:
-\bi
-\item 	{\tt type\_error(atom,FileName)}
-\ei
-%
-\item 	{\tt Dir} is not equal to {\tt a} or {\tt z}~\footnote{For
-backward compatibility, {\tt 0} and {\tt 1} are also allowed.}: 
-\bi
-\item 	{\tt domain\_error(a\_or\_z,Dir)}
-\ei
-%
-\item {\tt FileName} has been loaded previously in the session {\em and}
-  there is more than one active thread.  
-\bi
-\item 	{\tt misc\_error}
-\ei
-\ei
-
-\standarditem{load\_dyn(+FileName,+Ordering,+Module)}
-{load\_dyn/3}\label{load_dyn/3}
-Acts as {\tt load\_dyn/2}, but loads the named file into the module named
-{\tt Module}.
-
-\standarditem{load\_dync(+FileName)}{load\_dync/1} \index{canonical format}
-%
-  Acts as {\tt load\_dyn/1}, but assumes that facts are in
-  ``canonical'' format and is much faster as a result.  In XSB, a term
-  is in canonical format if it does not use any operators other than
-  list or comma-list notation.  (See {\tt write\_canonical/[1,2]} for
-    canonical format, along with {\tt cvt\_canonical/2} to convert a
-    file the default syntax to canonical fomrat.)  As with {\tt
-      load\_dyn/1}, the code in {\tt FileName} is loaded as a module
-    if the file contains a module declaration; otherwise the code is
-    loaded into {\tt usermod}.  In either case all clauses of the
-    predicates in {\tt Filename} that have been loaded into the same
-    module as {\tt Filename} are retracted, unless there is a {\tt
-      multifile/1} declaration for them.
-    
-%    As usual, clauses
-%    of predicates are not retracted if they are compiled instead of
-%    dynamically asserted. All predicates are loaded into {\tt
-%      usermod}.  {\tt :- export} declarations are ignored and a
-%    warning is issued.
-
-    Notice that this predicate can be used to load files of Datalog
-    facts (since they will be in canonical format).  However, for
-    loading files with a large number of facts, {\tt load\_dync/2} is
-    often faster as described below.  A large file that is to be
-    dynamically loaded often but not often modified by hand should be
-    loaded with {\tt load\_dync/[1,2,3]}.
-
-    As with \verb|load_dyn/1|, the source file can be filtered through the C
-    preprocessor. However, since all clauses in such a file must be in
-    canonical form, the \verb|compiler_options/1| directive should look as
-    follows:
+    If the canonical reader is used this declaration should have the form: 
     %%
     \begin{verbatim}
      :-(compiler_options('.'(xpp_on,[]))).      
     \end{verbatim}
     %%
 
-{\bf Error Cases}
-\bi
-\item 	{\tt FileName} is a variable
-\bi
+    The following options are currently supported:
+
+    \begin{itemize}
+    \item {\tt ordering(AorZ)} where {\tt AorZ} can be {\tt a} or {\tt
+      z}.  If {\tt a}, clauses are asserted in {\em reverse} order
+      they are read as with {\tt asserta/1}; if {\tt z} the file
+      ordering is preserved as with regular assert.  The use of {\tt
+        ordering(a)} can load large files {\bf much} faster than using
+      {\tt ordering(a)}.  \footnote{The reason has to do with how XSB
+        represents indexes on dynamic code.  Indexes use hash tables
+        with bucket chains.  In order to save space, no pointers are
+        kept to the ends of bucket chains, so when adding a new clause
+        to the end of a bucket (as in {\tt ordering(true)}), the
+        entire chain is run.  Notice that in the limiting case of only
+        one populated bucket (e.g., when all clauses have the same
+        index term), this makes loading a sequence of clauses
+        quadratic.  However, when using {\tt ordering(false)}, the new
+        clause is added to the beginning of its hash bucket, in
+        constant time, resulting in linear behavior.}  {\tt
+        ordering(a)} is often a good solution for files containing
+      knowledge base facts or generated rules, but should not be used
+      for most files that contain Prolog rules, since the selection
+      order of Prolog rules is usually important.  This option is
+      ignored for predicates in {\tt FileName} that are trie-indexed.
+      {\tt ordering(z)} is used by default.
+    \item {\tt canonical(Bool)} where {\tt Bool} can be {\tt true} or
+      {\tt false}.  If {\tt true} dynamic loading uses the canonical
+      reader for {\tt Filename}; if {\tt false} XSB's standard reader
+      is used.  XSB's standard reader is used by default.
+    \item {\tt module(Mod)} where {\tt Mod} is an atomic constant.  If
+      {\tt FileName} contains a module declaration and this option is
+      present the contents of {\tt FileName} are loaded into {\tt
+        Mod}; otherwise the contents are loaded into the basename of
+      {\tt FileName}.  If {\tt FileName} does not contain a module
+      declaration, this option is ignored.
+    \item {\tt error\_limit(Limit)} where {\tt Limit} is a
+      non-negative integer.  This option affects only the behavior of
+      the canonical reader; if the canonical reader is not used, it is
+      ignored.  When the canonical reader is used, a warning is issued
+      for each non-canonical clause and the clause is ignored as long
+      as fewer than {\tt Limit} non-canonical clauses are read.  Once
+      the limit is reached a syntax error is thrown.  Setting {\tt
+        Limit} to 1 ensures that an error will be thrown on the first
+      non-canonical clause in a file, while by convention setting {\tt
+        Limit} to 0 allows an unlimited number of non-canonical
+      clauses to be ignored when reading a file.
+
+      This option can be useful for using dynamic loading within a
+      software development cycle.  When testing, {\tt Limit} may be
+      set to be low to detect errors; however when fielding a system
+      {\tt Limit} might be increased to allow responsiveness within
+      the field environment.
+
+      The default value of {\tt Limit} is 25.  This default may be
+      reset using the Prolog flag {\tt load\_dync\_error\_limit}.
+      \end{itemize}
+
+    {\bf Error Cases} The errors thrown include those thrown by {\tt
+      read/2} or {\tt read\_canonical/2} along with the following
+    errors.
+
+    \bi
+\item 	{\tt FileName} of {\tt Options} is a variable
+  \bi
 \item 	{\tt instantiation\_error}
-\ei
+  \ei
 \item 	{\tt FileName} is not an atom.
-\bi
-\item 	{\tt type\_error(atom,FileName)}
-\ei
+  \bi
+\item 	{\tt type\_error(atom,Filename)}
+  \ei
+\item {\tt Options} contains incorrect options or option values.
+  \bi
+\item A domain or type error is thrown.
+  \ei
+\item The canonical reader is used and more than {\tt Limit}
+  non-canonical clauses are read
+  \bi
+\item {\tt syntax\_error}
+  \ei
+  \ei
 %
-\item {\tt FileName} has been loaded previously in the session {\em and}
-  there is more than one active thread.  
-\bi
-\item {\tt misc\_error}
-\ei
-\ei
-%
-  In addition to the above error cases, a warning is issued when a
-  clause is read that is not in canonical format.
+\standarditem{load\_dyn(+FileName)}{load\_dyn/1}\label{load_dyn/1}
+%\predindex{load\_dyn/1~(L)}
+Equivalent to {\tt load\_dyn\_gen(Filename,[])}.
 
-\standarditem{load\_dync(+FileName,+Ordering)}{load\_dync/2} \label{load_dync/2}
+\standarditem{load\_dyn(+FileName,+Ordering)}
+             {load\_dyn/2}\label{load_dyn/2}
+Equivalent to {\tt load\_dyn\_gen(Filename,[ordering(Ordering)])}.
 %
-  Acts as {\tt load\_dync/1}, but allows the ordering in which clauses
-  are to be asserted, via the argument{\tt Ordering}.  If {\tt
-    Ordering} is {\tt z}, then the behavior of {\tt assertz} is used
-  so that clauses are asserted in the order they are read: this is the
-  behavior of {\tt load\_dync/1}.  If {\tt Ordering} is {\tt a}, then
-  the behavior of {\tt asserta} is used to add the clauses to the
-  database in the {\em reverse} order of their appearance in the input
-  file.  {\tt Ordering} is ignored for facts in {\tt FileName} that
-  are trie-indexed.  The behavior of {\tt asserta} can be {\em much}
-  faster than that of {\tt assertz} for non-trie indexed
-  predicates. \footnote{The reason has to do with how indexes on
-    dynamic code are represented.  Indexes use hash tables with bucket
-    chains.  No pointers are kept to the ends of bucket chains, so
-    when adding a new clause to the end of a bucket (as in {\tt
-      assertz}), the entire chain must be run.  Notice that in the
-    limiting case of only one populated bucket (e.g., when all clauses
-    have the same index term), this makes assertz-ing a sequence of
-    clauses quadratic.  However, when using {\tt asserta}, the new
-    clause is added to the beginning of its hash bucket, and this can
-    be done in constant time, resulting in linear behavior for
-    asserta-ing a sequence of clauses.}  
+\standarditem{load\_dyn(+FileName,+Ordering,+Module)}
+{load\_dyn/3}\label{load_dyn/3}
+Equivalent to {\tt load\_dyn\_gen(Filename,[ordering(Ordering),module(Module)])}.
 
-{\bf Error Cases}
-\bi
-\item 	{\tt FileName} is a variable
-\bi
-\item 	{\tt instantiation\_error}
-\ei
-\item 	{\tt FileName} is not an atom:
-\bi
-\item 	{\tt type\_error(atom,FileName)}
-\ei
+\standarditem{load\_dync(+FileName)}{load\_dync/1} 
 %
-\item 	{\tt Dir} is not instantiated to {\tt a} or {\tt z}~\footnote{For
-backward compatibility, {\tt 0} and {\tt 1} are also allowed.}: 
-\bi
-\item 	{\tt domain\_error(a\_or\_z,Dir)}
-\ei
-%
-\item {\tt FileName} has been loaded previously in the session {\em and}
-  there is more than one active thread.  
-\bi
-\item 	{\tt misc\_error}
-\ei
-\ei
-%
-  In addition to the above error cases, a warning is issued when a
-  clause is read that is not in canonical format.
+Equivalent to {\tt load\_dyn\_gen(Filename,[canonical(true)])}.
 
 
-\index{canonical format}  
+\repeatstandarditem{load\_dync(+FileName,+Ordering)}{load\_dync/2} \label{load_dync/2}
+
 \standarditem{load\_dynca(+FileName)}{load\_dynca/1} \label{load_dync/3}
 %
-Convenience predicate for {\tt load\_dync(FileName,a)}: the fastest
-dynamic loading in XSB, however it makes use of {\tt asserta/1} and so
-loads facts and clauses in the reverse order that they appear in {\tt
-  FileName}.
+Equivalent to {\tt load\_dyn\_gen(Filename,[canonical(true),ordering(Ordering)])}.
 
 \standarditem{load\_dynca(+FileName,+Module)}
              {load\_dynca/2}\label{load_dynca/2}
 %
-Acts as {\tt load\_dynca/`}, but loads {\tt FileName} into the module
-named {\tt Module}.
+Equivalent to {\tt load\_dyn\_gen(Filename,[canonical(true),ordering(Ordering)])}.
 
 \standarditem{ensure\_loaded(+FileSpec,+Action)}{ensure\_loaded/2}
 %
