@@ -821,6 +821,9 @@ abolish_table_subgoals_internal(Call,Action) :-
     (Call = M:Goal -> term_new_mod(M,Goal,NewGoal1) ; Call = NewGoal1),
     current_prolog_flag(table_gc_action,GCAction),
     auxiliary_table_subgoal(NewGoal1,NewGoal),
+    (standard:table_index_predicates(NewGoal,_) -> 
+	 permission_error(abolish,subgoal,NewGoal,abolish_table_subgoal(s)/1)
+       ; true),
     get_calls(NewGoal,Handle,_Template), 
     (GCAction = abolish_tables_transitively ->
       check_if_subgoal_still_exists(NewGoal,Handle) 
@@ -847,6 +850,10 @@ abolish_table_subgoal_internal(Call,Action) :-
     check_cyclic(Call,'abolish_table_subgoal/1',1), 
     (Call = M:Goal -> term_new_mod(M,Goal,NewGoal1) ; Call = NewGoal1),
     auxiliary_table_subgoal(NewGoal1,NewGoal),
+    (standard:table_index_predicates(NewGoal,_) ->
+	 functor(NewGoal,F,A),
+	 permission_error(abolish,table_indexed_subgoal,F/A,abolish_table_subgoal(s)/1)
+       ; true),
     get_call(NewGoal,Handle,_Template), 
     table_state(Handle,_PredType,CallType,AnsSetStatus), 
     CallType \== subsumed, 

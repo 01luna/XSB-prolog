@@ -10,7 +10,10 @@
 % test_dyn_mod_1 tests loading into an implicit module via export
 % test_dyn_mod_2 loading into a designated module via load_dync
 % test_trie tests loading trie_indexed data
-% test_trie tests loading trie_indexed data into a module
+% test_trie_mod tests loading trie_indexed data into a module
+% test_xforms tests transforms (just dcgs right now)
+% test_tables tests tabling -- although reload_dyning tables gives a permission error.
+% test_mod_no_export tests loading into a module a file w.o. an export statement.
 
 :- import xsb_error_get_message/2,xsb_error_get_tag/2 from error_handler.
 
@@ -24,6 +27,12 @@ test:- writeln('--------------------'),fail.
 test:- test_trie,fail.
 test:- writeln('--------------------'),fail.
 test:- test_trie_mod,fail.
+test:- writeln('--------------------'),fail.
+test:- test_xforms,fail.
+test:- writeln('--------------------'),fail.
+test:- test_tables,fail.
+test:- writeln('--------------------'),fail.
+test:- test_mod_no_export,fail.
 test.
        
 test_dyn:- catch(load_dyn(bad_syntax),E,
@@ -40,6 +49,8 @@ test_dync.
 %test_dync:- catch(load_dync(bad_syntax),E,
 %		  (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
 %		   writeln(dync_caught(T,M)))),fail.
+
+:- import smt_dync_mod/3 from kb_dync_mod.
 
 test_dync_mod_1:-
     load_dync(kb_dync_mod),fail.
@@ -88,5 +99,33 @@ test_trie_mod:-
 test_trie_mod:-
     current_index(kb_trie_mod:smt_trie_mod(_S,_P,_O),Index),
     writeln(kb_trie_mod_index_mod(Index)),fail.
+
+test_xforms:-
+    load_dyn(load_dyn_xform),
+    phrase(a,Rest),
+    writeln(dcg(Rest)),
+    fail.
+
+test_tables:-
+    load_dyn(load_dyn_tables),
+    lanc(a,X),writeln(lanc_1(a,X)),
+    fail.
+%test_tables:-
+%    load_dyn(load_dyn_tables),
+%    lanc(a,X),writeln(lanc_2(a,X)),
+%    fail.
+
+test_mod_no_export:-
+    load_dyn_gen(kb_no_export,[module(mod_no_export)]),
+    fail.
+test_mod_no_export:-
+    findall(1,mod_no_export:smt_no_export(_,_,_),_L),length(_L,Len),
+    writeln(kb_mod_no_export_mod_count(Len)),fail.
+test_mod_no_export:-
+    catch(smt_no_export(_,_,_),E,(xsb_error_get_tag(E,M),writeln(caught(M)))),fail.
+test_mod_no_export:-
+    current_index(mod_no_export:smt_no_export(_S,_P,_O),Index),
+    writeln(kb_mod_no_export_index_mod(Index)),
+    fail.
     
 end_of_file.
