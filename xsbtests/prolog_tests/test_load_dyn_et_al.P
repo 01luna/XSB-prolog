@@ -30,6 +30,8 @@ test:- test_trie_mod,fail.
 test:- writeln('--------------------'),fail.
 test:- test_xforms,fail.
 test:- writeln('--------------------'),fail.
+test:- test_tables,fail.
+test:- writeln('--------------------'),fail.
 test:- test_mod_no_export,fail.
 test.
        

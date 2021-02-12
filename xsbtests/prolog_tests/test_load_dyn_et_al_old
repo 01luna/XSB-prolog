@@ -4,6 +4,7 @@
 --------------------
 --------------------
 --------------------
+--------------------
 ++                                                      b ( X , Y ) :- Y is X + 4 )
 caught(existence_error(predicate,usermod : smt_no_export / 3))
 dcg([dcg_executed])
@@ -31,3 +32,5 @@ kb_trie_mod_index_mod(trie)
 kb_trie_mod_index_usermod(1)
 kb_trie_mod_mod_count(24)
 kb_trie_mod_usermod_count(24)
+lanc_1(a,a)
+lanc_1(a,b)
