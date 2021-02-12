@@ -1568,7 +1568,7 @@ default abolishing a subgoal $S$ (predicate $P$) will abolish all
 subgoals (predicates) that (transtively) depend on $S$
 ($P$)~\footnote{Dao Tran Minh contributed to implementing this
   functionality.}.  In this case the goal {\tt
-  abolish\_table\_call(r(a,X))} would cause the deletion of {\tt
+  abolish\_table\_subgoal(r(a,X))} would cause the deletion of {\tt
   p(a,X)} while the goal {\tt abolish\_table\_pred(r/2)} would cause
 the deletion of {\tt p/2}, since there are tabled subgoals of {\tt
   p/2} that depend on {\tt r/2}.  Only dependencies from subgoals or
@@ -1714,7 +1714,7 @@ predicate to be abolished is incremental.
 %will leave dangling poinrs in the data structures used for uncremental updates.  
 %
 Until {\tt abolish\_table\_pred/[1,2]} is extended to support
-incremental tables, use {\tt abolish\_table\_call/[1,2]} or {\tt
+incremental tables, use {\tt abolish\_table\_subgoal/[1,2]} or {\tt
   abolish\_all\_tables/0}.
 
 {\bf Error Cases}
@@ -1792,11 +1792,11 @@ flag:
 ?- set_xsb_flag(table_gc_action,abolish_tables_singly).
 \end{verbatim}
 % 
-or by calling {\tt abolish\_table\_call/2} with the appropriate
+or by calling {\tt abolish\_table\_subgoal/2} with the appropriate
 option.  If the transitive abolishes are turned off, and $S$ contains
 a conditional answer, the warning
 
-{\tt abolish\_table\_call/1 is deleting a table with
+{\tt abolish\_table\_subgoal/1 is deleting a table with
   conditional\ answers: \\ delay dependencies may be corrupted.}
 
 will be issued.  
@@ -1805,14 +1805,14 @@ will be issued.
 %In the multi-threaded engine, if $S$ is a subgoal for a predicate that
 %is shared, reclamation for $S$ will be delayed until there is a single
 %active thread and no answer in $S$ is active in the current execution
-%environment.  Otherwise, the behavior of {\tt abolish\_table\_call/1}
+%environment.  Otherwise, the behavior of {\tt abolish\_table\_subgoal/1}
 %is the same as in the sequential engine on tabled predicates that are
 %thread-private.
 
 \index{Incremental Dependency Graph (IDG)} 
 \index{tabling!abolishes!incremental}
 %
-For incremental tables, {\tt abolish\_table\_call/[1,2]} not only
+For incremental tables, {\tt abolish\_table\_subgoal/[1,2]} not only
 deletes the table structures for {\tt Subgoal}, but pointers to {\tt
   Subgoal} in the Incremental Dependency Graph (IDG), after
 invalidating all subgoals that depend on {\tt Subgoal}. The node and
@@ -1855,7 +1855,7 @@ Behaves as {abolish\_table\_subgoals/1}, but allows the default {\tt
 {\tt abolish\_tables\_transitively} or {\tt abolish\_tables\_singly}.
 
 {\bf Error Cases} Error cases are the same as {\tt
-  abolish\_table\_call/1} but with the additions: 
+  abolish\_table\_subgoal/1} but with the additions: 
 \bi
 \item {\tt Options} is a variable, or contains a variable as an element
 \bi
@@ -1870,7 +1870,15 @@ Behaves as {abolish\_table\_subgoals/1}, but allows the default {\tt
 \bi
 \item {\tt domain\_error([abolish\_tables\_transitively, abolish\_tables\_singly,O)}
 \ei
-\ei
+\item {\tt Subgoal} is a subgoal for a predicate that is tabled with
+  subsimptive indexing.
+  \bi
+\item {\tt permission\_error}. \footnote{Tables that are subsumptively
+  indexed do not always directly associate subgoals with tables, but
+  instead may generalize a subgoal.  For this reason it is not always
+  straightforward how to abolish a subgoal in such a case. Such tables
+  may be abolished via {\tt abolish\_table\_pred}/[1,2].}
+  \ei \ei
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -1984,7 +1984,7 @@ a warning will be issued but no error will be raised.
 
 
 %
-\subsubsection{Mode Declarations}\label{mode_declarations}
+\subsection{Mode Declarations}\label{mode_declarations}
 \index{modes!directives}\index{directives!modes}
 %-----------------------------------------------------
 
@@ -2303,18 +2303,20 @@ compiler option (see Section~\ref{sec:CompilerOptions}).
 \subsubsection{Other Directives} \label{other-directives}
 %==============================================
 
-XSB has other directives not found in other Prolog systems.
+XSB has other directives that might not be found in other Prolog systems.
 
 \begin{description}
-\desc{:- encoding($Charset$).}
-        Indicates that the remainder of the source file will be read
-        using the character set indicated by $Charset$.
-        (See \ref{sec-charsets} for a description of character sets.)
-        All source code files are initially assumed
-        to use the UTF-8 encoding.  This directive can be put at the
-        beginning of a source file to change that assumption.  The remainder
-        of the file, after the directive, will be read assuming the
-        encoding given by $Charset$.
+  \standarditem{\mif encoding($Charset$)}{encoding/1}
+%
+All source code files are initially assumed to use the UTF-8 encoding.
+When the {\tt encoding/1} directive is encountered the remainder of
+the source file will be read using the character set indicated by
+$Charset$.  (See \ref{sec-charsets} for a description of character
+sets.)  Thus, {\tt encoding/1} can indicate that a file is to be read
+using $Charset$ or that multiple character sets are used within a
+given file.
+
+%
 \desc{:- hilog $atom_1, \ldots, atom_n$.}
 	Declares symbols $atom_1$ through $atom_n$ as HiLog symbols.
 	The {\tt hilog} declaration should appear {\em before} any use of

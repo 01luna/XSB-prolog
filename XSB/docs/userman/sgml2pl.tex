@@ -24,7 +24,7 @@ in the future. The {\tt sgml} package does not rely on {\tt
 \paragraph{Installation and configuration.}
 The {\tt sgml} package does not require any installation steps under
 Unix-based systems or under Cygwin. Under native Windows, if you downloaded XSB
-from CVS, you need to compile the package as follows:
+from SVN, you need to compile the package as follows:
 %%
 \begin{verbatim}
     cd XSB\packages\sgml\cc
@@ -114,12 +114,15 @@ will parse the document and bind {\tt Term} to the following Prolog term:
 
 \index{\texttt{CDATA}}
 \noindent
-The XML document is converted into a list of Prolog terms of the form {\tt
-  element(\emph{Name},\emph{Attributes},\emph{Content})}.  Each term
-corresponds to an XML element. \emph{Name} represents the name of the element.
-\emph{Attributes} is a list of attribute-value pairs of the element.  
-\emph{Content} is a list of child-elements and CDATA.
-For instance, 
+The XML document is converted into a list of Prolog terms of the form
+
+{\tt element(\emph{Name},\emph{Attributes},\emph{Content})}.
+
+\noindent
+Each term corresponds to an XML element. \emph{Name} represents the
+name of the element.  \emph{Attributes} is a list of attribute-value
+pairs of the element.  \emph{Content} is a list of child-elements and
+CDATA (general character data).  For instance,
 %%
 \begin{verbatim}
     <aaa>fooo<bbb>foo1</bbb></aaa>  
@@ -133,8 +136,8 @@ will be parsed as
 %%
 
 Entities (e.g. \verb$&lt;$) are returned as part of {\tt CDATA},
-unless they cannot be represented. See {\bf load\_sgml\_structure/3}
-for details.
+unless they cannot be represented. Each entity is clothed in the term
+{\tt entity/1}.  See {\bf load\_sgml\_structure/3} for details.
 
 \section{Predicate Reference}
 \subsection{Loading Structured Documents}

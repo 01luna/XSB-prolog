@@ -403,6 +403,15 @@ the syntax error message.
   table abolishes.  Setting this flag to {\tt on} may slightly slow
   down computation.  Defailt is {\tt off}.
 
+\index{Prolog flags!{\tt load\_dync\_error\_limit}}
+\predref{load\_dyn\_gen/2}
+\item {\tt load\_dync\_error\_limit} This flag affects the behavior of
+  dynamic loading when the canonical reader is used in {\tt
+    load\_dyn\_gen/2} and {\tt load\_dync/[1,2,3]}.  When set to a
+  positive integer $n$, dynamic loading will print warnings on the
+  first $n-1$ non-canonical clauses read, throwing an error only on
+  the $n$th non-canonical clause.  When set to 0, only warnings will
+  be printed.  Default is 25.
 \end{itemize}
 
 %----------------
@@ -813,14 +822,15 @@ p(f(X)):- p(X).          p(a).
  much memory as the underlying OS will grant.  The default value is 0,
  so that the flag is disabled by default.
 
-\item {\tt float\_display\_format} This parameter passes back parameters
-  that are used to configure XSB's printing of floating point numbers.
-  Specifically, a list is passed back whose members are {\tt
-    width(W)}, {\tt precision(P)} and {\tt specifier(S)}.  {\tt W} and
-  {\tt P} both must be integers between 1 and 30, while {\tt S} must
-  be {\tt 'g'},{\tt 'G'},{\tt 'f'} or {\tt 'F'}.  For instance, {\tt W
-    = 1},{\tt P = 15} and {\tt S = g} translates to the format {\tt
-    1.15g}.  For details of floating point formats, see C
+\item {\tt float\_display\_format}
+  This parameter passes back
+  parameters that are used to configure XSB's printing of floating
+  point numbers.  Specifically, a list is passed back whose members
+  are {\tt width(W)}, {\tt precision(P)} and {\tt specifier(S)}.  {\tt
+    W} and {\tt P} both must be integers between 1 and 30, while {\tt
+    S} must be {\tt 'g'},{\tt 'G'},{\tt 'f'} or {\tt 'F'}.  For
+  instance, {\tt W = 1},{\tt P = 15} and {\tt S = g} translates to the
+  format {\tt 1.15g}.  For details of floating point formats, see C
   documentation for the {\em printf()} function.
 
 \end{itemize}
