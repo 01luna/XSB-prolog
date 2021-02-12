@@ -34,9 +34,9 @@
         ensure_dyn_loaded/3, ensure_dync_loaded/3,
         ensure_loaded/1, ensure_loaded/2, ensure_loaded/3,
         get_magic_num/2,
-        load_dyn/1, load_dyn/2, load_dyn/3,
-        load_dyn_module/1,
-	load_dync/1, load_dync/2, load_dync/3, load_dync/4, load_dynca/1,
+	load_dyn/1, load_dyn/2, load_dyn/3, 
+        load_dyn_module/1,load_dyn_gen/2,
+	load_dync/1, load_dync/2, load_dync/3, load_dync/4, load_dynca/1, load_dynca/2,
         read_canonical/1,read_canonical/2,
         if_file_loaded/1,
         (thread_shared)/1,
@@ -59,7 +59,7 @@
          load_dyn_file/2.
 
 :- import check_one_thread/3,
-   domain_error/4, existence_error/4,instantiation_error/2, permission_error/4,type_error/4,
+   domain_error/4, existence_error/4,instantiation_error/2, permission_error/4,syntax_error/2,type_error/4,
    check_nonvar/3, check_atom/3, check_ground/3, check_integer/3 from error_handler.
 :- import domain_error/5,misc_error/1 from error_handler.
 :- import asserta/1, (dynamic)/1, retractall/1, assert/1, retract/1, t_assert/2
@@ -70,7 +70,7 @@
 :- import banner_control/1 from banner.
 :- import append/3, memberchk/2, member/2 from basics.
 :- import compile/6, check_compile_options/1 from compile.
-:- import predicate_property/2, current_input_port/1 from curr_sym.
+   :- import predicate_property/2, current_input_port/1,current_prolog_flag/2 from curr_sym.
 :- import default_assert_size/1 from config.
 :- import check_open_stream_or_alias/5, 
 	path_sysop/3,

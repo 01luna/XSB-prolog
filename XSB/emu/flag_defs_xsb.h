@@ -170,6 +170,7 @@ interrupt flag
 #define FLOAT_DISPLAY_FORMAT            113
 #define TOKENIZE_DQ_AS_ATOM		114 /* 0-usual "-strings go to lists; 1- "-qouted go to atoms (in tokenizer) */
 #define TOKENIZE_VARIABLES_AS_ATOMS	115 /* 0-usual 1-read variables as atoms with same name */
+#define LOAD_DYNC_ERROR_LIMIT           116 /* non-negative integer */
 #define MAX_FLAGS		 120
 
 #define MAXTOINDEX 20              /* maximum depth in term to go when using deep indexing; 

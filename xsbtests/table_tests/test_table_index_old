@@ -1,4 +1,8 @@
 first((Cannot declare ,p_bad / 2, as tabled with options ,dynamic, and ,(index [0])))
+no_abolish(p_to_abolish$_1_3_2(a,u,1))
+no_abolish(p_to_abolish$_1_3_2(a,v,1))
+no_abolish(p_to_abolish$_1_3_2(b,w,3))
+no_abolish(p_to_abolish$_1_3_2(b,x,4))
 p1(a,1)
 p1(a,2)
 p1(b,3)

@@ -338,18 +338,25 @@ add_index(Pred,Arg,Size) :-
 		assertai('_$index1'(Pcall,Targ,Hsize),1)
 	).			
 
-warn_if_existing_clauses(Pcall,From,To) :-
+    warn_if_existing_clauses(Pcall,From,To) :-
 	term_psc(Pcall,Psc),
 	psc_type(Psc,Type),
 	(Type =:= T_DYNA
 	 ->	dynamic_pred_has_clauses(Pcall,Has_Clauses),
 		(Has_Clauses =:= 1
-		 ->	warning(('Changing indexing of dynamic predicate ',Pcall,
-				 ' from ',From,' to ',To,' after it already has clauses.'))
+		-> decode_index(From,FromHum),decode_index(To,ToHum),
+		   add_spaces(FromHum,FromHum1),add_spaces(ToHum,ToHum1),  % needed because error concat elts of lists.
+		   format_term_w_mod(Pcall,ModTerm),
+		   warning(('Changing indexing of dynamic predicate ',ModTerm,
+			    ' from [',FromHum1,'] to [',ToHum1,'] after it already has clauses.'))
 		 ;	true
 		)
 	 ;      true	% assume OK if static
 	).
+
+add_spaces([Elt],[Elt]):- !.
+add_spaces([H|T],[H,', '|T1]):- 
+    add_spaces(T,T1).
 
 :- mode retract_index(?).
 retract_index(Pred) :-

@@ -617,3 +617,63 @@ properties is deferred for the manual of a future version.
   instance the declaration of both {\tt :- op(1200,xf,'$<=$').} and 
 {\tt :- op(1200,xfx,'$<=$').} will lead to a syntax error.}
 
+\section{Canonical Syntax} \label{sec:canonical}
+\index{canonical format}%
+Prolog syntax depends heavily on operators even if a user does not
+define them explicitly.  For instance, rules made use of the infix
+\mif{} operator together with infix operators for conjusnction,
+disjunction, the use of parentheses to override priorities and so on.
+Within {\tt is/2} arithmetic and logical expressions also rely on
+operators.  
+
+This syntactic flexibility is crucial to making Prolog code easy to
+read and enjoyable to write.  However, the widesperad use of operators
+and their precidence makes file reading slower than it otherwise would
+be.  For most files this slowdown is not even noticeable, but for
+large knowledge bases of many millions of clauses, reading can add a
+perceptable overhead to load time.  This overhead can be avoided when
+dynamically loading if the input file is in {\em canonical format},
+i.e., if all of its clauses are in canonical syntax.  Canonical syntax
+may also be useful if XSB needs to write results that need to be
+parsed by some other language.
+
+Canonical syntax ensures that all terms, atoms, and rules are written
+in prefix order.  XSB's version of canonical syntax supports two
+exceptions to this: the normal syntax of lists and comma lists are
+considered canonical.  For instance, the syntax {\tt [a,b,c]} is
+allowed and the fully prefix syntax {\tt '.'(a,'.'(b,c))} is not
+requried.  In addition, canonical format in XSB disallows constructs
+that are based on trasnfromations, such as DCGs, HiLog and certain
+types of tabling.
+
+Canonical syntax is most easily understood via examples.
+The rule:
+
+{\tt 
+anc(X,Y,L):- anc(X,Z,L1),par(Z,Y),L is L + 1.
+}
+
+has canonical syntax
+
+{\tt 
+  :-(anc(X,Y,L),','(anc(X,Z,L1),','(par(Z,Y),is(L,+(L1,1))))).
+}
+
+while the rule
+
+{\tt 
+  append([X|L1],L2,[X|L3]) :- append(L1,L2,L3))).
+}
+
+has canonical syntax
+
+{\tt 
+:-(append([X|L1],L1,[X|L3]),append(L1,L2,l3)).
+}
+
+where the lists are allowed to use infix notation.
+
+A Prolog file in normal syntax can be converted to canonical format
+via the predicate {\tt cvt\_canonical(InFile,OutFile)}.  Prolog rules,
+atoms, or terms can be read or written in canonical format by {\tt
+  read\_canonical/[1,2]} and {\tt write\_canonical/[1,2]}).

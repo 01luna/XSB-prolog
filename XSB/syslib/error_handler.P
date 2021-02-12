@@ -469,10 +469,17 @@ resource_error(Flag,Predicate):-
 
 %------
 % PM: TODO - Replace usage of term syntax_error/1 with syntax_error/2
+% TES: added syntax_error/2 below, but did not replace existing occurrences yet.
 :- mode syntax_error(?).
 syntax_error(Message):- 
 	xsb_backtrace(Bt),
 	SyntaxError =.. [syntax_error,_], % syntax_error/1 term in usermod
+	throw(error(SyntaxError,context(Message,Bt))).
+
+:- mode syntax_error(?,?).
+syntax_error(Culprit,Message):- 
+	xsb_backtrace(Bt),
+	SyntaxError =.. [syntax_error,Culprit], % syntax_error/2 term in usermod
 	throw(error(SyntaxError,context(Message,Bt))).
 %------
 :- mode system_error(+,+,+).
@@ -738,5 +745,12 @@ linux_system_error(7,' E2BIG: Arg list too long').
 linux_system_error(8,' ENOEXEC: Exec format error').
 linux_system_error(9,' EBADF: Bad file number').
 linux_system_error(10,' ECHILD: No child processes').
-  
+linux_system_error(11,' EAGAIN:  Try again').
+linux_system_error(12,' ENOMEM: Out of memory').
+linux_system_error(13,' EACCES: Permission denied').
+linux_system_error(14,' EFAULT: Bad address').
+linux_system_error(15,' ENOTBLK: Block device required').
+linux_system_error(16,' EBUSY: Device or resource busy').
+
+		   
 end_of_file.

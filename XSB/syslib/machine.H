@@ -49,6 +49,7 @@
 	psc_data/2,
 	psc_init_info/1,
 	mark_term_cyclic/1,
+	format_term_w_mod/2,
 	term_new_mod/3,
 	term_new_mod_inline/3,
 	term_psc/2, 
@@ -219,5 +220,8 @@
 :- import incr_eval_builtin/3 from increval.
 :- import term_to_atom/3 from string.
 :- import writeln/1 from standard.
+:- import numbervars/1 from num_vars.
+:- import copy_term/2 from basics.
+
 /* --------------------- end of file machine.H ------------------------ */
 

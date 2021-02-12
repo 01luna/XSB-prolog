@@ -184,10 +184,13 @@ each byte.  Unlike simple * indices, the l.s. byte is not set to 0.
 
 :- mode current_index(+,?).
 current_index(Term,Index):-
-	check_nonvar(Term,current_index/2,1),
-	current_index_1(Term,Index).
-	
+    check_nonvar(Term,current_index/2,1),
+    current_index_1(Term,Index).
 
+current_index_1(Mod:T,Index):- 
+    (T = F/N -> functor(Term,F,N) ; T = Term),
+    term_new_mod(Mod,Term,NewTerm),!,
+    current_index_1(NewTerm,Index).
 current_index_1(F/N,Index):-
 	nonvar(F),nonvar(N),
 	functor(Term,F,N),!,
@@ -204,6 +207,7 @@ current_index_1(Term,trie):-
 	'_$trie_asserted'(Term),!.
 current_index_1(_Term,1).
 
+:- export decode_index/2.
 decode_index(0,0) :- !.
 decode_index([],[]):-!.
 decode_index([Ind|Rest],[Index|R]):- !,
@@ -1280,8 +1284,9 @@ xsb_flag(float_display_format,Num):-
     atom_codes(P,[_,_,_|R]),
     remove_last(R,NumL),
     atom_codes(Num,NumL).
-
-
+xsb_flag(load_dync_error_limit,Num):-
+    stat_flag(LOAD_DYNC_ERROR_LIMIT,Num).
+	   
 remove_last([_],[]):- !.
 remove_last([H|T],[H|T1]):- 
     remove_last(T,T1).
@@ -1583,6 +1588,10 @@ set_xsb_flag_1(Type, _) :-
 	;	prolog_commons_flag(Type)
 	),
 	permission_error(modify,flag,Type,set_prolog_flag/2).
+set_xsb_flag_1(load_dync_error_limit, Num) :-
+    ((integer(Num),Num >= 0) ->
+	 (Num > 0 -> SetNum = Num ; (iso_flag(max_integer,Maxint),SetNum = Maxint)),
+    stat_set_flag(LOAD_DYNC_ERROR_LIMIT,SetNum)).
 set_xsb_flag_1(Type, _) :-
 	domain_error(prolog_flag,Type,set_prolog_flag/2,1).
 

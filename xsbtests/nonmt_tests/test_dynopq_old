@@ -1,4 +1,4 @@
-existence_error(procedure,usermod : r_bad / 0)
+existence_error(predicate,usermod : r_bad / 0)
 r
 r1(1)
 r2(1)

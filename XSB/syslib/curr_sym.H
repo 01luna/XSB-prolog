@@ -31,6 +31,7 @@
 	garbage_collection/1, hilog_symbol/1.
 :- export current_input_port/1, current_output_port/1.
 :- export user_dyn_clause_count.
+:- export decode_index/2.
 
 :- import retractall/1, (dynamic)/1, asserta/1,clause/2 from assert.
 :- import member/2,append/3,length/2 from basics.

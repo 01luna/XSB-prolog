@@ -289,6 +289,7 @@ static void init_flags(CTXTdecl)
   //  flags[UNIFY_WITH_OCCURS_CHECK_FLAG] = 0;
   flags[ALTERNATE_SEMANTICS] = 0;
   pflags[ANSWER_COMPLETION] = 1;
+  flags[LOAD_DYNC_ERROR_LIMIT] = 25;   /* Davids default */
 #ifndef MULTI_THREAD
   // not (yet) tested with multi-threaded, so leave off if MT
 #endif

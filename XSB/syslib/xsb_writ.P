@@ -207,7 +207,7 @@ l_write(File, T, Prec, D,Flag) :- 	% functor(T, OP, N),
 	psc_name(PSC, Name),
 	OP = Name,
 	D1 is D - 1,
-	( N=:=0 -> file_puttoken(File, TK_ATOM, Name)
+	( N=:=0 -> file_puttoken(File, XSB_STRING, Name)
 		    ,file_put(File,CH_LPAREN),file_put(File,CH_RPAREN) % e.g. p()?
 	; N=:=1 ->
 		( '_$op'(Opprec, fx, OP) ->
@@ -259,9 +259,9 @@ l_writevar(File, N, Quoted, D,Flag) :-
                          true
 	           ; file_puttoken(File, TK_VAR, Number) ) )
    	     ; (Quoted =:= 0 -> 
-	            file_puttoken(File, TK_ATOM, '$VAR')
+	            file_puttoken(File, XSB_STRING, '$VAR')
 	          ; file_put(File, CH_QUOTE),
-	             file_puttoken(File, TK_ATOM, '$VAR'), 
+	             file_puttoken(File, XSB_STRING, '$VAR'), 
 	             file_put(File, CH_QUOTE) ),
 	        file_put(File, CH_LPAREN),
 	        l_write(File, N, 999, D,Flag),
@@ -283,7 +283,7 @@ l_writeattrvar(File,Var,Flag) :-
 
 
 l_writestr(File, Name, N, Term, D,Flag) :-
-	file_puttoken(File, TK_ATOM, Name), 
+	file_puttoken(File, XSB_STRING, Name), 
 	file_put(File, CH_LPAREN),    % (
 	term_arg(Term, 1, X),
 	l_write(File, X, 999, D,Flag),
@@ -432,7 +432,7 @@ l_write_prolog(File, T, Prec) :- 	% functor(T, OP, N),
 	psc_arity(PSC, N),
 	psc_name(PSC, Name),
 	OP = Name,
-	( N=:=0 -> file_puttoken(File, TK_ATOM, Name)
+	( N=:=0 -> file_puttoken(File, XSB_STRING, Name)
 	; N=:=1 ->
 		( '_$op'(Opprec, fx, OP) ->
 			Nprec is Opprec-1, 
@@ -475,9 +475,9 @@ l_writevar_prolog(File, N, Quoted) :-
 		( Number =:= 0 -> true
 		; file_puttoken(File, TK_VAR, Number) 
 		)
-	; ( Quoted =:= 0 -> file_puttoken(File, TK_ATOM, '$VAR')
+	; ( Quoted =:= 0 -> file_puttoken(File, XSB_STRING, '$VAR')
 	  ; file_put(File, CH_QUOTE),
-	    file_puttoken(File, TK_ATOM, '$VAR'), 
+	    file_puttoken(File, XSB_STRING, '$VAR'), 
 	    file_put(File, CH_QUOTE)
 	  ),
 	  file_put(File, CH_LPAREN),
@@ -485,7 +485,7 @@ l_writevar_prolog(File, N, Quoted) :-
 	  file_put(File, CH_RPAREN)
 	).
 l_writestr_prolog(File, Name, N, Term) :-
-	file_puttoken(File, TK_ATOM, Name), 
+	file_puttoken(File, XSB_STRING, Name), 
 	file_put(File, 40), 		% '('
 	term_arg(Term, 1, X),
 	l_write_prolog(File, X, 999),
@@ -797,7 +797,7 @@ l_write_canonical(File, []) :-
 	file_put(File, CH_RBRACKET).	% ]
 **l_write_canonical(File, [X|Y]) :-
 	!,
-	file_puttoken(File, TK_ATOM, '''.''('),
+	file_puttoken(File, XSB_STRING, '''.''('),
 	l_write_canonical(File, X),
 	file_put(File, CH_COMMA),	% ','
 	l_write_canonical(File, Y),
@@ -810,7 +810,7 @@ l_write_canonical(File, [X|Y]) :- !,
 	file_put(File, CH_RBRACKET).
 l_write_canonical(File, Atom) :-
 	term_type(Atom, Type),
-	Type =:= TK_ATOM,
+	Type =:= XSB_STRING,
 	!,
 	file_writequoted(File, Atom).
 l_write_canonical(File, Term) :-	% functor(Term, Name, N)

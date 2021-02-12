@@ -30,19 +30,22 @@
 :- export mpa_to_skel/2.
 :- export force_file_op_loaded/0.
 
-:- import default_assert_size/1 from config.
-:- import integer/1, functor/3, atom/1, '_$multifile'/1, '_$multifile_comp'/2 from standard.
 :- import /*incremental evaluation */ assert/1, assertai/2, retract/1, retractall/1, (dynamic)/1 from assert.
 :- import system_retractall/1 from assert.
-
+:- import default_assert_size/1 from config.
+:- import decode_index/2 from curr_sym.
 :- import conpsc/2, psc_type/2, term_new/2, psc_insert/4 from machine.
+:- import format_term_w_mod/2 from machine.
+
+:- import integer/1, functor/3, atom/1, '_$multifile'/1, '_$multifile_comp'/2 from standard.
+:- import warning/1 from standard.
+
 :- import instantiation_error/2 from error_handler.
 :- import dynamic_pred_has_clauses/2 from assert.
 :- import term_psc/2 from machine.
-:- import warning/1 from standard.
 
-
-:- index '_$op1'/3-3.
+% TES: I had to comment this out to get file_op to compile.
+   :- index('_$op1'/3-3).
 
 /*
 :- export fx/0, fy/0, yf/0, xf/0, xfx/0, xfy/0, yfx/0, yfy/0.

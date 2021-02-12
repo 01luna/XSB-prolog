@@ -183,6 +183,8 @@ rm -f varcond.xwam
 ../gentest.sh "$XEMU $options" longname "test."
 #------------------------------------
 ../gentest.sh "$XEMU $options" gctest "test."
+#------------------------------------
+../gentest.sh "$XEMU $options" test_load_dyn_et_al "test."
 #------------------------------------------------------------------------
 cd parmod_tests
 ../../gentest.sh "$XEMU $options" test_parmod "test."
