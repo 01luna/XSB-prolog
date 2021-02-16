@@ -950,6 +950,9 @@ assert_in_db(Clauses,H0,H) :-
 	tab_intern_termhash(DB,H)
     ).
 
+%% simpler alias if desired.
+add(Clauses,H0,H) :- assert_in_db(Clauses,H0,H).
+
 %% bug if do this, for very large metainterp??
 %%:- import (table)/1 from standard.
 %%:- table tab_intern_termhash/2 as intern.
@@ -998,6 +1001,9 @@ assert_in_db(Clauses,H) :-
     new_db(DB0),
     assert_in_db(Clauses,DB0,DB),
     tab_intern_termhash(DB,H).
+
+%% simpler alias if desired.
+add(Clauses,H) :- assert_in_db(Clauses,H).
 
 add_to_trie(Head,Body,Trie0,Trie) :-
     (ground([Head|Body])
@@ -1288,6 +1294,9 @@ retractall_in_db(Clauses,H0,H) :-
 	retractall_in_db_b(Clauses,DB0,DB),
 	tab_intern_termhash(DB,H)
     ).
+
+%% simpler alias if desired
+remove(Clauses,H0,H) :- retractall_in_db(Clauses,H0,H).
 
 retractall_list([]).
 retractall_list([Clause|Clauses]) :-
@@ -2929,6 +2938,9 @@ in_db(Goal,H) :-
      ;	tab_intern_termhash(DB,H),
 	in_db_b(Goal,DB)
     ).
+
+%% simpler alias, if desired.
+in(Goal,H) :- in_db(Goal,H).
 
 :- comment(in_db/3, "@pred{in_db(+Goal,+DB0,-DB)} is a
 version of @pred{in_db/2} that returns the input database so that
