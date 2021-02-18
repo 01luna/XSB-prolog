@@ -2506,32 +2506,40 @@ This is the same as the Weibull distribution with $k = 1$.
 \index{comma-separated file format}
 \index{delimiter-separated file format}
 
-A common file format uses comma separated values, the so-called csv
-files.  The XSB module, {\tt proc\_files}, supports the loading of
-files in this, and similar, formats to define Prolog predicates.
+Delimiter-separated files, such as {\em csv} (comma-separated values)
+or {\em tsv} (tab-separated values) are a common format to store
+relational data and so are a useful way for XSB to communicate data
+with spreadsheets, Python, Java, and other tools.  XSB has a library
+{\tt proc\_files} to support I/O of Prolog predicates to
+delimiter-separaed files. \footnote{The name of the library, {\tt
+    proc\_files} is unfortunately vague, but it is too late to change
+  this name.}
 
 \begin{description}
 
-\ourmoditem{load\_csv(+FileName,+PredSpec)}{load\_csv/2}{proc\_files}
+\ourmoditem{load\_csv(+File,+PredSpec)}{load\_csv/2}{proc\_files}
 
-{\tt load\_csv/2} takes a file name and a predicate specification, and
-loads a csv-formatted file into memory so that it defines the
-predicate {\tt PredSpec}.  The simplest form of {\tt PredSpec} is {\tt
-  PredName/Arity}.  In this case {\tt Arity} must equal the number of
-fields in the csv file, and the predicate must be dynamic.  Each line
-in the file will define one fact of the predicate {\tt
-  PredName/Arity}.  Fields in the file enclosed in double quotes will
-be treated as single fields (and thus can contain commas and
-new-lines.)  Any clauses for {\tt PredSpec} will be removed before the
-facts from the file are added.  WIth this simple type of predicate
-specification, each field will be loaded as an atom (including fields
-that contain just integers.)
+{\tt load\_csv/2} takes a file in csv format along with a predicate
+specification, and loads its contents into memory to define
+the predicate {\tt PredSpec}.  The simplest form of {\tt PredSpec} is
+{\tt PredName/Arity}. e.g.,
 
-Alternatively, {\tt PredSpec} may be of the form {\tt
-predName(TypeSpec1,...,TypeSpecN)}, where {\tt predName} is the name
-of the dynamic predicate to be defined by the file contents, and each
-{\tt TypeSpec$_I$} indicates the type of the corresponding field in the
-file.  The permitted values of {\tt TypeSpec} are:
+{\tt load\_csv('weather\_stats.csv',weather\_stats/7)}.
+
+In this form {\tt Arity} must equal the number of fields in {\tt File}
+file, and {\tt PredSpec} is inferred to be dynamic.  Each line in the
+file will define one fact of {\tt PredSpec}.  In accordance with csv
+formatting, any filed in {\tt File} enclosed in double quotes will be
+treated as a single field, and thus can contain commas and new-lines.
+Any clauses for {\tt PredSpec} will be retracted before the facts from
+the file are added.  With this simple form of predicate specification,
+each field will be loaded as an atom (including fields that contain
+just integers.)
+
+If more control over typing is needed, {\tt PredSpec} may be of the
+form {\tt predName(TypeSpec1,...P,TypeSpecN)}, and each {\tt
+  TypeSpec$_I$} indicates the type of the corresponding field in {\tt
+  File}.  The permitted values of {\tt TypeSpec} are:
 \begin{itemize}
 \item[{\tt atom}] The corresponding field value will become an atom in
 the loaded fact.
@@ -2542,25 +2550,27 @@ the loaded fact.
 to an integer in the loaded fact.
 \item[{\tt float}] The corresponding field value will be converted to
 a float in the loaded fact.
-\item[{\tt term}] The corresponding field must contain a Prolog term in
-canonical form, and it will be converted to that term in the loaded
-fact. 
-\item[\_] (A variable) Treated as {\tt atom}.
-\item[\textnormal{user-defined}]
-  A \emph{user-defined type name} is any atom other than the above.
-  For example,  \texttt{date}   or \texttt{time}.
-  In that case, the user must supply a type conversion hook for that type
-  by calling the predicate  \texttt{add\_cvt\_type\_hook/2}, defined in
-  \texttt{proc\_files}, in advance. For instance, one can use the data type
-  \texttt{date} after executing
+\item[{\tt term}] The corresponding field must contain a term in
+  Prolog canonical syntax, and it will be converted to that term in
+  the loaded fact.  This option can be useful for loading, e.g.,
+  Python lists.
+\item[\_] (A variable) This default syntax causes a field to be
+  treated as Treated as {\tt atom}.
+\item[{\tt user-defined}]
+%
+  A \emph{user-defined type name} is any atom other than the above,
+  for example, \texttt{date} or \texttt{time}.  In that case, the user
+  must supply a type conversion hook for that type by defining a
+  conversion routine for the type in advance via
+  \texttt{add\_cvt\_type\_hook/2} (defined below).  For instance, one
+  can use the data type \texttt{date} after executing
   \texttt{add\_cvt\_type\_hook(date,date\_converter(\_,\_))}, where
-  \texttt{date\_converter/2}  could be a predicate that takes atoms of the form
-  \texttt{'2017-11-26'} in the first argument
-  and binds the second argument to terms of the form
-  \texttt{date(2017,11,26)}.
-  To remove a type conversion hook, use \texttt{remove\_cvt\_type\_hook/1},
-  e.g.,  \texttt{remove\_cvt\_type\_hook(date)}, also in
-  \texttt{proc\_files}.
+  \texttt{date\_converter/2} could be a predicate that takes atoms of
+  the form \texttt{'2017-11-26'} in the first argument and binds the
+  second argument to terms of the form \texttt{date(2017,11,26)}.To
+  remove a type conversion hook, use
+  \texttt{remove\_cvt\_type\_hook/1}, e.g.,
+  \texttt{remove\_cvt\_type\_hook(date)}.
 \end{itemize}
 
 \ourmoditem{load\_dsv(+FileName,+PredSpec,+Options)}{load\_dsv/3}{proc\_files}
@@ -2609,6 +2619,36 @@ options are:
   the asserted predicate, and the extra fields in the records will be
   ignored.
 \end{itemize}
+
+\ourmoditem{add\_cvt\_type\_hook(+Type,+Hook)}{add\_cvt\_type\_hook/2}{proc\_files}
+%
+This predicate adds a type hook for a user-defined field type {\tt
+  Type}.  {\tt Hook} must be a predicate with two or more arguments
+with arguments 1 and 2 being unbound and distinct. For instance, a
+hook could be a predicate of the form
+
+{\tt convert\_date(+InField,-OutField)}.
+
+When a field declared as being of type {\tt Type} is read {\tt Hook}
+will be called to convert the field according to the supplied
+hook-predicate.
+
+{\bf Error Cases} 
+\bi
+\item 	A hook for type {\tt Type} is already defined
+\bi
+\item    {\tt misc\_error}
+\ei
+\item {\tt Hook} is not defined as a term of arity 2 or greater in which the first two arguments are distinct variables \bi
+\item    {\tt misc\_error}
+  \ei
+  \ei
+  
+\ourmoditem{remove\_cvt\_type\_hook(?Type)}{remove\_cvt\_type\_hook/1}{proc\_files}
+%
+{\tt remove\_cvt\_type\_hook(Type)} removes type conversion hook
+associated with @var{Type}.  If no hook is associated with @var{Type},
+succeeds silently.
 
 \ourmoditem{data\_records(+FileName,+Format,?RecTerm)}{data\_records/3}{proc\_files}
 This predicate is used to read files of various formats.  It succeeds
