@@ -8,9 +8,9 @@ XEMU=$1
 options=$2
 valgrind=$3
 
-if test "$valgrind" = "true"; then
+#if test "$valgrind" = "true"; then
     echo "valgrind = $valgrind"
-fi
+#fi
 
 u=`uname`;
 echo "uname for this system is $u";
@@ -172,7 +172,11 @@ rm -f varcond.xwam
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" test_large_atom_codes "test."
 #------------------------------------------------------------------------
-../gentest.sh "$XEMU $options" prolog_db_tests "test."
+if test "$valgrind" = "true"; then
+    echo "Valgrind is too slow on prolog_db_tests; skipping"
+else
+    ../gentest.sh "$XEMU $options" prolog_db_tests "test."
+fi
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" test_float_io_precision "test."
 #------------------------------------
