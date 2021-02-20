@@ -424,7 +424,13 @@ handle_undefined_pred(PSC,Term) :-
 	 	call0(Goal)
 	 ;	xsb_sys_mutex_unlock( MUTEX_LOAD_UNDEF ),
 		xsb_backtrace(BT),
-		throw(error(existence_error(predicate,ModName:Name/Arity),context([],BT)))
+		(Name == apply ->
+		     hilog_functor(HTerm,Name,Arity),numbervars(HTerm),
+		     throw(error(existence_error(hilog_predicate,ModName:HTerm),
+				 context([],BT)))
+		;
+		     throw(error(existence_error(predicate,ModName:Name/Arity),
+			    context([],BT))))
 	).
 
 :- import unknown_predicate_hook/1 from usermod.
