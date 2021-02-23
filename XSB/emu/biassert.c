@@ -98,7 +98,10 @@ CPtr call_cleanup_gl = NULL;
 #define pad64bits(Loc)	{}
 #endif
 
-/* TLS: probably dont need to keep max thread here -- could use max_threads_glc */
+#ifdef MULTI_THREAD
+
+/* Don't need Dispatch blocks except for MT engine */
+/* TES: probably dont need to keep max thread here -- could use max_threads_glc */
 struct DispBlk_t {
   struct DispBlk_t *PrevDB;
   struct DispBlk_t *NextDB;
@@ -110,8 +113,6 @@ struct DispBlkHdr_t {
   struct DispBlk_t *firstDB;
   struct DispBlk_t *lastDB;
 } DispBlkHdr = {NULL, NULL};
-
-#ifdef MULTI_THREAD
 
 /* For a private dynamic predicate, return addr of its prref or its
    table wrapper */
