@@ -2,6 +2,7 @@
 ** Author(s): Kostis Sagonas
 **    	      (adapted from the shared Edinburgh library, and updated later
 **	       to be in synch with SICStus 3.8)
+** 	      TES: added jaccard preds.
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 1993-1998
@@ -66,7 +67,8 @@
 	ord_union/3,		%  Set x Set -> Set
 	ord_union/4,
 	ord_union/2.		%  list(Set) -> Set
-
+:- export jaccard_distance/3,jaccard_similarity/3.
+   
 :- import sort/2 from setof.
 :- import length/2 from basics.
 :- import compare/3 from standard.
@@ -100,12 +102,16 @@
 %   output, e.g. merge("122357", "34568", "12233455678").  Study this
 %   routine carefully, as it is the basis for all the rest.
 
-merge([Head1|Tail1], [Head2|Tail2], [Head2|Merged]) :-
-	Head1 @> Head2, !,
-	merge([Head1|Tail1], Tail2, Merged).
-merge([Head1|Tail1], List2, [Head1|Merged]) :-
-	List2 \== [], !,
-	merge(Tail1, List2, Merged).
+merge([Head1|Tail1], [Head2|Tail2], Out) :- !,
+   compare(Ord,Head1,Head2),
+   (Ord = '=' ->
+	Out = [Head1|Merged],
+	merge(Tail1, Tail2, Merged)  
+    ; Ord = '>' ->
+        Out = [Head2|Merged],
+	merge([Head1|Tail1], Tail2, Merged) 
+    ; Out = [Head1|Merged],
+      merge(Tail1, [Head2|Tail2], Merged) ).
 merge([], List2, List2) :- !.
 merge(List1, [], List1).
 
@@ -420,3 +426,16 @@ ord_union_all(N, Sets0, Union, Sets) :-
 	ord_union_all(A, Sets0, X, Sets1),
 	ord_union_all(Z, Sets1, Y, Sets),
 	ord_union(X, Y, Union).
+
+jaccard_similarity(Set1,Set2,Coeff):-
+    ord_intersection(Set1,Set2,Inter),
+    ord_union(Set1,Set2,Union),
+    length(Inter,Ilen),
+    length(Union,Ulen),
+    Coeff is Ilen / Ulen.
+
+jaccard_distance(Set1,Set2,Dist):-
+    jaccard_similarity(Set1,Set2,Sim),
+    Dist is 1 - Sim.
+
+
