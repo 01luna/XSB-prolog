@@ -100,6 +100,7 @@ compile_f('', Base, Opts, ToLoc, ExList, Mod, _) :- !,
 
 make_filecopy(OFileName,NFileName) :-
 	xsb_configuration(os_type, OS_type),
+	atom(OS_type),
 	(is_wind(OS_type)
 	 ->	sys_filecopy(OFileName,NFileName,_)
 	 ;	sys_link(OFileName,NFileName,_)
@@ -235,7 +236,7 @@ needs_recompile('', Base, Obj) :-
 	file_time(Base, PTime),
 	OTime =< PTime.
 needs_recompile('c', Base, Obj) :-
-	xsb_configuration(os_type, OS_type),
+	xsb_configuration(os_type, OS_type), atom(OS_type),
 	( ( str_sub('solaris', OS_type) -> str_cat(Base, '.so', C_Obj)
           ; (str_sub('linux', OS_type) -> str_cat(Base, '.so', C_Obj))
           ; (str_sub('bsd', OS_type) -> str_cat(Base, '.so', C_Obj))
@@ -538,6 +539,7 @@ write_canonical_list(Term) :-
 	   
 load_dyn_gen(File,Options) :- 
     check_nonvar(File,'load_dyn_gen/1',1),
+    check_atom(File,'load_dyn_gen/1',1),
     process_ldg_options(Options,Canonical,AorZ,Module,Limit),
     (Canonical == yes ->
 	load_dync_nocheck(File,AorZ,Module,Limit)
@@ -579,6 +581,8 @@ load_dyn(File,DirIn) :-
 
 :- export load_dyna/1.
 load_dyna(File) :-
+	check_nonvar(File,'load_dyna/1',1),
+	check_atom(File,'load_dyna/1',1),
 	load_dyn(File,0,usermod).
 
 %% TES: changed behavior to throw error rather than fail to make
@@ -1380,6 +1384,7 @@ ensure_dync_loaded_novarcheck([File|Files],Dir,Module) :- !,
 	ensure_dync_loaded(File,Dir,Module),
 	ensure_dync_loaded(Files,Dir,Module).
 ensure_dync_loaded_novarcheck(File,Dir,Module) :-
+        check_atom(File,'ensure_dync_loaded/1',1),
 	(if_should_not_reload(File)
 	 ->	true
 	;	current_prolog_flag(load_dync_error_limit,ErrLimit),

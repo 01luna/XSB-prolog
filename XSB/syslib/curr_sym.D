@@ -26,9 +26,9 @@
 :- mode current_prolog_flag(+,?).
 :- mode current_xsb_param(?,?).
 :- mode current_xsb_param_1(?,?).
-:- mode decode_index(+,?).
-:- mode decode_index_in_list(+,?).
-:- mode decode_star_index(+,?,?).
+:- mode decode_index(?,?).
+:- mode decode_index_in_list(?,?).
+:- mode decode_star_index(?,?,?).
 :- mode garbage_collection(+).
 :- mode get_first_psc_pair(?).
 :- mode get_float_precision(+,?,?).
