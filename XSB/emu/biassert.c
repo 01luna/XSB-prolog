@@ -140,8 +140,10 @@ PrRef dynpredep_to_prref(CTXTdeclc void *pred_ep) {
   if (!pred_ep) return NULL;
 #endif
   if ((cell_opcode((CPtr)(pred_ep)) == tabletrysingle)||(cell_opcode((CPtr)(pred_ep)) == tabletrysinglenoanswers)) /*incremental evaluation */
-    //if (cell_opcode((CPtr)(pred_ep)) == tabletrysingle)
-    return (PrRef)((CPtr *)(pred_ep))[6];
+    /* TES: In this obscure expression, pred_ep is a PrRef.  The size of a PrRef is
+       6 cells, so ((CPtr *)(pred_ep))[6] simply takes the first Cell after the PrRef, 
+       which is where the code starts.  I think. */
+   return (PrRef)((CPtr *)(pred_ep))[6];
   else return pred_ep;
 }
 
