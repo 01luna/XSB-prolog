@@ -1486,7 +1486,7 @@ xsbBool assert_buff_to_clref_p(CTXTdeclc prolog_term Head,
   write_word(Clause,Loc,0);
   for (Inum = NI; Inum > 0; Inum--) {
     /* put template code for chaining buffers from hash tables  */
-    dbgen_inst_ppv(noop,(4*Inum-1)*sizeof(Cell)/2,Clause,Loc);  /* noop(6) */
+    dbgen_inst_ppv(dynnoop,(4*Inum-1)*sizeof(Cell)/2,Clause,Loc);  /* noop(6) */
     write_word(Clause,Loc,0);
     dbgen_inst_ppv(dynnoop,sizeof(Cell)/2,Clause,Loc);             /* noop(2) */
     write_word(Clause,Loc,0);
@@ -1517,7 +1517,7 @@ static void prefix_to_chain(int ifSOB, byte Arity, ClRef FirstClause, ClRef NewC
   dbgen_inst_ppvw(ifSOB?trymeelse:dyntrymeelse,Arity,FirstClause,NewClause,&Loc);
 
   Loc = 0;
-  if (ClRefTryOpCode(FirstClause) == dynnoop || ClRefTryOpCode(FirstClause) == noop)
+  if (ClRefTryOpCode(FirstClause) == dynnoop)
   {  dbgen_inst_ppvw(dyntrustmeelsefail,Arity,ClRefNext(FirstClause),
 		     FirstClause,&Loc); }
   else if (ClRefTryOpCode(FirstClause) == dyntrymeelse ||
@@ -1544,9 +1544,6 @@ static void append_to_chain(byte Arity, ClRef LastClause, ClRef NewClause)
   if (ClRefTryOpCode(LastClause) == dynnoop)
   {  dbgen_inst_ppvw_safe(dyntrymeelse,Arity,NewClause,
 		     LastClause,&Loc);  }
-  else if (ClRefTryOpCode(LastClause) == noop)
-  {  dbgen_inst_ppvw_safe(trymeelse,Arity,NewClause,
-		     LastClause,&Loc);  }
   else if (ClRefTryOpCode(LastClause) == dyntrustmeelsefail)
   {  dbgen_inst_ppvw_safe(dynretrymeelse,Arity,NewClause,
 		     LastClause,&Loc);  }
@@ -1563,7 +1560,7 @@ static void db_addbuff(byte Arity, ClRef Clause, PrRef Pred, int AZ, int ifSOB, 
   
   if (PredOpCode(Pred) == fail) {
     Loc = 0;
-    dbgen_inst_ppv(ifSOB?noop:dynnoop,sizeof(Cell)/2,Clause,&Loc);
+    dbgen_inst_ppv(dynnoop,sizeof(Cell)/2,Clause,&Loc);
     SetClRefNext(Clause, Pred) ;
     Loc = 0;
     if (Inum > 1) {dbgen_inst_pppw(jump,Clause,Pred,&Loc);}
@@ -1895,7 +1892,7 @@ static void find_usable_index(prolog_term Head, ClRef *s,
 
 #define NextSOB(sob,curLevel,IndLevel,Ind,Head)			\
   { while( ClRefTryOpCode(sob) == dyntrustmeelsefail		\
-	|| ClRefTryOpCode(sob) == noop ) /* end of sob chain */	\
+	|| ClRefTryOpCode(sob) == dynnoop ) /* end of sob chain */	\
 	if( curLevel-- == 1 ) /* root of sob tree */		\
 		return 0 ;					\
 	else sob = ClRefUpSOB(sob) ; /* go up */		\
@@ -1959,8 +1956,7 @@ ClRef next_clref( PrRef Pred, ClRef Clause, prolog_term Head,
 
     if( ClRefType(Clause) != INDEXED_CL ) {	/* mixed clause types */
 	if( ClRefTryOpCode(Clause) == dyntrustmeelsefail
-	    || ClRefTryOpCode(Clause) == dynnoop 
-	    || ClRefTryOpCode(Clause) == noop)
+	    || ClRefTryOpCode(Clause) == dynnoop)
 	  return 0 ;
 	else if( ClRefType(ClRefNext(Clause)) != SOB_RECORD )
 	  return ClRefNext(Clause) ;
@@ -2022,15 +2018,14 @@ ClRef next_clref( PrRef Pred, ClRef Clause, prolog_term Head,
 
 #define delete_from_chain( c, PC, Displ )                               \
 {   switch( c )                                                         \
-    {   case noop: /* uniq */                                           \
-        case dynnoop: /* uniq */                                        \
+    {   case dynnoop: /* uniq */                                        \
             break ;                                                     \
         case trymeelse: /* first */                                     \
             IndRefPrev(IndRefNext(PC)) = IndRefPrev(PC) ;               \
             if( cell_opcode(IndRefNext(PC)) == dynretrymeelse )            \
                 cell_opcode(IndRefNext(PC)) = trymeelse ;               \
             else /* trustme */                                          \
-            {   cell_opcode(IndRefNext(PC)) = noop ;                    \
+            {   cell_opcode(IndRefNext(PC)) = dynnoop ;                    \
                 cell_operand3(IndRefNext(PC)) = (Displ) ;               \
             }                                                           \
             break ;                                                     \
@@ -2052,7 +2047,7 @@ ClRef next_clref( PrRef Pred, ClRef Clause, prolog_term Head,
             if( cell_opcode(IndRefPrev(PC)) == dynretrymeelse )            \
                 cell_opcode(IndRefPrev(PC)) = dyntrustmeelsefail ;      \
             else if (cell_opcode(IndRefPrev(PC)) == trymeelse )         \
-            {   cell_opcode(IndRefPrev(PC)) = noop ;			\
+            {   cell_opcode(IndRefPrev(PC)) = dynnoop ;			\
                 cell_operand3(IndRefPrev(PC)) = (Displ) ;               \
 	    }								\
             else /* dyntrymeelse */                                     \
@@ -2079,8 +2074,6 @@ static void delete_from_hashchain(CTXTdeclc ClRef Clause, SOBRef sob, int Ind, i
       *IndRefPrev(PI) = (Cell) &dynfail_inst ;
       ClRefNumNonemptyBuckets(sob)--;
     }
-    /**    else if( cell_opcode(PI) == noop)
-     *IndRefPrev(PI) = (Cell) &dynfail_inst ; **/
     else if( cell_opcode(PI) == dyntrymeelse /**|| cell_opcode(PI) == trymeelse**/)
         *IndRefPrev(PI) = (Cell) IndRefNext(PI) ;
 }
@@ -2129,11 +2122,6 @@ static void delete_from_sobchain(CTXTdeclc ClRef Clause)
 	    PredOpCode(Pred) = fail ;
             Pred->FirstClRef = Pred->LastClRef = (ClRef) Pred ;
             break ;
-    	case noop:
-            Pred = (PrRef)ClRefPrev(Clause) ;
-            PredOpCode(Pred) = fail ;
-            Pred->FirstClRef = Pred->LastClRef = (ClRef) Pred ;
-            break ;
         case dyntrymeelse:
         case trymeelse:
             Pred = (PrRef)ClRefPrev(Clause) ;
@@ -2178,7 +2166,8 @@ Predicates for Clause Garbage Collecting and Safe Space Reclamation
 
 /* dynamic clauses now have special try/retry/trust instructions */
 #define is_dynamic_clause_inst(inst)					\
-  ((int) inst == dynretrymeelse ||   (int) inst == dyntrustmeelsefail)	
+  ((int) inst == dynretrymeelse || (int) inst == dyntrustmeelsefail  \
+   || (int) inst == dyntrymeelse ||   (int) inst == dynnoop   )	
 
 /* For testing in debug mode */
 #define known_backtracking_inst(inst)					\
@@ -2213,7 +2202,7 @@ Predicates for Clause Garbage Collecting and Safe Space Reclamation
 /* I think this is going back in the CLref through various
    indexing chains to find the "base" of the Clref.*/
 ClRef clref_from_try_addr(ClRef code_addr) {
-  while (cell_opcode((CPtr)code_addr - 2) == noop) {
+  while (cell_opcode((CPtr)code_addr - 2) == dynnoop) {
     code_addr = (ClRef)((CPtr)code_addr - 4);
   }
   return (ClRef)code_addr;
@@ -3140,12 +3129,12 @@ ClRef previous_clref(ClRef Clause) {
   if (ClRefType(Clause) == INDEXED_CL) {
     opcode = ClRefTryOpCode(Clause);
     if (opcode == dynnoop || opcode == dyntrymeelse
-	|| opcode == noop || opcode == trymeelse) {
+	|| opcode == trymeelse) {
       numInds = ClRefNumInds(Clause);
       Clause = ClRefPrev(Clause); /* get used_up parent SOB */
       opcode = ClRefTryOpCode(Clause);
       while (opcode == dynnoop || opcode == dyntrymeelse
-	     || opcode == noop || opcode == trymeelse) {
+	     || opcode == trymeelse) {
 	if (--numInds) {
 	  Clause = (ClRef)(((Cell *)ClRefPrev(Clause)) - 5);
 	  opcode = ClRefTryOpCode(Clause);
@@ -3535,7 +3524,6 @@ PrRef sob_to_prref(ClRef clref) {
   }
   switch (ClRefTryOpCode(clref)) {
   case dynnoop:
-  case noop:
   case dyntrymeelse:
   case trymeelse:
     return (PrRef)ClRefPrev(clref);
@@ -3623,8 +3611,7 @@ static void abolish_trie_asserted_stuff(CTXTdeclc PrRef prref) {
 static int another_buff(Cell Instr)
 {
   int op = cell_opcode(&Instr) ;
-  return (op != dynnoop && op != dyntrustmeelsefail && op != fail 
-    && op != noop);
+  return (op != dynnoop && op != dyntrustmeelsefail && op != fail);
 }
 
 /*======================================================================*/
