@@ -56,8 +56,8 @@ write_queries(OStr,[pred(_PredSym,QrCls,_)|_]) :- 'write queries'(OStr,QrCls).
 'write queries'(OStr,[]) :- nl(OStr).
 'write queries'(OStr,[clause(_,QrBody,_)|QrCls]) :-
 	( QrBody = inlinegoal(true,0,_) -> true
-	; QrBody = if(Qr,_) -> write(OStr,'?- '), write_body(OStr,Qr), file_put(OStr,0'.), nl(OStr)
-	; write(OStr,'?- '), write_body(OStr,QrBody), file_put(OStr,0'.), nl(OStr)
+	; QrBody = if(Qr,_) -> write(OStr,'?- '), write_body(OStr,Qr,''), file_put(OStr,0'.), nl(OStr)
+	; write(OStr,'?- '), write_body(OStr,QrBody,''), file_put(OStr,0'.), nl(OStr)
 	),
 	'write queries'(OStr,QrCls).
 
@@ -89,12 +89,12 @@ write_pred_props(OStr,Sym, Name, Arity) :-
 write_clauses(OStr,[], _, _) :- nl(OStr).
 write_clauses(OStr,[Cl|Cls], Name, Arity) :-
 	Cl = clause(HeadArgs,Body,_),
-	writeq(OStr,Name), 
+	write_functor(OStr,Name), 
 	( Arity =:= 0 -> true
 	; file_put(OStr,0'(), HeadArgs = [Arg|Args], write_args(OStr,Arg, Args), file_put(OStr,0'))
 	),
 	( Body = inlinegoal(true,0,_) -> true
-	; write(OStr,' :- '), nl(OStr), write_body(OStr,Body)
+	; write(OStr,' :- '), nl(OStr), write_body(OStr,Body,'')
 	),
 	file_put(OStr,0'.), nl(OStr),
 	write_clauses(OStr,Cls, Name, Arity).
@@ -102,38 +102,61 @@ write_clauses(OStr,[Cl|Cls], Name, Arity) :-
 /*	The following works for all representations (both internal and	*/
 /*	intermediate.							*/
 
-write_body(_OStr,nil).
-write_body(OStr,and(G1,G2)) :- 
-	write_body(OStr,G1), write(OStr,', '), nl(OStr),
-	write_body(OStr,G2).
-write_body(OStr,or(G1,G2)) :- 
-	write_body(OStr,G1), nl(OStr),
+write_body(_OStr,nil,_).
+write_body(OStr,and(G1,G2),PP) :- 
+	write_body(OStr,G1,PP), write(OStr,', '), nl(OStr),
+	write_body(OStr,G2,'').
+write_body(OStr,or(G1,G2),PP) :- 
+%%    	write(OStr,PP),
+	concat_atom([PP,'('],NPP),
+	write_body(OStr,G1,NPP), nl(OStr),
 	write(OStr,'        '), write(OStr,' ; '), nl(OStr),
-	write_body(OStr,G2).
-write_body(OStr,if(G1,G2)) :- 
-	write_body(OStr,G1), write(OStr,' -> '), nl(OStr),
-	write_body(OStr,G2).
-write_body(OStr,if_then_else(G1,G2,G3)) :-
-	write(OStr,'( '), write_body(OStr,G1), write(OStr,' -> '), nl(OStr), 
-	write_body(OStr,G2), nl(OStr), 
+	write_body(OStr,G2,''),
+	write(OStr,')').
+write_body(OStr,if(G1,G2),PP) :- 
+	write_body(OStr,G1,PP), write(OStr,' -> '), nl(OStr),
+	write_body(OStr,G2,'').
+write_body(OStr,if_then_else(G1,G2,G3),PP) :-
+%%	write(OStr,PP),
+	concat_atom([PP,'( '],NPP),
+	write_body(OStr,G1,NPP), write(OStr,' -> '), nl(OStr), 
+	write_body(OStr,G2,''), nl(OStr), 
 	write(OStr,' ; '), nl(OStr), 
-	write_body(OStr,G3), write(OStr,' )'), nl(OStr).
-write_body(OStr,not(G)) :- write(OStr,'\\+ '), write_body(OStr,G).
-write_body(OStr,goal(Sym,GoalArgs)) :-
+	write_body(OStr,G3,''), write(OStr,' )'), nl(OStr).
+write_body(OStr,not(G),PP) :-
+	write(OStr,PP),
+    	write_body(OStr,G,'\\+ ').
+write_body(OStr,goal(Sym,GoalArgs),PP) :-
 	write(OStr,'        '), 
+	write(OStr,PP),
 	sym_name(Sym, Name, Arity),
-	writeq(OStr,Name),
+	write_functor(OStr,Name),
 	( Arity =:= 0 -> true
 	; file_put(OStr,0'(), GoalArgs = [Arg|Args], write_args(OStr,Arg, Args), file_put(OStr,0'))
 	).
-write_body(OStr,inlinegoal(Name,Arity,Args)) :-
+write_body(OStr,inlinegoal(Name,Arity,Args),PP) :-
 	write(OStr,'        '), 
+	write(OStr,PP),
 	( Arity =:= 0 -> write(OStr,Name)
 	; Arity =:= 1 ->
-		writeq(OStr,Name), file_put(OStr,0'(), Args = [Arg], write_arg(OStr,Arg), file_put(OStr,0'))
+		write_functor(OStr,Name), file_put(OStr,0'(), Args = [Arg], write_arg(OStr,Arg), file_put(OStr,0'))
 	; Args = [Arg1,Arg2], write_arg(OStr,Arg1),
 	  file_put(OStr,0' ), write(OStr,Name), file_put(OStr,0' ), write_arg(OStr,Arg2)
 	).
+
+:- import member/2 from basics.
+write_functor(OStr,Name) :-
+    atom(Name),
+    atom_codes(Name,NameCodes),
+    NameCodes = [F|R],  % null not handled...
+    (F >= 0'a, F =< 0'z
+    -> (\+ (member(C,R),
+	    \+ (C >= 0'a, C =< 0'z ; C >= 0'A, C =< 0'Z ; C =:= 0'_))
+       -> write(OStr,Name)
+       ;  write(OStr,''''), write(OStr,Name), write(OStr,'''') % no single quotes
+       )
+    ;  write(OStr,''''), write(OStr,Name), write(OStr,'''') % no single quotes
+    ).
 
 :- index write_args/3-3.
 
@@ -153,7 +176,7 @@ write_arg(OStr,structure(Sym,StructArgs)) :-
 		file_put(OStr,0'[), StructArgs = [H,T],
 		write_arg(OStr,H), file_put(OStr,0'|),
 		write_arg(OStr,T), file_put(OStr,0'])
-	; writeq(OStr,Name), file_put(OStr,0'(),
+	; write_functor(OStr,Name), file_put(OStr,0'(),
 	  StructArgs = [Arg|Args], write_args(OStr,Arg, Args), file_put(OStr,0'))
 	).
 
