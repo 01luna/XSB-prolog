@@ -13,7 +13,7 @@ xsb -e "[xsbdoc], xsbdoc(prolog_db_format,pdf),halt."
 /***
 For better performance, could do:
 
-1. implement my_unnumbervars in C.  This would speed up retrieving
+1. implement pdb_unnumbervars in C.  This would speed up retrieving
 rules (since only bodies need unnumbervarring), important when calling
 rule-defined predicates in DB.
 
@@ -1155,6 +1155,18 @@ clause_in_db(Head,Body,H) :-
 	clause_in_db_b(Head,Body,DB)
     ).
 
+:- comment(clause_in_db/4,"@pred{clause_in_db(?Head,?Body,-Vars,+DB)}
+unifies, in turn, @var{Head} and @var{Body} with the head and body of
+rules in @var{DB}.  @var{Body} contains numbervarred variables, and
+@var{Vars} is a log_list of variable values.").
+:- mode clause_in_db(?,?,?,+).
+clause_in_db(Head,Body,Vars,H) :-
+    (H == module
+     ->	clause(Head,Body)
+     ;	tab_intern_termhash(DB,H),
+	find_tuple_in_trie([Head],Body,Vars,DB)
+    ).
+
 :- comment(fact_in_db/2, "@pred{fact_in_db(?Fact,+DB)} unifies, in
 turn, @var{Fact} with each fact in DB, @var{DB}.  The order of
 returned facts is indeterminate.").
@@ -1166,12 +1178,11 @@ fact_in_db(Head,H) :-
      ;	find_tuple_in_trie([Head],true,_Vars,DB)
     ).
 
-
 clause_in_db_b(Head,Body,Trie) :-
     find_tuple_in_trie([Head],Body0,Vars,Trie),
     (Body0 == true
      ->	Body = true
-     ;	my_unnumbervars(Body0,0,Body,Vars)
+     ;	pdb_unnumbervars(Body0,0,Body,Vars)
     ).
 
 find_tuple_in_trie([],Body,_Vars,Trie) :- 
@@ -1547,7 +1558,7 @@ union_with_rt(rt(RT01,RT02,RT03,RT04),rt(RT11,RT12,RT13,RT14),Depth,rt(RT1,RT2,R
 rtl_union([],RTL,RTL).
 rtl_union(RTL1,RTL2,RTL3) :- RTL1 = rtl(K1,Vs1,RTL1r),
     (RTL2 == []
-     ->	RTL3 = []
+     ->	RTL3 = RTL1
      ;	RTL2 = rtl(K2,Vs2,RTL2r),
 	term_compare(K1,K2,Cmp),
 	(Cmp < 0
@@ -2792,7 +2803,7 @@ split_prefix_term_b0(Terms,Tail,DB0,DB) :- Terms = [Term|Terms1],
     
 split_clause_in_db_b(Terms,Body,DB) :-
     find_tuple_in_trie(Terms,Body0,Vars,DB),
-    my_unnumbervars(Body0,0,Body,Vars).
+    pdb_unnumbervars(Body0,0,Body,Vars).
 ***/
 
 /***********************************************************/
@@ -2880,7 +2891,7 @@ my_numbervars(Y,I,J,N,A) :-
     ).
 
 
-my_unnumbervars(TermIn,FirstN,TermOut,Vars) :-
+pdb_unnumbervars(TermIn,FirstN,TermOut,Vars) :-
     term_type(TermIn,Type),
     (Type =:= 1/*XSB_STRUCT*/
      ->	(TermIn = '_$Var$'(I), integer(I)
@@ -2892,26 +2903,26 @@ my_unnumbervars(TermIn,FirstN,TermOut,Vars) :-
 	    term_new(PSC,NTermOut),
 	    NTermOut=TermOut,
 	    psc_arity(PSC,Arity),
-	    my_unnumbervars(TermIn,FirstN,TermOut,Vars,1,Arity)
+	    pdb_unnumbervars(TermIn,FirstN,TermOut,Vars,1,Arity)
 	)
      ;	Type =:= 3/*XSB_LIST*/
      ->	TermIn = [A1|A2],
 	TermOut = [B1|B2],
-	my_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) % avoid allocate
+	pdb_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) % avoid allocate
      ;	TermOut = TermIn
     ).
 
-my_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) :-
-    my_unnumbervars(A1,FirstN,B1,Vars),
-    my_unnumbervars(A2,FirstN,B2,Vars).
+pdb_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) :-
+    pdb_unnumbervars(A1,FirstN,B1,Vars),
+    pdb_unnumbervars(A2,FirstN,B2,Vars).
 
-my_unnumbervars(TermIn,FirstN,TermOut,Vars,I,Arity) :-
+pdb_unnumbervars(TermIn,FirstN,TermOut,Vars,I,Arity) :-
 	(I =< Arity
          ->     term_arg(TermIn,I,ArgIn),
 		term_arg(TermOut,I,ArgOut),
-	        my_unnumbervars(ArgIn,FirstN,ArgOut,Vars),
+	        pdb_unnumbervars(ArgIn,FirstN,ArgOut,Vars),
 		I1 is I+1,
-		my_unnumbervars(TermIn,FirstN,TermOut,Vars,I1,Arity)
+		pdb_unnumbervars(TermIn,FirstN,TermOut,Vars,I1,Arity)
 	 ;      true
         ).
 
@@ -3095,16 +3106,17 @@ pure_in_db(G,H) :-
     (H == module
      ->	call(G)
      ;	tab_intern_termhash(DB,H),
-	pure_in_db_b(G,DB)
+	pure_in_db_b(G,_,DB)
     ).
 
-pure_in_db_b(G,DB) :-
+pure_in_db_b(G,Vars,DB) :-
     (ctrl_str(G)
-     ->	pure_ctrl_in_db_b(G,DB)
+     ->	pure_ctrl_in_db_b(G,Vars,DB)
      ;	G \== true,functor(G,F,A),std_xsb:standard_symbol(F,A,_)
-     ->	call_c(G)
-     ;	clause_in_db_b(G,B,DB),
-	pure_in_db_b(B,DB)
+     ->	pdb_unnumbervars(G,0,G0,Vars), call_c(G0)
+%%     ;	clause_in_db_b(G,B,DB),
+     ;  pdb_unnumbervars(G,0,G0,Vars), find_tuple_in_trie([G0],B,Vars1,DB),
+	pure_in_db_b(B,Vars1,DB)
     ).
 
 ctrl_str(true).
@@ -3113,16 +3125,16 @@ ctrl_str(\+(_)).
 ctrl_str(xact(_)).
 ctrl_str((_;_)).
 
-pure_ctrl_in_db_b(true,_).
-pure_ctrl_in_db_b((A,B),DB) :- pure_in_db_b(A,DB), pure_in_db_b(B,DB).
-pure_ctrl_in_db_b(\+(G),DB) :- \+ pure_in_db_b(G,DB).
-pure_ctrl_in_db_b(xact(G),DB) :- !, phrase(G,DB,DB).  % for transaction logic, if useful.
-pure_ctrl_in_db_b((A;B),DB) :-
+pure_ctrl_in_db_b(true,_,_).
+pure_ctrl_in_db_b((A,B),Vs,DB) :- pure_in_db_b(A,Vs,DB), pure_in_db_b(B,Vs,DB).
+pure_ctrl_in_db_b(\+(G),Vs,DB) :- \+ pure_in_db_b(G,Vs,DB).
+pure_ctrl_in_db_b(xact(G),Vs,DB) :- !, pdb_unnumbervars(G,0,G0,Vs),phrase(G0,DB,DB).  % for transaction logic, if useful.
+pure_ctrl_in_db_b((A;B),Vs,DB) :-
     (A = (C->A1)
-     ->	(pure_in_db_b(C,DB) -> pure_in_db_b(A1,DB) ; pure_in_db_b(B,DB))
-     ;	(pure_in_db_b(A,DB) ; pure_in_db_b(B,DB))
+     ->	(pure_in_db_b(C,Vs,DB) -> pure_in_db_b(A1,Vs,DB) ; pure_in_db_b(B,Vs,DB))
+     ;	(pure_in_db_b(A,Vs,DB) ; pure_in_db_b(B,Vs,DB))
     ).
-pure_ctrl_in_db_b(M:G,_DB) :- call(M:G).
+pure_ctrl_in_db_b(M:G,Vs,_DB) :- pdb_unnumbervars(M:G,0,M0:G0,Vs), call(M0:G0).
 
 :- comment(new_db/1, "@pred{new_db(?DB)} generates (or tests for) and
 empty trie-term database, @var{DB}. ").
