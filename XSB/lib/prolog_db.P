@@ -2107,6 +2107,16 @@ order_subset_list(L1,L2) :- L1 = [V1|L1r],
 
 rtl_subset([],_).
 rtl_subset(RTL1,RTL2) :- RTL1 = rtl(K1,V1,RTL1r),
+    RTL1 \== [],
+    RTL2 = rtl(K2,V2,RTL2r),
+    term_compare(K1,K2,Cmp),
+    Cmp >= 0,
+    (Cmp =:= 0
+     -> order_subset(V1,V2),
+        rtl_subset(RTL1r,RTL2r)
+     ;  rtl_subset(RTL1,RTL2r)
+    ).
+/***rtl_subset(RTL1,RTL2) :- RTL1 = rtl(K1,V1,RTL1r),
     (RTL1 == []
      ->	fail
      ;	RTL2 = rtl(K2,V2,RTL2r),
@@ -2118,7 +2128,7 @@ rtl_subset(RTL1,RTL2) :- RTL1 = rtl(K1,V1,RTL1r),
 	    rtl_subset(RTL1r,RTL2r)
 	 ;  rtl_subset(RTL1,RTL2r)
 	)
-    ).
+    ).***/
 
 :- index subset_tries_ind_recur_l/4-4.
 subset_tries_ind_recur_l(RTL,rt(RT1,_,_,_),D,0) :-
@@ -2304,7 +2314,7 @@ disjoint_db_b(T0,T1) :-
 disjoint_tries(T1,T2,Depth) :-
     (T1 \== T2
      ->	disjoint_tries0(T1,T2,Depth)
-     ;	true
+     ;	T1 == [], T2 == [] % disjoint only if both empty
     ).
 
 disjoint_tries0([],_T,_D).
