@@ -471,6 +471,7 @@ standard_symbol(variant_subgoal_property, 2, curr_sym).
 standard_symbol(sys_exit, 1, shell).
 
 standard_symbol(tab, 1, standard).
+standard_symbol(tab, 2, standard).
 standard_symbol(table_dump, 0, dump_table).
 standard_symbol((table), 1, standard).
 standard_symbol(timed_call,2,standard).
