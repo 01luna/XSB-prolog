@@ -493,6 +493,12 @@ put(C):- stat_flag(CURRENT_OUTPUT, Str), file_put_code(Str, C).
 :- mode tab(+).
 tab(N) :- tab(N).
 
+tab(_Str,0):- !.                                                                         
+tab(Str,N):-
+   file_put_char(Str,' '),
+   N1 is N - 1,
+   tab(Str,N1).
+
 % TLS: peek_code, peek_char in file_io.
 
 % TLS: this can probably go... ???dsw I use it??
