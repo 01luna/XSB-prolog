@@ -1267,14 +1267,27 @@ A new line character is sent to the designated output stream.
 \ei
 \ei
 
+\repeatstandarditem{tab(+Stream,+N)}{tab/2}
 \standarditem{tab(+N)}{tab/1}
-    Puts {\tt N} spaces to the current output stream. 
+    Puts {\tt N} spaces to the designated output stream / current output stream. 
 
 {\bf Error Cases}
 \bi
-\item 	{\tt Code} is a not a positiveInteger
+\item 	{\tt Stream\_or\_alias} is a variable
 \bi
-\item 	{\tt domain\_error(positiveInteger,Code)}
+\item {\tt instantiation\_error}
+\ei
+\item 	{\tt Stream\_or\_alias} is neither a variable nor a stream term nor an alias.
+\bi
+\item 	{\tt domain\_error(stream\_or\_alias,Stream\_or\_alias)}
+\ei
+\item 	{\tt Stream\_or\_alias} is not associated with an open stream
+\bi
+\item 	{\tt existence\_error(stream,Stream\_or\_alias)}
+\ei
+\item 	{\tt N} is a not a positiveInteger
+\bi
+\item 	{\tt domain\_error(positiveInteger,N)}
 \ei
 \ei
 
