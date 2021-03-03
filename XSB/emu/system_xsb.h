@@ -73,7 +73,7 @@ extern int kill(pid_t pid, int sig);
 
 #define MAX_SUBPROC_PARAMS 50  /* max # of cmdline params in a subprocess */
 
-#define MAX_SUBPROC_NUMBER 40  /* max number of subrocesses allowed       */
+#define MAX_SUBPROC_NUMBER 400  /* max number of subrocesses allowed       */
 
 
 #define RUNNING	               1
