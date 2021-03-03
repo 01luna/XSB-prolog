@@ -1041,8 +1041,9 @@ order_insert(ACVs,V,NVs) :-
 
 hash_key(Key,HashCode) :-
     (Key @= functor(_,_,_)
-     ->	Key = functor(_Mod,Fun,_Ari),
-	term_hash(Fun,536870027,HashCode)
+     ->	Key = functor(_Mod,Fun,Ari),
+	term_hash(Fun,536870027,HashCode0),
+	HashCode is (HashCode0 + Ari) mod 536870027
      ;	term_hash(Key,536870027,HashCode)
     ).
 %%    term_hash(Key,13,HashCode).
@@ -2195,12 +2196,12 @@ sym_diff_tries0(RTA,RTLB,Depth,T) :- RTA = rt(_,_,_,_),
 
 :- index sym_diff_with_rtl/5-2.
 sym_diff_with_rtl(T,[],_Depth,T,_K1).
-sym_diff_with_rtl(RTLA,RTLB,_Depth,T,K1) :- RTLB = rtl(K2,_,_),
+sym_diff_with_rtl(RTLA,RTLB,Depth,T,K1) :- RTLB = rtl(K2,_,_),
     hash_key(K1,Hash1),
     hash_key(K2,Hash2),
     (Hash1 =:= Hash2
      ->	rtl_sym_diff(RTLA,RTLB,T)
-     ;	rtl_union(RTLA,RTLB,T)
+     ;	union_with_rtl(RTLA,RTLB,Depth,T,K1)
     ).
 sym_diff_with_rtl(RTLA,RTB,Depth,T,Key) :- RTB = rt(_,_,_,_),
     hash_key(Key,Hash),
