@@ -493,8 +493,10 @@ put(C):- stat_flag(CURRENT_OUTPUT, Str), file_put_code(Str, C).
 :- mode tab(+).
 tab(N) :- tab(N).
 
+:- mode tab(+,+).
 tab(_Str,0):- !.                                                                         
 tab(Str,N):-
+   N > 0,
    file_put_char(Str,' '),
    N1 is N - 1,
    tab(Str,N1).

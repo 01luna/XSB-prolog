@@ -46,6 +46,7 @@ fmt_write(S_or_A, Fmt, Args) :-
 	formatted_io(FMT_WRITE, Stream, Fmt, Args, _Ret).
 
 :- mode fmt_write_string(?,+,?).
+:- mode_on_success fmt_write_string(+,+,?).
 fmt_write_string(Str, Fmt, Args) :-
 	formatted_io(FMT_WRITE_STRING, Str, Fmt, Args, _Ret).
 

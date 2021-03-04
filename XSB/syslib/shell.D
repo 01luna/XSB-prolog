@@ -64,7 +64,7 @@
 :- mode_on_success list_directory(g,g).
 :- mode_on_success list_directory_1(g,g,g).
 :- mode_on_success ls.
-:- mode_on_success platform(g).
+:- mode_on_success platform(A).
 :- mode_on_success process_control(g,g).
 :- mode_on_success process_status(g,g).
 :- mode_on_success rename(g,g).

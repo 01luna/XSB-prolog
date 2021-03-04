@@ -41,6 +41,7 @@
 :- mode get_sys_error_description(+,?,+).
 :- mode instantiation_error(+,+).
 :- mode instantiation_error(+,+,+).
+:- mode linux_system_error(?,?).
 :- mode listable(?).
 :- mode memory_type(+,?).
 :- mode misc_error(?).
@@ -56,11 +57,13 @@
 :- mode resource_error(+,+).
 :- mode return_memory_exception(?,?).
 :- mode syntax_error(?).
+:- mode syntax_error(?,?).
 :- mode system_error(+,+,+).
 :- mode table_error(?).
 :- mode table_error(+,?,+,+).
 :- mode transform_error_message(?,?).
 :- mode transform_error_message_1(?,?).
+:- mode translate_system_error(?,?).
 :- mode type_error(+,?,+,+).
 :- mode xsb_error_get_backtrace(+,?).
 :- mode xsb_error_get_goal(+,?).
@@ -103,6 +106,7 @@
 :- mode_on_success get_sys_error_description(A,A).
 :- mode_on_success get_sys_error_description(ng,A).
 :- mode_on_success get_sys_error_description(g,g,g).
+:- mode_on_success linux_system_error(g,g).
 :- mode_on_success listable(A).
 :- mode_on_success memory_type(g,g).
 :- mode_on_success permission_warning(g,g,A,ng,g).
@@ -114,6 +118,7 @@
 :- mode_on_success return_memory_exception(g,g).
 :- mode_on_success transform_error_message(A,g).
 :- mode_on_success transform_error_message_1(A,g).
+:- mode_on_success translate_system_error(A,A).
 :- mode_on_success xsb_error_get_backtrace(g,g).
 :- mode_on_success xsb_error_get_goal(g,A).
 :- mode_on_success xsb_error_get_goalatom(g,g).

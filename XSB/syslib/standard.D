@@ -251,6 +251,7 @@
 :- mode statistics_2_trans(?,?).
 :- mode structure(?).
 :- mode tab(+).
+:- mode tab(+,+).
 :- mode table(?).
 :- mode table_1(?).
 :- mode table_index(?,+).
@@ -561,6 +562,7 @@
 :- mode_on_success statistics_2_trans(A,g).
 :- mode_on_success structure(A).
 :- mode_on_success tab(g).
+:- mode_on_success tab(g,g).
 :- mode_on_success (table A).
 :- mode_on_success table_1(A).
 :- mode_on_success table_index(A,g).
