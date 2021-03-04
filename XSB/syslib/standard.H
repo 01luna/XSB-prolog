@@ -132,7 +132,7 @@
 :- import member/2,append/3,comma_member/2,memberchk/2 from basics.
 :- import consult/1, reconsult/1, if_file_loaded/1 from consult.
 :- import (thread_shared)/1, (thread_private)/1 from consult.
-:- import predicate_property/2, current_op/3 from curr_sym.
+:- import predicate_property/2, current_op/3,current_predicate/2 from curr_sym.
 :- import dcg/2 from dcg.
 %%:- import eval/2 from eval.
 
