@@ -149,6 +149,7 @@ nth0(I,L,E,RL):-
 nth1(I,L,E):-
   ith(I,L,E).
 
+:- mode nth1(+,?,?,?).
 nth1(I,L,E,RL):-
   delete_ith(I,L,E,RL).
 

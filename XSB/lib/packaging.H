@@ -46,4 +46,4 @@
         path_sysop/3
    from file_io.
 
-
+:- import check_atom/3 from error_handler.
