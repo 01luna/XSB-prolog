@@ -79,9 +79,9 @@ exec(Cmd) :- sys_system(EXEC,Cmd,_,_,_,_,_).
 
 /* Process table is a list [process(Pid,To,From,Stderr,Cmdline), ...]
    that represents all active subprocesses */
-:- mode get_process_table(?).
-get_process_table(ProcessList) :-
-	sys_system(GET_PROCESS_TABLE, ProcessList, _,_,_,_,_).
+%:- mode get_process_table(?).
+%get_process_table(ProcessList) :-
+%	sys_system(GET_PROCESS_TABLE, ProcessList, _,_,_,_,_).
 
 %% obtain process status
 :- mode process_status(+,?).
