@@ -84,8 +84,8 @@ static int xsb_spawn (CTXTdeclc char *prog, char *arg[], int callno,
 		      FILE *fromproc_stderr_fptr);
 static void concat_array(CTXTdeclc char *array[], char *separator,
 			 char *result_str, size_t maxsize);
-static int get_free_process_cell(void);
-static void init_process_table(void);
+//static int get_free_process_cell(void);
+//static void init_process_table(void);
 static int process_status(Integer pid);
 static void split_command_arguments(char *string, char *params[], char *callname);
 static char *get_next_command_argument(char **buffptr, char **cmdlineprt);
@@ -99,16 +99,17 @@ static char *xreadlink(CTXTdeclc const char *, int *);
 static BOOL ctrl_C_handler(DWORD dwCtrlType);
 #endif
 
-static struct proc_table_t {
-  int search_idx;	       /* index where to start search for free cells */
-  struct proc_array_t {
-    int pid;
-    int to_stream;     	       /* XSB stream to process stdin    */
-    int from_stream;           /* XSB stream from process stdout */
-    int stderr_stream;	       /* XSB stream from process stderr */
-    char cmdline[MAX_CMD_LEN];  /* the cmd line used to invoke the process */
-  } process[MAX_SUBPROC_NUMBER];
-} xsb_process_table;
+// TES: taking out the process table
+//static struct proc_table_t {
+//  int search_idx;	       /* index where to start search for free cells */
+//  struct proc_array_t {
+//    int pid;
+//    int to_stream;     	       /* XSB stream to process stdin    */
+//    int from_stream;           /* XSB stream from process stdout */
+//    int stderr_stream;	       /* XSB stream from process stderr */
+//    char cmdline[MAX_CMD_LEN];  /* the cmd line used to invoke the process */
+//  } process[MAX_SUBPROC_NUMBER];
+//} xsb_process_table;
 
 static xsbBool file_stat(CTXTdeclc int callno, char *file);
 
@@ -470,13 +471,14 @@ xsbBool sys_system(CTXTdeclc int callno)
     prolog_term cmd_or_arg_term;
     xsbBool toproc_needed=FALSE, fromproc_needed=FALSE, fromstderr_needed=FALSE;
     char *cmd_or_arg=NULL, *shell_cmd=NULL;
-    int idx = 0, tbl_pos;
+    int idx = 0;
+    //int  tbl_pos;
     char *callname=NULL;
     xsbBool params_are_in_a_list=FALSE;
 
     SYS_MUTEX_LOCK( MUTEX_SYS_SYSTEM );
 
-    init_process_table();
+    //    init_process_table();
 
     if (callno == SPAWN_PROCESS)
       callname = "spawn_process/5";
@@ -556,14 +558,7 @@ xsbBool sys_system(CTXTdeclc int callno)
       }
     }
     
-    /* -1 means: no space left */
-    if ((tbl_pos = get_free_process_cell()) < 0) {
-      xsb_warn(CTXTc "Can't create subprocess because XSB process table is full");
-      SYS_MUTEX_UNLOCK( MUTEX_SYS_SYSTEM );
-      return FALSE;
-    }
-
-      /* params[0] is the progname */
+	/* params[0] is the progname */
     pid_or_status = xsb_spawn(CTXTc params[0], params, callno,
 			      (toproc_needed ? pipe_to_proc : NULL),
 			      (fromproc_needed ? pipe_from_proc : NULL),
@@ -595,57 +590,67 @@ xsbBool sys_system(CTXTdeclc int callno)
     }
     ctop_int(CTXTc 6, pid_or_status);
 
-    xsb_process_table.process[tbl_pos].pid = pid_or_status;
-    xsb_process_table.process[tbl_pos].to_stream = toproc_stream;
-    xsb_process_table.process[tbl_pos].from_stream = fromproc_stream;
-    xsb_process_table.process[tbl_pos].stderr_stream = fromproc_stderr_stream;
-    concat_array(CTXTc params, " ",
-		 xsb_process_table.process[tbl_pos].cmdline,MAX_CMD_LEN);
-    
+    // TES: taking out the process table.
+    /* -1 means: no space left */
+    //    if ((tbl_pos = get_free_process_cell()) < 0) {
+    //      xsb_warn(CTXTc "Can't create subprocess because XSB process table is full");
+    //      // SYS_MUTEX_UNLOCK( MUTEX_SYS_SYSTEM );
+    //      //      return FALSE;
+    //    } else {
+    //      printf("tbl_pos %d\n",tbl_pos);
+    //
+    //      xsb_process_table.process[tbl_pos].pid = pid_or_status;
+    //      xsb_process_table.process[tbl_pos].to_stream = toproc_stream;
+    //      xsb_process_table.process[tbl_pos].from_stream = fromproc_stream;
+    //      xsb_process_table.process[tbl_pos].stderr_stream = fromproc_stderr_stream;
+    //      concat_array(CTXTc params, " ",
+    //		 xsb_process_table.process[tbl_pos].cmdline,MAX_CMD_LEN);
+    //    }
     SYS_MUTEX_UNLOCK( MUTEX_SYS_SYSTEM );
     return TRUE;
   }
 
-  case GET_PROCESS_TABLE: { /* sys_system(3, X). X is bound to the list
-	       of the form [process(Pid,To,From,Stderr,Cmdline), ...] */
-    int i;
-    prolog_term table_term_tail, listHead;
-    prolog_term table_term=ptoc_tag(CTXTc 2);
-
-    SYS_MUTEX_LOCK( MUTEX_SYS_SYSTEM );
-    init_process_table();
-
-    if (!isref(table_term))
-      xsb_abort("[GET_PROCESS_TABLE] Arg 1 must be a variable");
-
-    table_term_tail = table_term;
-    for (i=0; i<MAX_SUBPROC_NUMBER; i++) {
-      if (!FREE_PROC_TABLE_CELL(xsb_process_table.process[i].pid)) {
-	c2p_list(CTXTc table_term_tail); /* make it into a list */
-	listHead = p2p_car(table_term_tail);
-
-	c2p_functor(CTXTc "process", 5, listHead);
-	c2p_int(CTXTc xsb_process_table.process[i].pid, p2p_arg(listHead,1));
-	c2p_int(CTXTc xsb_process_table.process[i].to_stream, p2p_arg(listHead,2));
-	c2p_int(CTXTc xsb_process_table.process[i].from_stream, p2p_arg(listHead,3));
-	c2p_int(CTXTc xsb_process_table.process[i].stderr_stream,
-		p2p_arg(listHead,4));
-	c2p_string(CTXTc xsb_process_table.process[i].cmdline, p2p_arg(listHead,5));
-
-	table_term_tail = p2p_cdr(table_term_tail);
-      }
-    }
-    c2p_nil(CTXTc table_term_tail); /* bind tail to nil */
-    SYS_MUTEX_UNLOCK( MUTEX_SYS_SYSTEM );
-    return p2p_unify(CTXTc table_term, ptoc_tag(CTXTc 2));
-  }
+    // TES: taking out the process table
+    //  case GET_PROCESS_TABLE: { /* sys_system(3, X). X is bound to the list	
+    //        of the form [process(Pid,To,From,Stderr,Cmdline), ...] */
+//     int i;
+//     prolog_term table_term_tail, listHead;
+//     prolog_term table_term=ptoc_tag(CTXTc 2);
+// 
+//     SYS_MUTEX_LOCK( MUTEX_SYS_SYSTEM );
+//     init_process_table();
+// 
+//     if (!isref(table_term))
+//       xsb_abort("[GET_PROCESS_TABLE] Arg 1 must be a variable");
+// 
+//     table_term_tail = table_term;
+//     for (i=0; i<MAX_SUBPROC_NUMBER; i++) {
+//       if (!FREE_PROC_TABLE_CELL(xsb_process_table.process[i].pid)) {
+// 	c2p_list(CTXTc table_term_tail); /* make it into a list */
+// 	listHead = p2p_car(table_term_tail);
+// 
+// 	c2p_functor(CTXTc "process", 5, listHead);
+// 	c2p_int(CTXTc xsb_process_table.process[i].pid, p2p_arg(listHead,1));
+// 	c2p_int(CTXTc xsb_process_table.process[i].to_stream, p2p_arg(listHead,2));
+// 	c2p_int(CTXTc xsb_process_table.process[i].from_stream, p2p_arg(listHead,3));
+// 	c2p_int(CTXTc xsb_process_table.process[i].stderr_stream,
+// 		p2p_arg(listHead,4));
+// 	c2p_string(CTXTc xsb_process_table.process[i].cmdline, p2p_arg(listHead,5));
+// 
+// 	table_term_tail = p2p_cdr(table_term_tail);
+//       }
+//     }
+//     c2p_nil(CTXTc table_term_tail); /* bind tail to nil */
+//     SYS_MUTEX_UNLOCK( MUTEX_SYS_SYSTEM );
+//     return p2p_unify(CTXTc table_term, ptoc_tag(CTXTc 2));
+//   }
 
   case PROCESS_STATUS: {
     prolog_term pid_term=ptoc_tag(CTXTc 2), status_term=ptoc_tag(CTXTc 3);
 
     SYS_MUTEX_LOCK( MUTEX_SYS_SYSTEM );
 
-    init_process_table();
+    //    init_process_table();
 
     if (!(isointeger(pid_term)))
       xsb_abort("[PROCESS_STATUS] Arg 1 (process id) must be an integer");
@@ -686,7 +691,7 @@ xsbBool sys_system(CTXTdeclc int callno)
     prolog_term pid_term=ptoc_tag(CTXTc 2), signal_term=ptoc_tag(CTXTc 3);
 
     SYS_MUTEX_LOCK( MUTEX_SYS_SYSTEM );
-    init_process_table();
+    //    init_process_table();
 
     if (!(isointeger(pid_term)))
       xsb_abort("[PROCESS_CONTROL] Arg 1 (process id) must be an integer");
@@ -987,40 +992,40 @@ static void concat_array(CTXTdeclc char *array[], char *separator,
 }
 
 
-static int get_free_process_cell(void) 
-{
-  int possible_free_cell = xsb_process_table.search_idx;
-  int pid;
+// static int get_free_process_cell(void) 
+// {
+//   int possible_free_cell = xsb_process_table.search_idx;
+//   int pid;
+// 
+//   do {
+//     pid = xsb_process_table.process[possible_free_cell].pid;
+//     if (FREE_PROC_TABLE_CELL(pid)) {
+//       /* free cell found */
+//       xsb_process_table.search_idx =
+// 	(possible_free_cell + 1) % MAX_SUBPROC_NUMBER;
+//       return possible_free_cell;
+//     }
+//     possible_free_cell = (possible_free_cell + 1) % MAX_SUBPROC_NUMBER;
+//   } while (possible_free_cell != xsb_process_table.search_idx);
+// 
+//   /* no space */
+//   return -1;
+// }
 
-  do {
-    pid = xsb_process_table.process[possible_free_cell].pid;
-    if (FREE_PROC_TABLE_CELL(pid)) {
-      /* free cell found */
-      xsb_process_table.search_idx =
-	(possible_free_cell + 1) % MAX_SUBPROC_NUMBER;
-      return possible_free_cell;
-    }
-    possible_free_cell = (possible_free_cell + 1) % MAX_SUBPROC_NUMBER;
-  } while (possible_free_cell != xsb_process_table.search_idx);
 
-  /* no space */
-  return -1;
-}
-
-
-static void init_process_table(void)
-{
-  static xsbBool process_table_initted = FALSE;
-  int i;
-
-  if (!process_table_initted) {
-    for (i=0; i<MAX_SUBPROC_NUMBER; i++) {
-      xsb_process_table.process[i].pid = -1;
-    }
-    xsb_process_table.search_idx = 0;
-    process_table_initted = TRUE;
-  }
-}
+// static void init_process_table(void)
+// {
+//   static xsbBool process_table_initted = FALSE;
+//   int i;
+// 
+//   if (!process_table_initted) {
+//     for (i=0; i<MAX_SUBPROC_NUMBER; i++) {
+//       xsb_process_table.process[i].pid = -1;
+//     }
+//     xsb_process_table.search_idx = 0;
+//     process_table_initted = TRUE;
+//   }
+// }
 
 
 /* check process status */
