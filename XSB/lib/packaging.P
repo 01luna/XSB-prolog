@@ -127,19 +127,23 @@ remove_pkg_dirs_from_libpath([Dir|Dirs]) :-
 :- mode xsb_running_under(?).
 xsb_running_under(cygwin) :-
 	xsb_configuration(architecture, A),
+	check_atom(A,'xsb_configuration/2',2),
 	str_sub(cygwin, A),
 	!.
 xsb_running_under(windows) :-
 	xsb_configuration(architecture, A),
+	check_atom(A,'xsb_configuration/2',2),
 	str_sub(windows, A),
 	!.
 xsb_running_under(windows64) :-
 	xsb_configuration(architecture, A),
+	check_atom(A,'xsb_configuration/2',2),
 	str_sub(windows, A),
 	str_sub(x64, A),
 	!.
 xsb_running_under(darwin) :-
 	xsb_configuration(architecture, A),
+	check_atom(A,'xsb_configuration/2',2),
 	str_sub(darwin, A),
 	!.
 xsb_running_under(unix) :-

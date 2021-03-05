@@ -493,8 +493,10 @@ put(C):- stat_flag(CURRENT_OUTPUT, Str), file_put_code(Str, C).
 :- mode tab(+).
 tab(N) :- tab(N).
 
+:- mode tab(+,+).
 tab(_Str,0):- !.                                                                         
 tab(Str,N):-
+   N > 0,
    file_put_char(Str,' '),
    N1 is N - 1,
    tab(Str,N1).
@@ -1877,6 +1879,10 @@ listing :-
 	fail.
 listing.
 
+% TES: listing does not support var:var
+% it does support ?mod:+atom and ?mod:+term regardless of whether mod is instantiated
+% and mod:var
+% The code below could be made slightly faster, but prob, not worth it for listing.
 listing(X) :- var(X), !, listing.
 listing([]) :- !.
 listing([Spec|Specs]) :- !, listing0(Spec), listing(Specs).
@@ -1888,7 +1894,21 @@ listing(Head) :-
 	 ->	findall(Head0,(predicate_property(Head0, (dynamic)),
 			       functor(Head0,Head,_)),Heads),
 	 	listing(Heads)
-	 ;	listing0(Head)
+	 ; (Head = Mod:Pred,atom(Pred)) % Mod can be var/atom
+	   ->	findall(Mod:Term,(current_predicate(Pred,Mod:Term),
+				  predicate_property(Mod:Term, (dynamic))),Terms),
+		listing(Terms)
+	 ; (Head = Mod:Term,compound(Term)) % Mod can be var/atom
+	   ->	findall(Mod:Term,(current_predicate(_Pred,Mod:Term),
+				  _Pred \= ':',
+				  predicate_property(Mod:Term, (dynamic))),Terms),
+		listing(Terms)
+	 ; (Head = Mod:Term,atom(Mod),var(Term)) % Mod:X
+	   ->	findall(Mod:Term,(current_predicate(_Pred,Mod:Term),
+				  _Pred \= ':',
+				  predicate_property(Mod:Term, (dynamic))),Terms),
+		listing(Terms)
+	 ; listing0(Head)
 	).
 
 %TLS: changed numbervars/1 to numbervars/4 so that attributed

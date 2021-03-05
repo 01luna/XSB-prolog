@@ -81,6 +81,7 @@ deb_respectful_message(_M).
 runtime_loader_flag(_Compiler,'','') :- !.
 runtime_loader_flag(Compiler,LibraryDir,Flag):-
 	xsb_configuration(configuration, Configuration),
+	check_atom(Configuration,'xsb_configuration/2',2),
 	(   str_sub('powerpc-apple-darwin', Configuration)
 	->  Flag = ''
 	;	str_sub(gcc,Compiler) %% egcc, kgcc, and friends
@@ -127,8 +128,11 @@ foreign_module_library_extension(Configuration,Extension) :-
 %% TempFile: Directory
 compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
     xsb_configuration(configuration, Configuration),
+    check_atom(Configuration,'xsb_configuration/2',2),
     xsb_configuration(compiler_flags, XSB_CC_Opts),
+    check_atom(XSB_CC_Opts,'xsb_configuration/2',2),
     xsb_configuration(loader_flags, LD_Opts),
+    check_atom(LD_Opts,'xsb_configuration/2',2),
     escape_path(OrigBase,Base),
     retractall(current_compiled_module(_)),
     assert(current_compiled_module(Base)),
@@ -203,6 +207,7 @@ compile_c_cygwin(Ext,LdOption,TempFile,XSB_CC_Opts,LD_Opts,Base,CC_Name,CC_Opts)
 	
     ),
     xsb_configuration(config_dir,OrigConfigDir),
+    check_atom(OrigConfigDir,'xsb_configuration/2',2),
     escape_path(OrigConfigDir,ConfigDir),
     (TempObj = ''
      ->	deb_respectful_message(shell(['sh ',ConfigDir,'/makedef.sh ',
@@ -215,6 +220,7 @@ compile_c_cygwin(Ext,LdOption,TempFile,XSB_CC_Opts,LD_Opts,Base,CC_Name,CC_Opts)
     deb_respectful_message(shell(['mv out.def ',Base,'.def'])),
     shell(['mv out.def ',Base,'.def']),
     xsb_configuration(config_bindir,BINDIR),
+    check_atom(BINDIR,'xsb_configuration/2',2),
     deb_respectful_message(shell([CC_Name,' ',CC_Opts,
 				  ' -L',BINDIR,' ',
 				  ' -Wl,--out-implib=',Base,'.a ',
@@ -233,6 +239,7 @@ compile_c_windows(Modname,Ext,Base) :-
     ((Ext == '.c' ; Ext == '.c ')
      ->	fmt_write_string(DLLhere,'%s.dll',arg(Modname)),
 	xsb_configuration(config_bindir,BINDIR),
+	check_atom(BINDIR,'xsb_configuration/2',2),
 	fmt_write_string(DLLbin,'%s\\%s.dll',arg(BINDIR,Modname)),
 	((file_exists(DLLhere) ; file_exists(DLLbin))
 	 -> true
@@ -248,12 +255,18 @@ compile_c_windows(Modname,Ext,Base) :-
 
 compile_windows_c_to_dll(Base) :-
     xsb_configuration(config_bindir,ConfigBinDir),
+    check_atom(ConfigBinDir,'xsb_configuration/2',2),
     Ext = '.c',
     xsb_configuration(compiler,CC_Name),
+    check_atom(CC_Name,'xsb_configuration/2',2),
     xsb_configuration(config_dir,ConfigDir),
+    check_atom(ConfigDir,'xsb_configuration/2',2),
     xsb_configuration(emudir,EmuDir),
+    check_atom(EmuDir,'xsb_configuration/2',2),
     xsb_configuration(install_dir,InstallDir),
+    check_atom(InstallDir,'xsb_configuration/2',2),
     xsb_configuration(host_cpu,HostCpu),
+    check_atom(HostCpu,'xsb_configuration/2',2),
     CompCmdL = [CC_Name,' /c ',Base,Ext,
 		' /nologo /MT /W3 /EHsc /O2',
 		' /I"',ConfigDir,'"',
@@ -283,12 +296,18 @@ compile_windows_c_to_dll(Base) :-
 
 compile_windows_c_to_exe(Base) :-
     xsb_configuration(config_bindir,ConfigBinDir),
+    check_atom(ConfigBinDir,'xsb_configuration/2',2),
     Ext = '.c',
     xsb_configuration(compiler,CC_Name),
+    check_atom(CC_Name,'xsb_configuration/2',2),
     xsb_configuration(config_dir,ConfigDir),
+    check_atom(ConfigDir,'xsb_configuration/2',2),
     xsb_configuration(emudir,EmuDir),
+    check_atom(EmuDir,'xsb_configuration/2',2),
     xsb_configuration(install_dir,InstallDir),
+    check_atom(InstallDir,'xsb_configuration/2',2),
     xsb_configuration(host_cpu,HostCpu),
+    check_atom(HostCpu,'xsb_configuration/2',2),
     CompCmdL = [CC_Name,' /c ',Base,Ext,
 		' /nologo /MT /W3 /EHsc /O2 /F5000000 /DWINDOWS_IMP',
 		' /I"',ConfigDir,'"',
@@ -319,11 +338,14 @@ compile_windows_c_to_exe(Base) :-
 
 cc_name(Options,CC_Name) :-
 	( memberchk(cc(CC_Name),Options),atom(CC_Name) -> true
-	;   xsb_configuration(compiler,CC_Name)
+	;   xsb_configuration(compiler,CC_Name),
+	    check_atom(CC_Name,'xsb_configuration/2',2)
 	).
 cc_options(CC_Name,Options,CC_Opts) :-
 	xsb_configuration(emudir,Emudir),
+	check_atom(Emudir,'xsb_configuration/2',2),
 	xsb_configuration(config_dir,ConfigDir),
+	check_atom(ConfigDir,'xsb_configuration/2',2),
 	escape_path(Emudir,EscEmudir),
 	escape_path(ConfigDir,EscConfigDir),
 	(   memberchk(cc_opts(CC_Opts1),Options)
@@ -390,6 +412,7 @@ compile_H(Modname,Base,Options,ToLoc,ExList,LdOption,CompComm,TempFile) :-
 
 escape_path(Path,Path) :-
 	xsb_configuration(configuration,Configuration),
+	check_atom(Configuration,'xsb_configuration/2',2),
 	str_sub('windows',Configuration),
 	!.
 escape_path(Path,PathEsc) :-
@@ -472,6 +495,7 @@ co_asmhead(OStr,Modname,LdOption,PSC_Count) :-
 
 get_foreign_magic_number(LastDigit):- 
 	xsb_configuration(engine_mode,Emode),
+	check_atom(Emode,'xsb_configuration/2',2),
 	conget(immutable,I),
 	(I = 1 -> Reloadable = immutable ; Reloadable = mutable),		
 	engine_mode_magic_num(Emode,Reloadable,LastDigit).

@@ -8,6 +8,7 @@
 :- mode add_index(?,+,+).
 :- mode add_op(+,+,+).
 :- mode add_ops(+,+,+).
+:- mode add_spaces(?,?).
 :- mode add_trie_index(?).
 :- mode assert_trie_index(?).
 :- mode conv_joint(+,+,?).
@@ -32,6 +33,7 @@
 :- mode_on_success add_index(A,g,g).
 :- mode_on_success add_op(g,g,g).
 :- mode_on_success add_ops(g,g,g).
+:- mode_on_success add_spaces(A,A).
 :- mode_on_success add_trie_index(A).
 :- mode_on_success assert_trie_index(A).
 :- mode_on_success conv_joint(g,g,g).

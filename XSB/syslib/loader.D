@@ -30,7 +30,7 @@
 :- mode local_cwd(?).
 :- mode local_file_exists(?).
 :- mode local_fmt_write(+,+,+).
-:- mode local_fmt_write_string(?,+,+).
+:- mode local_fmt_write_string(?,+,?).
 :- mode local_is_directory(+).
 :- mode local_member(?,+).
 :- mode local_newerthan(+,+).
@@ -85,7 +85,7 @@
 :- mode_on_success local_cwd(g).
 :- mode_on_success local_file_exists(g).
 :- mode_on_success local_fmt_write(g,g,g).
-:- mode_on_success local_fmt_write_string(g,g,g).
+:- mode_on_success local_fmt_write_string(g,g,A).
 :- mode_on_success local_hostname(A).
 :- mode_on_success local_is_directory(g).
 :- mode_on_success local_lappend(A,B,C).

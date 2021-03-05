@@ -506,7 +506,7 @@ write_field(Field,Stream,SepA,Delim,DelimA) :-
 :- index put_list/2-2.
 put_list(_Stream,[]).
 %put_list(Stream,[C|Cs]) :- integer(C),file_put(Stream,C),put_list(Stream,Cs).
-put_list(Stream,[C|Cs]) :- file_put_char(Stream,C),put_list(Stream,Cs).
+put_list(Stream,[C|Cs]) :- atom(C),file_put_char(Stream,C),put_list(Stream,Cs).
 
 % Output code list doubling occurrences of Delim
 :- index put_list/3-2.
@@ -515,7 +515,7 @@ put_list(Stream,Field,Delim) :-
     (append(Delim,Rest,Field)
      ->	put_list(Stream,Delim),put_list(Stream,Delim)
 %     ;	Field = [C|Rest],integer(C),file_put(Stream,C)
-     ;	Field = [C|Rest],file_put_char(Stream,C)
+     ;	Field = [C|Rest],atom(C),file_put_char(Stream,C)
     ),
     put_list(Stream,Rest,Delim).
 

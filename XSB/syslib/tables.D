@@ -14,8 +14,9 @@
 :- mode abolish_table_call(?,+).
 :- mode abolish_table_pred(?).
 :- mode abolish_table_pred(?,+).
+:- mode abolish_table_pred_auxiliaries(+).
 :- mode abolish_table_pred_bi(?,+).
-:- mode abolish_table_pred_bi_all(?,+).
+:- mode abolish_table_pred_bi_all(+,+).
 :- mode abolish_table_subgoal(?).
 :- mode abolish_table_subgoal(?,+).
 :- mode abolish_table_subgoal_bi(+,+).
@@ -35,6 +36,7 @@
 :- mode answer_completion(+,?).
 :- mode answer_completion_ops(+,+,?).
 :- mode answer_set_status_code(+,?).
+:- mode auxiliary_table_subgoal(?,?).
 :- mode backlink_in_scc(?,+).
 :- mode call_type_code(+,?).
 :- mode change_attv_to_var(?).
@@ -150,6 +152,8 @@
 :- mode idg_scclist_to_adj_graph(+,?).
 :- mode immed_ans_depends_ptr(+,?).
 :- mode inc_subg_analysis_info(?,?).
+:- mode incr_sk_not(?).
+:- mode incr_tabled_call(?).
 :- mode invalidate_tables_for(?,?).
 :- mode is_answer_completed(+).
 :- mode is_answer_completed(+,?).
@@ -191,6 +195,7 @@
 :- mode negbacklink_in_scc(?,+).
 :- mode not3(?).
 :- mode not_exists(?).
+:- mode not_exists(?,?).
 :- mode partition_list(+,?).
 :- mode partition_list_1(+,?).
 :- mode partition_list_2(+,+,?,?).
@@ -297,6 +302,7 @@
 :- mode_on_success abolish_table_call(A,g).
 :- mode_on_success abolish_table_pred(A).
 :- mode_on_success abolish_table_pred(A,g).
+:- mode_on_success abolish_table_pred_auxiliaries(g).
 :- mode_on_success abolish_table_pred_bi(g,g).
 :- mode_on_success abolish_table_pred_bi_all(g,g).
 :- mode_on_success abolish_table_subgoal(A).
@@ -318,6 +324,7 @@
 :- mode_on_success answer_completion(g,A).
 :- mode_on_success answer_completion_ops(g,g,g).
 :- mode_on_success answer_set_status_code(g,g).
+:- mode_on_success auxiliary_table_subgoal(A,A).
 :- mode_on_success backlink_in_scc(g,g).
 :- mode_on_success call_type_code(g,g).
 :- mode_on_success change_attv_to_var(A).
@@ -442,6 +449,8 @@
 :- mode_on_success idg_scclist_to_adj_graph(g,g).
 :- mode_on_success immed_ans_depends_ptr(g,g).
 :- mode_on_success inc_subg_analysis_info(g,g).
+:- mode_on_success incr_sk_not(A).
+:- mode_on_success incr_tabled_call(A).
 :- mode_on_success invalidate_tables_for(A,B).
 :- mode_on_success is_answer_completed(g).
 :- mode_on_success is_answer_completed(g,g).
@@ -489,6 +498,7 @@
 :- mode_on_success negbacklink_in_scc(g,g).
 :- mode_on_success not3(A).
 :- mode_on_success not_exists(A).
+:- mode_on_success not_exists(A,g).
 :- mode_on_success partition_list(g,g).
 :- mode_on_success partition_list_1(g,g).
 :- mode_on_success partition_list_2(g,g,g,g).
@@ -526,10 +536,9 @@
 :- mode_on_success sdg_print_each_subgoal(A,B,C).
 :- mode_on_success sdg_scc_info(A,g).
 :- mode_on_success sdg_scc_info(ng,A).
+:- mode_on_success sdg_scc_info_1(A,B,g,g,g,g,g,g,g,g,g).
 :- mode_on_success sdg_scc_info_1(A,g,g,g,g,g,g,g,g,g,A).
-:- mode_on_success sdg_scc_info_1(A,g,g,g,g,g,g,g,g,g,g).
-:- mode_on_success sdg_scc_info_1(g,A,g,g,g,g,g,g,g,g,g).
-:- mode_on_success sdg_scc_info_1(ng,A,g,g,g,g,g,g,g,g,B).
+:- mode_on_success sdg_scc_info_1(ng,A,g,g,g,g,g,g,g,g,ng).
 :- mode_on_success set_answer_completed(g).
 :- mode_on_success set_eval_method_for_comma(A,g).
 :- mode_on_success set_forest_logging_for_pred(A,g).

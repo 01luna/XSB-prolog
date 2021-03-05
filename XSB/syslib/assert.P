@@ -651,7 +651,7 @@ get_dynamic_pred_ep(Head,Operation,CallingPred,PredEP,PSC) :-
 		% static predicate
 	 	functor(Head,F,A),
 		(	Operation == access ->
-			permission_error(Operation,private_predicate,F/A,CallingPred)
+			permission_error(Operation,static_private_predicate,F/A,CallingPred)
 		;	% Operation == modify,
 			permission_error(Operation,static_predicate,F/A,CallingPred)
 		)

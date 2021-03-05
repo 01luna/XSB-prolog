@@ -634,7 +634,7 @@ del_attr(Var,Mod) :-
 %% WarningFlag=warning_on means: issue warning when replacing the
 %% verify_attribute_handler.
 
-:- mode install_verify_attribute_handler(+,+,?,?,+).
+:- mode install_verify_attribute_handler(+,?,?,?,+).
 install_verify_attribute_handler(Mod,Attr,Value,Handler,WarningFlag) :-
       ( retract(verify_attribute_handler(Mod,_,_,_)),
 	  WarningFlag == warning_on
@@ -647,7 +647,7 @@ install_verify_attribute_handler(Mod,Attr,Value,Handler,WarningFlag) :-
       assert(verify_attribute_handler(Mod,Attr,Value,Handler)).
 
 %% Version with warnings
-:- mode install_verify_attribute_handler(+,+,?,?).
+:- mode install_verify_attribute_handler(+,?,?,?).
 install_verify_attribute_handler(Mod,Attr,Value,Handler) :-
 	install_verify_attribute_handler(Mod,Attr,Value,Handler,warning_on).
 
@@ -656,7 +656,7 @@ install_verify_attribute_handler(Mod,Attr,Value,Handler) :-
 :- mode_on_success(attribute_portray_hook(+,+,?)).
 :- dynamic attribute_portray_hook(_,_,_).
 
-:- mode install_attribute_portray_hook(+,+,?).
+:- mode install_attribute_portray_hook(+,?,?).
 install_attribute_portray_hook(Mod,Attr,Handler) :-
       ( retract(attribute_portray_hook(Mod,_,_)) ->
 	  warning((' replacing previous attribute_portray_hook for module ',Mod))
