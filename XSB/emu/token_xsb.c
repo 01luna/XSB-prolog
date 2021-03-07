@@ -65,6 +65,40 @@
     They all depend on this assumption.
 */
  
+#ifdef TOK_DEBUG
+#define tok_printf(X) printf X
+#else
+#define tok_printf(X)
+#endif
+
+//char console_buffer_getc(FILE *card) {
+//  size_t n;
+//  if (console_buffer_index == console_buffer_string_size) {
+//    console_buffer_string_size = getline(&console_buffer,&n,card);
+//    console_buffer_index = 0;
+//  }
+////  return console_buffer[console_buffer_index++];
+//}
+
+#if defined(DARWIN) || defined(USE_NON_GETC_BUFFER)
+int console_buffer_index = 0;
+int console_buffer_string_size=0;
+int* console_buffer;
+
+// Using getc rather than readline because readline uses char rather than int.
+// This messes up reading EOF.
+int console_buffer_getc(FILE *card) {
+  if (console_buffer_index == console_buffer_string_size) {
+    console_buffer_string_size = 0;
+    do {
+	console_buffer[console_buffer_string_size++] = getc(card);
+    } while (console_buffer[console_buffer_string_size-1] != '\n' && console_buffer[console_buffer_string_size-1] != EOF);
+    console_buffer_index = 0;
+  }
+  return console_buffer[console_buffer_index++];
+}
+#endif
+
 #define InType(c)       (intab.chtype+1)[c]
 #define DigVal(c)       (digval+1)[c]
 
@@ -272,9 +306,21 @@ static void SyntaxError(CTXTdeclc char *description)
   strncpy(message+15,description,(MAXBUFSIZE - 15));
   xsb_syntax_error(CTXTc message);
 }
- 
 
-void unGetC(int d, FILE *card, STRFILE *instr)
+#if defined(USE_UNGETC_BUFFER) || defined(USE_GETC_UNGETC_BUFFER)
+int unbuffind = 0;
+int unbuff[10];
+
+void unTGetC(int d, FILE *card, STRFILE *instr)
+{
+  if (instr) {
+    (instr)->strcnt++;
+    (instr)->strptr--;
+  }
+  else unbuff[unbuffind++] = d;
+}
+#else
+void unTGetC(int d, FILE *card, STRFILE *instr)
 {
   if (instr) {
     (instr)->strcnt++;
@@ -282,6 +328,7 @@ void unGetC(int d, FILE *card, STRFILE *instr)
   }
   else ungetc(d, card);
 }
+#endif
 
 /* code_page_1252[code_1252] = codepoint. */
 
@@ -562,8 +609,9 @@ extern int utf8_GetCode(FILE *, STRFILE *, int);
 
 int GetCode(int charset, FILE *curr_in, STRFILE *instr) {
   int c;
-  c = GetC(curr_in,instr);
-  //  printf("GetCode: %d\n",c);
+  tok_printf(("Entered getcode "));
+  c = TGetC(curr_in,instr);
+  tok_printf(("GetCode: %d\n",c));
   if (c == EOF) return c;
   //  if (c < 0) return c;  /* if eof, return it */
   if (instr) { /* encoding in strings is always utf8 */
@@ -585,7 +633,8 @@ int GetCodeP(int io_port) {
   int c, charset;
   FILE *fptr; STRFILE *sfptr;
   io_port_to_fptrs(io_port,fptr,sfptr,charset);
-  c = GetC(fptr,sfptr);
+  c = TGetC(fptr,sfptr);
+  tok_printf(("GetCodeP %c\n",c));
   if (c < 0) return c; /* eof */
   if (sfptr) { /* encoding in strings is always utf8 */
     return utf8_GetCode(fptr, sfptr, c);
@@ -609,44 +658,50 @@ int utf8_GetCode(FILE *curr_in, STRFILE *instr, int c){
   int b2,b3,b4;
   if (c < 0x80) return c;           /* ascii */
   if ((c & 0xe0) == 0xc0){          /* 110xxxxx */
-    b2 = GetC(curr_in,instr);
-    if ((b2 & 0xc0) == 0x80){       /* 110xxxxx 10xxxxxx */
+    b2 = TGetC(curr_in,instr);
+    tok_printf(("utf8_GetCode:1 %c\n",b2));
+  if ((b2 & 0xc0) == 0x80){       /* 110xxxxx 10xxxxxx */
       return (((c & 0x1f) << 6) | (b2 & 0x3f));
     } else {                        /* not utf8 char */
-      if (b2>0) {unGetC((char)b2,curr_in,instr);}/* don't unget EOF */
+      if (b2>0) {unTGetC((char)b2,curr_in,instr);}/* don't unget EOF */
     }
   } else if ((c & 0xf0) == 0xe0){    /* 1110xxxx */
-    b2 = GetC(curr_in,instr);	
+    b2 = TGetC(curr_in,instr);	
+    tok_printf(("utf8_GetCode:2 %c\n",b2));
     if ((b2 & 0xc0) == 0x80){        /* 1110xxxx 10xxxxxx */
-      b3 = GetC(curr_in,instr);	
+      b3 = TGetC(curr_in,instr);	
+      tok_printf(("utf8_GetCode:3 %c\n",b3));
       if ((b3 & 0xc0) == 0x80){      /* 1110xxxx 10xxxxxx 10xxxxxx */
 	return (((c & 0xf) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f));
       } else {
-	if (b3>0) {unGetC((char)b3,curr_in,instr);}
-	unGetC((char)b2,curr_in,instr);
+	if (b3>0) {unTGetC((char)b3,curr_in,instr);}
+	unTGetC((char)b2,curr_in,instr);
       }
     } else {
-      if (b2>0) {unGetC((char)b2,curr_in,instr);}
+      if (b2>0) {unTGetC((char)b2,curr_in,instr);}
     }
   } else if ((c & 0xf8) == 0xf0){    /* 11110xxx */
-    b2 = GetC(curr_in,instr);	
+    b2 = TGetC(curr_in,instr);	
+    tok_printf(("utf8_GetCode:4 %c\n",b2));
     if ((b2 & 0xc0) == 0x80){        /* 11110xxx 10xxxxxx */
-      b3 = GetC(curr_in,instr);	
+      b3 = TGetC(curr_in,instr);	
+      tok_printf(("utf8_GetCode:5 %c\n",b3));
       if ((b3 & 0xc0) == 0x80){      /* 11110xxx 10xxxxxx 10xxxxxx */
-	b4 = GetC(curr_in,instr);	
+	b4 = TGetC(curr_in,instr);	
+	tok_printf(("utf8_GetCode:6 %c\n",b4));
 	if ((b4 & 0xc0) == 0x80){    /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
 	  return (((c & 0xf) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f));
 	} else {
-	  if (b2>0) {unGetC((char)b4,curr_in,instr);}
-	  unGetC((char)b3,curr_in,instr);
-	  unGetC((char)b2,curr_in,instr);
+	  if (b2>0) {unTGetC((char)b4,curr_in,instr);}
+	  unTGetC((char)b3,curr_in,instr);
+	  unTGetC((char)b2,curr_in,instr);
 	}
       } else {
-	if (b3>0) {unGetC((char)b3,curr_in,instr);}
-	unGetC((char)b2,curr_in,instr);
+	if (b3>0) {unTGetC((char)b3,curr_in,instr);}
+	unTGetC((char)b2,curr_in,instr);
       }
     } else {
-      if (b2>0) {unGetC((char)b2,curr_in,instr);}
+      if (b2>0) {unTGetC((char)b2,curr_in,instr);}
     }
   }
   return c;
@@ -912,7 +967,7 @@ READ_ERROR:
 		    n = MAX_CODEPOINT;
 		  }
 		  if (c != '\\') {
-		    unGetC(c, card, instr);
+		    unTGetC(c, card, instr);
 		    //  xsb_warn(CTXTc "Ill-formed \\xHEX\\ escape: %d (dec) at position %d in %s",
 		    //	     n,input_file_position(card,instr),
 		    //	     input_file_name(card,instr));
@@ -930,7 +985,7 @@ READ_ERROR:
 		      if (DigVal(c) <= 15 && c != '_'){
 			n = (n<<4) + DigVal(c);
 		      } else if (c != '\\') {
-			unGetC(c,card,instr);
+			unTGetC(c,card,instr);
 			xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
 				 n,input_file_position(card,instr),
 				 input_file_name(card,instr));
@@ -945,7 +1000,7 @@ READ_ERROR:
 			if (DigVal(c) <= 15 && c != '_'){
 			  n = (n<<4) + DigVal(c);
 			} else if (c != '\\') {
-			  unGetC(c,card,instr);
+			  unTGetC(c,card,instr);
 			  xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
 				   n,input_file_position(card,instr),
 				   input_file_name(card,instr));
@@ -953,11 +1008,11 @@ READ_ERROR:
 			} else return n;
 		      }
 		    } else {
-		      if (c>0 && c != '\\') {unGetC(c,card,instr);}	
+		      if (c>0 && c != '\\') {unTGetC(c,card,instr);}	
 		    }
 		    return n;
 		  } else {   // not UTF_8
-		    (void) unGetC(c, card, instr);
+		    (void) unTGetC(c, card, instr);
 		    return('\\');
 		  }
 	      }
@@ -972,7 +1027,7 @@ READ_ERROR:
 		  } while (DigVal(c) < 8);
 		  //		  if (c < 0) goto READ_ERROR;
 		  if (c != '\\') {
-		    unGetC(c, card, instr);
+		    unTGetC(c, card, instr);
 		    //		    xsb_warn(CTXTc "Ill-formed \\OCTAL\\ escape: %d (dec) at position %d in %s",
 		    //			     n,input_file_position(card,instr),
 		    //			     input_file_name(card,instr));
@@ -988,7 +1043,7 @@ READ_ERROR:
 	    case '`':			/* back quote */
 	        return '`';
 	    default:			/* return the \, not an escape */
-	      (void) unGetC(c, card, instr);
+	      (void) unTGetC(c, card, instr);
 	      /* printf("un-escaped backslash: %d\n",c); */
 	      return '\\';  /* give warning? or have flag to give error here */
         }
@@ -1024,8 +1079,8 @@ static int com0plain(CTXTdeclc register FILE *card,	/* source file */
     register int c;
     int cnt = 0;
  
-    while ((c = GetC(card,instr)) >= 0 && c != '\n' && c != endeol && ++cnt) ;
-    if (c >= 0) c = GetC(card,instr);
+    while ((c = TGetC(card,instr)) >= 0 && c != '\n' && c != endeol && ++cnt) ;
+    if (c >= 0) c = TGetC(card,instr);
     if (cnt > EOL_COMMENT_WARN_LENGTH) {
       xsb_warn(CTXTc "Extra-long comment to end of line. Bad file format?");
     }
@@ -1066,7 +1121,7 @@ static int com2plain(register FILE *card,	/* source file */
         register int c;
         register int state;
 
-        for (state = 0; (c = GetC(card,instr)) >= 0; ) {
+        for (state = 0; (c = TGetC(card,instr)) >= 0; ) {
             if (c == endcom && state) break;
             state = c == astcom;
         }
@@ -1109,14 +1164,15 @@ void realloc_strbuff(CTXTdeclc byte **pstrbuff, byte **ps, int *pn)
 struct xsb_token_t *GetToken(CTXTdeclc int io_port, int prevch)
 {
         byte *s;
-        register int c, d = 0;
+	//        register int c, d = 0;
+	int c, d = 0;
         Integer oldv = 0, newv = 0; 
         int n;
 	int charset;
 	FILE *card;
 	STRFILE *instr;
 
-	//	printf("==> GetTOken \n");
+	tok_printf(("==> GetToken prevch %d\n",prevch));
 	if (strbuff == NULL)
 	  {
 	    /* First call for GetToken, so allocate a buffer */
@@ -1140,6 +1196,7 @@ START:
 	//	if (c == EOF) xsb_abort("Unexpected EOF in tokenizer");
         switch (InType(c)) {
             case DIGIT:
+	      tok_printf(("In DIGIT %c",c));
                 /*  The following kinds of numbers exist:
                       (1) unsigned decimal integers: d+
                       (2) unsigned based integers: d+Ro+[R]
@@ -1241,7 +1298,7 @@ LAB_DECIMAL:                *s++ = '.';
 				token->type = TK_REAL;
                         return token;
                     } else {
-		        unGetC(d, card, instr);
+		        unTGetC(d, card, instr);
                         /* c has not changed */
                     }
 		}
@@ -1291,6 +1348,7 @@ LAB_DECIMAL:                *s++ = '.';
                 return token;
  
             case BREAK:        /* Modified for HiLog */
+	      tok_printf(("In BREAK %c",c));
 	      do {
                     if (--n < 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n); 
@@ -1311,6 +1369,7 @@ LAB_DECIMAL:                *s++ = '.';
                 }
  
             case UPPER:         /* Modified for HiLog */
+	      tok_printf(("In UPPER %c",c));
                 do {
                     if (--n < 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n);
@@ -1332,6 +1391,7 @@ LAB_DECIMAL:                *s++ = '.';
                 }
  
             case LOWER:
+	      tok_printf(("In LOWER %c\n",c));
                 do {
                     if (--n < 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n);
@@ -1348,12 +1408,17 @@ SYMBOL:         if (c == '(') {
 		    token->nextch = c;
 		    token->value = (char *)strbuff;
 		    token->type = TK_ATOM;
+		    tok_printf(("return token from lower:2-> nextch %c value %s type %d\n",token->nextch,token->value,token->type));
 		    return token;
+		    tok_printf(("unreachable"));
                 }
  
             case SIGN:
+	      tok_printf(("In SIGN %c\n",c));
 	        *s = c, d = GetCode(charset,card,instr);
+		tok_printf(("In SIGN.1 nextchar %d\n",d));
                 if (c == intab.begcom && d == intab.astcom) {
+		  tok_printf(("In SIGN.ASTCOM"));
 ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 			SyntaxError(CTXTc eofinrem);
 			//			token->type = TK_ERROR;
@@ -1363,9 +1428,11 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                     goto START;
                 } else
                 if (c == intab.dpoint && InType(d) == DIGIT) {
+		  tok_printf(("In SIGN.DIGIT"));
                     *s++ = '0';
                     goto LAB_DECIMAL;
                 }
+		tok_printf(("In SIGN before while\n"));
                 while (InType(d) == SIGN) {
                     if (--n == 0) {
 		      realloc_strbuff(CTXTc &strbuff, &s, &n);
@@ -1374,16 +1441,18 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                 }
                 *++s = 0;
                 if ((InType(d)>=SPACE || d == '%') && c==intab.termin && strbuff[1]==0) {
+		  tok_printf(("In SIGN.SPACE/^"));
 		    token->nextch = d;
 		    token->value = 0;
 		    token->type = TK_EOC;
-		    unGetC(d, card, instr); // dsw added ??
+		    unTGetC(d, card, instr); // dsw added ??
 		    return token;       /* i.e. '.' followed by layout */
                 }
                 c = d;
                 goto SYMBOL;
  
             case NOBLE:
+	      tok_printf(("In NOBLE %c",c));
                 if (c == intab.termin) {
                     *s = 0;
 		    token->nextch = ' ';
@@ -1400,6 +1469,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                 goto SYMBOL;
  
             case PUNCT:
+	      tok_printf(("In PUNCT %c",c));
                 if (c == intab.termin) {
                     *s = 0;
 		    token->nextch = ' ';
@@ -1445,6 +1515,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                 return token;
  
             case CHRQT:
+	      tok_printf(("In CHRQT %c",c));
                 /*  `c[`] is read as an integer.
                     Eventually we should treat characters as a distinct
                     token type, so they can be generated on output.
@@ -1462,6 +1533,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
                 return token;
  
             case ATMQT:
+	      tok_printf(("In ATMQT %c",c));
 	        while ((d = read_character(CTXTc card, instr, charset, c)) != -1) {
 		  CODEPOINT_TO_UTF8_STR(d,s,n); /* nfz */
 		}
@@ -1485,6 +1557,7 @@ ASTCOM:             if (com2plain(card, instr, d, intab.endcom)) {
 case deleted ****/
 
 	    case LISQT: 
+	      tok_printf(("In LISQT %c",c));
 	        while ((d = read_character(CTXTc card, instr, charset, c)) != -1) {
 		  CODEPOINT_TO_UTF8_STR(d,s,n);  /* nfz */
 		}
@@ -1497,11 +1570,13 @@ case deleted ****/
 
             case EOLN:
             case SPACE:
-	      //c = GetC(card,instr); // more efficient than GetCode
+	      tok_printf(("In EOLN/SPACE %c",c));
+	      //c = TGetC(card,instr); // more efficient than GetCode
 	      c = GetCode(charset,card,instr);
 	      goto START;
  
 	case EOFCH:
+	  tok_printf(("In EOFCH %c",c));
 	        if (!instr) {
 		  if (ferror(card) && !(asynint_val & KEYINT_MARK)) 
 		    xsb_warn(CTXTc "[TOKENIZER] I/O error: %s",strerror(errno));

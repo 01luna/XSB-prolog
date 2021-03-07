@@ -32,7 +32,27 @@
 #define strgetc(p) (--(p)->strcnt>=0? ((int)*(p)->strptr++): -1)
 #define strpeekc(p) ((p)->strcnt>=0? ((int)*(p)->strptr): -1)
 
-#define GetC(card,instr) (instr ? strgetc(instr) : getc(card))
+// For the Mac, need USE_GETC_UNGETC_BUFFER
+// USE_UNGETC_BUFFER is tentative, it could be more stable for Linux and Windows.
+// For Linux and windows, the default definitions are used
+#if defined(DARWIN)
+#define USE_GETC_UNGETC_BUFFER 1
+#endif
+  
+#if defined(USE_GETC_UNGETC_BUFFER)
+#define TGetC(card,instr) (instr ? strgetc(instr) : (unbuffind ? unbuff[--unbuffind] : GetC_1(card)))
+#define TGetCf(card) (unbuffind ? unbuff[--unbuffind] : GetC_1(card))
+#define unTGetCf(d,card) unbuff[unbuffind++] = d
+#define GetC_1(card) (card == stdin ? console_buffer_getc(card) : getc(card))
+#elif defined(USE_UNGETC_BUFFER)
+#define TGetC(card,instr) (instr ? strgetc(instr) : (unbuffind ? unbuff[--unbuffind] : getc(card)))
+#define TGetCf(card) (unbuffind ? unbuff[--unbuffind] : getc(card))
+#define unTGetCf(d,card) unbuff[unbuffind++] = d
+#else
+#define TGetC(card,instr) (instr ? strgetc(instr) : getc(card))
+#define TGetCf(card) getc(card)
+#define unTGetCf(d,card) ungetc(d,card)
+#endif
 
 #define PutCode(codepoint,charset,file) {	\
     int cp = codepoint;				\
@@ -85,6 +105,7 @@ extern int intype(int);
 extern int GetCode(int, FILE *, STRFILE *);
 extern int GetCodeP(int);
 extern void unGetC(int, FILE *, STRFILE *);
+extern void unTGetC(int d, FILE *card, STRFILE *instr);
 extern byte *codepoint_to_str(int, int, byte *);
 extern byte *utf8_codepoint_to_str(int, byte *);
 //extern int utf8_strgetc(STRFILE *, int );
@@ -95,6 +116,13 @@ extern int utf8_char_to_codepoint(byte **);
 extern void write_string_code(FILE *, int, byte *);
 
 #endif /* _TOKEN_XSB_H_ */
+
+#if defined(USE_GETC_UNGETC_BUFFER)
+extern int* console_buffer;
+extern int console_buffer_getc(FILE *card);
+#endif
+
+
 
 /*======================================================================*/
 /*======================================================================*/

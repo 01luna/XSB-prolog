@@ -44,6 +44,9 @@ STRFILE *iostrs[MAXIOSTRS] = {NULL,NULL,NULL,NULL,NULL};
 extern char   *expand_filename(char *filename);
 //extern int xsb_intern_fileptr(FILE *, char *, char *, char *, int);
 
+extern int unbuffind;
+extern int unbuff[];
+
 static FILE *stropen(CTXTdeclc char *str)
 {
   Integer i;
@@ -329,7 +332,7 @@ inline static xsbBool file_function(CTXTdecl)
     io_port = (int)ptoc_int(CTXTc 2);
     io_port_to_fptrs(io_port,fptr,sfptr,charset);
     XSB_STREAM_LOCK(io_port);
-    ctop_int(CTXTc 3, GetC(fptr,sfptr));
+    ctop_int(CTXTc 3, TGetC(fptr,sfptr));
     XSB_STREAM_UNLOCK(io_port);
     break;
   case FILE_PUT_BYTE:   /* file_function(7, +IOport, +IntVal) */
@@ -449,7 +452,8 @@ inline static xsbBool file_function(CTXTdecl)
 	  xsb_exit("No space for line buffer");
 //	printf("frll: expand buffer line_buff(%p,%d)\n",line_buff,line_buff_len);
       }
-      *(line_buff+line_buff_disp) = c = getc(fptr);  // fix for charset!!
+      //      *(line_buff+line_buff_disp) = c = getc(fptr);  // fix for charset!!
+      *(line_buff+line_buff_disp) = c = TGetCf(fptr);  // fix for charset!!
       if (c == EOF) {
 	if (feof(fptr)) break;
 	else xsb_permission_error(CTXTc strerror(errno),"file read",reg[2],"file_read_line_list",2);
@@ -898,10 +902,12 @@ inline static xsbBool file_function(CTXTdecl)
       ctop_int(CTXTc 3, strpeekc(sfptr));
     } else {
       SET_FILEPTR(fptr, io_port);
-      bufchar = getc(fptr);
+      //      bufchar = getc(fptr);
+      bufchar = TGetCf(fptr);
       ctop_int(CTXTc 3, bufchar);
       if (bufchar >= 0) 
-	ungetc(bufchar, fptr);
+	//	ungetc(bufchar, fptr);
+	unTGetCf(bufchar,fptr); // WRONG!!
     }
     XSB_STREAM_UNLOCK(io_port);
     break;
@@ -997,7 +1003,7 @@ inline static xsbBool file_function(CTXTdecl)
       ch_ptr = codepoint_to_str(bufcode, charset, s);
       while (ch_ptr>s){
 	ch_ptr--;
-	unGetC(*ch_ptr,fptr,sfptr); 
+	unTGetC(*ch_ptr,fptr,sfptr); 
       }
     }
     ctop_int(CTXTc 3, bufcode);
@@ -1020,13 +1026,13 @@ inline static xsbBool file_function(CTXTdecl)
       if (charset == UTF_8) {
 	while (ch_ptr>s){
 	  ch_ptr--;                   
-	  unGetC(*ch_ptr,fptr,sfptr); 
+	  unTGetC(*ch_ptr,fptr,sfptr); 
 	}
       } else {
 	ch_ptr = (char *) codepoint_to_str(read_codepoint, charset, (byte *)ss);
 	while (ch_ptr>ss) {
 	  ch_ptr--;
-	  unGetC(*ch_ptr,fptr,sfptr);
+	  unTGetC(*ch_ptr,fptr,sfptr);
 	}
       }
       ctop_string(CTXTc 3,s);

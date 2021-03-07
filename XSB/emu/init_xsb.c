@@ -80,6 +80,7 @@
 #include "orient_xsb.h"
 #include "token_defs_xsb.h"
 #include "trace_xsb.h"
+#include "token_xsb.h"
 /*-----------------------------------------------------------------------*/   
 
 /* Sizes of the Data Regions in K-byte blocks
@@ -323,6 +324,10 @@ static int init_open_files(void)
   open_files[0].file_name = standard_input_glc;
   open_files[0].charset = (int)flags[CHARACTER_SET];
 
+#if defined(USE_GETC_UNGETC_BUFFER)
+  console_buffer = (int *)malloc(4096);
+#endif
+  
   open_files[1].file_ptr = stdout;
   open_files[1].io_mode = 'w';
   open_files[1].stream_type = CONSOLE_STREAM;
@@ -603,7 +608,6 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 #else
   flags[CHARACTER_SET] = UTF_8;
 #endif
-  
   init_open_files();
 
   init_statistics();

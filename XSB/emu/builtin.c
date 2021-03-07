@@ -140,7 +140,6 @@
 int mem_flag;
 
 /*======================================================================*/
-extern struct xsb_token_t *GetToken(CTXTdeclc int, int);
 
 extern int  sys_syscall(CTXTdeclc int);
 extern xsbBool sys_system(CTXTdeclc int);
