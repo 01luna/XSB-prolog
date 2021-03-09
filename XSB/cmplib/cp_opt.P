@@ -669,7 +669,8 @@ table_index_trans_pred(Sym,Pscs,Oth,Indexes,ClList,SymTab) :-
 			      im(term_to_atom/3,string),
 			      im(pred_table_pred/2,tables),
 			      im(assert/1,assert),
-			      im(retractall/1,assert)
+			      im(retractall/1,assert),
+			      im(numbervars/1,usermod)
 			      ], SymTab).
 
 gen_ind_clauses([],_BaseOrd,_Pred,_Arity,_NonAbsPoss,_OrdPred,_ClList,_SymTab).
@@ -730,9 +731,8 @@ gen_tests([IndPerm],Pred,HeadArgs,Condition) :- !,
 	(Test == true
 	 ->	Condition = Call
 	 ;	length(HeadArgs,Arity),
-		Msg = ['The table_indexed predicate ',Pred,'/',Arity,' executed a subgoal of non-declared mode (the predicate symbol may be different): ',Atom],
-		%		Condition = (Test->Call ; string:term_to_atom(Call,Atom,[string:numbervars(true)]),table_error(Msg))
-		Condition = (Test->Call ; string:term_to_atom(Call,Atom,[]),table_error(Msg))		
+		Msg = ['The table_indexed predicate ',Pred,'/',Arity,' executed a subgoal of non-declared mode (the predicate symbol may be a prefix of this): ',Atom],
+		Condition = (Test->Call ; term_to_atom(Call,Atom,[numbervars(true)]),table_error(Msg))		
 	).
 gen_tests([IndPerm|IndPerms],Pred,HeadArgs,(Test->Call;Clause)) :-
 	gen_test_call(IndPerm,Pred,HeadArgs,Test,Call),
