@@ -731,7 +731,7 @@ gen_tests([IndPerm],Pred,HeadArgs,Condition) :- !,
 	(Test == true
 	 ->	Condition = Call
 	 ;	length(HeadArgs,Arity),
-		Msg = ['The table_indexed predicate ',Pred,'/',Arity,' executed a subgoal of non-declared mode (the predicate symbol may be a prefix of this): ',Atom],
+		Msg = ['The table_indexed predicate ',Pred,'/',Arity,' executed a subgoal of non-declared mode (a predicate symbol suffix gives argument order): ',Atom],
 		Condition = (Test->Call ; term_to_atom(Call,Atom,[numbervars(true)]),table_error(Msg))		
 	).
 gen_tests([IndPerm|IndPerms],Pred,HeadArgs,(Test->Call;Clause)) :-
