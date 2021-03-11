@@ -44,9 +44,6 @@ STRFILE *iostrs[MAXIOSTRS] = {NULL,NULL,NULL,NULL,NULL};
 extern char   *expand_filename(char *filename);
 //extern int xsb_intern_fileptr(FILE *, char *, char *, char *, int);
 
-extern int unbuffind;
-extern int unbuff[];
-
 static FILE *stropen(CTXTdeclc char *str)
 {
   Integer i;
@@ -430,10 +427,9 @@ inline static xsbBool file_function(CTXTdecl)
     ** Invoke: file_function(FILE_READ_LINE, +File, -List). Returns
     ** the list of codes read. Rewritten by DSW 5/18/04 to allow \0 in lines.
     ** Prolog invocation: file_read_line_list(+File, -Str) */
-    char *line_buff = NULL;
+    int *line_buff = NULL;
     int line_buff_len = 0;
     int line_buff_disp;
-    char *atomname;
     int c;
     Cell new_list;
     CPtr top = NULL;
@@ -448,30 +444,28 @@ inline static xsbBool file_function(CTXTdecl)
       if (line_buff_disp >= line_buff_len-1) { // -1 in case of eol
 	int old_len = line_buff_len;
 	line_buff_len = line_buff_disp+MAX_IO_BUFSIZE;
-	if(!(line_buff = mem_realloc(line_buff,old_len,line_buff_len,LEAK_SPACE)))
+	if(!(line_buff = mem_realloc(line_buff,old_len*sizeof(int),
+				     line_buff_len*sizeof(int),LEAK_SPACE)))
 	  xsb_exit("No space for line buffer");
 //	printf("frll: expand buffer line_buff(%p,%d)\n",line_buff,line_buff_len);
       }
-      //      *(line_buff+line_buff_disp) = c = getc(fptr);  // fix for charset!!
-      *(line_buff+line_buff_disp) = c = TGetCf(fptr);  // fix for charset!!
+      line_buff[line_buff_disp] = c = GetCodeP(io_port);  // fixed for charset!!
       if (c == EOF) {
 	if (feof(fptr)) break;
 	else xsb_permission_error(CTXTc strerror(errno),"file read",reg[2],"file_read_line_list",2);
       }
       line_buff_disp++;
     } while (c != '\n');
-    *(line_buff+line_buff_disp) = 0;
+    line_buff[line_buff_disp] = 0;
 //    printf("frll: eol at %d\n",line_buff_disp);
     
     check_glstack_overflow(3, pcreg, 2*sizeof(Cell)*line_buff_disp);
-    atomname = line_buff;
 
     if (line_buff_disp == 0) new_list = makenil;
     else {
       new_list = makelist(hreg);
       for (i = 0; i < line_buff_disp; i++) {
-	follow(hreg) = makeint(*(unsigned char *)atomname);
-	atomname++;
+	follow(hreg) = makeint(line_buff[i]);
 	top = hreg+1;
 	hreg += 2;
 	follow(top) = makelist(hreg);
@@ -481,7 +475,7 @@ inline static xsbBool file_function(CTXTdecl)
 
     ctop_tag(CTXTc 3, new_list);
     
-    if (line_buff) mem_dealloc(line_buff,line_buff_len,LEAK_SPACE);
+    if (line_buff) mem_dealloc(line_buff,line_buff_len*sizeof(int),LEAK_SPACE);
 
     /* this complex cond takes care of incomplete lines: lines that end with
        end of file and not with end-of-line. */
@@ -907,7 +901,7 @@ inline static xsbBool file_function(CTXTdecl)
       ctop_int(CTXTc 3, bufchar);
       if (bufchar >= 0) 
 	//	ungetc(bufchar, fptr);
-	unTGetCf(bufchar,fptr); // WRONG!!
+	unTGetCf(bufchar, fptr); // WRONG!! (maybe wrong file)
     }
     XSB_STREAM_UNLOCK(io_port);
     break;
