@@ -43,6 +43,8 @@ STRFILE *iostrs[MAXIOSTRS] = {NULL,NULL,NULL,NULL,NULL};
 
 extern char   *expand_filename(char *filename);
 //extern int xsb_intern_fileptr(FILE *, char *, char *, char *, int);
+extern int unbuff[10];
+extern int unbuffind;
 
 static FILE *stropen(CTXTdeclc char *str)
 {
