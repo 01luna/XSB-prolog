@@ -1509,42 +1509,48 @@ The behavior and error cases for this predicate are the same as for
 {\tt subgoal\_property/2}, except that properties are only returned
 for the tabled subgoal that is a variant of {\tt Subgoal}.DF
 
+\index{dynamic predicates}
 \standarditem{listing}{listing/0}
-    Lists in the current output stream the clauses for all dynamic
-    predicates found in module {\tt usermod}.  Note that {\tt listing/0}
-    does not list any compiled predicates unless they have the
-    {\tt dynamic} property (see {\tt predicate\_property/2}).  A
-    predicate gets the {\tt dynamic} property when it is explicitly
-    declared as {\tt dynamic}, or automatically acquires it when some
-    clauses for that predicate are asserted in the database.  In
-    cases where a predicate was compiled but converted to {\tt dynamic}
-    by asserting additional clauses for that predicate, {\tt listing/0}
-    will just display an indication that there exist compiled clauses
-    for that predicate and only the dynamically created clauses of the
-    predicate will be listed.  For example:
+%
+Displays to the current output stream all clauses for all {\em
+  dynamic} predicates found in module {\tt usermod}.  A predicate
+acquires the dynamic property either when it is explicitly declared as
+{\tt dynamic}, or automatically, when a clause for that predicate is
+asserted.  As a result, note that {\tt listing/0} does not list any
+compiled predicates unless they have been declared as {\tt dynamic}.
+(See {\tt predicate\_property/2} for how to introspect whether given
+predicates are dynamic).
+%In cases where a
+%predicate was compiled but converted to {\tt dynamic} by asserting
+%additional clauses for that predicate, {\tt listing/0} will just
+%display an indication that there exist compiled clauses for that
+%predicate and only the dynamically created clauses of the predicate
+%will be listed.  For example:
+%
+%    \stuff{ 
+%    \>   \>     | ?- [user]. \\ 
+%    \>   \>     [Compiling user] \\
+%    \>   \>     a(X) :- b(X). \\
+%    \>   \>     a(1). \\
+%    \>   \>     [user compiled, cpu time used: 0.3 seconds] \\
+%    \>   \>     [user loaded] \\
+%    \>   \>     \\
+%    \>   \>     yes \\
+%    \>   \>     | ?- assert(a(3)). \\
+%    \>   \>     \\
+%    \>   \>     yes \\
+%    \>   \>     | ?- listing. \\
+%    \>   \>     \\
+%    \>   \>     a(A) :- \\
+%    \>   \>  \>    \$compiled. \\
+%    \>   \>     a(3). \\
+%    \>   \>     \\
+%    \>   \>     yes \\
+%   }
 
-    \stuff{ 
-    \>   \>     | ?- [user]. \\ 
-    \>   \>     [Compiling user] \\
-    \>   \>     a(X) :- b(X). \\
-    \>   \>     a(1). \\
-    \>   \>     [user compiled, cpu time used: 0.3 seconds] \\
-    \>   \>     [user loaded] \\
-    \>   \>     \\
-    \>   \>     yes \\
-    \>   \>     | ?- assert(a(3)). \\
-    \>   \>     \\
-    \>   \>     yes \\
-    \>   \>     | ?- listing. \\
-    \>   \>     \\
-    \>   \>     a(A) :- \\
-    \>   \>  \>    \$compiled. \\
-    \>   \>     a(3). \\
-    \>   \>     \\
-    \>   \>     yes \\
-    }
+Predicate {\tt listing/0} always succeeds.
 
-    Predicate {\tt listing/0} always succeeds.  The query:
+The query:
 
     \stuff{
     \>   \>     | ?- listing.
@@ -1554,32 +1560,71 @@ for the tabled subgoal that is a variant of {\tt Subgoal}.DF
     is just a notational shorthand for the query:
 
     \stuff{
-    \>   \>     | ?- listing(X).
+    \>   \>     | ?- listing(usermod:X).
     }
 
-\standarditem{listing(+Predicate\_Indicator)}{listing/1}
-    If {\tt Predicate\_Indicator} is a variable then {\tt listing/1} is
-    equivalent to {\tt listing/0}.
-    If {\tt Predicate\_Indicator} is an atom, then {\tt listing/1} 
-    lists the dynamic clauses for all predicates of that name found in 
-    module {\tt usermod} of the database.
-    The argument {\tt Predicate\_Indicator} can also be a predicate 
-    indicator of the form {\tt Name/Arity} in which case only the 
-    clauses for the specified predicate are listed.
-    Finally, it is possible for {\tt Predicate\_Indicator}
-    to be a list of predicate indicators and/or atoms; e.g.
+\index{mpdules}    
+\index{usermod}    
+\standarditem{listing(?Call)}{listing/1}
+
+Displays dynamic predicates to the current output stream.  The
+exact behavior of this predicate depends on how it is called.
+
+  \begin{itemize}
+    \item If {\tt Call} is a variable then {\tt listing/1} is
+        equivalent to {\tt listing/0}.
+      \item If {\tt Call} is partially bound but the outer functor is
+        not the module specifier {\tt :/2}
+        \begin{itemize}
+          \item If {\tt Call} is a predicate indicator (e.g., {\tt
+            p(...)} or {\tt p/n}) then any dynamic clauses for {\tt
+            p/n} in {\tt usermod} are displayed to the current output.
+          \item If {\tt Call} is an atom, then all dynamic clauses
+            with predicate symbol {\tt Call} in {\tt usermod} are
+            displayed, regardless of their arity.
+        \end{itemize}
+      \item If {\tt Call} is partially bound and the outer functor of
+        {\tt Call} is the module specifier {\tt :/2}
+        \begin{itemize}
+        \item If {\tt Call} has the form {\tt mod:Term} where {\tt mod}
+          is an atom specifying a current module.
+          \begin{itemize}
+            \item If {\tt Term} is a predicate indicator for for
+              predicate {\tt p} with arity {\tt n} then all dynamic
+              clauses for {\tt p/n} in {\tt mod} are displayed.
+            \item If {\tt Term} is an atom {\tt p} then all dynamic
+              clauses with predicate symbol {\tt p} in {\tt mod} are
+              displayed, regardless of their arity.
+            \item If {\tt Term} is a variable then all dynamic
+              clauses  in {\tt mod} are
+              displayed.
+          \end{itemize}
+        \item If {\tt Call} has the form {\tt Mod:Term} where {\tt Mod}
+          is a variable.
+          \begin{itemize}
+            \item If {\tt Term} is a predicate indicator for predicate
+              {\tt p} with arity {\tt n} then all dynamic clauses for
+              {\tt p/n} in any module are displayed.
+            \item If {\tt Term} is an atom {\tt p} then all dynamic
+              clauses with predicate symbol {\tt p} with any arity in
+              any module are displayed.{\tt mod} are displayed,
+          \end{itemize}
+        \end{itemize}
+  \end{itemize}
+    
+    Finally, it is possible for {\tt Call}
+    to be a list of terms of any of the above forms; e.g.
 
     \stuff{
-    \>   \>     | ?- listing([foo/2, bar, blah/4]).
+    \>   \>     | ?- listing([foo/2, bar, mod:blah/4]).
     }
 
-    If {\tt Predicate\_Indicator} is not a variable, an atom or a predicate 
-    indicator (or list of predicate indicators) of the form {\tt Name/Arity}, 
-    predicate {\tt listing/1} will simply fail.
+    If {\tt Call} is not any of the above forms {\tt listing/1} will
+    simply fail.
 
-    In future releases of \ourprolog, we intend to allow the user to
-    specify a predicate indicator of the form {\tt Module:Name/Arity} 
-    as argument of {\tt listing/1}.
+%    In future releases of \ourprolog, we intend to allow the user to
+%    specify a predicate indicator of the form {\tt Module:Name/Arity} 
+%    as argument of {\tt listing/1}.
 
 \ourmoditem{user\_dyn\_clause\_count}{user\_dyn\_clause\_count/0}{curr\_sym}
 %
@@ -2049,7 +2094,7 @@ about tabling operations as well as time.
   per tabled subgoal \cite{SaSw98} but the size of these frames is
   version-dependent.
 %
-\item Overall space used for tabling, followed by the amout of that
+\item Overall space used for tabling, followed by the amount of that
  overall space used for incremental tabling.  (Generally speaking,
  this is the space that is used to contruct the IDG.)
 \end{itemize}

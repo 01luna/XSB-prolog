@@ -81,10 +81,10 @@ build XSB.
 particular configurations.
 %
 \item {\tt docs} contains the user manuals and other documentation,
-including the technical documentation manual for developers.  
+including homepage sources.  
 %
-\item {\tt emu} contains the C source code for the XSB emulator, for
-I/O and for various interfaces.
+\item {\tt emu} contains the C source code for the XSB virtual
+  machine, for I/O and for various interfaces.
 %
 \item {\tt etc} contains miscellaneous files used by XSB.
 %
@@ -95,15 +95,17 @@ HiLog and various interfaces.
 compiler. 
 %
 \item {\tt gpp} contains a copy of the Gnu pre-processor used to
-preprocess Prolog files.
+  preprocess Prolog files when they are compiled or dynamically
+  loaded.
 %
 \item {\tt lib} contains Prolog source and object code for extended
-libraries. 
+librarie (cf. Section~\ref{library_utilities}). 
 %
-\item {\tt packages} The directory {\tt packages} contains the various
-applications, such as FLORA, the XMC model checker and many others.
-These applications are written in XSB and can be quite useful, but are
-not part of the XSB system per se.
+\item {\tt packages} The directory {\tt packages} contains various
+  interfaces (e.g., {\tt sgml}, {\tt minizinc}, {\tt curl} and {\tt
+    dbdrivers}); applications, such as {\tt chr}, {\tt pita} and {\tt
+    cdf}. along with a number of other interfaces and applications.
+  These packages are described in Volume 2 of this manual.
 %
 \item {\tt Prolog\_includes} contains include files for the Prolog
 libraries, which are preprocessed using GPP.
@@ -115,16 +117,18 @@ libraries.
 \noindent
 All Prolog source programs are written in XSB, and all object (byte
 code) files contain SLG-WAM instructions that can be executed by the
-emulator.  These byte-coded instructions are machine-independent, so
-usually no installation procedure is needed for the byte code files.
+virtual machine.  These byte-coded instructions are
+machine-independent, so usually no installation procedure is needed
+for the byte code files.
 
 If you are distributing an application based on XSB and need to cut
 down space, the {\tt packages}, {\tt examples} and {\tt docs}
 directories are not usually needed (unless of course you are using one
-of the packages in your application).  {\tt lib} may not be needed,
+of the packages in your application).  {\tt lib} might not be needed,
 (most core system files are in syslib) nor are Prolog source files
-necessary.  Unless your application needs to rebuild XSB, the {\tt
-  emu} and {\tt build} directories do not need to be distributed.
+necessary if they have alreaby been compiled into byte code.  Unless
+your application needs to rebuild XSB, the {\tt emu} and {\tt build}
+directories do not need to be distributed.
 
 \section{How XSB Finds Files: Source File Designators}  \label{sec:filenames}
 %
