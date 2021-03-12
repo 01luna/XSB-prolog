@@ -152,12 +152,13 @@ XSB~\footnote{Other types of files may be associated with foreign code
 %
 Most of the XSB system predicates for compiling, consulting, and
 loading code, such as {\tt consult/[1,2]}, {\tt compile/[1,2]}, {\tt
-  load\_dyn/1} and others are somewhat flexible in how they designate
-the file of interest.  Each of these predicates take as input a {\em
-  source file designator} which can be a base file name, a source file
-name; or the relative or absolute paths to a base or source file name.
-Unfortunately, the exact semantics of a file designator differs among
-system predicates in \version, as well as among platforms.
+  load\_dyn\_gen/2} and others are somewhat flexible in how they
+designate the file of interest.  Each of these predicates take as
+input a {\em source file designator} which can be a base file name, a
+source file name; or the relative or absolute paths to a base or
+source file name.  Unfortunately, in \version{} there remain minor
+differences in the ways in which the file designator can be indicated,
+by different system predicates across different platforms.
 
 In general, however, when given a source file designator, system
 predicates perform {\em name resolution}.  There are two steps to name
@@ -165,22 +166,23 @@ resolution: determining the proper directory prefix and determining
 the proper file extension.  When {\tt FileName} is absolute (i.e. it
 contains a path from the file to the root of the file system)
 determining the proper directory prefix is straightforward.  If {\tt
-  FileName} is relative, i.e. it contains a {\tt '/'} in Unix or {\tt
-  '/'} in Windows, {\tt FileName} is expanded to a directory prefix in
-an OS-dependent way, resolving symbols like {\tt '.'}, {\tt '..'} and
-{\tt '\~{}'} when applicable.  However, the user may also enter a name
-without any directory prefix. In this case, XSB tries to determine the
-directory prefix using a set of directories it knows about: those
-directories in the dynamic loader path (see Section~\ref{LibPath}).
-As it searches through directory prefixes, different forms of the file
-name may be checked.  If the source file designator has no extension
-the loader first checks for a file in the directory with the {\tt .P}
-extension, (or {\tt .c} for foreign modules) before searching for a
-file without the extension, and finally for a file with a {\tt .pl} or {\tt .prolog}
-extension.  Note that since directories in the dynamic loader path are
-searched in a predetermined order (see Section~\ref{LibPath}), if the
-same file name appears in more than one of these directories, the
-first one encountered will be used.
+  FileName} is relative, i.e. it contains a {\tt '/'} in Unix or
+\verb|\| in Windows, {\tt FileName} is expanded to a directory prefix
+in an OS-dependent way, resolving symbols like {\tt '.'}, {\tt '..'}
+and {\tt '\~{}'} when applicable.  However, the user may also enter a
+name without any directory prefix. In this case, XSB tries to
+determine the directory prefix using a set of directories it knows
+about: those directories in the dynamic loader path (see
+Section~\ref{LibPath}).  As it searches through directory prefixes,
+different forms of the file name may be checked.  If the source file
+designator has no extension the loader first checks for a file in the
+directory with the {\tt .P} extension, (or {\tt .c} for foreign
+modules); next checks for a file without the extension; and finally
+checks for a file with a {\tt .pl} or {\tt .prolog} extension.  Note
+that since directories in the dynamic loader path are searched in a
+predetermined order (see Section~\ref{LibPath}), if the same file name
+appears in more than one of these directories, the first one
+encountered will be used.
 
 \input{module_system} 
 
@@ -936,28 +938,30 @@ is fully documented in Section~\ref{sec:LoadDyn}.
 \end{description}
 % 
 
-\index{dynamic loading of files}
+\index{dynamic code!loading}
 \index{canonical format}
 \subsection{Dynamic Code} \label{sec:dynamic-code}
 % 
 In XSB, most source code file can also be ``consulted'' dynamically
-via the predicates {\tt load\_dyn/[1,2]}, {\tt load\_dync/[1,2]}, {\tt
-  ensure\_loaded/2} and several other predicates described in
-Section~\ref{sec:LoadDyn}.  These predicates act as {\tt consult/2} in
-that if a given file {\em File} has already been dynamically loaded,
-old versions of predicates defined in {\em File} will be retracted and
-their new definitions made to correspond to those in {\em File}
-(except for predicates in which a {\tt multifile/1} declaration is
-present in {\em File}).  Dynamic loading can be performed using XSB's
-reader of canonical terms (which does not include operators or HiLog, but does
-allow list and comma-list notation) via {\tt load\_dync/2} and {\tt
-  load\_dynca/1}; dynamic loading using XSB's general reader for Hilog
-terms is performed via {\tt load\_dyn/2}.
+via the predicates {\tt load\_dyn\_gen/2}, {\tt load\_dyn/[1,2]}, {\tt
+  load\_dync/[1,2]}, {\tt ensure\_loaded/[2,3]} And other predicates
+described in Section~\ref{sec:LoadDyn}.  These predicates act as {\tt
+  consult/2} in that if a given file {\em File} has already been
+dynamically loaded, old versions of predicates defined in {\em File}
+will be retracted and their new definitions loaded to correspond to
+those in {\em File} (except for predicates in which a {\tt
+  multifile/1} declaration is present in {\em File}).  Dynamic loading
+can be performed using XSB's reader of canonical terms (which does not
+include operators or HiLog, but does allow list and comma-list
+notation) via {\tt load\_dync/2} and {\tt load\_dynca/1}; dynamic
+loading using XSB's general reader for Hilog terms is performed via
+{\tt load\_dyn/2}.
 
 The predicates mentioned above are described more fully in
 Section~\ref{sec:LoadDyn}.  Here, we overview the tradeoffs of
 static and dynamic loading.
 
+\index{dynamic code!advantages and disadvantages}
 \bi
 \item Advantages for Dynamic Loading
 \bi
@@ -2195,6 +2199,7 @@ for certain data-intensive applications.
 
 \subsubsection{Indexing Directives}\label{indexing_directives}
 \index{indexing!directives}\index{directives!indexing}
+\index{dynamic code!indexing}
 %-------------------------------------------------------------
 
 The XSB compiler by default generates an index on the principal 
