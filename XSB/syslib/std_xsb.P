@@ -443,8 +443,9 @@ standard_symbol(shell_to_list, 3, shell).
 standard_symbol(shell_to_list, 4, shell).
 
 standard_symbol(sk_not, 1, tables).
-standard_symbol(not_exists, 1, tables).
 standard_metapredicate_template(sk_not,1,(0)).
+standard_symbol(not_exists, 1, tables).
+standard_metapredicate_template(not_exists,1,(0)).
 
 standard_symbol(sleep, 1, shell).
 standard_symbol(sleep_ms, 1, shell).
