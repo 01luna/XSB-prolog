@@ -1015,8 +1015,8 @@ inline static xsbBool file_function(CTXTdecl)
     if (read_codepoint == EOF) 
       ctop_string(CTXTc 3, "end_of_file");
     else {
-      char s[5],*ch_ptr,ss[5];
-      ch_ptr = (char *)utf8_codepoint_to_str(read_codepoint,(byte *) s); /* internal char always utf8 */
+      byte s[5],*ch_ptr,ss[5];
+      ch_ptr = utf8_codepoint_to_str(read_codepoint,(byte *) s); /* internal char always utf8 */
       *ch_ptr = '\0';
       io_port_to_fptrs(io_port,fptr,sfptr,charset);
       if (charset == UTF_8) {
