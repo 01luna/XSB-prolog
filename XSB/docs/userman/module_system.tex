@@ -385,7 +385,7 @@ them (i.e., cannot be predicates) and are not associated with modules.
 But 0-ary predicates can and are.
 
 In order to reduce ambiguity, a 0-ary predicate $p/0$ can be
-designated as $p()$.
+designated as $p()$, in addition to $p$.
 
 XSB automatically coerces atoms to 0-ary structure symbols and vice
 versa in a manner analogous to the coercion for non-predicate
@@ -400,55 +400,63 @@ meta-predicate known to XSB's compiler, or declares $p/0$ as dynamic.
 %However, passing an atom as an argument, and then calling it will always
 %call it in {\tt usermod}.
 
-\subsection{Dynamic Loading and How XSB Finds Code Files} 
+\subsection{Dynamic Loading and Importing} 
 
-When {\tt export} and {\tt import} directives are used, XSB
-dynamically (compiles if necessary and) loads the code on demand.
-When an imported predicate is called, if the code of the module has
-not been loaded into memory, the system finds the code file, compiles
-it if necessary, and loads the {\tt .xwam} file into memory.  Then it
-invokes the imported predicate.  See Section~\ref{LibPath} for the
-details of how the system finds and processes the appropriate XSB
-source files.
+XSB dynamically loads modules in two situations.  Most commonly if
+predicates areimported from a module $M$, $M$ is loaded at the first
+call to any of these predicates, compiling the file for $M$ is
+necessary.  In addition, if a predicate $P$ is not explicitly
+imported, but a call to $P$ is explicitly qualified with a module,
+e.g., $M:P$, $M$ is located, compiled if necessary, and loaded just as
+if it were imported.  See Section~\ref{LibPath} for the details of how
+the system finds and processes the appropriate XSB source files.
 
-\subsection{Consulting a Module}
-Normally all access to predicates defined in a module is by means of
-import declarations.  However, to debug a module it is often
-convenient just to consult it at the top-level and then call the
-exported predicates with test parameters, which is how non-modules are
-handled.  However, note that the predicate to be called after a module
-is loaded is in that loaded module, and {\bf not} in {\tt usermod}.  To
-allow the programmer to call a predicate exported from the consulted
-module without having to explicitly provide the module name, when a
-module is consulted, all exported predicates are also defined in {\tt
-  usermod} with their same definitions.  (In effect, for exported {\tt
-  p/2}, XSB implements {\tt :- import p/2 from $module$ as p/2.} in
-{\tt usermod} to provide direct access to {\tt p/2}'s code in $module$
-from the {\tt p/2} predicate in {\tt usermod}.)
+%\subsection{Consulting a Module}
+Usually, access to a predicate $P$ exported from a module $M$ occurs
+by means of an import statement or module qualification, as stated
+above.  However, to debug code in $M$ it is often convenient simply to
+consult it at the top-level and then call $P$ in the same way as if it
+were not in a module.
+As a technocal point, such a predicate $P$ is ``virtually'' defined in
+{\tt usermod} in addition to being defined in $M$.
+%(In effect, for exported {\tt p/2}, XSB implements {\tt :- import p/2
+%from $module$ as p/2.} in {\tt usermod} to provide direct access to
+%{\tt p/2}'s code in $module$ from the {\tt p/2} predicate in {\tt
+%usermod}.)  It is bad form to use this property and consult a module
+%in an executing program to get access to its exported predicates
+%through {\tt usermod}.  One should always explicitly import the
+%predicates one wants to use and let the dynamic loader automatically
+%load the module code on demand.
 
-It is bad form to use this property and consult a module in an
-executing program to get access to its exported predicates through
-{\tt usermod}.  One should always explicitly import the predicates one
-wants to use and let the dynamic loader automatically load the module
-code on demand.
+\index{Usage Inference}
+\index{Inference!Usage}
 
-\subsection{Usage Inference and the Module System}
-The import and export statements of a module $M$ are used by the
-compiler for inferring usage of predicates.  At compilation time, if a
-predicate $P/N$ occurs as callable in the body of a clause defined in
-$M$, but $P$ is neither defined in $M$ nor imported into $M$ from some
-other module, a warning is issued that $P/N$ is undefined.  Here
-``occurs as callable'' means that $P/N$ is found as a literal in the
-body of a clause, or within a system meta-predicate, such as {\tt
-assert/1}, {\tt findall/3}, etc.  Currently, occurrences of a term
-inside user-defined meta-predicates are not considered as callable by
-XSB's usage inference algorithm.  Alternatively, if $P/N$ is defined in
-$M$, it is {\em used} if $P/N$ is exported by $M$, or if $P/N$ occurs
-as callable in a clause for a predicate that is used in $M$.  The
-compiler issues warnings about all unused predicates in a module.  On
-the other hand, since all modules are compiled separately, the usage
-inference algorithm has no way of checking whether a predicate
-imported from a given module is actually exported by that module.
+\subsection{Usage Inference and the Module System} \label{sec:usenfer}
+In addition to supporting dynamic loading, the import and export
+statements of a module $M$ are used by the compiler for inferring {\em
+  usage} of predicates.  The following properties are determined at
+compile time.
+\begin{itemize}
+\item {\em Undefined Predicates} If a predicate $P/N$ occurs as
+  callable in the body of a clause defined in $M$, but $P$ is neither
+  defined in $M$ (including via a {\tt dynamic} declaration), nor
+  imported into $M$ from some other module, a warning is issued that
+  $P/N$ is undefined.  Here {\em occurs as callablez,} means that
+  $P/N$ is found as a literal in the body of a clause, or within a
+  system meta-predicate listed in Table~\ref{tab:meta-predicates}.
+  Currently, occurrences of a term inside user-defined meta-predicates
+  are not detected as callable by XSB's usage inference algorithm.
+
+    On the other hand, since all modules are compiled independently,
+    the usage inference algorithm has no way of checking whether a
+    predicate imported from a given module is actually exported by
+    that module.
+%
+\item Alternatively, if $P/N$ is defined in $M$, it is {\em used} if
+  $P/N$ is exported by $M$, or if $P/N$ occurs as callable in a clause
+  for a predicate that is used in $M$.  The compiler issues warnings
+  about all unused predicates in a module.  
+\end{itemize}
 
 \index{xsbdoc}
 \index{declarations!\texttt{document\_export/1}}
@@ -470,104 +478,131 @@ module if and only if it includes an {\tt export/1} statement, and
 only {\tt import/1} statements affect dynamic loading and name
 resolution for predicates.
 
-\subsection{Using Import to Load Usermod Source Files}
+\index{Pseudo-Modules}
+\index{Modules!Pseudo}
+\subsection{Importing with Pseudo-Modules}
 
-When the module system is used to import predicates, code files for
-modules are automatically found and dynamically (compiled and) loaded
-on first access.  But normally non-module source files must be
-explicitly consulted or ensure\_load-ed by some executing program.  To
-provide the convenience (and declarativity) of dynamic loading to
-usermod source files, XSB supports a directive of the form:
+As discussed, when the module system is used to import predicates,
+code files for modules are automatically found and dynamically
+(compiled and) loaded on first access.  But normally non-module source
+files must be explicitly consulted or loaded via{\tt []/2}, {\tt
+  ensure\_loaded/[1,2,3]} and so on.  To provide the convenience (and
+declarativity) of dynamic loading to non-modularized source files, XSB
+supports a directive of the form:
 
 \demo{:- import $Pred/Arity$ from usermod($File$).}
 
-\noindent Here $File$ must be the name of a file that contains XSB
-source code and is {\bf not} a module, i.e., it defines its predicates
-in {\tt usermod}.  It must define the predicate $Pred/Arity$.  In this
-case, when a goal to $Pred/Arity$ is called and does not yet have a
+\noindent 
+In the above directive, {\tt usermod($File$)} is called a {\em
+  pseudo-module reference}, and can be used in place of module
+references in import statements.  $File$ must be the name of an XSB
+source code file that contains $Pred/Arity$ and is {\bf not} a module,
+i.e., its predicates will be loaded into {\tt usermod}.  In this case,
+when a goal to $Pred/Arity$ is called and does not yet have a
 definition, the file $File$ is (compiled and) loaded, and the goal is
-called.  If $File$ is a base filename (without a slash), then the
-{\tt library\_directory/1} paths are used to find the correct file (as
-for normal modules.)  If the predicate already has a definition, that
-one is used.\footnote{If the existing definition can be determined to
-  have come from a different file, a warning is generated.}
+then called.  If $File$ is a base filename (without a slash), then the
+{\tt library\_directory/1} paths are used to find the correct file as
+for normal modules.
 
-So this facility allows code in non-module files to be treated
-somewhat like module files.  But, as usual, it is the user's
+%%% ??? If the predicate already has a definition, that
+%%one is used.
+
+Pseudo-module imports allow code in non-module files to be treated
+somewhat like module files.  In fact this facility, when carefully
+used, can eliminate the need for runtime {\tt consult/1} and {\tt
+  ensure\_loaded/1} commands.  But, as usual, it is the user's
 responsibility to ensure that different imported non-module files do
-not define the same predicate.  This facility, when carefully used,
-can eliminate the need for runtime {\tt consult/1} and {\tt
-  ensure\_loaded/1} commands.  The form {\tt usermod($File$)} is
-called a pseudo-module reference, and can be used in place of module
-references in import statements.
+not define the same predicate.  If $Pred/Arity$ has been defined in
+{\tt usermod} prior to the load of $File$, and the prior definition
+does not come from $File$, a warning is issued.
 
-Note that:
-
-\demo{:- document\_import $Pred/Arity$ from $File$.}
-
-\noindent can be replaced with
-
-\demo{:- import $Pred/Arity$ from usermod($File$).}
-  
-\noindent XSB does not automatically treat the former as the latter,
-for backwards compatibility.  They can have differing effects if the
-given file does not define the given predicate.
-
-XSB also supports a similar import directive form, exemplified by the
-following:
+Pseudo-module imports can also load dynamic code~\footnote{This
+  terminology may be somewhat confusing.  Dynamic loading, as seen,
+  loads code on its first use.  Dynamic code, as opposed to static
+  code, can be modified by {\tt assert/1}, {\tt retract/1} and similar
+  predicates.  Thus, either static code or dynamic code can be loaded
+  dynamically.}  using a form such as: following:
 
 \demo{:- import $Pred/Arity$ from usermod(load\_dyn($File$)).}
 
 \noindent This will cause the file $File$ to be loaded dynamically on
-first use.  It must, of course, define $Pred/Arity$.  The {\tt
-  load\_dyn} in this example may be replaced by any file-loading
-predicate whose first argument is the name of the file to load.  For
-example, one might also use:
+the first call to $Pred/Arity$.  ($File$ must of course define
+$Pred/Arity$.)  The {\tt load\_dyn} in this example may be replaced by
+any file-loading predicate whose first argument is the name of the
+file to load.  For example, one might also use:
 
-\demo{:- import $Pred/Arity$ from usermod(consult:load\_dync($File$,0)).}
+\demo{:- import $Pred/Arity$ from usermod(consult:load\_dync($File$,a)).}
 
-\noindent to dynamically load a file whose contents are canonical terms to be
-asserted in reverse order.  In fact, one may use:
+\noindent to dynamically load a file whose contents are canonical
+terms to be asserted in reverse order.  In fact, one can also use:
 
-\demo{:- import $Pred/Arity$ from usermod(proc\_files:load\_dsv($File$,$Pred/Arity$,[])).}
+\demo{:- import $Pred/Arity$ from usermod(proc\_files:load\_csv($File$,$Pred/Arity$)).}
 
 \noindent to load a comma-separated file with each line containing two
 fields to define the predicate $Pred/Arity$.  (See \ref{sec:procfiles}
 for details.)
 
+As an aside, for the purposes of usage inference
+(Section~\ref{sec:usenfer}) 
+
+\demo{:- document\_import $Pred/Arity$ from $File$.}
+
+\noindent is equivalent to 
+
+\demo{:- import $Pred/Arity$ from usermod($File$).}
+  
+\noindent However, the two forms are not equivalent in general: a
+pseud-module import is not considered by {\tt xsbdoc}, and {\tt
+  document\_import} does not dynamically load file.
+
+\index{Parameterized Modules}
+\index{Modules!Parameterized}
 \subsection{Parameterized Modules in XSB}
 
-The XSB module system now supports parameterized modules: A module can
-be parameterized by other modules.  A parameterized module is declared
-by including a directive of the form:
+The XSB module system now supports {\em parameterized modules} which
+allow a form of higher-order programming that makes it possible to
+program some tasks more declaratively -- and modularly.  More
+specifically, parameterized modules are higher-order constructs that
+use module parameters to represent sets of predicates.  At the same
+time, the semantics of parameterized modules is a conservative
+extension of the unparameterized module system described in previous
+sections. From a software engineering viewpoint, parameterized modules
+offer functionality similar to that of code injection in Java and
+other languages.
+
+Simply put, any module can be parameterized by other modules.  A
+parameterized module is declared by including a directive of the form:
 
 \demo{:- module\_parameters($atom_1$, \ldots, $atom_n$).}
 
-\noindent in the module code file.  The atoms, $atom_1$, \ldots,
-$atom_n$, are formal module parameters; when the module is loaded,
-those module names will be replaced by actual module names passed to
-the load operation.  Therefore, module names are now specified by
-ground terms: the main structure symbol specifies the base name of the
-file containing the module code (as before); the (optional) arguments
-of the module term indicate the names of (the other modules that are)
-the actual parameters to the (parameterized) module defined in this
-file.  Note that the parameters to modules {\em must} be other
-modules, and cannot be constants or any XSB term.  Parameterized
-modules are a conservative extension of the former unparameterized
-module system.
+\noindent in the module code file, $M$.  The ground atoms, $atom_1$,
+\ldots, $atom_n$, are formal module parameters; when the module is
+loaded, those module parameters will be replaced by the actual module
+names passed to the load operation.
 
-Parameterized modules support a form of higher-order programming which
-makes it possible to program some tasks more declaratively.  As a
-simple example, consider a module that takes a graph, an initial node
-in the graph, and a set of final nodes in the graph, and returns all
-final nodes reachable through the graph from the initial node.  A
-parameterized module for this task, named {\tt search}, is:
+Therefore, the general form of a module name is specified by a ground
+term: In our example, this would be
+
+\demo{$M(atom_1,\ldots, atom_n)$}
+
+\noindent
+where the main structure symbol specifies the base name module file;
+arguments of the module term, if any, indicate the names of the other
+modules that are the actual parameters to the (parameterized) module
+defined in this file.  Note that at run time, the parameters to
+modules {\em must} be other modules, and cannot be constants or any
+other XSB term.
+
+As a simple example, consider a module that takes a graph, an initial
+node in the graph, and a set of final nodes in the graph, and returns
+all final nodes reachable through the graph from the initial node.  A
+parameterized module for this task, named {\tt reachability}, is:
 \begin{verbatim}
-%% file: search.P
+%% file: reachability.P
 
-:- module_parameters(example_mod).
+:- module_parameters(some_graph).
 :- export reachable_final/1.
-:- import initial/1, move/2, final/1 from example_mod.
+:- import initial/1, move/2, final/1 from some_graph.
 
 reachable_final(F) :- reachable(F), final(F).
 
@@ -575,56 +610,71 @@ reachable_final(F) :- reachable(F), final(F).
 reachable(N) :- initial(N).
 reachable(N) :- reachable(P), move(P,N).
 \end{verbatim}
-This module, {\tt search}, is parameterized by another module that
-defines and exports (at least) 3 predicates: {\tt initial/1}, {\tt
-  move/2}, and {\tt final/1}.  When this module is loaded, a
-particular such module, exporting those predicates, must be provided to
-the loader, and the formal parameter {\tt example\_mod} will be
-replaced by that module and the predicates imported from that module
-will be used here in the definitions of {\tt reachable\_final/1} and
-{\tt reachable/1}.  So assuming a (non-parameterized) module named
-{\tt simple\_ex} exports those 3 predicates, both:
+This module, whose base name is {\tt reachability}, is parameterized
+by an argument module that exports (at least) 3 predicates: {\tt
+  initial/1}, {\tt move/2}, and {\tt final/1}.  For {\tt reachability}
+to be loaded, the argument parameter {\tt some\_graph} must be
+replaced by the name of an actual module that exports the three
+required predicates.  I.e, let us assume that a (non-parameterized)
+module named {\tt my\_graph} exports those 3 predicates: the actual
+module name would be {\tt reachability(my\_graph)}.  Both the {\tt
+  reachability} file and the {\tt my\_graph} file will be loaded at the
+same time, and the predicates imported from {\tt my\_graph} will be
+used here in {\tt reachable\_final/1} and {\tt reachable/1}.
+
+In this case, the module could be loaded by an import statement and
+executed:
 \begin{verbatim}
-| ?- import reachable_final/1 from search(simple_ex).
+| ?- import reachable_final/1 from reachability(my_graph).
 | ?- reachable_final(ReachableFinalState).
 \end{verbatim}
-and:
+Or the module could be loaded by an explicit qualification:
 \begin{verbatim}
-| ?- search(simple_ex):reachable_final(ReachableFinalState).
+| ?- reachability(my_graph):reachable_final(ReachableFinalState).
 \end{verbatim}
-will return the reachable final states for the problem defined by
-{\tt simple\_ex}.
+Both of these forms return the reachable final states for the problem
+parameterized by {\tt my\_graph}.
 
-This is second-order in the sense that a module parameter represents a
-set of predicates.  Note that this example is (in some sense) fully
-declarative, in that there is no explicit procedural code necessary to
-load the code for a particular example.  All loading is handled by
-XSB's existing dynamic loader.  And this same search module can be
-run with many different examples.
+Note that this example is declarative in the sensethat there is no
+explicit procedural code necessary to load the code for a particular
+example.  All loading is handled by XSB's existing dynamic loader.
+And this same search module can be run with many different examples.
 
 Parameterized modules are implemented in XSB as follows.  When a
 parameterized module is to be loaded into memory, the formal
-parameters are replaced by the actual parameters and that code is
-loaded.  (This is actually done by renaming symbols as they are
-loaded, so there is minimal effect on loading time.)  This
+parameters in the byte code file are replaced by the actual parameters
+and that code is loaded.  (This is actually done by renaming symbols
+as they are loaded, so there is minimal effect on loading time.)  This
 implementation has two consequences: 1) the performance of code in
 parameterized modules is {\em exactly} the same as if the user had
 explicitly written the module with the actual parameter modules, and
-2) every instance of a parameterized module has its own version of the
-module code.  So loading a thousand different instances of a
-parameterized module will take a thousand times the space of a single
-instance.  In most uses 
+2) every instance of a parameterized module has its own version of
+code.  So loading a thousand different instances of a parameterized
+module will take a thousand times the space of a single instance.  In
+practical uses
 %(that I know of so far) 
-this is not a significant problem, but it should be kept in mind.
+this should not be a significant problem, but it should be kept in
+mind.
 
-One could load another instance of the above module to test the search
-algorithm with a different example by:
+As an example of this, one could load another instance of {\tt
+  reachability} to execute the search algorithm on a different graph
+by:
 \begin{verbatim}
-| ?- search(hard_ex):reachable_final(ReachableFinalState).
+| ?- reachability(my_other_graph):reachable_final(ReachableFinalState).
 \end{verbatim}
-This would load another, different, instance of the search module,
-named {\tt search(hard\_ex)}.  Both would be in memory and usable by
-the user and by other programs and modules.
+This would load teo instances of the {\tt reachability} module, the
+first loaded:
+
+\demo{{\tt reachability(my\_graph)}.}
+
+\noindent
+and the newly loaded:
+
+\demo{{\tt reachability(my\_other\_graph)}.}
+
+\noindent
+Both modules would behave exactly as other modules. with their code
+accessable to the user as well as to other programs and modules.
 
 So modules in XSB's runtime system can now identified by module names
 that are terms, not simply constants. Accordingly, anywhere a module
@@ -633,25 +683,26 @@ can be used.  The module name must be ground at the time it is
 required for use in order to load specific code; and all structure
 symbols and atoms in the structured module identifier must identify
 actual files that contain the appropriate module's code; and finally
-those files must be able to be found by the XSB loader.
+those files must be on a library path for the session in order to be
+found by the XSB loader.
 
 To write well-structured and maintainable code, it is strongly
 recommended that all uses of parameterized modules be done through
 {\tt use\_module/2} or {\tt import} directives explicitly appearing in
-XSB code.  The explicit form of using the ':' operator to give a
-module name at runtime should be avoided.  (The sole exception is when
-the user types in such a goal on the top-level command line.)  Using
-only explicit import directives allows compile-time analysis of module
-dependencies which can be critical in maintaining large XSB code
-bases. This also requires that the extension of the {\tt
-  library\_directory/1} predicate can be known at compile time, which
-implies programmer discipline in changing that predicate as
-well.\footnote{As may be obvious, this has been learned through much
-  painful experience. -dsw}.
+XSB code.  The use of module qualification via {\tt :/2} at runtime
+should usually be avoided.  (The sole exception is when the user types
+in such a goal on the top-level command line.)  Using only explicit
+import directives allows better compile-time analysis of modules and
+their dependencies, a factor that can be critical in maintaining large
+XSB code bases. This also requires that the run time search paths be
+available at compile time, which implies programmer discipline in
+changing that predicate as well
+(cf. Section~\ref{sec:search-path}).\footnote{As may be obvious, this
+  has been learned through much painful experience. -dsw}.
 
 While parameterized modules can be used in many ways, one of the most
-important is in the construction of so-called ``view systems.''  A view
-(in the traditional relational database sense) is a relational
+important is in the construction of so-called {\em view systems}.  In
+the traditional relational database sense, a view is a relational
 operator that takes a set of input relations and views, and produces
 an output relation.  By composing views one can build large and
 complex systems of data transformations in a completely declarative
@@ -664,11 +715,11 @@ base and view relations it depends on.  These input relations can be
 defined in base modules, and a view module is parameterized by the
 base modules it depends on.  Then the same view module can be applied
 to the particular input tables obtained from a particular source.
+Finally, such a view system can be efficiently implemented and
+maintained by XSB's incremental tabling
+(Section~\ref{sec:incremental_tabling}).
 
 %[-dsw: Provide a simple example of a view system...]
-
-
-
 
 %%% Local Variables: 
 %%% mode: latex
