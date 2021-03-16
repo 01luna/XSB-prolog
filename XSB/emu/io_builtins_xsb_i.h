@@ -279,6 +279,9 @@ inline static xsbBool file_function(CTXTdecl)
       return TRUE;
     }
     
+#if defined(USE_UNGETC_BUFFER) || defined(USE_GETC_UNGETC_BUFFER)
+    if (mode == OREAD) unbuffind = 0; // in case unbuff left non-empty
+#endif
     /* we reach here only if the mode is OREAD,OWRITE,OAPPEND */
     addr = expand_filename(tmpstr);
 

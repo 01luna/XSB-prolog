@@ -3,8 +3,8 @@
 
 %%%% cp1252
 
-test :- test_gp,fail.
 test :- test_rw,fail.
+test :- test_gp,fail.
 test.
 
 test_rw :-
