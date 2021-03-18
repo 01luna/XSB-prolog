@@ -1,4 +1,4 @@
-\chapter{System Description} \label{chap:system}
+aa\chapter{System Description} \label{chap:system}
 \label{system}
 
 Throughout this chapter, we use \verb'$XSB_DIR' to refer to the
@@ -191,7 +191,7 @@ encountered will be used.
 %========================================================
 
 Whenever XSB is invoked, a large set of {\em standard} predicates are
-defined and can be called from the interpreter or other
+defined and can be called from the command-line interpreter or other
 interface~\footnote{Such predicates are sometimes called ``built-ins''
   in other Prologs.}.  These predicates include the various ISO
 predicates~\cite{ISO-Prolog}, along with predicates for tabling, I/O,
@@ -199,15 +199,13 @@ for interaction with the operating system, for HiLog, and for much
 other functionality.  Standard predicates are listed in this manual
 under the index heading {\em Standard predicates} and at an
 implementation level are declared in the file {\tt
-  \$XSB\_DIR/syslib/std\_xsb.P}.  If a user wishes to redefine a
-standard predicate, she has several choices.  First, the appropriate
-fact in {\tt \$XSB\_DIR/syslib/std\_xsb.P} should be commented out.
-Once this is done, a user may define the predicate as any other user
-predicate.  Alternately, the compiler option {\tt allow\_redefinition}
-can be used to allow the compiler to redefine a standard predicate
+  \$XSB\_DIR/syslib/std\_xsb.P}.
+
+If a user wishes to redefine a standard predicate, the compiler option
+{\tt allow\_redefinition} can be used
 (Section~\ref{sec:CompilerOptions}).  If a user wants to make a new
 definition or new predicate standard, the safest course is to put the
-predicate into a module in the {\tt lib} directory, and add or modify
+predicate into a module in the {\tt lib} directory, then add or modify
 an associated fact in {\tt \$XSB\_DIR/syslib/std\_xsb.P}.
 
 %========================================================
@@ -226,39 +224,46 @@ Section~\ref{Modules}) is called during execution, the dynamic loader
 is invoked automatically if the module is not yet loaded into the
 system, The default action of the dynamic loader is to search for the
 byte code file of the module first in the system library directories
-(in the order {\tt lib, syslib}, and then {\tt cmplib}), and finally
-in the current working directory.  If the module is found in one of
-these directories, then it will be loaded ({\em on a first-found
-basis}). Otherwise, an error message will be displayed on the current
-error stream reporting that the module was not found.  Because system
-modules are dynamically loaded, the time it takes to compile a file is
-slightly longer the first time the compiler is invoked in a session
-than for subsequent compilations.
+(e,g,, {\tt lib, syslib, cmplib} others), and finally in the current
+working directory.  The exact directories and their order can be found by backtracking through the query:
+
+\demo{loader:library\_directory(Dir)}
+
+If the module or file is found in one of these directories, then it
+will be loaded ({\em on a first-found basis}). Otherwise, an existence
+error will be displayed on the current error stream reporting that the
+module or file was not found.
+
+%Because system modules are dynamically
+%loaded, the time it takes to compile a file is slightly longer the
+%first time the compiler is invoked in a session than for subsequent
+%compilations.
 
 
-\subsection{Changing the Default Search Path and the Packaging System} \label{sec:search-path}
+\index{\texttt{library\_directory/1}}
+\index{environment variables!{\tt XSB\_USER\_AUXDIR}}
+\subsection{Changing the Default Search Path} \label{sec:search-path}
 %=========================================================
 %\begin{description}
 %\repeatstandarditem{add\_lib\_dir(+Directories)}{consult}
 %\standarditem{add\_lib\_dir(+Root,+Directories)}{consult}
 %\end{description}
-\index{xsbrc.P initialization file} 
 The default search path of the dynamic loader is based on the dynamic
 predicate {\tt library\_directory/1} so it can easily be changed.  For
 instance, to make sure a user's home directory is loaded, the goal
 \verb|add_lib_dir(('~/'))|  needs to be executed from the
 %\verb|assert(library_directory('~/'))| needs to be executed from the
-command line or from within a program (assuming this is not the
-current working directory).  If you always want XSB to search
-particular directories, the easiest way is to have a file named
-{\verb|.xsb/xsbrc.P|} in your home directory.
-(Or, if the environment variable \texttt{XSB\_USER\_AUXDIR} is set then
-{\verb|$XSB_USER_AUXDIR/xsbrc.P|} is used.)
-User-supplied library
-directories are searched by the dynamic loader {\em before} searching
-the default library directories.  The {\verb|.xsb/xsbrc.P|} file,
-which is automatically consulted by the XSB interpreter, might look
-like the following:
+command line or from within a program (of course if the user's home
+directory is the current working directory, this is not necessary).
+If you always want XSB to search particular directories, the easiest
+way is to have a file named {\verb|.xsb/xsbrc.P|} in your home
+directory.  (Or, if the environment variable
+\texttt{XSB\_USER\_AUXDIR} is set then
+       {\verb|$XSB_USER_AUXDIR/xsbrc.P|} is used.)  User-supplied
+       library directories are searched by the dynamic loader {\em
+         before} searching the default library directories.  The
+       {\verb|.xsb/xsbrc.P|} file, which is automatically consulted by
+       the XSB interpreter, might look like the following:
 \begin{verbatim}
              :- add_lib_dir(('~/')).
              :- add_lib_dir(('/usr/lib/xsbprolog')).
@@ -269,8 +274,8 @@ like the following:
 %{\tt add\_lib\_dir/1} or {\tt add\_lib\_dir/2}.
 
 \begin{description}
-\repeatstandarditem{add\_lib\_dir(+Directories)}{consult}
-\standarditem{add\_lib\_dir(+Root,+Directories)}{consult}
+\repeatstandarditem{add\_lib\_dir(+Directories)}{add\_lib\_dir/1}
+\standarditem{add\_lib\_dir(+Root,+Directories)}{add\_lib\_dir/1}
 %
 The standard predicate {\tt add\_lib\_dir(Directories)} adds the
 directories of {\tt Directories} to the system predicate {\tt
@@ -281,15 +286,15 @@ which indicates that the directory {\tt DirName} should be added as
 the first directory in the {\tt library\_directory/1} facts; otherwise
 it will be added as the last directory.  
 
-In the example above \verb|add_lib_dir(('~/'))|, note that the ``extra
-parentheses'' are needed since {\tt add\_lib\_dir/1} takes a single
-argument, here a comma-pair.  Also the trailing slash in a directory
-name is optional.
-
 The standard predicate {\tt add\_lib\_dir(+Root,+RelativeDirectories)}
 concatenates the directory indicated by {\tt Root} to each of the
 relative directory names in (the comma-list) {\tt RelativeDirectories}
 and adds them all to {\tt library\_directory/1}.
+
+In \verb|add_lib_dir(('~/'))| in the example above, note that the
+``extra parentheses'' are needed since {\tt add\_lib\_dir/1} takes a
+single argument, here a comma-pair.  Also the trailing slash in a
+directory name is optional.
 
 For example, to add two XSB library directories from a set of
 libraries stored under a particular directory containing all XSB
@@ -311,17 +316,16 @@ filename of XSB code files, and allowing directories of libraries to
 be moved.
 \end{description}
 
+\index{xsbrc.P initialization file} 
 \subsubsection{A user's configuration file: {\tt xsbrc.P}}
-
-%TES -- stopped here ___
 
 Returning to the previous example, executing the two directives causes
 the user's home directory to be searched first, then {\tt
-  "/usr/lib/xsbprolog/"}, and finally XSB's system library directories
-({\tt lib, syslib}, {\tt cmplib}), and finally the current working
-directory.  The directives themselves can be executed by expicitly
-loading an XSB file, by executing the directives at the command line,
-or automatically using an {\tt .xsb/xsbrc.P} file.  
+  "/usr/lib/xsbprolog/"}, then XSB's system library directories, and
+finally the current working directory.  Although these directives
+byexecuting the directives at the command line or by loading a file
+with these directives, it can also be performed automatically whenever
+XSB is started by using an {\tt .xsb/xsbrc.P} file.
 
 %Xsb also uses {\tt library\_directory/1} for internal
 %purposes.  
@@ -331,14 +335,14 @@ directory \verb|.xsb/config/$CONFIGURATION| on the library search
 path.  The directory \verb'.xsb/config/$CONFIGURATION' is used to
 store user libraries that are machine or OS
 dependent. (\verb'$CONFIGURATION' for a machine is something that
-looks like {\tt sparc-sun-solaris2.6} or {\tt pc-linux-gnu}, and is
-selected by XSB automatically at run time).  If a user wished, say, to
-search the current working directory {\em before} her home directory,
-she could simply add
-\begin{verbatim}
-             :- asserta(library_directory('./')).
-\end{verbatim}
-or better
+looks like {\tt i386-apple-darwin19.6.0} or {\tt pc-linux-gnu}, and is
+selected by XSB automatically at run time).  These
+configuration-specific directories are useful to maintain a user's
+OS-dependent XSB code for foreign-language modules, or scripts that
+make heavy use of {\tt shell/[1-3]}.
+
+If a user wished, say, to search the current working directory {\em
+  before} her home directory, she could simply add
 \begin{verbatim}
              :- add_lib_dir(a('./')).
 \end{verbatim}
@@ -355,12 +359,12 @@ predicates.  The list of module names in XSB's system library
 directories can be found by looking through the directories {\tt
 \$XSB\_DIR/\{syslib,cmplib,lib\}}.
 
-\paragraph{Packages}
-\index{packages}
-Apart from the user libraries, XSB now has a simple packaging system.
-A {\em package\/} is an application consisting of one or more files that
-are organized in a subdirectory of one of the XSB system or user libraries.
-The system directory \verb|$XSB_DIR/packages| has a number of examples
+\subsection{The Packaging System}
+\index{packages} Apart from the user libraries, XSB also has a simple
+packaging system.  A {\em package\/} is an application consisting of
+one or more files that are organized in a subdirectory of one of the
+XSB system or user libraries.  The system directory
+\verb|$XSB_DIR/packages| has a number of examples
 %%$
 of such packages, many of which are documented in Volume 2 of this
 manual, or contain their own manuals.  Packages are convenient
@@ -368,16 +372,13 @@ as a means of organizing large XSB applications, and for simplifying
 user interaction with such applications.  User-level packaging is
 implemented through the predicate
 %%
-\begin{verbatim}
-     bootstrap_userpackage(+LibraryDir, +PackageDir, +PackageName).
-\end{verbatim}
+\begin{description}
+  \ourmoditem{bootstrap\_userpackage(+LibraryDir, +PackageDir, +PackageName)}{bootstram\_userpakage/3}{packaging}
+\end{description}
 %%
-\index{packages!\texttt{bootstrap\_userpackage/3}}
-which must be imported from the {\tt packaging} module. 
-
-To illustrate, suppose you wanted to create a package, {\tt foobar}, inside
-your own library, {\tt my\_lib}. Here is a sequence of steps you can
-follow:  
+To illustrate the use of this predicate suppose you wanted to create a
+package, {\tt foobar}, inside your own library, {\tt my\_lib}. Here is
+a sequence of steps you can follow:
 %%
 \begin{enumerate}
 \item Make sure that {\tt my\_lib}\ is on the library search path by putting
@@ -398,75 +399,44 @@ follow:
   simply type \verb|[foobar].| at the XSB prompt. This is because both and
   \verb|~/my_lib/foobar| have already been automatically added to the
   library search path.
-\item If your application files export many predicates, you can simplify
-  the use of your package by having \verb|~/my_lib/foobar.P| import all
-  these predicates, renaming them, and then exporting them. This provides a
-  uniform interface to the {\tt foobar} module, since all the package
-  predicates are can now be imported from just one module, {\tt foobar}.
+\item If your application files export many predicates, you can
+  simplify the use of your package by having \verb|~/my_lib/foobar.P|
+  import all these predicatesand then export them, renaming them if
+  desired (see the discussion of {\tt import ... as} in
+  Section~\ref{Modules}).  This provides a uniform interface to the
+  {\tt foobar} module, since all the package predicates can now be
+  imported from just one module, {\tt foobar}.
 \end{enumerate}
 %%
 In addition to adding the appropriate directory to the library search
 path, the predicate \verb|bootstrap_userpackage/3| also adds
-information to the predicate \verb|package_configuration/3|, so that
-other applications could query the information about loaded packages.
+information to the predicate
 
-Packages can also be unloaded using the predicate
-\verb|unload_package/1|. For instance, 
+\demo{package\_configuration/3}
 
+\noindent
+so that other applications could query information about loaded
+packages.
+
+\begin{description}
+\ourmoditem{unload\_package(+Package)}{unload\_package/1}{packaging}
 %%
+Can be used to unload {\tt Package}.  For instance,
+
 \begin{verbatim}
        :- unload_package(foobar).  
 \end{verbatim}
 %%
-removes the directory \verb|~/my_lib/foobar| from the library search path
-and deletes the associated information from \verb|package_configuration/3|.
+removes the directory \verb|~/my_lib/foobar| from the library search
+path and deletes the associated information from
+\verb|package_configuration/3|.
+\end{description}
 \index{packages!\texttt{unload\_package/1}}
 \index{packages!\texttt{package\_configuration/2}}
 
 Finally, if you have developed and tested a package that you think is
 generally useful and you would like to distribute it with XSB, please
 contact {\tt xsb-development@sourceforge.net}.
-
-
-\subsection{Dynamically loading predicates in the interpreter}
-%=============================================================
-Modules are usually loaded into an environment when they are consulted
-(see Section~\ref{Consulting}).  Specific predicates from a module can
-also be imported into the run-time environment through the standard
-predicate {\tt import PredList from Module}\index{declarations!\texttt{import/1}}.
-Here, {\tt PredList} can either be a Prolog list or a comma list.
-(The {\tt import/1} can also be used as a directive in a source module
-(see Section~\ref{Modules}). \index{standard predicates}
-
-We provide a sample session for compiling, dynamically loading, and
-querying a user-defined module named {\tt quick\_sort}.  For this
-example we assume that {\tt quick\_sort.P} is a file in the current
-working directory, and contains the definitions of the predicates {\tt
-concat/3} and {\tt qsort/2}, both of which are exported.
-
-{\footnotesize
-\begin{verbatim}
-             | ?- compile(quick_sort).
-             [Compiling ./quick_sort]
-             [quick_sort compiled, cpu time used: 1.439 seconds]
-
-             yes
-             | ?- import concat/3, qsort/2 from quick_sort. 
-
-             yes
-             | ?- concat([1,3], [2], L), qsort(L, S).
-
-             L = [1,3,2]
-             S = [1,2,3]
-
-             yes.
-\end{verbatim}
-}
-
-The standard predicate {\tt import/1} does not load the module 
-containing the imported predicates, but simply informs the system 
-where it can find the definition of the predicate when (and if) the
-predicate is called.
 
 
 \section{Command Line Arguments} \label{sec:EmuOptions}
@@ -524,46 +494,37 @@ Flags:
  --max_subgoal_size  N : set maximum tabled subgoal size to N (default is maximum integer)
 --max_subgoal_action A : set action on maximum subgoal depth: e(rror)/a(bstract)/w(arn)
          --max_tries N : allow up to N tries for interning terms
-   --shared_predicates : make predicates thread-shared by default
-            -g gc_type : choose heap garbage collection ("indirection","none" or "copying")
+            -g gc_type : choose heap garbage collection ("indirection" or"none")
            -c N [unit] : initially allocate N units (default KB) for the trail/choice-point stack
            -m N [unit] : initially allocate N units (default KB) for the local/global stack
            -o N [unit] : initially allocate N units (default KB) for the SLG completion stack
+                   unit: k/K memory in kilobytes; m/M in megabytes; g/G in gigabytes
                     -r : turn off automatic stack expansion
                     -T : print a trace of each called predicate
 
-          unit: k/K memory in kilobytes; m/M in megabytes; g/G in gigabytes
 \end{verbatim}
 }
+%   --shared_predicates : make predicates thread-shared by default
 %       --max_threads N : maintain information for up to N threads (MT engine only)
 %       --max_mqueues N : allow up to N message queues (MT engine only)
 
-\subsection{Command-line Options}  These options tend to be most useful for developers.
-
-\begin{description}
-\item[{\tt -t}] Traces through code at SLG-WAM instruction level.
-  This option is intended for developers and is not fully supported.
-  It is also not available when the system is being used at the
-  non-debug mode (see Section~\ref{debugging}).
-\item[{\tt -D}] Tells XSB to use a top-level command loop driver specified
-  here instead of the standard XSB interpreter. This is most useful when
- XSB is used as a server.
-\item[{\tt -d}] Produces a disassembled dump of {\tt byte\_code\_file} to 
-    {\tt stdout} and exits.
-\end{description}
-
 %\paragraph*{Flags}
 
-\subsection{General Flags}
-The order in which flags appear makes no difference.
+\index{scripting}
+\subsection{General Options}
+The order in which potions appear makes no difference.
 \begin{description}
-\item[{\tt -e goal}] Pass {\tt goal}  to XSB at startup. This goal is evaluated
-    right before the first prompt is issued. For instance, 
-    \verb'xsb -e "write('Hello!'), nl."'
-    will print a heart-warming message when XSB starts up.
+\item[{\tt -e goal}] Pass {\tt goal} to XSB at startup. This goal is
+  evaluated right before the first prompt is issued. For instance,
+  \verb'xsb -e "write('Hello!'), nl."'  will print a heart-warming
+  message when XSB starts up.  Since {\tt goal} can be any
+  command-line goal (including a conjuction or disjunction of other
+  goals, including {\tt halt}, this option serves as a convenient way
+  to use XSB in scripts, or for scripting, particularly in combination
+  with some of the following options.
 %
 \item[{\tt -p}] Enables the engine to collect information that can be
-  used for profiling.  See Volume 2 of this manual for details.
+  used for profiling.  See Section~\ref{sec:profile} for details.
 %
 \item[{\tt -l}] Forces the interpreter to print unbound variables as
 	letters, as opposed to the default setting which prints
@@ -640,45 +601,51 @@ xsb --noprompt --quietload --nobanner --nofeedback -e "writeln(hello),halt."
 
 hello world
 \end{verbatim}
-So that XSB can be used to write reasonable scripts.
+So that XSB can be used to write reasonable scripts, or used as a subprocess.
 %\item[{\tt --max\_threads N}] Allows XSB to maintain information for
 %  up to {\tt N} threads.  This means that XSB can currently run {\tt
 %    N} threads that are active, or that are inactive, non-detached,
 %  and not yet joined.  Has no effect if the engine has been configured
 %  without multi-threading.
+\item[{\tt -D}] Tells XSB to use a top-level command loop driver specified
+  here instead of the standard XSB interpreter. This is most useful when
+ XSB is used as a server.
 \index{tabling!call subsumption}
-\index{tabling!shared}
 \item[{\tt -S}] Indicates that tabled predicates are to be evaluated
   using subsumption-based tabling as a default for tabled predicates
-  whose tabling method is not specified by using {\tt table Predspec
-    as subsumptive} or {\tt table Predspec as variant}(see Section
-  \ref{sec:TablePred:Decl&Mod}).  If this option is not specified,
-  variant-based tabling will be used as the default tabling method by
-  XSB\@.  \index{shared\_predicates}
-\item[{\tt --shared\_predicates}] In the multi-threaded engine, makes
-    all predicates thread-shared by default; has no effect in the
-    single-threaded engine.
+  whose tabling method is not specified by using
+
+  {\tt table Predspec as subsumptive}
+
+or 
+
+{\tt table Predspec as variant}
+  
+\noindent
+  (see Section \ref{sec:TablePred:Decl&Mod}).  If this
+  option is not specified, variant-based tabling will be used as the
+  default tabling method by XSB\@.  \index{shared\_predicates}
+%\index{tabling!shared}
+%\item[{\tt --shared\_predicates}] In the multi-threaded engine, makes
+%    all predicates thread-shared by default; has no effect in the
+%    single-threaded engine.
+  %
 %
-\item[{\tt -T}] Generates a trace at entry to each called predicate
-    (both system and user-defined).  This option is available mainly
-    for people who want to modify and/or extend XSB, and it is
-    {\em not\/} the normal way to trace XSB programs.  For the
-    latter, the standard predicates {\tt trace/0} or {\tt debug/0}
-    should be used (see Chapter~\ref{debugging}).
-    Note: This option is not available when the system is being used
-    at the non-tracing mode (see Section~\ref{debugging}).
-%
-\item[{\tt --max\_subgoal\_size} {\em N}] : set maximum tabled subgoal
-  size to {\em N} (default is maximum integer).  This flag sets the
-  size of a tabled subgoal upon which an action may be taken (such as
-  throwing an error, abstracting, or issuing a warning.
-%
-\item[{\tt --max\_subgoal\_action} {\em A}] : set action on maximum
-  subgoal depth: e(rror)/a(bstract)/w(arn)
+%\item[{\tt --max\_subgoal\_size} {\em N}] : set maximum tabled subgoal
+%  size to {\em N} (default is maximum integer).  This flag sets the
+%  size of a tabled subgoal upon which an action may be taken (such as
+%  throwing an error, abstracting, or issuing a warning.
+%%
+%\item[{\tt --max\_subgoal\_action} {\em A}] : set action on maximum
+%  subgoal depth: e(rror)/a(bstract)/w(arn)
 \end{description}
 %
 %\end{description}
-\subsection{Memory Management Flags} \label{sec:memory-flags}
+\subsection{Other Command-line Options}
+%
+These options tend to be most useful for developers, and are not needed by most users.
+
+\subsubsection{Memory Management Options} \label{sec:memory-flags}
 
 \begin{description}
 \index{garbage collection}
@@ -687,11 +654,22 @@ So that XSB can be used to write reasonable scripts.
     indirection}  or {\tt
     none}. See \cite{CaSC01} for a description of the indirection
   garbage collector.
-
+\end{description}
 %; {\tt copying}, which is not fully supported;
 %, and \cite{CATmem@ISMM-98} for the copying garbage
 %  collector.
 %
+The following memory management flags should rarely need to be used by
+non-developers since XSB's memory management has been quite stable for
+a number of years.
+
+\begin{description}
+\item[{\tt -r}] Turns off automatic stack expansion.  This can
+  occasionally be useful for isolating memory management problems.
+  (Usually when working with XSB developers.)  This command-line
+  argument is obsolescent, since XSB has moved towards the use of
+  Prolog flags as a uniform interface for session control.
+
 \item[{\tt -c} {\em size [units]}] Allocates {\em initial size\/}
   units of space to the trail/choice-point stack area.  The trail
   stack grows upward from the bottom of the region, and the choice
@@ -726,9 +704,6 @@ So that XSB can be used to write reasonable scripts.
 %  specified a default initial size is used; this size may differ for
 %  the single-threaded and multi-threaded engine.
 
-\item[{\tt -r}] Turns off automatic stack expansion.  This can
-  occasionally be useful for isolating memory management problems.
-  (Usually when working with XSB developers.)
 %
 % \item[{\tt -u} {\em size [units]}] Allocates {\em initial size} KBytes of
 %   space to the unification (and table copy) stack.  If units is not
@@ -742,6 +717,28 @@ So that XSB can be used to write reasonable scripts.
 %
 %\item[{\tt -n}] Formerly used in conjunction when XSB was called from
 %  C.  This option is used only for backward compatibility.
+\end{description}
+
+\subsubsection{Options for Developers}
+\begin{description}
+\item[{\tt -d}] Produces a disassembled dump of {\tt byte\_code\_file} to 
+    {\tt stdout} and exits.
+  \item[{\tt -t}] Traces through code at SLG-WAM instruction level.
+  This option is intended for developers and is not fully supported.
+  It is also not available when the system is being used at the
+  non-debug mode (see Section~\ref{debugging}).
+\item[{\tt -T}]
+    {\em This flag is rarely used}
+
+    Generates a trace at entry to each called predicate
+    (both system and user-defined).  This option is available mainly
+    for people who want to modify and/or extend XSB, and it is
+    {\em not\/} the normal way to trace XSB programs.  For the
+    latter, the standard predicates {\tt trace/0} or {\tt debug/0}
+    should be used (see Chapter~\ref{debugging}).
+    Note: This option is not available when the system is being used
+    at the non-tracing mode (see Section~\ref{debugging}).
+
 \end{description}
 
 \section{Memory Management}\label{memory_management}
@@ -761,8 +758,8 @@ Section~\ref{sec:EmuOptions}).
 %process, the size of the thread's execution stacks may be set by {\tt
 %  thread\_create/3}, otherwise the default values indicated in
 %Section~\ref{sec:EmuOptions} are used.
-Once XSB is running, these
-default values may be modified using the appropriate Prolog flags (see
+%Once XSB is running, these
+%default values may be modified using the appropriate Prolog flags (see
 Section~\ref{State}).
 %In addition, whenever a thread exits, memory
 %specific to that thread is reclaimed.
@@ -959,7 +956,7 @@ loading using XSB's general reader for Hilog terms is performed via
 
 The predicates mentioned above are described more fully in
 Section~\ref{sec:LoadDyn}.  Here, we overview the tradeoffs of
-static and dynamic loading.
+loading static and dynamic code.
 
 \index{dynamic code!advantages and disadvantages}
 \bi
@@ -1598,18 +1595,18 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
   compilation.  The result is in Prolog source code form.
 
 %---------------------------------------------
-\index{unification factoring!compiler options}
-%---------------------------------------------
-\item[{\tt ti\_dump}]\index{compiler options!\texttt{ti\_dump}}
-	Generates a {\tt module.ti} file containing the result of applying
-	unification factoring to predicates defined in the {\tt module}
-	under compilation.  The result is in Prolog source code form.
-	See page~\pageref{transformational_indexing} for more information
-	on unification factoring.
-\item[{\tt ti\_long\_names}]\index{compiler options!\texttt{ti\_long\_names}}
-	Used in conjunction with {\tt ti\_dump}, generates names for
-	predicates created by unification factoring that reflect the
-	clause head factoring done by the transformation.
+%\index{unification factoring!compiler options}
+ %---------------------------------------------
+%\item[{\tt ti\_dump}]\index{compiler %options!\texttt{ti\_dump}}
+%	Generates a {\tt module.ti} file containing the result of applying
+%	unification factoring to predicates defined in the {\tt module}
+%	under compilation.  The result is in Prolog source code form.
+%	See page~\pageref{transformational_indexing} for more information
+%	on unification factoring.
+%\item[{\tt ti\_long\_names}]\index{compiler options!\texttt{ti\_long\_names}}
+%	Used in conjunction with {\tt ti\_dump}, generates names for
+%	predicates created by unification factoring that reflect the
+%	clause head factoring done by the transformation.
 \comment{
 \item[{\tt init\_var\_off}]\index{compiler otions!\texttt{init\_var\_off}}
 	When specified, the compiler will give a warning (instead of an

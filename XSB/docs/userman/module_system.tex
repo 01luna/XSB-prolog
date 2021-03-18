@@ -38,9 +38,10 @@ Accordingly, predicates are either static or dynamic depending on how
 they are defined.  Static predicates get their definitions from source
 code files that are compiled and loaded into memory.  A dynamic
 predicate $P$ may also occur in a compiled source file if there is a
-dynamic declaration for $P$, of if $P$ is in a file that is
-dynamically loaded.  $P$ is also dynamic if rules for $P$ have been
-asserted to the Prolog data store.
+dynamic declaration for $P$, of if $P$ is in a file that is loaded as
+dynamic code via {\tt load\_dyn/[1,3]} or similar predicates..  $P$ is
+also dynamic if rules for $P$ have been asserted to the Prolog data
+store.
 
 In XSB every structure symbol is associated with a module -- not just
 predicates.  A term is said to be in the module of its main structure
@@ -431,6 +432,49 @@ As a technocal point, such a predicate $P$ is ``virtually'' defined in
 \index{Usage Inference}
 \index{Inference!Usage}
 
+% Took out -- redundant.
+%\subsection{Dynamically loading predicates in the interpreter}
+%%=============================================================
+%Modules are usually loaded into an environment when they are consulted
+%(see Section~\ref{Consulting}).  Specific predicates from a module can
+%also be imported into the run-time environment through the standard
+%predicate {\tt import PredList from
+%  Module}\index{declarations!\texttt{import/1}}.  Here, {\tt PredList}
+%can either be a Prolog list or a comma list.  ({\tt import/1} can also
+%be used as a directive in a source module (see
+%Section~\ref{Modules}). \index{standard predicates}
+
+We provide a sample session for compiling, dynamically loading, and
+querying a user-defined module named {\tt quick\_sort}.  For this
+example we assume that {\tt quick\_sort.P} is a file in the current
+working directory, and contains the definitions of the predicates {\tt
+concat/3} and {\tt qsort/2}, both of which are exported.
+
+{\footnotesize
+\begin{verbatim}
+             | ?- compile(quick_sort).
+             [Compiling ./quick_sort]
+             [quick_sort compiled, cpu time used: 1.439 seconds]
+
+             yes
+             | ?- import concat/3, qsort/2 from quick_sort. 
+
+             yes
+             | ?- concat([1,3], [2], L), qsort(L, S).
+
+             L = [1,3,2]
+             S = [1,2,3]
+
+             yes.
+\end{verbatim}
+}
+
+The standard predicate {\tt import/1} does not load the module 
+containing the imported predicates, but simply informs the system 
+where it can find the definition of the predicate when (and if) the
+predicate is called.
+
+
 \subsection{Usage Inference and the Module System} \label{sec:usenfer}
 In addition to supporting dynamic loading, the import and export
 statements of a module $M$ are used by the compiler for inferring {\em
@@ -518,7 +562,7 @@ does not come from $File$, a warning is issued.
 
 Pseudo-module imports can also load dynamic code~\footnote{This
   terminology may be somewhat confusing.  Dynamic loading, as seen,
-  loads code on its first use.  Dynamic code, as opposed to static
+  loads code on its first call.  Dynamic code, as opposed to static
   code, can be modified by {\tt assert/1}, {\tt retract/1} and similar
   predicates.  Thus, either static code or dynamic code can be loaded
   dynamically.}  using a form such as: following:
@@ -576,22 +620,23 @@ parameterized module is declared by including a directive of the form:
 \demo{:- module\_parameters($atom_1$, \ldots, $atom_n$).}
 
 \noindent in the module code file, $M$.  The ground atoms, $atom_1$,
-\ldots, $atom_n$, are formal module parameters; when the module is
+\ldots, $atom_n$, are abstract module parameters; when the module is
 loaded, those module parameters will be replaced by the actual module
 names passed to the load operation.
 
-Therefore, the general form of a module name is specified by a ground
-term: In our example, this would be
+Therefore, the general form of a module name (i.e., a module with its
+paramaters replaced by names of actual modules) is specified by a
+ground term: In other words, a module name has the general form:
 
-\demo{$M(atom_1,\ldots, atom_n)$}
+\demo{$M(module\_name_1,\ldots, module\_name_n)$}
 
 \noindent
 where the main structure symbol specifies the base name module file;
 arguments of the module term, if any, indicate the names of the other
-modules that are the actual parameters to the (parameterized) module
-defined in this file.  Note that at run time, the parameters to
-modules {\em must} be other modules, and cannot be constants or any
-other XSB term.
+modules that parameterize $M$.  Syntactically, each $module\_name_i$
+may be an atom if $module\_name_i$ is not parameterized, or a compound
+term if $module\_name_i$ is parameterized.  There is no limit on the
+nesting of parameterized modules.
 
 As a simple example, consider a module that takes a graph, an initial
 node in the graph, and a set of final nodes in the graph, and returns
@@ -715,7 +760,7 @@ base and view relations it depends on.  These input relations can be
 defined in base modules, and a view module is parameterized by the
 base modules it depends on.  Then the same view module can be applied
 to the particular input tables obtained from a particular source.
-Finally, such a view system can be efficiently implemented and
+Finally, such a ffview system can be efficiently implemented and
 maintained by XSB's incremental tabling
 (Section~\ref{sec:incremental_tabling}).
 
