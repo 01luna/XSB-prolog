@@ -45,7 +45,10 @@ Flags:
  --max_subgoal_size  N : set maximum tabled subgoal size to N (default is maximum integer)
 --max_subgoal_action A : set action on maximum subgoal size: e(rror)/a(bstract)/w(arn)
          --max_tries N : allow up to N tries for interning terms
-            -g gc_type : choose heap garbage collection ("indirection" or "none"")
+       --max_threads N : maintain information for up to N threads (MT engine only)
+       --max_mqueues N : allow up to N message queues (MT engine only)
+   --shared_predicates : make predicates thread-shared by default
+            -g gc_type : choose heap garbage collection ("indirection","none" or "copying")
            -c N [unit] : allocate N units (def. KB) for the trail/choice-point stack
            -m N [unit] : allocate N units (def. KB) for the local/global stack
            -o N [unit] : allocate N units (def. KB) for the SLG completion stack
