@@ -745,49 +745,65 @@ a number of years.
 \index{memory management} \index{garbage collection}
 %===================================================
 
+Memory management in \version{} of XSB is quite sophsticated due to
+the demands of tables, interned terms, dynamic code ... not to mention
+those of Prolog itself.  Fortuntely, XSB's memory management almost
+always is stable and ``does the right thing''.  However, in uncommon
+instances, these settings may need to be adjusted by users who push
+XSB to its limits. \footnote{You know who you are.}
+
 All execution stacks are automatically expanded in \version{},
 including the local stack/heap region, the trail/choice point region,
 and the completion stack region.  Execution stacks increase their size
 (usually by doubling) until it is not possible to do so with available
 system memory.  At that point XSB tries to find the maximal amount of
-space that will still fit in system memory.  For the main thread, each
-of these regions begin with an initial value set by the user at the
-command-line or with a default value (see
-Section~\ref{sec:EmuOptions}).
+space that will still fit in system memory.  For the main thread, it
+is almost always sufficient simply to use the default value, but each
+of these regions can be initialized to a value set by the user at the
+command-line or with a default value (see Section~\ref{sec:EmuOptions}). 
 %When a thread is created within an XSB
 %process, the size of the thread's execution stacks may be set by {\tt
 %  thread\_create/3}, otherwise the default values indicated in
 %Section~\ref{sec:EmuOptions} are used.
 %Once XSB is running, these
 %default values may be modified using the appropriate Prolog flags (see
-Section~\ref{State}).
+%Section~\ref{State}).
 %In addition, whenever a thread exits, memory
 %specific to that thread is reclaimed.
 
-Heap garbage collection is automatically included in XSB
-\cite{CaSC01,CATmem@ISMM-98}.  (To change the algorithm used for heap
-garbage collection or to turn it off altogether, see the predicate
-{\tt garbage\_collection/1} or Section~\ref{sec:EmuOptions} for
-command-line options).  In \version{} the default behavior is indirect
-garbage collection.  Starting with Version 3.0, heap garbage
-collection may automatically invokes garbage collection of XSB's
-``string'' table, which stores Prolog's atomic constants.
+Heap garbage collection is automatically performed in XSB
+\cite{CaSC01,CATmem@ISMM-98}.  Heap garbage collection in XSB is quite
+stable, but might need to be turned off if you are making use of some
+of the newest features of XSB.  This can be done via the Prolog flag
+{\tt heap\_garbage\_collection/1} (Section~\ref{State}) or the
+command-line option {\tt -g} (Section~\ref{sec:EmuOptions}).  In
+\version{} the default behavior is indirect garbage collection.  Heap
+garbage collection automatically invokes garbage collection of XSB's
+atom table, which stores Prolog's atomic constants.  For this reason,
+turning off heap garbage collection also turns off atom garbage
+collection.  Atom garbage collection can be turned off by itself using
+the Prolog flag {\tt atom\_garbage\_collection} (Section~\ref{State}).
 %Expansion and garbage collection of execution stacks can occur when
 %multiple threads are active; however atom garbage collection will not
 %be invoked if there is more than one active XSB thread.
 
 The program area (the area into which XSB byte-code is loaded) is also
 dynamically expanded as needed.  For dynamic code (created using {\tt
-  assert/1}, or standard predicates such as {\tt load\_dyn/1}, {\tt
-  load\_dync/1}, and {\tt load\_dynca/1}) index size is also
-automatically reconfigured.  Space reclaimed for dynamic code depends
-on several factors.
+  assert/1}, or standard predicates such as {\tt load\_dyn\_gen/3} and
+friends) index size is also automatically reconfigured.  Space
+reclaimed for dynamic code depends on several factors.
 %If there is only one active thread,
 Space is reclaimed for retracted clauses and abolished predicates as
 long as (1) there are no choice points that may backtrack into the
 retracted or abolished code, and (2) if the dynamic predicate is
 tabled, all of its tables are completed.  Otherwise, the code is
-marked for later garbage collection.
+marked for later garbage collection.  This behavior can be turned off
+by the Prolog flag {\tt clause\_garbage\_collection}
+(Section~\ref{State}). \footnote{In \version{} this garbage collector
+  appears to be slightly less stable than the others, particularly if
+  the dynamic code has many different indexes set for it.}.  Clause
+garbage collection can also be forced via the predicate {\tt
+  gc\_dynamic/1} (Section~\ref{sec:assert}).
 %If more than one thread is active, private predicates behave as just
 %described, however space reclamation for shared predicates will be
 %delayed until there is a single active thread.  See
@@ -808,8 +824,9 @@ dynamically allocated and expanded.
 %stacks is reclaimed when a thread exits.
 See Section~\ref{sec:TablePred:Deleting} for details.
 
-\index{Prolog flags!{\tt max\_memory}}
-\predref{bounded\_call/4}
+
+
+\index{Prolog flags!{\tt max\_memory}} \predref{bounded\_call/4}
 Perhaps more than a standard Prolog system, XSB is used to evaluate
 queries in knowledge representation languages that have a higher level
 of declarativity than Prolog and as a result may consume a great deal
@@ -826,15 +843,18 @@ In such a case, XSB will abort with a resource error whenever a memory
 allocation would exceed the user-defined threshold~\footnote{In rare
   cases, XSB will exit if the inability to allocate more memory will
   leave it in an inconsistent state (e.g. if XSB cannot allocate
-  needed memory during heap garbage collection).}.
+  needed memory during heap garbage collection).}.  Using this option
+can ensure that the calling program will have enough memory to handle
+the resource error and continue.
 
 \section{Compiling, Consulting, and Loading} \label{Consulting}
 %====================================================
 Like other Prologs, XSB provides for both statically compiled code and
 dynamically asserted code (or dynamically loaded code).  Both types of
-code have advantages, as discussed further in Section~\ref{}.  Static
-compiled code may be more optimized than asserted code, particularly
-for clauses that have large bodies, but certain types of indexing,
+code have advantages, as discussed further in
+Section~\ref{sec:dynamic-code}.  On the one hand, static compiled code
+may be more optimized than asserted code, particularly for clauses
+that have large bodies; on the other hand, certain types of indexing,
 such as trie and star indexing are (currently) available only for
 dynamically asserted predicates (see {\tt index/2}).
 
