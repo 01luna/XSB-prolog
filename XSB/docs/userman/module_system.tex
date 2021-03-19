@@ -1,3 +1,4 @@
+
 % attempt to re-document the XSB module system
 
 \index{modules}
@@ -27,7 +28,7 @@ meta-predicate to be explicitly declared as such in order to be used
 in a module.  As we will discuss, these differences lead to certain
 incompatibilities with the predicate-based module systems supported by
 most other Prologs.  Although the differences are important, XSB's
-module system is quite often compatable with those of other Prologs:
+module system is quite often compatible with those of other Prologs:
 for instance, XSB's module system is able to support the Prolog
 Commons libraries.
 
@@ -219,7 +220,7 @@ is treated as semantically equivalent to
 
 \noindent
 Accordingly, {\tt use\_module/2} and {\tt module/1} can be used
-interchangibly with {\tt import/2} and {\tt export/1}.  However the
+interchangeably with {\tt import/2} and {\tt export/1}.  However the
 declaration
 
 \demo{:- use\_module($module$).}
@@ -404,7 +405,7 @@ meta-predicate known to XSB's compiler, or declares $p/0$ as dynamic.
 \subsection{Dynamic Loading and Importing} 
 
 XSB dynamically loads modules in two situations.  Most commonly if
-predicates areimported from a module $M$, $M$ is loaded at the first
+predicates are imported from a module $M$, $M$ is loaded at the first
 call to any of these predicates, compiling the file for $M$ is
 necessary.  In addition, if a predicate $P$ is not explicitly
 imported, but a call to $P$ is explicitly qualified with a module,
@@ -475,7 +476,7 @@ where it can find the definition of the predicate when (and if) the
 predicate is called.
 
 
-\subsection{Usage Inference and the Module System} \label{sec:usenfer}
+\subsection{Usage Inference and the Module System} \label{sec:useinfer}
 In addition to supporting dynamic loading, the import and export
 statements of a module $M$ are used by the compiler for inferring {\em
   usage} of predicates.  The following properties are determined at
@@ -485,7 +486,7 @@ compile time.
   callable in the body of a clause defined in $M$, but $P$ is neither
   defined in $M$ (including via a {\tt dynamic} declaration), nor
   imported into $M$ from some other module, a warning is issued that
-  $P/N$ is undefined.  Here {\em occurs as callablez,} means that
+  $P/N$ is undefined.  Here {\em occurs as callable,} means that
   $P/N$ is found as a literal in the body of a clause, or within a
   system meta-predicate listed in Table~\ref{tab:meta-predicates}.
   Currently, occurrences of a term inside user-defined meta-predicates
@@ -587,7 +588,7 @@ fields to define the predicate $Pred/Arity$.  (See \ref{sec:procfiles}
 for details.)
 
 As an aside, for the purposes of usage inference
-(Section~\ref{sec:usenfer}) 
+(Section~\ref{sec:useinfer}) 
 
 \demo{:- document\_import $Pred/Arity$ from $File$.}
 
@@ -596,7 +597,7 @@ As an aside, for the purposes of usage inference
 \demo{:- import $Pred/Arity$ from usermod($File$).}
   
 \noindent However, the two forms are not equivalent in general: a
-pseud-module import is not considered by {\tt xsbdoc}, and {\tt
+pseudo-module import is not considered by {\tt xsbdoc}, and {\tt
   document\_import} does not dynamically load file.
 
 \index{Parameterized Modules}
@@ -625,7 +626,7 @@ loaded, those module parameters will be replaced by the actual module
 names passed to the load operation.
 
 Therefore, the general form of a module name (i.e., a module with its
-paramaters replaced by names of actual modules) is specified by a
+parameters replaced by names of actual modules) is specified by a
 ground term: In other words, a module name has the general form:
 
 \demo{$M(module\_name_1,\ldots, module\_name_n)$}
@@ -707,7 +708,7 @@ by:
 \begin{verbatim}
 | ?- reachability(my_other_graph):reachable_final(ReachableFinalState).
 \end{verbatim}
-This would load teo instances of the {\tt reachability} module, the
+This would load the instances of the {\tt reachability} module, the
 first loaded:
 
 \demo{{\tt reachability(my\_graph)}.}
@@ -719,7 +720,7 @@ and the newly loaded:
 
 \noindent
 Both modules would behave exactly as other modules. with their code
-accessable to the user as well as to other programs and modules.
+accessible to the user as well as to other programs and modules.
 
 So modules in XSB's runtime system can now identified by module names
 that are terms, not simply constants. Accordingly, anywhere a module
