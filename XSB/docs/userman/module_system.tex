@@ -40,7 +40,7 @@ they are defined.  Static predicates get their definitions from source
 code files that are compiled and loaded into memory.  A dynamic
 predicate $P$ may also occur in a compiled source file if there is a
 dynamic declaration for $P$, of if $P$ is in a file that is loaded as
-dynamic code via {\tt load\_dyn/[1,3]} or similar predicates..  $P$ is
+dynamic code via {\tt load\_dyn/[1,3]} or similar predicates.  $P$ is
 also dynamic if rules for $P$ have been asserted to the Prolog data
 store.
 
@@ -541,7 +541,7 @@ XSB supports a directive of the form:
 In the above directive, {\tt usermod($File$)} is called a {\em
   pseudo-module reference}, and can be used in place of module
 references in import statements.  $File$ must be the name of an XSB
-source code file that contains $Pred/Arity$ and is {\bf not} a module,
+source code file that defines $Pred/Arity$ and is {\bf not} a module,
 i.e., its predicates will be loaded into {\tt usermod}.  In this case,
 when a goal to $Pred/Arity$ is called and does not yet have a
 definition, the file $File$ is (compiled and) loaded, and the goal is
@@ -712,7 +712,7 @@ by:
 \begin{verbatim}
 | ?- reachability(my_other_graph):reachable_final(ReachableFinalState).
 \end{verbatim}
-This would load the instances of the {\tt reachability} module, the
+This would load two instances of the {\tt reachability} module, the
 first loaded:
 
 \demo{{\tt reachability(my\_graph)}.}
@@ -726,7 +726,7 @@ and the newly loaded:
 Both modules would behave exactly as other modules. with their code
 accessible to the user as well as to other programs and modules.
 
-So modules in XSB's runtime system can now identified by module names
+So modules in XSB's runtime system can now be identified by module names
 that are terms, not simply constants. Accordingly, anywhere a module
 name is required, a parameterized module name, i.e., a module term,
 can be used.  The module name must be ground at the time it is
@@ -765,7 +765,7 @@ base and view relations it depends on.  These input relations can be
 defined in base modules, and a view module is parameterized by the
 base modules it depends on.  Then the same view module can be applied
 to the particular input tables obtained from a particular source.
-Finally, such a ffview system can be efficiently implemented and
+Finally, such a view system can be efficiently implemented and
 maintained by XSB's incremental tabling
 (Section~\ref{sec:incremental_tabling}).
 
