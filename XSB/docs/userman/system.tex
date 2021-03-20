@@ -96,7 +96,7 @@ compiler.
 %
 \item {\tt gpp} contains a copy of the Gnu pre-processor used to
   preprocess Prolog files when they are compiled or dynamically
-  loaded.
+  loaded (i.e., loaded as dynamic code).
 %
 \item {\tt lib} contains Prolog source and object code for extended
 librarie (cf. Section~\ref{library_utilities}). 
@@ -172,14 +172,14 @@ in an OS-dependent way, resolving symbols like {\tt '.'}, {\tt '..'}
 and {\tt '\~{}'} when applicable.  However, the user may also enter a
 name without any directory prefix. In this case, XSB tries to
 determine the directory prefix using a set of directories it knows
-about: those directories in the dynamic loader path (see
+about: those directories in the on-demand loader path (see
 Section~\ref{LibPath}).  As it searches through directory prefixes,
 different forms of the file name may be checked.  If the source file
 designator has no extension the loader first checks for a file in the
 directory with the {\tt .P} extension, (or {\tt .c} for foreign
 modules); next checks for a file without the extension; and finally
 checks for a file with a {\tt .pl} or {\tt .prolog} extension.  Note
-that since directories in the dynamic loader path are searched in a
+that since directories in the on-demand loader path are searched in a
 predetermined order (see Section~\ref{LibPath}), if the same file name
 appears in more than one of these directories, the first one
 encountered will be used.
@@ -209,23 +209,24 @@ predicate into a module in the {\tt lib} directory, then add or modify
 an associated fact in {\tt \$XSB\_DIR/syslib/std\_xsb.P}.
 
 %========================================================
-\section{The Dynamic Loader and its Search Path} \label{LibPath}
+\section{The On-Demand Loader and its Search Path} \label{LibPath}
 \index{load search path}
 
-XSB differs from some other Prolog systems in its ability to {\em
-  dynamically} load modules.  In XSB, the loading of user modules and
+XSB differs from some other Prolog systems in its ability to lazily
+load modules on demand.  In XSB, the loading of user modules and
 Prolog libraries (such as the XSB compiler) is delayed until
 predicates in them are actually needed, saving program space for large
-Prolog applications.  Dynamic loading is done by default, unlike other
+Prolog applications. On-demand loading is done by default, unlike other
 systems where it is not the default for non-system libraries.
 
 When a predicate imported from another module (see
-Section~\ref{Modules}) is called during execution, the dynamic loader
-is invoked automatically if the module is not yet loaded into the
-system, The default action of the dynamic loader is to search for the
-byte code file of the module first in the system library directories
-(e,g,, {\tt lib, syslib, cmplib} others), and finally in the current
-working directory.  The exact directories and their order can be found by backtracking through the query:
+Section~\ref{Modules}) is called during execution, the on-demand
+loader is invoked automatically if the module is not yet loaded into
+the system, The default action of the on-demand loader is to search for
+the byte code file of the module first in the system library
+directories (e,g,, {\tt lib, syslib, cmplib} others), and finally in
+the current working directory.  The exact directories and their order
+can be found by backtracking through the query:
 
 \demo{loader:library\_directory(Dir)}
 
@@ -248,10 +249,11 @@ module or file was not found.
 %\repeatstandarditem{add\_lib\_dir(+Directories)}{consult}
 %\standarditem{add\_lib\_dir(+Root,+Directories)}{consult}
 %\end{description}
-The default search path of the dynamic loader is based on the dynamic
-predicate {\tt library\_directory/1} so it can easily be changed.  For
-instance, to make sure a user's home directory is loaded, the goal
-\verb|add_lib_dir(('~/'))|  needs to be executed from the
+The default search path of the on-demand loader is based on the
+dynamic predicate {\tt library\_directory/1} so it can easily be
+changed.  For instance, to make sure a user's home directory is
+loaded, the goal \verb|add_lib_dir(('~/'))| needs to be executed from
+the
 %\verb|assert(library_directory('~/'))| needs to be executed from the
 command line or from within a program (of course if the user's home
 directory is the current working directory, this is not necessary).
@@ -260,7 +262,7 @@ way is to have a file named {\verb|.xsb/xsbrc.P|} in your home
 directory.  (Or, if the environment variable
 \texttt{XSB\_USER\_AUXDIR} is set then
        {\verb|$XSB_USER_AUXDIR/xsbrc.P|} is used.)  User-supplied
-       library directories are searched by the dynamic loader {\em
+       library directories are searched by the on-demand loader {\em
          before} searching the default library directories.  The
        {\verb|.xsb/xsbrc.P|} file, which is automatically consulted by
        the XSB interpreter, might look like the following:
@@ -788,9 +790,9 @@ the Prolog flag {\tt atom\_garbage\_collection} (Section~\ref{State}).
 %be invoked if there is more than one active XSB thread.
 
 The program area (the area into which XSB byte-code is loaded) is also
-dynamically expanded as needed.  For dynamic code (created using {\tt
-  assert/1}, or standard predicates such as {\tt load\_dyn\_gen/3} and
-friends) index size is also automatically reconfigured.  Space
+automatically expanded as needed.  For dynamic code (created using
+{\tt assert/1}, or standard predicates such as {\tt load\_dyn\_gen/3}
+and friends) index size is also automatically reconfigured.  Space
 reclaimed for dynamic code depends on several factors.
 %If there is only one active thread,
 Space is reclaimed for retracted clauses and abolished predicates as
@@ -809,16 +811,16 @@ garbage collection can also be forced via the predicate {\tt
 %delayed until there is a single active thread.  See
 %Section~\ref{sec:assert} for details.
 
-Space for tables is dynamically allocated as needed and reclaimed
+Space for tables is automatically allocated as needed and reclaimed
 through use of {\tt abolish\_all\_tables/0}, {\tt
   abolish\_table\_pred/1}, {\tt abolish\_table\_call/1} and other
 predicates.  As with dynamic code, space for tables may be reclaimed
 immediately or marked for later garbage collection depending on
 whether choice points may backtrack into the abolished tables,
 % on the number of active threads,
-etc.  Tabling also includes various stacks
-used to copy information into or out of tables, most of which are
-dynamically allocated and expanded.
+etc.  Tabling also includes various stacks used to copy information
+into or out of tables, most of which are automatically allocated and
+expanded.
 %These stacks may be
 %thread-private or shared among threads: space for thread-private
 %stacks is reclaimed when a thread exits.
@@ -941,38 +943,36 @@ Error conditions of compiler options are determined by {\tt compile/2}
 which {\tt consult/[1,2]} calls.
 \end{description}
 
-In addition, {\tt ensure\_loaded/[1,2]} acts much like {\tt consult/[1,2]}
-\begin{description}
-\isoitem{ensure\_loaded(+FileName)}{ensure\_loaded/1}
-%
-This predicate checks to see whether the object file for {\tt
-FileName} is newer than the source code and header files for {\tt
-FileName}, and compiles {\tt FileName} if not.  If {\tt FileName} is
-loaded into memory, {\tt ensure\_loaded/1} does not reload it, unlike
-{\tt consult/1} which will always reload.  In addition, {\tt
-  ensure\_loaded/2} can be used to load a file with dynamic code.  It
-is fully documented in Section~\ref{sec:LoadDyn}.
-\end{description}
-% 
+In addition, {\tt ensure\_loaded/[1-3]} acts much like {\tt
+  consult/[1,2]}, but does not reload a file unless needed.  These
+predicates are fully documented in Section~\ref{sec:LoadDyn}.  On the
+other hand, the predicate {\tt compile/[1,2]}
+(Section~\ref{compiler_invoking}) compiles a file as static code, but
+does not load it.
 
 \index{dynamic code!loading}
 \index{canonical format}
 \subsection{Dynamic Code} \label{sec:dynamic-code}
 % 
-In XSB, most source code file can also be ``consulted'' dynamically
-via the predicates {\tt load\_dyn\_gen/2}, {\tt load\_dyn/[1,2]}, {\tt
-  load\_dync/[1,2]}, {\tt ensure\_loaded/[2,3]} And other predicates
-described in Section~\ref{sec:LoadDyn}.  These predicates act as {\tt
-  consult/2} in that if a given file {\em File} has already been
-dynamically loaded, old versions of predicates defined in {\em File}
-will be retracted and their new definitions loaded to correspond to
-those in {\em File} (except for predicates in which a {\tt
-  multifile/1} declaration is present in {\em File}).  Dynamic loading
-can be performed using XSB's reader of canonical terms (which does not
-include operators or HiLog, but does allow list and comma-list
-notation) via {\tt load\_dync/2} and {\tt load\_dynca/1}; dynamic
-loading using XSB's general reader for Hilog terms is performed via
-{\tt load\_dyn/2}.
+In XSB, in addition to static compilation, most source code file can
+be loaded as dynamic code via the predicates {\tt load\_dyn\_gen/2},
+{\tt load\_dyn/[1,2]}, {\tt load\_dync/[1,2]}, {\tt
+  ensure\_loaded/[2,3]} and other predicates described in
+Section~\ref{sec:LoadDyn}.  These predicates act as {\tt consult/2} in
+that if a given file {\em File} has already been loaded, old versions
+of predicates defined in {\em File} will be retracted and their new
+definitions loaded to correspond to those in {\em File} (except for
+predicates in which a {\tt multifile/1} declaration is present in {\em
+  File}).  Loading as dynamic code can be performed using XSB's reader
+of canonical terms (which does not include operators or HiLog, but
+does allow list and comma-list notation) via {\tt load\_dync/2} and
+{\tt load\_dynca/1}; loading as dynamic code using XSB's general
+reader for Hilog terms is performed via {\tt
+  load\_dyn/2}.~\footnote{In previous versions of this manual, the
+  term ``dynamic loading'' was sometimes used ro refer to lazy,
+  on-demand loading.  Because this usage may also refer to loading
+  dynamic code, the term ``dynamic loading'' is now restricted to
+  refer to loading as dynamic code.}
 
 The predicates mentioned above are described more fully in
 Section~\ref{sec:LoadDyn}.  Here, we overview the tradeoffs of
@@ -980,36 +980,39 @@ loading static and dynamic code.
 
 \index{dynamic code!advantages and disadvantages}
 \bi
-\item Advantages for Dynamic Loading
+\item Advantages for loading as dynamic code
 \bi
-\item For large files, containing $10^5-10^8$ clauses, dynamic loading
-  can be much faster than XSB's compiler, especially if the clauses do
-  not need to be ordered, as with e.g., knowledge graphs.
+\item For large files, containing $10^5-10^8$ clauses, loading as
+  dynamic code can be much faster than loading as static code (via
+  XSB's compiler), especially if the clauses do not need to be
+  ordered, as with e.g., knowledge graphs.
 %
-\item Dynamically loaded files have advantages of dynamic code
-  including star-, trie, compound, and alternate indexes, as well as
-  being modifiable via assert and retract. \footnote{Dynamically
-    loaded code also allows larger atoms than statically loaded code.}
+\item When loaded as dynamic code, predicates have the advantages of
+  dynamic code including star-, trie, compound, and alternate indexes,
+  as well as being modifiable via assert and
+  retract. \footnote{Dynamically code also allows larger atoms than
+    static code.}
   %
-  \item Dynamic loading fully supports module import and export,
-    tabling declarations except for those mentioned below, and
+  \item Loading as dynamic code fully supports module import and
+    export, tabling declarations except for those mentioned below, and
     XPP-based preprocessing before load.  In addition it supports the
-    use of operators and DCGs as long the dynamic load is not
-    based on canonical reading.
+    use of operators and DCGs as long the dynamic load is not based on
+    canonical reading.
     %
     \ei
 \item Advantages for Static Compilation
 \bi
-\item Although dynamically loaded predicates are compiled into SLG-WAM
-  code, compiled static clauses are more optimized than dynamically
-  predicates, particularly when the clauses have large bodies or when
-  arithmetic is used.  For facts and pure binary predicates (those
-  containing a single literal in their body) however, static and
-  dynamic byte code is essentially the same.
+\item Although dynamic code is compiled into SLG-WAM instructions as
+  is static code, static code is more optimized than dynamic code.
+  particularly when the clauses have large bodies or when arithmetic
+  is used.  For facts and pure binary predicates (those containing a
+  single literal in their body) however, static and dynamic byte code
+  is essentially the same (modulo indexing).
   %
-\item Dynamic loading does not perform usage and definition checks for
-  modules, or other static compilation checks such as singleton
-  variable checks or checks of arithmetic expressions.
+\item When a file is loaded as dynamic code, the loading does not
+  perform usage and definition checks for modules, or other static
+  compilation checks such as singleton variable checks or checks of
+  arithmetic expressions.
   %
 \item Dynamic loading does not support a few features that are
   supported by static consulting, such as mode declarations; the
@@ -1033,18 +1036,16 @@ the desired behavior, the user may add to the file a declaration
 {\tt :- multifile Predicate\_List .} \\
 \end{center}
 where {\tt Predicate\_List} is a list of predicates in {\em
-  functor/arity\/} form.  The effect of this declaration is, on loading, to delete
-{\em only\/} those clauses of {\tt predicate/arity} that were defined
-in the file itself, but not that defined from other files.
-{\em If a predicate $P$ is to be treated as
-  multifile, the {\tt multifile/1} directive for $P$ must appear in
-  all files that contain clause definitions for $P$.}  If $P$ is
-dynamic, this means that the multifile declaration for $P$ must appear
-in files defining $P$ whether they are compiled and consulted, or
-dynamically loaded via {\tt load\_dyn/[1,2]} or {\tt
-  load\_dync/[1,2]}.
-Note that predicates declared as {\tt multifile} can be defined only
-in usermod.  
+  functor/arity\/} form.  The effect of this declaration is, on
+loading, to delete {\em only\/} those clauses of {\tt predicate/arity}
+that were defined in the file itself, but not that defined from other
+files.  {\em If a predicate $P$ is to be treated as multifile, the
+  {\tt multifile/1} directive for $P$ must appear in all files that
+  contain clause definitions for $P$.}  If $P$ is dynamic, this means
+that the multifile declaration for $P$ must appear in files defining
+$P$ whether they are compiled and consulted, or loaded as dynamic code
+via {\tt load\_dyn/[1,2]} or similar predicates.  Note that predicates
+declared as {\tt multifile} can be defined only in usermod.
 
 \section{The Compiler} \label{the_compiler} \index{compiler}
 %========================================================
@@ -1077,97 +1078,30 @@ in more detail.
 \index{invoking the Compiler}\index{compiler!invoking}
 %=====================================================
 
-In addition to invoking the compiler through {\tt consult/[1,2]}, the
-compiler can be invoked directly at the interpreter level (or in a
-program) through the Prolog predicates {\tt compile/[1,2]}. 
+In addition to invoking the compiler through {\tt consult/[1,2]} and
+other predicates, the compiler can be invoked directly at the
+interpreter level (or in a program) through the Prolog predicates {\tt
+  compile/[1,2]}.
 
 \begin{description}
 \repeatstandarditem{compile(+Files,+OptionList)}{compile/2}
 \standarditem{compile(+Files)}{compile/1}
 %
-{\tt compile/2} compiles all files specified, using the compiler
-options specified in {\tt OptionList} (see
+{\tt compile/2} compiles all files specified into SLG-WAM bytecode,
+using the compiler options specified in {\tt OptionList} (see
 Section~\ref{sec:CompilerOptions} below for the precise details.)
 {\tt Files} is either an absolute or relative filename, or a ground
 list of absolute or relative file names; and {\tt OptionList} is a
-ground list of compiler options.  Since options can be set globally
-via the predicate {\tt set\_global\_compiler\_options/1}, each option
-in {\tt OptionsList} can optionally be prefixed by \verb|+| or
-\verb|-|, indicating that the option is to be turned on, or off,
-respectively.  (The lack of any prefix turns the option on.)
-
-\demo{$|$ ?- compile(Files).} 
-
-\noindent
-is just a notational shorthand for the query:
-
-\demo{$|$ ?- compile(Files, []).}
-
-\comment{
-The standard predicates {\tt consult/[1,2]} call {\tt compile/1} (if
-necessary).  Error conditions for {\tt compile/[1,2]} are similar to
-those for {\tt consult/[1,2]}.
-
-The list of compiler options {\tt OptionList}, if specified, 
-should be a proper Prolog list, i.e.\ a term of the form:
-\begin{center}
-	{\tt [ $option_1$, $option_2$, $\ldots$, $option_n$ ].}
-\end{center}
-where $option_i$ is one of the options described in
-Section~\ref{sec:CompilerOptions}.
-}
+ground list of compiler options described in
+Section~\ref{sec:CompilerOptions}.{\tt compile/1} is a convenience
+predicate, defined as {\tt compile(Files,[])}.
 
 For a given, {\tt File} to be compiled, the source file name
 corresponding to {\tt File} is obtained by concatenating a directory
-prefix and the extension {\tt .P}, {\tt .pl}, {\tt .prolog}, or other filenames as
-discussed in Section~\ref{sec:filenames}.  The directory prefix must
-be in the dynamic loader path (see Section~\ref{LibPath}).  Note that
-these directories are searched in a predetermined order (see
-Section~\ref{LibPath}), so if a module with the same name appears in
-more than one of the directories searched, the compiler will compile
-the first one it encounters.  In such a case, the user can override
-the search order by providing an absolute path name.
-%
-If {\tt File} contains no extension, an attempt is made to compile the
-file {\tt File.P}, {\tt File.pl}, {\tt File.prolog}, or other extensions 
-before trying compiling the file with name {\tt File}.
-
-We recommend use of the extension {\tt .P} for Prolog source file to
-avoid ambiguity.  Optionally, users can also provide a header file for
-a module (denoted by the module name suffixed by {\tt .H}).  In such a
-case, the XSB compiler will first read the header file (if it
-exists), and then the source file.  Currently the compiler makes no
-special treatment of header files.  They are simply included in the
-beginning of the corresponding source files, and code can, in
-principle, be placed in either.  
-\comment{
-In future versions of XSB the
-header files may be used to check interfaces across modules, hence it
-is a good programming practice to restrict header files to
-declarations alone.
-}
- 
-The result of the compilation (an SLG-WAM object code file) is stored
-in ($\langle filename \rangle$.xwam), but {\tt compile/[1,2]} does {\em
-  not\/} load the object file it creates.  (The standard predicate
-{\tt consult/[1,2]} loads the object file into the system, after
-recompiling the source file if needed.)  The object file created is
-always written into the directory where the source file resides: the
-user must therefore have write permission in that directory to avoid
-an error.
- 
-If desired, when compiling a module (file), clauses and directives can be
-transformed as they are read.  This is indeed the case for definite clause
-grammar rules (see Chapter~\ref{DCGs}), but it can also be done for clauses
-of any form by providing a definition for predicate {\tt term\_expansion/2}
-(see Section~\ref{DCG_builtins}).
-
-Predicates {\tt compile/[1,2]} can also be used to compile foreign
-language modules.  In this case, the names of the source files should
-have the extension {\tt .c} and a {\tt .P} file must {\em not\/}
-exist.  A header file (with extension {\tt .H}) {\em must} be present
-for a foreign language module (see the chapter {\it Foreign Language
-Interface} in Volume 2).
+prefix and the extension {\tt .P}, {\tt .pl}, {\tt .prolog}, or other
+filenames as discussed in Section~\ref{sec:filenames}.  If no absolute
+path name is given, XSB uses the loader paths to find the file, as
+described in Section~\ref{LibPath}).
 
 {\bf Error Cases}
 In the cases below, {\tt File} refers to an element of {\tt Files} if
@@ -1188,10 +1122,16 @@ In the cases below, {\tt File} refers to an element of {\tt Files} if
 \ei
 %
 \item 	{\tt File} has an object code extension (e.g. {\tt .xwam})
-\bi
+  \bi
 \item 	{\tt permission\_error(compile,file,File)}
-\ei
-%
+  \ei
+\item XSB does not have write permission on the directory where {\tt
+  File} resides:
+  \bi
+\item {\tt permission\_error(write,file,ObjectFile)} where {\tt
+  ObjectFile} is the basename of {\tt file} with the extension {\tt
+  .xwam}.
+\ei  
 %\item {\tt File} has been loaded previously in the session {\em and}
 %  there is more than one active thread.  
 %\bi
@@ -1211,18 +1151,93 @@ In the cases below, {\tt File} refers to an element of {\tt Files} if
 \item 	{\tt domain\_error(xsb\_compiler\_option,Option)}
 \ei
 \ei
-
 \end{description}
+
+The predicates {\tt compile/[1.2]}, {\tt consult/[1,2]} and {\tt
+  ensure\_loaded/[1-3]} resemble each other in their behavior.  {\tt
+  compile/[1,2]} always compiles, but never loads.  {\tt
+  consult/[1,2]} compiles only if needed, and always loads.  {\tt
+  ensure\_loaded/[1-3]} compiles if needed, but loads only if needed,
+either as static or dynamic code depending on the parameters it has
+been given.  With these differences in mind, the actual process of
+compilation as described in this and following sections is essentially
+the same among these predicates.
+
+For all of these predicates, the result of the compilation (an SLG-WAM
+object code file) is stored in ($\langle filename \rangle$.xwam). This
+object file is always written into the directory where the source file
+resides: the user must therefore have write permission in that
+directory to avoid a permission error.  These predicates can also be
+used to compile foreign language modules.  In this case, the names of
+the source files should have the extension {\tt .c} and a {\tt .P}
+file must {\em not\/} exist.  Instead, a header file (with extension
+{\tt .H}) {\em must} be present for a foreign language module (see
+Chapter~\ref{foreign} for details).
+ 
+If desired, when compiling a module (file), clauses and directives can be
+transformed as they are read.  This is indeed the case for definite clause
+grammar rules (see Chapter~\ref{DCGs}), but it can also be done for clauses
+of any form by providing a definition for predicate {\tt term\_expansion/2}
+(see Section~\ref{DCG_builtins}).
+
+%The options in {\tt OptionsList} in {\tt compile/2} and {\tt
+%  consult/2} are 
+
+%The {  Since options can be set
+%  globally via the predicate {\tt set\_global\_compiler\_options/1},
+%  each option in {\tt OptionsList} can optionally be prefixed by
+%  \verb|+| or \verb|-|, indicating that the option is to be turned on,
+%  or off, respectively.  (The lack of any prefix turns the option on.)
+%
+%\demo{$|$ ?- compile(Files).} 
+%
+%\noindent
+%is just a notational shorthand for the query:
+%
+%\demo{$|$ ?- compile(Files, []).}
+
+%\comment{
+%The standard predicates {\tt consult/[1,2]} call {\tt compile/1} (if
+%necessary).  Error conditions for {\tt compile/[1,2]} are similar to
+%those for {\tt consult/[1,2]}.
+%
+%The list of compiler options {\tt OptionList}, if specified, 
+%should be a proper Prolog list, i.e.\ a term of the form:
+%\begin{center}
+%	{\tt [ $option_1$, $option_2$, $\ldots$, $option_n$ ].}
+%\end{center}
+%where $option_i$ is one of the options described in
+%Section~\ref{sec:CompilerOptions}.
+%}
+
+%
+%If {\tt File} contains no extension, an attempt is made to compile the
+%file {\tt File.P}, {\tt File.pl}, {\tt File.prolog}, or other extensions 
+%before trying compiling the file with name {\tt File}.
+
+%We recommend use of the extension {\tt .P} for Prolog source file to
+%avoid ambiguity.
+%Optionally, users can also provide a header file for a module (denoted
+%by the module name suffixed by {\tt .H}).  In such a case, the XSB
+%compiler will first read the header file (if it exists), and then the
+%source file.  Currently the compiler makes no special treatment of
+%header files.  They are simply included in the beginning of the
+%corresponding source files, and code can, in principle, be placed in
+%either.
+%\comment{ In future versions of XSB the header files may be
+%  used to check interfaces across modules, hence it is a good
+%  programming practice to restrict header files to declarations alone.
+%f}
 
 \subsection{Compiler Options}\label{sec:CompilerOptions}
 \index{compiler!options}\index{options!compiler}
 %=================================================
 
-Compiler options can be set in three ways: from a global list of
-options ({\tt set\_global\_compiler\_options/1}), from the
-compilation command ({\tt compile/2} and {\tt consult/2}), and
-from a directive in the file to be compiled (see compiler directive
-{\tt compiler\_options/1}).
+Compiler options can be set in three ways: from a directive in the
+file to be compiled (see compiler directive {\tt
+  compiler\_options/1}), from the compilation command ({\tt compile/2}
+and {\tt consult/2}), or from a global list of options ({\tt
+  set\_global\_compiler\_options/1})
 
 \begin{description}
 \standarditem{set\_global\_compiler\_options(+OptionsList)}{set\_global\_compiler\_options/1}
@@ -1245,18 +1260,20 @@ The following options are currently recognized by the compiler:
   useful for compiling XSB programs that have been generated by some
   other program.
 %
-\item[{\tt optimize}]\index{compiler options!\texttt{optimize}} When specified, the
-  compiler tries to optimize the object code.  In \version, this
-  option optimizes predicate calls, among other features, so execution
-  may be considerably faster for recursive loops.  However, due to the
-  nature of the optimizations, the user may not be able to trace all
-  calls to predicates in the program.  As expected, the compilation
-  phase will also be slightly longer.  For these reasons, the use of
-  the {\tt optimize} option may not be suitable for the development
-  phase, but is recommended once the code has been debugged.
+\item[{\tt optimize}]\index{compiler options!\texttt{optimize}} When
+  specified, the compiler takes additional steps to optimize the
+  object code.  In \version, this option reduces the overhead for
+  predicate calls, among other features, so execution may be faster
+  for recursive loops.  However, due to the nature of the
+  optimizations, the user may not be able to trace all calls to
+  predicates in the program.  As expected, the compilation phase will
+  also be slightly longer.  For these reasons, the use of the {\tt
+    optimize} option may not be suitable for the development phase,
+  but can be helpful once the code has been debugged.
 %
-\item[{\tt character\_set/1}] \index{compiler
-  options!\texttt{character\_set/1}} The compiler option of {\tt
+  \index{Unicode!character\_sets}
+  \index{compiler options!\texttt{character\_set/1}} 
+\item[{\tt character\_set/1}] The compiler option of {\tt
   character\_set(+CharSet)} causes the remainder of the file being
   compiled to be read using the character set indicated by {\tt
     CharSet}.  Valid character sets are (currently) {\tt cp1252}, {\tt
@@ -1304,8 +1321,8 @@ The following options are currently recognized by the compiler:
   directory and the directory of the parent file that contains the
   include-directive \emph{last}. 
 %%
-  If you want Gpp to search directories in a different order,
-  {\tt gpp\_options/1} can be used (see below).
+  If you want GPP to search directories in a different order, {\tt
+    gpp\_options/1} can be used (see below).
 
   Note: if you assert something into \texttt{gpp\_include\_dir/1} then you
   must also execute {\tt retractall(gpp\_include\_dir(\_))} later on or
@@ -1330,20 +1347,21 @@ The following options are currently recognized by the compiler:
   \end{samepage}
   %%
 
-\item[{\tt gpp\_options}] \index{GPP!\texttt{gpp\_options}} This dynamic predicate
-  must be imported from module {\tt parse}.  If some atom is asserted into
-  {\tt gpp\_options} then this atom is assumed to be the list of command
-  line options to be used by the preprocessor (only the first asserted atom
-  is ever considered). If this predicate is empty, then the default list of
-  options is used (which is {\tt '-P -m -nostdinc -nocurinc'}, meaning: use
-  Prolog mode and do not search the standard C directories and the
-  directory of the parent file that contains the include-instruction).
+\item[{\tt gpp\_options}] \index{GPP!\texttt{gpp\_options}} This
+  dynamic predicate must be imported from module {\tt parse}.  If some
+  atom is asserted into {\tt gpp\_options} then this atom is assumed
+  to be the list of command line options to be used by the
+  preprocessor (only the first asserted atom is ever considered). If
+  this predicate is empty, then the default list of options is used
+  (which is {\tt '-P -m -nostdinc -nocurinc'}, meaning: use Prolog
+  mode and do not search the standard C directories or the directory
+  of the parent file that contains the include-instruction).
   
-  As mentioned earlier, when XSB invokes Gpp, it uses the option {\tt
-    -nocurinc} so that Gpp will not search the directory of the parent file. 
-  If a particular application requires that the parent file directory
-  must be searched, then this can be accomplished by executing 
-  {\tt assert(gpp\_options('-P -m -nostdinc'))}.
+  As mentioned earlier, when XSB invokes GPP, it uses the option {\tt
+    -nocurinc} so that GPP will not search the directory of the parent
+  file.  If a particular application requires that the parent file
+  directory must be searched, then this can be accomplished by
+  executing {\tt assert(gpp\_options('-P -m -nostdinc'))}.
   
   Note: if you assert options into \texttt{gpp\_options/1} then do not
   forget to
@@ -1432,28 +1450,25 @@ The following options are currently recognized by the compiler:
       to the shell command.
 
       \paragraph{\it Special considerations for using XSB as a preprocessor.}
-      XSB can be used as a preprocessor for XSB programs by constructing a
-      shell command that invokes XSB. However, several conventions need to
-      be observed. First, the file to be preprocessed is automatically
-      attached as the last argument of the aforesaid shell command, but XSB
-      does not accept file names in that place as a command-line option
-      (except with special flags used by XSB developers only and for other
-      purposes). Therefore, the file name to be read and preprocessed by
-      XSB must be passed to XSB by some other means (e.g., using the
-      \texttt{-e "\emph{command}"} option). In addition, the last command line
-      option for that XSB-based command must be \texttt{--ignore}, which
-      will cause XSB to ignore the remaining options, including the
-      aforesaid file name.
+      XSB can be used as a preprocessor for XSB programs by
+      constructing a shell command that invokes XSB. However, several
+      conventions need to be observed. First, the file to be
+      preprocessed is automatically attached as the last argument of
+      the aforesaid shell command.  Therefore, the file name to be
+      read and preprocessed by XSB must be passed to XSB by some other
+      means such as using the \texttt{-e "\emph{command}"} or {\tt -B}
+      command line options (Section~\ref{sec:EmuOptions}).  In
+      addition, the last command line option for that XSB-based
+      command must be \texttt{--ignore}, which will cause XSB to
+      ignore the remaining options, including the aforesaid file name. 
 
-      Also, if a preprocessor appears in the pipeline as
-      the second preprocessor or later (i.e., after the first argument in
+      Also, if a preprocessor appears in the pipeline as the second
+      preprocessor or later (i.e., after the first argument in
       \texttt{xpp\_dump}), that preprocessor's shell command line must
-      expect to receive the output of the preceding preprocessor \emph{on
-        the standard input}.
-      Therefore, in order to serve as the second
-      or later preprocessor in the pipeline, XSB must be invoked with the
-      \texttt{-e "see(userin)."} option followed by a call to the
-      predicate that would actually do the preprocessing.
+      expect to receive the output of the preceding preprocessor
+      \emph{on the standard input}.  In this case, XSB must be invoked
+      with the \texttt{-e "see(userin)."} option followed by a call to
+      the predicate that would actually do the preprocessing.
 
       Here are a few examples. To invoke XSB as the first preprocessor in
       the pipeline, one could construct the following shell command (shown
@@ -1471,18 +1486,16 @@ preprocessor in the pipeline, the appropriate command could be
 \begin{alltt}
 '.../xsb \textnormal{\emph{options}} -e "see(userin),preprocessPred,halt."'
 \end{alltt}
-      %% 
-      Here the file to be preprocessed will come on the standard input of
-      XSB. No need for the \texttt{--ignore}
-      option here because no file names would be attached at the end of
-      this command (since the file is piped through the standard input).
+      %% Here the file to be preprocessed will come on the standard
+input of XSB. There is no need for the \texttt{--ignore} option here
+because no file names would be attached at the end of this command
+(since the file is piped through the standard input).
 
       In both cases, the file passed to \texttt{preprocessPred/1} or
-      \texttt{preprocessPred/0}
-      could be processed using \texttt{read/1} and
-      \texttt{write\_canonical/1}.
-      The typical options that one would want to pass in both cases (to
-      replace \emph{options})   are
+      \texttt{preprocessPred/0} could be processed using
+      \texttt{read/1} and \texttt{write\_canonical/1}.  The typical
+      options that one would want to pass in both cases (to replace
+      the parameter \emph{options} above) are
       %% 
 \begin{verbatim}
      --noprompt --quietload --nobanner --nofeedback      
@@ -2233,27 +2246,31 @@ directive of the form:
 \noindent
 indicating that an index should be created for predicate 
 {\tt Functor}/{\tt Arity} on its ${\tt IndexArg}^{\rm th}$ argument.
-One may also use the form:
 
-\demo{:- index(Functor/Arity, IndexArg, HashTableSize).}
+% TES: obsolete
+%One may also use the form:
+%
+%\demo{:- index(Functor/Arity, IndexArg, HashTableSize).}
+%
+%\index{declarations!\texttt{index/2}}
+%\noindent
+%which allows further specification of the size of the hash table to
+%use for indexing this predicate if it is a {\em dynamic} predicate.
+%For predicates that are dynamically loaded, this directive can be used
+%to specify indexing on more than one argument, or indexing on a
+%combination of arguments (see its description on
+%page~\pageref{index_dynamic}).  For a compiled predicate the size of
+%the hash table is computed automatically, so {\tt HashTableSize} is
+%ignored.
 
-\index{declarations!\texttt{index/2}}
-\noindent
-which allows further specification of the size of the hash table to use for
-indexing this predicate if it is a {\em dynamic} (i.e., asserted) predicate.
-For predicates that are dynamically loaded, this directive can be used to
-specify indexing on more than one argument, or indexing on a combination
-of arguments (see its description on page~\pageref{index_dynamic}).
-For a compiled predicate the size of the hash table is computed automatically,
-so {\tt HashTableSize} is ignored.
-
-All of the values {\tt Functor}, {\tt Arity}, {\tt IndexArg} (and possibly
-{\tt HashTableSize}) should be ground in the directive.  More specifically,
-{\tt Functor} should be an atom, {\tt Arity} an integer in the range 0..255,
-and {\tt IndexArg} an integer between 0 and {\tt Arity}.  If {\tt IndexArg}
-is equal to~0, then no index is created for that predicate. An {\tt index}
-directive may be placed anywhere in the file containing the predicate it
-refers to.
+All of the values {\tt Functor}, {\tt Arity}, {\tt IndexArg}
+%(and possibly{\tt HashTableSize})
+should be ground in the directive.  More specifically, {\tt Functor}
+should be an atom, {\tt Arity} an integer in the range 0..255, and
+{\tt IndexArg} an integer between 0 and {\tt Arity}.  If {\tt
+  IndexArg} is equal to~0, then no index is created for that
+predicate. An {\tt index} directive may be placed anywhere in the file
+containing the predicate it refers to.
 
 As an example, if we wished to create an index on the third argument 
 of predicate {\tt foo/5}, the compiler directive would be:

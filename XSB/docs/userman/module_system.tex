@@ -10,7 +10,7 @@ facilitates the construction of large programs or projects from
 components that are developed, compiled and tested separately.  Also,
 module systems support the principle of information hiding and can
 provide a basis for data abstraction.  And modules form the basis for
-XSB's implementation of its standard predicates, and for the dynamic
+XSB's implementation of its standard predicates, and for the on-demand
 loading of standard and user predicates.
 
 The module system of XSB is {\em file based} -- one module per file --
@@ -69,14 +69,15 @@ or
 
 \index{modules!qualification}
 \noindent 
-where $F_{mod}$ is compiled or dynamically loaded into a session.  In
-either case, the name of the module is the name of $F_{mod}$ without
-its extension (if any).  In addition, a file $F_{nomod}$ can be
-dynamically loaded into a module via the appropriate option in {\tt
-  load\_dyn\_gen/2} and similar predicates.  Finally, a dynamic
-predicate $P$ can be explicitly asserted into a module $M$ using the
-{\em module qualification} syntax for predicates, $M:P$.  For
-instance, via a goal like
+where $F_{mod}$ is compiled as static code and loaded into a session,
+or loaded as dynamic code into a session.  In either case, the name of
+the module is the name of $F_{mod}$ without its extension (if any).
+In addition, a file $F_{nomod}$ can be loaded into a module as dynamic
+code via the appropriate option in {\tt load\_dyn\_gen/2} and similar
+predicates.  Finally, a dynamic clause for a predicate $P$ can be
+explicitly asserted into a module $M$ using the {\em module
+  qualification} syntax for predicates, $M:P$.  For instance, via a
+goal like
 
 \demo{assert(M:P)}
 
@@ -91,9 +92,9 @@ $M$ if $M:P$ occurs in any source file or input stream.
 A predicate or goal $Pred$ is considered to be in the ``default''
 module {\tt usermod} ff none of the above situations occur.  I.e., if
 $Pred$ does not have a module qualification, does not occur in a file
-with a module declaration, and is not dynamically loaded into a
-module.  Thus a term that has no module qualification when read from
-an input stream is put into {\tt usermod}.  In addition, if a term is
+with a module declaration, and is not loaded into a module as dynamic
+code.  Thus a term that has no module qualification when read from an
+input stream is put into {\tt usermod}.  In addition, if a term is
 created via {\tt functor/3} or {\tt =../2} it is also considered to be
 in usermod.
 
@@ -233,7 +234,7 @@ module.  Such a declaration will raise a compilation error. The main
 reason for this is that the compiler needs to associate a module with
 each structured term and this is facilitated by listing the imported
 predicates explicitly.  In addition, including specific predicates in
-an import statement facilitates the dynamic loading of modules.
+an import statement facilitates the loading of modules on demand.
 
 Finally, the declaration 
 
@@ -402,9 +403,9 @@ meta-predicate known to XSB's compiler, or declares $p/0$ as dynamic.
 %However, passing an atom as an argument, and then calling it will always
 %call it in {\tt usermod}.
 
-\subsection{Dynamic Loading and Importing} 
+\subsection{Importing and Loading On Demand} 
 
-XSB dynamically loads modules in two situations.  Most commonly if
+XSB automatically loads modules in two situations.  Most commonly if
 predicates are imported from a module $M$, $M$ is loaded at the first
 call to any of these predicates, compiling the file for $M$ is
 necessary.  In addition, if a predicate $P$ is not explicitly
@@ -445,11 +446,11 @@ As a technocal point, such a predicate $P$ is ``virtually'' defined in
 %be used as a directive in a source module (see
 %Section~\ref{Modules}). \index{standard predicates}
 
-We provide a sample session for compiling, dynamically loading, and
+We provide a sample session for compiling, automatically loading, and
 querying a user-defined module named {\tt quick\_sort}.  For this
 example we assume that {\tt quick\_sort.P} is a file in the current
 working directory, and contains the definitions of the predicates {\tt
-concat/3} and {\tt qsort/2}, both of which are exported.
+  concat/3} and {\tt qsort/2}, both of which are exported.
 
 {\footnotesize
 \begin{verbatim}
@@ -477,7 +478,7 @@ predicate is called.
 
 
 \subsection{Usage Inference and the Module System} \label{sec:useinfer}
-In addition to supporting dynamic loading, the import and export
+In addition to supporting loading on demand, the import and export
 statements of a module $M$ are used by the compiler for inferring {\em
   usage} of predicates.  The following properties are determined at
 compile time.
@@ -503,37 +504,36 @@ compile time.
   about all unused predicates in a module.  
 \end{itemize}
 
-\index{xsbdoc}
-\index{declarations!\texttt{document\_export/1}}
-\index{declarations!\texttt{document\_import/1}}
-Usage inference can be highly useful during code development for
-ensuring that all predicates are defined within a set of files, for
-eliminating dead code, etc.  In addition, import and export
-declarations are used by the {\tt xsbdoc} documentation system to
-generate manuals for code.\footnote{Further information on {\tt
-xsbdoc} can be found in {\tt \$XSB\_DIR/packages/xsbdoc}.}  For these
-reasons, it is sometimes the case that usage inference is desired even
-in situations where a given file is not ready to be made into a
-module, or it is not appropriate for the file to be a module for some
-other reason.  In such a case the directives {\tt document\_export/1}
-and {\tt document\_import/1} can be used, and have the same syntax as 
-{\tt export/1} and {\tt import/1}, respectively.  These directives
-affect only usage inference and {\tt xsbdoc}.  A file is treated as a
-module if and only if it includes an {\tt export/1} statement, and
-only {\tt import/1} statements affect dynamic loading and name
-resolution for predicates.
+\index{xsbdoc} \index{declarations!\texttt{document\_export/1}}
+\index{declarations!\texttt{document\_import/1}} Usage inference can
+be highly useful during code development for ensuring that all
+predicates are defined within a set of files, for eliminating dead
+code, etc.  In addition, import and export declarations are used by
+the {\tt xsbdoc} documentation system to generate manuals for
+code.\footnote{Further information on {\tt xsbdoc} can be found in
+  {\tt \$XSB\_DIR/packages/xsbdoc}.}  For these reasons, it is
+sometimes the case that usage inference is desired even in situations
+where a given file is not ready to be made into a module, or it is not
+appropriate for the file to be a module for some other reason.  In
+such a case the directives {\tt document\_export/1} and {\tt
+  document\_import/1} can be used, and have the same syntax as {\tt
+  export/1} and {\tt import/1}, respectively.  These directives affect
+only usage inference and {\tt xsbdoc}.  A file is treated as a module
+if and only if it includes an {\tt export/1} (or {\tt module/2})
+  statement, and only {\tt import/1} statements affect automatic
+  loading and name resolution for predicates.
 
 \index{Pseudo-Modules}
 \index{Modules!Pseudo}
 \subsection{Importing with Pseudo-Modules}
 
 As discussed, when the module system is used to import predicates,
-code files for modules are automatically found and dynamically
+code files for modules are automatically found and automatically
 (compiled and) loaded on first access.  But normally non-module source
 files must be explicitly consulted or loaded via{\tt []/2}, {\tt
   ensure\_loaded/[1,2,3]} and so on.  To provide the convenience (and
-declarativity) of dynamic loading to non-modularized source files, XSB
-supports a directive of the form:
+declarativity) of automatic loading to non-modularized source files,
+XSB supports a directive of the form:
 
 \demo{:- import $Pred/Arity$ from usermod($File$).}
 
@@ -561,25 +561,29 @@ not define the same predicate.  If $Pred/Arity$ has been defined in
 {\tt usermod} prior to the load of $File$, and the prior definition
 does not come from $File$, a warning is issued.
 
-Pseudo-module imports can also load dynamic code~\footnote{This
-  terminology may be somewhat confusing.  Dynamic loading, as seen,
-  loads code on its first call.  Dynamic code, as opposed to static
-  code, can be modified by {\tt assert/1}, {\tt retract/1} and similar
-  predicates.  Thus, either static code or dynamic code can be loaded
-  dynamically.}  using a form such as: following:
+Pseudo-module imports can also load dynamic code using a form such as:
+following:
+
+%~\footnote{This
+%  terminology may be somewhat confusing.  Dynamic loading, as seen,
+%  loads code on its first call.  Dynamic code, as opposed to static
+%  code, can be modified by {\tt assert/1}, {\tt retract/1} and similar
+%  predicates.  Thus, either static code or dynamic code can be loaded
+%  dynamically.} 
 
 \demo{:- import $Pred/Arity$ from usermod(load\_dyn($File$)).}
 
-\noindent This will cause the file $File$ to be loaded dynamically on
-the first call to $Pred/Arity$.  ($File$ must of course define
+\noindent This will cause the file $File$ to be loaded automatically
+on the first call to $Pred/Arity$.  ($File$ must of course define
 $Pred/Arity$.)  The {\tt load\_dyn} in this example may be replaced by
 any file-loading predicate whose first argument is the name of the
 file to load.  For example, one might also use:
 
 \demo{:- import $Pred/Arity$ from usermod(consult:load\_dync($File$,a)).}
 
-\noindent to dynamically load a file whose contents are canonical
-terms to be asserted in reverse order.  In fact, one can also use:
+\noindent to load a file as dynamic code such that its contents are
+canonical terms to be asserted in reverse order.  In fact, one can
+also use:
 
 \demo{:- import $Pred/Arity$ from usermod(proc\_files:load\_csv($File$,$Pred/Arity$)).}
 
@@ -598,7 +602,7 @@ As an aside, for the purposes of usage inference
   
 \noindent However, the two forms are not equivalent in general: a
 pseudo-module import is not considered by {\tt xsbdoc}, and {\tt
-  document\_import} does not dynamically load file.
+  document\_import} does not automatically load a file.
 
 \index{Parameterized Modules}
 \index{Modules!Parameterized}
@@ -683,8 +687,8 @@ parameterized by {\tt my\_graph}.
 
 Note that this example is declarative in the sensethat there is no
 explicit procedural code necessary to load the code for a particular
-example.  All loading is handled by XSB's existing dynamic loader.
-And this same search module can be run with many different examples.
+example.  All loading is handled by XSB's existing lazy loader.  And
+this same search module can be run with many different examples.
 
 Parameterized modules are implemented in XSB as follows.  When a
 parameterized module is to be loaded into memory, the formal

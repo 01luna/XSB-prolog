@@ -421,7 +421,7 @@ hashing.  We still are supporting it, but we don't need to encourage it
 | would see if the second argument is non-variable and if so, use an
 | index based on it. Otherwise, it would see if the fourth argument is
 | non-variable and if so use an index based on it. As a last resort, it would
-| use no index but a list containing an element that is a variablebacktrack through all the clauses in the predicate.
+| use no index but a listzZZ, containing an element that is a variablebacktrack through all the clauses in the predicate.
 | (Notice that it may well make sense to include an argument that 
 | appears in a joint specification later alone, as 1 in this example,
 | but it never makes sense foring the single argument to appear earlier. In
@@ -949,6 +949,16 @@ Equivalent to {\tt load\_dyn\_gen(Filename,[canonical(true),ordering(Ordering)])
              {load\_dynca/2}\label{load_dynca/2}
 %
 Equivalent to {\tt load\_dyn\_gen(Filename,[canonical(true),ordering(Ordering)])}.
+
+\isoitem{ensure\_loaded(+FileName)}{ensure\_loaded/1}
+%
+This predicate checks to see whether the object file for {\tt
+FileName} is newer than the source code and header files for {\tt
+FileName}, and compiles {\tt FileName} if not.  If {\tt FileName} is
+loaded into memory, {\tt ensure\_loaded/1} does not reload it, unlike
+{\tt consult/1} which will always reload.  In addition, {\tt
+  ensure\_loaded/2} can be used to load a file with dynamic code.  
+% 
 
 \standarditem{ensure\_loaded(+FileSpec,+Action)}{ensure\_loaded/2}
 %
