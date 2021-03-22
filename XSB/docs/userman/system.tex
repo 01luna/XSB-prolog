@@ -1,4 +1,4 @@
-aa\chapter{System Description} \label{chap:system}
+\chapter{System Description} \label{chap:system}
 \label{system}
 
 Throughout this chapter, we use \verb'$XSB_DIR' to refer to the
@@ -241,7 +241,7 @@ module or file was not found.
 %compilations.
 
 
-\index{\texttt{library\_directory/1}}
+\index   {\texttt{library\_directory/1}}
 \index{environment variables!{\tt XSB\_USER\_AUXDIR}}
 \subsection{Changing the Default Search Path} \label{sec:search-path}
 %=========================================================
@@ -582,7 +582,7 @@ Evaluating command line goal:
 | ?- hello world
 \end{verbatim}
 %
-  \item[{\tt --quietload}] Do not tell when a new module gets
+ \item[{\tt --quietload}] Do not tell when a new module gets
     loaded. Again, is quseful in non-interactive activities and for
     interprocess communication.  Continuing our example:
 \begin{verbatim}
@@ -1662,6 +1662,7 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
 }
 %---------------------------------------------
 \index{mode analysis!compiler options}
+\index{analysis!mode}
 %---------------------------------------------
 \item[{\tt modeinfer}]\index{compiler options!\texttt{modeinfer}}
 	This option is used to trigger mode analysis. For each module
@@ -2381,7 +2382,7 @@ Interface} in Volume 2 for its explanation.
 \end{description}
 
 \subsection{Inline Predicates}\label{inline_predicates}
-\index{compiler!inlines}\index{inlines!Compiler}
+\index{compiler!inlines}\index{inlines!compiler}
 %======================================================
 
 {\em Inline predicates} represent ``primitive'' operations in the

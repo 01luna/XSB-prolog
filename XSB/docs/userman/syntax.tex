@@ -632,7 +632,7 @@ and their precidence makes file reading slower than it otherwise would
 be.  For most files this slowdown is not even noticeable, but for
 large knowledge bases of many millions of clauses, reading can add a
 perceptable overhead to load time.  This overhead can be avoided when
-dynamically loading if the input file is in {\em canonical format},
+loading dynamic code if the input file is in {\em canonical format},
 i.e., if all of its clauses are in canonical syntax.  Canonical syntax
 may also be useful if XSB needs to write results that need to be
 parsed by some other language.

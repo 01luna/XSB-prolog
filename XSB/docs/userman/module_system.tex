@@ -1,4 +1,3 @@
-
 % attempt to re-document the XSB module system
 
 \index{modules}
@@ -431,8 +430,8 @@ As a technocal point, such a predicate $P$ is ``virtually'' defined in
 %predicates one wants to use and let the dynamic loader automatically
 %load the module code on demand.
 
-\index{Usage Inference}
-\index{Inference!Usage}
+\index{usage inference}
+\index{analysis!usage}
 
 % Took out -- redundant.
 %\subsection{Dynamically loading predicates in the interpreter}
@@ -523,8 +522,8 @@ if and only if it includes an {\tt export/1} (or {\tt module/2})
   statement, and only {\tt import/1} statements affect automatic
   loading and name resolution for predicates.
 
-\index{Pseudo-Modules}
-\index{Modules!Pseudo}
+\index{pseudo-modules}
+\index{modules!pseudo}
 \subsection{Importing with Pseudo-Modules}
 
 As discussed, when the module system is used to import predicates,
@@ -604,8 +603,8 @@ As an aside, for the purposes of usage inference
 pseudo-module import is not considered by {\tt xsbdoc}, and {\tt
   document\_import} does not automatically load a file.
 
-\index{Parameterized Modules}
-\index{Modules!Parameterized}
+\index{parameterized podules}
+\index{modules!parameterized}
 \subsection{Parameterized Modules in XSB}
 
 The XSB module system now supports {\em parameterized modules} which
