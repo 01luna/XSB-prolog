@@ -197,7 +197,7 @@ interface~\footnote{Such predicates are sometimes called ``built-ins''
 predicates~\cite{ISO-Prolog}, along with predicates for tabling, I/O,
 for interaction with the operating system, for HiLog, and for much
 other functionality.  Standard predicates are listed in this manual
-under the index heading {\em Standard predicates} and at an
+under the index heading {\em Index of Standard Predicates} and at an
 implementation level are declared in the file {\tt
   \$XSB\_DIR/syslib/std\_xsb.P}.
 
@@ -1573,11 +1573,12 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
 
 
 
-\item[{\tt quit\_on\_error}] \index{GPP!\texttt{quit\_on\_error}}
-  This causes XSB to exit if compilation of a program end with an error.
+\item[{\tt quit\_on\_error}] \index{GPP!\texttt{quit\_on\_error}} This
+  causes XSB to exit if compilation of a program throws an error.
   This option is useful when running XSB from a makefile, when it is
-  necessary to stop the build process after an error has been detected. For
-  instance, XSB uses this option during its own build process.
+  necessary to stop the build process after an error has been
+  detected. For instance, XSB uses this option during its own build
+  process.
 
 
 %-------------------------------
@@ -1604,28 +1605,35 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
 %--------------------------------------
 \index{specialization!compiler options}
 %--------------------------------------
-\item[{\tt spec\_repr}]\index{compiler options!\texttt{spec\_repr}} When specified, the
-  compiler performs specialization of partially instantiated calls by
-  replacing their selected clauses with the representative of these
-  clauses, i.e. it performs {\em folding\/} whenever possible.  In
-  general specialization with replacement is correct only under
-  certain conditions.  XSB's compiler checks for sufficient conditions
-  that guarantee correctness, and if these conditions are not met,
-  specialization with replacement is not performed for the violating
-  calls.
-\item[{\tt spec\_off}]\index{compiler options!\texttt{spec\_off}} When specified, the
-  compiler does not perform specialization of partially instantiated
-  calls.
-\item[{\tt unfold\_off}]\index{compiler options!\texttt{unfold\_off}} When specified,
-  singleton sets optimizations are not performed during
-  specialization.  This option is necessary in \version\ for the
-  specialization of {\tt table} declarations that select only a single
-  chain rule of the predicate.
-%qtls ??
-\item[{\tt spec\_dump}]\index{compiler options!\texttt{spec\_dump}} Generates a {\tt
-  module.spec} file, containing the result of specializing partially
-  instantiated calls to predicates defined in the {\tt module} under
-  compilation.  The result is in Prolog source code form.
+\item[{\tt spec\_repr}]\index{compiler options!\texttt{spec\_repr}}
+  When specified, the compiler performs specialization of partially
+  instantiated calls by replacing their selected clauses with the
+  representative of these clauses, i.e. it performs {\em folding\/}
+  whenever possible.  In general specialization with replacement is
+  correct only under certain conditions.  XSB's compiler checks for
+  sufficient conditions that guarantee correctness, and if these
+  conditions are not met, specialization with replacement is not
+  performed for the violating calls.  See Section~\ref{specialization}
+  for details on XSB's specialization.
+\item[{\tt spec\_off}]\index{compiler options!\texttt{spec\_off}} When
+  specified, the compiler does not perform specialization of partially
+  instantiated calls.
+\item[{\tt unfold\_off}]\index{compiler options!\texttt{unfold\_off}}
+  When specified, this disables unfolding through an aspect of
+  specialization called singleton sets optimization.
+  (Cf. Section~\ref{specialization}).
+%
+% TES: In spec.P it looks like the code avoids the tabling issue by a
+% call Tabled =:= 0, which ensures it is only applied to non-tabled
+% predicates.  This option is necessary in \version\ for the
+% specialization of {\tt table} declarations that select only a single
+% chain rule of the predicate.
+
+\item[{\tt spec\_dump}]\index{compiler options!\texttt{spec\_dump}}
+  Generates a {\tt module.spec} file, containing the result of
+  specializing partially instantiated calls to predicates defined in
+  the {\tt module} under compilation.  The result is in Prolog source
+  code form.  This option is normally only used by developers.
 
 %---------------------------------------------
 %\index{unification factoring!compiler options}
@@ -1662,88 +1670,127 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
 }
 %---------------------------------------------
 \index{mode analysis!compiler options}
-\index{analysis!mode}
+\index{static analysis!mode}
 %---------------------------------------------
 \item[{\tt modeinfer}]\index{compiler options!\texttt{modeinfer}}
-	This option is used to trigger mode analysis. For each module
-        compiled, the mode analyzer creates a {\tt {\em module}.D}
-        file that contains the mode information that is inferred (or
-        declared).
+%
+  This option turns on mode inference. When the option is on, for each
+  file with base name {\tt my\_file} that is compiled, a mode analyzer
+  creates a {\tt {\em my\_file}.D} file that contains all mode
+  information that is inferred or declared, and the analyzer issues
+  warnings when the inferred mode differs from a declared mode.
 
-        The mode analyzer checks whether predicates are called with
-        correct modes, i.e., in modes consistent with their declared
-        modes.  The modes are + for ground, and ? for nonground (or
-        unknown).  Modes for exported predicates (or predicates not in
-        modules that will be called from the top-level or externally)
-        should be declared appropriately; e.g.,
-\begin{verbatim}
-:- mode my_pred(+,?).
-\end{verbatim}
-	indicates that the predicate {\tt my\_pred/2} (defined in this
-        {\tt .P} file must be called with the first argument as a
-        ground term and the second argument as any term (including a
-        variable).  Non-exported predicates may also have modes
-        declared.  The mode analyzer tries to determine whether any
-        call to a predicate may violate its declared modes, and
-        reports a possible mode violation if it is unable to prove
-        that all calls conform to the declared modes.
+%  The mode analyzer checks whether predicates are called with correct
+%  modes, i.e., that calling modes are consistent with their declared
+  % modes.
 
-        Multiple modes may be declared for a given predicate.  For
-        example,...
+  The allowed mode declarations are {\tt mode/1} which indicates the
+  declared or inferred mode at a call to a predicate, and {\tt
+    mode\_on\_success/1} which indicates the mode on success of the
+  predicate.  The allowed mode designations for arguments are {\tt +}
+  for {\em ground}, and {\tt ?}  for {\em nonground} (or {\em
+    unknown}).  Consider an implementation of the well-known predicate
+  {\tt append/3}, implemented in {\tt my\_mod}.  The declaration
+
+\demo{:- mode append(+,?.?).}
+
+   in {\tt my\_mod} indicates that {\tt append/3} must be called with
+   the first argument as a ground term but the second and third
+   arguments could any terms (including variables).  The mode analyzer
+   does not keep track of groundedness of subterms of a given
+   argument, only of the argument itself.  Continuing our example. in
+   the goal {\tt append([a,X,b],[c],Out)}, the fact that {\tt X} is a
+   variable does not affect execution of the goal, but violates the
+   declaration that the first argument of {\tt append/3} must be
+   ground.
+
+   While the {\tt mode/1} declaration infers modes for {\em calls} to
+   predicates, the expected modes on successful returns is indicated
+   by
+
+\demo{:- mode\_on\_success append(+,?,+)}.
+
+
+
+%   The mode analyzer tries to determine whether any call to a
+%   predicate may violate its declared modes, and reports a mode
+%   warning if it is unable to prove that all calls conform to the
+%   declared modes.  In addition, it writes out mode inferences to {\tt
+%     my\_file.D}.
+
+     Although mode inference can be performed on non-module files, it
+     is more useful for modules.  For best results, modes for exported
+     predicates (or predicates not in modules that will be called from
+     the top-level or externally) should be declared appropriately.
+     Non-exported predicates may also have modes declared for them.
+     For imported predicates, the analyzer reads the {\tt .D} file of
+     the module imported from.  It finds the location of the module by
+     looking in directories on the loader's search path as specified
+     in Section~\ref{LibPath}.
+
+     Multiple modes may be declared for a given predicate, where
+     multiple modes are treated as a disjunction of modes.  For
+     example consider the problem of ensuring that all calls to {\tt
+       append/3} will terminate in the sense that they have a finite
+     number of solutions.  A sufficient but not necessary condition is
+     that the first or third argument of a call to {\tt append/3} must
+     be ground.~\footnote{This requirement is sufficient but not
+       necessary because the first and third arguments must be lists
+       with closed tails, although they may contain elements that are
+       not instantiated.  For instance the goals {\tt
+         append([a,A,B],X,Z)} and {\tt append(X,Z,[a,A,B])} both
+       terminate.  However the goal {\tt append([a|B],X,Z)} in which
+       the first argument has an open-tailed list, does not terminate.
+       However as noted, XSB's mode analysis does not (currently)
+       support this level of detail.}  This is expressed as:
+
+\demo{:- mode append(+,?,?)}        
+
+\demo{:- mode append(?,?,+)}        
 
         There are cases in which the inference is too weak to
         establish that all calls will be correctly moded, even though
         in any execution they will be.  This usually arises when a
         program uses a data structure that is partially ground and
-        partially non-ground.  The programmer knows which
-        subcomponents are ground and is careful to pass those
-        components to predicates requiring ground inputs.  But, the
-        mode analyzer does not keep track of groundedness of
-        subcomponents of arguments, only of entire arguments, so it
-        could signal a mode error in such cases, even though running
-        the program would never produce an erroneous call.  In these
-        cases, to avaoid a mode warning, the programmer may add a
-        redundant run-time check of groundedness (e.g., using {\tt
-          atomic/1}) before the wrongly inferred call to allow the
+        partially non-ground.  It may be the case that the programmer
+        knows which subcomponents are ground and is careful to pass
+        only those components to predicates requiring ground inputs.
+        Because the mode analyzer does not keep track of the subtems
+        of a given argument, it may signal a mode warning.  To avoid a
+        mode warning in such cases, the programmer may add a redundant
+        run-time check of groundedness (e.g., using {\tt atomic/1})
+        before the wrongly inferred call.  Such an addition allows the
         analyzer to infer that the argument will indeed be ground.
 
-        The analyzer infers modes for calls to each predicate, and
-        modes for its arguments when any call to it successfully
-        returns.  The mode on call is indicated by a term like {\tt
-          mode my\_pred(+,?)}; the mode at successful return is
-        indicated by {\tt mode\_on\_success my\_pred(+,+)}.  The modes
-        inferred when processing a file {\tt {\em module}.P} are
-        written to the file named {\tt {\em module}.D}.  For imported
-        predicates, the analyzer reads the {\tt .D} file of the module
-        imported from.  It finds the location of the module by looking
-        in directories specified in directives in the source file that
-        use the {\tt add\_lib\_dir} system predicate.
+        Although mode analysis has proven quite useful, we end by
+        mentioning three limitations that are present in \version{}.
 
-        {\em Note (DSW):} At the time of this writing, the user should
-        declare {\tt mode\_on\_success} modes for dynamic predicates
-        to indicate the mode of terms that will be asserted into the
-        dynamic predicate.  This is often necessary to allow the
-        analyzer to be able to correctly infer modes.  In the future,
-        the analyzer should be improved to be able to infer these
-        success modes automatically.
+        First, the user should declare {\tt mode\_on\_success} modes
+        for dynamic predicates to indicate the mode of terms that will
+        be asserted.  This is often necessary to allow the analyzer to
+        be able to correctly infer modes.  In the future, the analyzer
+        may be improved to be able to infer these success modes
+        automatically.
 
-	{\sc Warning:} Occasionally, the analysis itself may take a
-        long time.  The analysis times are longer than the rest of the
-        compilation time when the module contains clauses whose bodies
-        have very many subgoals.  By refactoring these clauses to
-        reduce the number of literals in the body, one may be able to
-        reduce the time for mode analysis.  Note, also, if the
-        analysis depends on knowing the modes of predicates from other
-        modules, and the modes of those predicates are not known, then
-        the time may again be long.  But when those modes are known,
-        the analysis time may be shorter.  If the analysis takes an
-        unusually long time (say, more than 4 times as long as the
-        rest of the compilation) you may want to abort and restart
-        compilation without {\tt modeinfer}.
+        Second, the mode analyzer does not handle explicit module
+        qualifications in predicate calls (through the use of the ``:''
+        operator).
 
-        {\em Note (DSW):} At the time of this writing the mode
-        analyzer does not handle explicit module modifiers in
-        predicate calls (through the use of the ``:'' operator).
+        Finally, the analysis may occasionally take a long time.  The
+        analysis times can be longer than the rest of the compilation
+        time when the module contains numerous clauses with large
+        bodies.  By refactoring these clauses to reduce the number of
+        body literals, one may be able to reduce the time for mode
+        analysis.  Note, also, if the analysis depends on knowing the
+        modes of predicates from other modules, and the modes of those
+        predicates are not known, then the time may again be long.  Of
+        course if those modes are known -- as they are for any XSB
+        system library that is used -- the analysis time may be
+        shorter.
+%        If mode analysis takes an unusually long time (say,
+%        more than 4 times as long as the rest of the compilation) you
+%        may want to abort and restart compilation without {\tt
+%          modeinfer}.
 
 \item[{\tt mi\_warn}]\index{compiler options!\texttt{mi\_warn}}
   (Active only if the {\tt modeinfer} option is also invoked.)  During
@@ -1751,39 +1798,35 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
   modules are read in. The option {\tt mi\_warn} is used to generate
   warning messages if these {\tt .D} files are outdated --- {\em
     i.e.}, older than the last modification time of the source files.
-  Also, a warning is given if a predicate is inferred to never exit
-  successfully (i.e., fail or throw).  This may be a correct
-  inference, or it may indicate a problem in the inferencing that
-  might be fixed by more mode declarations.
+  In addition, if this option is on, a warning is given if a predicate
+  is inferred to never exit successfully (i.e., it exits via failure
+  or throwing an exception).  This may be a correct inference, or it
+  may indicate a problem in the inferencing that might be fixed by
+  more mode declarations.
 
-\item[{\tt mi\_foreign}] (Obsolete) This option is used {\em only\/} when mode analysis
-	is performed on XSB system modules. This option is
-	needed when analyzing {\tt standard} and {\tt machine} in
-	{\tt syslib}.
-
+%\item[{\tt mi\_foreign}] (Obsolete) This option is used {\em only\/}
+%  when mode analysis is performed on XSB system modules. This option
+%  is needed when analyzing {\tt standard} and {\tt machine} in {\tt
+%    syslib}.
 
 \item[{\tt sysmod}] \index{standard predicates} 
 %
-Mainly used by developers when compiling system modules and used for
-boot-strapping. If specified, standard predicates (see {\tt
-  /\$XSB\_DIR/syslib/std\_xsb.P}) are automatically available for use
-only if they are primitive predicates (see the file {\tt
-  \$XSB\_DIR/syslib/machine.P} for a current listing of primitive
-predicates.)  When compiling in this mode, non-primitive standard
-predicates must be explicitly imported from the appropriate system
-module.  Also standard predicates are permitted to be defined.
-%
-\item[{\tt verbo}] Compiles the files (modules) specified in ``verbose'' mode, 
-	printing out information about the progress of the compilation of each 
-	predicate.
+Mainly used by developers when compiling system modules to enable
+boot-strapping. If specified, standard predicates (see the Appendix
+{\em Index of Standard XSB Predicates}) are automatically available
+for use only if they are inline predicates (see
+Section~\ref{inline_predicates}).  When compiling with {\tt sysmod}
+non-inline standard predicates must be explicitly imported from the
+appropriate system module.  Also standard predicates are permitted to
+be defined.
 %
 \item[{\tt profile}] This option is usually used when modifying the
   XSB compiler.  When specified, the compiler prints out information
   about the time spent in certain phases of the compilation process.
 %
 \item[{\tt asm\_dump, compile\_off}] Generates a textual representation of 
-	the SLG-WAM assembly code and writes it into the file {\tt module.A}
-	where {\tt module} is the name of the module (file) being compiled.  
+	the SLG-WAM assembly code and writes it into the file {\tt file.A}
+	where {\tt file} is the base name of the file being compiled.  
 	
 	{\sc Warning:} This option was created for compiler debugging and is
 		not intended for general use.  There might be cases where
@@ -1794,8 +1837,15 @@ module.  Also standard predicates are permitted to be defined.
 		then using the {\tt -d module.xwam} command-line
 		option of the 
 		XSB emulator (see Section~\ref{sec:EmuOptions}).
-\item[{\tt index\_off}] When specified, the compiler does not generate indices
-	for the predicates compiled.  
+
+\item[{\tt verbo}] Compiles the files (modules) specified in
+  ``verbose'' mode, printing out information about the progress of the
+  compilation of each predicate.  This option is generally not needed
+  by non-developers.
+%
+\item[{\tt index\_off}] When specified, the compiler does not generate
+  any indices for the predicates compiled.  This option is generally
+  not needed by non-developers.
 \end{description}
 
 
@@ -1803,16 +1853,15 @@ module.  Also standard predicates are permitted to be defined.
 \index{compiler!specialization}\index{specialization!Compiler}
 %=============================================================
 
-From Version 1.4.0 on, the XSB compiler automatically performs
-specialization of partially instantiated calls.  Specialization can be
-thought as a source-level program transformation of a program to a
-residual program in which partially instantiated calls to predicates
-in the original program are replaced with calls to specialized versions
-of these predicates.  The expectation from this process is that the
-calls in the residual program can be executed more efficiently that
-their non-specialized counterparts.  This expectation is justified
-mainly because of the following two basic properties of the
-specialization algorithm:
+The XSB compiler automatically performs specialization of partially
+instantiated calls.  Specialization can be thought as a source-level
+program transformation of a program to a form in which partially
+instantiated calls to predicates in the original program are replaced
+with calls to specialized versions of these predicates.  The
+expectation from this process is that the calls in the transformed
+program can be executed more efficiently that their non-specialized
+counterparts.  This expectation is justified mainly because of the
+following two basic properties of the specialization algorithm:
 \begin{description}
 \item[Compile-time Clause Selection] The specialized calls of the
 	residual program  directly select (at compile time) a subset
@@ -2108,6 +2157,7 @@ intention of data flow in the program.
 
 \subsubsection{Tabling Directives}\label{tabling_directives}
 \index{tabling!directives}\index{directives!tabling}
+\index{static analysis!auto\_table}
 %-----------------------------------------------------
 \index{declarations!\texttt{auto\_table}}
 Memoization is often necessary to ensure that programs terminate, and
@@ -2202,6 +2252,7 @@ form
 where {\tt F} is the functor of the predicate to be tabled, and {\tt A} its
 arity.  
 
+\index{static analysis!suppl\_table}
 \index{declarations!\texttt{suppl\_table}}
 Another use of tabling is to filter out redundant solutions for
 efficiency rather than termination.  In this case, suppose that the
@@ -2278,71 +2329,75 @@ of predicate {\tt foo/5}, the compiler directive would be:
 
 \demo{:- index foo/5-3.}
 
+% TES: Snif :-( Took out unification factoring for Version 4.0, since it hasn't
+% been maintained so it probably doesn't work, and if it does I doubt
+% it would give us a great speedup.  If I am wrong about this, I will
+% joyfylly put it back in.
 
-\subsubsection{Unification Factoring}\label{transformational_indexing}
-\index{indexing!transformational}
-When the clause heads of a predicate have portions of arguments common
-to several clauses, indexing on the principal functor of one argument
-may not be sufficient.  Indexing may be improved in such cases by the
-use of unification factoring.  Unification Factoring is a program
-transformation that ``factors out'' common parts of clause heads,
-allowing differing parts to be used for indexing, as illustrated by
-the following example:
-\begin{center}
-\tt
-\begin{tabular}{ccc}
-\begin{tabular}{l}
-p(f(a),X) :- q(X). \\
-p(f(b),X) :- r(X).
-\end{tabular}
-& $\longrightarrow$ &
-\begin{tabular}{l}
-p(f(X),Y) :- \_\$p(X,Y). \\
-\_\$p(a,X) :- q(X). \\
-\_\$p(b,X) :- r(X).
-\end{tabular}
-\end{tabular}
-\end{center}
-The transformation thus effectively allows $p/2$ to be indexed
-on atoms $a/0$ and $b/0$.  Unification Factoring is transparent
-to the user; predicates created by the transformation are internal
-to the system and do not appear during tracing.
-
-The following compiler directives control the use of unification
-factoring \footnote{Unification factoring was once called
-transformational indexing, hence the abbreviation {\tt ti} in the
-compiler directives}:
-\begin{description}
-\item[{\tt :- ti(F/A).}] Specifies that predicate $F/A$ should be
-	compiled with unification factoring enabled.
-\item[{\tt :- ti\_off(F/A).}] Specifies that predicate $F/A$ should be
-	compiled with unification factoring disabled.
-\item[{\tt :- ti\_all.}] Specifies that all predicates defined in the
-	file should be compiled with unification factoring enabled.
-\item[{\tt :- ti\_off\_all.}] Specifies that all predicates defined in
-	the file should be compiled with unification factoring disabled.
-\end{description}
-By default, higher-order predicates (more precisely, predicates named
-{\it apply\/} with arity greater than 1) are compiled with unification
-factoring enabled.  It can be disabled using the {\tt ti\_off}
-directive.  For all other predicates, unification factoring must be
-enabled explicitly via the {\tt ti} or {\tt ti\_all} directive.  If
-both {\tt :- ti(F/A).} ({\tt :- ti\_all.}) and {\tt :- ti\_off(F/A).}
-({\tt :- ti\_off\_all.}) are specified, {\tt :- ti\_off(F/A).} ({\tt
-:- ti\_off\_all.}) takes precedence.  Note that unification factoring
-may have no effect when a predicate is well indexed to begin
-with.  For example, unification factoring has no effect on the
-following program:
-\begin{center}
-\tt
-\begin{tabular}{l}
-p(a,c,X) :- q(X). \\
-p(b,c,X) :- r(X).
-\end{tabular}
-\end{center}
-even though the two clauses have $c/0$ in common.  The user may
-examine the results of the transformation by using the {\tt ti\_dump}
-compiler option (see Section~\ref{sec:CompilerOptions}).
+%\subsubsection{Unification Factoring}\label{transformational_indexing}
+%\index{indexing!transformational}
+%When the clause heads of a predicate have portions of arguments common
+%to several clauses, indexing on the principal functor of one argument
+%may not be sufficient.  Indexing may be improved in such cases by the
+%use of unification factoring.  Unification Factoring is a program
+%transformation that ``factors out'' common parts of clause heads,
+%allowing differing parts to be used for indexing, as illustrated by
+%the following example:
+%\begin{center}
+%\tt
+%\begin{tabular}{ccc}
+%\begin{tabular}{l}
+%p(f(a),X) :- q(X). \\
+%p(f(b),X) :- r(X).
+%\end{tabular}
+%& $\longrightarrow$ &
+%\begin{tabular}{l}
+%p(f(X),Y) :- \_\$p(X,Y). \\
+%\_\$p(a,X) :- q(X). \\
+%\_\$p(b,X) :- r(X).
+%\end{tabular}
+%\end{tabular}
+%\end{center}
+%The transformation thus effectively allows $p/2$ to be indexed
+%on atoms $a/0$ and $b/0$.  Unification Factoring is transparent
+%to the user; predicates created by the transformation are internal
+%to the system and do not appear during tracing.
+%
+%The following compiler directives control the use of unification
+%factoring \footnote{Unification factoring was once called
+%transformational indexing, hence the abbreviation {\tt ti} in the
+%compiler directives}:
+%\begin{description}
+%\item[{\tt :- ti(F/A).}] Specifies that predicate $F/A$ should be
+%%	compiled with unification factoring enabled.
+%\item[{\tt :- ti\_off(F/A).}] Specifies that predicate $F/A$ should be
+%	compiled with unification factoring disabled.
+%\item[{\tt :- ti\_all.}] Specifies that all predicates defined in the
+%	file should be compiled with unification factoring enabled.
+%\item[{\tt :- ti\_off\_all.}] Specifies that all predicates defined in
+%	the file should be compiled with unification factoring disabled.
+%\end{description}
+%By default, higher-order predicates (more precisely, predicates named
+%{\it apply\/} with arity greater than 1) are compiled with unification
+%factoring enabled.  It can be disabled using the {\tt ti\_off}
+%directive.  For all other predicates, unification factoring must be
+%enabled explicitly via the {\tt ti} or {\tt ti\_all} directive.  If
+%both {\tt :- ti(F/A).} ({\tt :- ti\_all.}) and {\tt :- ti\_off(F/A).}
+%({\tt :- ti\_off\_all.}) are specified, {\tt :- ti\_off(F/A).} ({\tt
+%:- ti\_off\_all.}) takes precedence.  Note that unification factoring
+%may have no effect when a predicate is well indexed to begin
+%with.  For example, unification factoring has no effect on the
+%following program:
+%\begin{center}
+%\tt
+%\begin{tabular}{l}
+%p(a,c,X) :- q(X). \\
+%p(b,c,X) :- r(X).
+%\end{tabular}
+%\end{center}
+%even though the two clauses have $c/0$ in common.  The user may
+%examine the results of the transformation by using the {\tt ti\_dump}
+%compiler option (see Section~\ref{sec:CompilerOptions}).
 
 \subsubsection{Other Directives} \label{other-directives}
 %==============================================
