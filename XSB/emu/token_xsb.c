@@ -663,7 +663,7 @@ int utf8_GetCode(FILE *curr_in, STRFILE *instr, int c){
   if ((b2 & 0xc0) == 0x80){       /* 110xxxxx 10xxxxxx */
       return (((c & 0x1f) << 6) | (b2 & 0x3f));
     } else {                        /* not utf8 char */
-      if (b2>0) {unTGetC((char)b2,curr_in,instr);}/* don't unget EOF */
+      if (b2>0) {unTGetC((int)b2,curr_in,instr);}/* don't unget EOF */
     }
   } else if ((c & 0xf0) == 0xe0){    /* 1110xxxx */
     b2 = TGetC(curr_in,instr);	
@@ -674,11 +674,11 @@ int utf8_GetCode(FILE *curr_in, STRFILE *instr, int c){
       if ((b3 & 0xc0) == 0x80){      /* 1110xxxx 10xxxxxx 10xxxxxx */
 	return (((c & 0xf) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f));
       } else {
-	if (b3>0) {unTGetC((char)b3,curr_in,instr);}
-	unTGetC((char)b2,curr_in,instr);
+	if (b3>0) {unTGetC((int)b3,curr_in,instr);}
+	unTGetC((int)b2,curr_in,instr);
       }
     } else {
-      if (b2>0) {unTGetC((char)b2,curr_in,instr);}
+      if (b2>0) {unTGetC((int)b2,curr_in,instr);}
     }
   } else if ((c & 0xf8) == 0xf0){    /* 11110xxx */
     b2 = TGetC(curr_in,instr);	
@@ -692,16 +692,16 @@ int utf8_GetCode(FILE *curr_in, STRFILE *instr, int c){
 	if ((b4 & 0xc0) == 0x80){    /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
 	  return (((c & 0xf) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f));
 	} else {
-	  if (b2>0) {unTGetC((char)b4,curr_in,instr);}
-	  unTGetC((char)b3,curr_in,instr);
-	  unTGetC((char)b2,curr_in,instr);
+	  if (b2>0) {unTGetC((int)b4,curr_in,instr);}
+	  unTGetC((int)b3,curr_in,instr);
+	  unTGetC((int)b2,curr_in,instr);
 	}
       } else {
-	if (b3>0) {unTGetC((char)b3,curr_in,instr);}
-	unTGetC((char)b2,curr_in,instr);
+	if (b3>0) {unTGetC((int)b3,curr_in,instr);}
+	unTGetC((int)b2,curr_in,instr);
       }
     } else {
-      if (b2>0) {unTGetC((char)b2,curr_in,instr);}
+      if (b2>0) {unTGetC((int)b2,curr_in,instr);}
     }
   }
   return c;
