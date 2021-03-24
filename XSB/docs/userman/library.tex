@@ -3295,6 +3295,109 @@ performance degradation.
 
 \end{description}
 
+\section{Set Aggregation}
+
+The {\tt c\_aggregate} library provides aggregation operators over the
+solutions of a predicate. The operations are a generalisation of the
+{\tt bagof/3}, {\tt setof/3} and {\tt findall/3} built-in
+predicates. The defined aggregation operations are counting, computing
+the sum, minimum, maximum, a bag of solutions and a set of
+solutions. \footnote{The {\tt c\_aggregation} library was originally
+  written for Quintus Prolog, later extended and modified for SWI
+  Prolog and finally included in the Prolog commons library. The
+  documentation in this section follows the documentation in the
+  Prolog Commons source file.}
+
+We first give a simple example that computes the country with the
+smallest area using a predicate that relates countries to their areas.
+
+\begin{verbatim}        
+smallest_country(Name, Area) :-
+     aggregate(min(A, N), country(N, A), min(Area, Name)).
+\end{verbatim}
+
+\noindent
+The four predicates in {\tt c\_aggregate} are as follows.
+\begin{description}
+\ourrepeatmoditem{aggregate(Template,Distinguish,Goal,Result)}{aggregate/4}{c\_aggregate}
+\ourrepeatmoditem{aggregate(Template,Goal,Result)}{aggregate/3}{c\_aggregate}
+\ourrepeatmoditem{aggregate\_all(Template,Distinguish,Goal,Result)}{aggregate\_all/4}{c\_aggregate}
+\ourmoditem{aggregate\_all(Template,Goal,Result)}{aggregate\_all/3}{c\_aggregate}
+%
+Broadly speaking, these predicates compute an aggregate function,
+specified in {\tt Template} based on solutions to {\tt Goal} and store
+the result in {\tt Result}.
+
+There are four aggregation predicates, distinguished by
+two properties.
+
+\begin{itemize}
+\item Free variable quantification ({\tt aggregate/[3,4]} vs. {\tt
+  aggregate\_all/[3,4]})
+\bi
+\item 
+    The aggregate predicates use {\tt setof/3} ({\tt aggregate/4}) or
+    {\tt bagof/3} ({\tt aggregate/3}), so they expect any existential
+    variable {\tt Var} to be quantified: i.e., connected to the goal
+    via a {\tt \verb|^|/2} operator as in {\tt Var\verb|^|Goal}.  As a result,
+    multiple solutions may be provided by backtracking through
+    bindings of the remaining free variables in {\tt Goal}.
+%    
+\item The {\tt aggregate\_all/3} predicate uses {\tt findall/3},
+  implicitly treating all free variables as existential and providing
+  exactly one solution. {\tt aggregate\_all/4} uses {\tt sort/2} over
+  solutions and Distinguish (see below) generated using {\tt
+    findall/3}.
+  \ei
+\item The {\tt Distinguish} argument.
+\bi
+  \item The {\tt aggregate/4} and {\tt
+  aggregate\_all/4} each provides a {\tt Distinguish} argument that allows
+  duplicate bindings of a variable in the result.
+  For example, if we wish to compute the total population of all
+  countries in our knowledge base, we do not want to lose results
+  because two countries have the same population.  Therefore we use
+  {\tt Name} as a distinguishing argument.
+\begin{verbatim}
+	aggregate(sum(P), Name, country(Name, P), Total)
+\end{verbatim}
+\ei
+\end{itemize}  
+\end{description}
+
+All aggregation predicates support the following basic operators in
+{\tt Template}.
+\bi
+\item  {\tt count}
+	Count number of solutions.  Same as {\tt sum(1)}.
+\item {\tt sum(Expr)}
+	Sum of {\tt Expr} for all solutions.
+\item  {\tt min(Expr)}
+	Minimum of {\tt Expr} for all solutions.
+\item {\tt min(Expr, Witness)}
+%
+       A term {\tt min(Min, Witness)}, where {\tt Min} is the minimal
+       version Of {\tt Expr} over all solutions and {\tt Witness} is
+       any other template applied to the solution that produced {\tt
+         Min}.  If multiple solutions provide the same minimum,
+       {\tt Witness} corresponds to the first solution.
+\item  {\tt max(Expr)}
+	Maximum of {\tt Expr} for all solutions.
+\item  {\tt max(Expr, Witness)}
+	As {\tt min(Expr, Witness)}, but producing the maximum result.
+\item  {\tt set(X)}
+	An ordered set with all solutions for {\tt X}.
+\item  {\tt bag(X)}
+	A list of all solutions for {\tt X}.
+\ei
+
+In addition, all aggregation predicates allow {\tt Template} to be an
+arbitrarily named compound term each of whose arguments is a basic
+operator.  For instance, the compound term {\tt minmax(min(X),
+  max(X))} computes both the minimum and maximum binding for {\tt X}.
+The choice of the functor {\tt minmax} is arbitrary, the term {\tt
+  foo(min(X), max(X))} in {\tt Template} would produce results the
+same min and max values.
 
 %=======================================================================
 \section{Miscellaneous Predicates}

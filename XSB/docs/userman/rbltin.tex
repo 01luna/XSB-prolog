@@ -765,7 +765,7 @@ offered for dynamic code.  (See Section~\ref{sec:dynamic-code} for a
 comparison of static and dynamic code.)
 
 The following two considerations can radically affect the speed of
-dynamic loading.
+dynamic code loading.
 \begin{itemize}
 \item {\em Whether the file is in canonical format}.  Canonical syntax
   (Section~\ref{sec:canonical}) is a restricted syntax that is harder
@@ -780,10 +780,10 @@ dynamic loading.
     linearly as long as RAM is available.}  
 \end{itemize}  
 
-If the the canonical option is not used, the dynamic loader supports
+If the canonical option is not used, the dynamic code loader supports
 the same syntax as XSB's static consulting and loading.  If the
-ordering option is true, dynamic loading preserves virtually the same
-semantics as XSB's (static) compiler
+ordering option is true, loading dynamic code preserves virtually the
+same semantics as XSB's (static) compiler
 (cf. Section~\ref{sec:dynamic-code}).
 
 The predicates in this section supports modules, along with the
@@ -793,22 +793,22 @@ loading from files with Prolog extensions recognized by XSB ({\tt .P},
 Sections~\ref{LibPath} and~\ref{sec:filenames} for details.
 
 We first describe a general predicate, {\tt load\_dyn\_gen/2} that has
-options that can execute any supported behavior for dynamic loading.
-Afterwards, we present a series of convenience predicates that execute
-commonly used sets of features.
+options that can execute any supported behavior for dynamic code
+loading.  Afterwards, we present a series of convenience predicates
+that execute commonly used sets of features.
 
 \begin{description}
   \standarditem{load\_dyn\_gen(+FileName,+Options)}{load\_dyn\_gen/2}\label{load_dyn_gen/2}
 %
-   This predicate {\em dymamically loads} a file {\tt FileName}.  In
+   This predicate {\em loads as dynamic} a file {\tt FileName}.  In
    other words, it asserts the contents of {\tt FileName} into the
    Prolog database, after all clauses of the predicates in {\tt
      Filename} that have been loaded into the same module as {\tt
      Filename} are retracted (unless there is a {\tt multifile/1}
    declaration for them).
 
-   Dynamic loading supports modules in a flexible manner.  Let {\tt
-     Base} be the base name of {\tt FileName}, i.e., {\tt FileName}
+   Loading dynamic code supports modules in a flexible manner.  Let
+   {\tt Base} be the base name of {\tt FileName}, i.e., {\tt FileName}
    with any path information of extension removed.  If the file
    contains a module declaration ({\tt export/1} or {\tt module/2})
    the code in {\tt FileName} is loaded as into the module {\tt Base}
@@ -816,15 +816,15 @@ commonly used sets of features.
    case the module {\tt Mod} is used.  otherwise the code is loaded
    into {\tt usermod}.
 
-   Effort has been made to make the semantics of dynamic loading
+   Effort has been made to make the semantics of loading dynamic code
    resemble that of static compilation as much as possible.  unless
    {\tt Options} contains {\tt canonical(no)}, any syntax supported by
    {\tt read/[1,2]} is supported including operators.  However, an
    indexing declaration of a predicate {\tt p/n} in {\tt FileName}
    will be observed only when the declaration occur before the first
-   clause of {\tt p/n}.  Dynamically loaded files can be also use the
-   XSB preprocessor.  To do this, put the following declaration into
-   {\tt FileName}:
+   clause of {\tt p/n}.  Loading files as dynamic code can be also use
+   the XSB preprocessor.  To do this, put the following declaration
+   into {\tt FileName}:
     \footnote{The name {\tt compiler\_options} might seem like a misnomer
     here (since the file is not being compiled), but it is convenient to
     use the same directive both for compiling and loading, in case the same
@@ -867,9 +867,10 @@ commonly used sets of features.
       ignored for predicates in {\tt FileName} that are trie-indexed.
       {\tt ordering(z)} is used by default.
     \item {\tt canonical(Bool)} where {\tt Bool} can be {\tt true} or
-      {\tt false}.  If {\tt true} dynamic loading uses the canonical
-      reader for {\tt Filename}; if {\tt false} XSB's standard reader
-      is used.  XSB's standard reader is used by default.
+      {\tt false}.  If {\tt true} dynamic code loading uses the
+      canonical reader for {\tt Filename}; if {\tt false} XSB's
+      standard reader is used.  XSB's standard reader is used by
+      default.
     \item {\tt module(Mod)} where {\tt Mod} is an atomic constant.  If
       {\tt FileName} contains a module declaration and this option is
       present the contents of {\tt FileName} are loaded into {\tt
@@ -888,8 +889,8 @@ commonly used sets of features.
         Limit} to 0 allows an unlimited number of non-canonical
       clauses to be ignored when reading a file.
 
-      This option can be useful for using dynamic loading within a
-      software development cycle.  When testing, {\tt Limit} may be
+      This option can be useful for using dynamic code loading within
+      a software development cycle.  When testing, {\tt Limit} may be
       set to be low to detect errors; however when fielding a system
       {\tt Limit} might be increased to allow responsiveness within
       the field environment.
@@ -964,8 +965,8 @@ loaded into memory, {\tt ensure\_loaded/1} does not reload it, unlike
 %
 Used to ensure that a file or files is loaded into XSB; {\tt FileSpec}
 can be a file or list of files.  This predicate does nothing if a
-given file has been dynamically loaded or consulted into XSB, and has
-not been modified since its load time.  Otherwise
+given file has been loaded as dynamic code or consulted into XSB, and
+has not been modified since its load time.  Otherwise
 %
 \bi
 \item If {\tt Action} is instantiated to {\tt dyn} the behavior is as

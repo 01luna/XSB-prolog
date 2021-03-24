@@ -26,7 +26,7 @@ are not written explicitly in the DCG rule, but are added when the
 rule is translated (expanded) into an ordinary normal rule during
 parsing.  Extra conditions, in the form of explicit Prolog literals or
 control constructs such as {\em if-then-elses} ({\tt '->'/2}) or {\em
-cuts}\index{cut} (\cut)\index{\texttt{"!/0}}, may be included in the {\em
+cuts}\index{cut} (\cut)\predrefindex{"!/0}, may be included in the {\em
 Body} of the DCG rule and they work exactly as one would expect.
 
 The syntax of DCGs is orthogonal to whether tabling is used for DCGs
@@ -67,7 +67,7 @@ or not.  An overview of DCG syntax
       using the usual BNF disjunction operator {\tt '|'}. 
 \item The Prolog control primitives {\em if-then-else} ({\tt '->'/2}),
       {\em nots} ({\tt not/1, fail\_if/1}, \not\ or {\tt tnot/1}) and 
-      {\em cut}\index{cut} (\cut)\index{\texttt{"!/0}} may also be included in the 
+      {\em cut}\index{cut} (\cut)\predrefindex{"!/0} may also be included in the 
       right hand side of a DCG rule. These symbols need not be enclosed in 
       curly brackets. 
       \footnote{Readers familiar with Quintus Prolog may notice the difference
@@ -450,7 +450,7 @@ This predicate generally is of no concern to the user.  Rather it is used
     to {\tt L2} by the terminal {\tt Terminal}. This predicate is
     needed to avoid problems due to source-level
     transformations in the presence of control primitives such as
-    {\em cuts}\index{cut} (\cut)\index{\texttt{"!/0}}, or {\em if-then-elses} 
+    {\em cuts}\index{cut} (\cut)\predindex{"!/0}, or {\em if-then-elses} 
     ({\tt '->'/2}) and is defined by the single clause:
     \begin{center}
                 {\tt 'C'([Token|Tokens], Token, Tokens).}

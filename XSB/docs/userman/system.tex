@@ -241,7 +241,7 @@ module or file was not found.
 %compilations.
 
 
-\index   {\texttt{library\_directory/1}}
+\predrefindex{library\_directory/1}
 \index{environment variables!{\tt XSB\_USER\_AUXDIR}}
 \subsection{Changing the Default Search Path} \label{sec:search-path}
 %=========================================================
@@ -773,22 +773,28 @@ command-line or with a default value (see Section~\ref{sec:EmuOptions}).
 %In addition, whenever a thread exits, memory
 %specific to that thread is reclaimed.
 
+\predrefindex{gc\_heap/0}
+\predrefindex{gc\_atoms/0}
+%
 Heap garbage collection is automatically performed in XSB
 \cite{CaSC01,CATmem@ISMM-98}.  Heap garbage collection in XSB is quite
 stable, but might need to be turned off if you are making use of some
 of the newest features of XSB.  This can be done via the Prolog flag
 {\tt heap\_garbage\_collection/1} (Section~\ref{State}) or the
 command-line option {\tt -g} (Section~\ref{sec:EmuOptions}).  In
-\version{} the default behavior is indirect garbage collection.  Heap
-garbage collection automatically invokes garbage collection of XSB's
-atom table, which stores Prolog's atomic constants.  For this reason,
-turning off heap garbage collection also turns off atom garbage
-collection.  Atom garbage collection can be turned off by itself using
-the Prolog flag {\tt atom\_garbage\_collection} (Section~\ref{State}).
+\version{} the default behavior is indirect garbage collection, which
+can be forced via {\tt gc\_heap/0}.  Heap garbage collection
+automatically invokes garbage collection of XSB's atom table, which
+stores Prolog's atomic constants.  Atom
+garbage collection can be turned off by itself using the Prolog flag
+{\tt atom\_garbage\_collection} (Section~\ref{State}) and forced via the
+command {\tt gc\_atoms/0}.
 %Expansion and garbage collection of execution stacks can occur when
 %multiple threads are active; however atom garbage collection will not
 %be invoked if there is more than one active XSB thread.
 
+\index{garbage collection!dynamic clauses}
+\predrefindex{gc\_dynamic/1}
 The program area (the area into which XSB byte-code is loaded) is also
 automatically expanded as needed.  For dynamic code (created using
 {\tt assert/1}, or standard predicates such as {\tt load\_dyn\_gen/3}
@@ -811,6 +817,8 @@ garbage collection can also be forced via the predicate {\tt
 %delayed until there is a single active thread.  See
 %Section~\ref{sec:assert} for details.
 
+\index{garbage collection!tables}
+\predrefindex{gc\_tables/1}
 Space for tables is automatically allocated as needed and reclaimed
 through use of {\tt abolish\_all\_tables/0}, {\tt
   abolish\_table\_pred/1}, {\tt abolish\_table\_call/1} and other

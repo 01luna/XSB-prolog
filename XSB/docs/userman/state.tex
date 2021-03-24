@@ -40,7 +40,7 @@ predicates use the terms {\em predicate indicator}, {\em term
       soon as it is loaded in the system or when another module that is
       loaded in the system imports some predicates from module {\tt M}.
 
-      Note that due to the dynamic loading of XSB, a module can be
+      Note that due to the on-demand loading of XSB, a module can be
       current even if it has not been loaded, and that some predicates
       of that module may not be defined. In fact, a module can be
       current even if it does not exist.  This situation occurs when a
@@ -917,9 +917,9 @@ have been imported but not actually loaded into code space.  For more
 detailed analysis of predicate properties, the predicate {\tt
 predicate\_property/2} can be used.
 
-As an example to backtrack through all of the predicates defined and loaded in
-module {\tt blah}, regardless of whether {\tt blah} is a system or a
-user defined module, use:
+As an example to backtrack through all of the predicates defined and
+loaded in module {\tt blah}, regardless of whether {\tt blah} is a
+system or a user defined module, use:
 
     \stuff{
     \> \>	| ?- current\_predicate(blah:Predicate).
@@ -1352,7 +1352,7 @@ module {\tt usermod} may be enumerated using:
 %
 \item{\tt built\_in} The predicate symbol has the same
   Functor and Arity as one of XSB's standard predicates, and is
-  available tothe user without needing to load a file or import
+  available to the user without needing to load a file or import
  th epredicate from a module. 
 %
 %\item{\tt built\_in} Same meaning as the property {\tt

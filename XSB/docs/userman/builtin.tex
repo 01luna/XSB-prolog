@@ -242,8 +242,8 @@ If this header is used, the various streams can be used as any other output stre
 {\tt ?- write(STDWARN,'watch it!')}.
 %
 (Note: the XSB preprocessor is not invoked on clauses typed into an
-interactive XSB session, so the above applies only to programs loaded from
-a file using {\tt consult} and such.)
+interactive XSB session, so the above applies only to programs loaded
+from a file using {\tt consult} and such.)
 
 \subsection{Character Sets in XSB}\label{sec-charsets}
 %
@@ -277,9 +277,9 @@ character set may be changed at any time via the Prolog flag {\tt
   cp1252}, or {\tt latin\_1}.  The character set that is in effect at
 the time of opening a stream is the character set that will be used to
 read (or write) the stream.  When XSB source code files are read by
-the compiler (or by {\tt load\_dyn}), their encoding is assumed to
-{\tt utf\_8} for all operating systems.  Note, however, that the {\tt
-  encoding/1} directive (\ref{other-directives}) can be placed in a
+the compiler (or by {\tt load\_dyn\_gen/2}), their encoding is assumed
+to {\tt utf\_8} for all operating systems.  Note, however, that the
+{\tt encoding/1} directive (\ref{other-directives}) can be placed in a
 source file to change the encoding used by the compiler to read the
 (remainder of the) file.
 
@@ -3126,7 +3126,7 @@ does not fail.
 
 %-----------------------------
 
-\ournewitem{P -> Q ; R}{ISO}\index{\texttt{->/2}} 
+\isoitem{P -> Q ; R}{->/2}
     Analogous to if {\tt P} then {\tt Q} else {\tt R}, i.e.\ defined as 
     if by
 	\begin{center}
@@ -3138,7 +3138,7 @@ does not fail.
 	\end{minipage}
 	\end{center}
 
-\ournewitem{P -> Q}{ISO} \index{\texttt{->/2}}
+\isoitem{P -> Q}{->/2} 
     When occurring other than as one of the alternatives of a disjunction,
     is equivalent to:
 	\begin{center}
@@ -3173,7 +3173,7 @@ than {\tt U} the predicate fails.
 \ei
 \ei
 
-\standarditem{(do\_all +Goal)}{do\_all/1}\index{\texttt{do\_all/1}}
+\standarditem{(do\_all +Goal)}{do\_all/1}
 Defines a failure driven loop, as if defined by:
 	\begin{center}
 	\begin{minipage}{2.10in}
@@ -3185,7 +3185,7 @@ Defines a failure driven loop, as if defined by:
 The control operator, {\tt do\_all/1} is defined as a prefix operator
 with precedence 1150.
 
-\standarditem{(+CGoal do\_all +Goal)}{do\_all/2}\index{\texttt{do\_all/1}}
+\standarditem{(+CGoal do\_all +Goal)}{do\_all/2}
 Defines a failure driven loop, as if defined by:
 	\begin{center}
 	\begin{minipage}{2.10in}
@@ -5241,7 +5241,7 @@ Acts as {\tt findall/3} but returns only the first {\tt N} bindings of
     would be acceptable as the body of a clause, the goal 
     {\tt call(X)} is executed as if that
     term appeared textually in place of the {\tt call(X)},
-    {\em except that} any cut (`!')\index{\texttt{"!/0}}\index{cut}
+    {\em except that} any cut (`!')\predrefindex{"!/0}\index{cut}
     occurring in {\tt X} will remove only those choice points in~{\tt X}.
     If~{\tt X} is not instantiated as described above,
     an error message is printed and {\tt call/1} fails.
