@@ -126,7 +126,7 @@ down space, the {\tt packages}, {\tt examples} and {\tt docs}
 directories are not usually needed (unless of course you are using one
 of the packages in your application).  {\tt lib} might not be needed,
 (most core system files are in syslib) nor are Prolog source files
-necessary if they have alreaby been compiled into byte code.  Unless
+necessary if they have already been compiled into byte code.  Unless
 your application needs to rebuild XSB, the {\tt emu} and {\tt build}
 directories do not need to be distributed.
 
@@ -514,13 +514,13 @@ Flags:
 
 \index{scripting}
 \subsection{General Options}
-The order in which potions appear makes no difference.
+The order in which options appear makes no difference.
 \begin{description}
 \item[{\tt -e goal}] Pass {\tt goal} to XSB at startup. This goal is
   evaluated right before the first prompt is issued. For instance,
   \verb'xsb -e "write('Hello!'), nl."'  will print a heart-warming
   message when XSB starts up.  Since {\tt goal} can be any
-  command-line goal (including a conjuction or disjunction of other
+  command-line goal (including a conjunction or disjunction of other
   goals, including {\tt halt}, this option serves as a convenient way
   to use XSB in scripts, or for scripting, particularly in combination
   with some of the following options.
@@ -583,8 +583,8 @@ Evaluating command line goal:
 \end{verbatim}
 %
  \item[{\tt --quietload}] Do not tell when a new module gets
-    loaded. Again, is quseful in non-interactive activities and for
-    interprocess communication.  Continuing our example:
+   loaded. Again, this option is useful in non-interactive activities
+   and for interprocess communication.  Continuing our example:
 \begin{verbatim}
 xsb --quietload --nobanner -e "writeln('hello world'),halt."
 | ?- 
@@ -747,9 +747,9 @@ a number of years.
 \index{memory management} \index{garbage collection}
 %===================================================
 
-Memory management in \version{} of XSB is quite sophsticated due to
+Memory management in \version{} of XSB is quite sophisticated due to
 the demands of tables, interned terms, dynamic code ... not to mention
-those of Prolog itself.  Fortuntely, XSB's memory management almost
+those of Prolog itself.  Fortunately, XSB's memory management almost
 always is stable and ``does the right thing''.  However, in uncommon
 instances, these settings may need to be adjusted by users who push
 XSB to its limits. \footnote{You know who you are.}
@@ -969,7 +969,7 @@ does allow list and comma-list notation) via {\tt load\_dync/2} and
 {\tt load\_dynca/1}; loading as dynamic code using XSB's general
 reader for Hilog terms is performed via {\tt
   load\_dyn/2}.~\footnote{In previous versions of this manual, the
-  term ``dynamic loading'' was sometimes used ro refer to lazy,
+  term ``dynamic loading'' was sometimes used to refer to lazy,
   on-demand loading.  Because this usage may also refer to loading
   dynamic code, the term ``dynamic loading'' is now restricted to
   refer to loading as dynamic code.}
@@ -1649,7 +1649,7 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
 %	predicates created by unification factoring that reflect the
 %	clause head factoring done by the transformation.
 \comment{
-\item[{\tt init\_var\_off}]\index{compiler otions!\texttt{init\_var\_off}}
+\item[{\tt init\_var\_off}]\index{compiler options!\texttt{init\_var\_off}}
 	When specified, the compiler will give a warning (instead of an
 	error) upon finding that a potentially uninitialized variable is
 	being used.  {\em Potentially uninitialized variables\/} are
@@ -1756,7 +1756,7 @@ make_append_cmd(_File,_Name,Options,ResultingCmd) :-
         partially non-ground.  It may be the case that the programmer
         knows which subcomponents are ground and is careful to pass
         only those components to predicates requiring ground inputs.
-        Because the mode analyzer does not keep track of the subtems
+        Because the mode analyzer does not keep track of the subterms
         of a given argument, it may signal a mode warning.  To avoid a
         mode warning in such cases, the programmer may add a redundant
         run-time check of groundedness (e.g., using {\tt atomic/1})
@@ -2029,7 +2029,7 @@ code portability is desired.
 \subsubsection{Conditional Compilation}
 %
 Section~\ref{sec:CompilerOptions} described a way of performing
-conditional compilation using XSB's interation with GPP.  Conditional
+conditional compilation using XSB's interaction with GPP.  Conditional
 compilation can also be done through XSB's compiler, using the
 directives {\tt \mif{} if(+Condition)}, {\tt \mif{} elif(+Condition)},
 {\tt \mif{} else}, and {\tt \mif{} endif}.  For instance the fragment
@@ -2300,7 +2300,7 @@ for certain data-intensive applications.
 The XSB compiler by default generates an index on the principal
 functor of the first argument of a predicate.  However, XSB offers
 other options for indexing, the details of which depend on whether the
-preicate to be indexed is dynamic or static. 
+predicate to be indexed is dynamic or static. 
 
 \paragraph{Indexing of Dynamic Code}
 XSB's indexing of dynamic code is extremely powerful, and is explained
