@@ -5604,7 +5604,9 @@ based on the state of XSB's choice point stack.
 When XSB is used in multi-threaded mode, one XSB thread $t_1$ may send
 a signal goal $G$ to another thread $t_2$, which causes $t_2$ to
 interrupt its computation, execute $G$, and then resume its
-computation.  (Section~\ref{chap:threads}).  {\tt timed\_call/2} and
+computation.
+%(Section~\ref{chap:threads}).
+{\tt timed\_call/2} and
 related predicates provide similar functionality within the
 single-threaded engine, a useful addition since not all of tabling
 features are currently available in the multi-threaded engine.  {\tt
@@ -5700,9 +5702,9 @@ handler can call a break statement, and the base computation inspected
 using one of XSB's built-ins.  As mentioned, the time that is spent in
 a break level is not counted as part of the repetition or maximum intervals associated with the base goal.
 
-{\tt timed\_call/3} is not implemented for the multi-threaded engine
-but its functionality is easily duplicated using thread signalling
-(Section`\ref{sec:thread-signals}).
+%{\tt timed\_call/3} is not implemented for the multi-threaded engine
+%but its functionality is easily duplicated using thread signalling
+%(Section`\ref{sec:thread-signals}).
 
 {\bf Examples}
 Consider the simple (and non-tabled) program fragment
@@ -5915,9 +5917,9 @@ XSB's virtual machine.
 {\tt Handler} cannot cause {\tt timed\_call/3} to be executed as a
 subgoal; but otherwise {\tt Handler} has no restrictions.
 
-{\tt bounded\_call/[3,4]} is not yet implemented for the
-multi-threaded engine but its functionality is easily duplicated using
-thread signalling (Section`\ref{sec:thread-signals}).
+%{\tt bounded\_call/[3,4]} is not yet implemented for the
+%multi-threaded engine but its functionality is easily duplicated using
+%thread signalling (Section`\ref{sec:thread-signals}).
 
 {\bf Error Cases} 
 %

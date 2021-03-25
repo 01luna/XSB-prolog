@@ -148,10 +148,11 @@ r(_A,B,B).
 \end{small}
 %
 and backtrack through unifying answers (cf. {\tt
-  \$XSBDIR/examples/c\_calling\_xsb/edb.P}).  .  This example will
-only compile properly if the sequential engine is used, and its style
-is {\tt not} recommended: it will be shown in Section~\ref{sec:CXSB}
-how to extend the style.
+  \$XSBDIR/examples/c\_calling\_xsb/edb.P}).
+%.  This example will
+%only compile properly if the sequential engine is used, and its style
+%is {\tt not} recommended: it will be shown in Section~\ref{sec:CXSB}
+%how to extend the style.
 %
 \begin{figure}[hbtp]
 \begin{small}
@@ -825,7 +826,9 @@ is freed.
 \end{description}
 
 \subsection{Passing Commands to XSB}
-           {\bf {\em Unforunately, in the commands below, calling the multi-threaded XSB engine from C is no longer supported.}}
+           {\bf {\em Unfortunately, in the commands below, calling the
+               multi-threaded XSB engine from C is no longer
+               supported.}}
              
 \begin{description}
 \ourCitem{int xsb\_command\_string(th\_context *th, char *cmd)}{xsb\_command\_string}
@@ -852,7 +855,7 @@ the command is finished.
   called while a query is open in {\tt th}.
 %
 \item Otherwise, any queries thrown during execution of the command
-  are accessable through {\tt xsb\_get\_error\_type(th)} and {\tt
+  are accessible through {\tt xsb\_get\_error\_type(th)} and {\tt
     xsb\_get\_error\_message(th)}.
 \ei
 %
@@ -889,7 +892,9 @@ codes.
 \end{description}
 
 \subsection{Querying XSB}
-           {\bf {\em Unforunately, in the commands below, calling the multi-threaded XSB engine from C is no longer supported.}}
+           {\bf {\em Unforrunately, in the commands below, calling the
+               multi-threaded XSB engine from C is no longer
+               supported.}}
 
 \begin{description}
 \ourCitem{int xsb\_query\_string\_string(th\_context *th, char *query, VarString *buff,char *sep)}{xsb\_query\_string\_string}
@@ -942,7 +947,7 @@ calls from other pthreads until the entire query is finished.
   called while a query to {\tt th} is open.
 %
 \item Otherwise, any errors thrown during execution of the query are
-  accessable through {\tt xsb\_get\_error\_type()} and {\tt
+  accessible through {\tt xsb\_get\_error\_type()} and {\tt
     xsb\_get\_error\_message()}.  
 \ei 
 \ei
@@ -989,7 +994,7 @@ calls from other pthreads until the entire query is finished.
   is called while a query to {\tt th} is open.
 %
 \item Otherwise, any queries thrown during execution of the command
-  are accessable through {\tt xsb\_get\_error\_type()} and {\tt
+  are accessible through {\tt xsb\_get\_error\_type()} and {\tt
     xsb\_get\_error\_message()}.
 \ei
 
@@ -1210,7 +1215,9 @@ The {\tt th\_context} argument is used only for the multi-threaded XSB engine.
 \end{description}
 
 \subsection{Obtaining Information about Errors}
-           {\bf {\em Unforunately, in the commands below, calling the multi-threaded XSB engine from C is no longer supported.}}
+           {\bf {\em Unfortunately, in the commands below, calling the
+               multi-threaded XSB engine from C is no longer
+               supported.}}
 
 \begin{description}
 \ourCitem{char * xsb\_get\_init\_error\_message()}{xsb\_get\_error\_message}

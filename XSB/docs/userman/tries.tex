@@ -153,7 +153,7 @@ no
 }
 \end{example}
 
-The behavior of general tries can be constrasted with that of
+The behavior of general tries can be contrasted with that of
 associative tries as seen in the next example.
 \begin{example} \rm
 Now we create an associative trie, with abbreviation
@@ -195,7 +195,7 @@ Finally, in an associative trie, if we insert a value for a key that
 is already in the trie, it will {\em update} the value for that key.
 {\small
 \begin{verbatim}
-| ?- trie_insert(foo,pair(sentence(1),[a,dog,snoress])).
+| ?- trie_insert(foo,pair(sentence(1),[a,dog,snores])).
 
 yes
 | ?- trie_unify(foo,pair(sentence(1),X)).
@@ -240,7 +240,7 @@ dropping their trie.
 The following subsections describe predicates for inserting terms into
 a trie, deleting terms from a trie, and unifying a term with terms in
 a trie, predicates for creating, dropping, and truncating tries, as
-well as predicates for bulk insertes into and deletes from a trie.
+well as predicates for bulk inserts into and deletes from a trie.
 These predicates can apply to any type of trie, and perform full error
 checking on their call arguments.  As such, they are safer and more
 general than the lower-level trie predicates described in Chapter 1 of
@@ -409,7 +409,7 @@ such terms can be deleted upon backtracking.  If {\tt TrieIdOrAlias}
 denotes an associative trie, {\tt Term} must be of the form {\tt
   pair(Key,Value)} where {\tt Key} is ground.  In either case, if {\tt
   TrieIdOrAlias} does not contain a term unifying with {\tt Term} the
-preicate fails.
+predicate fails.
 
 {\bf Error Cases}
 \bi
@@ -648,10 +648,10 @@ Currently {\tt Property} can have the form
 %The previous sections indicate how tries can be used as an efficient
 %mechanism to store thread-private and thread-shared terms.
 In this section we describe lower-level trie manipulation predicates
-that are suitable for implemeting XSB libraries~\footnote{Flora-2,
+that are suitable for implementing XSB libraries~\footnote{Flora-2,
   XASP, XSB's {\tt storage} library and others use these predicates.}.
 As with other tries, these utilities are suitable for storing terms
-rather than exectuable clauses, use a set based semantics, and do not
+rather than executable clauses, use a set based semantics, and do not
 maintain an ordering among these terms.  In addition
 %
 \bi

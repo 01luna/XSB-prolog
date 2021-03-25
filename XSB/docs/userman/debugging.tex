@@ -323,11 +323,11 @@ derived for it; or {\em completed} (completely evaluated) so that the
 answers may simply be read from the table.  In short, tabling, which
 can execute much more general programs than Prolog and which can use
 the stronger well-founded semantics, requires a more complex set of
-operations than Prolog's SLDNF.  Accordingsly, debugging and tracing
+operations than Prolog's SLDNF.  Accordingly, debugging and tracing
 is correspondingly more complex.  Thus, while Prolog's 4-port debugger
 may be useful for programs that involve just a few tabled predicates,
 it may not be useful for programs that heavily use tabling for complex
-recursions, non-monotinic reasoning or other purposes.
+recursions, non-monotonic reasoning or other purposes.
 
 There is currently no standard approach to debugging tabled programs.
 One possible approach would be to extend the 4-port debugger to
@@ -390,7 +390,7 @@ backtracked through all answers available for $S$ in the current
 state, the computation path will suspend, and resume after further
 answers are found.  Thus a tabled evaluation is a fixed point
 computation for a set of interdependent subgoals.  When it is
-etermined that a (perhaps singleton) set of subgoals can produce no
+determined that a (perhaps singleton) set of subgoals can produce no
 more answers, the subgoals are completed.
 \end{example}
 
@@ -472,18 +472,17 @@ above.
     cmp(S,SCCNum,Counter)} is logged for each $S \in \cS$.  Here
   $SCCNum$ is simply a number giving an ordinal value that can be used
   to group subgoals into mutually dependent sets of subgoals (here
-  called {\em Strongly Conneced Components} or {\em SCCs}), i.e. the
+  called {\em Strongly Connected Components} or {\em SCCs}), i.e. the
   {\em SCCNum} of each $S \in \cS$ has the same value, but that value
   is not used for a completion fact of any subgoal not in $\cS$.
 %
 \index{tabling!early completion of subgoals}
 \item When a subgoal $\cS$ is {\em early completed}, i.e. it is
-  determined that no more answers for $S$ are possile or are desired a
-  fact of the form {\tt cmp(S,ec,Counter)} is logged.  If $S$ belonged
-  to a larger mutually dependent set $\cS$ when it was early
+  determined that no more answers for $S$ are possible or are desired
+  a fact of the form {\tt cmp(S,ec,Counter)} is logged.  If $S$
+  belonged to a larger mutually dependent set $\cS$ when it was early
   completed, $S$ will also be included in the completion facts for
-  $\cS$.
-\ei
+  $\cS$.  \ei
 \item {\em Table Abolishes}
 \bi
 \item When a tabled subgoal $S$ is abolished, a fact of the form {\tt
@@ -599,10 +598,10 @@ possible options.
 The levels {\tt partial} and {\tt calls\_only} both reduce the size of
   the log which can be useful for analyzing some computations.
 %
-\item {\tt Options} may containt the term {\tt
+\item {\tt Options} may contain the term {\tt
   set\_pred(PredSpec,Mode)} where {\tt Mode} is {\tt on} or {\tt off}.
   This allows certain predicates not to be logged, a useful feature if
-  only part of a program needs to be debuged
+  only part of a program needs to be debugged
 \ei
 
 {\bf Error Cases} 
@@ -641,7 +640,7 @@ declarations can greately improve query time.  The simple predicate,
 %
 As previously described, forest logging is based on the formal
 operational semantics of SLG, and as a result the log can be analyzed
-to query any result that can be modelled by the theory.  But despite
+to query any result that can be modeled by the theory.  But despite
 the power of forest logging, it can be difficult to use.  Not all
 users have the background to fully understand the operational
 semantics of SLG.  Even those users with a formal background may find
@@ -749,7 +748,7 @@ terminate, all subgoals in the log were completed~\footnote{The slight
   Flora compiler.}.  Note that there is also a breakdown of calls to
 tabled subgoals that distinguishes whether the tabled subgoal was new,
 completed, or incomplete.  Recall that calls to completed tabled
-subgoals essentialy treat the answers in the table as facts, so that
+subgoals essentially treat the answers in the table as facts, so that
 these calls are efficient.  Making a call to an incomplete subgoals on
 the other hand means that the calling and called subgoals are mutually
 recursive~\footnote{This statement is true in local evaluation but not
@@ -759,7 +758,7 @@ can be expensive, especially in terms of space.
 Finally, the overview report provides the distributions of tabled
 subgoals across SCCs.  While most of the SCCs were small there was a
 large one, with nearly 150,000 mutually dependent subgoals.  Clearly
-the large SCC should be examimed.  The first step is to obtain its
+the large SCC should be examined.  The first step is to obtain its
 index.  The query
 %
 \begin{verbatim}
@@ -1012,7 +1011,7 @@ via {\tt ensure\_loaded/1} or similar means.
 
 \ourmoditem{set\_forest\_logging\_for\_pred(+PredSpec,+Mode)}{set\_forest\_logging\_for\_pred/2}{tables}
 If forest logging is active, this predicate allows any logging
-specific to the predicate or term indicater, {\tt PredSpec}, to be
+specific to the predicate or term indicator, {\tt PredSpec}, to be
 turned on or off.  Thus, for instance, tabled predicates in a
 pre-existing library need not clutter up the log.
 

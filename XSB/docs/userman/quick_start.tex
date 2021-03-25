@@ -143,7 +143,7 @@ specified.  A full listing can be obtained by typing {\tt
     --with-optimization} option to change the default C compiler
   optimization level.  (or {\tt --disable-optimization} to disable all
   compiler optimizations).  {\tt --enable-debug} is mainly a
-  devlopment option that allows XSB to be debugged using gdb -- there
+  development option that allows XSB to be debugged using gdb -- there
   are many other compiler-based options options.  Type {\tt configure
     --help} to see them all. Also see the file~\verb'$XSB_DIR/INSTALL'
   for more details.
@@ -164,17 +164,17 @@ specified.  A full listing can be obtained by typing {\tt
   for site-specific static and dynamic libraries, and for include
   files.
 
-\item[Multi-threading] Version 3.0 of XSB was the first version that
-  supports multi-threading.  On some platforms, the multi-threaded
-  engine is slightly slower than the single-threaded engine, mostly
-  due to its need for concurrency control.  To obtain the benefits of
-  multiple threads on a platform that supports either POSIX or Windows
-  threads (i.e.  nearly all platforms) users must configure XSB with
-  the directive {\tt enable-mt} (see Section~\ref{sec:mt-windows} for
-  instructions specific to Windows. The multi-threaded engine works
-  with other configuration options, multi-threading can be compiled
-  with batched or local scheduling, with the ODBC or InterProlog
-  interfaces, and so on.
+%\item[Multi-threading] Version 3.0 of XSB was the first version that
+%  supports multi-threading.  On some platforms, the multi-threaded
+%  engine is slightly slower than the single-threaded engine, mostly
+%  due to its need for concurrency control.  To obtain the benefits of
+%  multiple threads on a platform that supports either POSIX or Windows
+%  threads (i.e.  nearly all platforms) users must configure XSB with
+ % the directive {\tt enable-mt} (see Section~\ref{sec:mt-windows} for
+%  instructions specific to Windows. The multi-threaded engine works
+%  with other configuration options, multi-threading can be compiled
+%  with batched or local scheduling, with the ODBC or InterProlog
+%  interfaces, and so on.
 
 %%$
 \index{InterProlog!Interface}
@@ -358,7 +358,7 @@ One way to compile XSB under Windows is to use the automatic installer:
 \texttt{java -jar InstallXSB.jar}
 \end{quote}
 %% 
-where \texttt{\$XSB\_DIR} is the XSB's instalation directory,
+where \texttt{\$XSB\_DIR} is the XSB's installation directory,
 and follow the prompts. The trickiest of these prompts will ask you to provide the
 full file name of the studio's settings batch file.
 For Visual Studio 2017, Community Edition,
@@ -562,7 +562,7 @@ well as a number of non-standardized or XSB-specific features
 including plain tabling, incremental tabling, tabling with negation,
 attributed variables, annotated programs, constraint handling rules,
 XSB embedded in a C program, XSB calling C functions, sockets, and
-various semantic web appliation
+various semantic web application
 
 Hence, a sample session might look like
 (the actual times shown below may vary and some extra information is given
@@ -570,8 +570,8 @@ using comments after the \% character):
 
 {\footnotesize
  \begin{verbatim}
-my_favourite_prompt> cd $XSB_DIR/examples
-my_favourite_prompt> $XSB_DIR/bin/xsb
+my_favorite_prompt> cd $XSB_DIR/examples
+my_favorite_prompt> $XSB_DIR/bin/xsb
 XSB Version 3.1 (Incognito) of August 10, 2007
 [i386-apple-darwin8.9.1; mode: optimal; engine: slg-wam; scheduling: local; word size: 32]
 | ?- [queens].
@@ -611,7 +611,7 @@ yes
 | ?- halt.          % I had enough !!!
 
 End XSB (cputime 1.19 secs, elapsetime 270.25 secs)
-my_favourite_prompt>
+my_favorite_prompt>
  \end{verbatim}
 }
 

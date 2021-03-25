@@ -153,7 +153,7 @@ completed incremental tables.  As such choice points correspond to
 database cursors, we term them {\em Open Cursor Choice Points,
   (OCCPs)}.
 
-XSB's support for view consistency is designed so that no perceptable
+XSB's support for view consistency is designed so that no perceptible
 overhead in incurred if there are no OCCPs whose view needs to be
 maintained.  Not surprisingly, numerous long-lived OCCPs whose views
 need to be maintained across updates causes an overhead for the
@@ -468,7 +468,7 @@ it does for regular dynamic code and for trie-indexed dynamic code.
 
 \index{Incremental Dependency Graph (IDG)}
 \subsection{Abstracting the IDG for Better Performance} \label{sec:IDG-abs}
-As mentioned above, incremental table mantenance makes use of an IDG.
+As mentioned above, incremental table maintenance makes use of an IDG.
 Specifically, the nodes of the IDG are the incrementally tabled
 subgoals; and each such table contains information about its incident
 edges: those subgoals upon which a node directly depends or directly
@@ -681,7 +681,7 @@ maintained tables:
 \ourmoditem{incr\_retractall(+Term)}{incr\_retractall/1}{increval}
 % 
 are versions of {\tt assert/1} and other standard Prolog predicates.
-They modify dymamic code just as their Prolog counterparts, but they
+They modify dynamic code just as their Prolog counterparts, but they
 first invalidate all incrementally maintained tables that depend on
 {\tt Clause}.
 
@@ -711,7 +711,7 @@ error conditions arise, the update will {\tt not} occur.
 %\ourmoditem{incr\_retract\_immed(+Term)}{incr\_retract\_immed/1}{increval}
 %%
 %are versions of {\tt assert/1} and other standard Prolog predicates.
-%They modify dymamic code just as their Prolog counterparts, mark any
+%They modify dynamic code just as their Prolog counterparts, mark any
 %incrementally maintained tables that depend on the modification as
 %invalid, then immediately update these tables.
 %%  The tables may be updated by an
@@ -769,7 +769,7 @@ error conditions arise, the update will {\tt not} occur.
 \ourmoditem{incr\_invalidate\_call(+Goal)}{incr\_invalidate\_call/1}{increval}
 Let $\cT$ be the least set of all incrementally maintained tables
 whose goals that unify with {\tt Goal}, or whose tables are
-(transitively) affected by a goal in $\cT$.  This predicate invalidats
+(transitively) affected by a goal in $\cT$.  This predicate invalidates
 all tables in $\cT$.  Any subsequent call to a goal $G$ associated
 with $\cT$ will be automatically be incrementally updated if
 necessary.  (As will any goals that $G$ depends on that are in need of
@@ -918,7 +918,7 @@ relation.  Error conditions are the same as {\tt
     powerful.}}
 
 Most linear algorithms for SCC detection over a graph use destructive
-assignment on a stack to maintain information about the connecteness
+assignment on a stack to maintain information about the connectedness
 of a component; as a result such algorithms are
 difficult to write efficiently in Prolog.
 
@@ -954,7 +954,7 @@ determine the actual edges within a given SCC.
 Ordinarily a user will want to see the entire dependency graph and in
 such a case the predicates described above should be used.  However,
 note that if the dependency graph is the result of several
-indepdendent queries it may not be connected.  {\tt get\_incr\_scc/2}
+independent queries it may not be connected.  {\tt get\_incr\_scc/2}
 takes as input a list of incremental subgoals, {\tt SubgoalList}.  For
 each {\tt Subgoal} in {\tt SubgoalList}, this predicate finds the set
 of subgoals connected to {\tt Subgoal} by any mixture of depends and

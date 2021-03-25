@@ -54,7 +54,7 @@ integers in other bases:
                         X = 272
 \end{verbatim}
 \end{itemize}
-\index{character code constancts}
+\index{character code constants}
 Character code constants are integers of the form {\tt 0'}{\em nnn},
 where nnn is the decimal form of any UTF-8 codepoint.  E.g.,
 \begin{verbatim}
@@ -123,7 +123,7 @@ after, the decimal point.
 An atom consists of a sequence of characters that follow the following rules.
 
 \begin{itemize}
-\item {\em Non-guoted Atoms} begin with the ASCII character {\tt
+\item {\em Non-quoted Atoms} begin with the ASCII character {\tt
   a}-{\tt z} and are followed by a sequence of {\em ISO alphanumeric characters}: {\tt
   a}-{\tt z}, {\tt A}-{\tt Z}, {\tt 0}-{\tt 9}, and underscore {\tt \_}.
 %
@@ -621,17 +621,17 @@ properties is deferred for the manual of a future version.
 \index{canonical format}%
 Prolog syntax depends heavily on operators even if a user does not
 define them explicitly.  For instance, rules made use of the infix
-\mif{} operator together with infix operators for conjusnction,
+\mif{} operator together with infix operators for conjunction,
 disjunction, the use of parentheses to override priorities and so on.
 Within {\tt is/2} arithmetic and logical expressions also rely on
 operators.  
 
 This syntactic flexibility is crucial to making Prolog code easy to
 read and enjoyable to write.  However, the widesperad use of operators
-and their precidence makes file reading slower than it otherwise would
+and their precidance makes file reading slower than it otherwise would
 be.  For most files this slowdown is not even noticeable, but for
 large knowledge bases of many millions of clauses, reading can add a
-perceptable overhead to load time.  This overhead can be avoided when
+perceptible overhead to load time.  This overhead can be avoided when
 loading dynamic code if the input file is in {\em canonical format},
 i.e., if all of its clauses are in canonical syntax.  Canonical syntax
 may also be useful if XSB needs to write results that need to be
@@ -642,8 +642,8 @@ in prefix order.  XSB's version of canonical syntax supports two
 exceptions to this: the normal syntax of lists and comma lists are
 considered canonical.  For instance, the syntax {\tt [a,b,c]} is
 allowed and the fully prefix syntax {\tt '.'(a,'.'(b,c))} is not
-requried.  In addition, canonical format in XSB disallows constructs
-that are based on trasnfromations, such as DCGs, HiLog and certain
+requiried.  In addition, canonical format in XSB disallows constructs
+that are based on transformations, such as DCGs, HiLog and certain
 types of tabling.
 
 Canonical syntax is most easily understood via examples.

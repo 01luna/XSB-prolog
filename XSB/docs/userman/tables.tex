@@ -538,7 +538,7 @@ Because an interned term is treated just like a atom (with no indexing
 done on its structure), tabling as intern always uses variant tabling,
 and thus cannot be combined with subsumptive tabling.  (However, see
 {\tt intern\_termhash/2}, described in Section \ref{interntermhash},
-for a way to program this explicitly, usihg lower-level predicates.)
+for a way to program this explicitly, using lower-level predicates.)
 Also it cannot be combined with answer subsumption tabling.
 
 For more information on tabling as intern, see
@@ -780,7 +780,7 @@ the warning {\tt "Removing incomplete tables..."} appear.  Any
 complete tables will not be removed.  They can be abolished by using
 one of XSB's predicates for abolishing tables.
 
-\paragraph{Call Subumption and Meta-Logical Predicates}
+\paragraph{Call Subsumption and Meta-Logical Predicates}
 \index{tabling!call subsumption!interaction with meta-logical predicates}
 
 Meta-logical predicates like {\tt var/1} can be used to filter the
@@ -1011,7 +1011,7 @@ user to examine the state of a given table (Section
 
 \index{tabling!early completion of subgoals} There are in fact two
 ways that a tabled subgoal $S$ can be determined to be completely
-evaluated.  If $S$ is part of an SCC $\cS$, (a mutually recorsive
+evaluated.  If $S$ is part of an SCC $\cS$, (a mutually recursive
 component), then $S$ can be completed once it is ensure that all
 resolution steps have been done to all subgoals in $\cS$.  Otherwise,
 if there is a derivation of an answer that is identical to $S$, $S$
@@ -2070,7 +2070,7 @@ We consider each case in turn.
 Both subgoal and answer abstraction in XSB are based on limiting the
 size of any argument of a term $T$ that forms a subgoal or answer.
 The specific definition of size used is slightly complicated, but
-offeres advantages as discussed below.  Each argument $T_a$ of $T$ is
+offers advantages as discussed below.  Each argument $T_a$ of $T$ is
 traversed as follows.  The size of $T_i$ is initialized to 0, then
 $T_a$ is traversed from left to right.  Each time a non-constant
 functor or list symbol is encountered, the size of $T_i$ is
@@ -2116,8 +2116,8 @@ finer-grained optimization than depth-based abstraction and offers the
 following general advantages.
 \begin{itemize}
 \item From the point of view of implementation, the abstraction can be
-  perfomed with manner that has minimal if any impact on the speed of
-  XSB's tabling engine. 
+  performed with manner that has minimal if any impact on the speed of
+  XSB's tabling engine.
 \item By not abstracting functor symbols at depth 0 and by abstracting
   each argument individually, both multi-argument indexing and star
   indexing of subgoals will be often be preserved.
@@ -2205,7 +2205,7 @@ encountered that reaches that size.
 
   Specifying {\tt subgoal\_abstract(0)} turns abstraction off for
   predicates in $\langle PredSpec \rangle$.  The size can also be set
-  globally by seting the flag {\tt max\_table\_subgoal\_size} to the
+  globally by setting the flag {\tt max\_table\_subgoal\_size} to the
   desired maximal size.  If the subgoal size has been set of a given
   predicate via a tabling declaration the declared size will override
   the global size.
@@ -2324,7 +2324,7 @@ Radial restraint is currently implemented only for tabling with call
 variance.  However it works with most other tabling features, such as
 call abstraction, and incremental tabling.
 %
-Similarly to the use of subgal abstraction, answer abstraction is the
+Similarly to the use of subgoal abstraction, answer abstraction is the
 implementational basis of radial restraint.  As shown in the following
 example, {\em it is important to note that the size limit applies to
   the answer substitution, not to the size of the answer itself.}
@@ -2354,7 +2354,7 @@ encountered that reaches that size.
 
   Specifying {\tt answer\_abstract(0)} turns answer abstraction off
   for predicates in $\langle PredSpec \rangle$.  The size can also be
-  set globally by seting the flag {\tt max\_table\_answer\_size} to
+  set globally by setting the flag {\tt max\_table\_answer\_size} to
   the desired maximal size.  If the answer size of a given predicate
   has been set via a tabling declaration, the predicate-specific
   declared size will override the global size.
@@ -2436,7 +2436,7 @@ follows.
 An atom affected directly by radial or answer count restraint has in
 its delay list either the atom {\tt radial\_restraint} or {\tt
   answer\_count\_restraint}.  The indirect dependency of an atom on a
-form of restraint can be obtained either thorugh the predicate {\tt
+form of restraint can be obtained either through the predicate {\tt
   explain\_u\_val/3}, or {\tt get\_residual\_sccs/[3,5]}.  Both of
 these predicates traverse the residual dependency graph to provide
 information about why a literal is undefined.
@@ -2524,12 +2524,12 @@ program where {\tt s} were not defined.  WFS would assign the value
 {\em false} to {\tt s}, but this is not always what humans do: rather
 humans would treat the unknown predicate {\tt s} as in fact {\em
   unknown} or {\em undefined}.  More generally, if (sub-)goal $G$
-refers to an undefined predcate,the {\em weak} completion semantics
+refers to an undefined predicate,the {\em weak} completion semantics
 (WCS) also assigns {\em undefined} to $G$, rather than {\em false} as
 WFS does, or throwing an error (as XSB also does by default).
 
 \begin{itemize}
-\item For one or more tabled predicates ro use the comploetion semantics,
+\item For one or more tabled predicates ro use the completion semantics,
 use the declaration
 
 \noindent
@@ -2632,7 +2632,7 @@ code,
 %or thread-shared predicates,
 and cannot currently be combined
 %with incremental tabling or
-with answer subumption.
+with answer subusmption.
 %Similarly incremental tabling is not yet supported
 %in the multi-threaded engine (it is supported for ``thread-private''
 %computations only in the sequential engine).
@@ -2654,7 +2654,7 @@ supported in future versions of XSB as resources allow.
 %
 \item A predicate $P$ declared with {\tt answer\_abstract} cannot also
   be declared with {\tt ans\_subsumption, compl\_semantics, intern} or
-  {\tt subsuptive}.
+  {\tt subsumptive}.
 %
 \item A predicate $P$ declared with {\tt compl\_semantics} cannot also
   be declared with {\tt ans\_subsumption, answer\_abstract, dynamic,
@@ -2673,7 +2673,7 @@ supported in future versions of XSB as resources allow.
     set\_predicate\_property/2}.
 %
 \item A predicate $P$ declared with {\tt index/1} cannot also be
-  declared with any option that is incompatable with {\tt subsumptive}
+  declared with any option that is incompatible with {\tt subsumptive}
   since table indexing is a form of call subsumption.
 %
 \item A predicate $P$ declared with {\tt intern} cannot also be

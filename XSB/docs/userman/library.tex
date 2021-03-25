@@ -1747,7 +1747,7 @@ unsigned int msglen, net_encoded_len;
   memcpy((void *) &net_encoded_len, (void *) lenbuf, 4);
   msglen = ntohl(net_encoded_len);
 
-  msg_buff = calloc(msglen+1, sizeof(char))); // check if this suceeded!!!
+  msg_buff = calloc(msglen+1, sizeof(char))); // check if this succeeded!!!
   recvfrom(sock_handle, msg_buff, msglen, 0, NULL, 0);
 \end{verbatim}
 %%
@@ -1846,7 +1846,7 @@ used in XSB programs defined through these symbolic constants:
 \begin{verbatim}
 #include "socket_defs_xsb.h"  
 
-#define SOCK_OK       0      /* indicates sucessful return from socket      */
+#define SOCK_OK       0      /* indicates successful return from socket      */
 #define SOCK_EOF     -1      /* end of file in socket_recv, socket_get0     */
 
 #include "timer_defs_xsb.h"
@@ -1856,17 +1856,19 @@ used in XSB programs defined through these symbolic constants:
 %%
 
 \paragraph{Timeouts.}
-XSB socket interface allows the programer to specify timeouts for certain
-operations. If the operations does not finish within the specified period
-of time, the operation is aborted and the corresponding predicate succeeds
-with the {\tt TIMEOUT\_ERR} error code. The following primitives are
-timeout-enabled: {\tt socket\_connect/4}, {\tt socket\_accept/3}, {\tt
-  socket\_recv/3}, {\tt socket\_send/3}, {\tt socket\_get0/3}, and {\tt
-  socket\_put/3}.  To set a timeout value for any of the above primitives,
-the user should execute {\tt set\_timer/1} right before the subgoal to be
-timed. Note that timeouts are disabled after the corresponding timeout-enabled
-call completes or times out. Therefore, one must use {\tt set\_timer/1}
-before each call that needs to be controlled by a timeout mechanism.
+XSB socket interface allows the programmer to specify timeouts for
+certain operations. If the operations does not finish within the
+specified period of time, the operation is aborted and the
+corresponding predicate succeeds with the {\tt TIMEOUT\_ERR} error
+code. The following primitives are timeout-enabled: {\tt
+  socket\_connect/4}, {\tt socket\_accept/3}, {\tt socket\_recv/3},
+{\tt socket\_send/3}, {\tt socket\_get0/3}, and {\tt socket\_put/3}.
+To set a timeout value for any of the above primitives, the user
+should execute {\tt set\_timer/1} right before the subgoal to be
+timed. Note that timeouts are disabled after the corresponding
+timeout-enabled call completes or times out. Therefore, one must use
+{\tt set\_timer/1} before each call that needs to be controlled by a
+timeout mechanism.
 
 The most common use of timeouts is to either abort or retry the operation
 that times out. For the latter, XSB provides the {\tt sleep/1} primitive,
@@ -1982,7 +1984,7 @@ array {\tt Array}.
 \ourmoditem{array\_update(+Array, +Index, +Elem)}{array\_update/3}{array}
 %
 Updates the array {\tt Array} such that the {\tt Index}-th element of
-the new array is {\tt Elem} using destructive assignement.  The
+the new array is {\tt Elem} using destructive assignment.  The
 implementation is quite efficient in that it avoids the copying of the
 entire array.
 \end{description}
@@ -3014,7 +3016,7 @@ tree) structure of the PDB representation, using common substructures
 of the input PDB's where possible, to be quite efficient.  Thus it can
 be effective to maintain distinct databases and then combine them with
 set union, intersection, or difference.  Also this is a good
-represention for sets of terms where an efficient subset operation is
+representation for sets of terms where an efficient subset operation is
 required, for example for use with aggregation and answer subsumption.
 
 The most important predicates provided by the {\tt prolog\_db}
@@ -3070,14 +3072,14 @@ FileName} and asserts them into database {\tt DB0} returning {\tt DB}.
 {\tt load\_in\_db/2} reads the clauses from the file named {\tt
 FileName} and asserts them into an empty database returning {\tt DB}.
 
-\ourmoditem{union\_db(+DB1,+DB2,?DB3)}{union\_db/3}{prolog\_db}
-{\tt union\_db/3} returns in {\tt DB3} the union of the sets of
-clauses in {\tt DB1} and {\tt DB2}.  This operation takes advantage of
-the structure of the representations of the input {\tt DBs} to share
+\ourmoditem{union\_db(+DB1,+DB2,?DB3)}{union\_db/3}{prolog\_db} {\tt
+  union\_db/3} returns in {\tt DB3} the union of the sets of clauses
+in {\tt DB1} and {\tt DB2}.  This operation takes advantage of the
+structure of the representations of the input {\tt DBs} to share
 representations where possible.  For example, if no clauses for a
 given predicate appear in one of the input {\tt DBs}, then the output
-{\tt DB} will fully share the represention of that predicate from the
-other {\tt DB} (and not even look at its contents.)
+{\tt DB} will fully share the representation of that predicate from
+the other {\tt DB} (and not even look at its contents.)
 
 \ourmoditem{intersect\_db(+DB1,+DB2,?DB3)}{intersect\_db/3}{prolog\_db}
 {\tt intersect\_db/3} returns in {\tt DB3} the intersection of the
@@ -3091,10 +3093,11 @@ sets of clauses in {\tt DB1} and {\tt DB2}.  I.e., the result set
 contains clauses in {\tt DB1} but not in {\tt DB2}.
 
 \ourmoditem{sym\_diff\_db(+DB1,+DB2,?DB3)}{sym\_diff\_db/3}{prolog\_db}
-{\tt sym\_diff\_db/3} returns in {\tt DB3} the symetric difference of
-the sets of clauses in {\tt DB1} and {\tt DB2}.  I.e., the result set
-contains clauses in {\tt DB1} but not in {\tt DB2} and clauses in {\tt
-  DB2} but not in {\tt DB1}.
+           {\tt sym\_diff\_db/3} returns in {\tt DB3} the symmetric
+           difference of the sets of clauses in {\tt DB1} and {\tt
+             DB2}.  I.e., the result set contains clauses in {\tt DB1}
+           but not in {\tt DB2} and clauses in {\tt DB2} but not in
+           {\tt DB1}.
 
 \ourmoditem{subset\_db(+DB1,+DB2)}{subset\_db/2}{prolog\_db}
 {\tt subset\_db/2} succeeds if every clause in {\tt DB1} is in {\tt
