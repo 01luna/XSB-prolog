@@ -3403,6 +3403,124 @@ The choice of the functor {\tt minmax} is arbitrary, the term {\tt
 same min and max values.
 
 %=======================================================================
+\section{Ordered Sets}
+
+In the {\tt ordset} library, sets are represented by ordered lists
+with no duplicates.  Thus the set {\tt \{c,r,a,f,t\}} would be
+represented as \verb|[a,c,f,r,t]|.  The ordering is defined by the
+\verb|@<| family of term comparison predicates
+(Section~\ref{Comparison}), which is the ordering used by {\tt sort/2}
+and {\tt setof/3}.
+
+The benefit of the ordered representation is that the elementary set
+operations can be done in time proportional to the sum of the argument
+sizes rather than their Product.  Some of the unordered set routines,
+such as {\tt member/2}, {\tt length/2}, {\tt select/3} can be used
+unchanged.  The main difficulty with the ordered representation is
+remembering to use it.\footnote{The ordsets library was originally
+  written for Edinburgh Prolog by Richard O'Keefe.  The simple {\tt
+    jacquard\_similarity/2} and {\tt jacquard\_distance/2} predicates
+  were added in the XSB version.}
+
+In the documentation below, the term ordset simply means an ordered
+list, and the length of an ordset is simply its length as an ordered
+list.
+
+\begin{description}
+\ourmoditem{is\_ordset(+Term)}{is\_ordset/1}{ordsets}
+%
+  Succeeds if {\tt Term} is an ordset, and executes in time
+  $\cO(length(Term))$.
+  
+\ourmoditem{list\_to\_ordset(+List,?Set)}{list\_to\_ordset/2}{ordsets}
+%
+Succeeds if {\tt Set} is the ordered representation of {\tt List}, and
+executes in time $\cO(length(List)log(length(List)))$
+
+\ourrepeatmoditem{ord\_add\_element(+Set1,+Elt,?Set2)}{ord\_add\_element/3}{ordsets}
+\ourmoditem{ord\_del\_element(+Set1,+Elt,?Set2)}{ord\_del\_element/3}{ordsets}
+%
+Adds or deletes an element to an ordset in  $\cO(length(Set1))$
+ time.
+
+ \ourrepeatmoditem{ord\_intersect(+Set1,+Set2)}{ord\_intersect/2}{ordsets}
+\ourmoditem{ord\_disjoint(+Set1,+Set2)}{ord\_disjoint/2}{ordsets}
+%
+Succeeds when {\tt Set1} and {\tt Set2} have an element in common/
+don't have an element in common.  Both execute in $\cO(length(Set1) +
+length(Set2))$.
+
+\ourmoditem{ord\_intersection(+Set1,+Set2,?Intsct)}{ord\_intersection/3}{ordsets}
+%
+Succeeds when {\tt Intsct} is the interesection of {\tt Set1} and {\tt
+  Set2}, and executes in $\cO(length(Set1) + length(Set2))$ tome.
+
+\ourmoditem{ord\_intersection(+Set1,+Set2,?Intsct,?Diff)}{ord\_intersect/4}{ordsets}
+%
+Succeeds when {\tt Intsct} is the interesection of {\tt Set1} and {\tt
+  Set2}, and {\tt Diff} are their disjoint elements.  Executes in
+$\cO(length(Set1) + length(Set2))$ time.
+
+\ourmoditem{ord\_intersection(+Sets,?Intsct)}{ord\_intersect/2}{ordsets}
+%
+Succeeds when {\tt Intsct} is the intersection of all sets in the list
+{\tt Sets}.  Executes in time proportional to the sum of the lengths
+of all the sets in {\tt Sets}.
+
+\ourmoditem{ord\_seteq(+Set1,+Set2)}{ord\_seteq/2}{ordsets}
+%
+Succeeds if {\tt Set1} and {\tt Set2} are equal. Executes in
+$\cO(length(Set1))$.
+
+\ourmoditem{ord\_setproduct(+Set1,+Set2,?SetProduct)}{ord\_setproduct/3}{ordsets}
+%
+Succeeds if {\tt SetProduct} is the product of {\tt Set1} and {\tt
+  Set2}.\\  Executes in $\cO(length(Set1)length(Set2))$.
+  
+\ourmoditem{ord\_subset(+Set1, +Set2)}{ord\_subset/2}{ordsets}
+%
+Succeeds if {\tt Set1} is a subset of {\tt Set2}; executes in
+$\cO(length(Set1))$.
+
+\ourmoditem{ord\_subtract(+Set1, +Set2, ?Diff)}{ord\_subtract/3}{ordsets}
+%
+Succeeds if {\tt Diff} is the {\tt Set1} - {\tt Set2}; executes in
+$\cO(length(Set2))$.
+
+\ourmoditem{ord\_symdiff(+Set1, +Set2, ?Diff)}{ord\_symdiff/3}{ordsets}
+%
+Succeeds if {\tt Diff} is the symmetric difference of {\tt Set1} and
+{\tt Set2}; executes in $\cO(length(Set1) + length(Set2))$.
+
+\ourmoditem{ord\_union(+Set1, +Set2, ?Union)}{ord\_union/3}{ordsets}
+%
+Succeeds if {\tt Union} is the union of {\tt Set1} and {\tt Set2}; executes in
+$\cO(length(Set1)+length(Set2))$.
+
+\ourmoditem{ord\_union(+Set1, +Set2, ?Union, ?New)}{ord\_union/4}{ordsets}
+%
+Succeeds when {\tt Union} is the union of {\tt Set1} and {\tt Set2},
+and {\tt New} is {\tt Set2} - {\tt Set1}.  This is useful if you are
+accumulating members of a set and you want to process new elements as
+they are added to the set; executes in $\cO(length(Set1) + length(Set2))$.
+
+\ourmoditem{ord\_union(+Sets, +Set2)}{ord\_union/2}{ordsets}
+%
+Succeeds when {\tt Union} is the union of all the sets in {\tt Sets}. 
+Executes in time proportional to the sum of the lengths
+of all the sets in {\tt Sets}.
+
+\ourrepeatmoditem{jaccard\_similarity(+Set1,+Set2,-Coeff)}{jaccard\_similarity/3}{ordsets}
+\ourmoditem{jaccard\_distance(+Set1,+Set2,-Coeff)}{jaccard\_distance/3}{ordsets}
+%
+Computes the jaccard similarity of two sets:
+
+\[ \frac{|Set1 \cup Set2)|}{|Set1 \cap Set2|}\]
+
+which is a real number between 0 and 1.  Jaccard distance is 1 -
+jaccard similarity.
+\end{description}
+
 \section{Miscellaneous Predicates}
 
 \begin{description}
@@ -3421,6 +3539,7 @@ can be {\tt sha1} or {\tt md5}.
 
 \ourrepeatmoditem{pretty\_print(+ClausePairs)}{pretty\_print/1}{pretty\_print}
 \ourmoditem{pretty\_print(+Stream,+ClausePairs)}{pretty\_print/2}{pretty\_print}
+
 
 
 %
