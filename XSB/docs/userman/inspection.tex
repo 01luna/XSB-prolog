@@ -17,11 +17,11 @@ An alternate approach is to use {\em inspection predicates} -- a term
 that loosely refers to predicates useful for understanding a tabled
 derivation.  Most of these predicates can be used in two ways.  First,
 they can inspect an on-going derivation that has been suspended
-through various means.  Alternately, they may be used to retroatively
+through various means.  Alternately, they may be used to retroactively
 inspect a derivation that has completed.  In this section, we first
 describe two important sets of interactive inspection predicates.
 First we describe the {\tt table\_dump} library which provides a
-flexible approch to inspecting tables
+flexible approach to inspecting tables
 (Section~\ref{sec:table-dump}).\footnote{Other predicates for table
   inspection that are generally lower-level are described in
   Section~\ref{sec:TablingPredicates}.}  Next we discuss a set of
@@ -76,7 +76,7 @@ the form of the information is determined by the options in {\tt
 %
 \item If {\tt OptionsList} contains the option {\tt results(X)} for
   some variable {\tt X}, {\tt X} will be instantiated upon
-  backtracking to all infomation collected about the tables.
+  backtracking to all information collected about the tables.
 %
 \item If the option {\tt output(true)} is set, the information is
   written to {\tt Stream} or to {\tt userout} in Prolog-readable form.
@@ -322,7 +322,7 @@ A {\em depends} edge exists from $S_1$ to $S_2$ iff a call is made to
 $S_2$ while computing answers for $S_1$ and there are no
 intervening tabled subgoals between $S_1$ and $S_2$.  An {\em affects}
 edge is the inverse of a depends edge.  Edges in the SDG are signed
-indicating positve or negative dependence.  A subgoal and its incident
+indicating positive or negative dependence.  A subgoal and its incident
 edges are removed from the SDG when the subgoal is completed.
 
 The main predicate for accessing information about the SDG is {\tt
@@ -426,7 +426,7 @@ maintains both completed and incomplete subgoals in the IDG. (As long
 as the tables for these subgoals are not abolished.)
 
 The main predicates for inspecting the IDG as a dependency graph are,
-desribed below.  Additionally, Section~\ref{sec:incr-preds1} contains
+described below.  Additionally, Section~\ref{sec:incr-preds1} contains
 predicates for examining dependencies among individual subgoals, as
 well as returning information about whether a subgoal in the IDG needs
 to be updated or not.
@@ -542,7 +542,7 @@ such that the truth value of the answer atom for that subgoal is {\em
   undefined} in the state of a suspended computation.  A {\em depends}
 edge exists from $V_1$ to $v_2$ iff $V_2$ is a delay literal in a
 conditional answer for $V_1$.  An {\em affects} edge is the inverse of
-a depends edge.  Edges in the RDG are signed indicating positve or
+a depends edge.  Edges in the RDG are signed indicating positive or
 negative dependence.\footnote{An alternative definition of the RDG has
   tabled subgoals as vertices, where subgoal $S_1$ depends on subgoal
   $S_2$ if some answer for $S_1$ depends on some answer for $S_2$.
@@ -552,14 +552,14 @@ negative dependence.\footnote{An alternative definition of the RDG has
 %
   A pair $(S,A)$ and its incident edges are removed from the RDG when
   the truth value of $A$ changes, and of course when $S$ is
-  abolished.\footnote{The truth value of an atom for a given subgoal may
-    change when a suspended state is further evaluated, so that depending when
-  a computation is suspended, it is possible though rare that a given
-  atom may have a definite truth value when associated with one
-  subgoal, but the truth value may not have been propiaged to another
-  subgoal.  Note that the truth value of atoms may also change for
-  completed subgoals when the {\sc answer completion} operation is
-  lazily performed.}
+  abolished.\footnote{The truth value of an atom for a given subgoal
+    may change when a suspended state is further evaluated, so that
+    depending when a computation is suspended, it is possible though
+    rare that a given atom may have a definite truth value when
+    associated with one subgoal, but the truth value may not have been
+    propigated to another subgoal.  Note that the truth value of atoms
+    may also change for completed subgoals when the {\sc answer
+      completion} operation is lazily performed.}
 
 Information about specific vertices and edges of the RDG can be
 obtained through predicates such as {\tt get\_residual/2} and {\tt
@@ -722,10 +722,10 @@ involve several of the above reasons.
 {\tt explain\_u\_val/[3,6]} is based on the structures returned by
 {\tt get\_residual\_sccs/[3,5]}.  While {\tt
   get\_residual\_sccs/[3,5]} is reasonably fast, it can take a
-peceptable time to analyze large residual programs containing many
+perceptable time to analyze large residual programs containing many
 thousands of SCCs.  Accordingly, {\tt explain\_u\_val/6} can reuse
 dependency structures returned by {\tt get\_residual\_sccs/[3,5]},
-which can be useful for justification systems and other applciations.
+which can be useful for justification systems and other applications.
 
 \begin{example} \rm
 After executing the query {\tt p} to the program
@@ -771,7 +771,7 @@ while the edges of {\tt DG\_Out}, $edges({\tt DG\_Out})$ are the sets
 \{ \langle morph(V_1),morph(V_2) \rangle | \langle V_1,V_2 \rangle \in edges({\tt DG\_In}) \}
 \]
 We adapt this definition to signed dependency graphs by mapping all
-positive adjacenct edges into a positive set, and negative adjacent
+positive adjacent edges into a positive set, and negative adjacent
 edges into a negative set.
 
 The power of {\tt morph\_dep\_graph/3} arises when the numbers of
@@ -985,12 +985,12 @@ inspection predicates available in XSB are:
 \end{itemize}
 
 All of these predicates, except for {\tt get\_sdg\_info/1}, can be
-used to retrospecitively analyze any completed derivation, as long as
+used to retrospectively analyze any completed derivation, as long as
 the derivations tables have not been abolished.  In addition, all of
-the predicates can be used to analyze an onoging derivation by
+the predicates can be used to analyze an ongoing derivation by
 suspending the derivation and then examining the computation from a
 subsidiary command-line interpreter.  This can be especially important
-for long-running computaiotions or those that take a lot of space.
+for long-running computations or those that take a lot of space.
 
 In XSB, a computation can be suspended in several ways, depending a
 user's tastes in and needs for debugging:
@@ -1118,7 +1118,7 @@ starts with viewing the output of {\tt statistics/[0,1]}.
 \end{verbatim} }
 
 \bi
-\item If there are a large number of incomplete tables, XSB's stask
+\item If there are a large number of incomplete tables, XSB's stack
  space is likely to be high also, since an incomplete table $T$ needs
  to maintain many details of its derivation state to ensure all
  answers for $T$ are returned to all calls to $T$.  In this case, the
@@ -1150,7 +1150,7 @@ starts with viewing the output of {\tt statistics/[0,1]}.
 
 This indicates that there are 1,065,417 subgoals (complete or
  incomplete) tabled with call variance, and 12 subgoals tabled with
- call subsumption.  Among all subgoals there are 46,210 ansewrs.  
+ call subsumption.  Among all subgoals there are 46,210 answers.  
 %
 \bi
 \item To understand details of overall table space usage, {\tt
@@ -1306,7 +1306,7 @@ Theoretically speaking, in a pure logic program if a tabled derivation
 
 \item {\em There are a finite but large number of tabled answers.}\ As
   with subgoals, checking for the depth of an answer may not catch
-  certain causes of inefficency. If a program is written over a
+  certain causes of inefficiency. If a program is written over a
   language that has a large number of constant symbols, then a program
   that generates answers of the form
 \[
@@ -1347,7 +1347,7 @@ If the action {\tt suspend} is specified for a given flag-based
   By default, this action is to enter a break level from which the
  computation can be inspected. (This default action for {\tt suspend}
  can be overridden.)  A preamble to the break level is also presented
- that describes certian values pertaining to the state of the
+ that describes certain values pertaining to the state of the
  computation, along with an attempt to summarize what the situation
  means.  The preamble for the tripwire {\tt max\_incomplete\_subgoals}
  appears as follows.
@@ -1381,7 +1381,7 @@ From within a break level thrown by a tripwire, a user can perform
 
 \begin{itemize}
 \item No tabled goals or subgoals may be executed.  Of course once the
- break is exited, the original comptuation can be continued, and
+ break is exited, the original computation can be continued, and
  tabled subgoals can be executed as usual.
 \item Reconsulting a file containing code upon which the original
  query depends may throw an error.
@@ -1402,7 +1402,7 @@ There are situations where the action of breaking to allow a user can
  Ergo the tripwire may set on forest logging to support termination
  analysis via the Terminyzer tool.}
 
-A handler that is called when a tripwire is hit has some resemblences
+A handler that is called when a tripwire is hit has some resemblances
  to a handler called when an error is caught, but there are important
  differences.  A condition triggering a tripwire might or might not
  reflect an error in a program.  So the handler is invoked when the
