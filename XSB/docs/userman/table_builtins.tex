@@ -2209,6 +2209,8 @@ automatically invoke \\ {\tt invalidate\_tables\_for} whenever {\tt
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \subsection{Indexing Subsumptive Tables} \label{sec:table-index}
+\index{tabling!indexing}
+\index{tabling!call subsumption!indexing}
 
 %\index{table\_index}
 
@@ -2327,7 +2329,8 @@ For instance the index specification {\tt [1+2+3, 1, 2+3, 2]}
 indicates that four indexes are desired; a multiple argument index on
 arguments 1, 2, and 3; a single argument index on argument 1; a
 multi-argument index on 2 and 3; and a single argument index on
-argument 2.
+argument 2.~\footnote{This option used to be specified by the
+  declaration {\tt table\_index/1} which is now obsolete.}
 
 Although the syntax used to specify table indexing is similar to that
 used to specify (non-trie) indexing on dynamic predicates, its
@@ -2370,8 +2373,8 @@ the generated subsumptive tables.  But the tables cannot be removed by
 Section~\ref{sec:tabling-compatibility} for the compatability of table
 indexing with other tabling options.
 
-A fuller discussion of how {\tt table\_index/2} can be used and its
-Implications can be found in \cite{warren-tdbu}.
+A fuller discussion of how call subsumption indexing can be used and
+its Implications can be found in \cite{warren-tdbu}.
 
 \paragraph*{Example}
 Consider the declaration
