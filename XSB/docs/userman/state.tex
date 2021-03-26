@@ -30,10 +30,10 @@ predicates use the terms {\em predicate indicator}, {\em term
   simply {\tt F/A}, where {\tt M} is an atom representing a module,
   {\tt F} is an atom representing the {\em functor} of the predicate
   and {\tt A} is a non negative integer representing its {\em arity}.
-  If {\tt M} is specificed, the predicate indicator denotes a
-  predicate in that module.  Otherwise, the predicate is taken to be
-  in {\tt usermod}.\footnote{If the predicate indicator is a term
-    indicator, any bindings to its arguments are ignored.}
+  If {\tt M} is specified, the predicate indicator denotes a predicate
+  in that module.  Otherwise, the predicate is taken to be in {\tt
+    usermod}.\footnote{If the predicate indicator is a term indicator,
+    any bindings to its arguments are ignored.}
 
       Example: {\tt usermod:append/3}
 \item A module {\tt M} becomes a {\em current (i.e. ``known'') module} as
@@ -1256,7 +1256,7 @@ module {\tt usermod} may be enumerated using:
 \item{\em Tabling Properties}.  {\tt Property} unifies with properties
   from theq following set of categories only if the denoted predicate
   is tabled or (in certain cases) dynamic.~\footnote{For backward
-    compatability, {\tt predicate\_property/2} can be called with {\tt
+    compatibility, {\tt predicate\_property/2} can be called with {\tt
       Property} bound to {\tt tabled}, {\tt incremental} or {\tt
       opaque}.}
 %
@@ -1482,7 +1482,7 @@ its value.  Currently supported combinations are:
   completed} exclusively.
 \item Property type is {\tt calls\_to} with value set at the integer
   number of calls that have been made to {\tt Subgoal}.  This value
-  disappears whenenever {\tt Subgoal} is abolished through one of the
+  disappears whenever {\tt Subgoal} is abolished through one of the
   table abolishing routines.
 \item Property type is {\tt answers} with value set at the integer
   number of answers that subgoal currently has {\tt Subgoal}.
@@ -1491,7 +1491,7 @@ its value.  Currently supported combinations are:
 {\bf Error Cases}
 \bi
 \item {\tt Subgoal} is non-variable and does not represent a term that
-  is callible in the present state of the system: 
+  is callable in the present state of the system: 
 \bi
  \item 	{\tt type\_error}
 \ei
@@ -1789,10 +1789,10 @@ specifier of the types above.
 \ei
 \ei
 
-\standarditem{hilog\_op(?Precedence, ?Type, ?Name)}{hilog\_op/3}
-    This predicate has exactly the same behaviour as {\tt current\_op/3}
-    with the only difference that {\tt Type} can only have the values
-    {\tt hx} and {\tt hy}.
+\standarditem{hilog\_op(?Precedence, ?Type, ?Name)}{hilog\_op/3} This
+predicate has exactly the same behavior as {\tt current\_op/3} with
+the only difference that {\tt Type} can only have the values {\tt hx}
+and {\tt hy}.
 
 
 \end{description}
@@ -2095,8 +2095,8 @@ about tabling operations as well as time.
   version-dependent.
 %
 \item Overall space used for tabling, followed by the amount of that
- overall space used for incremental tabling.  (Generally speaking,
- this is the space that is used to contruct the IDG.)
+  overall space used for incremental tabling.  (Generally speaking,
+  this is the space that is used to construct the IDG.)
 \end{itemize}
 %In XSB's single-threaded configuration, maximum space used by each of
 %will be output if the {\tt '-s'} command-line option is used

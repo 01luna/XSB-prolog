@@ -10,7 +10,7 @@ In XSB, tables are designed so that they can be used transparently by
 computations.  However, it is necessary to first inform the system of
 which predicates should be evaluated using tabled resolution
 (\refsec{sec:CompilerOptions}) along with the properties to be used,
-such as call variance or call subsumptiion
+such as call variance or call subsumption
 (\refchap{chap:TablingOverview}).  Further, it is often useful to be
 able to explicitly inspect a table, or to alter its state.  The
 predicates described in this section are provided for these purposes.
@@ -163,7 +163,7 @@ answers entered into the table for the predicate(s) to be interned.
 \item {\tt incremental} which causes the table evaluation method of
   the predicate(s) to be incremental.
 %
-\item {\tt opaque} which indicates that each preidcate $p/n$ in {\tt
+\item {\tt opaque} which indicates that each predicate $p/n$ in {\tt
   PredSpec} is such that incremental tables can depend on tables for
   $p/n$, but that tables for $p/n$ are not themselves incrementally
   maintained.
@@ -324,12 +324,12 @@ Often, the higher level inspection predicates described in
 Section~\ref{sec:suspend-analyze} are the best bet for analyzing
 tables and other aspects of the state of computation.  However, for
 some purposes, a finer level of control is needed, which these
-predicates provide.  In this section we describe inspection predciates
+predicates provide.  In this section we describe inspection predicates
 that can be used to quickly examine a collection of tables.  In the
 next section, we describe lower-level inspection predicates that are
 special-purpose, and may not be needed by most users.
 
-For explanitory purposes, we maintain two running examples in this
+For explanatory purposes, we maintain two running examples in this
 section and the next.  The first uses tabling based on call variance:
 %
 \begin{center}
@@ -639,7 +639,7 @@ no
 \end{example}
 
 For other purposes, it may be desired to examine the answers for a
-particular subgoal, rather than for all subgoals that unifiy with {\tt
+particular subgoal, rather than for all subgoals that unify with {\tt
   CallTerm}.  In this case, {\tt variant\_get\_residual/2} can be
 used, which backtracks through all answers for {\tt CallTerm} if {\tt
   CallTerm} is a tabled subgoal with answers, and fails otherwise.
@@ -1515,7 +1515,7 @@ complex.  Suppose an exception is thrown over some incomplete table,
 so that the system looks for some {\tt catch/3} or similar call that
 will catch the error.  In order to ensure safe space reclamation, XSB
 looks for the catcher $C$ that is nearest to the throw, but is also
-{\em between} SCCs.  Both XSB's command line interpeter and the
+{\em between} SCCs.  Both XSB's command line interpreter and the
 interpreter XSB uses when embedded in a process use a top-level {\tt
   catch/3} goal, which is considered to be ``between'' SCCs, so that a
 thrown error will eventually be caught.
@@ -1532,7 +1532,7 @@ execution environment contains a failure continuation (i.e., a choice
 point) to an answer $A$ in a {\em completed} table $T$, space for $T$
 is not immediately reclaimed.  Rather the space for $T$ will be
 reclaimed by the {\em table garbage collector} at a later point.  More
-precisely, if the current global tabling envonment (including
+precisely, if the current global tabling environment (including
 suspended states) has either
 \begin{itemize}
 \item a choice point that points to an answer $A$ in $T$; 
@@ -1565,7 +1565,7 @@ has changed).  From an implementation perspective, if space for {\tt
 may core dump, even if there are no choice points for completed tables
 anywhere in the choice point stack.  To address this problem, by
 default abolishing a subgoal $S$ (predicate $P$) will abolish all
-subgoals (predicates) that (transtively) depend on $S$
+subgoals (predicates) that (transitively) depend on $S$
 ($P$)~\footnote{Dao Tran Minh contributed to implementing this
   functionality.}.  In this case the goal {\tt
   abolish\_table\_subgoal(r(a,X))} would cause the deletion of {\tt
@@ -1647,7 +1647,7 @@ the IDG outside of $T$ is to delete direct links between other IDG
 tables and $T$.  In addition, all tables that depend on $T$ are
 incrementally invalidated.  As a result, if some $T'$ which had
 previously depended on $T$ is called after $T$ was abolished, $T'$
-will be seend to be incrementally invalid and will be recomputed.
+will be seen to be incrementally invalid and will be recomputed.
 This recomputation will re-insert $T$ into the IDG in a manner that
 reflects the new state of the program.
 
@@ -1673,7 +1673,7 @@ reflects the new state of the program.
 Invalidates all tabled subgoals for the predicate denoted by the
 predicate or term indicator \code{Pred}.  If any subgoal for {\tt
   Pred} contains an answer $A$ that is active in the current
-enviornment, {\tt Pred} space reclamation for the {\tt Pred} tables
+environment, {\tt Pred} space reclamation for the {\tt Pred} tables
 will be delayed until $A$ is no longer active; otherwise the space for
 the {\tt Pred} tables will be reclaimed immediately.  
 
@@ -1778,7 +1778,7 @@ Behaves as {\tt abolish\_table\_pred/1}, but allows the default {\tt
 %
 Invalidates the table for any subgoal that unifies with {\tt
  Subgoal}.  If a subgoal $S$ unifying with {\tt Subgoal} contains
-an answer $A$ that is active in the current enviornment, the table
+an answer $A$ that is active in the current environment, the table
 entry for $S$ will not be reclaimed until $A$ is no longer active;
 otherwise the space for $S$ will be reclaimed immediately.
 
@@ -1871,7 +1871,7 @@ Behaves as {abolish\_table\_subgoals/1}, but allows the default {\tt
 \item {\tt domain\_error([abolish\_tables\_transitively, abolish\_tables\_singly,O)}
 \ei
 \item {\tt Subgoal} is a subgoal for a predicate that is tabled with
-  subsimptive indexing.
+  subsumptive indexing.
   \bi
 \item {\tt permission\_error}. \footnote{Tables that are subsumptively
   indexed do not always directly associate subgoals with tables, but
@@ -1903,7 +1903,7 @@ in their table is deleted.  {\tt abolish\_all\_tables/0} works
 directly on the memory structures allocated for table space.  This
 makes it very fast for abolishing a large amount of tables, and to
 maintain its speed it throws an error if the current execution
-enviornment contains any incomplete tables, or any active completed
+environment contains any incomplete tables, or any active completed
 tables.  {\tt abolish\_all\_tables/0} can be used regardless of
 whether there are incremental tables, or tables that use call or
 answer subsumption.
@@ -1995,7 +1995,7 @@ The argument may be specified either as a list, i.e., {\tt
 %works directly on the memory structures allocated for table space.
 %This makes it very fast for abolishing a large amount of tables, and
 %to maintain its speed it throws an error if the current execution
-%enviornment contains any incomplete tables, or any active completed
+%environment contains any incomplete tables, or any active completed
 %tables.  {\tt abolish\_all\_private\_tables/0} can be used regardless of
 %whether there are incremental tables, or tables that use call or
 %answer subsumption.
@@ -2030,7 +2030,7 @@ The argument may be specified either as a list, i.e., {\tt
 %  abolish\_all\_private\_tables/0} works directly on the memory
 %structures allocated for table space.  This makes it very fast for
 %abolishing a large amount of tables, and to maintain its speed it
-%throws an error if the current execution enviornment contains any
+%throws an error if the current execution environment contains any
 %incomplete tables, or any active completed tables.  {\tt
 %  abolish\_all\_private\_tables/0} can be used regardless of whether
 %there are incremental tables, or tables that use call or answer
@@ -2370,7 +2370,7 @@ order to save space.  All tables created by the transformation can be
 abolished by {\tt abolish\_table\_pred/[1,2]}, which will abolish all
 the generated subsumptive tables.  But the tables cannot be removed by
 {\tt abolish\_table\_subgoals/1} and its finer variants.  See
-Section~\ref{sec:tabling-compatibility} for the compatability of table
+Section~\ref{sec:tabling-compatibility} for the compatibility of table
 indexing with other tabling options.
 
 A fuller discussion of how call subsumption indexing can be used and
@@ -2382,12 +2382,12 @@ Consider the declaration
 {\tt table p/4 as index([3+2+1, 1, 2+3, 2]})
 
 that was discussed above.  The compiler can satisfy this specification
-using only two subsumptive tables havng with argument orders {\tt
+using only two subsumptive tables having with argument orders {\tt
   [1,2,3,4]} and {\tt [2,3,1,4]}.  Note that this is because the {\tt
   3+2+1} is equivalent to {\tt 1+2+3}, so an argument ordering of {\tt
   [1,2,3,4]} satisfies both {\tt 1+2+3} and {\tt 1}.  Similarly the
-argumet ordering {\tt [2,3,1,4]} -- or any argument ordering beginning
-with {\tt [2,3...]}. satisfies both {\tt 2+3} and {2}.
+argument ordering {\tt [2,3,1,4]} -- or any argument ordering
+beginning with {\tt [2,3...]}. satisfies both {\tt 2+3} and {2}.
 
 {\em Exceptions}
 \bi

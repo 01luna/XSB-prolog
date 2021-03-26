@@ -424,7 +424,7 @@ hashing.  We still are supporting it, but we don't need to encourage it
 | use no index but a listzZZ, containing an element that is a variablebacktrack through all the clauses in the predicate.
 | (Notice that it may well make sense to include an argument that 
 | appears in a joint specification later alone, as 1 in this example,
-| but it never makes sense foring the single argument to appear earlier. In
+| but it never makes sense for the single argument to appear earlier. In
 | that case the joint index would never be used.)
 
 }
@@ -642,11 +642,11 @@ global table.
   based on the dynamic predicate to be automatically updated when
   clauses are asserted or retracted.
 %
-\item {\tt opaque}. This option is essencially the same as
+\item {\tt opaque}. This option is essentially the same as
   non-incremental dynamic code, {\em except} that {\tt opaque}
   predicates can be made {\tt incremental} by a later {\tt dynamic/1}
   directive, and {\tt incremental} predicates can be made {\tt opaque}
-  by a {\tt dynamic/1} directuve.
+  by a {\tt dynamic/1} directive.
 %
 \item {\tt private} which causes the predicate(s) to be treated as
   thread private.
@@ -695,7 +695,7 @@ in $PredList$ with inconsistent attributes.
 \end{itemize}
 
 In addition, regardless of the state of predicates in $PredList$, if
-options contains an inconstent set of declarations, a domain error
+options contains an inconsistent set of declarations, a domain error
 will be thrown.  {\tt Options} is inconsistent in the following cases:
 %
 \bi
@@ -737,7 +737,7 @@ form {\tt PredSpec} or {\tt PredSpec} as {\tt Options}.  Then if
 \bi
 \item {\tt domain\_error(dynamic\_option,Option)}
 \ei
-\item {\tt Options} contains inconsistnet elements (as described above)
+\item {\tt Options} contains inconsistent elements (as described above)
 \bi
 \item {\tt table\_error}
 \ei
@@ -1042,7 +1042,7 @@ restriction.  A storage object $O$ is created on demand, simply by
 calling (a backtrackable or non-backtrackable) update predicate that
 refers to $O$.  However to reclaim $O$'s space within a running
 thread, the predicate {\tt storage\_reclaim\_space/1} must be called.
-Both backtackable and non-backtrackable updates can be made to the
+Both backtrackable and non-backtrackable updates can be made to the
 same storage object, although doing so may not always be a good
 programming practice.
 

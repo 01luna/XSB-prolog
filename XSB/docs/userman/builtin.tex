@@ -254,7 +254,7 @@ from a file using {\tt consult} and such.)
 Beginning in Version 3.5 of XSB, alternate character sets are supported.  
 %
 \begin{itemize}
-\item {\em UTF-8} which on input atomatically interprets the sequence
+\item {\em UTF-8} which on input automatically interprets the sequence
 of bytes as UTF-8 byte sequences and decodes them to obtain the
 unicode code points; and on output converts from the unicode code
 points to UTF-8 byte sequences.
@@ -325,7 +325,7 @@ Mode} currently can only be {\tt read}.  This stream class, which
 reads from interned atoms, is analogous to C's {\tt sscanf()}
 function.
 %
-\item If {\tt SourceSink} is the term {\tt pipe(FIleDescriptor)}
+\item If {\tt SourceSink} is the term {\tt pipe(FileDescriptor)}
 where {\tt FileDescriptor} is an integer, then a pipe stream is opened
 in the mode for {\tt FileDescriptor}.
 \ei
@@ -894,8 +894,8 @@ Beginning with \version{}, XSB supports Unicode in the form of UTF-8
 characters.  Due to this change, we recommend using ISO-compliant
 character I/O predicates, rather than older predicates such as {\tt
   get/1}, {\tt get0/1}, {\tt put/1} and so on.  As the use of these
-older predicates may sometines give unexpected answers when used with
-non-ASCII characters, they are deprecated, athough they are still
+older predicates may sometimes give unexpected answers when used with
+non-ASCII characters, they are deprecated, although they are still
 available for backward compatibility.
 
 \begin{description}
@@ -1487,7 +1487,7 @@ follows:
      bool} is {\tt false} terms of the form {\tt '\$VAR'(N)} are not
    treated in any special way.  Default value is {\tt false}.
 %
-% TLS: need predicate portray attribute, if we dont have it.
+% TLS: need predicate portray attribute, if we don't have it.
 %
 \comment{
 \item {\tt portrayed(+Bool)}. If {\tt Bool = true}, then a call is made
@@ -1780,7 +1780,7 @@ using the first argument.
     nl(Stream)}.
 
 \comment{
-TLS I dont think we still need this -- console_write seems better for that.
+TLS I don't think we still need this -- console_write seems better for that.
 \standarditem{display(?Term)}{display/1}
     The HiLog term {\tt Term} is displayed on the terminal (standard output 
     stream), according to the operator declarations in force. In other words,
@@ -2239,8 +2239,8 @@ conditions has happened by verifying that $\tt BytesRead <
 BytesRequested$.
 
 Note: although XSB has an atom table garbage collector, this predicate
-is inefficent to read large files.  It is usually best to use {\tt
-  read\_getbuf\_list} or another predicate in such a  case.
+is inefficient to read large files.  It is usually best to use {\tt
+  read\_getbuf\_list} or another predicate in such a case.
 
 {\bf Error Cases} 
 \bi
@@ -2505,7 +2505,7 @@ Put XSB to sleep for a given number of seconds.
 \ourmoditem{getenv(+VarName,-VarVal)}{getenv/2}{machine} 
 \noindent
 Unifies {\tt VarVal} with the value of {\tt VarName} in the current
-shell.  If {\tt VarName} is not an environment varible, the predicate
+shell.  If {\tt VarName} is not an environment variable, the predicate
 fails.
 
 {\em Example:}
@@ -3118,7 +3118,7 @@ as before.  However, examining the answer shows
 Res = [floundered(q(1))]
 \end{verbatim}
 Note that the binding {\em X=1} is propagated to the delayed literal
-after the resulution of {\tt s(X)}.  However, the call {\tt
+after the resolution of {\tt s(X)}.  However, the call {\tt
   tnot(q(1))} is not made once X is bound, so that the delayed literal
 does not fail.
 
@@ -3253,7 +3253,7 @@ discussion of Prolog and HiLog terms see Section~\ref{TermSyntax}.
 
 \isoitem{nonvar(?X)}{nonvar/1}
     Succeeds if {\tt X} is currently instantiated to a non-variable term;
-    otherwise it fails. This has exactly the opposite behaviour of 
+    otherwise it fails. This has exactly the opposite behavior of 
     {\tt var/1}\@.
 
 \isoitem{atom(?X)}{atom/1}
@@ -3575,7 +3575,7 @@ as arguments, or if {\tt X} is an atom. (It fails if X is a cons node.)
           and the number of arguments {\tt F} is applied to, in the 
           HiLog term, is {\tt Arity}.
     \end{itemize}
-    The first of these cases corresponds to the ``usual'' behaviour of
+    The first of these cases corresponds to the ``usual'' behavior of
     Prolog's {\tt functor/3}, while the second is the extension of
     {\tt functor/3} to handle HiLog terms. Like the Prolog's {\tt
     functor/3} predicate, {\tt hilog\_functor/3} can be used in either
@@ -3729,7 +3729,7 @@ as arguments, or if {\tt X} is an atom. (It fails if X is a cons node.)
     if {\tt Index} $>$ 0, or with the functor of {\tt Term} if {\tt Index} = 0.
 
 \ourstandarditem{hilog\_arg(+Index, +Term, ?Argument)}{hilog\_arg/3}{HiLog}
-    If {\tt Term} is a Prolog term, it has the same behaviour as {\tt arg/3},
+    If {\tt Term} is a Prolog term, it has the same behavior as {\tt arg/3},
     but if {\tt Term} is a proper HiLog term, {\tt hilog\_arg/3} unifies 
     {\tt Argument} with the 
     $({\tt Index}+1)^{th}$ argument of the Prolog representation of 
@@ -3856,15 +3856,15 @@ a  or a list whose head is a variable
 %in the following line I used a very ``dirty'' LaTeX hack! -- Kostis.
 
 \ourstandarditem{?Term \^{ }=.. [?F |?ArgList]}{\^{ }=../2}{HiLog}
-    When {\tt Term} is a Prolog term, this predicate behaves exactly like
-    the Prolog {\tt =../2}. However when {\tt Term} is a proper HiLog term, 
-    {\tt \verb|^|=../2} 
-    succeeds unifying {\tt F} to its HiLog functor and {\tt ArgList} to the 
-    list of the arguments to which this HiLog functor is applied. Like 
-    {\tt =../2}, the use of {\tt \verb|^|=../2} can nearly always be avoided
-    by using the more efficient predicates {\tt hilog\_functor/3} and 
-    {\tt hilog\_arg/3}. The behaviour of {\tt \verb|^|=../2}, on HiLog terms 
-    is as follows:
+When {\tt Term} is a Prolog term, this predicate behaves exactly like
+the Prolog {\tt =../2}. However when {\tt Term} is a proper HiLog
+term, {\tt \verb|^|=../2} succeeds unifying {\tt F} to its HiLog
+functor and {\tt ArgList} to the list of the arguments to which this
+HiLog functor is applied. Like {\tt =../2}, the use of {\tt
+  \verb|^|=../2} can nearly always be avoided by using the more
+efficient predicates {\tt hilog\_functor/3} and {\tt
+  hilog\_arg/3}. The behavior of {\tt \verb|^|=../2}, on HiLog terms
+is as follows:
     \begin{itemize}
     \item If initially {\tt Term} is uninstantiated, then the list in the 
           second argument of {\tt \verb|^|=../2} must be instantiated to 
@@ -4025,11 +4025,11 @@ explicitly get the effect of tabling with interned terms (see Section
 In particular one can use this technique to get a subsumptive tabling
 with interned terms.
 
-Note that getting a hash for a
-ground term is linear in the siae of the non-interned subcomponents of
-that term, and getting the ground term given the hash is constant time
-(and quite fast.)  This means that generating and using hashes for
-ground terms can be quite efficient.
+Note that getting a hash for a ground term is linear in the size of
+the non-interned subcomponents of that term, and getting the ground
+term given the hash is constant time (and quite fast.)  This means
+that generating and using hashes for ground terms can be quite
+efficient.
 
 \end{description}
 
@@ -5624,7 +5624,7 @@ the base goal.  On the other hand, the handler may inspect and analyze
 the evaluation state of the base goal through XSB's growing set of
 inspection routines (Section~\ref{sec:suspend-analyze}).
 
-\subsubsection{Interpreter Indicess}
+\subsubsection{Interpreter Indices}
 %
 One use of timed calls is to have the handler suspend the base
 computation, and then start an interpreter that can be used to execute
@@ -5687,7 +5687,7 @@ calling {\tt Goal}, so it should not be used for frequent calls to
 goals that whose derivation is simple.
 
 {\tt timed\_call/2} is based on XSB's internal interrupt mechanism,
-used for attributed variable handlers and thread signalling.  As such,
+used for attributed variable handlers and thread signaling.  As such,
 the ability to execute complex actions upon interrupt and then to
 resume {\tt Goal} is very robust.  However, checks for interrupts are
 only made whenever XSB's SLG-WAM engine is executing.  Because of
@@ -5703,7 +5703,7 @@ using one of XSB's built-ins.  As mentioned, the time that is spent in
 a break level is not counted as part of the repetition or maximum intervals associated with the base goal.
 
 %{\tt timed\_call/3} is not implemented for the multi-threaded engine
-%but its functionality is easily duplicated using thread signalling
+%but its functionality is easily duplicated using thread signaling
 %(Section`\ref{sec:thread-signals}).
 
 {\bf Examples}
@@ -5732,7 +5732,7 @@ These approaches can be combined:
 \begin{verbatim}
 timed_call(loop,[repeating(500,statistics),max(5000,break)]).
 \end{verbatim}
-will interrupt the computation every 500 milliconds to print
+will interrupt the computation every 500 milliseconds to print
 statistics, and then will enter a break after 5000 milliseconds, so
 that the state of computation can be explored after 5000 milliseconds.
 Handlers can be quite complex, and can support UI-based monitors, and
@@ -5888,8 +5888,8 @@ call invoked at level $N-1$.  That is, if {\tt Goal} was called at
 interpreter level $N$ via {\tt timed\_call/2}, cancelling will remove
 any repeating or maximum interrupts.  When interpreter level $N-1$ is
 later resumed, {\tt Goal} will continue execution as if it were called
-via the normall calling mechanism.  If there is no timed call active
-at level $N-1$, the predicate succeeds with no effects.
+via the normal calling mechanism.  If there is no timed call active at
+level $N-1$, the predicate succeeds with no effects.
 
 %-------------------------------------------------------
 
@@ -5919,7 +5919,7 @@ subgoal; but otherwise {\tt Handler} has no restrictions.
 
 %{\tt bounded\_call/[3,4]} is not yet implemented for the
 %multi-threaded engine but its functionality is easily duplicated using
-%thread signalling (Section`\ref{sec:thread-signals}).
+%thread signaling (Section`\ref{sec:thread-signals}).
 
 {\bf Error Cases} 
 %
