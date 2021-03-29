@@ -94,23 +94,23 @@ function except that {\tt NewAssoc} associates {\tt Val} with {\tt
 
 
 
-\section{Ordered Sets: {\tt ordsets.P}}
-\index{Code authors!O'Keefe, Richard}
-By Richard O'Keefe
-
+%\section{Ordered Sets: {\tt ordsets.P}}
+%\index{Code authors!O'Keefe, Richard}
+%By Richard O'Keefe
 %
-(Summary from code documentation) {\tt ordset.P} provides an XSB port
-  of the widely used ordset library, whose summary we paraphrase here.
-  In the ordset library, sets are represented by ordered lists with no
-  duplicates.  Thus {\em \{c,r,a,f,t\}} is represented as {\tt
-    [a,c,f,r,t]}.  The ordering is defined by the \verb|@<| family of
-  term comparison predicates, which is the ordering used by {\tt
-    sort/2} and {\tt setof/3}.  The benefit of the ordered
-  representation is that the elementary set operations can be done in
-  time proportional to the sum of the argument sizes rather than their
-  product.  Some of the unordered set routines, such as {\tt
-    member/2}, {\tt length/2}, or {\tt select/3} can be used
-  unchanged.
+%%
+%(Summary from code documentation) {\tt ordset.P} provides an XSB port
+%  of the widely used ordset library, whose summary we paraphrase here.
+%  In the ordset library, sets are represented by ordered lists with no
+%  duplicates.  Thus {\em \{c,r,a,f,t\}} is represented as {\tt
+%    [a,c,f,r,t]}.  The ordering is defined by the \verb|@<| family of
+ % term comparison predicates, which is the ordering used by {\tt
+%    sort/2} and {\tt setof/3}.  The benefit of the ordered
+%  representation is that the elementary set operations can be done in
+%  time proportional to the sum of the argument sizes rather than their
+%  product.  Some of the unordered set routines, such as {\tt
+%    member/2}, {\tt length/2}, or {\tt select/3} can be used
+%  unchanged.
 
 \section{Unweighted Graphs: {\tt ugraphs.P}}
 \index{Code authors!Carlsson, Mats}
