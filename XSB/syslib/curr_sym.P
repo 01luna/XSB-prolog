@@ -1284,6 +1284,11 @@ xsb_flag(float_display_format,Num):-
     atom_codes(P,[_,_,_|R]),
     remove_last(R,NumL),
     atom_codes(Num,NumL).
+xsb_flag(table_calling_method,Method):-
+    stat_flag(TABLING_METHOD,C_Method),
+    (C_Method =:= VARIANT_EVAL_METHOD ->
+	 Method = variant
+       ; Method = subsumptive).
 xsb_flag(load_dync_error_limit,Num):-
     stat_flag(LOAD_DYNC_ERROR_LIMIT,Num).
 	   
@@ -1571,7 +1576,7 @@ set_xsb_flag_1(character_set,Mode):- !,
 	 ; Mode == utf_8
 	 ->	stat_set_flag(CHARACTER_SET, UTF_8)
 	 ;	domain_error([iso,undefined_character_set],
-			     Mode,set_prolog_flag/2,2,'exception_action clause')
+			     Mode,set_prolog_flag/2,2,'character_set clause')
 	).
 set_xsb_flag_1(errors_with_position,Mode):- !,
 	( Mode = on -> 
@@ -1588,6 +1593,14 @@ set_xsb_flag_1(Type, _) :-
 	;	prolog_commons_flag(Type)
 	),
 	permission_error(modify,flag,Type,set_prolog_flag/2).
+set_xsb_flag_1(table_calling_method,Method):-
+    (Method = variant ->
+	 stat_set_flag(TABLING_METHOD,VARIANT_EVAL_METHOD)
+      ;  (Method = subsumptive -> 
+	      stat_set_flag(TABLING_METHOD,SUBSUMPTIVE_EVAL_METHOD)
+	 ;    domain_error([table_calling_method],
+			     Method,set_prolog_flag/2,2,'table_calling_method clause')
+	) ).
 set_xsb_flag_1(load_dync_error_limit, Num) :-
     ((integer(Num),Num >= 0) ->
 	 (Num > 0 -> SetNum = Num ; (iso_flag(max_integer,Maxint),SetNum = Maxint)),
