@@ -187,7 +187,7 @@
 :- import concat_atom/2, term_to_atom/3  from string.
 
 :- import (use_variant_tabling)/1, (use_subsumptive_tabling)/1 from tables.
-:- import add_table/1, add_incr_table/2 from tables.
+:- import add_table/2, add_incr_table/2 from tables.
 :- import xsb_thread_self/1 from thread.
 :- import check_table_option/4 from tables.
 

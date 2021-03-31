@@ -1118,11 +1118,13 @@ check_table_option(compl_semantics,Options,PredCList,_Override) :- !,
 	table_opts_intersect([ans_subsumption,answer_abstract(_),approximate(_),dynamic,dyn,
 	                      incremental,intern,opaque,subsumptive,subgoal_abstract(_)],
 			      compl_semantics,Options,PredCList).
+check_table_option(if_not_tabled,_Options,_PredCList,_Override) :- !.
 check_table_option(Option,_Options,_PredCList,_Override) :- !,
 	domain_error(table_option,Option,(table)/1,1,
 	['must be one of ',
 	'ans_subsumption,answer_abstract,approximate,dyn,dynamic,incremental,intern,',
-	'nonincremental,opaque,private,shared,subgoal_abstract,subsumptive,variant']).
+	'nonincremental,opaque,subgoal_abstract,subsumptive,variant,if_not_tabled']).
+%	'nonincremental,opaque,private,shared,subgoal_abstract,subsumptive,variant,if_not_tabled']).
 
 %:- import console_writeln/1 from standard.
 table_opts_intersect(Incompats,Decl,Options,PredCList):- 
@@ -1164,8 +1166,8 @@ set_tabled_eval(Term,EvalMethod) :-
 
 /* Here, if a predicate is static, and non-tabled we throw an error,
    otherwise a no-op */
-:- mode add_table(?).
-add_table(Spec) :-
+:- mode add_table(?,+).
+add_table(Spec,Error_flag) :-
 	mpa_to_skel(Spec,Call),
 	term_psc(Call,Psc),
 	psc_type(Psc,Type),
@@ -1176,8 +1178,13 @@ add_table(Spec) :-
 	    ;	   (Type =:= T_DYNA, dynamic_pred_has_clauses(Spec,IfCls), IfCls =:= 1
 		    ->	   permission_error(table,'dynamic predicate with clauses',Spec,(table)/1)
 		    ; psc_set_tabled(Psc,1) %% set it as tabled
-		    ->	   true
-		    ;	   permission_error(table,'predicate that cannot be tabled',Spec,(table)/1)
+		    ->	 true
+		    ; (Error_flag = allow_redundances ->
+			   warning([Spec,' is already tabled, ignoring this ',
+				    'directive.  Use set_predicate_property/2 to change ',
+                                    'tabling properites.'])
+		      ;    permission_error(table,'predicate that is already tabled',
+					    Spec,(table)/1) )
 		   )
 	). 
 

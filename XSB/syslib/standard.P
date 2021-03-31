@@ -1315,25 +1315,29 @@ table(Options) :-
 	check_nonvar(Options,(table)/1,1),
 	(Options = as(Ps,List) ->
 	    check_table_options(List,Ps,no),  % dont override other values
+	    (comma_member(if_not_tabled,List)
+	     ->	Error_flag = allow_redundances
+	     ;	Error_flag = no_redundances
+	    ),
 	    (comma_member(index(_),List)
 	     ->	true
-	     ;	table_1(Ps)
+	     ;	table_1(Ps,Error_flag)
 	    ),
             ( (comma_member(dynamic,List) ; comma_member(dyn,List)) -> 
 	      exec_dyn_on_predlist(Ps) ; true),
 	    exec_table_options(List,Ps)
-         ;  table_1(Options)).
+         ;  table_1(Options,no_redundances)).
 
 % writeln(userout,leaving_table(Options)).
 
-table_1((One,Two)):- !,
-	table_1(One),
-	table_1(Two).
-table_1(Ps):- 
+table_1((One,Two),Error_flag):- !,
+	table_1(One,Error_flag),
+	table_1(Two,Error_flag).
+table_1(Ps,Error_flag):- 
 	(structure(Ps) ; atom(Ps)),
 	\+ is_list(Ps),!,
-	add_table(Ps).
-table_1(Pred):- 
+	add_table(Ps,Error_flag).
+table_1(Pred,_Error_flag):- 
     domain_error(comma_list_or_predicate_indicator,Pred,(table)/1,1).
 
 :- import mpa_to_skel/2 from file_op.
@@ -1470,10 +1474,13 @@ exec_table_option(intern,PredSpec) :- !,
 exec_table_option(compl_semantics,PredSpec) :- !,
 	( PredSpec = P/N -> functor(Term,P,N); Term = PredSpec ),
 	set_tif_property(Term,compl_semantics,1).
-exec_table_option(Option,_Pred) :- !,
-	domain_error(table_option,Option,(table)/1,1,
+exec_table_option(if_not_tabled,_PredSpec) :- !.
+exec_table_option(Option,_PredSpec) :- !,
+	domain_error(table_option_exec,Option,(table)/1,1,
 	['must be one of ',
-	 'dynamic,dyn,subsumptive,variant,incremental,nonincremental,opaque,private,shared,approximate,intern']).
+	 'ans_subsumption,answer_abstract,approximate,dyn,dynamic,incremental,intern,',
+	 'nonincremental,opaque,subgoal_abstract,subsumptive,variant,if_not_tabled']).	
+%	'nonincremental,opaque,private,shared,subgoal_abstract,subsumptive,variant,if_not_tabled']).	
 
 %--------
 :- import answer_abstract/1 from usermod.
