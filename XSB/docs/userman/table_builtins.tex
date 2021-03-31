@@ -145,11 +145,12 @@ three forms:
 \item {\tt Options} is either a table option or a list of table
   options.  In \version, the following table options are supported
 \bi
-\item {\tt dyn} which causes the predicate(s) to be treated as dynamic
-  in addition to being tabled, and is equivalent to {\tt ?- dynamic
-    PredSpec}~\footnote{The option {\tt dynamic} can be used, but
-    because the atom dynamic is an operator in XSB, the declaration
-    requires parentheses, e.g.: {\tt table p/n as (dynamic).}}
+\item {\tt dyn} (or ``{\tt (dynamic)}'') which causes the predicate(s)
+  to be treated as dynamic in addition to being tabled, and is
+  equivalent to {\tt ?- dynamic PredSpec}~\footnote{The option {\tt
+      dynamic} can be used, but because the atom dynamic is an
+    operator in XSB, the declaration requires parentheses, e.g.: {\tt
+      table p/n as (dynamic).}}
 %
 \item {\tt subsumptive} which causes the table evaluation method of
   the predicate(s) to use call subsumption.
@@ -187,6 +188,9 @@ answers entered into the table for the predicate(s) to be interned.
 \item {\tt max\_answers(n)} which for any $P$ in {\tt PredSpec}, the
   maximum number of answers for any tabled subgoal of $P$ is limited
   to {\tt n}, using sound completion.
+\item {\tt if\_not\_tabled} which succeeds as a no-op on any of the
+  predicates that have already been tabled.  The default is to throw
+  an error if any of the predicates have been tabled.
 %
 \ei
 \ei
@@ -202,6 +206,63 @@ or options changed, and reduce the possibility of leaving some $p/n$
 in $PredList$ with inconsistent attributes, which could cause an error
 to be thrown during program execution.
 %
+
+\paragraph{Checking Consistency and Support of Tabling Properties}
+Not all combinations of tabling options that may be specified in {\tt
+  Options} are supported.  This may be because some of the options are
+semantically inconsistent, e.g., {\tt variant} and {\tt subsumptive};
+or it could mean that the combinations of some options has not yet
+been implemented in XSB's engine, e.g., {\tt subsumptive} and {\tt
+  intern}.  (See Section~\ref{sec:tabling-compatibility} for a full
+list of inconsistent and unsupported tabling modes and predicate
+properties.)
+
+If {\tt Options} contains an unsupported set of declarations, a
+permission error will be thrown.  The following is a partial list of
+cases that are inconsistent or unsupported.
+%
+\bi
+\item {\tt Options} contains {\tt dynamic} and or {\tt incremental}.
+  Tabled dynamic incremental code is not yet implemented in XSB.
+
+%\item {\tt Options} contains ({\tt incremental} or {\tt opaque}) and
+%  ({\tt subsumptive} or {\tt shared})
+
+\item {\tt Options} contains {\tt subsumptive} and one of
+
+({\tt variant}, {\tt subgoal\_abstract/1} or {\tt answer\_abstract/1})
+%  {\tt shared} 
+
+\item {\tt Options} contains {\tt intern} and one of
+
+  ({\tt dynamic}, {\tt subsumptive} {\tt approximate}, {\tt
+  incremental}, {\tt opaque},  {\tt answer\_abstract} or {\tt
+  subgoal\_abstract})
+%
+%\item {\tt Options} contains both {\tt private} and {\tt shared}
+%
+\item {\tt Options} contains both {\tt incremental} and one of
+
+  ({\tt opaque}, {\tt nonincremental})
+\ei
+
+\paragraph{Executing Multiple {\tt table} Directives for a Predicate}
+In general, a predicate $P$ should only be declared to be tabled a
+single time, unless the directive {\tt if\_not\_tabled} is used (in
+which case any subsequent tabling declarations are ignored).
+Otherwise, a subsequent tabling directive for $P$ may throw an
+error.~\footnote{The reason for this is to simplify the execution of
+  {\tt table/1}.}  This prohibition against multiple tabling
+declarations is not always enforced in \version{}, although it might
+be in future versions.  As a result, it is better practice to use {\tt
+  set\_predicate\_property/2} which allows a change in a particular
+property {\em prop} of $P$ if the property is semantically meaningful
+and is supported by XSB's engine.  In such a case, the execution of
+{\tt set\_predicate\_proprety/2} will remove certain properties that
+are inconsistent with {\em prop}, for instance if {\tt prop} is {\tt
+  variant} it will remove the property {\tt subsumptive}, and
+vice-versa.
+
 \begin{itemize}
 \item If a predicate in {\tt Predlist} has been declared as {\tt
   incremental} it may be changed to {\tt opaque} at any time;
@@ -219,33 +280,17 @@ to be thrown during program execution.
   -- will throw a permission error.
 \end{itemize}
 
-In addition, regardless of the state of predicates in $PredList$, if
-options contains an unsupported set of declarations, a permission
-error will be thrown (see Section~\ref{sec:tabling-compatibility} for
-a list of supported and non-supported combinations of tabling modes
-and predicate properties).  {\tt Options} throws a table error in the
-following cases:
-%
-\bi
-\item {\tt Options} contains {\tt dynamic} and either {\tt opaque} or
-  {\tt incremental}.  Tabled dynamic incremental code is not yet
-  supported in XSB.
+See the documentation of {\tt set\_predicate\_property/2} for further
+details.
 
-\item {\tt Options} contains ({\tt incremental} or {\tt opaque}) and
-  ({\tt subsumptive} or {\tt shared})
+If the use of {\tt set\_predicate\_property/2} doesn't help, it may be
+necessary to abolish the tables for $P$ via {\tt
+  abolish\_table\_pred/[1,2]} and then use {\tt
+  set\_predicate\_property/2} on the predicate.
 
-\item {\tt Options} contains {\tt subsumptive} and ({\tt variant} or
-  {\tt shared} or {\tt subgoal\_abstract/1} or {\tt
-    answer\_abstract/1})
+\predref{set\_predicate\_property/2}
+\predrefindex{set\_predicate\_property/2}
 
-\item {\tt Options} contains {\tt intern} and ({\tt dynamic} or {\tt
-subsumptive} or {\tt approximate} or {\tt incremental} or {\tt opaque}
-or {\tt answer\_abstract} or {\tt subgoal\_abstract})
-%
-%\item {\tt Options} contains both {\tt private} and {\tt shared}
-%
-\item {\tt Options} contains both {\tt incremental} and {\tt opaque}
-\ei
 
 {\bf Error Cases}
 
@@ -280,8 +325,8 @@ form {\tt PredSpec} or {\tt PredSpec} as {\tt Options}.  Then if
 \bi
 \item {\tt permission\_error}
 \ei
-\item An option in {\tt Options} would modify a predicate in {\tt
-  PredSpec} in a manner that is not allowed (as described above) 
+\item A predicate in {\tt PredSpec} has already been tabled and {\tt
+  Options} does not contain {\tt if\_not\_tabled}
 \bi
 \item {\tt permission\_error}
 \ei

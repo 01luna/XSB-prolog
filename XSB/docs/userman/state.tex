@@ -1388,12 +1388,13 @@ module {\tt usermod} may be enumerated using:
 Certain properties of a predicate $P$, represented by {\tt TermSpec}
 can be changed during a session without reloading $P$ by {\tt
   set\_predicate\_property/2}.  The allowable values for {\tt
-  Property} are grouped into the following classes.
+  Property} are grouped into the following classes, all of which have
+to do with tabling properties.
 \begin{itemize}
 \item {\em Table reuse}.  When {\tt Property} is set to {\tt
   table\_reuse=variant} or {\tt table\_reuse=} {\tt subsumptive} the
   table reuse strategy of $P$ can be changed, if such a change is not
-  inconsistent with other tabling properties for $P$ Changing the
+  inconsistent with other tabling properties for $P$. Changing the
   table reuse strategy will only affect new tabled subgoals; completed
   tables or those being executed will not be affected.\footnote{{\tt
       set\_predicate\_property/2} also accepts the properties {\tt
