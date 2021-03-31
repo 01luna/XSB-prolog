@@ -213,6 +213,8 @@ rm -f aggregs_test_2.xwam
 ../gentest.sh "$XEMU -l $options" test_abolish_aux "test."
 #-------------------------------------------------
 ../gentest.sh "$XEMU -l $options" test_as_mod "test."
+#-------------------------------------------------
+../gentest.sh "$XEMU -l $options" test_tab_interact "test."
 #--------------------------------
 # h series is hilog/tabling tests
 #------------------------------------
