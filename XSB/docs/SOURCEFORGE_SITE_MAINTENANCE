@@ -1,6 +1,6 @@
 
 Sourceforge keeps changing its policies and procedures for site
-maintenance.  Here are the notes from putting out version 3.8
+maintenance.  Here are the notes from putting out version 4.0
 
 To update the web page do the following steps.
 
@@ -19,10 +19,7 @@ need.  Eg.
 
 scp index.html <name>,xsb@web.sourceforge.net:/home/project-web/xsb/htdocs
 
--- For full releases, add the release file following the instructions of:
-
-http://apps.sourceforge.net/trac/sitedocs/wiki/Release%20files%20for%20download
-%https://sourceforge.net/docs/E01/en/#top
+-- For full releases, add the release file following the instructions found from clicking on the Files tab in https://sourceforge.net/projects/xsb.
 
 -- There are several other directories that may need to be updated.
 
@@ -39,9 +36,9 @@ For Binaries, you can run
 
 admin/TarRelease.sh (Needs to be updated for git) 
 
-to make an XSB.tar.gz, then move the tar file somewhere, untar it, cd
-to the admin directory, and run configure_release.sh.  This makes
-optimized versions of 
+to make an XSB.tar.gz and an XSB.zip, then move the tar file
+somewhere, untar it, cd to the admin directory, and run
+configure_release.sh.  This makes optimized versions of
 
 sequential, 64-bit, local
 
