@@ -1180,9 +1180,10 @@ add_table(Spec,Error_flag) :-
 		    ; psc_set_tabled(Psc,1) %% set it as tabled
 		    ->	 true
 		    ; (Error_flag = allow_redundances ->
-			   warning([Spec,' is already tabled, ignoring this ',
-				    'directive.  Use set_predicate_property/2 to change ',
-                                    'tabling properites.'])
+			   true
+%			   warning([Spec,' is already tabled, ignoring this ',
+%				    'directive.  Use set_predicate_property/2 to change ',
+%                                    'tabling properites.'])
 		      ;    permission_error(table,'predicate that is already tabled',
 					    Spec,(table)/1) )
 		   )
