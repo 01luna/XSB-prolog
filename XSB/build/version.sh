@@ -16,7 +16,7 @@ xsb_patch_date=`echo Build date: $xsb_build_date`
 
 xsb_major_version=4
 xsb_minor_version=0
-xsb_patch_version="0-beta" # must be present; otherwise, an ugly "." at the end
+xsb_patch_version="0" # must be present; otherwise, an ugly "." at the end
 #xsb_beta_version=pre
 xsb_beta_version=""
 #xsb_codename="Skol"        # for Version 2.1
@@ -26,7 +26,7 @@ xsb_beta_version=""
 #xsb_codename="Okocim"      # from Poland! ;)
 #xsb_codename="Duff"        # Simpsons
 #xsb_codename="Kinryo"      # 2.7 Jonah's friend's uncle's sake
-#xsb_codename="Sagres"      # version 3.0, Portuguese Beer, Rui's favorite
+#xsb_codename="Sagres"      # version 3.0 Portuguese Beer, Rui's favorite
 #xsb_codename="Incognito"   # version 3.1 Portuguese Syrah intro'd to Terry by Antonio Porto
 #xsb_codename="Kopi Lewak"  # Version 3.2 Civit coffee
 #xsb_codename="Pignoletto"  # Version 3.3 Italian Beer (Fabrizio)
@@ -34,8 +34,8 @@ xsb_beta_version=""
 #xsb_codename="Maotai"      # Version 3.5 Chinese Beer (Neng-Fa)
 #xsb_codename="Gazpatcho"   # Version 3.6 (Paulo Moura)
 #xsb_codename="Clan MacGregor"    # Version 3.7 (David's Scotch)
-#xsb_codename="Three-Buck Chuck" 
-xsb_codename="TaB: RIP"
+#xsb_codename="Three-Buck Chuck"  # Version 3.8 Down and out in Trader Joe's
+xsb_codename="TaB"                # Version 4.0 (Carl's wife) 
 
 # Format: YYYY-MM-DD or YYYY.MM.DD or YYYY/MM/DD
 # With this, XSB should become Y2K compliant :-)
@@ -49,5 +49,6 @@ xsb_codename="TaB: RIP"
 #xsb_release_date=2015-04-22 
 #xsb_release_date=2016-07-06 
 #xsb_release_date=2017-10-28  # target (may be changed)
-xsb_release_date=2020-11-30  # target (may be changed)
+xsb_release_date=2021-04-01  # target (may be changed)
 
+b
