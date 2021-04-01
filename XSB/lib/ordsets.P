@@ -48,7 +48,7 @@
 
 :- export
 	is_ordset/1,
-	list_to_ord_set/2,	%  List -> Set
+	list_to_ordnset/2,	%  List -> Set
 	ord_add_element/3,	%  Set x Elem -> Set
 	ord_del_element/3,	%  Set x Elem -> Set
 	merge/3,		%  OrdList x OrdList -> OrdList
@@ -130,11 +130,11 @@ is_ordset([Head|Tail], Left) :-
 	is_ordset(Tail, Head).
 
 
-%   list_to_ord_set(+List, ?Set)
+%   list_to_ordset(+List, ?Set)
 %   is true when Set is the ordered representation of the set represented
 %   by the unordered representation List.  
 
-list_to_ord_set(List, Set) :-
+list_to_ordset(List, Set) :-
 	sort(List, Set).
 
 
