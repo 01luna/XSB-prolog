@@ -32,4 +32,5 @@ files="./XSB/LICENSE
 
     tar cvf XSB/XSB.tar $files
 
+    zip -r XSB.zip $files
     gzip -f XSB/XSB.tar
