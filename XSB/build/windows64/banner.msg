@@ -1,3 +1,3 @@
-XSB Version 3.8.0 (Three-Buck Chuck) of October 28, 2017
+XSB Version 4.0.0 (TaB) of April 1, 2021
 [x64-pc-windows; mode: optimal; engine: slg-wam; scheduling: local]
-[Build date: 2020-09-16]
+[Build date: 2021-04-01]
