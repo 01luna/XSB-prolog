@@ -1,0 +1,128 @@
+:-  set_prolog_flag(character_set, utf_8) . 
+
+testSuite:-
+  return_tests, 
+  dataConversionTests,
+  callback_test,
+  pyc_tests,
+  json_tests.
+
+%--------------------------------
+
+/* TES: getitertest and nexttest are not working temporarily --
+ * default was changed to eagerly return a list or tuple, which is much
+ * better.  I'll add the lazy option as an alternative */
+return_tests :- 
+	(callPyTest ->
+	     write('callPy tests successful\n')
+	 ;   write('callPy tests failed\n')).
+%	(pyObj_GetIterTest->
+%	     write('pyObj_GetIter tests successful\n')
+%	 ;   write('pyObj_GetIter tests failed\n')),
+%	(pyObj_NextTest->
+%	     write('pyObj_Next tests successful\n')
+%	   ; write('pyObj_Next tests failed\n')).
+
+callPyTest :- 
+	callpy('./test/sumlist3', sumlist3(5,[1,2,3]), [6,7,8]),
+	not(callpy('test/sumlist3', sumlist3(5,[1,2,3]), [4,5,6])),
+	not(callpy('./test/sumlist3', sumlist3(5,[1,2,3]),[1,2,3])).
+
+pyObj_GetIterTest :- 
+	callpy('test/sumlist3', sumlist3(5,[1,2,3]), R),
+	pyObj_GetIter(R, R1), pyObj_Next(R1, 6).
+
+pyObj_NextTest :- 
+	callpy('test/sumlist3', sumlist3(5,[1,2,3]), R),
+	pyObj_GetIter(R, R1), pyObj_Next(R1, 6), not(pyObj_Next(R, 6)).
+
+%--------------------------------
+
+dataConversionTests :- 
+	(intConvTest->write('int conversion tests successful\n'); write('int conversion tests failed\n')), 
+	(floatConvTest->write('float conversion tests successful\n'); write('float conversion tests failed\n')),
+	(stringConvTest->write('string conversion tests successful\n'); write('string conversion tests failed\n')),
+	listConvTest.
+%	(pytupleConvTest->write('tuple  conversion tests successful\n'); write('tuple conversion tests failed\n')).
+
+intConvTest :-
+    current_prolog_flag(min_integer, MinValue), 
+    not(var(MinValue)), 
+    current_prolog_flag(max_integer, MaxValue), 
+    not(var(MaxValue)),
+    callpy('test/returnVal', returnVal(MinValue), MinValue), 
+    callpy('test/returnVal', returnVal(MaxValue), MaxValue).
+
+floatConvTest :- 
+    callpy('test/returnVal', returnVal(3.54), 3.54),
+    callpy('test/returnVal', returnVal(3.5535252352), 3.5535252352).
+
+stringConvTest :-
+    callpy('test/returnVal', returnVal(helloworld), helloworld),
+    callpy('test/returnVal', returnVal('helloworld'), helloworld),
+    callpy('test/returnVal', returnVal('Санкт-Петербург'),R3),R3 == 'Санкт-Петербург'.
+				  
+listConvTest:-
+    callpy('test/returnVal', returnVal([a,b,c]), R1),R1 = [a,b,c],
+    callpy('test/returnVal', returnVal([]), R2), R2 == [],
+    callpy('test/returnVal', returnVal([1,[2,3,4],[hello,155]]), R3),
+    R3 ==  [1, [2, 3, 4], ['hello', 155]],
+    callpy('test/tupInList', func(), R4), R4 == [1,2,3, ''(5, 6), 'hello', [11,17]],
+    writeln('listConvTest successful'),
+    !.
+listConvTest:-
+    writeln('listConvTest failed').
+
+tupleConvTest:-
+    callpy('test/tupletest',func(),R1), R1 = ''(5,''(),hello,''(5,6,7)),
+    !.
+tupleConvTest:-
+    writeln('tupleConvTest failed').
+
+
+%--------------------------------
+
+% TES: probably the wrong way to do this, but keeping it in for now.
+% it *might* be responsible for uninitialized stack frame problem.
+
+callback_test:- 
+    callpy('test/testc', tester(),  X), X = [['Санкт-Петербург', '2']],
+    writeln('callback test successful'),
+    !.
+callback_test:-
+    writeln('callback test failed').
+
+% used in callback
+p('Санкт-Петербург').
+p(3).
+q(2).
+
+%--------------------------------
+
+pyc_tests:- 
+    callpy('test/numpexamp',go(),X),X == 2,!,
+    writeln('pyc_tests successful').
+pyc_tests:- 
+    writeln('pyc_tests failed').
+
+json_tests:- 
+     callpy('test/jintf',prolog_loads('{"name": "Bob", "languages": ["English", "Fench","GERMAN"]}'),F),
+     (F = [''(name,(:),'Bob'),''(languages,(:),['English','Fench','GERMAN'])] ->
+	  writeln('json_loads_test successful')
+        ; writeln(json_loads_test_failed) ),
+     fail.
+json_tests:- 
+    callpy('test/jintf',prolog_load('sample.json'),F),
+    (F = [''(glossary,(:),[''(title,(:),'example glossary'),''('GlossDiv',(:),[''(title,(:),'S'),''('GlossList',(:),[''('GlossEntry',(:),[''('ID',(:),'SGML'),''('SortAs',(:),'SGML'),''('GlossTerm',(:),'Standard Generalized Markup Language'),''('Acronym',(:),'SGML'),''('Abbrev',(:),'ISO 8879:1986'),''('GlossDef',(:),[''(para,(:),'A meta-markup language, used to create markup languages such as DocBook.'),''('GlossSeeAlso',(:),['GML','XML'])]),''('GlossSee',(:),markup)])])])])] ->
+	  writeln('json_load_test successful')
+        ; writeln(json_load_test_failed) ),
+     fail.
+json_tests.    
+
+
+end_of_file.
+
+pytXSB :- callpy('test/testc', tester(),  X), pyList2prList(X, []).
+pythonXSBTests :- (pytXSB->write('python to XSB tests successful\n'); write('python to XSB tests failed\n')).
+
+

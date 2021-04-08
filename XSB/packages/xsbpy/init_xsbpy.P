@@ -1,0 +1,83 @@
+/* 
+init_xsbpy/0 initializes xsbpy, compiling the necessary C files and
+loading the appropriate version of libpython.so.
+
+test_xsbpy/0 runs a very simple test to ensure that Python has been
+linked.
+
+If these are successful the console output should looks fairly similar
+to that included at the end of this file.
+ */
+
+?- init_xsbpy.
+
+:- export init_xsbpy/0, test_xsbpy/0.
+
+:- import xsb_configuration/2 from xsb_configuration.
+:- import concat_atom/2 from string.
+
+%:- import existence_error/4 from error_handler.
+:- import shell/1 from shell.
+:- import callpy/3 from xsbpym.
+:- import add_lib_dir/1 from consult.
+%:- import getenv/2 from machine.
+
+init_xsbpy:-
+    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
+    concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.7m  -I/usr/include/python3.7',
+		 ' -lpython3.7m -L/usr/lib/python3.7 -Wl,',
+		 '-rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 -Wl,',
+		 '-rpath=/usr/lib/python3.7'],CompilerOpts),
+%    writeln(CompilerOpts),
+    consult(xsbpym,[cc_opts(CompilerOpts)]),
+    xsb_configuration(packagesdir, PackDir),
+    concat_atom([PackDir,'/xsbpy'],XSBpyDir),
+    concat_atom([PackDir,'/xsbpy/test'],TestDir),
+    callpy(add_python_path,add_python_path(XSBpyDir),_),
+    callpy(add_python_path,add_python_path(TestDir),_).
+
+test_xsbpy:-
+    xsb_configuration(packagesdir, PackDir),
+    concat_atom([PackDir,'/xsbpy'],XSBpyDir),
+    concat_atom([PackDir,'/xsbpy/test'],TestDir),
+    add_lib_dir(TestDir),
+    shell(['cp ',XSBpyDir,'/xsbpym.so',' ',TestDir,'xsbpym.so']),
+    ensure_loaded(testSuite),
+    usermod:testSuite.
+
+end_of_file.
+
+%aida_getenv(Envar,Val):-
+%    getenv(Envar,Val),!.
+%aida_getenv(Envar,_Val):-
+%    existence_error(environment_variable,Envar,aida_getenv,2).
+    
+%teri_test:-
+%    callpy('test/tupInList', func(), R1), pyList2prList(R1, Y1),
+%    writeq(Y1),nl,writeln('-------------'),
+%    callpy('test/tupInList', func1( ), R2 ), pyTuple2prTuple(R2, Y2 ),
+%    writeq(Y2),nl,writeln('-------------'),
+%    write(Y2).
+
+%init_xsbpy_old:-
+%    aida_getenv('REPO_ROOT',RepoRoot),
+%    concat_atom([RepoRoot,'/XSB_packages/xsbpy'],PackagePath),
+%    add_lib_dir(PackagePath),
+%    aida_getenv('XSB_EXEC',XSB),
+%%    bootstrap_userpackage(PackagePath, xsbpy, xsbpy),
+%    concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.7m  -I/usr/include/python3.7',
+%		 ' -lpython3.7m -L/usr/lib/python3.7 -Wl,',
+%		 '-rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 -Wl,',
+%		 '-rpath=/usr/lib/python3.7'],CompilerOpts),
+%%    writeln(CompilerOpts),
+%%    consult(xsbpym,[cc_opts(CompilerOpts)]).
+%
+%test_xsbpy_old:- 
+%    aida_getenv('REPO_ROOT',RepoRoot),
+%    concat_atom([RepoRoot,'/XSB_packages/xsbpy'],PackagePath),
+%    shell_to_list(pwd,[[Pwd]],_Err),
+%    cd(PackagePath),
+%    ensure_loaded('test/testSuite'),
+%    usermod:testSuite,
+%    cd(Pwd).
+

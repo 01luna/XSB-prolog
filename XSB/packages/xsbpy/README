@@ -1,0 +1,32 @@
+
+This new version of xsbpy works only on Ubuntu, but it is more
+powerful and more stable than the original version.  However, I have
+made its configuration specific to Python 3.7
+
+First ensure that libpython 3.7 so and the appropriate versuin of
+Python.h are installed.
+
+sudo apt-get install libpython3.7-dev  
+
+Then follow the instructions at init_xsbpy.P
+
+------------------------------------------------------------------
+% Original 
+
+The xsbpy module can be used either on Windows or Linux x64.
+
+To compile for Windows x64, update:
+  1. the first line of xsbpym.c
+  2. PYLIB path in cc/NMakefile64.mak
+Then install Visual Studio nmake and run:
+  nmake /f NMakefile64.mak
+
+To compile for Linux x64, update:
+1. the first line of xsbpym.c
+2. the four variables in configure.ac
+Then run 
+  $ autoconf
+  $ ./configure
+
+Then, on either Windows or Linux, run XSB and load the module:
+  [xsbpy] .

@@ -1,0 +1,6 @@
+:- import bootstrap_package/2 from packaging.
+
+%cfa - this command is here because of a bug involving loading .xwams - calls to putenv/0 do not work from them
+%:- (path_sysop(rm,'./xsbpy/ld_pymod.xwam') -> true ; true) .
+
+:- bootstrap_package(xsbpy, xsbpy),[init_xsbpy].
