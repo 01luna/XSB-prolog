@@ -61,12 +61,16 @@ compile_opt_checked(Path, Options, ToLoc) :-
 
 compile0(Path, Options, ToLoc) :-
 	atom(Path),
-	search_module(Path, Dir, Mod, SExt, Base, _Obj),
+	search_module(Path, Dir, Mod0, SExt, Base, _Obj),
 	!,
+	(member(module(Mod),Options) % allow module name to differ from filename
+	 -> true
+	 ;  Mod = Mod0
+	),
 	(SExt \== XSB_OBJ_EXTENSION_ATOM_SANS_DOT
 	 -> compile_f(SExt, Base, Options, ToLoc, _, Mod, Dir),
 	    (ToLoc =:= 2
-	     ->	str_cat(Dir,Mod,FileBase),
+	     ->	str_cat(Dir,Base,FileBase),
 		str_cat(FileBase,XSB_OBJ_EXTENSION_ATOM,OFileName),
 		private_obj_filename(OFileName,UFileName),
 		rename_private_obj_file(UFileName,OFileName)
@@ -157,14 +161,18 @@ reconsult0(Path, Options, Ensure_loaded) :-
     (Path == user
      ->	check_one_thread_w_override,
 	compile_load_user(Options)
-     ; search_module(Path, Dir, Mod, SExt, Base, Obj)
-     ->	expand_filename(Obj,ExpObj),
+     ; search_module(Path, Dir, Mod0, SExt, Base, Obj)
+     -> (member(module(Mod),Options)
+	 -> true
+	 ;  Mod = Mod0
+	),
+        expand_filename(Obj,ExpObj),
 	(SExt \== XSB_OBJ_EXTENSION_ATOM_SANS_DOT,
 	 i_want_compile(SExt, Base, Obj)
 	 -> check_one_thread_w_override,
 	    compile_f(SExt,Base,Options,1,_ExList,Mod,Dir),
 	    private_obj_filename(Obj,LObj),
-	    load_exec(LObj, Mod, Dir), % Mod would be atomized ModTerm
+	    load_exec(LObj, Mod), % Mod would be atomized ModTerm
 	    rename_private_obj_file(LObj,Obj),
 	    (file_is_consultloaded(ExpObj)
 	     ->	true
@@ -174,12 +182,12 @@ reconsult0(Path, Options, Ensure_loaded) :-
 	     ->	(file_is_consultloaded(ExpObj)
 		 -> true
 		 %% File not loaded, ok to load w. many threads
-		 ;  load_exec(Obj, Mod, Dir),
+		 ;  load_exec(Obj, Mod),
 		    record_file_consultloaded(ExpObj) 
 		)
 	     ;	%% Ensure_loaded == false 
 	     check_one_thread_w_override,
-	     load_exec(Obj, Mod, Dir),
+	     load_exec(Obj, Mod),
 	     (file_is_consultloaded(ExpObj)
 	      -> true
 	      ;	 record_file_consultloaded(ExpObj)
@@ -322,8 +330,8 @@ get_magic_num(ObjFile,[One,Two,Three,Four]) :-
 /*======================================================================*/
 :- mode search_module(+,?,?,?,?,?).
 search_module(FileName, Dir, Mod, Ext, Base, Obj) :-
-	almost_search_module(FileName, D, M, E, B),
-	( D == '', (FileName == M ; E == XSB_SRC_EXTENSION_ATOM_SANS_DOT)
+    (almost_search_module(FileName, D, M, E, B)
+     ->	( D == '', (FileName == M ; E == XSB_SRC_EXTENSION_ATOM_SANS_DOT)
 	 ->	% only a module name was given
 		Mod = M,
 		real_search_module(Mod, Dir, Base, Ext)
@@ -340,7 +348,11 @@ search_module(FileName, Dir, Mod, Ext, Base, Obj) :-
 		str_cat(B1,E,Base),
 		Mod = Base
 	),
-	str_cat(Base, XSB_OBJ_EXTENSION_ATOM, Obj).
+	str_cat(Base, XSB_OBJ_EXTENSION_ATOM, Obj)
+     ;  real_search_module(FileName,Dir,Base,Ext),
+	split_xsb_filename(FileName,_D,Mod,_E),
+	str_cat(Base, XSB_OBJ_EXTENSION_ATOM, Obj)
+    ).
 
 add_xsb_obj_ext_if_nec(FileName,OFileName) :-
 	(concat_atom([_,'.',XSB_OBJ_EXTENSION_ATOM_SANS_DOT],FileName)
@@ -364,10 +376,11 @@ acceptable_extension('cpp').
 real_search_module(ModName, Dir, Base, Ext) :-
         libpath(Dir),
         str_cat(Dir, ModName, Base),
+	% find an existing file with an extension of interest
         existing_file_extension(Base, Ext).
 
 /*======================================================================*/
-/* load_exec(+File, +ModName, +Directory)				*/
+/* load_exec(+File, +ModName)				*/
 /*	Changed to use the C loader (code_load/4) that automatically	*/
 /*	imports all exported predicates of the module into the current	*/
 /*	working module when its third argument is 1.  - Kostis (4/3/93)	*/
@@ -375,7 +388,7 @@ real_search_module(ModName, Dir, Base, Ext) :-
 /*======================================================================*/
 
 %% dsw changed (8/28/19) to use loader:load_object_file (which was generatized to support this.)
-load_exec(File, ModName, _Directory) :-	
+load_exec(File, ModName) :-
     split_xsb_filename(File,Directory,BaseMod,XExt),
     load_object_file([Directory,BaseMod,XExt],ModName,1).
 
@@ -409,7 +422,7 @@ cd_throw(Dir,Ball) :-
 compile_load_user(Options) :-
 	compile(user, user, XSB_SRC_EXTENSION_ATOM, Options, 0, _), !,
 	str_cat(user,XSB_OBJ_EXTENSION_ATOM,UserObjFile),
-	load_exec(UserObjFile, user, '.'),
+	load_exec(UserObjFile, user),
 	rm(UserObjFile).
 
 /*****************************************************************

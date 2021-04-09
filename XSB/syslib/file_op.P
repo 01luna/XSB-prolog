@@ -177,6 +177,7 @@ deactivate_op(T, S) :-
 '_$op1'(700,xfx,?=).
 '_$op1'(661,xfy,.).		% Not in the Prolog standard /* !! */
 '_$op1'(600,xfy,:).		% As Quintus (Not as in the Prolog standard)
+'_$op1'(580,xfx,>>).		% New, for module filename qualifier
 '_$op1'(500,yfx,+).
 '_$op1'(500,yfx,-).
 '_$op1'(500,yfx,/\).

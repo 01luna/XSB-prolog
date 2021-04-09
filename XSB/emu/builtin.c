@@ -1625,7 +1625,11 @@ int builtin_call(CTXTdeclc byte number)
       import_from_usermod = TRUE;
       modpsc = global_mod;
     } else {
-      modpsc = pair_psc(insert_module(0,modname));
+      char filename[MAXFILENAME];
+      char modwpars[MAXFILENAME];
+      split_modspec(modname,NULL,modwpars,filename);
+      modpsc = pair_psc(insert_module(0,modwpars));
+      psc_set_ep(modpsc,(byte *)makestring(string_find(filename,1)));
     }
     newtermpsc = pair_psc(insert_psc(get_name(termpsc),get_arity(termpsc),modpsc,&new));
     if (import_from_usermod) {

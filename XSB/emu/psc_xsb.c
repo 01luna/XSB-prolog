@@ -396,7 +396,7 @@ Pair insert_module(int type, char *name)
 	psc_set_incr(new_pair->psc_ptr,0);
 	psc_set_intern(new_pair->psc_ptr,0);
 	psc_set_data(new_pair->psc_ptr,0);
-	psc_set_ep(new_pair->psc_ptr,0);
+	psc_set_ep(new_pair->psc_ptr,(byte *)makestring(get_name(new_pair->psc_ptr)));
 	new_pair->psc_ptr->this_psc = 0;
 	psc_set_immutable(new_pair->psc_ptr,0);
     } else {	/* set loading bit: T_MODU - loaded; 0 - unloaded */
@@ -537,4 +537,74 @@ void insert_cpred(char * name,int arity,int (*pfunc)(void) ) {
     set_forn(psc,pfunc);
     psc_set_type(psc,T_FORN);
 
+}
+
+void strip_quotes(char *string) {
+  // must be no quotes in filenames!!
+  size_t len;
+  if (string) {
+    len = strlen(string);
+    if (string[0] == '\'' && string[len-1] == '\'') {
+      memmove(string,string+1,len-2);
+      string[len-2] = '\0';
+    }
+  }
+}
+
+#define strmove(target,source,length) \
+  do {memmove(target,source,length); \
+    target[length] = '\0';		      \
+  } while (0)
+
+/* Used for parameterized modules and explicit filenames in mod specs */
+/* all 3 returned paramters (last) must have space to hold results */
+
+void split_modspec(char *modspec, char *modonly, char *modwpars, char *filename) {
+  size_t modspeclen = strlen(modspec);
+  size_t i;
+  char *oploc;
+
+  i = modspeclen;
+
+  if (!strncmp(modspec,FILEQUALPAR,4) &&
+      strncmp(modspec,FILEQUALPAR "usermod,",strlen(FILEQUALPAR "usermod,"))) { // explicit filename
+    while (modspec[i] != ',') i--;  // No commas in filenames!
+    if (filename) strmove(filename,modspec+i+1,modspeclen-i-2);
+    if (modwpars) strmove(modwpars,modspec+FILEQUALPARLEN,
+			  i-FILEQUALPARLEN);
+    if (modonly) {
+      oploc = strchr(modspec,'(');
+      if (oploc) strmove(modonly,modspec+FILEQUALPARLEN,
+			 (oploc-modspec-FILEQUALPARLEN));
+      else strmove(modonly,modspec+FILEQUALPARLEN,
+		   modspeclen-i-FILEQUALPARLEN);
+    }
+  } else if (!strncmp(modspec,"usermod(",strlen("usermod("))) {
+    if (filename) strmove(filename,modspec+strlen("usermod("),
+			  modspeclen-strlen("usermod(")-1);
+    if (modonly) strcpy(modonly,"usermod");
+    if (modwpars) strcpy(modwpars,"usermod");
+  } else if (!strncmp(modspec,FILEQUALPAR "usermod,",
+		      strlen(FILEQUALPAR "usermod,"))) {
+    if (filename)
+      strmove(filename,modspec+strlen(FILEQUALPAR "usermod,"),
+	      modspeclen-strlen(FILEQUALPAR "usermod,")-1);
+    if (modonly) strcpy(modonly,"usermod");
+    if (modwpars) strcpy(modwpars,"usermod");
+  } else {
+    if (modwpars)strmove(modwpars,modspec,modspeclen);
+    if (modonly || filename) {
+      oploc = strchr(modspec,'(');
+      if (oploc) {
+	if (modonly) strmove(modonly,modspec,(oploc-modspec));
+	if (filename) strmove(filename,modspec,(oploc-modspec));
+      } else {
+	if (modonly) strmove(modonly,modspec,modspeclen);
+	if (filename) strmove(filename,modspec,modspeclen);
+      }
+    }
+  }
+  strip_quotes(modonly);
+  strip_quotes(modwpars);
+  strip_quotes(filename);
 }
