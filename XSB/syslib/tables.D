@@ -30,7 +30,7 @@
 :- mode abstract_term(+,?,?,?).
 :- mode ac_loop(+,?,+).
 :- mode add_incr_table(?,+).
-:- mode add_table(?).
+:- mode add_table(?,+).
 :- mode analyze_an_scc(+,+).
 :- mode analyze_an_scc(+,+,?).
 :- mode answer_completion(+,?).
@@ -318,7 +318,7 @@
 :- mode_on_success abstract_modes_args(A,g).
 :- mode_on_success abstract_term(g,A,B,C).
 :- mode_on_success add_incr_table(A,g).
-:- mode_on_success add_table(A).
+:- mode_on_success add_table(A,g).
 :- mode_on_success analyze_an_scc(g,g).
 :- mode_on_success analyze_an_scc(g,g,A).
 :- mode_on_success answer_completion(g,A).

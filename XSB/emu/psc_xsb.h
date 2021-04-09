@@ -98,10 +98,12 @@ struct psc_rec {
   //  byte arity; 
   unsigned int arity:16; 
   char *nameptr;
-  struct psc_rec *data;      /* psc of module, if pred in non-usermod module, otw filename pred loaded from */
-  byte *ep;                     /* entry point (initted to next word) if pred; filename of pred loaded from if module */
-  word load_inst;               /* byte-code load_pred, or jump, or call_forn */
-  struct psc_rec *this_psc;     /* BC arg: entry-point or foreign entry point */
+  struct psc_rec *data;  /* if pred in non-usermod, is psc of module */
+                         /* if pred in usermod, is filename pred loaded from */
+			 /* if a mod psc_rec, is root of chain of contained preds (pairs) */
+  byte *ep;    /* entry point (initted to next word) if pred; filename of pred loaded from if module */
+  word load_inst;           /* byte-code load_pred, or jump, or call_forn */
+  struct psc_rec *this_psc; /* For callable pred: BC arg: entry-point or foreign entry point */
 };
 
 typedef struct psc_rec *Psc;
@@ -169,9 +171,13 @@ typedef struct psc_pair *Pair;
 
 #define  psc_set_arity(psc, ari)	((psc)->arity = ari)
   //#define  psc_set_length(psc, len)	((psc)->length = len)
-#define  psc_set_ep(psc, val)	do {(psc)->ep = val;     \
+
+/* in following, need to reset load_pred to jump (with addr) so other
+pscs can point to jump (or load) to be "equivalent" to this psc. */
+#define  psc_set_ep(psc, val)	do {(psc)->ep = val;		\
     				    cell_opcode(&((psc)->load_inst)) = jump; \
 				    (psc)->this_psc = (void *)val;} while(0)
+
 #define  psc_set_data(psc, val)     ((psc)->data = val)
 #define  psc_set_name(psc, name)	((psc)->nameptr = name)
 
@@ -193,6 +199,12 @@ extern Pair insert_module(int, char *);
 extern Pair insert(char *, int, Psc, int *);
 extern Pair insert_psc(char *, int, Psc, int *);
 extern Pair search_psc_in_module(int, char *, Pair *);
+
+  //#define FILEQUALPAR "'@'("
+  //#define FILEQUALPARLEN 4
+#define FILEQUALPAR "'>>'("
+#define FILEQUALPARLEN 5
+extern void split_modspec(char *, char *, char *, char *);
 
 DllExport extern char* call_conv string_find(const char*, int);
 

@@ -125,7 +125,8 @@ write_body(OStr,if_then_else(G1,G2,G3),PP) :-
 	write_body(OStr,G3,''), write(OStr,' )'), nl(OStr).
 write_body(OStr,not(G),PP) :-
 	write(OStr,PP),
-    	write_body(OStr,G,'\\+ ').
+	write_body(OStr,G,'\\+ ( '),
+	write(OStr,' )').
 write_body(OStr,goal(Sym,GoalArgs),PP) :-
 	write(OStr,'        '), 
 	write(OStr,PP),

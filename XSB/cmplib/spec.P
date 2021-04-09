@@ -335,12 +335,93 @@ specialise_calls(CallsMsg, SelClauses, Calls, N, A, Tabled,
 		singleton_special_calls(Calls, HeadArgs, Body, NewCalls)
 	; find_msg(CallsMsg, SelClauses, Msg),
 %	  typeout(('# Msg = ', Msg)),
-	  represent(Msg, N, A, Tabled, SymTab, NewSym, Representative),
+	  gen_name_modifier(Calls,NMod),
+	  represent(Msg, N, NMod, A, Tabled, SymTab, NewSym, Representative),
 	  make_special_pred(SelClauses, Msg, NewSym, NewPred),
 %	  typeout(('# NewPred = ', NewPred)),
 	  make_special_calls(Calls, Msg, NewSym, NewCalls)
 %	  typeout(('# NewCalls = ', NewCalls))
 	).
+
+/*----------------------------------------------------------------------*/
+/* (DSW) These following predicates generate the name for a specialized	*/
+/* predicate.  The idea is to create a constant that shows the form of	*/
+/* abstraction, so when tracing one might have an idea of where this	*/
+/* specialiation came from.  For example if p(a,X,Y) is specialized,	*/
+/* then the name of the specialized prediate will be the constant	*/
+/* 'p(a,_,_)'.								*/
+/*----------------------------------------------------------------------*/
+
+gen_name_modifier(Calls,NMod) :-
+    Calls = [Call1|RCalls],
+    abstract_form_all(RCalls,Call1,ACall),
+    extract_modifier_string(ACall,'',NMod).
+
+abstract_form_all([],ACall,ACall).
+abstract_form_all([Call|Calls],CCall,ACall) :-
+    abstract_form(Call,CCall,NACall),
+    abstract_form_all(Calls,NACall,ACall).
+
+abstract_form([],[],[]).
+abstract_form([Arg|Args],[FArg|FArgs],[AArg|AArgs]) :-
+    (Arg = varocc(_)
+     -> AArg = Arg
+     ; Arg = structure(sym(N,_,_,_),SArgs)
+       -> (FArg = structure(sym(N,_,_,_),FSArgs)
+	  -> abstract_form(SArgs,FSArgs,ASArgs),
+	     AArg = structure(sym(N,_,_,_),ASArgs)
+	  ;  AArg = varocc(_)
+	  )
+     ; Arg = constant(sym(N,_,_,_))
+       -> (FArg = constant(sym(N,_,_,_))
+	  -> AArg = Arg
+	  ;  AArg = varocc(_)
+	  )
+     ; Arg = integer(N)
+       -> (FArg = integer(N)
+	  -> AArg = Arg
+	  ;  AArg = varocc(_)
+	  )
+     ;  standard:writeln(userout, unrecognized(Arg))
+    ),
+    abstract_form(Args,FArgs,AArgs).
+
+extract_modifier_string([],NMod0,NMod) :-
+    atom_codes(NMod0,[_|NMod0Codes]),
+    append([0'(|NMod0Codes],[0')],NModCodes),
+    atom_codes(NMod,NModCodes).
+extract_modifier_string([Arg|Args],NMod0,NMod) :-
+    extract_arg_string(Arg,NMod0,NMod1),
+    extract_modifier_string(Args,NMod1,NMod).
+
+extract_arg_string(varocc(_),NMod0,NMod) :- !,
+    atom_codes(NMod0,NMod0Codes),
+    append(NMod0Codes,[0',,0'_],NModCodes),
+    atom_codes(NMod,NModCodes).
+extract_arg_string(structure(sym(N,_,_,_),Args),NMod0,NMod) :- !,
+    add_name_segment(NMod0,N,NMod1),
+    extract_modifier_string(Args,'',NMod2),
+    atom_codes(NMod1,NMod1Codes),
+    atom_codes(NMod2,NMod2Codes),
+    append(NMod1Codes,NMod2Codes,NModCodes),
+    atom_codes(NMod,NModCodes).
+extract_arg_string(constant(sym(N,_,_,_)),NMod0,NMod) :- !,
+    add_name_segment(NMod0,N,NMod).
+extract_arg_string(integer(N),NMod0,NMod) :- !,
+    atom_codes(NMod0,NMod0Codes),
+    integer(N),
+    number_codes(N,NCodes),
+    append(NMod0Codes,[0',|NCodes],NModCodes),
+    atom_codes(NMod,NModCodes).
+extract_arg_string(Arg,NMod,NMod) :-
+    standard:writeln(userout,unknown_arg(Arg)).
+
+add_name_segment(NMod0,N,NMod) :-
+    atom_codes(NMod0,NMod0Codes),
+    atom(N),
+    atom_codes(N,NCodes),
+    append(NMod0Codes,[0',|NCodes],NModCodes),
+    atom_codes(NMod,NModCodes).
 
 /*----------------------------------------------------------------------*/
 /* singleton_sets_opt(+SelectedClauses, +Tabled, -HeadArgs, -Body)	*/
@@ -391,7 +472,7 @@ msg_arg(_, _, varocc(_)).
 
 
 /*----------------------------------------------------------------------*/
-/* represent(+Msg, +PredName, +PredArity, +Tabled,			*/
+/* represent(+Msg, +PredName, +NameModifier, +PredArity, +Tabled,	*/
 /*	     #SymTab, -NewSym, -Representative)				*/
 /*	Creates a new predicate symbol and the representative of a set	*/ 
 /*	of selected clauses.  Msg is the most specific generalisation	*/
@@ -399,8 +480,12 @@ msg_arg(_, _, varocc(_)).
 /*	and PredName is the predicate name of the clauses.		*/
 /*----------------------------------------------------------------------*/
 
-represent(Msg, Name, Arity, Tabled, SymTab, NewSym, Representative) :-
-	gensym_pred(Name, NewName),
+represent(Msg, Name, NameMod, Arity, Tabled, SymTab, NewSym, Representative) :-
+	atom_codes(Name,NameCodes),
+	atom_codes(NameMod,NameModCodes),
+	append(NameCodes,NameModCodes,ModNameCodes),
+	atom_codes(ModName,ModNameCodes),
+	gensym_pred(ModName, NewName),
 	msg_copy(Msg, MsgCopy, NewArgs, [], 0, NewArity),
 	Properties = [pred,defined,used|Prop],
 	( Tabled =:= 0 -> Prop = []

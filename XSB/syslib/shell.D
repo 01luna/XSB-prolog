@@ -9,7 +9,6 @@
 :- mode edit(+).
 :- mode exec(+).
 :- mode expand_filename_no_prepend(+,?).
-:- mode get_process_table(?).
 :- mode is_directory(+).
 :- mode is_plain_file(+).
 :- mode list_directory(+,?).
@@ -58,7 +57,6 @@
 :- mode_on_success edit(g).
 :- mode_on_success exec(g).
 :- mode_on_success expand_filename_no_prepend(g,g).
-:- mode_on_success get_process_table(g).
 :- mode_on_success is_directory(g).
 :- mode_on_success is_plain_file(g).
 :- mode_on_success list_directory(g,g).

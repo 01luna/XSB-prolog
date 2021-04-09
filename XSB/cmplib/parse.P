@@ -70,7 +70,7 @@ parse(Modname, PFile, HFile, Module) :-
 	filename_push(PFile),
 	conset(needs_restart, 0),          %% reset, if an error left it dirty
 	(Modname == user,
-	 PFile == 'user.P'  % PM: ensure that we're not trying to load a real file
+	 PFile == 'user.P'  % PM: ensure that we''re not trying to load a real file
 	->	set_symbol_hash_table_size(1,Module0),
 		see(userin), parse_clauses(user, Module0)
 	; file_exists(PFile)
@@ -80,10 +80,8 @@ parse(Modname, PFile, HFile, Module) :-
 		->	parse1(Modname,HFile,Module0)
 		;	Module0 = Module0 % init (lamp variable)
 		),
-%%%	        standard:writeln(parsing_pfile),
 		parse1(Modname,PFile,Module0)
 %%%             ,standard:writeln(parse(Module0))
-	;   existence_error('file/module',PFile,compile/1,1)
 %%%	; 	error(('Cannot find the file ', PFile)), fail, Module0=Module0
 	),
 	conset(needs_restart, 0),  % clean up this var
@@ -738,10 +736,15 @@ parse_directive(encoding(Charset),_,_,_,_) :- !,
     ).
 parse_directive(module(ModIn,X,_Dialect), _QrList,SymTab,ModName,_ModStruct) :- !,
 	parse_directive(module(ModIn,X), _QrList,SymTab,ModName,_ModStruct).
-parse_directive(module(ModIn,X), _QrList,SymTab,ModName,_ModStruct) :- !, 	
-	(functor(ModName,ModIn,_) -> 
-	    parse_list(X, SymTab, [ex,pred], (export))
-	  ; error(('Declared module name (',ModIn,') must be the same as file base (',ModName,').')) ).
+parse_directive(module(ModIn,X), _QrList,SymTab,ModName,ModStruct) :- !,
+    (ModIn =.. [ModName|Pars]
+    ->  (ModStruct = module(_,_,_,_,Pars)
+	 -> true
+	 ;  error('Multiple declarations of module_parameters')
+	),
+	parse_list(X, SymTab, [ex,pred], (export))
+     ;  error(('Declared module name (',ModIn,') must be the same as file base (',ModName,').'))
+    ).
 parse_directive(export(X), _QrList,SymTab,_ModName,_ModStruct) :- !,
 	parse_comma_list(X, SymTab, [ex,pred], (export)).
 parse_directive(document_export(X), _QrList,SymTab,_ModName,_ModStruct) :- !,

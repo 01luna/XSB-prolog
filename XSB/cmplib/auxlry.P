@@ -73,6 +73,7 @@ set_global_compiler_options(Options) :-
 :- mode setoptions(?).  % maybe could be + ?
 setoptions(_) :-
 	current_option(Option),
+	atomic(Option),  % only globalized if atom
 	conset(Option, 0),
 	%% must unset 'preprocessing_done'.
 	%% Otherwise, if one does compile(foo,[xpp_on]) twice in the same XSB
@@ -95,7 +96,9 @@ setoptions1([Opt|Rest]) :-
 	 ->	setopt(Opt1,1)
 	 ; Opt = -(Opt1)
 	 ->	setopt(Opt1,0)
-	 ;	setopt(Opt,1)
+	 ; atomic(Opt),
+		setopt(Opt,1)
+	 ;      true
 	),
 	(conget(xpp_dump,1) -> conset(xpp_on,1)
         %% next line for heavy duty gpp debugging
@@ -203,6 +206,9 @@ current_option(mi_foreign).
 
 /* Compiler tests */
 current_option(profile).
+
+/* Allow module to differ from filename */
+current_option(module(_)).
 
 current_option(singleton_warnings_off).
 current_option(allow_redefinition).

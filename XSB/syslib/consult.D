@@ -87,7 +87,7 @@
 :- mode load_dync_read_and_assert(+,+,+,?,?).
 :- mode load_dynca(+).
 :- mode load_dynca(+,+).
-:- mode load_exec(+,+,+).
+:- mode load_exec(+,+).
 :- mode make_filecopy(+,+).
 :- mode multifile_cvt(?,?,?).
 :- mode multifile_cvt_head(?,?).
@@ -216,7 +216,7 @@
 :- mode_on_success load_dync_read_and_assert(g,g,g,A,B).
 :- mode_on_success load_dynca(g).
 :- mode_on_success load_dynca(g,g).
-:- mode_on_success load_exec(g,g,g).
+:- mode_on_success load_exec(g,g).
 :- mode_on_success make_filecopy(g,g).
 :- mode_on_success multifile_cvt(A,B,C).
 :- mode_on_success multifile_cvt_head(A,A).

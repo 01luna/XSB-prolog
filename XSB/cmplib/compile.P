@@ -76,7 +76,7 @@ compile_internal(Modname,Basename,Extension,Options,ToLoc,ExportList) :-
 	file_names(Basename, Extension,PFile, HFile, OFile, AFile, DFile,
 		   SpecFile, TIFile, TableFile, _OptFile),
 	setoptions(Options), initialize,
-	%% If --quietload, don't print Compiling/compiled messages
+	%% If --quietload, dont print Compiling/compiled messages
 	stat_flag(BANNER_CTL,BannerCtl),
 	(   KeepQuiet is BannerCtl mod QUIETLOAD, KeepQuiet =:= 0
 	->  true
@@ -90,6 +90,7 @@ compile_internal(Modname,Basename,Extension,Options,ToLoc,ExportList) :-
 	( option(profile) -> 
 	    time_message(TimeStart, 'Parse finita'), cputime(TimeParse)
 	; TimeParse = 0.0 ),
+	check_ground(Modname,'compile module option',1),
 	abort_if_syntax_errors(Modname), !,
 	useinfer(Module_0, IsModule, ExportList), !,
 	( option(profile) -> 

@@ -253,7 +253,7 @@
 :- mode tab(+).
 :- mode tab(+,+).
 :- mode table(?).
-:- mode table_1(?).
+:- mode table_1(?,+).
 :- mode table_index(?,+).
 :- mode tcall(?).
 :- mode tell(+).
@@ -564,7 +564,7 @@
 :- mode_on_success tab(g).
 :- mode_on_success tab(g,g).
 :- mode_on_success (table A).
-:- mode_on_success table_1(A).
+:- mode_on_success table_1(A,g).
 :- mode_on_success table_index(A,g).
 :- mode_on_success tcall(A).
 :- mode_on_success tell(g).

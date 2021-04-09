@@ -194,7 +194,11 @@ cd parmod_tests
 ../../gentest.sh "$XEMU $options" test_parmod "test."
 ../../gentest.sh "$XEMU $options" test_parmod_im "test."
 cd ..
-
+#------------------------------------------------------------------------
+cd mod_file_tests
+../../gentest.sh "$XEMU $options" test_mod_file "test."
+../../gentest.sh "$XEMU $options" test_mod_file_im "test."
+cd ..
 
 #------------------------------------------------------------------------
 # Test Prolog calling C: the .so or .o file needs to be created each time

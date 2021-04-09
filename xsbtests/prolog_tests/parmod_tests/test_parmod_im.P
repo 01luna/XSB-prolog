@@ -31,11 +31,11 @@ test :- pred6(A,B,[a,b,c]),my_writeln(still_my_app(A,B)),fail.
 test :- write('testing: '),my_writeln(usermod('TTSTUSRMD'):q(_A,_B,_C)),fail.
 test :- q(A,B,C),my_writeln(q(A,B,C)),fail.
 
-:- import s1/3 from usermod('pm_subdir/ttstusrmduc').
+:- import s1/3 from usermod>>'pm_subdir/ttstusrmduc'.
 test :- write('testing: '),my_writeln(usermod('pm_subdir/ttstusrmduc'):s1(_A,_B,_C)),fail.  
 test :- s1(A,B,C),my_writeln(s1(A,B,C)),fail.
 
-:- import w/3 from usermod('pm_subdir/ttstusrmduc').
+:- import w/3 from usermod>>'pm_subdir/ttstusrmduc'.
 test :- write('testing: '),my_writeln(usermod('pm_subdir/ttstusrmduc'):w(_A,_B,_C)),fail.  
 test :- w(A,B,C),my_writeln(w(A,B,C)),fail.
 
@@ -55,8 +55,8 @@ test :- tp(A,B,C),my_writeln(tp(A,B,C)),fail.
 test :- write('testing: '),my_writeln(usermod(consult:dyn_load(bfile,0))),fail.
 test :- tp2(A,B,C),my_writeln(tp2(A,B,C)),fail.
 
-:- import pd/2 from usermod(proc_files:load_dsv('dsv.txt',pd/2,[])).
-test :- write('testing: '),my_writeln(usermod(proc_files:load_dsv('dsv.txt',pd/2,[])):pd(_X,_Y)),fail.
+:- import pd/2 from usermod>>(proc_files:load_dsv('dsv.txt',pd/2,[])).
+test :- write('testing: '),my_writeln(usermod((proc_files:load_dsv('dsv.txt',pd/2,[]))):pd(_X,_Y)),fail.
 test :- pd(X,Y),my_writeln(pd(X,Y)),fail.
 
 
