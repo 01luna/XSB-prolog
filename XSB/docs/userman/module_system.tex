@@ -36,12 +36,17 @@ associated with a structure symbol.  In other words, a predicate
 symbol is just a structure symbol with an associated definition.
 Accordingly, predicates are either static or dynamic depending on how
 they are defined.  Static predicates get their definitions from source
-code files that are compiled and loaded into memory.  A dynamic
+code files that are compiled and loaded into memory.
+The definition of a static predicate cannot be changed by adding ar
+deleting clauses using {\tt assert/1} or {\tt retract}, or similar
+predicates.
+A dynamic
 predicate $P$ may also occur in a compiled source file if there is a
 dynamic declaration for $P$, of if $P$ is in a file that is loaded as
 dynamic code via {\tt load\_dyn/[1,3]} or similar predicates.  $P$ is
 also dynamic if rules for $P$ have been asserted to the Prolog data
-store.
+store.  Dynamic predicates can have their definitions changed by {\tt
+  assert/1} and {\tt retract/1}.
 
 In XSB every structure symbol is associated with a module -- not just
 predicates.  A term is said to be in the module of its main structure
@@ -57,7 +62,7 @@ structure symbol named {\tt p/2}. \footnote{This lack of unification
 
 \index{modules!declaration}
 So how are terms in a module created?  The most common way
-is for a term to occur in a Prolog source file $F_{mod}$ that contains
+is for a term to occur in a Prolog source file $F_{mod}.P$ that contains
 a {\em module declaration} such as
 
 \demo{:- export $Pred/Arity$.}
@@ -70,8 +75,8 @@ or
 \noindent 
 where $F_{mod}$ is compiled as static code and loaded into a session,
 or loaded as dynamic code into a session.  In either case, the name of
-the module is the name of $F_{mod}$ without its extension (if any).
-In addition, a file $F_{nomod}$ can be loaded into a module as dynamic
+the module is the name of $F_{mod}$, the file name without its extension.
+In addition, a file $F_{nomod}.P$ can be loaded into a module as dynamic
 code via the appropriate option in {\tt load\_dyn\_gen/2} and similar
 predicates.  Finally, a dynamic clause for a predicate $P$ can be
 explicitly asserted into a module $M$ using the {\em module
@@ -83,13 +88,13 @@ goal like
 \noindent
 a rule can be asserted for $P$ in module $M$.  More generally, the
 module qualification $M:P$ also causes P to be treated as belonging to
-$M$ if $M:P$ occurs in any source file or input stream.
+$M$ if $M:P$ occurs as a goal in any source file or input stream.
 
 \index{modules!usermod}
 \index{modules!declaration}
 
 A predicate or goal $Pred$ is considered to be in the ``default''
-module {\tt usermod} ff none of the above situations occur.  I.e., if
+module {\tt usermod} if none of the above situations occur.  I.e., if
 $Pred$ does not have a module qualification, does not occur in a file
 with a module declaration, and is not loaded into a module as dynamic
 code.  Thus a term that has no module qualification when read from an
@@ -253,7 +258,9 @@ one of the names needs to be changed on import.
 For modules, the base file name is stored in its byte code ({\tt
   .xwam}) file, so that renaming a byte-code file for a module may cause
 problems, as the renaming will not affect the information within the
-byte-code file.  However, byte code files generated for non-modules
+byte-code file.  (But see below for ways to support modules with
+names different from the files that contain their code.)
+However, byte code files generated for non-modules
 can be safely renamed.
 
 \subsection{How the Compiler Determines the Module of a Term}
@@ -544,10 +551,9 @@ source code file that defines $Pred/Arity$ and is {\bf not} a module,
 i.e., its predicates will be loaded into {\tt usermod}.  In this case,
 when a goal to $Pred/Arity$ is called and does not yet have a
 definition, the file $File$ is (compiled and) loaded, and the goal is
-then called.  If $File$ is a base filename (without a slash), then the
+then called.  If $File$ is a base file name (without a slash), then the
 {\tt library\_directory/1} paths are used to find the correct file as
 for normal modules.
-
 %%% ??? If the predicate already has a definition, that
 %%one is used.
 
@@ -769,6 +775,71 @@ maintained by XSB's incremental tabling
 (Section~\ref{sec:incremental_tabling}).
 
 %[-dsw: Provide a simple example of a view system...]
+
+\index{modules!explicit filenames}
+\subsection{Modules with Explicit File Names}
+
+Normally, the Prolog code that defines predicates in a module is in a
+file whose name is the same as the module name (without parameters, if
+any), with a {\tt .P} extension.  However, XSB provides a way for the
+programmer to explicitly provide a different name for the file that
+contains the code of a module.
+
+Module specifications (in import statements and in goals with an
+explicit module qualifier) may explicitly include the name of the file
+from which to load the module.  The syntax uses the {\tt '>>'} symbol as
+in the following example:
+\begin{verbatim}
+:- import p/2 from moda>>moda_file.
+\end{verbatim}
+In this case when {\tt p/2} is loaded on demand, {\tt moda\_file}
+(with the Prolog extension added) is used as the name of the
+file to load.  (The system uses the same search strategy to find the
+file as for module names, as described in Section~\ref{LibPath}.)
+
+N.B. {\em Every} reference to a module whose code is stored in an
+explicitly named file {\em must} include the explicit file name.  The
+one exception is that when asserting (or retracting) clauses, only the
+base module name should be used to qualify the head of a clause.
+(This is because no on-demand loading can be involved in such uses).
+
+A subgoal that is qualified by an explicit module name may also use
+this form.  For example, the following goal sequence is supported:
+\begin{verbatim}
+| ?- Mod = moda>>moda_file, Mod:p(X,Y).
+\end{verbatim}
+
+Pseudo-module references, such as {\tt usermod(}{\em FileName}{\tt
+  )}, can alternatively be written as {\tt usermod>>}{\em
+  FileName}{\tt )}.
+
+Parameterized modules and the actual parameters supplied to them may
+also have the explicit filename qualifier.  For example, in the {\tt
+  reachability} example above, we might store the code for {\tt
+  my\_graph} parameter in a file named {\tt my\_graph\_file.P}.  In
+this case we could invoke the goal:
+\begin{verbatim}
+| ?- reachability(my_graph>>my_graph_file):reachable_final(ReachableFinalState).
+\end{verbatim}
+And if the code for the paramaterized module {\tt reachability} (with
+formal parameter {\tt some\_graph}) were itself stored in the file {\tt
+  reachability\_file.P}, we would write:
+\begin{verbatim}
+| ?- reachability(my_graph>>my_graph_file)>>reachability_file:
+             reachable_final(ReachableFinalState).
+\end{verbatim}
+
+Because of the extra complexity of the syntax of modules with explicit
+file names (as is easily seen in this example), it is recommended that
+they be used only in situations for which the default file names
+cannot be made to work.
+
+The compile command supports a {\tt module(}{\em ModName}{\tt )}
+option.  With this parameter, the compiled file will contain byte-code
+for the module name {\em ModName}, which will be defined when it is
+loaded.  This option is not normally used by a programmer, but is used
+internally by the system when compilation is required during on-demand
+loading.
 
 %%% Local Variables: 
 %%% mode: latex
