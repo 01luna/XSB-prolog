@@ -627,7 +627,6 @@ parse_clause(Cl, module(SymTab,DcList,ClList,QrList,Pars),ModName) :-
 	 ->	parse_preddef_chk_dyn(H, B, ClList, QrList, ModName, SymTab)
 	 ; Cl = (':-'(Directive))
 	 ->	transform_directive(Directive,ModName,SymTab,PDirective),
-	        
 		parse_directive(PDirective,QrList,SymTab,ModName, 
 		                  module(SymTab,DcList,ClList,QrList,Pars))
 	 ; Cl = ('?-'(Q))
@@ -648,7 +647,7 @@ transform_directive(as(table(Args),Options),_ModName,_SymTab,table(as(TArgs,Opti
 transform_directive(table(as(Args,Options)),_ModName,_SymTab,table(as(TArgs,Options))) :- !,
 	mpa_to_skel_cl(Args,TArgs).
 transform_directive(table(Args),_ModName,_SymTab,table(TArgs)) :- !,
-	mpa_to_skel_cl(Args,TArgs).
+	 mpa_to_skel_cl(Args,TArgs).
 %transform_directive(index(P/A-I),_ModName,_SymTab,index(P/A-I)) :- !, % just pass thru
 transform_directive(index(P/A-I),ModName,SymTab,OutIndex) :- !,
 	(option(sysmod)
@@ -926,7 +925,8 @@ parse_directive(thread_shared(PredCList),_QrList,SymTab,_ModName,_ModStruct) :- 
 	parse_comma_list(PredCList,SymTab,[(thread_shared)],(thread_shared)).
 parse_directive(thread_private(PredCList),_QrList,SymTab,_ModName,_ModStruct) :- !,
 	parse_comma_list(PredCList,SymTab,[(thread_private)],(thread_private)).
-parse_directive(table(as(PredCList,Options)),QrList,SymTab,_ModName,_ModStruct) :- !,
+parse_directive(table(as(PredCList,Options)),QrList,SymTab,_ModName,_ModStruct) :-
+    	nonvar(PredCList), !,
 	parse_comma_list_table(PredCList,SymTab,Options),
 	check_ground(Options,(table)/1,1),
 	check_table_options(Options,PredCList,_),
