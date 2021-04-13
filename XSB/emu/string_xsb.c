@@ -411,3 +411,11 @@ char *xsb_strrstr(char *str, char *pat)
       return (char *) p;
   return NULL;
 }
+// returns the number of utf8 code points in the buffer at s
+size_t utf8len(char *s)
+{
+    size_t len = 0;
+    for (; *s; ++s) if ((*s & 0xC0) != 0x80) ++len;
+    return len;
+}
+
