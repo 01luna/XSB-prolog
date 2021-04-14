@@ -2,6 +2,7 @@
 
 \section{Asserting, Retracting, and Other Database Modifications} \label{sec:assert}
 
+\index{dynamic code}
 \index{indexing}
 XSB provides an array of features for modifying the dynamic database.
 As a default, using {\tt assert/1}, clauses can be asserted using
@@ -74,7 +75,8 @@ clauses are presently defining it, the call will quietly fail instead
 of issuing an {\sf ``Undefined predicate''} error message.
 
 \begin{description}
-%
+  %
+\index{dynamic code}  
 \index{indexing}
 \isoitem{asserta(+Clause)}{asserta/1}
 %
@@ -112,6 +114,7 @@ containing this operator requires an extra set of parentheses: {\tt
 %
 \ei
 
+\index{dynamic code}
 \index{indexing}
 \isoitem{assertz(+Clause)}{assertz/1}
 %
@@ -127,6 +130,7 @@ Note that because of the precedence of {\tt :-/2}, asserting a clause
 containing this operator requires an extra set of parentheses: {\tt
   assert((Head :- Body))}.
 
+\index{dynamic code}
 \index{indexing}
 \standarditem{assert(+Clause)}{assert/1}
 %
@@ -171,6 +175,7 @@ asserted as the last one in the predicate and the better register
 allocation will be used.  {\tt Index} indicates the argument(s) on
 which to index.
 
+\index{dynamic code}
 \isoitem{retract(+Clause)}{retract/1}
 %
 Removes through backtracking all clauses in the database that match
@@ -220,6 +225,7 @@ later be reclaimed through garbage collection.  (See {\tt
 %
 \ei
 
+\index{dynamic code}
 \isoitem{retractall(+Head)}{retractall/1} removes every
 clause in the database whose head matches with {\tt Head}.  The
 predicate whose clauses have been retracted retains the {\tt dynamic}
@@ -229,6 +235,7 @@ and always succeeds.  The term {\tt Head} is not further instantiated
 by this call.  Conditions for space reclamation and error cases are as
 with {\tt retract/1}.
 
+\index{dynamic code}
 \isoitem{abolish(+PredSpec)}{abolish/1} 
 %
 Removes all information about the specified predicate. {\tt PredSpec}
@@ -297,6 +304,7 @@ safe to use.
 %
 \ei
 
+\index{dynamic code}
 \isoitem{clause(+Head,?Body)}{clause/2}
 %
 Returns through backtracking all dynamic clauses in the database whose
@@ -331,6 +339,7 @@ code for $T$.
 %
 \ei
 
+\index{dynamic code}
 \standarditem{gc\_dynamic(-N)}{gc\_dynamic/1} 
 \index{garbage collection!dynamic clauses}
 %
@@ -429,6 +438,7 @@ hashing.  We still are supporting it, but we don't need to encourage it
 
 }
 
+\index{dynamic code}
 \index{indexing}
 \standarditem{index(+PredSpec, +IndexSpec)}{index/2}
 \label{index_dynamic} \index{indexing!dynamic predicates}
@@ -594,6 +604,7 @@ If in doubt what indexing is being used for a predicate, a call to
 \ei
 \ei
 
+\index{dynamic code}
 \label{dynamic-declaration}
 \isoitem{dynamic(+Operations)}{dynamic/1}\label{dynamic/1}
 %
@@ -757,6 +768,7 @@ error will be thrown.
 \subsection{(Fast) Loading of Dynamic Code from Files} \label{sec:LoadDyn}
 %===============================================
 
+\index{dynamic code}
 Several predicates are available that can assert the contents of a
 Prolog file into XSB's database.  These predicates are useful when
 code needs to be dynamic, or when the input file, {\em File} contains
@@ -797,6 +809,7 @@ options that can execute any supported behavior for dynamic code
 loading.  Afterwards, we present a series of convenience predicates
 that execute commonly used sets of features.
 
+\index{dynamic code}
 \begin{description}
   \standarditem{load\_dyn\_gen(+FileName,+Options)}{load\_dyn\_gen/2}\label{load_dyn_gen/2}
 %
