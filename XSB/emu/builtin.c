@@ -1228,7 +1228,6 @@ void init_builtin_table(void)
 
   set_builtin_table(GET_DATE, "get_date");
   set_builtin_table(STAT_WALLTIME, "stat_walltime");
-  set_builtin_table(STRING_LENGTH_CPS, "sting_length_cps");
 
   set_builtin_table(PSC_INIT_INFO, "psc_init_info");
   set_builtin_table(PSC_GET_SET_ENV_BYTE, "psc_get_set_env_byte");
@@ -2014,22 +2013,6 @@ int builtin_call(CTXTdeclc byte number)
     value = (int) ((real_time() - realtime_count_gl) * 1000);
     ctop_int(CTXTc 1, value);
     break;
-  }
-  case STRING_LENGTH_CPS:	{	/* R1: +String; R2: -Length */
-    Cell term = ptoc_tag(CTXTc 1);
-    Cell num = ptoc_tag(CTXTc 2);
-    if (isstring(term)) {
-      char *addr = string_val(term);
-      if (isref(num) || (isointeger(num) && oint_val(num) >= 0))
-	return int_unify(CTXTc makeint(utf8len(addr)), num);
- else if (!isointeger(num)) xsb_type_error(CTXTc "integer",num,"atom_length/2",2);
-      else xsb_domain_error(CTXTc "not_less_than_zero",num,"atom_length/2",2);
-    } else if (isref(term)) {
-      xsb_instantiation_error(CTXTc "atom_length/2",1);
-    } else {
-      xsb_type_error(CTXTc "atom",term,"atom_length/2",1);
-    }
-    return FALSE;
   }
   case XWAM_STATE: { /* return info about xwam state: R1: +InfoCode, R2: -ReturnedValue */
     switch (ptoc_int(CTXTc 1)) { /* extend as needed */
