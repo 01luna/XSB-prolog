@@ -32,14 +32,16 @@ init_xsbpy:-
     consult(xsbpym,[cc_opts(CompilerOpts)]),
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
-    concat_atom([PackDir,'/xsbpy/test'],TestDir),
+    concat_atom([PackDir,'/xsbpy/apps'],AppDir),
     callpy(add_python_path,add_python_path(XSBpyDir),_),
-    callpy(add_python_path,add_python_path(TestDir),_).
+    callpy(add_python_path,add_python_path(AppDir),_).
+    
 
 test_xsbpy:-
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
+    callpy(add_python_path,add_python_path(TestDir),_),
     add_lib_dir(TestDir),
     shell(['cp ',XSBpyDir,'/xsbpym.so',' ',TestDir,'xsbpym.so']),
     ensure_loaded(testSuite),
