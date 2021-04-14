@@ -1,4 +1,4 @@
-/* File:  builtin.c
+/* File:  xsbpym.c
 ** Author(s): Muthukumar Suresh, Swift, Carl Andersen
 ** Contact:   xsb-users@lists.sourceforge.net
 **
@@ -226,18 +226,19 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       return FALSE;
     return TRUE;
   }
-  else if(flag == 0 && PyList_Check(pyObj)) {
-    char str[30];
-    sprintf(str, "p%p", pyObj);
-    prolog_term ref = p2p_new(CTXT);
-    c2p_functor(CTXTc "pyList", 1, ref);
-    prolog_term ref_inner = p2p_arg(ref, 1);
-    c2p_string(CTXTc str, ref_inner);		
-    if(!p2p_unify(CTXTc ref, *prTerm))
-      return FALSE;	
-    return TRUE;
-  }
-  else if(flag == 1 && PyList_Check(pyObj)) {
+  //  else if(flag == 0 && PyList_Check(pyObj)) {
+  //    char str[30];
+  //    sprintf(str, "p%p", pyObj);
+  //    prolog_term ref = p2p_new(CTXT);
+  //    c2p_functor(CTXTc "pyList", 1, ref);
+  //    prolog_term ref_inner = p2p_arg(ref, 1);
+  //    c2p_string(CTXTc str, ref_inner);		
+  //    if(!p2p_unify(CTXTc ref, *prTerm))
+  //      return FALSE;	
+  //    return TRUE;
+  //  }
+  //  else if(flag == 1 && PyList_Check(pyObj)) {
+  else if(PyList_Check(pyObj)) {
     size_t size = PyList_Size(pyObj);
     size_t i = 0;
     prolog_term head, tail;
@@ -279,6 +280,30 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       PyTuple_SET_ITEM(tup,2,value);		
       //      printPyObj(CTXTc tup);
       convert_pyObj_prObj(CTXTc tup, &head, 1);	
+      tail = p2p_cdr(tail);
+    }
+    c2p_nil(CTXTc tail);
+    if(!p2p_unify(CTXTc P, *prTerm))
+      return FALSE;
+    return TRUE;
+  }
+  else if(PySet_Check(pyObj)) {           // maybe PyAnySet_Check
+    size_t size = PySet_GET_SIZE(pyObj);  // macro version since obj is a set
+    size_t i = 0;
+    prolog_term head, tail;
+    prolog_term P = p2p_new(CTXT);
+
+    c2p_functor("_$pyset",1,P);
+    tail = p2p_arg(P, 1);
+    
+    for(i = 0; i < size; i++) {
+      c2p_list(CTXTc tail);
+      head = p2p_car(tail);
+      PyObject *pyObjInner = PySet_Pop(pyObj);
+      convert_pyObj_prObj(CTXTc pyObjInner, &head, 1);	
+      //printPyObj(CTXTc pyObjInner);
+      //printPyObjType(CTXTc pyObjInner);
+      //printPlgTerm(CTXTc head);
       tail = p2p_cdr(tail);
     }
     c2p_nil(CTXTc tail);

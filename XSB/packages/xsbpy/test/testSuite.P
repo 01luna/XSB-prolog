@@ -1,6 +1,7 @@
 :-  set_prolog_flag(character_set, utf_8) . 
 
 :- import concat_atom/2 from string.
+:- import length/2 from basics.
 
 testSuite:-
   return_tests, 
@@ -41,11 +42,21 @@ pyObj_NextTest :-
 %--------------------------------
 
 dataConversionTests :- 
-	(intConvTest->write('int conversion tests successful\n'); write('int conversion tests failed\n')), 
-	(floatConvTest->write('float conversion tests successful\n'); write('float conversion tests failed\n')),
-	(stringConvTest->write('string conversion tests successful\n'); write('string conversion tests failed\n')),
-	listConvTest.
-%	(pytupleConvTest->write('tuple  conversion tests successful\n'); write('tuple conversion tests failed\n')).
+    (intConvTest->
+	 write('int conversion tests successful\n')
+     ;   write('int conversion tests failed\n')), 
+    (floatConvTest->
+	 write('float conversion tests successful\n')
+     ;   write('float conversion tests failed\n')),
+    (stringConvTest->
+	 write('string conversion tests successful\n')
+     ;   write('string conversion tests failed\n')),
+    (listConvTest->
+	 write('list conversion tests successful\n')
+     ;   write('list conversion tests failed\n')),
+    (setConvTest->
+	 write('set conversion tests successful\n')
+     ;   write('set conversion tests failed\n')).
 
 intConvTest :-
     current_prolog_flag(min_integer, MinValue), 
@@ -74,6 +85,13 @@ listConvTest:-
     !.
 listConvTest:-
     writeln('listConvTest failed').
+
+setConvTest:- 
+    callpy('test/returnVal',returnSet( ) ,F ),
+    F = ['"foo"','''bar''','_$pyset'(S)],
+    length(S,3),!.
+setConvTest:- 
+    writeln('setConvTest failed').
 
 tupleConvTest:-
     callpy('test/tupletest',func(),R1), R1 = ''(5,''(),hello,''(5,6,7)),
