@@ -24,6 +24,8 @@ predicates use the terms {\em predicate indicator}, {\em term
   To resolve any ambiguities, A term indicator may optionally be
   prefixed by the module name, as {\tt M:Term}.
 
+\index{modules!usermod}
+\index{usermod}
   Example: {\tt usermod:append(\_,\_,\_)}
 \item By {\em predicate indicator} \index{predicate indicator} we mean
   a term indicator {\em or} a compound term of the form {\tt M:F/A} or
@@ -917,6 +919,8 @@ have been imported but not actually loaded into code space.  For more
 detailed analysis of predicate properties, the predicate {\tt
 predicate\_property/2} can be used.
 
+\index{modules!usermod}
+\index{usermod}
 As an example to backtrack through all of the predicates defined and
 loaded in module {\tt blah}, regardless of whether {\tt blah} is a
 system or a user defined module, use:
@@ -1566,6 +1570,8 @@ The query:
 
 \index{modules}    
 \index{modules!usermod}    
+\index{usermod}    
+\index{dynamic code}
 \standarditem{listing(?Call)}{listing/1}
 
 Displays dynamic predicates to the current output stream.  The

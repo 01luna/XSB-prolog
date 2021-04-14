@@ -1,0 +1,178 @@
+
+\chapter[XSB and Python]{{\tt xzsbpy}: The XSB-Python Inteface}
+
+\begin{center}
+  {\Large {\bf By Muthukumar Suresh, Theresa Swift, Carl Andersen}}
+\end{center}
+
+\noindent
+{\large {\bf {\em This chapter provides an early draft alpha-level
+      software with features that are sitll changing}}}
+
+%Both XSB and Python are written in C, which makes possible a robust
+%and efficient interface.  
+%
+
+
+\section{Configutation and Loading}
+
+{\tt xsbpy} does not yet make use of a proper configuration approach.
+Because of this, {\tt xsbpy} has only been configured and tested on
+Ubuntu linux using Version 3.7 of Python.
+
+For {\tt xsbpy} to work properly in Linux:
+\begin{itemize}
+\item The {\tt xsbpy} code must be compiled and dynamically loaded into XSB.
+\item A version of {\tt libpython.so} also needs to be dynamically
+  loaded into XSB, configured with the proper C library paths.
+\item The proper paths must be set for the Python Standard Library.
+\item Paths to {\tt xsbpy} and to {\tt xsbpy/apps} must be set up to
+  access both XSB and Python modules.
+\end{itemize}
+
+In Ubuntu Linux, this is all done automatically when the {\tt xsbpy}
+is consulted into XSB via a normal consult or {\tt
+  ensure\_loaded/[1,2]}.  First, in {\tt init\_xsbpy.P} the main C
+code for {\tt xsbpy} is compiled using the following gcc compiler
+options, and then loaded into XSB.
+
+\begin{verbatim}
+-I <path to XSB's emu directory>  
+-I/usr/include/python3.7m  -I/usr/include/python3.7  
+-lpython3.7m -L/usr/lib/python3.7 
+-Wl -rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 
+-Wl -rpath=/usr/lib/python3.7
+\end{verbatim}
+
+\noindent
+In the above compilation options, {\tt xsbpy} initialization
+configures the path to the XSB {\tt emu} directory but all other paths
+are currently hard-coded.
+
+If installing {\tt xsbpy} on Ubuntu, to ensure that the proper Python
+libraries and header files are present, execute:
+
+{\tt sudo apt-get install libpython3.7-dev}
+
+Future configuration tasks include
+
+\begin{itemize}
+\item {\em In Linux:} automatically finding file Python C development
+  libraries and headers.
+\item {\em In MacOs:} automatically finding file Python C development
+  libraries and headers, as well as ensuring that configuration
+  options are properly handled by Clang.
+\item {\em In Windows:} ... God only knows...
+\end{itemize}
+
+To test out whether {\tt xsbpy} has been loaded and is working
+properly, simply execute {\tt text\_xsbpy.} either from {\tt usermod}
+or the {\tt init\_xsbpy} module.
+
+\section{Usage}
+
+\begin{description}
+
+\altourmoditem{callpy(+Module,+Function,?Return)}{callpy/3}{xsbpy}
+%
+ Ensures that the Python module {\tt Module} is loaded, and calls {\tt
+   Module.Function} unifying the return of {\tt Function} with {\tt
+   Return}. 
+
+ \begin{itemize}
+   \item Python modules are searched for in the paths maintained in
+     Python's {\tt sys.path} list.
+   \item {\tt Goal} is simply a Prolog term, and a large portion of
+     Prolog terms and Python data structures are recursively
+     bi-translated, making this interface easy to use.  In fact, due
+     to the syntactic similarity of Prolog and Python, {\tt Goal}
+     often needs no processing to use.
+
+     Bi-translation between Prolog and Python can be decribed from the
+     viewpoint of Python types as follows:
+     \begin{itemize}
+       \item {\em Integer Types}: Python ints and floats are bi-translated
+         to Prolog inteers and floats.  Python complex types are not (yet) 
+         handled.  
+       \item {\em String Types}: Python string types are bi-translated
+         to Prolog atoms.  This translation assumes UTF-8 on both
+         sides.
+       \item {\em Sequence Types}:
+         \begin{itemize}
+           \item Python lists are bi-translated as Prolog lists and
+             the two forms are syntactically identical.
+           \item Python tuples are bi-translated as compound Prolog
+             terms with functor {\tt ''/n} (i.e., the functor is the
+             empty string, denoted with two apostrophes).
+             \item Python ranges are not (yet) translated.
+         \end{itemize}
+       \item {\em Mapping Types}: A Python dictionary is translated
+         into XSB as a list of {\tt ''/3} structures having the form:
+
+         {\em ''(Key,':', Value)}
+
+         where {\em Key} and {\em Value} can be any term/data
+         structure supported by {\tt xsbpy}.  For instance, the value
+         of {\em Value} can be another dictionary.
+       \item {\em Set Types:} are not yet supported.  (Soon!)
+       \item {\em Boolean Types:} are not yet supported. (Soon!)
+       \item {\em Binary Types:} are not yet supported.  There are no
+         current plans to support this type.
+     \end{itemize}
+   \item {\tt Return} is a Prolog term.  When the Python function
+     returns, the return value is translated to a Prolog term
+     $T_{ret}$, and then an attempt is made to unify $T_{ret}$ with
+     the {\tt Return} term.
+ \end{itemize}
+
+ As an example, the Prolog goal:
+
+ \begin{verbatim}
+callpy('apps/xsbpy_json',
+       prolog_loads('{"name": "Bob", "languages": ["English","Fench","GERMAN"]}'),
+       Ret)
+\end{verbatim}
+ 
+\noindent 
+calls the Python function {\tt xsbpy\_json:prolog\_loads()} on the
+above string.  In fact, the {\tt xsbpy\_json} module is a simple
+interface to the Python json library. where the Python predicate {\tt
+  xsbpy\_json:prolog\_loads()} is a simple wrapper for {\tt
+  json:loads()}.  In Python, the action of {\tt json.loads()} on the
+above json string produces a Python dictionary of the form:
+\begin{verbatim}
+{
+  "name":'Bob',
+  "languages":["English", "Fench","GERMAN"]
+}
+\end{verbatim}
+This dictionary is then translated to a Prolog term, displayed via
+{\tt writeq/1} as:
+\begin{verbatim}
+[''(name,(:),'Bob'),''(languages,(:),['English','Fench','GERMAN'])].
+\end{verbatim}
+
+The Python wrapper for {\tt json.loads()} is trivial:
+\begin{verbatim}
+def prolog_loads(String):
+    jdict = json.loads(String)
+    return(jdict)
+\end{verbatim}
+\end{description}
+
+\section{Performance}
+
+{\tt callpy/3} is written entirely in C, has shown good performance so
+far, and continues to be optimized.  Calling a simple Python function
+to increment a number and then returning the incremented value should
+take slightly over a microsecond on a reasoably fast machine.  Of
+course, the overhead for passing large terms from and to Python will
+be higher.
+
+\section{Current and Future Work}
+
+PyXSB is a high quality interface for Python to call XSB available at
+{\tt pypi.org/project/py-xsb}, and there is every good intention to
+support callback from both interfaces
+
+
