@@ -44,19 +44,22 @@ pyObj_NextTest :-
 dataConversionTests :- 
     (intConvTest->
 	 write('int conversion tests successful\n')
-     ;   write('int conversion tests failed\n')), 
+     ;   write('!!!int conversion tests failed\n')), 
     (floatConvTest->
 	 write('float conversion tests successful\n')
-     ;   write('float conversion tests failed\n')),
+     ;   write('!!!float conversion tests failed\n')),
     (stringConvTest->
 	 write('string conversion tests successful\n')
-     ;   write('string conversion tests failed\n')),
+     ;   write('!!!string conversion tests failed\n')),
     (listConvTest->
 	 write('list conversion tests successful\n')
-     ;   write('list conversion tests failed\n')),
+     ;   write('!!!list conversion tests failed\n')),
     (setConvTest->
 	 write('set conversion tests successful\n')
-     ;   write('set conversion tests failed\n')).
+     ;   write('!!!set conversion tests failed\n')),
+    (tupleConvTest->
+	 write('tuple conversion tests successful\n')
+     ;   write('!!!tuple conversion tests failed\n')).
 
 intConvTest :-
     current_prolog_flag(min_integer, MinValue), 
@@ -81,24 +84,26 @@ listConvTest:-
     callpy('test/returnVal', returnVal([1,[2,3,4],[hello,155]]), R3),
     R3 ==  [1, [2, 3, 4], ['hello', 155]],
     callpy('test/tupInList', func(), R4), R4 == [1,2,3, ''(5, 6), 'hello', [11,17]],
-    writeln('listConvTest successful'),
+%    writeln('listConvTest successful'),
     !.
-listConvTest:-
-    writeln('listConvTest failed').
+%listConvTest:-
+%    writeln('!!!listConvTest failed'),fail.
 
 setConvTest:- 
     callpy('test/returnVal',returnSet( ) ,F ),
     F = ['"foo"','''bar''','_$pyset'(S)],
-    length(S,3),!.
-setConvTest:- 
-    writeln('setConvTest failed').
+    length(S,3),
+    callpy('test/returnVal', returnVal('_$pyset'([a,b,c])), R1 ),
+    arg(1,R1,A), length(A,3),!.
+%setConvTest:- 
+%    writeln('!!!setConvTest failed'),fail.
 
 tupleConvTest:-
-    callpy('test/tupletest',func(),R1), R1 = ''(5,''(),hello,''(5,6,7)),
+    callpy('test/returnVal', returnVal(''(a,b,c)), R1),R1 = ''(a,b,c),
+    callpy('test/tupletest',func(),R2), R2 = ''(5,''(),hello,''(5,6,7)),
     !.
-tupleConvTest:-
-    writeln('tupleConvTest failed').
-
+%tupleConvTest:-
+%    writeln('!!!tupleConvTest failed'),fail.
 
 %--------------------------------
 
