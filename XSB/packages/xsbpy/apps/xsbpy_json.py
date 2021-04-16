@@ -2,27 +2,24 @@
 #from json import *
 import json
 
-#def prolog_loads(String):
-#    jdict = json.loads(String)
-#    jlist = list(jdict.items())
-#    return(jlist)
-
 def prolog_loads(String):
     jdict = json.loads(String)
-#    jlist = list(jdict.items())
     return(jdict)
 
-#def prolog_load(File):
-#    with open(File) as fileptr:
-#        data = json.load(fileptr)
-#        jlist = dict_to_list(data)
-#        print(jlist)
-#        return(jlist)
+def prolog_dumps(dict):
+    print(('pd',dict))
+    jstring = json.dumps(dict)
+    return(jstring)
 
 def prolog_load(File):
     with open(File) as fileptr:
         data = json.load(fileptr)
         return(data)
+
+def prolog_dump(Dict,File):
+    with open(File,"w") as fileptr:
+        ret = json.dump(Dict,fileptr)
+        return(ret)
 
 #should not be needed -- transformation now done in C.    
 def dict_to_list(indict):
@@ -52,9 +49,3 @@ def dict_to_list(indict):
 
             
 # Output: {'name': 'Bob', 'languages': ['English', 'Fench']}
-
-def prolog_dumps(list):
-    jdict = json.loads(String)
-    jlist = list(jdict.items())
-    return(jlist)
-

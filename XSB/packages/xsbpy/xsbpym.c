@@ -144,50 +144,90 @@ int prlist2pyList(CTXTdeclc prolog_term V, PyObject *pList, int count)
 }
 
 int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
-	//int type = find_prolog_term_type(CTXTc prTerm);
-	//printf("type %i\n",type);
-	//printPlgTerm(prTerm);
-	if(find_prolog_term_type(CTXTc prTerm) == PYINT)
-	{
-		prolog_term argument = prTerm;
-		prolog_int argument_int = p2c_int(argument);
-		*pyObj = PyLong_FromSsize_t(argument_int);
-		return TRUE;
-	}
-	else if(find_prolog_term_type(CTXTc prTerm) == PYSTRING)
-	{
-		prolog_term argument = prTerm;
-		char *argument_char = p2c_string(argument);
-		*pyObj = PyUnicode_FromString(argument_char);
-		return TRUE;
-	}
-	else if(find_prolog_term_type(CTXTc prTerm) == PYFLOAT)
-	{
-		prolog_term argument = prTerm;
-		prolog_float argument_float = p2c_float(argument);
-		*pyObj = PyFloat_FromDouble(argument_float);
-		return TRUE;
-	}
-	else if(find_prolog_term_type(CTXTc prTerm) == PYLIST || find_prolog_term_type(CTXTc prTerm) == PYNIL )
-	{
-		prolog_term argument = prTerm;
-			int count = find_length_prolog_list(argument);
-			PyObject *pList = PyList_New(count);
-			if(!prlist2pyList(CTXTc argument, pList, count))
-				return FALSE;
-			*pyObj = pList;
-			return TRUE;
-	}
-	
-	else if (find_prolog_term_type(CTXTc prTerm) == PYREF)
-	{
-			prolog_term ref = p2p_arg(prTerm, 1);
-			char *node_pointer = p2c_string(ref); 
-			PyObject *pyobj_ref = (PyObject *)strtoll(node_pointer+1,NULL, 16);
-			*pyObj = pyobj_ref;
-			return TRUE;
-	}
-	return FALSE;
+  //int type = find_prolog_term_type(CTXTc prTerm);
+  //printf("type %i\n",type);
+  //printPlgTerm(prTerm);
+  if(is_int(CTXTc prTerm)) {
+    prolog_term argument = prTerm;
+    prolog_int argument_int = p2c_int(argument);
+    *pyObj = PyLong_FromSsize_t(argument_int);
+    return TRUE;
+  }
+  else if(is_string(CTXTc prTerm)) {
+    prolog_term argument = prTerm;
+    char *argument_char = p2c_string(argument);
+    *pyObj = PyUnicode_FromString(argument_char);
+    return TRUE;
+  }
+  else if(find_prolog_term_type(CTXTc prTerm) == PYFLOAT) {
+    prolog_term argument = prTerm;
+    prolog_float argument_float = p2c_float(argument);
+    *pyObj = PyFloat_FromDouble(argument_float);
+    return TRUE;
+  }
+  else if(find_prolog_term_type(CTXTc prTerm) == PYLIST || find_prolog_term_type(CTXTc prTerm) == PYNIL ) {
+    prolog_term argument = prTerm;
+    int count = find_length_prolog_list(argument);
+    PyObject *pList = PyList_New(count);
+    if(!prlist2pyList(CTXTc argument, pList, count))
+      return FALSE;
+    *pyObj = pList;
+    return TRUE;
+  }
+  else if (is_functor(CTXTc prTerm)) {
+    if(strcmp(p2c_functor(prTerm),"") == 0 ) {
+      PyObject *tup, *arg;
+      prolog_term temp;
+      int arity = p2c_arity(prTerm);
+      tup = PyTuple_New(arity);
+      for (int i = 1; i <= arity; i++) {
+	temp = p2p_arg(prTerm, i);
+	convert_prObj_pyObj(CTXTc temp, &arg) ;
+	PyTuple_SET_ITEM(tup,(i-1),arg);
+      }
+      *pyObj = tup;
+      return TRUE;
+    }
+    else if (strcmp(p2c_functor(prTerm),"_$pyset") == 0 ) {
+      PyObject *pyset, *pyelt;
+      prolog_term list, elt;
+      list = p2p_arg(prTerm, 1);
+      pyset = PySet_New(NULL);
+      while (is_list(list)) {   
+	elt = p2p_car(list);
+	convert_prObj_pyObj(CTXTc elt, &pyelt);
+	PySet_Add(pyset,pyelt); // probably need to check for unhashable errors here
+	list = p2p_cdr(list);
+      }
+      *pyObj = pyset;
+      return TRUE;
+    }
+    else if (strcmp(p2c_functor(prTerm),"_$pydict") == 0 ) {
+      PyObject *pydict, *pykey, *pyval;
+      prolog_term list, elt;
+      list = p2p_arg(prTerm, 1);
+      pydict = PyDict_New();
+      while (is_list(list)) {   
+	elt = p2p_car(list);
+	//	if (!PyTuple_Check(elt) || !(PyTuple_Size(elt) == 2)) return FALSE;
+	convert_prObj_pyObj(p2p_arg(elt,1),&pykey);
+	convert_prObj_pyObj(p2p_arg(elt,2),&pyval);
+	PyDict_SetItem(pydict,pykey,pyval);
+	list = p2p_cdr(list);
+      }
+      *pyObj = pydict;
+      return TRUE;
+    }
+    return FALSE;
+  }
+  else if (find_prolog_term_type(CTXTc prTerm) == PYREF) {
+    prolog_term ref = p2p_arg(prTerm, 1);
+    char *node_pointer = p2c_string(ref); 
+    PyObject *pyobj_ref = (PyObject *)strtoll(node_pointer+1,NULL, 16);
+    *pyObj = pyobj_ref;
+    return TRUE;
+  }
+  return FALSE;
 }
 
 // -------------------- Python to Prolog
@@ -261,10 +301,11 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     return TRUE;
   }
   else if(PyDict_Check(pyObj)) {
-    //    printf("found pydict obj\n");
+    printf("found pydict obj\n");
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
-    tail = P;
+    c2p_functor("_$pydict",1,P);
+    tail = p2p_arg(P, 1);
     
     PyObject *key, *value, *tup;
     Py_ssize_t pos = 0;
@@ -274,10 +315,9 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       //      printf("val: ");printPyObj(CTXTc value);
       c2p_list(CTXTc tail);
       head = p2p_car(tail);
-      tup = PyTuple_New(3);
+      tup = PyTuple_New(2);
       PyTuple_SET_ITEM(tup,0,key);
-      PyTuple_SET_ITEM(tup,1,PyUnicode_FromString(":"));
-      PyTuple_SET_ITEM(tup,2,value);		
+      PyTuple_SET_ITEM(tup,1,value);		
       //      printPyObj(CTXTc tup);
       convert_pyObj_prObj(CTXTc tup, &head, 1);	
       tail = p2p_cdr(tail);
@@ -426,13 +466,12 @@ char *set_path_name(char *module)
   return module;
 }
 
-int set_python_argument(CTXTdeclc prolog_term temp, PyObject *pArgs,int i)
-{
-	PyObject *pValue;
-	if(!convert_prObj_pyObj(CTXTc temp, &pValue))
-		return FALSE;
-	PyTuple_SetItem(pArgs, i-1, pValue);
-	return TRUE;
+int set_python_argument(CTXTdeclc prolog_term temp, PyObject *pArgs,int i) {
+  PyObject *pValue;
+  if(!convert_prObj_pyObj(CTXTc temp, &pValue))
+    return FALSE;
+  PyTuple_SetItem(pArgs, i-1, pValue);
+  return TRUE;
 }
 
 //todo: need to refactor this code.
@@ -448,7 +487,9 @@ DllExport int callpy(CTXTdecl) {
       dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
     }
     Py_Initialize();
-    PyInit_xsbpym();    
+    char *path = "";
+    PySys_SetArgvEx(0,(wchar_t **) &path,0);
+  PyInit_xsbpym();    
   }
   char *module = p2c_string(mod);
   module = set_path_name(module);
@@ -775,7 +816,7 @@ void printPyObjType(CTXTdeclc PyObject *obj1) {
 //	      //	head = p2p_car(tail);
 //	      //PyObject *pyObjInner = PyTuple_GetItem(pyObj, i);
 //	      //convert_pyObj_prObj(CTXTc pyObjInner, &head, 1);
-//		//printPyObj(CTXTc pyObjInner);
+//		// printPyObj(CTXTc pyObjInner);
 //		//printPyObjType(CTXTc pyObjInner);
 //		//printPlgTerm(CTXTc head);
 //	      //tail = p2p_cdr(tail);
