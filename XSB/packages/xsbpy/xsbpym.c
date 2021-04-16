@@ -301,7 +301,6 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     return TRUE;
   }
   else if(PyDict_Check(pyObj)) {
-    printf("found pydict obj\n");
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
     c2p_functor("_$pydict",1,P);

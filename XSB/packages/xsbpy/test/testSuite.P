@@ -132,17 +132,17 @@ pyc_tests:-
 
 json_tests:- 
      callpy('test/jintf',prolog_loads('{"name": "Bob", "languages": ["English", "Fench","GERMAN"]}'),F),
-     (F = [''(name,(:),'Bob'),''(languages,(:),['English','Fench','GERMAN'])] ->
+     (F = '_$pydict'([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]) ->
 	  writeln('json_loads_test successful')
-        ; writeln(json_loads_test_failed) ),
+        ; writeln('!!!json_loads_test_failed') ),
      fail.
 json_tests:- 
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy/test/sample.json'],JsonFile),
     callpy('test/jintf',prolog_load(JsonFile),F),
-    (F = [''(glossary,(:),[''(title,(:),'example glossary'),''('GlossDiv',(:),[''(title,(:),'S'),''('GlossList',(:),[''('GlossEntry',(:),[''('ID',(:),'SGML'),''('SortAs',(:),'SGML'),''('GlossTerm',(:),'Standard Generalized Markup Language'),''('Acronym',(:),'SGML'),''('Abbrev',(:),'ISO 8879:1986'),''('GlossDef',(:),[''(para,(:),'A meta-markup language, used to create markup languages such as DocBook.'),''('GlossSeeAlso',(:),['GML','XML'])]),''('GlossSee',(:),markup)])])])])] ->
-	  writeln('json_load_test successful')
-        ; writeln(json_load_test_failed) ),
+    (F = '_$pydict'([''(glossary,'_$pydict'([''(title,'example glossary'),''('GlossDiv','_$pydict'([''(title,'S'),''('GlossList','_$pydict'([''('GlossEntry','_$pydict'([''('ID','SGML'),''('SortAs','SGML'),''('GlossTerm','Standard Generalized Markup Language'),''('Acronym','SGML'),''('Abbrev','ISO 8879:1986'),''('GlossDef','_$pydict'([''(para,'A meta-markup language, used to create markup languages such as DocBook.'),''('GlossSeeAlso',['GML','XML'])])),''('GlossSee',markup)]))]))]))]))]) -> 
+	 writeln('json_load_test successful')
+        ; writeln('!!!json_load_test_failed') ),
      fail.
 json_tests.    
 

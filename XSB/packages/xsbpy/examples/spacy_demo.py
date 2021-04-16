@@ -1,4 +1,3 @@
-
 import spacy
 
 nlp = spacy.load("en_core_web_sm")
@@ -20,4 +19,4 @@ def get_token_info():
            
 def get_chunks():
     global doc
-    return([chunk for chunk in doc.noun_chunks])
+    return([chunk.text for chunk in doc.noun_chunks])
