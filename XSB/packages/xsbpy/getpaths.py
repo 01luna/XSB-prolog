@@ -8,6 +8,5 @@ def go():
     for path in sys.path:
         print('sys.path: ' + path)
     print(getpaths.__file__)
-    print("done")
 
     

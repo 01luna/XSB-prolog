@@ -11,7 +11,7 @@ to that included at the end of this file.
 
 ?- init_xsbpy.
 
-:- export init_xsbpy/0, test_xsbpy/0.
+:- export init_xsbpy/0, test_xsbpy/0, add_py_lib_dir/1,py_lib_dirs/1.
 
 :- import xsb_configuration/2 from xsb_configuration.
 :- import concat_atom/2 from string.
@@ -21,6 +21,7 @@ to that included at the end of this file.
 :- import callpy/3 from xsbpym.
 :- import add_lib_dir/1 from consult.
 %:- import getenv/2 from machine.
+
 
 init_xsbpy:-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
@@ -33,9 +34,10 @@ init_xsbpy:-
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
     concat_atom([PackDir,'/xsbpy/apps'],AppDir),
+    concat_atom([PackDir,'/xsbpy/examples'],ExampDir),
     callpy(add_python_path,add_python_path(XSBpyDir),_),
+    callpy(add_python_path,add_python_path(ExampDir),_),
     callpy(add_python_path,add_python_path(AppDir),_).
-    
 
 test_xsbpy:-
     xsb_configuration(packagesdir, PackDir),
@@ -46,6 +48,22 @@ test_xsbpy:-
     shell(['cp ',XSBpyDir,'/xsbpym.so',' ',TestDir,'xsbpym.so']),
     ensure_loaded(testSuite),
     usermod:testSuite.
+
+add_py_lib_dir(Dir):- 
+    callpy(add_python_path,add_python_path(Dir),_).
+
+py_lib_dirs(List):-
+    callpy(xsbpy_utils,python_paths(),List).
+
+items(Dict,Items):-
+    Dict = '_$pydict'(List),!,
+   setof(Item,Val^member(''(Item,Val),List),Items).
+
+get_val(Dict,Key,Val):-
+    Dict = '_$pydict'(List),!,
+    memberchk(''(Key,Val),List).
+
+end_of_file.
 
 end_of_file.
 
