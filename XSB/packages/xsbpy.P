@@ -1,6 +1,5 @@
 
-:- export callpy/3.
-
+:- export callpy/3, add_py_lib_dir/1, py_lib_dirs/1.
 
 :- import bootstrap_package/2 from packaging.
 
@@ -10,3 +9,5 @@
 :- bootstrap_package(xsbpy, xsbpy),[init_xsbpy].
 
 :- import callpy/3 from xsbpym as callpy/3.
+:- import add_py_lib_dir/1 from init_xsbpy as add_py_lib_dir/1.
+:- import py_lib_dirs/1 from init_xsbpy as py_lib_dirs/1.
