@@ -7,7 +7,7 @@
 
 \noindent
 {\large {\bf {\em This chapter provides an early draft alpha-level
-      software with features that are sitll changing}}}
+      software with changing features.}}}
 
 %Both XSB and Python are written in C, which makes possible a robust
 %and efficient interface.  
@@ -18,7 +18,13 @@
 
 {\tt xsbpy} does not yet make use of a proper configuration approach.
 Because of this, {\tt xsbpy} has only been configured and tested on
-Ubuntu linux using Version 3.7 of Python.
+Ubuntu linux using Version 3.7 of Python.  If installing {\tt xsbpy}
+on Ubuntu, to ensure that the proper Python libraries and header files
+are present, execute:
+
+{\tt sudo apt-get install libpython3.7-dev}
+
+
 
 For {\tt xsbpy} to work properly in Linux:
 \begin{itemize}
@@ -32,9 +38,11 @@ For {\tt xsbpy} to work properly in Linux:
 
 In Ubuntu Linux, this is all done automatically when the {\tt xsbpy}
 is consulted into XSB via a normal consult or {\tt
-  ensure\_loaded/[1,2]}.  First, in {\tt init\_xsbpy.P} the main C
-code for {\tt xsbpy} is compiled using the following gcc compiler
-options, and then loaded into XSB.
+  ensure\_loaded/[1,2]}.  As part of this process, in {\tt
+  init\_xsbpy.P} the main C code for {\tt xsbpy} is compiled using the
+following gcc compiler options.  When the {\tt xsbpy} module is
+consulted into XSB, the {\tt libpython} shared object file (or DLL) is
+loaded dynamically along with the {\tt xsbpy} C shared object file.
 
 \begin{verbatim}
 -I <path to XSB's emu directory>  
@@ -48,11 +56,6 @@ options, and then loaded into XSB.
 In the above compilation options, {\tt xsbpy} initialization
 configures the path to the XSB {\tt emu} directory but all other paths
 are currently hard-coded.
-
-If installing {\tt xsbpy} on Ubuntu, to ensure that the proper Python
-libraries and header files are present, execute:
-
-{\tt sudo apt-get install libpython3.7-dev}
 
 Future configuration tasks include
 
@@ -91,12 +94,22 @@ or the {\tt init\_xsbpy} module.
      Bi-translation between Prolog and Python can be decribed from the
      viewpoint of Python types as follows:
      \begin{itemize}
-       \item {\em Integer Types}: Python ints and floats are bi-translated
-         to Prolog inteers and floats.  Python complex types are not (yet) 
-         handled.  
+       \item {\em Numeric Types}: Python ints and floats are
+         bi-translated to Prolog inteers and floats.  Python complex
+         types are not (yet) handled, and integers are only supported
+         if for integers between XSB's minimum and maximum
+         integer~\footnote{These integers can be obtained by querying
+           {\tt current\_prolog\_flag/2}.}
        \item {\em String Types}: Python string types are bi-translated
-         to Prolog atoms.  This translation assumes UTF-8 on both
-         sides.
+         to Prolog atoms.  This translation assumes UTF-8 encoding on
+         both sides.
+
+         Note that a Python string is enclosed in either double quotes
+         ('') or single quotes (').  In translating from Python to
+         Prolog, the outer enclosure is ignored, so Python {\tt
+           "'Hello'"} is translated to the Prolog {\tt '''Hello'''},
+         while the Python {\tt '"Goodby"'} is  translated to the Prolog
+         {\tt '"Goodby"'}.
        \item {\em Sequence Types}:
          \begin{itemize}
            \item Python lists are bi-translated as Prolog lists and
@@ -107,14 +120,29 @@ or the {\tt init\_xsbpy} module.
              \item Python ranges are not (yet) translated.
          \end{itemize}
        \item {\em Mapping Types}: A Python dictionary is translated
-         into XSB as a list of {\tt ''/3} structures having the form:
+         into XSB as a term
 
-         {\em ''(Key,':', Value)}
+         {\tt '\_\$pydict'(DictList)}
 
-         where {\em Key} and {\em Value} can be any term/data
-         structure supported by {\tt xsbpy}.  For instance, the value
-         of {\em Value} can be another dictionary.
-       \item {\em Set Types:} are not yet supported.  (Soon!)
+         where {\tt DictList} is a list of terms of the form
+
+         {\tt ''(Key,Value)}
+
+         where {\tt Key} and {\tt Value} are the translations of any
+         Python data structures that are both allowable as a
+         dictionary key or value, and supported by {\tt xsbpy}.  For
+         instance, {\tt Value} can be a list, a set, a tuple or another
+         dictionary.
+
+       \item {\em Set Types}: A Python set {\em S} is translated to
+         a structure of the form
+
+         {\tt '\_\$pyset'(SetList)}
+
+         where {\em SetList} is the list containing exactly the
+         translated elements of $S$.  Due to Python's implementation
+         of sets, there is no guarantee that the order of $S$ and
+         $SetList$ will be the same.
        \item {\em Boolean Types:} are not yet supported. (Soon!)
        \item {\em Binary Types:} are not yet supported.  There are no
          current plans to support this type.
@@ -136,8 +164,8 @@ callpy('apps/xsbpy_json',
 \noindent 
 calls the Python function {\tt xsbpy\_json:prolog\_loads()} on the
 above string.  In fact, the {\tt xsbpy\_json} module is a simple
-interface to the Python json library. where the Python predicate {\tt
-  xsbpy\_json:prolog\_loads()} is a simple wrapper for {\tt
+interface to the Python {\tt json} library. where the Python predicate
+{\tt xsbpy\_json:prolog\_loads()} is a simple wrapper for {\tt
   json:loads()}.  In Python, the action of {\tt json.loads()} on the
 above json string produces a Python dictionary of the form:
 \begin{verbatim}
@@ -149,30 +177,66 @@ above json string produces a Python dictionary of the form:
 This dictionary is then translated to a Prolog term, displayed via
 {\tt writeq/1} as:
 \begin{verbatim}
-[''(name,(:),'Bob'),''(languages,(:),['English','Fench','GERMAN'])].
+'_pydict'([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]).
 \end{verbatim}
 
-The Python wrapper for {\tt json.loads()} is trivial:
+As an aside, tvhe Python wrapper for {\tt json.loads()} is trivial:
 \begin{verbatim}
 def prolog_loads(String):
     jdict = json.loads(String)
     return(jdict)
 \end{verbatim}
+
+\ourrepeatmoditem{pp\_py(+Stream,+Term)}{pp\_py/2}{xsbpy}
+\altourmoditem{pp\_py(Term)}{pp\_py/1}{xsbpy}
+
+Pretty prints the translation of a Python data structure in
+Python-like syntax.  For instance, the term
+
+\begin{verbatim}
+'_pydict'([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]).
+\end{verbatim}
+
+\noindent
+is printed as 
+\begin{verbatim}
+{
+  name:Bob,
+  languages:[
+   'English','
+   'Fench',
+   'GERMAN'
+  ]
+}
+\end{verbatim}
+
+Such pretty printing can be useful for develiping applications such as
+the {\tt xsbpy} Elasticsearch interface.
+
+\altourmoditem{add\_py\_lib\_dir(+Term)}{add\_py\_lib\_dit/1}{xsbpy}
+
 \end{description}
 
 \section{Performance}
 
 {\tt callpy/3} is written entirely in C, has shown good performance so
 far, and continues to be optimized.  Calling a simple Python function
-to increment a number and then returning the incremented value should
+to increment a number and then zbyreturning the incremented value should
 take slightly over a microsecond on a reasoably fast machine.  Of
 course, the overhead for passing large terms from and to Python will
 be higher.
 
 \section{Current and Future Work}
 
-PyXSB is a high quality interface for Python to call XSB available at
-{\tt pypi.org/project/py-xsb}, and there is every good intention to
-support callback from both interfaces
+A callback mechanism is under development.  This mechanism allows XSB
+and Python to recursivly call each other.  Our intention is to make
+our callback mechanism consistent with PyXSB, {\tt
+  pypi.org/project/py-xsb}, but currently PyXSB and {\tt xsbpy} are
+independent of each other.
 
 
+\section{Applications}
+
+\subsection{xsbpy\_json}
+
+\subsection{xsbpy\_elastic}
