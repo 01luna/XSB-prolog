@@ -12,8 +12,6 @@
 %Both XSB and Python are written in C, which makes possible a robust
 %and efficient interface.  
 %
-
-
 \section{Configutation and Loading}
 
 {\tt xsbpy} does not yet make use of a proper configuration approach.
@@ -213,7 +211,16 @@ is printed as
 Such pretty printing can be useful for develiping applications such as
 the {\tt xsbpy} Elasticsearch interface.
 
-\altourmoditem{add\_py\_lib\_dir(+Term)}{add\_py\_lib\_dit/1}{xsbpy}
+\altourmoditem{add\_py\_lib\_dir(+Path)}{add\_py\_lib\_dir/1}{xsbpy}
+%
+This convenience predicate allows the user to add a path to the Python
+library directories in a manner similar to {\tt add\_lib\_dir/1},
+which adds Prolog library directories.  
+
+\altourmoditem{py\_lib\_dirs(?Path)}{py\_lib\_dirs/1}{xsbpy}
+%
+This convenience predicate returns the Python library directories as a
+Prolog list.
 
 \end{description}
 
@@ -234,8 +241,10 @@ our callback mechanism consistent with PyXSB, {\tt
   pypi.org/project/py-xsb}, but currently PyXSB and {\tt xsbpy} are
 independent of each other.
 
+\section{Applications and Examples}
 
-\section{Applications}
+
+
 
 \subsection{xsbpy\_json}
 
