@@ -1,0 +1,10 @@
+
+:- import member/2, length/2 from basics.
+
+| ?- callpy(xsbpy_rdflib,rdflib_parse('log_sample.ttl'),[format=turtle],_Ret),length(_Ret,Rl),member(Triple,_Ret),functor(Triple,F,A).
+
+Rl = 52
+Triple = (http://example.org/data/transaction/127,http://example.org/ont/transaction-log/processedBy,http://example.org/data/server/B)
+F = 
+A = 3
+
