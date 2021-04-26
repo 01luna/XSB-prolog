@@ -474,7 +474,7 @@ int set_python_argument(CTXTdeclc prolog_term temp, PyObject *pArgs,int i) {
 }
 
 //todo: need to refactor this code.
-DllExport int callpy(CTXTdecl) {
+DllExport int callpy_int(CTXTdecl) {
   prolog_term mod = extern_reg_term(1);
   if(!Py_IsInitialized()) {
     const char *pylib = getenv( "PYTHON_LIBRARY" );
@@ -493,11 +493,9 @@ DllExport int callpy(CTXTdecl) {
   char *module = p2c_string(mod);
   module = set_path_name(module);
   PyObject *pName = NULL, *pModule = NULL, *pFunc = NULL;
-  PyObject *pArgs = NULL, *pValue = NULL;
-  prolog_term V, temp;
+  PyObject *pArgs = NULL, *pValue = NULL, *pDict = NULL;
+  prolog_term V, temp,Dict;
   PyErr_Clear();
-  //initasynccall();
-  //  PyInit_xsbpym();
   pName = PyUnicode_FromString(module);
   pModule = PyImport_ImportModule(module);
   if(pModule == NULL) {
@@ -528,9 +526,13 @@ DllExport int callpy(CTXTdecl) {
 		"the Python module \'%s\' (arg 2 of callpy/3)\n",get_name(get_str_psc(V)),
 		get_arity(get_str_psc(V)),module);
     }
-
-    pValue = PyObject_CallObject(pFunc, pArgs);
-    //    printPyObj(CTXTc pValue);
+    Dict = extern_reg_term(3);
+    convert_prObj_pyObj(CTXTc Dict,&pDict);
+    if(PyDict_Check(pDict)) {
+      pValue = PyObject_Call(pFunc, pArgs,pDict);
+    }
+    else 
+      pValue = PyObject_CallObject(pFunc, pArgs);
     if (pValue == NULL) { // TES todo change to check for python error
       PyObject *ptype, *pvalue, *ptraceback;
       PyErr_Fetch(&ptype, &pvalue, &ptraceback);
@@ -546,20 +548,11 @@ DllExport int callpy(CTXTdecl) {
       //(see python traceback structure)
       //      xsb_abort("++Error[Python/XSB]: A Python Error Occurred: %s",PyStr_AsString(pvalue));
     }
-    // TES took out next 2 unused vars
-    //		PyTypeObject* type = pValue->ob_type;
-    //		const char* ptype = type->tp_name;
-    //printPyObjType(CTXTc type);
     prolog_term return_pr = p2p_new(CTXT);
     ensureXSBStackSpace(CTXTc pValue);
     if(!convert_pyObj_prObj(CTXTc pValue, &return_pr, 1))
       return FALSE;
-    // TES
-    //		prolog_term prTerm = reg_term(CTXTc 3);
-    //printPyObj(CTXTc pValue);
-    //printPyObjType(CTXTc type);
-    //printPlgTerm(CTXTc return_pr);
-    if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 3)))
+    if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
       return FALSE;
     return TRUE;
   } /* if is_functor(V) */

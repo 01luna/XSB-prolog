@@ -18,7 +18,7 @@ to that included at the end of this file.
 
 %:- import existence_error/4 from error_handler.
 :- import shell/1 from shell.
-:- import callpy/3 from xsbpym.
+:- import callpy/3 from xsbpy.
 :- import add_lib_dir/1 from consult.
 %:- import getenv/2 from machine.
 
