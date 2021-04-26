@@ -2,23 +2,22 @@
 #from json import *
 import json
 
-def prolog_loads(String):
-    jdict = json.loads(String)
+def prolog_loads(String,**Features):
+    jdict = json.loads(String,**Features)
     return(jdict)
 
-def prolog_dumps(dict):
-    print(('pd',dict))
-    jstring = json.dumps(dict)
+def prolog_dumps(dict,**Features):
+    jstring = json.dumps(dict,**Features)
     return(jstring)
 
-def prolog_load(File):
+def prolog_load(File,**Features):
     with open(File) as fileptr:
-        data = json.load(fileptr)
+        data = json.load(fileptr,**Features)
         return(data)
 
-def prolog_dump(Dict,File):
+def prolog_dump(Dict,File,**Features):
     with open(File,"w") as fileptr:
-        ret = json.dump(Dict,fileptr)
+        ret = json.dump(Dict,fileptr,**Features)
         return(ret)
 
 #should not be needed -- transformation now done in C.    
