@@ -8,7 +8,8 @@ testSuite:-
   dataConversionTests,
   callback_test,
   pyc_tests,
-  json_tests.
+  json_tests,
+  kwargs_tests.
 
 %--------------------------------
 
@@ -130,12 +131,26 @@ pyc_tests:-
 pyc_tests:- 
     writeln('pyc_tests failed').
 
-json_tests:- 
-     callpy('test/jintf',prolog_loads('{"name": "Bob", "languages": ["English", "Fench","GERMAN"]}'),F),
+json_tests:-
+    Jstring = '{"name": "Bob", "languages": ["English", "Fench","GERMAN"]}',
+     callpy('test/jintf',prolog_loads(Jstring),F),
      (F = '_$pydict'([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]) ->
 	  writeln('json_loads_test successful')
         ; writeln('!!!json_loads_test_failed') ),
      fail.
+%json_tests:-
+%    Jstring = '{"name": "Bob", "languages": ["English", "French","GERMAN"]}',
+%      atom_chars(Jgood,Jgch),write(Jgch),nl,
+%  callpy('xsbpy_json',prolog_loads(Jstring),Jdict),
+%    callpy('xsbpy_json',prolog_dumps(Jdict),[indent=2],Jindent),
+%    (Jindent = Jgood -> 
+%      writeln('json_dumps_test successful')
+%    ; write('!!!json_dumps_test_failed'),nl,
+%      writeq(Jgood),nl,writeq(Jindent),nl,
+%      atom_chars(Jgood,Jgch),write(Jgch),nl,
+%      writeln('----------------'),
+%      atom_chars(Jindent,Jich),writeq(Jich),nl ),
+%    fail.
 json_tests:- 
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy/test/sample.json'],JsonFile),
@@ -146,6 +161,11 @@ json_tests:-
      fail.
 json_tests.    
 
+kwargs_tests:-
+    callpy(kwargs,kwargs_append(foo),[bar=1,baz=2],Ret),
+    (Ret = [foo,''(bar,1),''(baz,2)] -> 
+       writeln('kwargs_test1 successful')
+     ; writeln('kwargs_test1_failed') ).
 
 end_of_file.
 
