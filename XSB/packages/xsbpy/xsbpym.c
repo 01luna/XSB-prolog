@@ -501,8 +501,8 @@ DllExport int init_python() {
     char *path = "";
     PySys_SetArgvEx(0,(wchar_t **) &path,0);
   PyInit_xsbpym();
-  return TRUE;
   }
+  return TRUE;
 }
 
 //todo: need to refactor this code.
@@ -537,7 +537,7 @@ DllExport int callpy_int(CTXTdecl) {
 	set_python_argument(CTXTc temp, pArgs, i, function, args_count); 
       }
     }
-    else   // it isn't callable callable
+    else   // it isn't callable
       xsb_abort("++Error[xsbpy]: %s/%d is not a callable function in "
 		"the Python module \'%s\' (arg 2 of callpy/3)\n",get_name(get_str_psc(V)),
 		get_arity(get_str_psc(V)),module);
@@ -560,6 +560,7 @@ DllExport int callpy_int(CTXTdecl) {
     }
     prolog_term return_pr = p2p_new(CTXT);
     ensureXSBStackSpace(CTXTc pValue);
+    // ususally returns pyobject by default.
     if(!convert_pyObj_prObj(CTXTc pValue, &return_pr, 1)) {
       xsb_abort("++Error[xsbpy]: The return of %s/%d could not be translated to Prolog"
 		"(in callpy/[3,4])\n",function,args_count);
