@@ -19,7 +19,7 @@ testSuite:-
 return_tests :- 
 	(callPyTest ->
 	     write('callPy tests successful\n')
-	 ;   write('callPy tests failed\n')).
+	 ;   write('!!!callPy tests failed\n')).
 %	(pyObj_GetIterTest->
 %	     write('pyObj_GetIter tests successful\n')
 %	 ;   write('pyObj_GetIter tests failed\n')),
@@ -112,11 +112,12 @@ tupleConvTest:-
 % it *might* be responsible for uninitialized stack frame problem.
 
 callback_test:- 
-    callpy('test/testc', tester(),  X), X = [['Санкт-Петербург', '2']],
+    callpy('test/testc', tester(),  X),
+    X = [['Санкт-Петербург', '2']],
     writeln('callback test successful'),
     !.
 callback_test:-
-    writeln('callback test failed').
+    writeln('!!!callback test failed').
 
 % used in callback
 p('Санкт-Петербург').
@@ -129,7 +130,7 @@ pyc_tests:-
     callpy('test/numpexamp',go(),X),X == 2,!,
     writeln('pyc_tests successful').
 pyc_tests:- 
-    writeln('pyc_tests failed').
+    writeln('!!!pyc_tests failed').
 
 json_tests:-
     Jstring = '{"name": "Bob", "languages": ["English", "Fench","GERMAN"]}',
@@ -165,7 +166,7 @@ kwargs_tests:-
     callpy(kwargs,kwargs_append(foo),[bar=1,baz=2],Ret),
     (Ret = [foo,''(bar,1),''(baz,2)] -> 
        writeln('kwargs_test1 successful')
-     ; writeln('kwargs_test1_failed') ).
+     ; writeln('!!!kwargs_test1_failed') ).
 
 end_of_file.
 
