@@ -44,6 +44,8 @@
 #include <cinterf.h>
 #include <context.h>
 #include <inttypes.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 #ifndef WIN_NT
 #include <stdlib.h>
@@ -57,6 +59,15 @@ void sprintPyObj(char **s, PyObject *obj1);
 void printPyObjType(CTXTdeclc PyObject *obj1);
 
 #define XSBPY_MAX_BUFFER 500
+
+//char xsbpy_err[500];
+
+//void xsbpy_abort(char *fmt,...) {
+//  va_list args;
+//  va_start(args, fmt);
+//  vsnprintf(xsbpy_err, 500, fmt, args);
+//  va_end(args);
+//}
 
 enum prolog_term_type 
 {
@@ -119,7 +130,10 @@ void ensureXSBStackSpace(CTXTdeclc PyObject *pyObj) {
   if (PyList_Check(pyObj)) {
     check_glstack_overflow(3,pcreg,2*PyList_Size(pyObj)*sizeof(size_t));
   }
-  if (PyTuple_Check(pyObj)) {
+  else if (PyDict_Check(pyObj)) {
+    check_glstack_overflow(3,pcreg,2*PyDict_Size(pyObj)*sizeof(size_t));
+  }
+  else if (PyTuple_Check(pyObj)) {
     check_glstack_overflow(3,pcreg,2*PyTuple_Size(pyObj)*sizeof(size_t));
   }
 }
@@ -391,7 +405,7 @@ static PyObject *xsbp_querySingle(PyObject *self, PyObject *args)
 	int rcp;
 	XSB_StrDefine(p_return_string);
 	PyObject* resultList = PyList_New(0);
-	xsb_query_save(3);
+	xsb_query_save(4);
 	rcp = xsb_query_string_string(cmd,&p_return_string,"|");
 	xsb_close_query();
 	xsb_query_restore();
@@ -465,17 +479,15 @@ char *set_path_name(char *module)
   return module;
 }
 
-int set_python_argument(CTXTdeclc prolog_term temp, PyObject *pArgs,int i) {
+void set_python_argument(CTXTdeclc prolog_term temp, PyObject *pArgs,int i, char *funct, int arity) {
   PyObject *pValue;
   if(!convert_prObj_pyObj(CTXTc temp, &pValue))
-    return FALSE;
+    xsb_abort("++Error[xsbpy]: argument %d of %s/%d could not be translated to python"
+		"(arg 2 of callpy/[3,4])\n",i,funct,arity);
   PyTuple_SetItem(pArgs, i-1, pValue);
-  return TRUE;
 }
 
-//todo: need to refactor this code.
-DllExport int callpy_int(CTXTdecl) {
-  prolog_term mod = extern_reg_term(1);
+DllExport int init_python() {
   if(!Py_IsInitialized()) {
     const char *pylib = getenv( "PYTHON_LIBRARY" );
     if (pylib) {
@@ -488,50 +500,53 @@ DllExport int callpy_int(CTXTdecl) {
     Py_Initialize();
     char *path = "";
     PySys_SetArgvEx(0,(wchar_t **) &path,0);
-  PyInit_xsbpym();    
+  PyInit_xsbpym();
+  return TRUE;
   }
-  char *module = p2c_string(mod);
-  module = set_path_name(module);
-  PyObject *pName = NULL, *pModule = NULL, *pFunc = NULL;
+}
+
+//todo: need to refactor this code.
+DllExport int callpy_int(CTXTdecl) {
+  //  PyObject *pName = NULL, *pModule = NULL, *pFunc = NULL;
+  PyObject *pModule = NULL, *pFunc = NULL;
   PyObject *pArgs = NULL, *pValue = NULL, *pDict = NULL;
   prolog_term V, temp,Dict;
   PyErr_Clear();
-  pName = PyUnicode_FromString(module);
+  prolog_term mod = extern_reg_term(1);
+  char *module = p2c_string(mod);
+  module = set_path_name(module);
+  //  pName = PyUnicode_FromString(module);
   pModule = PyImport_ImportModule(module);
   if(pModule == NULL) {
     PyErr_Print();
-    xsb_abort("++Error[Python/XSB]: no Python module named \'%s\' could be found."
+    xsb_abort("++Error[xsbpy]: no Python module named \'%s\' could be found."
 	      "(in arg 1 of callpy/3)\n",module);
   }
-  Py_DECREF(pName);
+  //  Py_DECREF(pName);
   V = extern_reg_term(2);
   if(is_functor(V)) {
     char *function = p2c_functor(V);
     int args_count = p2c_arity(V);
     pFunc = PyObject_GetAttrString(pModule, function);
-    Py_DECREF(pModule);
+    Py_DECREF(pModule);  // TES move
     if(pFunc && PyCallable_Check(pFunc)) {
       pArgs = PyTuple_New(args_count);
       int i;
       for(i = 1; i <= args_count; i++) {
 	temp = p2p_arg(V, i);
-	if(!(set_python_argument(CTXTc temp, pArgs, i))) {
-	  printf("false set_arg %i\n",i);			
-	  return FALSE;
-	}
+	set_python_argument(CTXTc temp, pArgs, i, function, args_count); 
       }
     }
-    else {
-      xsb_abort("++Error[Python/XSB]: %s/%d is not a callable function in "
+    else   // it isn't callable callable
+      xsb_abort("++Error[xsbpy]: %s/%d is not a callable function in "
 		"the Python module \'%s\' (arg 2 of callpy/3)\n",get_name(get_str_psc(V)),
 		get_arity(get_str_psc(V)),module);
-    }
     Dict = extern_reg_term(3);
     convert_prObj_pyObj(CTXTc Dict,&pDict);
     if(PyDict_Check(pDict)) {
       pValue = PyObject_Call(pFunc, pArgs,pDict);
     }
-    else 
+    else   // Ignoring if not a dict -- maybe should change.
       pValue = PyObject_CallObject(pFunc, pArgs);
     if (pValue == NULL) { // TES todo change to check for python error
       PyObject *ptype, *pvalue, *ptraceback;
@@ -540,29 +555,28 @@ DllExport int callpy_int(CTXTdecl) {
       PyObject* pvalueRepresentation = PyObject_Repr(pvalue);
       PyErr_Restore(ptype, pvalue, ptraceback);
       PyErr_Print();
-      xsb_abort("++Error[Python/XSB]: A Python Error Occurred: %s/%s",PyUnicode_AsUTF8(ptypeRepresentation),
-		PyUnicode_AsUTF8(pvalueRepresentation));
-      
-      //pvalue contains error message
-      //ptraceback contains stack snapshot and many other information
-      //(see python traceback structure)
-      //      xsb_abort("++Error[Python/XSB]: A Python Error Occurred: %s",PyStr_AsString(pvalue));
+      xsb_abort("++Error[xsbpy]: A Python Error Occurred: %s/%s",
+		PyUnicode_AsUTF8(ptypeRepresentation),PyUnicode_AsUTF8(pvalueRepresentation));
     }
     prolog_term return_pr = p2p_new(CTXT);
     ensureXSBStackSpace(CTXTc pValue);
-    if(!convert_pyObj_prObj(CTXTc pValue, &return_pr, 1))
-      return FALSE;
+    if(!convert_pyObj_prObj(CTXTc pValue, &return_pr, 1)) {
+      xsb_abort("++Error[xsbpy]: The return of %s/%d could not be translated to Prolog"
+		"(in callpy/[3,4])\n",function,args_count);
+    }
     if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
       return FALSE;
     return TRUE;
   } /* if is_functor(V) */
   else	{
     if (isstring(V))
-      xsb_abort("++Error[Python/XSB]: \'%s\' is not a callable function (in arg 2 of callpy/3)\n",cs_val(V),module);
+      xsb_abort("++Error[xsbpy]: \'%s\' is not a callable function (in arg 2 of callpy/3)\n",
+		cs_val(V),module);
     else
-      xsb_abort("++Error[Python/XSB]: %p is not a callable function (in arg 2 of callpy/3)\n",V,module);
+      xsb_abort("++Error[xsbpy]: %p is not a callable function (in arg 2 of callpy/3)\n",
+		V,module);
   }
-  Py_Finalize();
+  //  Py_Finalize();
   return TRUE;
 }
 

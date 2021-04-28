@@ -19,6 +19,7 @@ to that included at the end of this file.
 %:- import existence_error/4 from error_handler.
 :- import shell/1 from shell.
 :- import callpy/3 from xsbpy.
+:- import init_python/0 from xsbpym.
 :- import add_lib_dir/1 from consult.
 %:- import getenv/2 from machine.
 
@@ -34,6 +35,7 @@ init_xsbpy:-
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
     concat_atom([PackDir,'/xsbpy/apps'],AppDir),
+    init_python(),
     concat_atom([PackDir,'/xsbpy/examples'],ExampDir),
     callpy(add_python_path,add_python_path(XSBpyDir),_),
     callpy(add_python_path,add_python_path(ExampDir),_),
@@ -55,13 +57,13 @@ add_py_lib_dir(Dir):-
 py_lib_dirs(List):-
     callpy(xsbpy_utils,python_paths(),List).
 
-items(Dict,Items):-
-    Dict = '_$pydict'(List),!,
-   setof(Item,Val^member(''(Item,Val),List),Items).
+%items(Dict,Items):-
+%    Dict = '_$pydict'(List),!,
+%   setof(Item,Val^member(''(Item,Val),List),Items).
 
-get_val(Dict,Key,Val):-
-    Dict = '_$pydict'(List),!,
-    memberchk(''(Key,Val),List).
+%get_val(Dict,Key,Val):-
+%    Dict = '_$pydict'(List),!,
+%    memberchk(''(Key,Val),List).
 
 end_of_file.
 
