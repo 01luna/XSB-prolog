@@ -47,9 +47,14 @@ test_xsbpy:-
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
     callpy(add_python_path,add_python_path(TestDir),_),
     add_lib_dir(TestDir),
-    shell(['cp ',XSBpyDir,'/xsbpym.so',' ',TestDir,'xsbpym.so']),
     ensure_loaded(testSuite),
-    usermod:testSuite.
+    concat_atom([TestDir,'/','test_xsbpy_out.txt'],TestOut),
+    shell(['rm -f ',TestOut]),
+    tell(TestOut),
+    usermod:testSuite,
+    told.
+
+%    shell(['cp ',XSBpyDir,'/xsbpym.so',' ',TestDir,'xsbpym.so']),
 
 add_py_lib_dir(Dir):- 
     callpy(add_python_path,add_python_path(Dir),_).
