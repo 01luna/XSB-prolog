@@ -1,10 +1,42 @@
 
+# Warning!!!  As written here, the interface translates
+# rdflib.term.Literal objects as UTF-8 strings, meaning that
+# attributes such as datatype and lang are not loaded into Prolog.
+# 
+
+A sample query session for RDF input and output.  
+
 :- import member/2, length/2 from basics.
+?- [xsbpy].
 
-| ?- callpy(xsbpy_rdflib,rdflib_parse('log_sample.ttl'),[format=turtle],_Ret),length(_Ret,Rl),member(Triple,_Ret),functor(Triple,F,A).
+% Here is an exmaple of how to read a turtle file -- note that what is
+%  returned is a list of triples corresponding to an rdflib graph
+%  object.
 
-Rl = 52
+| ?- callpy(xsbpy_rdflib,rdflib_parse('log_sample.ttl'),[format=turtle],_Ret),
+     length(_Ret,Rl),member(Triple,_Ret),functor(Triple,F,A).
+
+% below, there are 52 unique ttl triples, all ''/3 terms. The variable
+%  Triple shows one of them.
+
+Rl = 52  
 Triple = (http://example.org/data/transaction/127,http://example.org/ont/transaction-log/processedBy,http://example.org/data/server/B)
 F = 
 A = 3
 
+%---------------------------------------------------------------------------
+% The same as for the turtle file, but now with a n-triples file.
+| ?- callpy(xsbpy_rdflib,rdflib_parse('sample.nt'),[format=nt],_Ret),
+     length(_Ret,Rl),member(Triple,_Ret),functor(Triple,F,A).
+     
+Rl = 7
+Triple = (http://example.org/show/218,http://example.org/show/localName,That Seventies Show)
+F = 
+A = 3
+
+%---------------------------------------------------------------------------
+
+| ?- callpy(xsbpy_rdflib,rdflib_parse('sample.nt'),[format=nt],_Ret),
+     callpy(xsbpy_rdflib,rdflib_serialize_file(_Ret,'new_sample.nt'),[format=nt],_Ret1).
+
+An example of reading in and writing out a N-triples file. 
