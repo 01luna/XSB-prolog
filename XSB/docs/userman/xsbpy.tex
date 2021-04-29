@@ -1,5 +1,5 @@
 
-\chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python Inteface}
+\chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python Inteface} \label{chap:xsbpy}
 
 \begin{center}
   {\Large {\bf By Muthukumar Suresh, Theresa Swift, Carl Andersen}}
@@ -16,9 +16,9 @@
 Although it is under development the {\tt xsbpy} package already
 provides an efficient and easy way for XSB to call Python functions.
 {\tt xsbpy} leverages the fact that XSB and most Pythons are written
-in C, so that both systems are linked into the same process. The core
-infterface routines are also written in C, so the interface is very
-efficient and -- it is hoped -- very robust.
+in C, so that both systems are loaded into the same process. The core
+infterface routines are also written entirely in C, so the interface
+is very efficient and -- it is hoped -- very robust.
 
 This chapter first describes how to configure {\tt xsbpy}, followed by
 its current set of functions, its current limitations and overviews
@@ -85,50 +85,61 @@ Remaining onfiguration tasks include
 
 \begin{description}
 
+\ourrepeatmoditem{callpy(+Module,+Function,+Kwargs,?Return)}{callpy/4}{xsbpy}
 \altourmoditem{callpy(+Module,+Function,?Return)}{callpy/3}{xsbpy}
 %
  Ensures that the Python module {\tt Module} is loaded, and calls {\tt
    Module.Function} unifying the return of {\tt Function} with {\tt
-   Return}. 
+   Return}.  A list of keyword arguments may or may not be included.
 
  \begin{itemize}
    \item Python modules are searched for in the paths maintained in
-     Python's {\tt sys.path} list.
+     Python's {\tt sys.path} list.  As indicated below, these Python
+     paths can be queried from XSB via {\tt py\_lib\_dir/1} and
+     modified via {\tt add\_py\_lib\_dir/1}.
+     
    \item {\tt Goal} is simply a Prolog term, and a large portion of
      Prolog terms and Python data structures are recursively
      bi-translated, making this interface easy to use.  In fact, due
      to the syntactic similarity of Prolog and Python, {\tt Goal}
-     often needs no processing to use.  When a Python data structure
-     $D$, say a dictionary, is translated into a Prolog term $T$, $T$
-     is sometimes called the {\em term form} of $D$.
+     often needs no processing to use.
+
+     As terminology, when a Python data structure $D$, say a
+     dictionary, is translated into a Prolog term $T$, $T$ is
+     sometimes called the {\em term form} of $D$.
 
      Bi-translation between Prolog and Python can be decribed from the
      viewpoint of Python types as follows:
      \begin{itemize}
+     \item Any Python object {\tt Obj} of a type that is not
+       translated to a specific Prolog term as indicated below is
+       translated to the Prolog term {\tt \_\$pyObject(Obj)}.
        \item {\em Numeric Types}: Python ints and floats are
-         bi-translated to Prolog inteers and floats.  Python complex
-         types are not (yet) handled, and integers are only supported
-         if for integers between XSB's minimum and maximum
+         bi-translated to Prolog integers and floats.  Python complex
+         numbers are not (yet) translated, and integers are only
+         supported if for integers between XSB's minimum and maximum
          integer~\footnote{These integers can be obtained by querying
            {\tt current\_prolog\_flag/2}.}
        \item {\em String Types}: Python string types are bi-translated
          to Prolog atoms.  This translation assumes UTF-8 encoding on
          both sides.
 
-         Note that a Python string is enclosed in either double quotes
-         ('') or single quotes (').  In translating from Python to
-         Prolog, the outer enclosure is ignored, so Python {\tt
-           "'Hello'"} is translated to the Prolog {\tt '''Hello'''},
-         while the Python {\tt '"Goodby"'} is  translated to the Prolog
-         {\tt '"Goodby"'}.
+         Note that a Python string can be enclosed in either double
+         quotes ('') or single quotes (').  In translating from Python
+         to Prolog, the outer enclosure is ignored, so Python {\tt
+           "'Hello'"} is translated to the Prolog {\tt
+           '\textbackslash{}'Hello\textbackslash{}'{}'}, while the
+         Python {\tt '"Goodby"'} is translated to the Prolog {\tt
+           '"Goodby"'}.
        \item {\em Sequence Types}:
          \begin{itemize}
            \item Python lists are bi-translated as Prolog lists and
              the two forms are syntactically identical.
            \item Python tuples are bi-translated as compound Prolog
-             terms with functor {\tt ''/n} (i.e., the functor is the
+             terms with functor {\tt '{}'/n} (i.e., the functor is the
              empty string, denoted with two apostrophes).
-             \item Python ranges are not (yet) translated.
+             \item Python ranges are not (yet) translated (i.e., they
+               are returned as terms with functor {\tt pyObject/1}.
          \end{itemize}
        \item {\em Mapping Types}: A Python dictionary is translated
          into the term form:
