@@ -16,7 +16,6 @@
 ** 
 */
 
-
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
@@ -29,7 +28,7 @@
 #include <heap_xsb.h>
 #include <memory_xsb.h>
 #include <error_xsb.h>
-
+#include "xsbpy_defs.h"
 #include <dlfcn.h>
 
 #include "xsb_config.h"
@@ -105,7 +104,7 @@ int find_prolog_term_type(CTXTdeclc prolog_term term) {
       return PPYLIST;
     else if(strcmp(p2c_functor(term),"pyIterator") == 0)
       return PYITER;
-    else if(strcmp(p2c_functor(term), "pyTuple") == 0)
+    else if(strcmp(p2c_functor(term), "") == 0)
       return PYTUP;
     return PYFUNCTOR;
   }
@@ -202,7 +201,7 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
       *pyObj = tup;
       return TRUE;
     }
-    else if (strcmp(p2c_functor(prTerm),"_$pyset") == 0 ) {
+    else if (strcmp(p2c_functor(prTerm),PYSET_C) == 0 ) {
       PyObject *pyset, *pyelt;
       prolog_term list, elt;
       list = p2p_arg(prTerm, 1);
@@ -216,7 +215,7 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
       *pyObj = pyset;
       return TRUE;
     }
-    else if (strcmp(p2c_functor(prTerm),"_$pydict") == 0 ) {
+    else if (strcmp(p2c_functor(prTerm),PYDICT_C) == 0 ) {
       PyObject *pydict, *pykey, *pyval;
       prolog_term list, elt;
       list = p2p_arg(prTerm, 1);
@@ -317,7 +316,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
   else if(PyDict_Check(pyObj)) {
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
-    c2p_functor("_$pydict",1,P);
+    c2p_functor(PYDICT_C,1,P);
     tail = p2p_arg(P, 1);
     
     PyObject *key, *value, *tup;
@@ -346,7 +345,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
 
-    c2p_functor("_$pyset",1,P);
+    c2p_functor(PYSET_C,1,P);
     tail = p2p_arg(P, 1);
     
     for(i = 0; i < size; i++) {
@@ -368,7 +367,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
   char str[30];
   sprintf(str, "p%p", pyObj);
   prolog_term ref = p2p_new(CTXT);
-  c2p_functor(CTXTc "pyObject", 1, ref);
+  c2p_functor(CTXTc "_$pyObject", 1, ref);
   prolog_term ref_inner = p2p_arg(ref, 1);
   c2p_string(CTXTc str, ref_inner);		
   if(!p2p_unify(CTXTc ref, *prTerm))

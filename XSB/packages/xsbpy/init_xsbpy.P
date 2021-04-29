@@ -29,7 +29,7 @@ init_xsbpy:-
     concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.7m  -I/usr/include/python3.7',
 		 ' -lpython3.7m -L/usr/lib/python3.7 -Wl,',
 		 '-rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 -Wl,',
-		 '-rpath=/usr/lib/python3.7'],CompilerOpts),
+		 '-rpath=/usr/lib/python3.7 -g' ],CompilerOpts),
 %    writeln(CompilerOpts),
     consult(xsbpym,[cc_opts(CompilerOpts)]),
     xsb_configuration(packagesdir, PackDir),
