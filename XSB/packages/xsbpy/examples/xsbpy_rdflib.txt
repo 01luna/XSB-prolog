@@ -1,10 +1,7 @@
 
-# Warning!!!  As written here, the interface translates
-# rdflib.term.Literal objects as UTF-8 strings, meaning that
-# attributes such as datatype and lang are not loaded into Prolog.
-# 
-
-A sample query session for RDF input and output.  
+% A sample XSB query session for RDF input and output.
+% See xsbpy_rdflib.py for details of how rdflib graph objects are
+% translated to Prolog data structures.
 
 :- import member/2, length/2 from basics.
 ?- [xsbpy].
@@ -25,7 +22,10 @@ F =
 A = 3
 
 %---------------------------------------------------------------------------
-% The same as for the turtle file, but now with a n-triples file.
+
+% The same as for the turtle file, but now with a n-triples file --
+% just pass a different keyword.
+
 | ?- callpy(xsbpy_rdflib,rdflib_parse('sample.nt'),[format=nt],_Ret),
      length(_Ret,Rl),member(Triple,_Ret),functor(Triple,F,A).
      
@@ -36,7 +36,9 @@ A = 3
 
 %---------------------------------------------------------------------------
 
+% Finally, an example that reads an N-triples file into Prolog, and
+% then writes it out from Prolog (via Python) to a file.
+
 | ?- callpy(xsbpy_rdflib,rdflib_parse('sample.nt'),[format=nt],_Ret),
      callpy(xsbpy_rdflib,rdflib_serialize_file(_Ret,'new_sample.nt'),[format=nt],_Ret1).
 
-An example of reading in and writing out a N-triples file. 
