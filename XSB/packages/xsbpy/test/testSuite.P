@@ -1,3 +1,7 @@
+
+:- compiler_options([xpp_on]).
+#include "../xsbpy_defs.h"
+
 :-  set_prolog_flag(character_set, utf_8) . 
 
 :- import concat_atom/2 from string.
@@ -95,9 +99,9 @@ listConvTest:-
 
 setConvTest:- 
     callpy('test/returnVal',returnSet( ) ,F ),
-    F = ['"foo"','''bar''','_$pyset'(S)],
+    F = ['"foo"','''bar''',PYSET_PROLOG(S)],
     length(S,3),
-    callpy('test/returnVal', returnVal('_$pyset'([a,b,c])), R1 ),
+    callpy('test/returnVal', returnVal(PYSET_PROLOG([a,b,c])), R1 ),
     arg(1,R1,A), length(A,3),!.
 %setConvTest:- 
 %    writeln('!!!setConvTest failed'),fail.
@@ -138,7 +142,7 @@ pyc_tests:-
 json_tests:-
     Jstring = '{"name": "Bob", "languages": ["English", "Fench","GERMAN"]}',
      callpy('test/jintf',prolog_loads(Jstring),F),
-     (F = '_$pydict'([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]) ->
+     (F = PYDICT_PROLOG([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]) ->
 	  writeln('json_loads_test successful')
         ; writeln('!!!json_loads_test_failed') ),
      fail.
@@ -159,7 +163,7 @@ json_tests:-
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy/test/sample.json'],JsonFile),
     callpy('test/jintf',prolog_load(JsonFile),F),
-    (F = '_$pydict'([''(glossary,'_$pydict'([''(title,'example glossary'),''('GlossDiv','_$pydict'([''(title,'S'),''('GlossList','_$pydict'([''('GlossEntry','_$pydict'([''('ID','SGML'),''('SortAs','SGML'),''('GlossTerm','Standard Generalized Markup Language'),''('Acronym','SGML'),''('Abbrev','ISO 8879:1986'),''('GlossDef','_$pydict'([''(para,'A meta-markup language, used to create markup languages such as DocBook.'),''('GlossSeeAlso',['GML','XML'])])),''('GlossSee',markup)]))]))]))]))]) -> 
+    (F = PYDICT_PROLOG([''(glossary,PYDICT_PROLOG([''(title,'example glossary'),''('GlossDiv',PYDICT_PROLOG([''(title,'S'),''('GlossList',PYDICT_PROLOG([''('GlossEntry',PYDICT_PROLOG([''('ID','SGML'),''('SortAs','SGML'),''('GlossTerm','Standard Generalized Markup Language'),''('Acronym','SGML'),''('Abbrev','ISO 8879:1986'),''('GlossDef',PYDICT_PROLOG([''(para,'A meta-markup language, used to create markup languages such as DocBook.'),''('GlossSeeAlso',['GML','XML'])])),''('GlossSee',markup)]))]))]))]))]) -> 
 	 writeln('json_load_test successful')
         ; writeln('!!!json_load_test_failed') ),
      fail.
