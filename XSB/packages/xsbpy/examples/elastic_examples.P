@@ -1,3 +1,5 @@
+
+
 :- import callpy/3 from xsbpy.
 
 /* This file gives an simple example of how to interface with elasticsearch.
@@ -27,7 +29,7 @@ makeindex(Res):-
 /* Goal 3: callpy(elastic,refresh(teritest),Ret).
  * Refresh the index -- more or less analogous to a commit. */
 
-/* Goal 4: search_via_json(teritest,'{"query":{"match_all":{}}}',Res).
+ search_via_json(teritest,'{"query":{"match_all":{}}}',Res).   search_via_json(teritest,'{"query":{"match_all":{}}}',Res).  /* Goal 4: search_via_json(teritest,'{"query":{"match_all":{}}}',Res).
  * This simple predicate shows how to set up a query with a Json
  * string rather than a Prolog dictionary. */
 

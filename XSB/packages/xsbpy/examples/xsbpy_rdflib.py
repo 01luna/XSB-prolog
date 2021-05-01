@@ -13,7 +13,7 @@
 # whose arguments may be a string or 2-tuple.
 # When translating to Python from Prolog, literals, triples and a graph
 # are created from lists of the above form.
-@ 
+ 
 # This has been tested out on N-triple and Turtle files.
 
 from rdflib import *
@@ -36,11 +36,12 @@ def rdflib_term_to_tuple(o):
 
 def graph_to_tuples(gr):
     glist = []
-    for (s,p,o) in gr:
-        snew = rdflib_term_to_tuple(s)
-        pnew = rdflib_term_to_tuple(p)
-        onew = rdflib_term_to_tuple(o)
-        glist.append((snew,pnew,onew))
+    for edge in gr:
+        elt_list = []
+        for elt in edge:
+            elt_new = rdflib_term_to_tuple(elt)
+            elt_list.append(elt_new)
+        glist.append(tuple(elt_list))
     return(glist)
 
 def rdflib_parse(File,**Kwargs):
@@ -48,23 +49,42 @@ def rdflib_parse(File,**Kwargs):
     g.parse(File,**Kwargs)
     return(graph_to_tuples(g))
 
+def rdflib_parse_nquads(File,**Kwargs):
+    g = ConjunctiveGraph()
+    data = open(File,'rb')
+    g.parse(data,format = 'nquads',**Kwargs)
+    return(graph_to_tuples(g))
+
 #----------------------------------------
+
+# probably need to change
+def is_prolog_blank_node(node):
+    return(node[0] == '_')
 
 def tuples_to_graph(inlist):
     g = Graph()
-    for (s,p,o) in inlist:
-        print(o)
-        if o[2] != '':
-            olit = Literal(o[0],lang=o[2])
-        elif o[1] != '':
-            olit = Literal(o[0],datatype=o[1])
-        else:
-            olit = Literal(o[0])
-        g.add((URIRef(s),URIRef(p),olit))
+    for ntuple in inlist:
+        tlist = []
+        for elt in ntuple:
+            if type(elt) == tuple:
+                if elt[2] != '':
+                    eltnew = Literal(elt[0],lang=elt[2])
+                elif elt[1] != '':
+                    eltnew = Literal(elt[0],datatype=elt[1])
+                else:
+                    eltnew = Literal(elt[0])
+            else:
+                if is_prolog_blank_node(elt):
+                    eltnew = Bnode(elt)
+                else:
+                    eltnew = URIRef(elt)
+            tlist.append(eltnew)
+        newtup = tuple(tlist)
+        g.add(newtup)
     return(g)
 
-def rdflib_serialize_file(inlist, File,**Kwargs):
-    g = tuples_to_graph(inlist)
+def rdflib_write_file(Inlist, File,**Kwargs):
+    g = tuples_to_graph(Inlist)
     with open(File,"w") as fp:
         print(g.serialize(**Kwargs).decode("utf-8"),file = fp)
 
