@@ -1,3 +1,6 @@
+:- compiler_options([xpp_on]).
+
+#include "xsbpy/xsbpy_defs.h"
 
 :- export callpy/3, add_py_lib_dir/1, py_lib_dirs/1.
 :- export callpy/4.
@@ -21,7 +24,7 @@ callpy(Mod,Func,Def_vars,Ret):-
 callpy(Mod,Func,Ret):-
     callpy_int(Mod,Func,0,Ret).
 
-def_vars_to_dict(X,'_$pydict'(Y)):-
+def_vars_to_dict(X,PYDICT_PROLOG(Y)):-
     def_vars_to_dict_1(X,Y).
 
 def_vars_to_dict_1([],[]).
