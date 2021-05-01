@@ -1,5 +1,13 @@
+\newcommand{\xsbpyversion}{Version 0.2}
 
+\begin{center}
 \chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python Inteface} \label{chap:xsbpy}
+\end{center}
+
+\vspace*{-.30in} 
+\begin{center}
+{\Large {\bf  \xsbpyversion}}
+\end{center}
 
 \begin{center}
   {\Large {\bf By Muthukumar Suresh, Theresa Swift, Carl Andersen}}
@@ -91,29 +99,60 @@ Remaining onfiguration tasks include
  Ensures that the Python module {\tt Module} is loaded, and calls {\tt
    Module.Function} unifying the return of {\tt Function} with {\tt
    Return}.  A list of keyword arguments may or may not be included.
+ For example the goal
 
- \begin{itemize}
-   \item Python modules are searched for in the paths maintained in
-     Python's {\tt sys.path} list.  As indicated below, these Python
-     paths can be queried from XSB via {\tt py\_lib\_dir/1} and
-     modified via {\tt add\_py\_lib\_dir/1}.
+\begin{verbatim}
+callpy(xsbpy_rdflib,rdflib_write_file(Triples,'new_sample.nt'),
+       [format=turtle],Ret).
+\end{verbatim}
+
+calls the function {\tt xsbpy\_rdflib,rdflib\_write\_file} to write
+{\tt Triples}, a list of triples in Prolog format, to the file {\tt
+  new\_sample.nt} using the {\tt nt} (N-triples) format, which is
+specified as a keyword argument to {\tt rdflib\_write\_file()} in the
+third argument of {\tt callpy/4}.
+
+In general, {\tt Module} must be the name of a Python module
+represented as a Prolog atom, and {\tt Function} is the invocation of
+a Python function in {\tt Module}, where {\tt Function} is simply a
+Prolog structure.  Optional keword arguments are passed in the third
+argument as lists of {\em Key = Value} terms; if no such arguments
+are needed, {\tt Kwargs} can be an empty list -- or {\tt callpy/3} may
+be used.  Finally the return value from {\tt Function} is unified with
+{\tt Ret}.
+
+Python modules are searched for in the paths maintained in Python's
+{\tt sys.path} list.  As indicated below, these Python paths can be
+queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
+  add\_py\_lib\_dir/1}.
      
-   \item {\tt Goal} is simply a Prolog term, and a large portion of
-     Prolog terms and Python data structures are recursively
-     bi-translated, making this interface easy to use.  In fact, due
-     to the syntactic similarity of Prolog and Python, {\tt Goal}
-     often needs no processing to use.
+{\tt xsbpy} takes advantage of a C-level bi-translation of a large
+portion of Prolog terms and Python data structures: i.e., Python
+lists, tuples, dictionaries and sets are translated to their Prolog
+term forms, and Prolog terms of special syntax are translated to
+lists, tuples, dictionaries and sets.  Bi-translation is recursive in
+that any of these data structures can be nested in other data
+structures.  
+     
+As terminology, when a Python data structure $D$, say a dictionary, is
+translated into a Prolog term $T$, $T$ is sometimes called the {\em
+  term form} of $D$.  Due to a syntactic overlap between Prolog terms
+and Python data structures, the Prolog term forms are easy to
+translate and use -- and sometimes appear syntactically identical.
 
-     As terminology, when a Python data structure $D$, say a
-     dictionary, is translated into a Prolog term $T$, $T$ is
-     sometimes called the {\em term form} of $D$.
+More specifically, bi-translation between Prolog and Python can be
+decribed from the viewpoint of Python types as follows: \footnote{If
+  desired, the outer functors {\tt pyDict}, {\tt pySet} and {\tt
+    pyObject} can be redefined via the file {\tt xsbpy\_defs.h} in the
+  {\tt xsbpy} difectory.}
 
-     Bi-translation between Prolog and Python can be decribed from the
-     viewpoint of Python types as follows:
-     \begin{itemize}
+\begin{itemize}
      \item Any Python object {\tt Obj} of a type that is not
        translated to a specific Prolog term as indicated below is
-       translated to the Prolog term {\tt \_\$pyObject(Obj)}.
+       translated to the Prolog term {\tt pyObject(Obj)}. \footnote{An
+         object's attributes are not automatically translated to
+         Prolog in \xsbpyversion{}, but this is an intended future
+         change.}
        \item {\em Numeric Types}: Python ints and floats are
          bi-translated to Prolog integers and floats.  Python complex
          numbers are not (yet) translated, and integers are only
@@ -139,12 +178,12 @@ Remaining onfiguration tasks include
              terms with functor {\tt '{}'/n} (i.e., the functor is the
              empty string, denoted with two apostrophes).
              \item Python ranges are not (yet) translated (i.e., they
-               are returned as terms with functor {\tt pyObject/1}.
+               are returned as terms with functor {\tt pyObject/1}).
          \end{itemize}
        \item {\em Mapping Types}: A Python dictionary is translated
          into the term form:
 
-         {\tt '\_\$pydict'(DictList)}
+         {\tt pyDict(DictList)}
 
          where {\tt DictList} is a list of tuples in term form: 
 
@@ -159,27 +198,22 @@ Remaining onfiguration tasks include
        \item {\em Set Types}: A Python set {\em S} is translated to
          the term form
 
-         {\tt '\_\$pyset'(SetList)}
+         {\tt pySet(SetList)}
 
          where {\em SetList} is the list containing exactly the
          translated elements of $S$.  Due to Python's implementation
-         of sets, there is no guarantee that the order of $S$ and
-         $SetList$ will be the same.
+         of sets, there is no guarantee that the order of elements
+         will be the same in $S$ and $SetList$.
        \item {\em Boolean Types:} are not yet supported. 
        \item {\em Binary Types:} are not yet supported.  There are no
          current plans to support this type.
      \end{itemize}
-   \item {\tt Return} is a Prolog term.  When the Python function
-     returns, the return value is translated into its term form
-     $T_{ret}$, and then an attempt is made to unify $T_{ret}$ with
-     the {\tt Return} term.
- \end{itemize}
 
- As an example, the Prolog goal:
+ As a futher example, the Prolog goal:
 
  \begin{verbatim}
 callpy('apps/xsbpy_json',
-       prolog_loads('{"name": "Bob", "languages": ["English","Fench","GERMAN"]}'),
+       prolog_loads('{"name": "Bob", "languages": ["English","French","GERMAN"]}'),
        Ret)
 \end{verbatim}
  
@@ -194,16 +228,15 @@ of the form:
 \begin{verbatim}
 {
   "name":'Bob',
-  "languages":["English", "Fench","GERMAN"]
+  "languages":["English", "French","GERMAN"]
 }
 \end{verbatim}
-This dictionary is then translated to a Prolog term, displayed via
-{\tt writeq/1} and pretty printing as:
+This dictionary is then translated to the Prolog term:
 \begin{verbatim}
-'_pydict'([
-           ''(name,'Bob'),
-           ''(languages,['English','Fench','GERMAN'])
-          ]).
+pydict([
+        ''(name,'Bob'),
+        ''(languages,['English','French','GERMAN'])
+        ]).
 \end{verbatim}
 
 \ourrepeatmoditem{pp\_py(+Stream,+Term)}{pp\_py/2}{xsbpy}
@@ -213,17 +246,17 @@ Pretty prints the translation of a Python data structure in
 Python-like syntax.  For instance, the term
 
 \begin{verbatim}
-'_pydict'([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]).
+pydict([''(name,'Bob'),''(languages,['English','French','GERMAN'])]).
 \end{verbatim}
 
 \noindent
 is printed as 
 \begin{verbatim}
 {
-  name:Bob,
+  name:'Bob',
   languages:[
    'English','
-   'Fench',
+   'French',
    'GERMAN'
   ]
 }
@@ -247,12 +280,14 @@ directories as a Prolog list.
 
 \section{Performance}
 
-{\tt callpy/3} is written entirely in C, has shown good performance so
-far, and continues to be optimized.  Calling a simple Python function
-to increment a number and then zbyreturning the incremented value should
-take slightly over a microsecond on a reasoably fast machine.  Of
-course, the overhead for passing large terms from and to Python will
-be higher.
+{\tt callpy/3} is written almost entirely in C, has shown good
+performance so far, and continues to be optimized.  Calling a simple
+Python function to increment a number and then returning the
+incremented value should take slightly over a microsecond on a
+reasoably fast machine.  Of course, the overhead for passing large
+terms from and to Python will be higher.  Nonetheless, for nearly any
+practical application the time to perform useful functionality within
+Python will far outweigh the {\tt xsbpy} overhead.
 
 \section{Writing Applications}
 
@@ -267,7 +302,7 @@ simple.  Bridge functions are needed in cases such as the following.
     function {\tt load(Stream)} in the {\tt json} module is based on
     the Python representation of an I/O stream, which does not
     correspond to an XSB stream.  XSB thus cannot call this function
-    directly, but must use a resource name that can be opened on the
+    directly, but must pass a resource name that can be opened on the
     Python side.  In this case the bridge function would have the
     form:
 
@@ -278,45 +313,68 @@ def prolog_load(File):
 \end{verbatim}
 
 \item In its current, early, state of development {\tt xsbpy} call
-  only functions, but not applications of a method to an object.  In
-  addition, {\tt xsbpy} does not yet support Python functions with a
-  variable number of arguments, or with keyword arguments.  In any of
-  these cases, a bridge function will be needed.  For instance, when
+  only functions, but not applications of a method to an object. In
+  this case, a bridge function will be needed.  For instance, when
   using the Python Elasticsearch interface, a named connection is
   opened, to which methods are applied to perform tasks like searching
-  an index.  In addition, tehse methods make heavy use of keyword
-  arguments.  A bridge function to perform searching in Elasticsearch
-  is:
+  an Elasticsearch index.  A bridge function to perform searching in
+  Elasticsearch is:
 
 \begin{verbatim}
 def search(indexin,bodyin):
     return(conn.search(index=indexin, body=bodyin))
 \end{verbatim}
+
+\noindent
+See {\tt xsbpy/examples/elastic.py} for similar examples.
+
+\item {\tt xsbpy} does not yet automatically pass back attributes of
+  an object.  For instance in {\tt xsbpy/apps/xsbpy\_rdflib} the
+  language tags and data types of {\tt rdflib.Literal} objects are
+  kept as attributes, and these attributes are critical for RDF I/O
+  from Prolog. An example of how to handle this is seen in {\tt
+    xsbpy\_rdflib.py}, where slightly more elaborate bridge functions
+  are needed to marshal an object's attributes as elements of a tuple.
+
 \end{itemize}
 
 Note that cases like the above do not affect the scope of what {\tt
   xsbpy} can do, but make it {\em slightly} less easy to use.
 
 \subsection{Sample Applications}
-
 When {\tt xsbpy} is loaded, both Prolog and Python paths are added to
 the {\tt xsbpy} directory and to its subdirectories, {\tt apps} and
 {\tt examples}.  As a result, modules in these subdirectories can be
 imported into XSB without changing its library path.
 
-Some of these modules, like {\tt xsbpy\_json} provide useful
-functionality and can be used as written, while others are included to
-hwlp the user get started in writing hybrid applications.
+Some of these modules, like {\tt xsbpy\_json} and {\tt xsbpy\_rdflib}
+provide useful functionality and can be used as written, or nearly so;
+other modules are included to hwlp the user get started in writing
+hybrid applications.
 
 Note that several of these applications require the underlying Python
 libraries to have been installed via a {\tt pip} or {\tt conda}
 install.
 
+\subsubsection{(Rudimentary) Applications}
+
 \paragraph{xsbpy\_json}
-This module contains a rudimentary interface to the Python {\tt json}
+This module contains an interface to the Python {\tt json}
 module, with predicates to read json from and write json to files and
 strings.  The {\tt json} module transforms json objects into and from Python
 dictionaries, which the interface maps to and from their term forms.
+
+\paragraph{xsbpy\_rdflib}
+This module interfaces to the Python {\tt rdflib} library to read RDF
+information from files in Turtle, N-triples and N-quads format, and to
+write files in Turtle and N-triples format.  As such it augments XSB's
+RDF package (Chapter~\ref{chapter:RDF}) which handles
+XML-RDF. \footnote{Testing has been done of this {\tt xsbpy}
+  interface, but the testing has not been exhaustive.  As a result,
+  please double-check its results if it is used, and report bugs to
+  {\tt xsb.sorceforge.net}.}
+
+\subsubsection{Other Examples}
 
 \paragraph{xsbpy\_elastic}
 This module contains sample code for using the Python {\tt
@@ -330,20 +388,20 @@ format, which the Python interface transforms to dictionaries, and
 {\tt xsbpy} transforms these dictionaries to and from their term form.
 
 \paragraph{spacey\_demo}
-This flle contains simple code for processing a document through
-SpaCy, and then querying the processed document for information about
-tokens, named entities and noun chunks.
+This flle contains a simple example of how to process a document
+through SpaCy, and query the processed document for
+information about tokens, named entities and noun chunks.
 
-\paragraph{mpl}
-This file has a simple example of how to create, display, and save as
-pdf a simple matplotlib document.
+%\paragraph{mpl}
+%This file has a simple example of how to create, display, and save as
+%pdf a simple matplotlib document.
 
 \section{Current and Future Work}
 
 \begin{itemize}
 \item As mentioned above, current tasks include C-level incorporation
-  into {\tt callpy/3} of function keyword arguments and object
-  methids.
+  into {\tt callpy/[3,4]} of method application to objects, as well as
+  more powerful interface for object attributes.
 
 \item A callback mechanism is under development.  This mechanism
   allows XSB and Python to recursivly call each other.  Our intention
@@ -351,9 +409,9 @@ pdf a simple matplotlib document.
     pypi.org/project/py-xsb}, but currently PyXSB and {\tt xsbpy} are
   independent of each other.
 
-\item A facility will be added to pass Python object referecnes to and
-  from XSB.  This would allow XSB to handle, for instance, multiple
-  connections to Elasticsearch databases, or multiple Python I/O
-  streams in general.
+\item Support will be added to better manage Python objects in XSB.
+  Such functionality would allow XSB to handle, for instance, multiple
+  connections to Elasticsearch databases or more generally, multiple
+  Python I/O streams.
 
 \end{itemize}  
