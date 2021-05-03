@@ -11,7 +11,7 @@ pp_py(Str,Term):- pp_py(Term,Str,0).
 
 pp_py(Term):- pp_py(Term,userout,0).
 
-pp_py(PYDICT_PROLOG(List),Str,N):- !,writeln(here),
+pp_py(PYDICT_PROLOG(List),Str,N):- !,
     pp_dict(List,Str,N).
 pp_py([H|T],Str,N):- !,
     pp_list([H|T],Str,N).
