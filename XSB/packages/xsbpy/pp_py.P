@@ -1,7 +1,8 @@
 
 :- export pp_py/1,pp_py/2.
 
-:- compiler_options([spec_off]).
+:- compiler_options([spec_off,xpp_on]).
+#include "xsbpy_defs.h"
 
 % Switching arguments to support stream in first arg.
 pp_py(Str,Term):- pp_py(Term,Str,0).
@@ -9,11 +10,11 @@ pp_py(Str,Term):- pp_py(Term,Str,0).
 pp_py(Term):- pp_py(Term,userout,0).
 
 
-pp_py('_$pydict'(List),Str,N):- !,
+pp_py(PYDICT_PROLOG(List),Str,N):- !,
     pp_dict(List,Str,N).
 pp_py([H|T],Str,N):- !,
     pp_list([H|T],Str,N).
-pp_py('_$pyset'(List),Str,N):- !,
+pp_py(PYSET_PROLOG(List),Str,N):- !,
     pp_set(List,Str,N).
 pp_py(Term,Str,N):-
     functor(Term,'',_),!,
@@ -22,7 +23,7 @@ pp_py(Term,Str,N):-
     pp_elt(Term,Str,N),!.
 
 pp_dict(List,Str,N):-
-    %    tab(Str,N),write('_$pydict\'('),nl(Str),
+    %    tab(Str,N),write(PYDICT_PROLOG('),nl(Str),
     tab(Str,N),write(Str,'{'),nl(Str),
     N1 is N + 2,
     pp_dict1(List,Str,N1),
@@ -55,7 +56,7 @@ pp_tuple(Term,Str,N):-
     tab(Str,N),write(Str,')'),nl(Str).
 
 pp_set(List,Str,N):-
-    write(Str,'_$pyset\'('),nl(Str),
+    write(Str,'PYSET_PROLOG('),nl(Str),
 %    N1 is N + 11,
     N1 is N + 1,
     pp_seq(List,Str,N1),
