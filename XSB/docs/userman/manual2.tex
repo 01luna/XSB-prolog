@@ -5,7 +5,9 @@
 \usepackage[T1]{fontenc}
 \usepackage{epsf,epsfig,subfigure,latexsym,xspace,amssymb}
 \usepackage{alltt}
-\usepackage{graphicx,makeidx}
+%\usepackage{graphicx,makeidx}
+\usepackage{graphicx}
+\usepackage{imakeidx}
 \usepackage{longtable}
 \usepackage{epic}
 \usepackage{ecltree}
@@ -163,6 +165,7 @@
 \input{predindex.sty}
 \makepredindex
 \makeindex
+\makeindex[name=pred,title=Index of XSB Package Predicates]
 %------------------------------------------------------------
 
 \begin{document}
@@ -219,9 +222,10 @@ Interfaces and Packages}
 \bibliographystyle{abbrv}
 \bibliography{manual,pita}
 
-%%\input{manual2.ind}
+%s\input{manual2.ind}
 
 \printindex
+\printindex[pred]
 
 \end{document}
 

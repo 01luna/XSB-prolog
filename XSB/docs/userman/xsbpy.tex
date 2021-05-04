@@ -269,12 +269,36 @@ the {\tt xsbpy} Elasticsearch interface.
 %
 This convenience predicate allows the user to add a path to the Python
 library directories in a manner similar to {\tt add\_lib\_dir/1},
-which adds Prolog library directories.  
+which adds Prolog library directories.
 
 \altourmoditem{py\_lib\_dirs(?Path)}{py\_lib\_dirs/1}{xsbpy}
 %
 This convenience predicate returns the current Python library
 directories as a Prolog list.
+
+\altourmoditem{values(+Dict,+Path,?Val)}{values/3}{py\_utils}
+%
+  Convenience predicate to obtain a value from a (possibly nested)
+  Prolog dictionary.  The goal
+
+  {\tt values(D,key1,V)}
+
+\noindent
+  is equivalent to the
+  Python expression {\tt D[key1]} while
+
+  {\tt values(D,[key1,key2,key3],V)}
+
+\noindent
+is equivalent to the Python expression
+
+{\tt D[key1][key2][key3]}.
+
+\ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{py\_utils}
+\altourmoditem{items(+Dict,?Items)}{items/2}{py\_utils}
+%
+Convenience predicates to obtain a list of keys or items from a Prolog
+dictionary.  For the inveterate Python programmer.
 
 \end{description}
 
