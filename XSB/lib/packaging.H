@@ -27,7 +27,10 @@
 	  ensure_package_bootstrapped/2,
 	  bootstrap_sitepackage/2, bootstrap_userpackage/3,
 	  unload_package/1.
-:- export xsb_running_under/1, force_rename_file/2.
+:- export
+        xsb_running_under/1,
+        xsb_running_under/2,
+        force_rename_file/2.
 
 :- import (dynamic)/1, assert/1, retract/1
    from assert.
