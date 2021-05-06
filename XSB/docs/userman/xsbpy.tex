@@ -147,18 +147,17 @@ decribed from the viewpoint of Python types as follows: \footnote{If
   {\tt xsbpy} difectory.}
 
 \begin{itemize}
-     \item Any Python object {\tt Obj} of a type that is not
-       translated to a specific Prolog term as indicated below is
-       translated to the Prolog term {\tt pyObject(Obj)}. \footnote{An
-         object's attributes are not automatically translated to
-         Prolog in \xsbpyversion{}, but this is an intended future
-         change.}
        \item {\em Numeric Types}: Python ints and floats are
          bi-translated to Prolog integers and floats.  Python complex
          numbers are not (yet) translated, and integers are only
          supported if for integers between XSB's minimum and maximum
          integer~\footnote{These integers can be obtained by querying
            {\tt current\_prolog\_flag/2}.}
+         \begin{itemize}
+           \item {\em Boolean Types} which are numeric types are
+             translated to their integer value: {\tt True} as {\tt 1}
+             and {\tt False} as {\tt 0}.
+         \end{itemize}
        \item {\em String Types}: Python string types are bi-translated
          to Prolog atoms.  This translation assumes UTF-8 encoding on
          both sides.
@@ -204,9 +203,20 @@ decribed from the viewpoint of Python types as follows: \footnote{If
          translated elements of $S$.  Due to Python's implementation
          of sets, there is no guarantee that the order of elements
          will be the same in $S$ and $SetList$.
-       \item {\em Boolean Types:} are not yet supported. 
+       \item {\em None Types.} The Python keyword {\tt None} is
+         translated to the Prolog atom {\tt none}. \footnote{This
+           translation can be altered by altering {\tt xsbpy\_defs.h}
+           in the {\tt xsbpy} directory.}
        \item {\em Binary Types:} are not yet supported.  There are no
          current plans to support this type.
+     \item Any Python object {\tt Obj} of a type that is not
+       translated to a specific Prolog term as indicated below is
+       translated to the Prolog term {\tt
+         pyObject(Obj)}. \footnote{This translation can be altered by
+         altering {\tt xsbpy\_defs.h} in the {\tt xsbpy} directory. An
+         object's attributes are not automatically translated to
+         Prolog in \xsbpyversion{}, but this is an intended future
+         change.}
      \end{itemize}
 
  As a futher example, the Prolog goal:
@@ -321,14 +331,15 @@ written; fortunately writing such a function is usually quite
 simple.  Bridge functions are needed in cases such as the following.
 
 \begin{itemize}
-  \item There is a need to use a Python data structure that does not
-    correspond to a Prolog data structure.  For instance, the Python
-    function {\tt load(Stream)} in the {\tt json} module is based on
-    the Python representation of an I/O stream, which does not
-    correspond to an XSB stream.  XSB thus cannot call this function
-    directly, but must pass a resource name that can be opened on the
-    Python side.  In this case the bridge function would have the
-    form:
+  \item There is a desire to use a Python data structure that does not
+    correspond to a Prolog data structure and is not known to XSB.
+    For instance, the Python function {\tt load(Stream)} in the {\tt
+      json} module is based on the Python representation of an I/O
+    stream, which does not correspond to an XSB stream.  Unless the
+    file stream hanele is known to XSB, it cannot call {\tt
+      json.load()} directly, but must pass a resource name that can be
+    opened on the Python side.  In this case the bridge function would
+    have the form:
 
 \begin{verbatim}   
 def prolog_load(File):
@@ -362,8 +373,38 @@ See {\tt xsbpy/examples/elastic.py} for similar examples.
 
 \end{itemize}
 
+\begin{example} \rm 
 Note that cases like the above do not affect the scope of what {\tt
   xsbpy} can do, but make it {\em slightly} less easy to use.
+
+It is also possible for XSB to maintain information about Python
+objects.  For example, {\tt xsbpy/test/other\_tests.py} contains the
+functions:
+
+\begin{verbatim}
+def return_fp():
+    fp = open('getpaths.py',"r")
+    return(fp)
+
+def use_fp(f):
+    print(f.read())
+\end{verbatim}
+
+In this case the goal {\tt callpy(other\_tests,return\_fp(),FP)}
+unifies {\tt FP} with the object reference to a Python file pointer.
+In Prolog this reference would  look like
+
+{\tt pyObject(p0x7fb1947b0210)},
+
+\noindent
+where the reference address has been converted to a Prolog atom.
+Assuming {\tt FP} continues to be bound to this Prolog term, the goal
+
+{\tt callpy(other\_tests,use\_fp(F),G)}
+
+\noindent
+would print out the file.
+\end{example}
 
 \subsection{Sample Applications}
 When {\tt xsbpy} is loaded, both Prolog and Python paths are added to
