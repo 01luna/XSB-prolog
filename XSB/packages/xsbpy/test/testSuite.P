@@ -7,15 +7,16 @@
 :- import concat_atom/2 from string.
 :- import length/2 from basics.
 :- import xsb_error_get_message/2 from error_handler.
-
+%sj:- import callpy_meth_int/4 from xsbpym.
 
 testSuite:-
-  return_tests, 
-  dataConversionTests,
-  pyc_tests,
-  json_tests,
-  kwargs_tests,
-  error_tests.
+    sumlist_tests, 
+    dataConversionTests,
+    pyc_tests,
+    json_tests,
+    kwargs_tests,
+    error_tests,
+    object_tests.
 %  callback_test,
 
 %--------------------------------
@@ -23,7 +24,7 @@ testSuite:-
 /* TES: getitertest and nexttest are not working temporarily --
  * default was changed to eagerly return a list or tuple, which is much
  * better.  I'll add the lazy option as an alternative */
-return_tests :- 
+sumlist_tests :- 
 	(callPyTest ->
 	     write('callPy tests successful\n')
 	 ;   write('!!!callPy tests failed\n')).
@@ -35,9 +36,9 @@ return_tests :-
 %	   ; write('pyObj_Next tests failed\n')).
 
 callPyTest :- 
-	callpy('sumlist3', sumlist3(5,[1,2,3]), [6,7,8]),
-	not(callpy('sumlist3', sumlist3(5,[1,2,3]), [4,5,6])),
-	not(callpy('sumlist3', sumlist3(5,[1,2,3]),[1,2,3])).
+    callpy('sumlist3', sumlist3(5,[1,2,3]), [6,7,8]),
+    not(callpy('sumlist3', sumlist3(5,[1,2,3]), [4,5,6])),
+    not(callpy('sumlist3', sumlist3(5,[1,2,3]),[1,2,3])).
 
 pyObj_GetIterTest :- 
 	callpy('test/sumlist3', sumlist3(5,[1,2,3]), R),
@@ -67,8 +68,24 @@ dataConversionTests :-
      ;   write('!!!set conversion tests failed\n')),
     (tupleConvTest->
 	 write('tuple conversion tests successful\n')
-     ;   write('!!!tuple conversion tests failed\n')).
+    ;   write('!!!tuple conversion tests failed\n')),
+    fail.
+dataConversionTests :- 
+    callpy(returnVal,return_None(),PYNONE_PROLOG),
+    writeln('return_None_succeeded'),
+    fail.
+dataConversionTests :- 
+    callpy(returnVal,return_True(),1),
+    writeln('return_True_succeeded'),
+    fail.
+dataConversionTests :- 
+    callpy(returnVal,return_False(),0),
+    writeln('return_False_succeeded'),
+    fail.
+dataConversionTests.
 
+
+%@@
 intConvTest :-
     current_prolog_flag(min_integer, MinValue), 
     not(var(MinValue)), 
@@ -204,8 +221,24 @@ error_tests_1(Mod,Goal,Message):-
        writeln(Mess),
        writeln(Message)).
     
+object_tests:- 
+    meth_tests,
+    fail.
+object_tests.
 
+meth_tests:-
+    test_Person(_Obj,Ret1,Ret2),
+    Ret1 = 'Hello my name is john',
+%    writeq(Ret2),
+    Ret2 = 'Hello my name is john and I''m a doofus',
+    writeln('Person test succeeded'),
+    fail.
+meth_test.
 
+test_Person(Obj,Ret1,Ret2):- 
+    callpy('Person','Person'(john,35),Obj),
+    callpy_meth_int('Person',Obj,func0(),Ret1),
+    callpy_meth_int('Person',Obj,func1(doofus),Ret2).
 end_of_file.
 
 pytXSB :- callpy('test/testc', tester(),  X), pyList2prList(X, []).
