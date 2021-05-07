@@ -6,7 +6,7 @@
 %% valid tests
 tst1 :- write('tst1 = '),
          parse_json('data/test1.json',X),
-         flora_bind_vars_meaningfully(X),
+         numbervars(X),
          writeln(X).
 tst2 :- write('tst2 = '),
          parse_json('data/test2.json',X),
@@ -30,7 +30,10 @@ tst7 :- parse_json('data/test7.json',X),
 
 %% invalid tests
 tst8 :- (parse_json('data/ext-invalid-0001.json',_) ->
-            writeln(tst8=no),_) ->
+            writeln(tst8=no)
+         ; writeln(tst8=ok)
+         ).
+tst9 :- (parse_json('data/ext-invalid-0002.json',_) ->
             writeln(tst9=no)
          ; writeln(tst9=ok)
          ).
@@ -44,7 +47,7 @@ tst12 :- parse_json('data/ext-valid-0003.json',X),
           writeln(tst12=X).
 
 %% invalid tests
-tst13 :- ('data/invalid-0000.json'[parse->_] ->
+tst13 :- (parse_json('data/invalid-0000.json',_) ->
             writeln(tst13=no)
           ; writeln(tst13=ok)
           ).
@@ -145,6 +148,7 @@ pretest :-
         tst34, tst35, tst36, tst37, tst38, tst39.
 
 test :-
+        [json],
 	file_reopen(temp1,w,STDERR,_),
 	file_reopen(temp2,w,STDWARN,_),
         tell(temp),
@@ -155,11 +159,11 @@ test :-
 	open(file(temp1),read,Port1),
 	open(file(temp2),read,Port2),
 	open(file(temp),append,Port0),
-	copyIOport(Port1,Port0),
-	copyIOport(Port2,Port0),
+	file_io:copyIOport(Port1,Port0),
+	file_io:copyIOport(Port2,Port0),
 	close(Port1),
 	close(Port2),
         close(Port0),
-	flora_file_op(unlink,temp1),
-	flora_file_op(unlink,temp2).
+	file_io:path_sysop(unlink,temp1),
+	file_io:path_sysop(unlink,temp2).
 

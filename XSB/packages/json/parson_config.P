@@ -49,7 +49,7 @@
     slash(Slash),
     package_configuration(dir(json), PackageDir),
     concat_atom([PackageDir,Slash,cc,Slash,Basename],Module),
-    concat_atom([Module,'.', XSB_OBJ_EXTENSION_ATOM], Objfile),
+    concat_atom([Module,XSB_OBJ_EXTENSION_ATOM], Objfile),
     concat_atom([Module, '.c'], ModuleSourceFile),
     (   %% avoid recompilation: check if FILE.OBJ exists and 
 	%% is newer than FILE.c.
@@ -61,7 +61,7 @@
 
     ; (xsb_running_under(windows) ; xsb_running_under(cygwin)) ->
 	concat_atom([Module, '.dll'],CygModDLL),
-        get_dynlib_filename(PackageDir,WinModDLL),
+        get_win_dynlib_filename(PackageDir,WinModDLL),
 	(xsb_running_under(cygwin) ->
 	    consult(Module, []),
 	    (path_sysop(unlink,TrgSharedLib), ! ; true),
@@ -87,9 +87,8 @@
 	    path_sysop(rename,Objfile,TrgPrlgObjFile)
 	)
 
-    %% If Module isn't compiled or is old --- recompile
+    %% If Module isn't compiled or is old --- recompile (linux/mac)
     ;   xsb_configuration(compiler, CC),
-        get_dynlib_filename(PackageDir,ParsonLib),
 	( xsb_running_under(darwin) ->
 	    concat_atom([Module, '.dylib'], SharedLib)
 	; xsb_running_under(unix) ->
@@ -97,9 +96,12 @@
 	; abort('Cannot determine the type of the operating system')
         ),
         consult(Module, [cc(CC), cc_opts(' ')]),
+        writeln(do1=Objfile+TrgPrlgObjFile),
         (path_sysop(rename,Objfile, TrgPrlgObjFile) ; true),
-        (path_sysop(rename,SharedLib,ParsonLib) ; true),
-        path_sysop(copy,ParsonLib,TrgSharedLib)
+        writeln(done1),
+        writeln(do2=SharedLib+TrgSharedLib),
+        path_sysop(rename,SharedLib,TrgSharedLib)
+    ,writeln(done2)
     ).
 
 
@@ -111,7 +113,7 @@
 	slash(Slash),
 	xsb_configuration(config_libdir, ConfigLibdir),
 	xsb_configuration(config_bindir, ConfigBindir),
-	concat_atom([ConfigLibdir,Slash,Basename,'.',XSB_OBJ_EXTENSION_ATOM],
+	concat_atom([ConfigLibdir,Slash,Basename,XSB_OBJ_EXTENSION_ATOM],
                     TrgPrlgObjFile),
     	(xsb_running_under(windows)
 	%% Important to quote TrgSharedLib below
@@ -129,22 +131,11 @@
 	; abort('Cannot determine the type of the operating system')
 	).
 
-get_dynlib_filename(PackageDir,ParsonLib) :-
-	(xsb_running_under(windows) ->
-	    (xsb_running_under(windows64) ->
-		DLLdir = '\\cc\windows64\\'
-	    ; DLLdir = '\\cc\\windows\\'   %% not used
-	    ),
-	    concat_atom([PackageDir,DLLdir,'parson_xsb.dll'],ParsonLib)
-	 ; xsb_running_under(darwin) ->
-	    %% Note: the .dylib ending is Mac-specific.
-	    ActInterfaceBase = '/parson_xsb.dylib',
-	    concat_atom([PackageDir,ActInterfaceBase],ParsonLib)
-	 ; xsb_running_under(unix) ->
-	    %% Note: the .so ending is Unix-specific.
-            ActInterfaceBase = '/parson_xsb.so',
-	    concat_atom([PackageDir,ActInterfaceBase],ParsonLib)
-	 ; abort('unsupported type of OS')
-	 ).
+get_win_dynlib_filename(PackageDir,ParsonLib) :-
+        (xsb_running_under(windows64) ->
+            DLLdir = '\\cc\windows64\\'
+        ; DLLdir = '\\cc\\windows\\' %% not supporting w32
+        ),
+        concat_atom([PackageDir,DLLdir,'parson_xsb.dll'],ParsonLib).
 	
 
