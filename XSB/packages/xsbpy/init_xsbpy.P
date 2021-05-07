@@ -1,3 +1,5 @@
+:- compiler_options([xpp_on]).
+#include "xsbpy_defs.h"
 
 /* 
 init_xsbpy/0 initializes xsbpy, compiling the necessary C files and
@@ -13,6 +15,7 @@ to that included at the end of this file.
 ?- init_xsbpy.
 
 :- export init_xsbpy/0, test_xsbpy/0, add_py_lib_dir/1,py_lib_dirs/1.
+:- export objref/2.
 
 :- import xsb_configuration/2 from xsb_configuration.
 :- import concat_atom/2 from string.
@@ -23,7 +26,6 @@ to that included at the end of this file.
 :- import init_python/0 from xsbpym.
 :- import add_lib_dir/1 from consult.
 %:- import getenv/2 from machine.
-
 
 init_xsbpy:-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
@@ -40,11 +42,15 @@ init_xsbpy:-
     concat_atom([PackDir,'/xsbpy/examples'],ExampDir),
     callpy(add_python_path,add_python_path(XSBpyDir),_),
     callpy(add_python_path,add_python_path(ExampDir),_),
-    callpy(add_python_path,add_python_path(AppDir),_).
+    callpy(add_python_path,add_python_path(AppDir),_),
+    % probably take out later
+    concat_atom([PackDir,'/xsbpy/test'],TestDir),
+    callpy(add_python_path,add_python_path(TestDir),_).
+
 
 test_xsbpy:-
     xsb_configuration(packagesdir, PackDir),
-    concat_atom([PackDir,'/xsbpy'],XSBpyDir),
+%    concat_atom([PackDir,'/xsbpy'],XSBpyDir),
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
     callpy(add_python_path,add_python_path(TestDir),_),
     add_lib_dir(TestDir),
@@ -55,6 +61,10 @@ test_xsbpy:-
     usermod:testSuite,
     told.
 
+test_xsbpy_1:-
+    ensure_loaded(testSuite),
+    usermod:testSuite.
+
 %    shell(['cp ',XSBpyDir,'/xsbpym.so',' ',TestDir,'xsbpym.so']),
 
 add_py_lib_dir(Dir):- 
@@ -63,13 +73,8 @@ add_py_lib_dir(Dir):-
 py_lib_dirs(List):-
     callpy(xsbpy_utils,python_paths(),List).
 
-%items(Dict,Items):-
-%    Dict = '_$pydict'(List),!,
-%   setof(Item,Val^member(''(Item,Val),List),Items).
-
-%get_val(Dict,Key,Val):-
-%    Dict = '_$pydict'(List),!,
-%    memberchk(''(Key,Val),List).
+objref(Obj,PYOBJ_PROLOG(R1)):- 
+    callpy(other_tests,read_obj(Obj),R1). 
 
 end_of_file.
 
