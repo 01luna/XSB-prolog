@@ -236,8 +236,8 @@ meth_test.
 
 test_Person(Obj,Ret1,Ret2):- 
     callpy('Person','Person'(john,35),Obj),
-    callpy_meth_int('Person',Obj,func0(),Ret1),
-    callpy_meth_int('Person',Obj,func1(doofus),Ret2).
+    callpy_meth('Person',Obj,func0(),Ret1),
+    callpy_meth('Person',Obj,func1(doofus),Ret2).
 end_of_file.
 
 pytXSB :- callpy('test/testc', tester(),  X), pyList2prList(X, []).
