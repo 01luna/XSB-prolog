@@ -3,7 +3,8 @@
 #include "xsbpy/xsbpy_defs.h"
 
 :- export callpy/3, add_py_lib_dir/1, py_lib_dirs/1.
-:- export callpy/4.
+:- export callpy/4,callpy_meth/4.
+:- export objref/2.
 
 :- import bootstrap_package/2 from packaging.
 
@@ -16,6 +17,7 @@
 :- import callpy_int/4 from xsbpym.
 :- import add_py_lib_dir/1 from init_xsbpy as add_py_lib_dir/1.
 :- import py_lib_dirs/1 from init_xsbpy as py_lib_dirs/1.
+:- import callpy_meth/4 from xsbpym as callpy_meth/4.
 
 callpy(Mod,Func,Def_vars,Ret):-
     def_vars_to_dict(Def_vars,Dict),
