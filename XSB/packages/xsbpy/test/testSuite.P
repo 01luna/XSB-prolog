@@ -7,7 +7,6 @@
 :- import concat_atom/2 from string.
 :- import length/2 from basics.
 :- import xsb_error_get_message/2 from error_handler.
-%sj:- import callpy_meth_int/4 from xsbpym.
 
 testSuite:-
     sumlist_tests, 
