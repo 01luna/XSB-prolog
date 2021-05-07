@@ -794,12 +794,15 @@ int file_strncmp(char *fn1, char *fn2, size_t len) {
 void get_filename_disp_len(size_t len_wo_ext, size_t len, char *filename,
 			   size_t *disp, size_t *mlen) {
   if (len_wo_ext == 0) {
-    if (!file_strncmp(filename,"usermod(",sizeof("usermod("))) {
-      *disp = sizeof("usermod('");
-      *mlen = len - (sizeof("usermod('')"));
+    if (!file_strncmp(filename,"usermod('",sizeof("usermod('")-1)) {
+      *disp = sizeof("usermod('")-1;
+      *mlen = len - (sizeof("usermod('')")-1);
+    } else if (!file_strncmp(filename,"usermod(",sizeof("usermod(")-1)) {
+      *disp = sizeof("usermod(")-1;
+      *mlen = len - (sizeof("usermod()")-1);
     } else if (!file_strncmp(filename,FILEQUALPAR "usermod,",sizeof("usermod("))) {
       *disp = sizeof(FILEQUALPAR "usermod,");
-      *mlen = len - (sizeof(FILEQUALPAR "usermod,"));
+      *mlen = len - (sizeof(FILEQUALPAR "usermod,")-1);
     } else {
       *disp = 0;
       *mlen = len;

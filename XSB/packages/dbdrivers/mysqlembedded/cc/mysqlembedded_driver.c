@@ -385,14 +385,14 @@ struct xsb_data** driverMySQL_execPrepareStmt(struct xsb_data** bindValues, stru
       intTemp = malloc (sizeof(int));
       *intTemp = bindValues[i]->val->i_val;
       bind[i].buffer = intTemp;
-      bind[i].is_null = calloc(1,sizeof(my_bool));
+      bind[i].is_null = calloc(1,sizeof(_Bool));
     }
     else if (bindValues[i]->type == FLOAT_TYPE) {		        
       bind[i].buffer_type = MYSQL_TYPE_DOUBLE;
       doubleTemp = (double*)malloc (sizeof(double));
       *doubleTemp = bindValues[i]->val->f_val;
       bind[i].buffer = doubleTemp;
-      bind[i].is_null = calloc(1,sizeof(my_bool)) ;  			
+      bind[i].is_null = calloc(1,sizeof(_Bool)) ;  			
     }
     else if (bindValues[i]->type == STRING_TYPE) {
       bind[i].buffer_type = MYSQL_TYPE_STRING;
@@ -400,7 +400,7 @@ struct xsb_data** driverMySQL_execPrepareStmt(struct xsb_data** bindValues, stru
       *lengthTemp = (unsigned long)strlen(bindValues[i]->val->str_val);
       bind[i].length = lengthTemp;
       bind[i].buffer_length = (unsigned long)strlen(bindValues[i]->val->str_val);
-      bind[i].is_null = calloc(1,sizeof(my_bool)) ;    
+      bind[i].is_null = calloc(1,sizeof(_Bool)) ;    
       charTemp = (char*)malloc((strlen(bindValues[i]->val->str_val)+1) * sizeof(char));
       strcpy( charTemp, bindValues[i]->val->str_val);
       bind[i].buffer = charTemp;
@@ -429,27 +429,27 @@ struct xsb_data** driverMySQL_execPrepareStmt(struct xsb_data** bindValues, stru
     case INT_TYPE:
       bindResult[i].buffer_type = MYSQL_TYPE_LONG;
       bindResult[i].buffer = malloc( sizeof(int) );
-      bindResult[i].is_null = calloc(1,sizeof(my_bool)) ;
+      bindResult[i].is_null = calloc(1,sizeof(_Bool)) ;
       bindResult[i].length = malloc( sizeof(unsigned long) );
-      bindResult[i].error = calloc(1,sizeof(my_bool)) ; 
+      bindResult[i].error = calloc(1,sizeof(_Bool)) ; 
       break;
 
     case FLOAT_TYPE:
       bindResult[i].buffer_type = MYSQL_TYPE_DOUBLE;
       bindResult[i].buffer = malloc( sizeof(double) );
-      bindResult[i].is_null = calloc(1,sizeof(my_bool));
+      bindResult[i].is_null = calloc(1,sizeof(_Bool));
       bindResult[i].length = malloc( sizeof(unsigned long) ) ;
-      bindResult[i].error = calloc(1,sizeof(my_bool)) ;
+      bindResult[i].error = calloc(1,sizeof(_Bool)) ;
       break;
 			
     case STRING_TYPE:
       bindResult[i].buffer_type = MYSQL_TYPE_VAR_STRING;
       bindResult[i].buffer_length = (unsigned long)rs->metaInfo[i]->length+1;
       bindResult[i].buffer = malloc((rs->metaInfo[i]->length+1) * sizeof(char));
-      bindResult[i].is_null = calloc(1,sizeof(my_bool)) ;
+      bindResult[i].is_null = calloc(1,sizeof(_Bool)) ;
       bindResult[i].length = malloc( sizeof(unsigned long) );
       *(bindResult[i].length) =  (unsigned long)rs->metaInfo[i]->length+1;
-      bindResult[i].error = calloc(1,sizeof(my_bool)) ;
+      bindResult[i].error = calloc(1,sizeof(_Bool)) ;
       break;
     }
   }
