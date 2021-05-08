@@ -1174,7 +1174,6 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp, int immutable,
     }
   }
   else { // loading a module
-    //printf("C loading module: %s\n",name);
     if (name[0] == '\'' || strstr(name,")") != NULL) {
     // parse and build formal par list
       STRFILE strfile;
@@ -1205,10 +1204,12 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp, int immutable,
     ptr = insert_module(T_MODU, name);
     cur_mod = ptr->psc_ptr;
     if (immutable) {
-      if (get_ep(cur_mod) == 0) {
+      //      if (get_ep(cur_mod) == 0) {
+      if (!get_immutable(cur_mod)) {
 	if (pflags[VERBOSENESS_LEVEL]) { printf("Immutable: first load of module: %s\n",name);}
 	psc_set_immutable(cur_mod,1);
       } else { 
+	printf("trying to reload immutable\n");
 	if (pflags[VERBOSENESS_LEVEL]) { printf("Immutable: re-load of module prohibited: %s\n",name);}
 	return((byte *)2); // continue silently
       }
