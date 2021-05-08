@@ -4,6 +4,7 @@
 CPP = cl.exe
 LINKER = link.exe
 
+PROLOGDIR  = ..\..\..
 OUTDIR     = windows64
 ARCHDIR    = $(PROLOGDIR)\config\x64-pc-windows
 ARCHBINDIR = $(ARCHDIR)\bin

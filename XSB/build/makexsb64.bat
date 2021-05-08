@@ -53,6 +53,10 @@ REM Must build curl before sgml and xpath
 @nmake /nologo /f NMakefile64.mak %1 %2 %3 %4 %5 %6 %7
 @cd ..
 
+@cd json\cc
+@nmake /nologo /f NMakefile64.mak %1 %2 %3 %4 %5 %6 %7
+@cd ..\..
+
 @cd ..\build
 
 ..\bin\xsb64 --noprompt --quietload --nofeedback --nobanner -e "writeln('### Running XSB for the first time.\n'), halt."
