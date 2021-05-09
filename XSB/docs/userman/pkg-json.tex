@@ -50,9 +50,9 @@ five:
 Although not part of the standard, it is quite common to see JSON
 structures that contains comments like in C, Java, etc. The multiline
 comments have the form \texttt{/* ... */} and the here-to-end-of-line
-comments start with the \texttt{//}. The JSSON parser ignores such comments.
+comments start with the \texttt{//}. The JSON parser ignores such comments.
 
-The standard recommends, but does not require that the keys in an object
+The standard recommends, but does not require, that the keys in an object
 do not have duplicates (at the same level of nesting). Thus, for instance,
 %% 
 \begin{verbatim}
@@ -61,7 +61,7 @@ do not have duplicates (at the same level of nesting). Thus, for instance,
 %% 
 is allowed, but discouraged. By default, the JSON parser does not allow
 duplicate keys and considers such objects as ill-formed. However, it also
-provides a way to set an option to allow duplicate keys.
+provides an option to allow duplicate keys.
 
 
 \section{API for Importing JSON  as Terms}
@@ -87,7 +87,7 @@ For instance, the above examples would be represented as Prolog terms as follows
 %% 
 \begin{verbatim}
 json([first = John, last = Doe, age = 25])
-[1, 2, json([one = 1.1000, two = 2.2200]), \@?]
+[1, 2, json([one = 1.1000, two = 2.2200]), 'NULL'(\_)]
 123
 json([status = ok,
       results = [json([recordings = [json([id = '12345'])],
@@ -170,11 +170,12 @@ XSB provides the following methods for importing JSON:
   %% 
   then the query \texttt{parse\_json(\_,first,X)} will bind
   \texttt{X} to 1 while
+  \\
   \texttt{parse\_json(\_,'second.fourth',X)}
   will bind it to
   \texttt{json([fifth = 3])}.
 
-  Note that the selector lets one navigate through subobjects and not
+  Note that the selector lets one navigate through subobjects but not
   through arrays. If an array is encountered in the middle, the query will
   fail. For instance, if the input is
 \begin{verbatim}
@@ -212,12 +213,12 @@ process the result of a search of
 Google's Knowledge Graph to see what it knows about John Doe.
 To make the output a bit more manageable, we are only asking to get the
 JSON subobject rooted at the property \texttt{itemListElement}.
-(Then Google KG's
+(The Google KG's
 session key in the example is invalid: one must supply one's own key.)
 %% 
 \begin{alltt}
 ?- U =
-'\url{https://kgsearch.googleapis.com/v1/entities:search?query=john_doe&key=AIzaSyAaMs1AEkgRGAs_hkcULQLJ5NKrEOzyOB0&limit=1}',
+'\url{https://kgsearch.googleapis.com/v1/entities:search?query=john_doe&key=XYZ&limit=1}',
    parse\_json(url(U), itemListElement, Answer).
 \end{alltt}
 %% 
