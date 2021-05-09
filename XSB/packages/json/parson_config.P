@@ -96,12 +96,8 @@
 	; abort('Cannot determine the type of the operating system')
         ),
         consult(Module, [cc(CC), cc_opts(' ')]),
-        writeln(do1=Objfile+TrgPrlgObjFile),
         (path_sysop(rename,Objfile, TrgPrlgObjFile) ; true),
-        writeln(done1),
-        writeln(do2=SharedLib+TrgSharedLib),
         path_sysop(rename,SharedLib,TrgSharedLib)
-    ,writeln(done2)
     ).
 
 
