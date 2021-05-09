@@ -1,8 +1,8 @@
 /* File:      packages.P -- Package bootstrapping aid
 ** Author(s): kifer
-** Contact:   xsb-contact@cs.sunysb.edu
+** Contact:   xsb-users@lists.sourceforge.net
 ** 
-** Copyright (C) The Research Foundation of SUNY, 1993-1998
+** Copyright (C) The Research Foundation of SUNY, 1993-2021
 ** 
 ** XSB is free software; you can redistribute it and/or modify it under the
 ** terms of the GNU Library General Public License as published by the Free
@@ -150,6 +150,19 @@ xsb_running_under(unix) :-
 	\+ xsb_running_under(cygwin),
 	\+ xsb_running_under(darwin),
         \+ xsb_running_under(windows).
+
+:- mode xsb_running_under(?,?).
+xsb_running_under(OSName,Word) :-
+	xsb_configuration(word_size,Word),
+	xsb_configuration(architecture,Arch),
+	%% here we are trying to be more specific
+	(str_sub(linux,Arch) -> OSName = linux
+	; str_sub(bsd,Arch) -> OSName = bsd
+	; str_sub(solaris,Arch) -> OSName = solaris
+	; str_sub(windows,Arch) -> OSName = windows
+	; str_sub(darwin,Arch) -> OSName = darwin
+	; OSName = generic_unix
+	).
 
 %% Windows semantics for renaming is such that the op fails, 
 %% if the target exists

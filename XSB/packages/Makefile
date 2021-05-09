@@ -27,6 +27,7 @@ ALL = 	slx${OBJEXT} gap${OBJEXT} \
 	sgml${OBJEXT} \
 	minizinc${OBJEXT} \
 	wildmatch${OBJEXT} regmatch${OBJEXT} \
+	json${OBJECT} \
 	justify${OBJEXT} clpr${OBJECT} curl${OBJECT} pcre${OBJECT}
 # Disabled due to errors
 #	xasp${OBJEXT} xmc${OBJEXT}
