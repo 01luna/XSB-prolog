@@ -218,9 +218,12 @@ Consider the folllowing simple Python class:
 
 \begin{verbatim}
 class Person:
-  def __init__(self, name, age):
+  def __init__(self, name, age, ice_cream=None):
     self.name = name
     self.age = age
+    if favorite_ice_cream is None:
+      favorite_ice_cream = 'chocolate'
+    self.favorite_ice_cream = favorite_ice_cream
 
   def hello(self,mytype):
     return("Hello my name is " + self.name + " and I'm a " + mytype)
@@ -238,19 +241,44 @@ reference to this instance which has a form such as {\tt
   pyObj(p0x7fb1947b0210)}.  XSB can later use this reference to call a
 method:
 \begin{verbatim}
-    callpy_meth('Person',pyObj(p0x7fb1947b0210),hello(doofus),Ret2).
+    callpy_meth('Person',pyObj(p0x7fb1947b0210),hello(programmer),Ret2).
 \end{verbatim}
 
 \noindent
 which returns the Prolog atom:
 
-{\tt 'Hello my name is john and I'm a doofus'}
+{\tt 'Hello my name is john and I'm a programmer'}
 
 \noindent
 Although Python methods, like Python functions, can include keyword
 arguments, {\tt xsbpy} does not support keyword arguments in {\tt
   call\_meth/4} because Version 3.9.4 of the Python C API does not
 permit this.
+\end{example}
+
+\begin{example} \rm {\bf Examining a Python Object} \label{xsbpy-examp:exam-object}
+
+\noindent
+Example \ref{xsbpy-examp:method} showed how to create a Python object,
+pass it back to Prolog and apply a method to it.  Suppose we create
+another {\tt Person} instance:
+
+\begin{verbatim}
+    callpy('Person','Person'(bob,34),Obj),
+\end{verbatim}
+\noindent
+and later want to find out all attributes of {\tt bob} both explicitly
+assicned and default.  This is easily done by {\tt
+  xsbpy\_utils:obj\_dict/2}.  Assuming that {\tt
+  pyObj(p0x7f386e1e9650)} is the object reference for {\tt bob} in
+Prolog, the call
+\begin{verbatim}
+obj_dict(pyObj(p0x7f386e1e9650) ,F ) .
+\end{verbatim}
+returns
+\begin{verbatim}
+pyDict([(name,bob),(age,34),(favorite_ice_cream,chocolate)])
+\end{verbatim}
 \end{example}
 
 To summarize, a great deal of Python functionality is directly
@@ -466,7 +494,7 @@ which adds Prolog library directories.
 This convenience predicate returns the current Python library
 directories as a Prolog list.
 
-\altourmoditem{values(+Dict,+Path,?Val)}{values/3}{py\_utils}
+\altourmoditem{values(+Dict,+Path,?Val)}{values/3}{xsbpy\_utils}
 %
   Convenience predicate to obtain a value from a (possibly nested)
   Prolog dictionary.  The goal
@@ -484,11 +512,17 @@ is equivalent to the Python expression
 
 {\tt D[key1][key2][key3]}.
 
-\ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{py\_utils}
-\altourmoditem{items(+Dict,?Items)}{items/2}{py\_utils}
+\ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{xsbpy\_utils}
+\altourmoditem{items(+Dict,?Items)}{items/2}{xsbpy\_utils}
 %
 Convenience predicates to obtain a list of keys or items from a Prolog
 dictionary.  For the inveterate Python programmer.
+
+\altourmoditem{obj\_dict(+ObjRef,-Dict)}{obj\_dict/2}{xsbpy\_utils}
+%
+Given a reference to a Python object as {\tt ObjRef}, this predicate
+returns the dictionary of attribtues of {\tt ObjRef} in {\tt Dict}.
+(The equivalent of calling {\tt Obj.\_\_dict\_\_} in Python.)
 
 \end{description}
 
