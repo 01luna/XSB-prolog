@@ -1,7 +1,7 @@
 #! /bin/sh
 
 echo "-------------------------------------------------------"
-echo "--- Running nonmswin_tests/test.sh                  ---"
+echo "--- Running nonmswin_tests/test.sh (foreign)        ---"
 echo "-------------------------------------------------------"
 
 XEMU=$1
