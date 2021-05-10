@@ -16,7 +16,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 **
-** 
+**
 */
 
 :- compiler_options([xpp_on]).
@@ -26,24 +26,21 @@
 :- dynamic json_option/2.
 
 /*
-%% not used so far, but might if we implement conversion of json
-%% terms to facts. Different spaces could then be used as identifiers
-%% to distinguish between facts coming from different documents.
+** Used for conversion of json terms to facts.
+** Different spaces are then used as identifiers
+** to distinguish between facts coming from different documents.
+*/
 :- dynamic json_space/2.
 :- index(json_space/2,trie).
-*/
 
 
-%%:- import xsb_configuration/2 from xsb_configuration.
 :- import
         warning/1,
         abort/1
    from standard.
 :- import bootstrap_package/2 from packaging.
 
-:- import
-        memberchk/2
-   from basics.
+:- import memberchk/2 from basics.
 :- import
         set_json_option/1,
         get_json_file/3,
@@ -58,14 +55,10 @@
         set_options/1,
         set_option/1.
 
-/*
-%% unused - see the comment above on json spaces used to distinguish 
-%% between different json docs.
 :- export
         json_space/2,
         insert_json_space/2,
         forget_json_spaces/1.
-*/
 
 
 %% bootstrap(package-dirname-as-string, package-name-as-symbol).
@@ -160,26 +153,23 @@ set_option(Opt) :-
         ).
 
 parson_option(duplicate_keys).
+parson_option(flora_mode).
 
 standard_option(Opt=Val,StOpt=StVal) :-
         ground(Opt=Val),
-        (Opt == duplicate_keys ->
-            StOpt = Opt,
-            (memberchk(Val,[on,yes,true,1]) -> StVal = true
-            ; memberchk(Val,[off,no,false,fail,0]) -> StVal = false
-            )
-        ; fail
+        parson_option(Opt),
+        StOpt = Opt,
+        (memberchk(Val,[on,yes,true,1]) -> StVal = true
+        ; memberchk(Val,[off,no,false,fail,0]) -> StVal = false
         ),
         !.
 standard_option(Opt,_) :-
         abort(['JSON parser: invalid option, ',Opt]).
 
 get_option(Name,Val) :-
-        json_option(Name,Val).
+        json_option(Name,Val),
+        !.
+get_option(_Name,false).
 
-/*
-%% unused - see the comment above on json spaces used to distinguish 
-%% between different json docs.
 insert_json_space(Mod,Oid) :- asserta(json_space(Mod,Oid)).
 forget_json_spaces(Mod) :- retractall(json_space(Mod,_)).
-*/

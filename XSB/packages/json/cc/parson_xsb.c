@@ -63,6 +63,9 @@ static int is_whitespace_string(const char *s);
 static int count_lines_in_string(const char *s);
 static int count_nonwhite_lines_in_string(const char *s);
 
+// set flora2 mode
+static int is_in_flora_mode = FALSE;
+
 // MUST be AFTER is_whitespace_string, count_lines_in_string definitions
 #include "parson.c"
 
@@ -137,6 +140,18 @@ DllExport xsbBool call_conv set_json_option (CTXTdecl) {
         return TRUE;
       } else if (strcmp(p2c_string(option_val),"false") == 0) {
         allow_duplicate_keys = FALSE;
+        return TRUE;
+      }
+    }
+    if (is_string(option_name)
+        && strcmp(p2c_string(option_name),"flora_mode") == 0
+        && is_string(option_val)) {
+      
+      if (strcmp(p2c_string(option_val),"true") == 0) {
+        is_in_flora_mode = TRUE;
+        return TRUE;
+      } else if (strcmp(p2c_string(option_val),"false") == 0) {
+        is_in_flora_mode = FALSE;
         return TRUE;
       }
     }
@@ -264,10 +279,17 @@ static prolog_term convert_json_value(JSON_Value *value)
   case JSONBoolean:
     // this creates true() and false() rather than true/fals on purpose - to
     // distinguish from "true" and "false" appearing as strings in Json values
-    if (json_value_get_boolean(value) == FALSE)
-      extern_c2p_functor("false",0,json_prolog);
-    else
-      extern_c2p_functor("true",0,json_prolog);
+    if (json_value_get_boolean(value) == FALSE) {
+      if (is_in_flora_mode == TRUE)
+        extern_c2p_string("\\false",json_prolog);
+      else
+        extern_c2p_functor("false",0,json_prolog);
+    } else {
+      if (is_in_flora_mode == TRUE)
+        extern_c2p_string("\\true",json_prolog);
+      else
+        extern_c2p_functor("true",0,json_prolog);
+    }
     break;
   default: // should never happen: abort
     xsb_abort("BUG: problem with the JSON parser\n");
