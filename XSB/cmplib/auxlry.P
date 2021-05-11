@@ -96,9 +96,7 @@ setoptions1([Opt|Rest]) :-
 	 ->	setopt(Opt1,1)
 	 ; Opt = -(Opt1)
 	 ->	setopt(Opt1,0)
-	 ; atomic(Opt),
-		setopt(Opt,1)
-	 ;      true
+	 ;	setopt(Opt,1)
 	),
 	(conget(xpp_dump,1) -> conset(xpp_on,1)
         %% next line for heavy duty gpp debugging
@@ -159,7 +157,8 @@ unsuitable_for_file_options(ti_dump).
 
 % redefining for export
 :- mode current_xsb_compiler_option(+).
-current_xsb_compiler_option(Option):- 
+current_xsb_compiler_option(Option0):- 
+        functor(Option0,Option,_),
 	current_option(Option).
 
 /* Old PSB genes */
@@ -208,7 +207,7 @@ current_option(mi_foreign).
 current_option(profile).
 
 /* Allow module to differ from filename */
-current_option(module(_)).
+current_option(module).
 
 current_option(singleton_warnings_off).
 current_option(allow_redefinition).
@@ -234,7 +233,7 @@ current_option(ciao_directives).
 
 current_option(Opt,OptName) :-
 	functor(Opt,OptName,_),
-	(OptName == xpp_on ; OptName == xpp_dump),
+	(OptName == xpp_on ; OptName == xpp_dump ; OptName == module),
 	!.
 % TLS: used for backward compatability when options change.
 current_option(_,_):- fail.
