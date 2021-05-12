@@ -35,9 +35,9 @@
    :- import catch/3,throw/1,warning/1,(=..)/2, compound/1, call_c/1, cputime/1, abort/1,
      hilog_functor/3 from standard.
 :- import default_error_handler/1,existence_error/4 from error_handler.
-   :- import /*record_file_consultloaded/1,*/ push_loaded_file/2,
+   :- import record_file_consultloaded/1, push_loaded_file/2,
 	pop_loaded_file/1 from consult.
-%%:- import search_module/6 from consult.
+:- import search_module/6 from consult.
 :- import reconsult/1 from consult.
 :- import compile_opt_checked/3 from consult.
 :- import numbervars/1 from num_vars.
