@@ -191,6 +191,7 @@ fi
 ../gentest.sh "$XEMU $options" test_load_dyn_et_al "test."
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" test_immutable "test."
+../gentest.sh "$XEMU $options" test_immutable2 "test."
 #------------------------------------------------------------------------
 cd parmod_tests
 ../../gentest.sh "$XEMU $options" test_parmod "test."
