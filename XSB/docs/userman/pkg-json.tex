@@ -225,7 +225,45 @@ session key in the example is invalid: one must supply one's own key.)
 At present, the \texttt{url(...)} feature works only for documents
 that are not protected by passwords or SSL. 
 
+\section{Exporting  Terms to JSON}
 
+An exported term is represented simply as a JSON object
+with two features: \emph{functor} and \emph{arguments}. 
+The \emph{arguments} part is a list of terms and these terms are converted
+to JSON recursively, by the same rule. For instance,
+%% 
+\begin{verbatim}
+   | ?- term_to_json(ppp(a(9),b,L,[pp(ii),2,3,L],K),J).
+   J = '{"functor":"ppp","module":"usermod",
+         "arguments":[{"functor":"a","module":"usermod","arguments":[9]},
+                      "b",
+                      {"variable":"_h0"},
+                      [{"functor":"pp","module":"usermod","arguments":["ii"]},
+                       2,
+                       3,
+                       {"variable":"_h0"}],
+                      {"variable":"_h1"}]}'
+
+   | ?- term_to_json(foo(a,b,bar(c,d)),J).
+   J = '{"functor":"foo","module":"usermod",
+         "arguments":["a","b",
+                      {"functor":"bar","module":"usermod",
+                       "arguments":["c","d"]}]}'
+
+   | ?- term_to_json((a,b,bar(c,d)),J).
+   J = '{"commalist":["a","b",
+         {"functor":"bar","module":"usermod","arguments":["c","d"]}]}'
+\end{verbatim}
+%% 
+Backslashes and double quotes that are part of exported strings are escaped
+with additional backslashes, as required by JSON.
+For instance
+%% 
+\begin{verbatim}
+| ?- term_to_json('foo\goo"moo'('bar\ggg123"456'),J).
+J = '{"functor":"foo\\goo\"moo","module":"usermod","arguments":["bar\\ggg123\"456"]}'
+\end{verbatim}
+%% 
 
 
 %%% Local Variables: 
