@@ -36,12 +36,12 @@
 	Author:  Daniel L. Dudley
 	Created: 2004-02-18
 
-*/
 
 :- export
 			date_string/3,
 			julian_date/7,
 			valid_date/3.
+:- export easter_day/3.
 
 :- import datime/1 from standard.
 :- import domain_error/4 from error_handler.
@@ -186,7 +186,6 @@ days_in_month(10, 31).
 days_in_month(11, 30).
 days_in_month(12, 31).
 
-end_of_file.
 %==============================================================================
 % date_string(+Format, ?Day, ?String)
 
