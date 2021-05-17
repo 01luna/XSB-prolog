@@ -30,6 +30,7 @@
 #include <error_xsb.h>
 #include "xsbpy_defs.h"
 #include <dlfcn.h>
+#include "deref.h"
 
 #include "xsb_config.h"
 #ifdef WIN_NT
@@ -529,7 +530,9 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
 DllExport int callpy_meth(CTXTdecl) {
   PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL;
   PyObject *pyMeth = NULL;
-  prolog_term prObjIn, prMethIn;
+  prolog_term prObjIn;
+  Cell prMethIn;
+  char *function;
   PyErr_Clear();
   prolog_term mod = extern_reg_term(1);
   char *module = p2c_string(mod);
@@ -545,8 +548,14 @@ DllExport int callpy_meth(CTXTdecl) {
     //    printPlgTerm(prObjIn);
     convert_prObj_pyObj(CTXTc prObjIn, &pObjIn);
     //    printPyObj(pObjIn);
-    prMethIn = extern_reg_term(3);
-    char *function = p2c_functor(prMethIn);
+    prMethIn = (Cell) extern_reg_term(3);
+    XSB_Deref(prMethIn);
+    if (isconstr(prMethIn)) {
+      function = p2c_functor(prMethIn);
+    }
+    else {
+      xsb_abort("++Error[xsbpy]: Non-predicate term in arg 3 of callpy_meth/4)\n");
+    }
     pyMeth = PyUnicode_FromString(function);  // can't get as attr -- so no callable check.
     int args_count = p2c_arity(prMethIn);
     pObjOut = call_variadic_method(pObjIn,pyMeth,prMethIn,args_count);
