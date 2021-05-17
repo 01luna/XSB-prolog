@@ -58,3 +58,7 @@ options=$2
 # tabletrysingle tests.
 #------------------------------------
 ../gentest.sh "$XEMU $options" tsing1 "a(X,Y),write(X),write(' '),write(Y),nl,fail."
+
+
+../gentest.sh "$XEMU $options" gpp_test "test."
+../gentest.sh "$XEMU $options" ensure_loaded_tst "test."

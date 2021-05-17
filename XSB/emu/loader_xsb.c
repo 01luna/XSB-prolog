@@ -1203,13 +1203,16 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp, int immutable,
     }
     ptr = insert_module(T_MODU, name);
     cur_mod = ptr->psc_ptr;
-    if (get_immutable(cur_mod)) {
+
+    if (get_immutable(cur_mod)  /* cant overload an immutable mod */
+	|| (immutable && get_modloaded(cur_mod))) { /* cant overload another mod by immutable one */
 	if (pflags[VERBOSENESS_LEVEL]) { printf("Immutable: re-load of module prohibited: %s\n",name);}
 	return((byte *)2); // continue silently
     } else if (immutable) {
       if (pflags[VERBOSENESS_LEVEL]) { printf("Immutable: first load of module: %s\n",name);}
       psc_set_immutable(cur_mod,1);
     }
+    psc_set_modloaded(cur_mod,1);
     psc_set_ep(cur_mod,(byte *)makestring(filename)); // psc->filename for module.
   }
   get_obj_word_bb(&psc_count);

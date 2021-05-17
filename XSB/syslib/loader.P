@@ -391,15 +391,15 @@ load_pred1(PSC) :-
                 ->	    load(FileName)
                 ;	    true
                 )
-            ;	load(ModName,ModPSC) % might abort here
+            ;	load(ModName,ModPSC), % might abort here
                 %% TES: adding the record_file_consultloaded so that
                 %% ensure_loaded will recognize when 
                 %% a file was loaded lazily.  This would only happen if
                 %% an unloaded predicate were called via explict module
                 %% qualification -- e.g., via bar:pred(A,B)
-                %%unstructure_modname(ModName,ModPSC,ModFile,_ModPars,_ModTerm),
-                %%search_module(ModFile, _Dir, _Mod, _SExt, _Base, Obj),
-                %%record_file_consultloaded(Obj)
+                unstructure_modname(ModName,ModPSC,ModFile,_ModPars,_ModTerm),
+                search_module(ModFile, _Dir, _Mod, _SExt, _Base, Obj),
+                record_file_consultloaded(Obj)
 	    ),
 	    (	psc_type(PSC, NType),
 		(   NType =:= T_PRED; NType =:= T_FORN; NType =:= T_DYNA ), 

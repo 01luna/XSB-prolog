@@ -40,7 +40,7 @@
 
 :- mode_on_success additional_option_settings(A).
 :- mode_on_success check_file_compiler_options(A).
-:- mode_on_success current_option(A).
+:- mode_on_success current_option(g).
 :- mode_on_success current_option(A,g).
 :- mode_on_success current_xsb_compiler_option(g).
 :- mode_on_success dict_lookup(A,B,ng).

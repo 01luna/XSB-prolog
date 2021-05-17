@@ -92,8 +92,9 @@ struct psc_rec {
   unsigned int incremental:2;
   unsigned int intern:1;
   unsigned int immutable:1;
+  unsigned int modloaded:1;
   unsigned int alt_semantics:2;
-  unsigned int unused:2;
+  unsigned int unused:1;
   byte entry_type;		/* see psc_defs.h */
   //  byte arity; 
   unsigned int arity:16; 
@@ -147,6 +148,7 @@ typedef struct psc_pair *Pair;
   //#define  get_intern(psc)	 ((psc)->incr & T_INTERN)
 #define  get_intern(psc)	 ((psc)->intern)
 #define  get_immutable(psc)	 ((psc)->immutable)
+#define  get_modloaded(psc)	 ((psc)->modloaded)
 
 #define  get_arity(psc)		((psc)->arity)
 #define  get_ep(psc)		((psc)->ep)
@@ -168,6 +170,7 @@ typedef struct psc_pair *Pair;
 #define  psc_get_alt_semantics(psc)    ((psc)->alt_semantics)
 
 #define  psc_set_immutable(psc,val)    ((psc)->immutable = val) 
+#define  psc_set_modloaded(psc,val)    ((psc)->modloaded = val) 
 
 #define  psc_set_arity(psc, ari)	((psc)->arity = ari)
   //#define  psc_set_length(psc, len)	((psc)->length = len)

@@ -54,6 +54,8 @@
         get_option/2,
         set_options/1,
         set_option/1.
+:- export
+        term_to_json/2.
 
 :- export
         json_space/2,
@@ -170,6 +172,8 @@ get_option(Name,Val) :-
         json_option(Name,Val),
         !.
 get_option(_Name,false).
+
+term_to_json(X,Y) :- term_to_json:term_to_json(X,Y).
 
 insert_json_space(Mod,Oid) :- asserta(json_space(Mod,Oid)).
 forget_json_spaces(Mod) :- retractall(json_space(Mod,_)).
