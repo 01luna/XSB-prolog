@@ -31,6 +31,7 @@
 #include "xsbpy_defs.h"
 #include <dlfcn.h>
 #include "deref.h"
+#include "debug_xsb.h"
 
 #include "xsb_config.h"
 #ifdef WIN_NT
@@ -530,8 +531,7 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
 DllExport int callpy_meth(CTXTdecl) {
   PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL;
   PyObject *pyMeth = NULL;
-  prolog_term prObjIn;
-  Cell prMethIn;
+  prolog_term prObjIn, prMethIn;
   char *function;
   PyErr_Clear();
   prolog_term mod = extern_reg_term(1);
@@ -550,19 +550,22 @@ DllExport int callpy_meth(CTXTdecl) {
     //    printPyObj(pObjIn);
     prMethIn = (Cell) extern_reg_term(3);
     XSB_Deref(prMethIn);
-    if (isconstr(prMethIn)) {
-      function = p2c_functor(prMethIn);
+    if  (!isconstr(prMethIn)) {
+      sprintTerm(forest_log_buffer_1, prMethIn);
+      xsb_abort("++Error[xsbpy]: Non-predicate term in arg 3 of callpy_meth/4: %s\n",
+		forest_log_buffer_1->fl_buffer);
     }
-    else {
-      xsb_abort("++Error[xsbpy]: Non-predicate term in arg 3 of callpy_meth/4)\n");
-    }
+    function = p2c_functor(prMethIn);
     pyMeth = PyUnicode_FromString(function);  // can't get as attr -- so no callable check.
     int args_count = p2c_arity(prMethIn);
     pObjOut = call_variadic_method(pObjIn,pyMeth,prMethIn,args_count);
     Py_DECREF(pModule);  // TES move
   }
-    else   // it isn't callable
-      xsb_abort("++Error[xsbpy]: arg 2 of xsbpy_meth/4 is not a Python Object.");
+  else  {  // it isn't callable
+    sprintTerm(forest_log_buffer_1, prObjIn);
+    xsb_abort("++Error[xsbpy]: arg 2 of xsbpy_meth/4 is not a Python Object: %s\n",
+	      forest_log_buffer_1->fl_buffer);
+  }
   if (pObjOut == NULL) { // TES todo change to check for python error
     PyObject *ptype, *pvalue, *ptraceback;
     PyErr_Fetch(&ptype, &pvalue, &ptraceback);
