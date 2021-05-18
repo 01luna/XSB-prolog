@@ -26,6 +26,8 @@
 #ifndef __DEBUG_XSB_H__
 #define __DEBUG_XSB_H__
 
+#include "tries.h"  /* needed for callnodeptr */
+
 #define STRIDESIZE     30
 
 #define EOS	"--------------------BOTTOM_OF_STACK--------------------\n"
