@@ -114,7 +114,7 @@ stand-alone.
 Consider the following call:
 
  \begin{verbatim}
-callpy(json,
+pyfunc(json,
        loads('{"name": "Bob", "languages": ["English","French","GERMAN"]}'),
        Ret)
 \end{verbatim}
@@ -160,7 +160,7 @@ returns to Prolog.
 \noindent
   A slightly more complex call to Python is:
  \begin{verbatim}
-callpy(xsbpy_json,prolog_load('test.json'),Ret)
+pyfunc(xsbpy_json,prolog_load('test.json'),Ret)
 \end{verbatim}
 
 \noindent
@@ -186,9 +186,9 @@ dictionary corresponding to the {\tt json}.
   
 \noindent
 Python functions often make heavy use of keyword arguments.  These can
-be easily handled by {\tt callpy/4}:
+be easily handled by {\tt pyfunc/4}:
 \begin{verbatim}
-callpy(xsbpy_json,prolog_dump(Dict,'new.json'),[indent=2],Ret)
+pyfunc(xsbpy_json,prolog_dump(Dict,'new.json'),[indent=2],Ret)
 \end{verbatim}
 
 \noindent
@@ -233,7 +233,7 @@ class Person:
 The call
 
 \begin{verbatim}
-    callpy('Person','Person'(john,35),Obj),
+    pyfunc('Person','Person'(john,35),Obj),
 \end{verbatim}
 \noindent
 creates a new instance of the {\tt Person} class, and returns a
@@ -241,7 +241,7 @@ reference to this instance which has a form such as {\tt
   pyObj(p0x7fb1947b0210)}.  XSB can later use this reference to call a
 method:
 \begin{verbatim}
-    callpy_meth('Person',pyObj(p0x7fb1947b0210),hello(programmer),Ret2).
+    pyfunc_meth('Person',pyObj(p0x7fb1947b0210),hello(programmer),Ret2).
 \end{verbatim}
 
 \noindent
@@ -264,7 +264,7 @@ pass it back to Prolog and apply a method to it.  Suppose we create
 another {\tt Person} instance:
 
 \begin{verbatim}
-    callpy('Person','Person'(bob,34),Obj),
+    pyfunc('Person','Person'(bob,34),Obj),
 \end{verbatim}
 \noindent
 and later want to find out all attributes of {\tt bob} both explicitly
@@ -282,7 +282,7 @@ pyDict([(name,bob),(age,34),(favorite_ice_cream,chocolate)])
 \end{example}
 
 To summarize, a great deal of Python functionality is directly
-available via {\tt callpy/[3,4]} and {\tt callpy\_meth/4}.  In our
+available via {\tt pyfunc/[3,4]} and {\tt pymeth/4}.  In our
 experience so far, many Python libraries can be called directly and
 ``just work'' immediately.  Cases where glue code is needed include
 the following.
@@ -412,8 +412,8 @@ all be redefined my modifying xbthe file {\tt xsbpy\_defs.h} in the {\tt
 
 \begin{description}
 
-\ourrepeatmoditem{callpy(+Module,+Function,+Kwargs,?Return)}{callpy/4}{xsbpy}
-\altourmoditem{callpy(+Module,+Function,?Return)}{callpy/3}{xsbpy}
+\ourrepeatmoditem{pyfunc(+Module,+Function,+Kwargs,?Return)}{pyfunc/4}{xsbpy}
+\altourmoditem{pyfunc(+Module,+Function,?Return)}{pyfunc/3}{xsbpy}
 %
  Ensures that the Python module {\tt Module} is loaded, and calls {\tt
    Module.Function} unifying the return of {\tt Function} with {\tt
@@ -421,7 +421,7 @@ all be redefined my modifying xbthe file {\tt xsbpy\_defs.h} in the {\tt
  For example the goal
 
 \begin{verbatim}
-callpy(xsbpy_rdflib,rdflib_write_file(Triples,'new_sample.ttl'),
+pyfunc(xsbpy_rdflib,rdflib_write_file(Triples,'new_sample.ttl'),
        [format=turtle],Ret).
 \end{verbatim}
 
@@ -429,14 +429,14 @@ calls the function {\tt xsbpy\_rdflib,rdflib\_write\_file} to write
 {\tt Triples}, a list of triples in Prolog format, to the file {\tt
   new\_sample.ttl} using the {\tt turtle} format.  This format is
 specified as a keyword argument to {\tt rdflib\_write\_file()} in the
-third argument of {\tt callpy/4}.
+third argument of {\tt pyfunc/4}.
 
 In general, {\tt Module} must be the name of a Python module or path
 represented as a Prolog atom, and {\tt Function} is the invocation of
 a Python function in {\tt Module}, where {\tt Function} is simply a
 Prolog structure.  Optional keword arguments are passed in the third
 argument as lists of {\tt Key = Value} terms; if no such arguments are
-needed, {\tt Kwargs} can be an empty list -- or {\tt callpy/3} may be
+needed, {\tt Kwargs} can be an empty list -- or {\tt pyfunc/3} may be
 used.  Finally the return value from {\tt Function} is unified with
 {\tt Return}.
 
@@ -445,9 +445,9 @@ Python modules are searched for in the paths maintained in Python's
 queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
   add\_py\_lib\_dir/1}.
      
-\altourmoditem{callpy\_meth(+Module,+ObjRef,+Method,?Return)}{callpy\_meth/4}{xsbpy}
+\altourmoditem{pymeth(+Module,+ObjRef,+Method,?Return)}{pymeth/4}{xsbpy}
 %
-Acts in a manner similar to {\tt callpy/[3,4]}.  {\tt Module} is a
+Acts in a manner similar to {\tt pyfunc/[3,4]}.  {\tt Module} is a
 Python module or path, {\tt ObjRef} a Python object reference in term
 form, and {\tt Method} a compound term corresponding to a Python
 method.  The predicate calls {\tt Objref.Method} and unifies its
@@ -533,7 +533,7 @@ how they will be addressed in the future.
 
 \section{Performance}
 
-The core {\tt xsbpy} routines -- {\tt callpy/[3,4]} and {\tt
+The core {\tt xsbpy} routines -- {\tt pyfunc/[3,4]} and {\tt
   call\_meth/4} -- are written almost entirely in C, have shown good
 performance so far, and continue to be optimized.  Calling a simple
 Python function to increment a number from XSB and then returning the
