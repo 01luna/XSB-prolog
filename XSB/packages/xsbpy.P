@@ -2,9 +2,8 @@
 
 #include "xsbpy/xsbpy_defs.h"
 
-:- export callpy/3, add_py_lib_dir/1, py_lib_dirs/1.
-:- export callpy/4,callpy_meth/4.
-:- export objref/2.
+:- export pyfunc/3, add_py_lib_dir/1, py_lib_dirs/1.
+:- export pyfunc/4,pymeth/4.
 
 :- import bootstrap_package/2 from packaging.
 
@@ -13,18 +12,18 @@
 
 :- bootstrap_package(xsbpy, xsbpy),[init_xsbpy].
 
-%:- import callpy/3 from xsbpym as callpy/3.
-:- import callpy_int/4 from xsbpym.
+%:- import pyfunc/3 from xsbpym as pyfunc/3.
+:- import pyfunc_int/4 from xsbpym.
 :- import add_py_lib_dir/1 from init_xsbpy as add_py_lib_dir/1.
 :- import py_lib_dirs/1 from init_xsbpy as py_lib_dirs/1.
-:- import callpy_meth/4 from xsbpym as callpy_meth/4.
+:- import py_meth/4 from xsbpym as py_meth/4.
 
-callpy(Mod,Func,Def_vars,Ret):-
+pyfunc(Mod,Func,Def_vars,Ret):-
     def_vars_to_dict(Def_vars,Dict),
-    callpy_int(Mod,Func,Dict,Ret).
+    pyfunc_int(Mod,Func,Dict,Ret).
 
-callpy(Mod,Func,Ret):-
-    callpy_int(Mod,Func,0,Ret).
+pyfunc(Mod,Func,Ret):-
+    pyfunc_int(Mod,Func,0,Ret).
 
 def_vars_to_dict(X,PYDICT_PROLOG(Y)):-
     def_vars_to_dict_1(X,Y).
