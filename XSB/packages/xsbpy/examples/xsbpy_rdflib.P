@@ -14,10 +14,10 @@
 % ?- read_rdf(File,Format,TripleList),member(Triple,TripList).
 read_rdf(File,Format,TripleList):-
    member(Format,[turtle,nt]),!,
-   callpy(xsbpy_rdflib,rdflib_parse(File),[format=Format],TripleList),
+   pyfunc(xsbpy_rdflib,rdflib_parse(File),[format=Format],TripleList),
    length(TripleList,Len),write(Len),writeln(' lines read.').
 read_rdf(File,nquads,TripleList):- !,
-   callpy(xsbpy_rdflib,rdflib_parse_nquads(File),TripleList),
+   pyfunc(xsbpy_rdflib,rdflib_parse_nquads(File),TripleList),
    length(TripleList,Len),write(Len),writeln(' lines read.').
 read_rdf(_File,Format,_):-
     write('haven\'t tested '),writeln(Format).
@@ -28,8 +28,8 @@ read_rdf(_File,Format,_):-
 % given Format.  This has been tested on nt and turtle, and may not work for 
 % other formats.
 %
-% ?- callpy(xsbpy_rdflib,rdflib_write_file(_Ret,File),[format=Format],_Ret1).
+% ?- pyfunc(xsbpy_rdflib,rdflib_write_file(_Ret,File),[format=Format],_Ret1).
 %
 % to test, try e.g., 
 %    read_rdf(File,Format,TripleList),
-%    callpy(xsbpy_rdflib,rdflib_write_file(_Ret,File),[format=Format],_Ret`)
+%    pyfunc(xsbpy_rdflib,rdflib_write_file(_Ret,File),[format=Format],_Ret`)

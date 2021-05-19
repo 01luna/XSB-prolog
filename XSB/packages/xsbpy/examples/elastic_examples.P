@@ -1,6 +1,5 @@
 
-
-:- import callpy/3 from xsbpy.
+:- import pyfunc/3 from xsbpy.
 
 /* This file gives an simple example of how to interface with elasticsearch.
    Python functions are in apps/elastic.py */
@@ -14,19 +13,19 @@ doc('_$pydict'([''(author,kimchy),
 	       ])).
 
 /* Goal 1. makeindex(Res).
- * This makes an index by setting up the arguments to callpy.  Note
+ * This makes an index by setting up the arguments to pyfunc.  Note
  * that python is dynamically loaded, linked, and ready for action at
- * the first call to callpy/3 */
+ * the first call to pyfunc/3 */
 
 makeindex(Res):-
     Index = teritest, Id
-   = 1, doc(Body), callpy(elastic,index(Index,Id,Body),Res).
+   = 1, doc(Body), pyfunc(elastic,index(Index,Id,Body),Res).
 
-/* Goal 2 callpy(elastic,get(teritest,1),Ret)
+/* Goal 2 pyfunc(elastic,get(teritest,1),Ret)
  * Check that document number 1 is present in teritest.  This could 
- * also have been done via a directo call to callpy/3.  */ 
+ * also have been done via a directo call to pyfunc/3.  */ 
 
-/* Goal 3: callpy(elastic,refresh(teritest),Ret).
+/* Goal 3: pyfunc(elastic,refresh(teritest),Ret).
  * Refresh the index -- more or less analogous to a commit. */
 
  search_via_json(teritest,'{"query":{"match_all":{}}}',Res).   search_via_json(teritest,'{"query":{"match_all":{}}}',Res).  /* Goal 4: search_via_json(teritest,'{"query":{"match_all":{}}}',Res).
@@ -34,10 +33,10 @@ makeindex(Res):-
  * string rather than a Prolog dictionary. */
 
 search_via_json(Index,Json,Ret):-
-    callpy(xsbpy_json,prolog_loads(Json),Dict),
-    callpy(elastic,search(Index,Dict),Ret).
+    pyfunc(xsbpy_json,prolog_loads(Json),Dict),
+    pyfunc(elastic,search(Index,Dict),Ret).
 
-/* Goal 5: callpy(elastic,drop_index(teritest),Ret). 
+/* Goal 5: pyfunc(elastic,drop_index(teritest),Ret). 
    Delete the test index just made. Go have fun.  */
 
 end_of_file.

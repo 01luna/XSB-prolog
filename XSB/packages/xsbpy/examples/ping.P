@@ -5,4 +5,4 @@ ping(N):- N =< 0,
 ping(N):-
      N1 is N - 1,
      write(N),writeln(': XSB is better'),
-     callpy('test/pong',pong(N1),_).
+     pyfunc('test/pong',pong(N1),_).
