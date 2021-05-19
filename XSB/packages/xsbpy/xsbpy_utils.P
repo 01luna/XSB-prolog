@@ -4,7 +4,7 @@
 #include "xsbpy_defs.h"
 
 :- import member/2,memberchk/2 from basics.
-:- import callpy/3 from xsbpy.
+:- import pyfunc/3 from xsbpy.
    
 items(PYDICT_PROLOG(Items),Items).
 
@@ -23,7 +23,7 @@ values(Dict,Key,Val):-
 
 % TES: should be able to call builtin function directly.
 obj_dict(Obj,Dict):-
-     callpy(xsbpy_utils,dictionary(Obj),Dict).
+     pyfunc(xsbpy_utils,dictionary(Obj),Dict).
 
 %obj_dir(Obj,Dir):-
-%     callpy(xsbpy_utils,py_dir(Obj),Dir).
+%     pyfunc(xsbpy_utils,py_dir(Obj),Dir).

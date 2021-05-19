@@ -1,5 +1,4 @@
-%:-export callpy/3.
-:-export callpy_int/4, callpy_meth/4.
+:-export pyfunc_int/4, pymeth/4.
 :- export init_python/0.
 
 %:-export pyObj_GetIter/2.

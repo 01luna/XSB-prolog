@@ -461,7 +461,7 @@ PyInit_xsbpym(void)
 }
 
 
-// -------------------- callpy
+// -------------------- pyfunc
 
  // TES needs update for Windows; Doesn't handle on path -- just syspath.
  // Also, I don't think it works correctly for relative paths.
@@ -487,7 +487,7 @@ void set_python_argument(CTXTdeclc prolog_term temp, PyObject *pArgs,int i, char
   PyObject *pValue;
   if(!convert_prObj_pyObj(CTXTc temp, &pValue))
     xsb_abort("++Error[xsbpy]: argument %d of %s/%d could not be translated to python"
-		"(arg 2 of callpy/[3,4])\n",i,funct,arity);
+		"(arg 2 of pyfunc/[3,4])\n",i,funct,arity);
   PyTuple_SetItem(pArgs, i-1, pValue);
 }
 
@@ -528,7 +528,7 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
 
 // Does not take dictionary values, as this doesn't seem to be supported
 // By the Python C-API
-DllExport int callpy_meth(CTXTdecl) {
+DllExport int pymeth(CTXTdecl) {
   PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL;
   PyObject *pyMeth = NULL;
   prolog_term prObjIn, prMethIn;
@@ -552,7 +552,7 @@ DllExport int callpy_meth(CTXTdecl) {
     XSB_Deref(prMethIn);
     if  (!isconstr(prMethIn)) {
       sprintTerm(forest_log_buffer_1, prMethIn);
-      xsb_abort("++Error[xsbpy]: Non-predicate term in arg 3 of callpy_meth/4: %s\n",
+      xsb_abort("++Error[xsbpy]: Non-predicate term in arg 3 of pymeth/4: %s\n",
 		forest_log_buffer_1->fl_buffer);
     }
     function = p2c_functor(prMethIn);
@@ -586,7 +586,7 @@ DllExport int callpy_meth(CTXTdecl) {
   return TRUE;
 }
 
-DllExport int callpy_int(CTXTdecl) {
+DllExport int pyfunc_int(CTXTdecl) {
   //  PyObject *pName = NULL, *pModule = NULL, *pFunc = NULL;
   PyObject *pModule = NULL, *pFunc = NULL;
   PyObject *pArgs = NULL, *pValue = NULL, *pDict = NULL;
@@ -600,7 +600,7 @@ DllExport int callpy_int(CTXTdecl) {
   if(pModule == NULL) {
     PyErr_Print();
     xsb_abort("++Error[xsbpy]: no Python module named \'%s\' could be found."
-	      "(in arg 1 of callpy/3)\n",module);
+	      "(in arg 1 of pyfunc/3)\n",module);
   }
   //  Py_DECREF(pName);
   V = extern_reg_term(2);
@@ -619,7 +619,7 @@ DllExport int callpy_int(CTXTdecl) {
     }
     else   // it isn't callable
       xsb_abort("++Error[xsbpy]: %s/%d is not a callable function in "
-		"the Python module \'%s\' (arg 2 of callpy/3)\n",get_name(get_str_psc(V)),
+		"the Python module \'%s\' (arg 2 of pyfunc/3)\n",get_name(get_str_psc(V)),
 		get_arity(get_str_psc(V)),module);
     Dict = extern_reg_term(3);
     convert_prObj_pyObj(CTXTc Dict,&pDict);
@@ -643,7 +643,7 @@ DllExport int callpy_int(CTXTdecl) {
     // ususally returns pyobject by default.
     if(!convert_pyObj_prObj(CTXTc pValue, &return_pr, 1)) {
       xsb_abort("++Error[xsbpy]: The return of %s/%d could not be translated to Prolog"
-		"(in callpy/[3,4])\n",function,args_count);
+		"(in pyfunc/[3,4])\n",function,args_count);
     }
     if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
       return FALSE;
@@ -651,10 +651,10 @@ DllExport int callpy_int(CTXTdecl) {
   } /* if is_functor(V) */
   else	{
     if (isstring(V))
-      xsb_abort("++Error[xsbpy]: \'%s\' is not a callable function (in arg 2 of callpy/3)\n",
+      xsb_abort("++Error[xsbpy]: \'%s\' is not a callable function (in arg 2 of pyfunc/3)\n",
 		cs_val(V),module);
     else
-      xsb_abort("++Error[xsbpy]: %p is not a callable function (in arg 2 of callpy/3)\n",
+      xsb_abort("++Error[xsbpy]: %p is not a callable function (in arg 2 of pyfunc/3)\n",
 		V,module);
   }
   //  Py_Finalize();
