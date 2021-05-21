@@ -226,18 +226,24 @@ object_tests:-
 object_tests.
 
 meth_tests:-
-    test_Person(_Obj,Ret1,Ret2),
+    test_Person(_Obj,Ret1,Ret2,Ret3,M1,M2),
     Ret1 = 'Hello my name is john',
-%    writeq(Ret2),
     Ret2 = 'Hello my name is john and I''m a doofus',
-    writeln('Person test succeeded'),
-    fail.
-meth_test.
+    Ret3 = chocolate,
+    M1 = ' ++Error[xsbpy]: arg 2 of pymeth/4 is not a Python Object: 1',
+    M2 = ' ++Error[xsbpy]: arg 3 of pymeth/4 is not a Python Object: 1',
+    writeln('Person test succeeded'),!.
+meth_tests:- 
+    writeln('!!!Person test failed').
 
-test_Person(Obj,Ret1,Ret2):- 
+test_Person(Obj,Ret1,Ret2,Ret3,Msg2,Msg3):- 
     pyfunc('Person','Person'(john,35),Obj),
     pymeth('Person',Obj,func0(),Ret1),
-    pymeth('Person',Obj,func1(doofus),Ret2).
+    pymeth('Person',Obj,func1(doofus),Ret2),
+    pymeth('Person',Obj,favorite_ice_cream,Ret3),
+    catch(pymeth('Person',1,favorite_ice_cream,_Ret4),E2,xsb_error_get_message(E2,Msg2)),
+    catch(pymeth('Person',Obj,1,_Ret5),E3,xsb_error_get_message(E3,Msg3)).
+
 end_of_file.
 
 pytXSB :- pyfunc('test/testc', tester(),  X), pyList2prList(X, []).
