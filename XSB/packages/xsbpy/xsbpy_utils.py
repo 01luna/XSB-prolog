@@ -13,5 +13,6 @@ def obj_ref_py(inp):
 def dictionary(obj):
     return obj.__dict__
 
-#def py_dir(obj):
-#    return obj.__dir__
+def py_dir(obj):
+    print(obj.__dir__)
+    return obj.__dir__

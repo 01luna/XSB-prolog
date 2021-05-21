@@ -102,8 +102,8 @@ int find_prolog_term_type(CTXTdeclc prolog_term term) {
     if(strcmp(p2c_functor(term),PYOBJ_C) == 0 ) {
       return PYREF;	
     }
-    else if(strcmp(p2c_functor(term),"pyList") == 0)
-      return PPYLIST;
+    //    else if(strcmp(p2c_functor(term),"pyList") == 0)
+    //      return PPYLIST;
     else if(strcmp(p2c_functor(term),"pyIterator") == 0)
       return PYITER;
     else if(strcmp(p2c_functor(term), "") == 0)
@@ -175,6 +175,7 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
     return TRUE;
   }
   else if(find_prolog_term_type(CTXTc prTerm) == PYFLOAT) {
+    printf("converted to float\n");
     prolog_term argument = prTerm;
     prolog_float argument_float = p2c_float(argument);
     *pyObj = PyFloat_FromDouble(argument_float);
@@ -248,14 +249,36 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
 
 // -------------------- Python to Prolog
 
+//#define PYTHON38 1
+
+/* TES: For some reason, PyFloat_Check(), PySet_Check and the Py_None
+   check work for Python 3.7 but not for Python 3.8.  Accordingly, for
+   3.8 I get the type for the object, then check if its type name is
+   the same as "float", "set", or "NoneType".  This seems a bit
+   dangerous, but I couldn't get the code to work otherwise.
+
+  If anyone understands why this may be, please let me know.
+*/
+
 int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag) {
+  
+#if defined(PYTHON38)  
+  PyTypeObject* type = pyObj->ob_type;
+  const char* tname = type->tp_name;
+#endif  
+  //  printf("pyobj typ: |%s|\n",tname);
   if(PyLong_Check(pyObj)) {
     prolog_int result = PyLong_AsSsize_t(pyObj);
     c2p_int(CTXTc result, *prTerm);
     return 1;
   }
+#if defined(PYTHON38)
+  else if (!strcmp(tname,"float")) {
+    double result = PyFloat_AsDouble(pyObj);
+#else    
   else if(PyFloat_Check(pyObj)) {
     double result = PyFloat_AS_DOUBLE(pyObj);
+#endif    
     c2p_float(CTXTc result, *prTerm);
     return 1;
   }
@@ -264,7 +287,11 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     c2p_string(CTXTc (char *) result, *prTerm);
     return 1;
   }
+#if defined(PYTHON38)  
+  else if (!strcmp(tname,"NoneType")) {
+#else    
   else if(pyObj == Py_None){
+#endif    
     char* result = PYNONE_C;
     c2p_string(CTXTc result,*prTerm);
     return 1;
@@ -344,8 +371,14 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       return FALSE;
     return TRUE;
   }
+  //  else if(PyAnySet_Check(pyObj)) {           // maybe PyAnySet_Check
+#if defined(PYTHON38)  
+  else if (!strcmp(tname,"set")) {
+    size_t size = PySet_Size(pyObj);  // macro version since obj is a set
+#else    
   else if(PySet_Check(pyObj)) {           // maybe PyAnySet_Check
     size_t size = PySet_GET_SIZE(pyObj);  // macro version since obj is a set
+#endif    
     size_t i = 0;
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
@@ -368,6 +401,9 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       return FALSE;
     return TRUE;
   }
+  else if PyIter_Check(pyObj) {
+      printf("found an iterator\n");
+    }
   /* default -- not of a type that is handled */
   char str[30];
   sprintf(str, "p%p", pyObj);
@@ -529,41 +565,44 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
 // Does not take dictionary values, as this doesn't seem to be supported
 // By the Python C-API
 DllExport int pymeth(CTXTdecl) {
-  PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL;
-  PyObject *pyMeth = NULL;
-  prolog_term prObjIn, prMethIn;
-  char *function;
+  PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL, *pyMeth = NULL;
+  prolog_term prObjIn, prMethIn, mod;
+  char *function, *module;
   PyErr_Clear();
-  prolog_term mod = extern_reg_term(1);
-  char *module = p2c_string(mod);
+  mod = extern_reg_term(1);
+  module = p2c_string(mod);
   module = set_path_name(module);
   pModule = PyImport_ImportModule(module);
   if(pModule == NULL) {
     PyErr_Print();
     xsb_abort("++Error[xsbpy]: no Python module named \'%s\' could be found."
-  	      "(in arg 1 of callmeth/3)\n",module);
+  	      "(in arg 1 of pymeth/4)\n",module);
   }
+  Py_DECREF(pModule); 
   prObjIn = extern_reg_term(2);
+  //  Skipping several typechecks, as Python does them.
   if(is_functor(prObjIn) && strcmp(p2c_functor(prObjIn),PYOBJ_C) == 0) {
-    //    printPlgTerm(prObjIn);
     convert_prObj_pyObj(CTXTc prObjIn, &pObjIn);
-    //    printPyObj(pObjIn);
     prMethIn = (Cell) extern_reg_term(3);
     XSB_Deref(prMethIn);
-    if  (!isconstr(prMethIn)) {
-      sprintTerm(forest_log_buffer_1, prMethIn);
-      xsb_abort("++Error[xsbpy]: Non-predicate term in arg 3 of pymeth/4: %s\n",
-		forest_log_buffer_1->fl_buffer);
+    if (isconstr(prMethIn)) {
+      function = p2c_functor(prMethIn);
+      pyMeth = PyUnicode_FromString(function);  
+      int args_count = p2c_arity(prMethIn);
+      pObjOut = call_variadic_method(pObjIn,pyMeth,prMethIn,args_count);
     }
-    function = p2c_functor(prMethIn);
-    pyMeth = PyUnicode_FromString(function);  // can't get as attr -- so no callable check.
-    int args_count = p2c_arity(prMethIn);
-    pObjOut = call_variadic_method(pObjIn,pyMeth,prMethIn,args_count);
-    Py_DECREF(pModule);  // TES move
+    else if (isstring(prMethIn)) {
+      pObjOut = PyObject_GetAttrString(pObjIn,string_val(prMethIn));
+    }
+    else {
+      sprintTerm(forest_log_buffer_1, prMethIn);
+      xsb_abort("++Error[xsbpy]: arg 3 of pymeth/4 is not a Python Object: %s\n",
+	      forest_log_buffer_1->fl_buffer);
+    }
   }
-  else  {  // it isn't callable
+  else {
     sprintTerm(forest_log_buffer_1, prObjIn);
-    xsb_abort("++Error[xsbpy]: arg 2 of xsbpy_meth/4 is not a Python Object: %s\n",
+    xsb_abort("++Error[xsbpy]: arg 2 of pymeth/4 is not a Python Object: %s\n",
 	      forest_log_buffer_1->fl_buffer);
   }
   if (pObjOut == NULL) { // TES todo change to check for python error
@@ -579,10 +618,9 @@ DllExport int pymeth(CTXTdecl) {
   prolog_term return_pr = p2p_new(CTXT);
   if(!convert_pyObj_prObj(CTXTc pObjOut, &return_pr, 1)) {
     xsb_abort("++Error[xsbpy]: The return of xsbpy_meth/4  could not be translated to Prolog");
-    }
+  } 
   if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
     return FALSE;
-  return TRUE;
   return TRUE;
 }
 
