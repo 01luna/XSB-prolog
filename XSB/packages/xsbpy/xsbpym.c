@@ -175,7 +175,6 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
     return TRUE;
   }
   else if(find_prolog_term_type(CTXTc prTerm) == PYFLOAT) {
-    printf("converted to float\n");
     prolog_term argument = prTerm;
     prolog_float argument_float = p2c_float(argument);
     *pyObj = PyFloat_FromDouble(argument_float);
