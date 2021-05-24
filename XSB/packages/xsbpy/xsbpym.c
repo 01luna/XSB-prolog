@@ -127,15 +127,18 @@ int find_length_prolog_list(prolog_term V)
 	return count;
 }
 
+// On ubuntu sizeof(size_t) is 8.
+// check_glstack overflow expands by Overflow margin + input
 void ensureXSBStackSpace(CTXTdeclc PyObject *pyObj) {
-  if (PyList_Check(pyObj)) {
-    check_glstack_overflow(3,pcreg,2*PyList_Size(pyObj)*sizeof(size_t));
+  if (PyList_Check(pyObj) || PySet_Check(pyObj)) {
+    //    printf("asking for %ld bytes \n",4*PyList_Size(pyObj)*sizeof(size_t));
+    check_glstack_overflow(4,pcreg,4*PyList_Size(pyObj)*sizeof(size_t));
   }
   else if (PyDict_Check(pyObj)) {
-    check_glstack_overflow(3,pcreg,2*PyDict_Size(pyObj)*sizeof(size_t));
+    check_glstack_overflow(4,pcreg,6*PyDict_Size(pyObj)*sizeof(size_t));
   }
   else if (PyTuple_Check(pyObj)) {
-    check_glstack_overflow(3,pcreg,2*PyTuple_Size(pyObj)*sizeof(size_t));
+    check_glstack_overflow(4,pcreg,2*PyTuple_Size(pyObj)*sizeof(size_t));
   }
 }
 
@@ -675,8 +678,8 @@ DllExport int pyfunc_int(CTXTdecl) {
       xsb_abort("++Error[xsbpy]: A Python Error Occurred: %s/%s",
 		PyUnicode_AsUTF8(ptypeRepresentation),PyUnicode_AsUTF8(pvalueRepresentation));
     }
-    prolog_term return_pr = p2p_new(CTXT);
     ensureXSBStackSpace(CTXTc pValue);
+    prolog_term return_pr = p2p_new(CTXT);
     // ususally returns pyobject by default.
     if(!convert_pyObj_prObj(CTXTc pValue, &return_pr, 1)) {
       xsb_abort("++Error[xsbpy]: The return of %s/%d could not be translated to Prolog"
@@ -954,4 +957,5 @@ void printPyObjType(CTXTdeclc PyObject *obj1) {
 //	}
 //	return FALSE;
 //}
+
 
