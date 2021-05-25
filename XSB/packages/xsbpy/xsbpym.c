@@ -135,7 +135,7 @@ void ensureXSBStackSpace(CTXTdeclc PyObject *pyObj) {
     check_glstack_overflow(4,pcreg,4*PyList_Size(pyObj)*sizeof(size_t));
   }
   else if (PyDict_Check(pyObj)) {
-    check_glstack_overflow(4,pcreg,6*PyDict_Size(pyObj)*sizeof(size_t));
+    check_glstack_overflow(4,pcreg,12*PyDict_Size(pyObj)*sizeof(size_t));
   }
   else if (PyTuple_Check(pyObj)) {
     check_glstack_overflow(4,pcreg,2*PyTuple_Size(pyObj)*sizeof(size_t));
@@ -566,7 +566,7 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
 
 // Does not take dictionary values, as this doesn't seem to be supported
 // By the Python C-API
-DllExport int pymeth(CTXTdecl) {
+DllExport int pydot(CTXTdecl) {
   PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL, *pyMeth = NULL;
   prolog_term prObjIn, prMethIn, mod;
   char *function, *module;
@@ -578,7 +578,7 @@ DllExport int pymeth(CTXTdecl) {
   if(pModule == NULL) {
     PyErr_Print();
     xsb_abort("++Error[xsbpy]: no Python module named \'%s\' could be found."
-  	      "(in arg 1 of pymeth/4)\n",module);
+  	      "(in arg 1 of pydot/4)\n",module);
   }
   Py_DECREF(pModule); 
   prObjIn = extern_reg_term(2);
@@ -598,13 +598,13 @@ DllExport int pymeth(CTXTdecl) {
     }
     else {
       sprintTerm(forest_log_buffer_1, prMethIn);
-      xsb_abort("++Error[xsbpy]: arg 3 of pymeth/4 is not a Python Object: %s\n",
+      xsb_abort("++Error[xsbpy]: arg 3 of pydot/4 is not a Python Object: %s\n",
 	      forest_log_buffer_1->fl_buffer);
     }
   }
   else {
     sprintTerm(forest_log_buffer_1, prObjIn);
-    xsb_abort("++Error[xsbpy]: arg 2 of pymeth/4 is not a Python Object: %s\n",
+    xsb_abort("++Error[xsbpy]: arg 2 of pydot/4 is not a Python Object: %s\n",
 	      forest_log_buffer_1->fl_buffer);
   }
   if (pObjOut == NULL) { // TES todo change to check for python error
@@ -617,6 +617,7 @@ DllExport int pymeth(CTXTdecl) {
     xsb_abort("++Error[xsbpy]: A Python Error Occurred: %s/%s",
 	      PyUnicode_AsUTF8(ptypeRepresentation),PyUnicode_AsUTF8(pvalueRepresentation));
   }
+  ensureXSBStackSpace(CTXTc pObjOut);
   prolog_term return_pr = p2p_new(CTXT);
   if(!convert_pyObj_prObj(CTXTc pObjOut, &return_pr, 1)) {
     xsb_abort("++Error[xsbpy]: The return of xsbpy_meth/4  could not be translated to Prolog");

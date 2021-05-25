@@ -44,7 +44,8 @@ init_xsbpy(Pyversion):-
     add_lib_dir(ExampDir),
     add_lib_dir(AppDir),
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
-    pyfunc(add_python_path,add_python_path(TestDir),_).
+    pyfunc(add_python_path,add_python_path(TestDir),_),
+    set_heap_margin(256).   % double the amount in v. 4.0
 
 
 test_xsbpy:-
@@ -87,6 +88,10 @@ get_compiler_opts(38,CompilerOpts):-
 		 ' -lpython3.8 -L/usr/lib/python3.8 -Wl,',
 		 '-rpath=/usr/lib/python3.8 -lpython3.8 -L/usr/lib/python3.8 -Wl,',
 		 '-rpath=/usr/lib/python3.8 -g' ],CompilerOpts).
+
+set_heap_margin(Kbs):-
+    Amount is Kbs*1024,
+    set_prolog_flag(heap_margin,Amount).
 
 end_of_file.
 
