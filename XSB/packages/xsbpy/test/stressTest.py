@@ -1,4 +1,5 @@
 import time
+import gc
 
 def makelist(N):
     start = time.time()
@@ -8,6 +9,14 @@ def makelist(N):
     end = time.time()
     print("python_done: " + str(end-start) + " seconds")
     return retlist
+
+def gclen():
+    return(len(gc.get_objects()))
+
+def get_garbage():
+    return(gc.garbage)
+
+#pyfunc(gc,get_stats(),F).
 
 class StressClass:
     def __init__(self):

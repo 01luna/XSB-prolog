@@ -271,6 +271,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
   //  printf("pyobj typ: |%s|\n",tname);
   if(PyLong_Check(pyObj)) {
     prolog_int result = PyLong_AsSsize_t(pyObj);
+    // Py_DECREF(pyObj);  
     c2p_int(CTXTc result, *prTerm);
     return 1;
   }
@@ -281,12 +282,24 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
   else if(PyFloat_Check(pyObj)) {
     double result = PyFloat_AS_DOUBLE(pyObj);
 #endif    
+    //    Py_DECREF(pyObj);
     c2p_float(CTXTc result, *prTerm);
     return 1;
   }
   else if(PyUnicode_Check(pyObj)) {
     const  char *result = PyUnicode_AsUTF8(pyObj);		
-    c2p_string(CTXTc (char *) result, *prTerm);
+    if (!result) {
+      PyObject *ptype, *pvalue, *ptraceback;
+      PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+      PyObject* ptypeRepresentation = PyObject_Repr(ptype);
+      PyObject* pvalueRepresentation = PyObject_Repr(pvalue);
+      PyErr_Restore(ptype, pvalue, ptraceback);
+      xsb_abort("++Error[xsbpy]: A Python Error Occurred.  A Python Unicode object "
+		"could not be translated to a UTF8 string: %s/%s",
+		PyUnicode_AsUTF8(ptypeRepresentation),PyUnicode_AsUTF8(pvalueRepresentation));
+    }
+    else 
+      c2p_string(CTXTc (char *) result, *prTerm);
     return 1;
   }
 #if defined(PYTHON38)  
@@ -295,19 +308,22 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
   else if(pyObj == Py_None){
 #endif    
     char* result = PYNONE_C;
+    // Py_DECREF(pyObj);
     c2p_string(CTXTc result,*prTerm);
     return 1;
   }
   else if(PyTuple_Check(pyObj))  {
     size_t  i;
+    PyObject *pyObjInner = NULL;
     size_t size = PyTuple_Size(pyObj);
     prolog_term P = p2p_new();
     c2p_functor("",size,P);
     for (i = 0; i < size; i++) {
-      PyObject *pyObjinner = PyTuple_GetItem(pyObj, i);
+      pyObjInner = PyTuple_GetItem(pyObj, i);
       prolog_term ithterm = p2p_arg(P, i+1);
-      convert_pyObj_prObj(pyObjinner, &ithterm,1);
+      convert_pyObj_prObj(pyObjInner, &ithterm,1);
     }
+    //    Py_DECREF(pyObjinner);
     // prolog_term P = convert_pyTuple_prTuple(CTXTc pyObj);
     if(!p2p_unify(CTXTc P, *prTerm))
       return FALSE;
@@ -326,6 +342,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
   //  }
   //  else if(flag == 1 && PyList_Check(pyObj)) {
   else if(PyList_Check(pyObj)) {
+    PyObject *pyObjInner;
     size_t size = PyList_Size(pyObj);
     size_t i = 0;
     prolog_term head, tail;
@@ -335,7 +352,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     for(i = 0; i < size; i++) {
       c2p_list(CTXTc tail);
       head = p2p_car(tail);
-      PyObject *pyObjInner = PyList_GetItem(pyObj, i);
+      pyObjInner = PyList_GetItem(pyObj, i);
       convert_pyObj_prObj(CTXTc pyObjInner, &head, 1);	
       //printPyObj(CTXTc pyObjInner);
       //printPyObjType(CTXTc pyObjInner);
@@ -384,6 +401,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     size_t i = 0;
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
+    PyObject *pyObjInner;
 
     c2p_functor(PYSET_C,1,P);
     tail = p2p_arg(P, 1);
@@ -391,7 +409,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     for(i = 0; i < size; i++) {
       c2p_list(CTXTc tail);
       head = p2p_car(tail);
-      PyObject *pyObjInner = PySet_Pop(pyObj);
+      pyObjInner = PySet_Pop(pyObj);
       convert_pyObj_prObj(CTXTc pyObjInner, &head, 1);	
       //printPyObj(CTXTc pyObjInner);
       //printPyObjType(CTXTc pyObjInner);
@@ -402,7 +420,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     if(!p2p_unify(CTXTc P, *prTerm))
       return FALSE;
     return TRUE;
-  }
+  } 
   else if PyIter_Check(pyObj) {
       printf("found an iterator\n");
     }
@@ -566,8 +584,9 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
 
 // Does not take dictionary values, as this doesn't seem to be supported
 // By the Python C-API
+// Tried to decref pObjIn but this didn't work. Not collecting pObjOut
 DllExport int pydot(CTXTdecl) {
-  PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL, *pyMeth = NULL;
+  PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL;
   prolog_term prObjIn, prMethIn, mod;
   char *function, *module;
   PyErr_Clear();
@@ -588,10 +607,12 @@ DllExport int pydot(CTXTdecl) {
     prMethIn = (Cell) extern_reg_term(3);
     XSB_Deref(prMethIn);
     if (isconstr(prMethIn)) {
+      PyObject *pyMeth = NULL;
       function = p2c_functor(prMethIn);
       pyMeth = PyUnicode_FromString(function);  
       int args_count = p2c_arity(prMethIn);
       pObjOut = call_variadic_method(pObjIn,pyMeth,prMethIn,args_count);
+      Py_DECREF(pyMeth);
     }
     else if (isstring(prMethIn)) {
       pObjOut = PyObject_GetAttrString(pObjIn,string_val(prMethIn));
@@ -669,6 +690,7 @@ DllExport int pyfunc_int(CTXTdecl) {
     }
     else   // Ignoring if not a dict -- maybe should change.
       pValue = PyObject_CallObject(pFunc, pArgs);
+    Py_DECREF(pFunc);     Py_DECREF(pArgs); Py_DECREF(pDict);
     if (pValue == NULL) { // TES todo change to check for python error
       PyObject *ptype, *pvalue, *ptraceback;
       PyErr_Fetch(&ptype, &pvalue, &ptraceback);

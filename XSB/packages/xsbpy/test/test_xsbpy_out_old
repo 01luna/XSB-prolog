@@ -13,3 +13,4 @@ json_loads_test successful
 json_load_test successful
 kwargs_test1 successful
 Person test succeeded
+collect(0)

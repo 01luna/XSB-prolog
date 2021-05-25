@@ -15,7 +15,9 @@ testSuite:-
     json_tests,
     kwargs_tests,
     error_tests,
-    object_tests.
+    object_tests,
+    pyfunc(gc,collect(),Collect),
+    writeln(collect(Collect)).
 %  callback_test,
 
 %--------------------------------
