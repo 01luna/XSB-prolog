@@ -257,7 +257,7 @@ reference to this instance which has a form such as {\tt
   pyObj(p0x7fb1947b0210)}.  XSB can later use this reference to call a
 method:
 \begin{verbatim}
-    pymeth('Person',pyObj(p0x7fb1947b0210),hello(programmer),Ret2).
+    pydot('Person',pyObj(p0x7fb1947b0210),hello(programmer),Ret2).
 \end{verbatim}
 
 \noindent
@@ -268,7 +268,7 @@ which returns the Prolog atom:
 \noindent
 Although Python methods, like Python functions, can include keyword
 arguments, {\tt xsbpy} does not support keyword arguments in {\tt
-  pymeth/4} because Version 3.9.4 of the Python C API does not permit
+  pydot/4} because Version 3.9.4 of the Python C API does not permit
 this.
 \end{example}
 
@@ -299,27 +299,31 @@ returns
 There are times when using the dictionary associated with a class is
 not appropriate.  For instance, not all Python classes have {\tt
   \_\_dict\_\_} methods defined for them, or only a single attribute
-of an object might be required.  In this case, {\tt pymeth/4} can be
+of an object might be required.  In this case, {\tt pydot/4} can be
 used:
 
 \begin{verbatim}
-    pymeth('Person',pyObj(p0x7f386e1e9650),favorite_ice_cream,I)
+    pydot('Person',pyObj(p0x7f386e1e9650),favorite_ice_cream,I)
 \end{verbatim}
 \noindent
 returns {\tt I = chocolate}.
 
+\noindent
+
 Summarizing from Example~\ref{xsbpy-examp:method} and the above
-paragraph, {\tt pymeth/4} can be used in two ways.  If the third
-argument, {\tt arg3}, in a call to {\tt pymeth/4} is a Prolog
+paragraph, {\tt pydot/4} can be used in two ways.  If the third
+argument, {\tt arg3}, in a call to {\tt pydot/4} is a Prolog
 structure, {\tt arg3} is interpreted as a method.  In this case, a
 Python method is applied to the object, and its return is unified with
-the final argument of {\tt pymeth/4}. If {\tt arg} is a Prolog atom,
+the final argument of {\tt pydot/4}. If {\tt arg} is a Prolog atom,
 {\tt arg3} is interpreted as attribute of the object.  In this case,
-the attribute is accessed and unified with {\tt arg3}.
+the attribute is accessed and unified with {\tt arg3}.  Note that the
+functionality of {\tt pydot/4} is overloaded in analogy to the
+functionality of the {\tt '.'} connector in Python.
 \end{example}
 
 To summarize, a great deal of Python functionality is directly
-available via {\tt pyfunc/[3,4]} and {\tt pymeth/4}.  In our
+available via {\tt pyfunc/[3,4]} and {\tt pydot/4}.  In our
 experience so far, many Python libraries can be called directly and
 ``just work'' immediately.  Cases where glue code is needed include
 the following.
@@ -332,7 +336,7 @@ the following.
   might be opened, the file pointer passed back to XSB, and the
   function called directly from XSB using the file pointer.
 
-  \item As mentioned, {\tt pymeth/4} does not support keyword
+  \item As mentioned, {\tt pydot/4} does not support keyword
     arguments, due to restrictions in the Python C API.
 
   \item Suppose a class with several attributes is defined as a
@@ -495,12 +499,12 @@ queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
   In addition, errors thrown by Python are
   caught and thrown as {\tt misc\_error} errors.
 
-\altourmoditem{pymeth(+Module,+ObjRef,+MethAttr,?Ret)}{pymeth/4}{xsbpy}
+\altourmoditem{pydot(+Module,+ObjRef,+MethAttr,?Ret)}{pydot/4}{xsbpy}
 %
 Acts in a manner similar to {\tt pyfunc/[3,4]}.  {\tt Module} is a
 Python module or path, {\tt ObjRef} a Python object reference in term
 form (i.e., a term of the form {\tt pyObj(Ref)} where {\tt Ref} is a
-Prolog atom depicting a reference to a Python object). {\tt pymeth/4}
+Prolog atom depicting a reference to a Python object). {\tt pydot/4}
 acts in one of two ways:
 \begin{itemize}
 \item If {\tt MethAttr} is a Prolog compound term corresponding to a
@@ -614,16 +618,31 @@ how they will be addressed in the future.
 
 \section{Performance}
 
-The core {\tt xsbpy} routines -- {\tt pyfunc/[3,4]} and {\tt
-  call\_meth/4} -- are written almost entirely in C, have shown good
-performance so far, and continue to be optimized.  Calling a simple
-Python function to increment a number from XSB and then returning the
-incremented value to XSB should take about a microsecond on a
-reasonably fast machine.  Of course, the overhead for passing large
-terms from and to Python will be somewhat higher.  Nonetheless, for
-nearly any practical application the time to perform useful
-functionality within Python will far outweigh any {\tt xsbpy}
-overhead.
+The core {\tt xsbpy} routines -- {\tt pyfunc/[3,4]} and {\tt pydot/4}
+-- are written almost entirely in C, have shown good performance so
+far, and continue to be optimized.  Calling a simple Python function
+to increment a number from XSB and then returning the incremented
+value to XSB should take about a microsecond on a reasonably fast
+machine.  Of course, the overhead for passing large terms from and to
+Python will be somewhat higher.  For instance, the time to pass a list
+of integers from Python to XSB has been timed at about 20-30
+nanoseconds per list element.  Nonetheless, for nearly any practical
+application the time to perform useful functionality within Python
+will far outweigh any {\tt xsbpy} overhead.
+
+Apart from system resource limitations, there is virtually no upper
+limit on the size of Python structures passed back to Prolog: stress
+tests have passed lists of length 100 million from Python to Prolog
+without problems. However, it should be noted that {\tt xsbpy} must
+ensure that XSB's heap is properly expanded before copying a large
+structure from Python to XSB.  XSB currently uses size routines from
+the Python C-API which only return the length of structures, and not
+their exact size.  Accordingly long lists of large structures, heavily
+nested dictionaries and other such structures may currently present a
+problem.  This will be addressed in a future version, but until then a
+user can reset the {\tt heap\_margin} Prolog flag to ensure extra
+stack space beyond that allocated by {\tt xsbpy} (see Volume 1 for
+details.)
 
 \section{Sample Applications}
 When {\tt xsbpy} is loaded, both the {\tt xsbpy} directory and its
