@@ -821,7 +821,7 @@ int xsb_eval(CTXTdeclc Cell expr, FltInt *value) {
 	} else if (arity == 1) {
 	  fiop1 = eval_stk[eval_stk_toprec-2];
 	  if (!xsb_eval_un_op(get_name(op_psc),fiop1,&fiop3)) set_and_return_fail(value);
-	  eval_stk_toprec = eval_stk_toprec - arity - 1;
+	  eval_stk_toprec = eval_stk_toprec - arity - 2;
 	  if (eval_stk_toprec <= 0) {
 	    *value = fiop3;
 	    return 1;
