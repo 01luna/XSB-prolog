@@ -21,7 +21,7 @@
 % load_and_proc(en_core_web_sm,'ta1doc.txt',Doc).
 load_and_proc(Model,File):-
     pyfunc(spacy,load(Model),NLP),                                              
-    pymeth(spacy,NLP,add_pipe('merge_entities'),_),
+    pydot(spacy,NLP,add_pipe('merge_entities'),_),
 %    pymeth(spacy,NLP,add_pipe('merge_noun_chunks'),_),                     
     pyfunc(xp_spacy,doc_from_file(File,NLP),Doc),                              
     assert(python_obj(nlp,NLP)),
