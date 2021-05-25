@@ -6,7 +6,8 @@ test:- t3(X), writeln(t3(X)),fail.
 test:- t4(X1,X2), writeln(t4(X1,X2)),fail.
 test:- t5,writeln(t5_passed),fail.
 test:- t6,writeln(t6_passed),fail.
-
+test:- t7(X), writeln(t7(X)),fail.
+test:- t8(X), writeln(t8(X)),fail.
 
 evl1(N) :- M is N, number(M), writeln(evl1(M)).
 
@@ -31,5 +32,7 @@ t5:- pi + 1 > 2.  % ok
 
 t6:- pi  > 2.  % ok
 
+t7(X) :- Y = 100 + ceiling(655359983 / 1024), X is Y.
 
+t8(X) :- Y = e + (7 - (- pi)), X is Y.
 
