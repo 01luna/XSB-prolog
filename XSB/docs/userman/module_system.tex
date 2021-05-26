@@ -58,7 +58,7 @@ different terms and do not unify.  So, for example, terms printed as
 symbol named {\tt p/2} is in a different module from the second
 structure symbol named {\tt p/2}. \footnote{This lack of unification
   also occurs in most other Prologs if the structure symbols are
-  predicate symbols that occur in other modulesR.}
+  predicate symbols that occur in other modules.}
 
 \index{modules!declaration}
 So how are terms in a module created?  The most common way
@@ -94,7 +94,7 @@ $M$ if $M:P$ occurs as a goal in any source file or input stream.
 \index{modules!declaration}
 
 A predicate or goal $Pred$ is considered to be in the ``default''
-module {\tt usermod} if none of the above situations occur.  I.e., if
+module {\tt usermod} if none of the above situations occur,  i.e., if
 $Pred$ does not have a module qualification, does not occur in a file
 with a module declaration, and is not loaded into a module as dynamic
 code.  Thus a term that has no module qualification when read from an
@@ -255,12 +255,12 @@ next section, is also useful when one wants to import two predicates
 with the same name from different modules.  In that case (at least)
 one of the names needs to be changed on import.
 
-For modules, the base file name is stored in its byte code ({\tt
+For modules, the base file name is stored in its byte-code ({\tt
   .xwam}) file, so that renaming a byte-code file for a module may cause
 problems, as the renaming will not affect the information within the
 byte-code file.  (But see below for ways to support modules with
 names different from the files that contain their code.)
-However, byte code files generated for non-modules
+However, byte-code files generated for non-modules
 can be safely renamed.
 
 \subsection{How the Compiler Determines the Module of a Term}
@@ -413,7 +413,7 @@ meta-predicate known to XSB's compiler, or declares $p/0$ as dynamic.
 
 XSB automatically loads modules in two situations.  Most commonly if
 predicates are imported from a module $M$, $M$ is loaded at the first
-call to any of these predicates, compiling the file for $M$ is
+call to any of these predicates, compiling the file for $M$ if
 necessary.  In addition, if a predicate $P$ is not explicitly
 imported, but a call to $P$ is explicitly qualified with a module,
 e.g., $M:P$, $M$ is located, compiled if necessary, and loaded just as
@@ -426,8 +426,12 @@ by means of an import statement or module qualification, as stated
 above.  However, to debug code in $M$ it is often convenient simply to
 consult it at the top-level and then call $P$ in the same way as if it
 were not in a module.
-As a technical point, such a predicate $P$ is ``virtually'' defined in
-{\tt usermod} in addition to being defined in $M$.
+For this reason, such an exported predicate $P$ is defined in
+{\tt usermod} in addition to being defined in $M$.  
+However, this leads to pollution of names in {\tt usermod}, and so the
+consulting (and ensure\_load-ing) of modules is {\em strongly}
+discouraged outside of testing contexts.
+
 %(In effect, for exported {\tt p/2}, XSB implements {\tt :- import p/2
 %from $module$ as p/2.} in {\tt usermod} to provide direct access to
 %{\tt p/2}'s code in $module$ from the {\tt p/2} predicate in {\tt
@@ -481,7 +485,11 @@ The standard predicate {\tt import/1} does not load the module
 containing the imported predicates, but simply informs the system 
 where it can find the definition of the predicate when (and if) the
 predicate is called.
-
+If the module byte-code file is out of date (or non-existent), it will
+automatically be compiled before loading.
+Thus, in the example above, the {\tt compile(quick\_sort)} command is not
+strictly necessary; calling {\tt concat} would cause the compilation
+of its module if necessary.
 
 \subsection{Usage Inference and the Module System} \label{sec:useinfer}
 In addition to supporting loading on demand, the import and export
@@ -567,7 +575,6 @@ not define the same predicate.  If $Pred/Arity$ has been defined in
 does not come from $File$, a warning is issued.
 
 Pseudo-module imports can also load dynamic code using a form such as:
-following:
 
 %~\footnote{This
 %  terminology may be somewhat confusing.  Dynamic loading, as seen,
@@ -630,9 +637,12 @@ parameterized module is declared by including a directive of the form:
 \demo{:- module\_parameters($atom_1$, \ldots, $atom_n$).}
 
 \noindent in the module code file, $M$.  The ground atoms, $atom_1$,
-\ldots, $atom_n$, are abstract module parameters; when the module is
+\ldots, $atom_n$, are formal module parameters; when the module is
 loaded, those module parameters will be replaced by the actual module
-names passed to the load operation.
+names passed to the load operation.  A parameterized module can also
+be declared in the {\tt module} directive; for example:
+
+\demo{:- module($baseModName$($atom_1$, \ldots, $atom_n$), [..export..list]).}
 
 Therefore, the general form of a module name (i.e., a module with its
 parameters replaced by names of actual modules) is specified by a
@@ -672,10 +682,13 @@ to be loaded, the argument parameter {\tt some\_graph} must be
 replaced by the name of an actual module that exports the three
 required predicates.  I.e, let us assume that a (non-parameterized)
 module named {\tt my\_graph} exports those 3 predicates: the actual
-module name would be {\tt reachability(my\_graph)}.  Both the {\tt
-  reachability} file and the {\tt my\_graph} file will be loaded at the
-same time, and the predicates imported from {\tt my\_graph} will be
-used here in {\tt reachable\_final/1} and {\tt reachable/1}.
+module name would be {\tt reachability(my\_graph)}.  When {\tt
+  reachable\_final} is called, the {\tt reachability} module will be
+loaded and all references to predicates in {\tt my\_graph} will be
+resolved.  Thus the predicates imported from {\tt my\_graph} will be
+used here in {\tt reachable\_final/1} and {\tt reachable/1}.  The
+module {\tt my\_graph} will actually be loaded the first time one of
+those predicates is called.
 
 In this case, the module could be loaded by an import statement and
 executed:
@@ -690,14 +703,14 @@ Or the module could be loaded by an explicit qualification:
 Both of these forms return the reachable final states for the problem
 parameterized by {\tt my\_graph}.
 
-Note that this example is declarative in the sensethat there is no
+Note that this example is declarative in the sense that there is no
 explicit procedural code necessary to load the code for a particular
 example.  All loading is handled by XSB's existing lazy loader.  And
 this same search module can be run with many different examples.
 
 Parameterized modules are implemented in XSB as follows.  When a
 parameterized module is to be loaded into memory, the formal
-parameters in the byte code file are replaced by the actual parameters
+parameters in the byte-code file are replaced by the actual parameters
 and that code is loaded.  (This is actually done by renaming symbols
 as they are loaded, so there is minimal effect on loading time.)  This
 implementation has two consequences: 1) the performance of code in
@@ -728,14 +741,14 @@ and the newly loaded:
 \demo{{\tt reachability(my\_other\_graph)}.}
 
 \noindent
-Both modules would behave exactly as other modules. with their code
+Both modules would behave exactly as other modules, with their code
 accessible to the user as well as to other programs and modules.
 
 So modules in XSB's runtime system can now be identified by module names
 that are terms, not simply constants. Accordingly, anywhere a module
 name is required, a parameterized module name, i.e., a module term,
 can be used.  The module name must be ground at the time it is
-required for use in order to load specific code; and all structure
+required for use in order to resolve specific code; and all structure
 symbols and atoms in the structured module identifier must identify
 actual files that contain the appropriate module's code; and finally
 those files must be on a library path for the session in order to be
