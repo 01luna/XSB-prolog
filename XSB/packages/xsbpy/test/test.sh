@@ -1,5 +1,5 @@
 
-../../../bin/xsb -e "[xsbpy],test_xsbpy,halt. " >& /dev/null
+../../../bin/xsb -e "[xsbpy],init_xsbpy:test_xsbpy,halt. " >& /dev/null
 
 grep '!!!' test_xsbpy_out.txt
 

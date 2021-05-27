@@ -195,8 +195,10 @@ kwargs_tests:-
 
 error_tests:-
     error_tests_1(no_module,foo(1),
-		  ' ++Error[xsbpy]: no Python module named \'no_module\' could be found.(in arg 1 of pyfunc/3)'),
-    fail.
+' Python Error;
+ Type: <class ''ModuleNotFoundError''> 
+ Value: ModuleNotFoundError("No module named ''no_module''") '),
+ fail.
 error_tests:-
 %    catch(pyfunc(kwargs,foo(1),_X),E,(xsb_error_get_message(E,M),writeln(M))),
     error_tests_1(kwargs,foo(1),
@@ -210,7 +212,12 @@ error_tests:-
 %    catch(pyfunc(test_err,raise_err_3(),_X),E,(xsb_error_get_message(E,M),writeln(M))),
 %    fail.
 error_tests:-
-    error_tests_1(test_err,raise_err_1(),' ++Error[xsbpy]: A Python Error Occurred: <class \'Exception\'>/Exception(\'spam\', \'eggs\')'),
+    error_tests_1(test_err,raise_err_1(),
+' Python Error;
+ Type: <class ''Exception''> 
+ Value: Exception(''spam'', ''eggs'') 
+ Python traceback (most recent call last):
+  File "./test_err.py", line 3, in raise_err_1'),
     fail.
 error_tests.
 
