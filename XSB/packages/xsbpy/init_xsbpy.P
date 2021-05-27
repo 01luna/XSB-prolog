@@ -13,9 +13,9 @@ If these are successful the console output should looks fairly similar
 to that included at the end of this file.
  */
 
-?- init_xsbpy(37).
+%?- init_xsbpy(37).
 
-:- export init_xsbpy/0, test_xsbpy/0, add_py_lib_dir/1,py_lib_dirs/1.
+:- export init_xsbpy/1, test_xsbpy/0, add_py_lib_dir/1,py_lib_dirs/1.
 :- export objref/2.
 
 :- import xsb_configuration/2 from xsb_configuration.
@@ -32,12 +32,13 @@ init_xsbpy(Pyversion):-
     get_compiler_opts(Pyversion,CompilerOpts),
 %    writeln(CompilerOpts),
     consult(xsbpym,[cc_opts(CompilerOpts)]),
+%    compile(xsbpym,[cc_opts(CompilerOpts)]),
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
     concat_atom([PackDir,'/xsbpy/apps'],AppDir),
     init_python(),
     concat_atom([PackDir,'/xsbpy/examples'],ExampDir),
-    pyfunc(add_python_path,add_python_path(XSBpyDir),_),
+    pyfunc('xsbpy/add_python_path',add_python_path(XSBpyDir),_),
     pyfunc(add_python_path,add_python_path(ExampDir),_),
     pyfunc(add_python_path,add_python_path(AppDir),_),
     % probably take out later
@@ -45,8 +46,8 @@ init_xsbpy(Pyversion):-
     add_lib_dir(AppDir),
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
     pyfunc(add_python_path,add_python_path(TestDir),_),
-    set_heap_margin(256).   % double the amount in v. 4.0
-
+    set_heap_margin(256),   % double the amount in v. 4.0
+    writeln(initted).
 
 test_xsbpy:-
     xsb_configuration(packagesdir, PackDir),

@@ -18,6 +18,8 @@
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include <frameobject.h>
+#include <traceback.h>
 
 #include "auxlry.h"
 #include "cinterf_defs.h"
@@ -58,6 +60,9 @@ void printPlgTerm(prolog_term term2);
 void printPyObj(PyObject *obj1);
 void sprintPyObj(char **s, PyObject *obj1);
 void printPyObjType(CTXTdeclc PyObject *obj1);
+
+#define PYTHON37 1
+//#define PYTHON38 1
 
 #define XSBPY_MAX_BUFFER 500
 
@@ -250,8 +255,6 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
 }
 
 // -------------------- Python to Prolog
-
-//#define PYTHON38 1
 
 /* TES: For some reason, PyFloat_Check(), PySet_Check and the Py_None
    check work for Python 3.7 but not for Python 3.8.  Accordingly, for
@@ -581,6 +584,41 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
   return pObjOut;
 }
 
+void xp_python_error() {
+  PyObject *ptype, *pvalue, *ptraceback = NULL;
+  PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+  PyObject* ptypeRepr = PyObject_Repr(ptype);
+  PyObject* pvalueRepr = PyObject_Repr(pvalue);
+#if defined(PYTHON37)
+  PyTracebackObject *tb = (PyTracebackObject *)ptraceback;
+  if (NULL != tb && NULL != tb->tb_frame) {
+    int buff_ctr = 0;
+    buff_ctr = sprintf(forest_log_buffer_1->fl_buffer,
+			  "Python traceback (most recent call last):\n");
+    while (NULL != tb) {
+      PyFrameObject *frame = tb ->tb_frame;
+        int line = PyCode_Addr2Line(frame->f_code, frame->f_lasti);
+        const char *filename = PyUnicode_AsUTF8(frame->f_code->co_filename);
+        const char *funcname = PyUnicode_AsUTF8(frame->f_code->co_name);
+        buff_ctr += sprintf(forest_log_buffer_1->fl_buffer+buff_ctr,
+			    "  File \"%s\", line %d, in %s\n", filename, line, funcname);
+        tb = tb->tb_next;
+    }
+    xsb_abort("Python Error;\n Type: %s \n Value: %s \n %s",
+	      PyUnicode_AsUTF8(ptypeRepr),PyUnicode_AsUTF8(pvalueRepr),
+	      forest_log_buffer_1->fl_buffer);
+  }
+  else 
+    xsb_abort("Python Error;\n Type: %s \n Value: %s \n",
+	    PyUnicode_AsUTF8(ptypeRepr),PyUnicode_AsUTF8(pvalueRepr));
+#else
+    xsb_abort("Python Error;\n Type: %s \n Value: %s \n",
+	    PyUnicode_AsUTF8(ptypeRepr),PyUnicode_AsUTF8(pvalueRepr));
+#endif  
+    //  PyErr_Restore(NULL,NULL, NULL);
+    //  PyErr_Print();
+}
+
 
 // Does not take dictionary values, as this doesn't seem to be supported
 // By the Python C-API
@@ -629,14 +667,7 @@ DllExport int pydot(CTXTdecl) {
 	      forest_log_buffer_1->fl_buffer);
   }
   if (pObjOut == NULL) { // TES todo change to check for python error
-    PyObject *ptype, *pvalue, *ptraceback;
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-    PyObject* ptypeRepresentation = PyObject_Repr(ptype);
-    PyObject* pvalueRepresentation = PyObject_Repr(pvalue);
-    PyErr_Restore(ptype, pvalue, ptraceback);
-    PyErr_Print();
-    xsb_abort("++Error[xsbpy]: A Python Error Occurred: %s/%s",
-	      PyUnicode_AsUTF8(ptypeRepresentation),PyUnicode_AsUTF8(pvalueRepresentation));
+    xp_python_error();
   }
   ensureXSBStackSpace(CTXTc pObjOut);
   prolog_term return_pr = p2p_new(CTXT);
@@ -646,6 +677,10 @@ DllExport int pydot(CTXTdecl) {
   if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
     return FALSE;
   return TRUE;
+}
+
+void xp_pyerr_print() {
+    PyErr_Print();
 }
 
 DllExport int pyfunc_int(CTXTdecl) {
@@ -660,9 +695,7 @@ DllExport int pyfunc_int(CTXTdecl) {
   //  pName = PyUnicode_FromString(module);
   pModule = PyImport_ImportModule(module);
   if(pModule == NULL) {
-    PyErr_Print();
-    xsb_abort("++Error[xsbpy]: no Python module named \'%s\' could be found."
-	      "(in arg 1 of pyfunc/3)\n",module);
+    xp_python_error();
   }
   //  Py_DECREF(pName);
   V = extern_reg_term(2);
@@ -692,14 +725,7 @@ DllExport int pyfunc_int(CTXTdecl) {
       pValue = PyObject_CallObject(pFunc, pArgs);
     Py_DECREF(pFunc);     Py_DECREF(pArgs); Py_DECREF(pDict);
     if (pValue == NULL) { // TES todo change to check for python error
-      PyObject *ptype, *pvalue, *ptraceback;
-      PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-      PyObject* ptypeRepresentation = PyObject_Repr(ptype);
-      PyObject* pvalueRepresentation = PyObject_Repr(pvalue);
-      PyErr_Restore(ptype, pvalue, ptraceback);
-      PyErr_Print();
-      xsb_abort("++Error[xsbpy]: A Python Error Occurred: %s/%s",
-		PyUnicode_AsUTF8(ptypeRepresentation),PyUnicode_AsUTF8(pvalueRepresentation));
+      xp_python_error();
     }
     ensureXSBStackSpace(CTXTc pValue);
     prolog_term return_pr = p2p_new(CTXT);
