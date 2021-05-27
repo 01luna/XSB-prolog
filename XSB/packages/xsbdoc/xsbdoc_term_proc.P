@@ -69,11 +69,29 @@ need to do process_file_assertions
 
 process_a_file(File,Dir,Base,SrcName,IsLib) :-
 	read_file_reset,
- 	corrected_search_module(File,Dir,Base,SrcName,IsLib),
-	concat_atom([Dir,SrcName],Full),
+ 	(corrected_search_module(File,Dir,Base,SrcName,IsLib)
+	 -> concat_atom([Dir,SrcName],Full),
             read_record_file(Full),
-	concat_atom([Dir,Base,'.H'],Hname),
-	(file_exists(Hname) -> read_record_file(Hname) ; true).
+	    concat_atom([Dir,Base,'.H'],Hname),
+	    (file_exists(Hname) -> read_record_file(Hname) ; true),
+	    %% DSW added following, where should this go?
+	    update_library_directory
+	 ; fail
+	).
+
+%%:- import add_lib_dir/1, add_lib_dir/2 from consult.
+update_library_directory :-
+    ('_#clause'(directive(Lib_dir_call),_Ctr),
+     set_lib_dir_call(Lib_dir_call),
+     call(Lib_dir_call),
+     fail
+     ;
+     true
+    ).
+
+set_lib_dir_call(add_lib_dir(_,_)).
+set_lib_dir_call(add_lib_dir(_)).
+set_lib_dir_call(bootstrap_package(_,_)).
 
 :- import user_library/1 from usermod.
 :- dynamic user_library/1.
@@ -95,8 +113,9 @@ corrected_search_module(Input,Dir,Base,Source,IsLib):-
 	  ; (user_library(Base) -> 
 	        IsLib = true
 	      ; IsLib = false) ),!.
-corrected_search_module(Input,_Dir,_Base,_Source,_IsLib):- 
-	permission_error(file_search,file,Input,'corrected_search_module/5').
+%% Fails, so caller must handle not-found
+%%corrected_search_module(Input,_Dir,_Base,_Source,_IsLib):- 
+%%   permission_error(file_search,file,Input,'corrected_search_module/5').
 
 read_record_file(File) :-
         messageln(''),   messageln(''),

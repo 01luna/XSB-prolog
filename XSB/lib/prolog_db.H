@@ -20,6 +20,7 @@
 :- export findall_db/3.
 :- export sgdb/1, gdb/1.
 :- export pdb_unnumbervars/4, clause_in_db/4.
+:- export eval_db/2.
 
 :- import gensym/2, conset/2, coninc/1, conget/2 from gensym.
 :- import close/1, writeln/2, '=..'/2, file_exists/1, write/1,

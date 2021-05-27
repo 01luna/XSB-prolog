@@ -89,7 +89,8 @@ exports(F,A,Ctr):-
 	T = F/ A.
 
 imports(File,F,A):-
-	'_#clause'(directive(import(from(Preds,File))),_Ctr),
+	'_#clause'(directive(import(from(Preds,File0))),_Ctr),
+	(File0 = usermod(File) -> true ; File = File0),
 	comma_member(T,Preds),T = F / A.
 imports(File,F,A):-
 	'_#clause'(directive(document_import(from(Preds,File))),_Ctr),

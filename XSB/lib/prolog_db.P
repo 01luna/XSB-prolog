@@ -85,7 +85,7 @@ a pure way, since trie-terms are simply Prolog terms and so earlier
 trie-term database states are automatically recovered on backtracking
 (unlike with Prolog's built-in assert and retract operations).
 
-Trie-terms can be used to represent sets of ground Prolog terms (i.e.,
+Trie-terms can be used to represent sets of @em{ground} Prolog terms (i.e.,
 ground facts), which can be interpreted and manipulated as sets of
 relations over Prolog terms.  Operations are provided for adding
 elements to sets/relations generating new sets/relations, and for
@@ -98,7 +98,7 @@ can also take advantage of the indexed data structure.
 
 The complexity of adding, deleting, and looking up single elements in
 a trie-term is approximately linear in the the number of symbols in
-the clause being processed.  In the constant is a log factor based on
+the clause being processed.  The constant is a log factor based on
 the size of the embedded radix trees.
 	   
 Since trie-terms are ground, they can be (and are) interned (a.k.a.
@@ -122,7 +122,7 @@ some applications.  ").
 supports a very general facility for manipulating sets of Prolog
 clauses represented as a single (interned, ground) Prolog term that
 can be useful for a variety of purposes.  We will describe the
-module's functionality though a series of examples, which use
+module's functionality through a series of examples, which use
 progressively more complicated aspects of the data type.
 
 @section{Sets of Atoms (or Terms)}
@@ -3690,6 +3690,24 @@ findall_db0(Template,Goal,NTemplate) :-
 :- mode add_to_db(+,+,?).
 add_to_db(DB0,Ans,DB) :-
     assert1_in_db(Ans,DB0,DB).
+
+/********************************************************/
+:- comment(eval_db/2,"eval_db(+PDBExpr,?PDB) evaluates an expression
+@var{PDBExpr} of PDB's and produces the resulting DB in @var{PDB}.
+The operations are: * for intersection, - for difference, + for union,
+and xor for symmetric difference. ").
+
+eval_db(Expr,PDB) :-
+    (Expr = (E1+E2)
+     -> eval_db(E1,PDB1), eval_db(E2,PDB2), union_db(PDB1,PDB2,PDB)
+     ; Expr = (E1*E2)
+     -> eval_db(E1,PDB1), eval_db(E2,PDB2), intersect_db(PDB1,PDB2,PDB)
+     ; Expr = (E1-E2)
+     -> eval_db(E1,PDB1), eval_db(E2,PDB2), difference_db(PDB1,PDB2,PDB)
+     ; Expr = (E1 xor E2)
+     -> eval_db(E1,PDB1), eval_db(E2,PDB2), sym_diff_db(PDB1,PDB2,PDB)
+     ; PDB = Expr
+    ).
 
 /********************************************************/
 
