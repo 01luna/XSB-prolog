@@ -172,6 +172,8 @@ rm -f varcond.xwam
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" test_large_atom_codes "test."
 #------------------------------------------------------------------------
+../gentest.sh "$XEMU $options" test_iso8601 "test."
+#------------------------------------------------------------------------
 if test "$valgrind" = "true"; then
     echo "Valgrind is too slow on prolog_db_tests; skipping"
 else
