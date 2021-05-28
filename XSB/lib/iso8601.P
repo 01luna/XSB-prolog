@@ -1,5 +1,5 @@
 /*
-## File:      lib/iso8601
+## FILE:      lib/iso8601
 ## Contact:   xsb-contact@cs.sunysb.edu
 ## 
 ## Copyright (C) The Research Foundation of SUNY, 1986, 1993-1998
@@ -35,16 +35,17 @@
 
 	Author:  Daniel L. Dudley
 	Created: 2004-02-18
+*/
 
-
+:- export easter_day/3,calendar_month/3.
 :- export
 			date_string/3,
 			julian_date/7,
 			valid_date/3.
-:- export easter_day/3.
 
 :- import datime/1 from standard.
 :- import domain_error/4 from error_handler.
+:- import date/3 from usermod.
 
 /************************
  ISO 8601 DATE PREDICATES
@@ -63,14 +64,17 @@ checkmonth(Month):-
 	    true 
 	  ; domain_error(is08601month,Month,julian_date/7,3)).
 
-checkday(Month,Day):-
-	((var(Day) ; var(Month) ; 
-	    days_in_month(Month,Days), Day >= 1,Day =< Days) -> 
-	    true 
-	  ; domain_error(is08601day,Day,julian_date/7,4)).
+checkday(Month,Day,Year):- (var(Day) ; var(Month) ; var(Year)),!.
+checkday(Month,Day,Year):-
+    (Month == 2 ->
+	 (leap_year(Year) -> Days = 29 ; Days = 28)
+       ; days_in_month(Month,Days) ),
+      ((Day >= 1,Day =< Days) -> 
+	  true 
+        ; domain_error(is08601day,Day,julian_date/7,4)).
 
 julian_date(JD,Year,Month,Day,DoW,Week,DoY) :-
-	checkyear(Year),checkmonth(Month),checkday(Month,Day),
+	checkyear(Year),checkmonth(Month),checkday(Month,Day,Year),
 	(	var(JD), nonvar(Year), (var(Month) ; var(Day)), nonvar(DoY)
 		-> date(JD1,Year,1,0),
 		JD is JD1 + DoY,
@@ -121,11 +125,13 @@ date(JD,Year,Month,Day,DoW) :-
 	date(JD,Year,Month,Day),
 	DoW is (JD mod 7) + 1.
 
-
 %==============================================================================
 % date(?JD, ?Year, ?Month, ?Day, ?DoW, ?Week)
 
 date(JD,Year,Month,Day,DoW,week(Wk,Yr)) :-
+    date(JD,Year,Month,Day,DoW,Wk,Yr).
+
+date(JD,Year,Month,Day,DoW,Wk,Yr) :-
 	(  var(JD), var(Year), var(Month), var(Day), nonvar(Wk), nonvar(Yr)
 		-> (var(DoW) -> DoW = 1 ; true),
 		date(JD1,Yr,1,1,DoW1),
@@ -195,9 +201,9 @@ date_string('YYYYMMDD',Day,String) :-	% DATE
 		  number_chars(Y,[Y0,Y1,Y2,Y3]),
 		  number_chars(M,[M0,M1]),
 		  number_chars(D,[D0,D1]),
-		  Day = [Y,M,D]
-	  ;  ((var(Day) ; Day = [Y|_], var(Y)) -> date(_,Y,M,D) ; true),
-		  (Day = [Y,M,D] -> nonvar(Y), nonvar(M), nonvar(D) ; date(Day,Y,M,D)),
+		  Day = date(Y,M,D)
+	  ;  ((var(Day) ; Day = date(Y,_,_), var(Y)) -> date(_,Y,M,D) ; true),
+		  (Day = date(Y,M,D) -> nonvar(Y), nonvar(M), nonvar(D) ; date(Day,Y,M,D)),
 		  prepend_zeros(2,D,D1),
 		  prepend_zeros(2,M,M1),
 		  number_codes(Y,Y1),
@@ -212,7 +218,7 @@ date_string('YYYY-MM-DD',Day,String) :-  % DATE
 			number_chars(M,[M0,M1]),
 			number_chars(D,[D0,D1]),
 			!,
-			Day = [Y,M,D]
+			Day = date(Y,M,D)
 			)
 	  ;
 	  		(
@@ -220,11 +226,11 @@ date_string('YYYY-MM-DD',Day,String) :-  % DATE
 			number_chars(Y,[Y0,Y1,Y2,Y3]),
 			number_chars(M,[M0,M1]),
 			number_chars(D,[D0]),
-			Day = [Y,M,D]
+			Day = date(Y,M,D)
 			)
 		  )
-	  ;  ((var(Day) ; Day = [Y|_], var(Y)) -> date(_,Y,M,D) ; true),
-		  (Day = [Y,M,D] -> nonvar(Y), nonvar(M), nonvar(D) ; date(Day,Y,M,D)),
+	  ;  ((var(Day) ; Day = date(Y,_,_), var(Y)) -> date(_,Y,M,D) ; true),
+		  (Day = date(Y,M,D) -> nonvar(Y), nonvar(M), nonvar(D) ; date(Day,Y,M,D)),
 		  prepend_zeros(2,D,D1),
 		  prepend_zeros(2,M,M1),
 		  number_codes(Y,Y1),
@@ -234,35 +240,36 @@ date_string('DD-MMM-YYYY',Day,String) :-  % Oracle default DATE format
 	( nonvar(String)
 	  -> (
 	  	 	(
-			atom_chars(String,[D0,D1,_,M0,M1,M3,_,Y0,Y1,Y2,Y3|_]),
-			number_chars(Y,[Y0,Y1,Y2,Y3]),
+			atom_codes(String,[D0,D1,_,M0,M1,M3,_,Y0,Y1,Y2,Y3|_]),
+			number_codes(Y,[Y0,Y1,Y2,Y3]),
 			monthForOracle(M,[M0,M1,M3]),
-			number_chars(D,[D0,D1]),
+			number_codes(D,[D0,D1]),
 			!,
-			Day = [Y,M,D]
+			Day = date(Y,M,D)
 			)
 	  ;
 	  		(
-			atom_chars(String,[D0,_,M0,M1,M3,_,Y0,Y1,Y2,Y3|_]),
-			number_chars(Y,[Y0,Y1,Y2,Y3]),
+			atom_codes(String,[D0,_,M0,M1,M3,_,Y0,Y1,Y2,Y3|_]),
+			number_codes(Y,[Y0,Y1,Y2,Y3]),
 			monthForOracle(M,[M0,M1,M3]),
-			number_chars(D,[D0]),
-			Day = [Y,M,D]
+			number_codes(D,[D0]),
+			Day = date(Y,M,D)
 			)
 		  )
-	  ;  ((var(Day) ; Day = [Y|_], var(Y)) -> date(_,Y,M,D) ; true),
-		  (Day = [Y,M,D] -> nonvar(Y), nonvar(M), nonvar(D) ; date(Day,Y,M,D)),
+	  ;  ((var(Day) ; Day = date(Y,_,_), var(Y)) -> date(_,Y,M,D) ; true),
+		  (Day = date(Y,M,D) -> nonvar(Y), nonvar(M), nonvar(D) ; date(Day,Y,M,D)),
 		  prepend_zeros(2,D,D1),
 		  monthForOracle(M,M1),
 		  number_codes(Y,Y1),
 		  list_of_lists_to_atom([D1,[45],M1,[45],Y1],String)
 	).
+/* TES: for now commenting out the date_string clauses that don't produce Y, M, and D 
 date_string('YYYY-MM',Day,String) :-	  % YEAR & MONTH
 	( nonvar(String)
 	  -> atom_chars(String,[Y0,Y1,Y2,Y3,_,M0,M1]),
 		  number_chars(Year,[Y0,Y1,Y2,Y3]),
 		  number_chars(Month,[M0,M1]),
-		  Day = [Year,Month]
+		  Day = date(Year,Month,_)
 	  ;  ((var(Day) ; Day = [Y|_], var(Y)) -> date(_,Y,M,_) ; true),
 		  (Day = [Y,M,_] -> nonvar(Y), nonvar(M) ; date(Day,Y,M,_)),
 		  prepend_zeros(2,M,M1),
@@ -377,6 +384,7 @@ date_string('YYYY-Www',Day,String) :-	% YEAR & WEEK
 		  list_of_lists_to_atom(List,String)
 	).
 
+*/
 
 %-----------------------------------
 % prepend_zeros(+Digits, +N, -Codes)
@@ -549,33 +557,9 @@ corr_day(_,4,A,28,6,18):-  % April, Gregorian exception 2
 	!.
 corr_day(Day,_,_,_,_,Day).  % Otherwise
 
-
-
 /************************
  LOCAL UTILITY PREDICATES
  ************************/
-
-%------------------------------------
-% days_in_month(+Month, -DaysInMonth)
-% Purpose: Return the number of days in a given month
-% Called by: valid_date/3, calendar_month/3
-
-days_in_month( 1, 31).
-days_in_month( 2, 28).
-days_in_month( 3, 31).
-days_in_month( 4, 30).
-days_in_month( 5, 31).
-days_in_month( 6, 30).
-days_in_month( 7, 31).
-days_in_month( 8, 31).
-days_in_month( 9, 30).
-days_in_month(10, 31).
-days_in_month(11, 30).
-days_in_month(12, 31).
-
-
-
-
 monthForOracle(1,"JAN").
 monthForOracle(2,"FEB").
 monthForOracle(3,"MAR").
@@ -588,3 +572,11 @@ monthForOracle(9,"SEP").
 monthForOracle(10,"OCT").
 monthForOracle(11,"NOV").
 monthForOracle(12,"DEC").
+
+xlate_dow(1,monday).
+xlate_dow(2,tuesday).
+xlate_dow(3,wednesday).
+xlate_dow(4,thursday).
+xlate_dow(5,friday).
+xlate_dow(6,saturday).
+xlate_dow(7,sunday).
