@@ -46,6 +46,7 @@
 :- import datime/1 from standard.
 :- import domain_error/4 from error_handler.
 :- import date/3 from usermod.
+:- import atom_chars/2 from standard.
 
 /************************
  ISO 8601 DATE PREDICATES
@@ -263,7 +264,9 @@ date_string('DD-MMM-YYYY',Day,String) :-  % Oracle default DATE format
 		  number_codes(Y,Y1),
 		  list_of_lists_to_atom([D1,[45],M1,[45],Y1],String)
 	).
+
 /* TES: for now commenting out the date_string clauses that don't produce Y, M, and D 
+%%%
 date_string('YYYY-MM',Day,String) :-	  % YEAR & MONTH
 	( nonvar(String)
 	  -> atom_chars(String,[Y0,Y1,Y2,Y3,_,M0,M1]),
