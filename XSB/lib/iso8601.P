@@ -39,9 +39,9 @@
 */
 
 :- export
-			date_string/3,
-			julian_date/7,
-			valid_date/3.
+        date_string/3,
+        julian_date/7,
+        valid_date/3.
 
 :- import datime/1 from standard.
 :- import domain_error/4 from error_handler.
