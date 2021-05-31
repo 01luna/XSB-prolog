@@ -46,7 +46,12 @@
 :- import datime/1 from standard.
 :- import domain_error/4 from error_handler.
 :- import date/3 from usermod.
-:- import atom_chars/2 from standard.
+:- import
+        number_codes/2,
+        number_chars/2,
+        atom_codes/2,
+        atom_chars/2
+   from standard.
 
 /************************
  ISO 8601 DATE PREDICATES
@@ -576,6 +581,7 @@ monthForOracle(10,"OCT").
 monthForOracle(11,"NOV").
 monthForOracle(12,"DEC").
 
+:- export xlate_dow/2. %% temp, until used
 xlate_dow(1,monday).
 xlate_dow(2,tuesday).
 xlate_dow(3,wednesday).
