@@ -265,7 +265,7 @@ $GREP "dumped" $LOG_FILE >> $RES_FILE
 # when no output file is generated
 $GREP "no match" $LOG_FILE >> $RES_FILE
 # for bus error
-$GREP "bus" $LOG_FILE >> $RES_FILE
+$GREP "bus " $LOG_FILE >> $RES_FILE
 # for really bad outcomes
 $GREP "missing" $LOG_FILE >> $RES_FILE
 # for wrong results
