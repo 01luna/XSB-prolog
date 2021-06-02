@@ -474,7 +474,7 @@ third argument of {\tt pyfunc/4}.
 
 In general, {\tt Module} must be the name of a Python module or path
 represented as a Prolog atom, and {\tt Function} is the invocation of
-a Python function in {\tt Module}, where {\tt Function} is simply a
+a Python function in {\tt Module}, where {\tt Function} is a compound
 Prolog structure.  Optional keyword arguments are passed in the third
 argument as lists of {\tt Key = Value} terms; if no such arguments are
 needed, {\tt Kwargs} can be an empty list -- or {\tt pyfunc/3} may be
@@ -496,16 +496,18 @@ queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
 \bi
 \item misc\_error
   \ei \ei
+%
   In addition, errors thrown by Python are
-  caught and thrown as {\tt misc\_error} errors.
+  caught by XSB and thrown as {\tt misc\_error} errors.
 
 \altourmoditem{pydot(+Module,+ObjRef,+MethAttr,?Ret)}{pydot/4}{xsbpy}
 %
-Acts in a manner similar to {\tt pyfunc/[3,4]}.  {\tt Module} is a
-Python module or path, {\tt ObjRef} a Python object reference in term
-form (i.e., a term of the form {\tt pyObj(Ref)} where {\tt Ref} is a
-Prolog atom depicting a reference to a Python object). {\tt pydot/4}
-acts in one of two ways:
+Applies a method to {\tt ObjRef}, or obtains an attribute from it.  As
+with {\tt pyfunc/[3,4]}, {\tt Module} is a Python module or
+path. However, {\tt ObjRef} is a Python object reference in term form
+(i.e., a term of the form {\tt pyObj(Ref)} where {\tt Ref} is a Prolog
+atom depicting a reference to a Python object). {\tt pydot/4} acts in
+one of two ways:
 \begin{itemize}
 \item If {\tt MethAttr} is a Prolog compound term corresponding to a
   Python method for {\tt ObjRef}, the method is called and its return
@@ -530,10 +532,8 @@ acts in one of two ways:
 \ei
 \item {\tt MethAttr} is neither a Prolog compound term nor a Prolog atom:
 \bi
-\item misc\_error
-\ei
-\ei
-In addition, errors thown by Python are caught and thrown as {\tt misc\_error} errors.
+\item misc\_error \ei \ei In addition, errors thown by Python are
+  caught by XSB and re-thrown as {\tt misc\_error} errors.
 
 \ourrepeatmoditem{pp\_py(+Stream,+Term)}{pp\_py/2}{xsbpy}
 \altourmoditem{pp\_py(Term)}{pp\_py/1}{xsbpy}
@@ -605,9 +605,29 @@ error conditions associated with these predicates.
 %
 Given a reference to a Python object as {\tt ObjRef}, this predicate
 returns the dictionary of attributes of {\tt ObjRef} in {\tt Dict}.
-(The equivalent of calling {\tt ObjRef.\_\_dict\_\_} in Python.).  If
-no \_\_dict\_\_ attribute is associated with {\tt ObjRef} the
+If no \_\_dict\_\_ attribute is associated with {\tt ObjRef} the
 predicate fails.
+
+{\tt obj\_dict/2} is a convenience predicate, and could be written
+using {\tt pydot/4} as:
+
+\begin{verbatim}
+  pydot('__main__',Obj,'__dict__',Dict).
+\end{verbatim}
+
+\altourmoditem{obj\_dir(+ObjRef,-Dir)}{obj\_dir/2}{xsbpy\_utils}
+%
+Given a reference to a Python object as {\tt ObjRef}, this predicate
+returns the list of attributes of {\tt ObjRef} in {\tt Dir}.  If no
+\_\_dir\_\_ attribute is associated with {\tt ObjRef} the predicate
+fails.
+
+{\tt obj\_dir/2} is a convenience predicate, and could be written
+using {\tt pydot/4} as:
+
+\begin{verbatim}
+  pydot('__main__',Obj,'__dir__'(),Dir).
+\end{verbatim}
 
 \end{description}
 
