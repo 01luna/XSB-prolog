@@ -657,7 +657,7 @@ DllExport int pydot(CTXTdecl) {
     }
     else {
       sprintTerm(forest_log_buffer_1, prMethIn);
-      xsb_abort("++Error[xsbpy]: arg 3 of pydot/4 is not a Python Object: %s\n",
+      xsb_abort("++Error[xsbpy]: arg 3 of pydot/4 is not a Python function or attribute: %s\n",
 	      forest_log_buffer_1->fl_buffer);
     }
   }

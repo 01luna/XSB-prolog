@@ -1,10 +1,10 @@
-:- export items/2, keys/2, values/3, obj_dict/2.
+:- export items/2, keys/2, values/3, obj_dict/2, obj_dir/2.
 
 :- compiler_options([xpp_on]).
 #include "xsbpy_defs.h"
 
 :- import member/2,memberchk/2 from basics.
-:- import pyfunc/3 from xsbpy.
+:- import pyfunc/3,pydot/4 from xsbpy.
    
 items(PYDICT_PROLOG(Items),Items).
 
@@ -25,5 +25,5 @@ values(Dict,Key,Val):-
 obj_dict(Obj,Dict):-
      pyfunc(xsbpy_utils,dictionary(Obj),Dict).
 
-%obj_dir(Obj,Dir):-
-%     pyfunc(xsbpy_utils,py_dir(Obj),Dir).
+obj_dir(Obj,Dir):-
+     pydot('__main__',Obj,'__dir__'(),Dir).
