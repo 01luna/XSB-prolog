@@ -1,5 +1,6 @@
 %% This compiles the examples below on Unix and Windows
 :- import compile_windows_c_to_exe/1 from foreign.
+:- import copy/2, rm/1 from shell.
 
 test:- \+ windows_os,
         xsb_configuration(compiler_flags,CFLAGS),
@@ -25,5 +26,5 @@ test :- windows_os,
 	shell(['cvarconstr.exe ',InstallDir,' > temp1']),
 	writeln(userout,completed_cvarstring),
 	told,
-	shell('cat temp1 >> temp'),
-	shell('rm temp1').
+	copy(temp1,temp),
+	rm(temp1).

@@ -1,5 +1,6 @@
 %% This compiles the examples below on Unix
 :- import compile_windows_c_to_exe/1 from foreign.
+:- import copy/2, rm/1 from shell.
 
 test:- \+ windows_os,
 	xsb_configuration(compiler_flags,CFLAGS),
@@ -23,5 +24,6 @@ test :- windows_os,
 	compile_windows_c_to_exe(cregs),
 	shell(['cregs.exe ',InstallDir,' > temp1']),
 	told,
-	shell('cat temp1 >> temp'),
-	shell('rm temp1').
+	copy(temp1,temp),
+	rm(temp1).
+
