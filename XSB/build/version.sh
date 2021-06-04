@@ -40,6 +40,7 @@ xsb_codename="TaB"                # Version 4.0 (Carl's wife)
 # Format: YYYY-MM-DD or YYYY.MM.DD or YYYY/MM/DD
 # With this, XSB should become Y2K compliant :-)
 #xsb_release_date=2006-08-07
+
 #xsb_release_date=2009-03-15
 #xsb_release_date=2011-04-12
 #xsb_release_date=2011-05-11
@@ -51,4 +52,3 @@ xsb_codename="TaB"                # Version 4.0 (Carl's wife)
 #xsb_release_date=2017-10-28  # target (may be changed)
 xsb_release_date=2021-04-01  # target (may be changed)
 
-b
