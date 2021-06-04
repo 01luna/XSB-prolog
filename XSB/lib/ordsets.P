@@ -48,7 +48,7 @@
 
 :- export
 	is_ordset/1,
-	list_to_ordnset/2,	%  List -> Set
+	list_to_ordset/2,	%  List -> Set
 	ord_add_element/3,	%  Set x Elem -> Set
 	ord_del_element/3,	%  Set x Elem -> Set
 	merge/3,		%  OrdList x OrdList -> OrdList
