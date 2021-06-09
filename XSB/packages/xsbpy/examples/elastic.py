@@ -18,6 +18,9 @@ def refresh(indexin):
 
 def search(indexin,bodyin):
     return(conn.search(index=indexin, body=bodyin))
+
+def msearch(indexin,bodyin):
+    return(conn.msearch(index=indexin, body=bodyin))
            
 def get_indices():
     return(conn.indices.get_alias('*'))
