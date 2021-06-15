@@ -1,3 +1,6 @@
+
+#written by Albert Ki
+
 import fasttext as ft
 
 def hello_world(binpath):

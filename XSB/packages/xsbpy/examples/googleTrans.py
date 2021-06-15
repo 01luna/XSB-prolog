@@ -1,3 +1,6 @@
+
+# Written by Albert Ki.
+
 from googletrans import Translator
 
 LIMIT_EXCEEDED = False
