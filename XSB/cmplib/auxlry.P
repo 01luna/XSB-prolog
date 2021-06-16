@@ -65,6 +65,8 @@ set_global_compiler_options(Options) :-
 	retractall('_$global_compiler_options'(_)),
 	assert('_$global_compiler_options'(Options)).
 
+:- dynamic('_$compiler_option_dynamic'(_)).
+
 /*================================================================*/
 /*  setoptions(+Options)						*/
 /*	Compiler option setting.					*/
@@ -190,6 +192,7 @@ current_option(ti_opt1).
 /* preprocessor */
 current_option(xpp_on).
 current_option(xpp_dump).
+current_option(dynamic).
 
 /* parse */
 current_option(quit_on_error).
@@ -235,6 +238,8 @@ current_option(Opt,OptName) :-
 	functor(Opt,OptName,_),
 	(OptName == xpp_on ; OptName == xpp_dump ; OptName == module),
 	!.
+current_option(dynamic(Opts),dynamic) :-
+	assert('_$compiler_option_dynamic'(Opts)).
 % TLS: used for backward compatability when options change.
 current_option(_,_):- fail.
 

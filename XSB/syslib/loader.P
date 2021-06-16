@@ -697,9 +697,13 @@ compile_and_load(FileNameList,ModName,PModName,ModTerm) :-
 		)
 	 ;	str_cat_list(FileNameList,FileName_P),
 		atom(ModName),
-		compile_opt_checked(FileName_P,[module(ModName)],1), %to temp, dont rename
-		load(PModName,0,1),
-		rename_private_objfile_list(FileNameList)
+		\+ \+ (compile0(FileName_P,[module(ModName)],1,ExpDyn), %to temp, dont rename
+		       (ExpDyn = dynamic(OptList)
+			-> load_dyn_gen(FileName_P,[module(ModName),exportsInUsermod(no)|OptList])
+		        ;  load(PModName,0,1),
+			   rename_private_objfile_list(FileNameList)
+			)
+		      )
 	).
 
 rename_private_objfile_list(FileNameList) :-

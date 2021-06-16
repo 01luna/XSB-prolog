@@ -12,6 +12,7 @@
 :- mode compile_check_ok(?).
 :- mode compile_clauses(?,?,?,?,+,?).
 :- mode compile_internal(+,+,+,+,+,?).
+:- mode compile_parsed_file(+,?,?,+,+,+,+,+,+,+,+,+).
 :- mode compile_pred_block(?,?,+,?).
 :- mode compile_predicate(?,+,+,+,+,+,?).
 :- mode compile_predicate2(?,?,?).
@@ -39,6 +40,7 @@
 :- mode_on_success compile_clauses(g,A,B,B,g,g).
 :- mode_on_success compile_clauses(ng,g,A,A,g,g).
 :- mode_on_success compile_internal(g,g,g,g,g,g).
+:- mode_on_success compile_parsed_file(g,A,g,g,g,g,g,g,g,g,g,g).
 :- mode_on_success compile_pred_block(A,B,g,g).
 :- mode_on_success compile_predicate(A,g,g,g,g,g,B).
 :- mode_on_success compile_predicate2(A,B,g).

@@ -26,7 +26,7 @@
 :- export 
         add_lib_dir/1, add_lib_dir/2,
         remove_lib_dir/1, removeall_lib_dir/1, has_lib_dir/1,
-	compile/1, compile/2, compile_opt_checked/3, search_module/6,
+	compile/1, compile/2, compile_opt_checked/3, search_module/6, compile0/4,
         consult/1, consult/2, '.'/2, reconsult/1, reconsult/2,
         current_loaded_file/1, is_loaded/1, add_this_lib_dir/0,
         engine_mode_magic_num/3,
@@ -42,6 +42,8 @@
         (thread_shared)/1,
         (thread_private)/1,
         cvt_canonical/2.
+:- export load_dyna/1.
+:- export load_dynca/2.
 :- export
         record_file_consultloaded/1,
         remove_file_consultloaded/1,

@@ -1,5 +1,5 @@
 /* File:      modeinf.P
-** Author(s): C.R. Ramakrishnan
+** Author(s): C.R. Ramakrishnan, with minor updates by David S. Warren
 ** Contact:   xsb-contact@cs.sunysb.edu
 ** 
 ** Copyright (C) The Research Foundation of SUNY, 1986, 1993-1998
@@ -88,7 +88,7 @@ modeanalyze(ModName, Module, DeclFile) :-
 /************************************************************************/
 
 analyze :- 
-    %%    (do_all assert:clause('_$call_user'(Head),Body),writeq(('_$call_user'(Head):-Body)),nl),
+    %%    (do_all clause('_$call_user'(Head),Body),writeq(('_$call_user'(Head):-Body)),nl),
     debug('Begin Analysis'),
     cputime(T0),
     analyze_fail_loop,
@@ -105,10 +105,17 @@ analyze_fail_loop :-
      call_user(Goal)
     ).
 
+%% define DEBUG_TRACE if want detailed tracing of analysis,
+%% just call to debug is expensive.
+#ifdef DEBUG_TRACE
 call_user(Goal) :-
     debug(c_cu(Goal)),
     call_user(Goal,_),
     debug(r_cu(Goal)).
+#else
+call_user(Goal) :- call_user(Goal,_).
+#endif
+
 
 %% table call_user/2 with 2nd arg always a variable, to avoid early completion,
 %% which keeps some clauses from being called for fully-known modes.
@@ -552,7 +559,7 @@ define_all :-
     (option(mi_debug)
      ->	 write('Definition of ''_$call_user''/1:'),nl,
          (do_all
-	  assert:clause('_$call_user'(Goal),Body),
+	  clause('_$call_user'(Goal),Body),
 	  writeq(Goal),
 	  (Body == true
 	   -> write('.'),nl
@@ -1073,11 +1080,12 @@ endblab :-
      ;	true
     ).
 
-debug(X) :-
+/*debug(X) :-
     (option(mi_debug)
      ->	writeln(userout,X)
      ;	true
-    ).
+    ).*/
+debug(_).
 
 nearest_2n_minus_1(N, M) :-
     nearest_2n(N, 1, M1),
@@ -1321,6 +1329,5 @@ prop_iff(X,[Y|L]) :-
 	 prop_iff(X,L)
 	)
     ).
-
 
 force_modeinf_loaded.

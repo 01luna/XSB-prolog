@@ -33,7 +33,7 @@
     from tables.
 :- import (table)/1 from standard.
 
-:- import assert/1, (dynamic)/1, retractall/1
+:- import assert/1, (dynamic)/1, retractall/1, clause/2
    from assert.
 
 :- import 

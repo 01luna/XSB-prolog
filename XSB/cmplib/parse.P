@@ -80,7 +80,10 @@ parse(Modname, PFile, HFile, Module) :-
 		->	parse1(Modname,HFile,Module0)
 		;	Module0 = Module0 % init (lamp variable)
 		),
-		parse1(Modname,PFile,Module0)
+		('_$compiler_option_dynamic'(_)
+		 -> true
+		 ;  parse1(Modname,PFile,Module0)
+		)
 %%%             ,standard:writeln(parse(Module0))
 %%%	; 	error(('Cannot find the file ', PFile)), fail, Module0=Module0
 	),
@@ -514,6 +517,8 @@ preprocessing_is_done    :- conget(xpp_preprocessing_done,1).
 /*=========================================================================*/
 /* parse_clauses(+ModName, #module(#SymTab,#DcList,#ClList,#QrList,#Pars)) */
 /*=========================================================================*/
+parse_clauses(_ModName, _Module) :-
+    '_$compiler_option_dynamic'(_), !.  %stop parsing if dynamic compiler option.
 parse_clauses(ModName, Module) :-
 	my_read(Clause, VariableList),
 	singleton_check(Clause, VariableList),
