@@ -109,7 +109,12 @@ unstructure_modname(+PModName,+ModPsc,-ModFile,-ModPars,-ModTerm)
 **/
 
 unstructure_modname(PModName,ModPsc0,ModFile,ModPars,ModTerm) :-
-    (possibly_structured(PModName,ModPsc0,ModPsc)
+    atom(PModName),
+    (ModPsc0 =:= 0
+     -> psc_insertmod_inline(PModName,0,ModPsc)
+     ;  ModPsc = ModPsc0
+    ),
+    (possibly_structured(PModName,ModPsc)
     -> (atom_to_term(PModName,ModTerm)
         -> ((ModTerm = usermod(FileName) ; modfile_qual(ModTerm,_umod,FileName) ;
 	     psc_name(ModPsc,ModName), ModName == usermod, FileName = PModName)
@@ -130,17 +135,16 @@ unstructure_modname(PModName,ModPsc0,ModFile,ModPars,ModTerm) :-
 	     -> true
 	     ;  throw(error(type_error(atom,ModName),'Illegal module specification'))
 	    )
-	 ;  ModFile = PModName, ModPars = PModName, ModTerm = PModName
+        ;  local_psc_ep(ModPsc,ModFile),
+	   ModPars = PModName,
+	   ModTerm = PModName
        )
-     ;  ModFile = PModName, ModPars = PModName, ModTerm = PModName
+     ;  local_psc_ep(ModPsc,ModFile),
+	ModPars = PModName,
+	ModTerm = PModName
     ).
 
-possibly_structured(Atom,ModPsc0,ModPsc) :-
-    atom(Atom),
-    (ModPsc0 =:= 0
-     -> psc_insertmod_inline(Atom,0,ModPsc)
-     ;  ModPsc = ModPsc0
-    ),
+possibly_structured(Atom,ModPsc) :-
     (str_match(')',Atom,forward,_,_)
      -> true
      ; str_match('''',Atom,forward,_,_)

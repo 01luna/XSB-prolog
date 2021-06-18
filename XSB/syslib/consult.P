@@ -657,6 +657,8 @@ load_dyn0(Dirctry,SExt,Base,Mod,Dir,Module,EIU) :-
 	),
 	set_module_type(Mod),
 	set_module_type(Module),
+	psc_insertmod(Module,0,ModPsc),
+	psc_set_ep(ModPsc,ARfname),
 	cleanup_for_load.
 
 get_HRname(SExt,Base,Hfname,Rfname) :-
@@ -855,6 +857,8 @@ load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,ErrLimit,EIU) :-
 	),
 	set_module_type(Mod),
 	set_module_type(Module),
+	psc_insertmod(Module,0,ModPsc),
+	psc_set_ep(ModPsc,ARfname),
 	cleanup_for_load.
 
 load_dync1(Rfname,Dirctry,Dir,Base,Module,ErrLimit,EIU) :-
@@ -962,6 +966,7 @@ execute_accumulated_commands(Dir) :-
 	 cd(OldDir),
 	 retractall(load_dyn_cmds(_))
 	).
+
 
 do_assert_and_fail([],_,_,_,_) :- !, fail.
 do_assert_and_fail(:-(Cmd),_Dir,Base,Mod,ExportsInUsermod) :- !, % DIRECTIVE
@@ -1226,7 +1231,8 @@ proc_directive(multifile,[Specs],_RMod) :- !,
 proc_directive(compiler_options,[Options],_RMod) :- !,
 	(xpp_is_off ->  conset(migh_need_restart,1) ;   true),
 	check_file_compiler_options(Options),
-	setoptions1(Options).
+	setoptions1(Options),
+	retractall('_$compiler_option_dynamic'(_)). %only when compiling; must delete here.
 
 %:- import (use_subsumptive_tabling)/1,(use_variant_tabling)/1,add_incr_table/2 from tables.
 % Table options; only some handled.  Might try to do better.

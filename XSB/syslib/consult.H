@@ -67,7 +67,7 @@
 :- import asserta/1, (dynamic)/1, retractall/1, assert/1, retract/1, t_assert/2
      from assert.
 :- import check_file_compiler_options/1, setoptions1/1, valid_charset/1 from auxlry.
-:- import warning/1, time_message/2 from auxlry.
+:- import warning/1, time_message/2, '_$compiler_option_dynamic'/1 from auxlry.
 :- import xpp_is_off/0 from parse.
 :- import banner_control/1 from banner.
 :- import append/3, memberchk/2, member/2 from basics.
@@ -91,7 +91,7 @@
 	  existing_file_extension/2, almost_search_module/5, db_get_prref/2,
 	  term_psc/2, psc_set_shared/2, psc_set_private/2, stat_flag/2,
 	  term_new/2, term_new_mod/3, stat_set_flag/2, psc_import_as/2,
-	  psc_set_type/2
+	  psc_set_type/2, psc_mod/2, psc_set_ep/2, psc_insertmod/3
      from machine.
 :- import
 	check_xpp_process_status/3,

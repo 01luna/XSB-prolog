@@ -204,6 +204,11 @@ cd mod_file_tests
 ../../gentest.sh "$XEMU $options" test_mod_file "test."
 ../../gentest.sh "$XEMU $options" test_mod_file_im "test."
 cd ..
+#------------------------------------------------------------------------
+cd mod_dyn_tests
+../../gentest.sh "$XEMU $options" test_dynmod "test."
+../../gentest.sh "$XEMU $options" test_dynmod_im "test."
+cd ..
 
 #------------------------------------------------------------------------
 # Test Prolog calling C: the .so or .o file needs to be created each time

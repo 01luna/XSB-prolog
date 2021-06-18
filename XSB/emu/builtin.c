@@ -241,7 +241,7 @@ extern void replace_form_by_act(char *name, prolog_term modformals, prolog_term 
 
 /* ------- variables also used in other parts of the system -----------	*/
 
-Cell flags[MAX_FLAGS];			  /* System flags + user flags */
+DllExport Cell flags[MAX_FLAGS];	  /* System flags + user flags */
 #ifndef MULTI_THREAD
 Cell pflags[MAX_PRIVATE_FLAGS];		  /* Thread private flags */
 #endif
@@ -1547,6 +1547,7 @@ int builtin_call(CTXTdeclc byte number)
     byte *ep = (pb)ptoc_int(CTXTc 2);
     if (ep == (byte *)NULL) psc_set_ep(psc,(byte *)(&(psc->load_inst)));
     else if (ep == (byte *)4) psc_set_ep(psc,(byte *)&fail_inst);
+    else psc_set_ep(psc,(byte *)ptoc_tag(CTXTc 2)); /* for module psc's */
     break;
   }
 
