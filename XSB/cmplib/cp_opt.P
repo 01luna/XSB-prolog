@@ -380,6 +380,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 				 ;	('_$member'(t(OVar,Var,Leaf,_,1),AllRets),
 					 Var \== OVar,
 					 %%\+ variant(Var,OVar),
+					 atomic(Leaf), % for mi
 					 Actions, % delete answer this one is better than
 					 fail
 					 ;
@@ -396,6 +397,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 			(DelayReg =:= 0, % all deletion before returning any ans, otw bug
 			 '_$member'(t(OSkel,Leaf,_,Var),RetList),
 			 Var \== OVar,
+			 atomic(Leaf), % for mi
 			 Actions,
 			 fail
 			 ;	
@@ -418,6 +420,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	%%globalize('/',2,SymTab),
 	%%globalize(var,0,SymTab),
 	ensure_imported_list([im(nonvar/1,standard),
+			      im(atomic/1,standard),
 			      im((->)/2,standard),
 			      im((';')/2,standard),
 			      im((',')/2,standard),

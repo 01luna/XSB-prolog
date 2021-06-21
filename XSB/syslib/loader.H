@@ -39,7 +39,8 @@
 	pop_loaded_file/1 from consult.
 :- import search_module/6 from consult.
 :- import reconsult/1 from consult.
-:- import compile_opt_checked/3 from consult.
+:- import compile0/4 from consult.
+:- import load_dyn_gen/2 from consult.
 :- import numbervars/1 from num_vars.
 :- import standard_symbol/3 from std_xsb.
 :- import library_directory/1 from usermod.

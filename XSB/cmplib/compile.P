@@ -42,6 +42,10 @@ mc(Modname, Options) :-
 /*	Compiles a module with the compiler options specified and	*/
 /*	returns the list of exported predicates.  Set ToLoc to 1 to 	*/
 /*      compile to process-specific byte-code file, to be renamed. 	*/
+/*	ExportedList is either:						*/
+/*	 1) the list of exported predicates, if a module was compiled	*/
+/*	 2) term dynamic(Opts) where Opts are from compiler option	*/
+/*	    dynamic(Opts) and NO bytecode file was generated.		*/
 /*======================================================================*/
 
 %% For better warnings, we need to know the currently compiled module
@@ -76,17 +80,25 @@ compile_internal(Modname,Basename,Extension,Options,ToLoc,ExportList) :-
 	file_names(Basename, Extension,PFile, HFile, OFile, AFile, DFile,
 		   SpecFile, TIFile, TableFile, _OptFile),
 	setoptions(Options), initialize,
-	%% If --quietload, dont print Compiling/compiled messages
-	stat_flag(BANNER_CTL,BannerCtl),
-	(   KeepQuiet is BannerCtl mod QUIETLOAD, KeepQuiet =:= 0
-	->  true
-	;
-	    message(('[Compiling ', Basename, ']'))
-	),
 	cputime(TimeStart),
 	retractall(current_compiled_module(_)),
 	assert(current_compiled_module(Basename)),
 	parse(Modname, PFile, HFile, Module_0),
+	('_$compiler_option_dynamic'(DynOpts)
+	 -> ExportList = dynamic(DynOpts),
+	    retractall('_$compiler_option_dynamic'(_))
+	 ;  compile_parsed_file(Modname,Module_0,ExportList,Basename,TableFile,DFile,SpecFile,AFile,ToLoc,OFile,TIFile,TimeStart)
+	),
+	!,
+	retractall(current_compiled_module(_)).
+
+compile_parsed_file(Modname,Module_0,ExportList,Basename,TableFile,DFile,SpecFile,AFile,ToLoc,OFile,TIFile,TimeStart) :-
+	%% If --quietload, dont print Compiling/compiled messages
+	stat_flag(BANNER_CTL,BannerCtl),
+	(BannerCtl mod QUIETLOAD =:= 0
+	 ->  true
+	 ;   message(('[Compiling ', Basename, ']'))
+	),
 	( option(profile) -> 
 	    time_message(TimeStart, 'Parse finita'), cputime(TimeParse)
 	; TimeParse = 0.0 ),
@@ -96,9 +108,10 @@ compile_internal(Modname,Basename,Extension,Options,ToLoc,ExportList) :-
 	( option(profile) -> 
 	    time_message(TimeParse, 'Useinfer finita') ,cputime(TimeUse) 
 	; TimeUse = 0.0 ),
-	modeinfer(Modname, Module_0, DFile),
-	specialise(Module_0, Module0, SpecFile),
-	table_process(Module0, Module, TableFile),
+/**	modeinfer(Modname, Module_0, DFile), % before specialize and cp_opt transforms**/
+	table_process(Module_0, Module0, TableFile),
+	modeinfer(Modname, Module0, DFile),  /* move here, later, but loops?? */
+	specialise(Module0, Module, SpecFile),
 	hack_self_compile,
 	Module = module(SymTab,_,_,_,ModPars),
 	check_ground(ModPars,'module/5',5),
@@ -112,13 +125,11 @@ compile_internal(Modname,Basename,Extension,Options,ToLoc,ExportList) :-
 	!,
 	%% If --quietload, don't print Compiling/compiled messages
 	stat_flag(BANNER_CTL,BannerCtl1),
-	(   KeepQuiet1 is BannerCtl1 mod QUIETLOAD, KeepQuiet1 =:= 0
-	->  true
-	;   ( IsModule =:= 0 -> IsModuleMsg = '' ; IsModuleMsg = 'Module ' ),
-	    time_message(TimeStart, (IsModuleMsg, Modname, ' compiled'))
-	),
-	!,
-	retractall(current_compiled_module(_)).
+	(BannerCtl1 mod QUIETLOAD =:= 0
+	 ->  true
+	 ;   ( IsModule =:= 0 -> IsModuleMsg = '' ; IsModuleMsg = 'Module ' ),
+	     time_message(TimeStart, (IsModuleMsg, Modname, ' compiled'))
+	).
 
 
 :- mode file_names(+,+,?,?,?,?,?,?,?,?,?).

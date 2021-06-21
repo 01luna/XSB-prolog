@@ -156,6 +156,7 @@ xsb_running_under(OSName,Word) :-
 	xsb_configuration(word_size,Word),
 	xsb_configuration(architecture,Arch),
 	%% here we are trying to be more specific
+	check_atom(Arch,'xsb_configuration/2',2),
 	(str_sub(linux,Arch) -> OSName = linux
 	; str_sub(bsd,Arch) -> OSName = bsd
 	; str_sub(solaris,Arch) -> OSName = solaris

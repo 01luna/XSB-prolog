@@ -13,8 +13,6 @@ If these are successful the console output should looks fairly similar
 to that included at the end of this file.
  */
 
-%?- init_xsbpy(37).
-
 :- export init_xsbpy/1, test_xsbpy/0, add_py_lib_dir/1,py_lib_dirs/1.
 :- export objref/2.
 
@@ -26,6 +24,7 @@ to that included at the end of this file.
 :- import pyfunc/3 from xsbpy.
 :- import init_python/0 from xsbpym.
 :- import add_lib_dir/1 from consult.
+:- import message/1 from standard.
 %:- import getenv/2 from machine.
 
 init_xsbpy(Pyversion):-
@@ -47,7 +46,7 @@ init_xsbpy(Pyversion):-
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
     pyfunc(add_python_path,add_python_path(TestDir),_),
     set_heap_margin(256),   % double the amount in v. 4.0
-    writeln(initted).
+    writeln(xsbpy_initted_with_python(Pyversion)).
 
 test_xsbpy:-
     xsb_configuration(packagesdir, PackDir),

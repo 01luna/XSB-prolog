@@ -65,7 +65,8 @@
 :- import throw/1, cputime/1, open/3, close/1 from standard.
 :- import tell/1 from standard.
 :- import force_peephole_loaded/0, compile_peephole_opt/2 from peephole.
-:- import message/1, warning/1, time_message/2, setoptions/1, option/1, current_xsb_compiler_option/1 
+:- import message/1, warning/1, time_message/2, setoptions/1, option/1, current_xsb_compiler_option/1,
+	  '_$compiler_option_dynamic'/1
      from auxlry.
 :- import gennum/1, conget/2, conset/2 from gensym.
 :- import sys_unlink/2 from shell.

@@ -13,6 +13,7 @@
 :- mode assert_with_declared_modes(?).
 :- mode blab(+).
 :- mode call_mode(?,?).
+:- mode 'call_mode_$'(?,?).
 :- mode call_user(?).
 :- mode call_user(?,?).
 :- mode canonize(?,?,?).
@@ -71,6 +72,7 @@
 :- mode get_ext(+,?).
 :- mode get_init_calls(?).
 :- mode get_mode_pat(?,?).
+:- mode 'get_mode_pat_$'(?,?).
 :- mode get_number_of_flat_rules(?).
 :- mode get_prev_modes(?,?).
 :- mode get_std_pred_defs.
@@ -140,6 +142,7 @@
 :- mode_on_success assert_with_declared_modes(A).
 :- mode_on_success blab(g).
 :- mode_on_success call_mode(A,B).
+:- mode_on_success 'call_mode_$'(A,B).
 :- mode_on_success call_user(A).
 :- mode_on_success call_user(A,B).
 :- mode_on_success canonize(A,B,C).
@@ -160,8 +163,8 @@
 :- mode_on_success count_answers(A,g).
 :- mode_on_success cvt_mod_to_file(g,A).
 :- mode_on_success cvt_mode_ei_list(A,B).
-:- mode_on_success cvt_mode_ie(g,g).
-:- mode_on_success cvt_mode_ie(ng,A).
+:- mode_on_success cvt_mode_ie(A,g).
+:- mode_on_success cvt_mode_ie(ng,ng).
 :- mode_on_success cvt_mode_ie_list(A,g).
 :- mode_on_success cvt_modelist_ie(A,g).
 :- mode_on_success cvt_modelist_ie(ng,ng).
@@ -212,6 +215,7 @@
 :- mode_on_success get_ext(g,g).
 :- mode_on_success get_init_calls(A).
 :- mode_on_success get_mode_pat(A,B).
+:- mode_on_success 'get_mode_pat_$'(A,B).
 :- mode_on_success get_number_of_flat_rules(g).
 :- mode_on_success get_prev_modes(g,g).
 :- mode_on_success get_prev_modes(ng,A).

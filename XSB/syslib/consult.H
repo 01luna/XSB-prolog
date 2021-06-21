@@ -26,7 +26,7 @@
 :- export 
         add_lib_dir/1, add_lib_dir/2,
         remove_lib_dir/1, removeall_lib_dir/1, has_lib_dir/1,
-	compile/1, compile/2, compile_opt_checked/3, search_module/6,
+	compile/1, compile/2, compile_opt_checked/3, search_module/6, compile0/4,
         consult/1, consult/2, '.'/2, reconsult/1, reconsult/2,
         current_loaded_file/1, is_loaded/1, add_this_lib_dir/0,
         engine_mode_magic_num/3,
@@ -42,6 +42,8 @@
         (thread_shared)/1,
         (thread_private)/1,
         cvt_canonical/2.
+:- export load_dyna/1.
+:- export load_dynca/2.
 :- export
         record_file_consultloaded/1,
         remove_file_consultloaded/1,
@@ -65,7 +67,7 @@
 :- import asserta/1, (dynamic)/1, retractall/1, assert/1, retract/1, t_assert/2
      from assert.
 :- import check_file_compiler_options/1, setoptions1/1, valid_charset/1 from auxlry.
-:- import warning/1, time_message/2 from auxlry.
+:- import warning/1, time_message/2, '_$compiler_option_dynamic'/1 from auxlry.
 :- import xpp_is_off/0 from parse.
 :- import banner_control/1 from banner.
 :- import append/3, memberchk/2, member/2 from basics.
@@ -89,7 +91,7 @@
 	  existing_file_extension/2, almost_search_module/5, db_get_prref/2,
 	  term_psc/2, psc_set_shared/2, psc_set_private/2, stat_flag/2,
 	  term_new/2, term_new_mod/3, stat_set_flag/2, psc_import_as/2,
-	  psc_set_type/2
+	  psc_set_type/2, psc_mod/2, psc_set_ep/2, psc_insertmod/3
      from machine.
 :- import
 	check_xpp_process_status/3,

@@ -49,7 +49,7 @@
 :- mode modfile_qual(?,?,?).
 :- mode obj_ext_privatizer(?).
 :- mode parse_dir(+,?).
-:- mode possibly_structured(+,+,?).
+:- mode possibly_structured(+,+).
 :- mode print_load_msg(+,?,+).
 :- mode private_obj_filename(?,?).
 :- mode private_obj_filename_list(+,?).
@@ -117,7 +117,7 @@
 :- mode_on_success local_sys_syscall(g,g,g,g).
 :- mode_on_success modfile_qual(A,g,A).
 :- mode_on_success modfile_qual(ng,ng,A).
-:- mode_on_success possibly_structured(g,g,g).
+:- mode_on_success possibly_structured(g,g).
 :- mode_on_success print_load_msg(g,A,g).
 :- mode_on_success psc_insertmod_inline(g,g,g).
 :- mode_on_success rename_private_obj_file(A,B).

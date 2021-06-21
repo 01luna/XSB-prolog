@@ -53,7 +53,8 @@
    from assert.
 
 :- import check_file_compiler_options/1, 
-	error/1, message/1, option/1, setoptions1/1, warning/1, valid_charset/1
+	error/1, message/1, option/1, setoptions1/1, warning/1, valid_charset/1,
+	'_$compiler_option_dynamic'/1
    from auxlry.
 
 :- import append/3, memberchk/2, log_ith/3, member/2, copy_term/2 from basics.

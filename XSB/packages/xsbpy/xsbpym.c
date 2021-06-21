@@ -267,10 +267,10 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
 
 int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag) {
   
-#if defined(PYTHON38)  
-  PyTypeObject* type = pyObj->ob_type;
-  const char* tname = type->tp_name;
-#endif  
+  //#if defined(PYTHON38)  
+  //  PyTypeObject* type = pyObj->ob_type;
+  //  const char* tname = type->tp_name;
+  //#endif  
   //  printf("pyobj typ: |%s|\n",tname);
   if(PyLong_Check(pyObj)) {
     prolog_int result = PyLong_AsSsize_t(pyObj);
@@ -278,13 +278,13 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     c2p_int(CTXTc result, *prTerm);
     return 1;
   }
-#if defined(PYTHON38)
-  else if (!strcmp(tname,"float")) {
-    double result = PyFloat_AsDouble(pyObj);
-#else    
+  //#if defined(PYTHON38)
+  //  else if (!strcmp(tname,"float")) {
+  //    double result = PyFloat_AsDouble(pyObj);
+  //#else    
   else if(PyFloat_Check(pyObj)) {
     double result = PyFloat_AS_DOUBLE(pyObj);
-#endif    
+    //#endif    
     //    Py_DECREF(pyObj);
     c2p_float(CTXTc result, *prTerm);
     return 1;
@@ -305,11 +305,11 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       c2p_string(CTXTc (char *) result, *prTerm);
     return 1;
   }
-#if defined(PYTHON38)  
-  else if (!strcmp(tname,"NoneType")) {
-#else    
+  //#if defined(PYTHON38)  
+  //  else if (!strcmp(tname,"NoneType")) {
+  //#else    
   else if(pyObj == Py_None){
-#endif    
+    //#endif    
     char* result = PYNONE_C;
     // Py_DECREF(pyObj);
     c2p_string(CTXTc result,*prTerm);
@@ -394,13 +394,13 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     return TRUE;
   }
   //  else if(PyAnySet_Check(pyObj)) {           // maybe PyAnySet_Check
-#if defined(PYTHON38)  
-  else if (!strcmp(tname,"set")) {
-    size_t size = PySet_Size(pyObj);  // macro version since obj is a set
-#else    
+  //#if defined(PYTHON38)  
+  //  else if (!strcmp(tname,"set")) {
+  //    size_t size = PySet_Size(pyObj);  // macro version since obj is a set
+  //#else    
   else if(PySet_Check(pyObj)) {           // maybe PyAnySet_Check
     size_t size = PySet_GET_SIZE(pyObj);  // macro version since obj is a set
-#endif    
+    //#endif    
     size_t i = 0;
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
@@ -558,7 +558,13 @@ DllExport int init_python() {
       dlopen( pylib, RTLD_LAZY | RTLD_GLOBAL );
     } else {
       //      printf("no PYTHON_LIBRARY FOUND\n");
-      dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+#if defined(PYTHON37)
+     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+#elif defined(PYTHON38)      
+     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+#else
+    xsb_abort("++Error[xsbpy]: Improper or unspecified Python version.  Currently only supporting 3.7 and 3.8\n");
+#endif     
     }
     Py_Initialize();
     char *path = "";
@@ -589,7 +595,6 @@ void xp_python_error() {
   PyErr_Fetch(&ptype, &pvalue, &ptraceback);
   PyObject* ptypeRepr = PyObject_Repr(ptype);
   PyObject* pvalueRepr = PyObject_Repr(pvalue);
-#if defined(PYTHON37)
   PyTracebackObject *tb = (PyTracebackObject *)ptraceback;
   if (NULL != tb && NULL != tb->tb_frame) {
     int buff_ctr = 0;
@@ -611,10 +616,9 @@ void xp_python_error() {
   else 
     xsb_abort("Python Error;\n Type: %s \n Value: %s \n",
 	    PyUnicode_AsUTF8(ptypeRepr),PyUnicode_AsUTF8(pvalueRepr));
-#else
-    xsb_abort("Python Error;\n Type: %s \n Value: %s \n",
-	    PyUnicode_AsUTF8(ptypeRepr),PyUnicode_AsUTF8(pvalueRepr));
-#endif  
+  //#else
+  //    xsb_abort("Python Error;\n Type: %s \n Value: %s \n",
+  //	    PyUnicode_AsUTF8(ptypeRepr),PyUnicode_AsUTF8(pvalueRepr));
     //  PyErr_Restore(NULL,NULL, NULL);
     //  PyErr_Print();
 }
