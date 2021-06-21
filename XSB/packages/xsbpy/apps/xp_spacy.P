@@ -1,11 +1,12 @@
 :- import member/2 from basics.                                                 
-:- import pyfunc/3, pymeth/4 from xsbpy.                                                  
+:- import pyfunc/3, pydot/4 from xsbpy.                                                  
 
 :- export load_and_proc/2, token_assert/0, token_info/7, token_info_raw/7, entity/2.
 :- export show_all_trees/0.
 
 :- dynamic token_info_raw/7, token_childOf/2.
 :- dynamic python_obj/2.
+:- import python_obj/2 from usermod.
 
 % Use load_and_proc/2 to load a Spacy model and process it into a document.
 % This predicate asserts python_object/2 facts that are used by other predicates.
@@ -20,6 +21,7 @@
 %----------------
 % load_and_proc(en_core_web_sm,'ta1doc.txt',Doc).
 load_and_proc(Model,File):-
+    retractall(python_obj/2),
     pyfunc(spacy,load(Model),NLP),                                              
     pydot(spacy,NLP,add_pipe('merge_entities'),_),
 %    pymeth(spacy,NLP,add_pipe('merge_noun_chunks'),_),                     
