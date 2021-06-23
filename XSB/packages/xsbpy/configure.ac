@@ -21,6 +21,8 @@ AC_INIT([xsbpy],[1.0])
 AC_CONFIG_MACRO_DIR([./m4])
 AC_CHECK_HEADERS(pcre.h , with_pcre=yes, pcre=yes)
 
+source configvars.sh
+
 AX_PYTHON
 
 echo
@@ -28,6 +30,7 @@ echo The Python configuration variables have been set as follows:
 echo PYTHON_BIN=$PYTHON_BIN
 echo PYTHON_LIB=$PYTHON_LIB
 echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
+echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
 echo
 
 
@@ -51,10 +54,11 @@ AC_SUBST(runflags)
 AC_SUBST(PYTHON_INCLUDE_DIR)
 AC_SUBST(PYTHON_LIB)
 AC_SUBST(PYTHON_BIN)
+AC_SUBST(XSBCONFIG_LIBDIR)
 
 LIBS="$ldflags"
-echo $ccflags
-echo $LIBS
+echo ccflags=$ccflags
+echo ldflags=$LIBS
 
 AC_SEARCH_LIBS([Py_Initialize], [], [], [AC_MSG_ERROR([This package needs python.], [1])], [])
 echo 'Py_Initialize found'

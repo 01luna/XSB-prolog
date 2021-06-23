@@ -1818,6 +1818,7 @@ AC_SUBST(LD)
 AC_SUBST(arch_config_prefix)
 AC_SUBST(arch_install_config_prefix)
 AC_SUBST(arch_config_file)
+AC_SUBST(arch_config_libdir)
 AC_SUBST(config_tag)
 
 AC_SUBST(arch_bindir)
@@ -1919,6 +1920,7 @@ AC_OUTPUT([ '"${arch_config_prefix}/topMakefile"':topMakefile.in
         windows/MSVC_mkfile.mak:windows/MSVC_mkfile.in
         windows64/MSVC_mkfile.mak:windows64/MSVC_mkfile.in
         '"${prefix}/packages/xmc/xmc-gui"':xmc-gui.in
+        '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"'
         ])
 
 chmod 644 "${arch_config_file}"

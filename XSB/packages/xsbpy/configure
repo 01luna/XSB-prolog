@@ -620,6 +620,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+XSBCONFIG_LIBDIR
 runflags
 ldflags
 ccflags
@@ -3231,6 +3232,8 @@ fi
 done
 
 
+source configvars.sh
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for python build information" >&5
 $as_echo_n "checking for python build information... " >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: " >&5
@@ -3321,6 +3324,7 @@ echo The Python configuration variables have been set as follows:
 echo PYTHON_BIN=$PYTHON_BIN
 echo PYTHON_LIB=$PYTHON_LIB
 echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
+echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
 echo
 
 
@@ -3345,9 +3349,10 @@ generated_files="ld_pymod.P xsbpym.H"
 
 
 
+
 LIBS="$ldflags"
-echo $ccflags
-echo $LIBS
+echo ccflags=$ccflags
+echo ldflags=$LIBS
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing Py_Initialize" >&5
 $as_echo_n "checking for library containing Py_Initialize... " >&6; }
