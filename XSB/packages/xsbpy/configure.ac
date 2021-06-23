@@ -1,4 +1,4 @@
-## File:      configure.in
+## File:      configure.ac
 
 dnl  To rebuild the `configure' script from this, execute the command
 dnl	autoconf
@@ -18,6 +18,19 @@ AC_PREREQ(2.12)
 #AC_INIT([xpy],[1.0])
 AC_INIT([xsbpy],[1.0])
 
+AC_CONFIG_MACRO_DIR([./m4])
+AC_CHECK_HEADERS(pcre.h , with_pcre=yes, pcre=yes)
+
+AX_PYTHON
+
+echo
+echo The Python configuration variables have been set as follows:
+echo PYTHON_BIN=$PYTHON_BIN
+echo PYTHON_LIB=$PYTHON_LIB
+echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
+echo
+
+
 # xsbincludedir="/home/canderse-adm/dev/XSBs/XSBsrc/XSB/emu"
 # pythondir="/home/canderse-adm/.conda/envs/embedding-env-gpu"
 xsbincludedir="/usr/local/flora/Flora-2/XSB/bin/xsb"
@@ -35,6 +48,10 @@ AC_SUBST(ccflags)
 AC_SUBST(ldflags)
 AC_SUBST(runflags)
 
+AC_SUBST(PYTHON_INCLUDE_DIR)
+AC_SUBST(PYTHON_LIB)
+AC_SUBST(PYTHON_BIN)
+
 LIBS="$ldflags"
 echo $ccflags
 echo $LIBS
@@ -44,3 +61,4 @@ echo 'Py_Initialize found'
 
 AC_OUTPUT([$generated_files])
 chmod a-w $generated_files
+

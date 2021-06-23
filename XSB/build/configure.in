@@ -1,8 +1,8 @@
 ## File:      configure.in
 ## Author(s): kifer
-## Contact:   xsb-contact@cs.sunysb.edu
+## Contact:   xsb-users@lists.soutceforge.net
 ##
-## Copyright (C) The Research Foundation of SUNY, 1998
+## Copyright (C) The Research Foundation of SUNY, 1998 - 2021
 ##
 ## XSB is free software; you can redistribute it and/or modify it under the
 ## terms of the GNU Library General Public License as published by the Free
@@ -2126,4 +2126,3 @@ fi
 echo ""
 
 rm -f  buildxsb.lock
-
