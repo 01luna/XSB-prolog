@@ -626,9 +626,6 @@ PYTHON_LIBDIR
 runflags
 ldflags
 ccflags
-PYTHON_LIB
-PYTHON_INCLUDE_DIR
-PYTHON_BIN
 EGREP
 GREP
 CPP
@@ -639,6 +636,9 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+PYTHON_LIB
+PYTHON_INCLUDE_DIR
+PYTHON_BIN
 target_alias
 host_alias
 build_alias
@@ -2032,6 +2032,108 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+source configvars.sh
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for python build information" >&5
+$as_echo_n "checking for python build information... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: " >&5
+$as_echo "" >&6; }
+for python in python3.11 python3.10 python3.9 python3.8 python3.7 python3.6 python3.5 python3.4 python3.3 python3.2 python3.1 python3.0 python; do
+for ac_prog in $python
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_PYTHON_BIN+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$PYTHON_BIN"; then
+  ac_cv_prog_PYTHON_BIN="$PYTHON_BIN" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_PYTHON_BIN="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+PYTHON_BIN=$ac_cv_prog_PYTHON_BIN
+if test -n "$PYTHON_BIN"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_BIN" >&5
+$as_echo "$PYTHON_BIN" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$PYTHON_BIN" && break
+done
+
+ax_python_bin=$PYTHON_BIN
+if test x$ax_python_bin != x; then
+   ax_python_lib=`python3 -m find_libpython || (pip3 install find_libpython; python3 -m find_libpython)`
+   ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
+   if test x$ax_python_header != x -a x$ax_python_lib != xno; then
+     break;
+   fi
+fi
+done
+if test x$ax_python_bin = x; then
+   ax_python_bin=no
+fi
+if test x$ax_python_header = x; then
+   ax_python_header=no
+fi
+if test x$ax_python_lib = x; then
+   ax_python_lib=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:   results of the Python check:" >&5
+$as_echo "  results of the Python check:" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Binary:      $ax_python_bin" >&5
+$as_echo "    Binary:      $ax_python_bin" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Library:     $ax_python_lib" >&5
+$as_echo "    Library:     $ax_python_lib" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Include Dir: $ax_python_header" >&5
+$as_echo "    Include Dir: $ax_python_header" >&6; }
+
+if test x$ax_python_header != xno; then
+  PYTHON_INCLUDE_DIR=$ax_python_header
+
+fi
+if test x$ax_python_lib != xno; then
+  PYTHON_LIB=$ax_python_lib
+
+fi
+
+
+PYTHON_LIBDIR=`dirname $PYTHON_LIB`
+
+echo
+echo The Python configuration variables have been set as follows:
+echo PYTHON_BIN=$PYTHON_BIN
+echo PYTHON_LIB=$PYTHON_LIB
+echo PYTHON_LIBDIR=$PYTHON_LIBDIR
+echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
+echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
+echo XSBCONFIG_EMUDIR=$XSBCONFIG_EMUDIR
+echo
+
+support0=no
+CFLAGS_backup="${CFLAGS}"
+CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3219,7 +3321,7 @@ fi
 done
 
 
-for ac_header in xsbpy_defs.h
+for ac_header in Python.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -3227,111 +3329,14 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
 #define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
-
-fi
-
-done
-
-
-source configvars.sh
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for python build information" >&5
-$as_echo_n "checking for python build information... " >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: " >&5
-$as_echo "" >&6; }
-for python in python3.11 python3.10 python3.9 python3.8 python3.7 python3.6 python3.5 python3.4 python3.3 python3.2 python3.1 python3.0 python; do
-for ac_prog in $python
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_PYTHON_BIN+:} false; then :
-  $as_echo_n "(cached) " >&6
+ support0=yes
 else
-  if test -n "$PYTHON_BIN"; then
-  ac_cv_prog_PYTHON_BIN="$PYTHON_BIN" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_PYTHON_BIN="$ac_prog"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-PYTHON_BIN=$ac_cv_prog_PYTHON_BIN
-if test -n "$PYTHON_BIN"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_BIN" >&5
-$as_echo "$PYTHON_BIN" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+  message0="       XSBPY: Python.h not found"
 fi
 
-
-  test -n "$PYTHON_BIN" && break
 done
 
-ax_python_bin=$PYTHON_BIN
-if test x$ax_python_bin != x; then
-   ax_python_lib=`python3 -m find_libpython || (pip3 install find_libpython; python3 -m find_libpython)`
-   ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
-   if test x$ax_python_header != x -a x$ax_python_lib != xno; then
-     break;
-   fi
-fi
-done
-if test x$ax_python_bin = x; then
-   ax_python_bin=no
-fi
-if test x$ax_python_header = x; then
-   ax_python_header=no
-fi
-if test x$ax_python_lib = x; then
-   ax_python_lib=no
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:   results of the Python check:" >&5
-$as_echo "  results of the Python check:" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Binary:      $ax_python_bin" >&5
-$as_echo "    Binary:      $ax_python_bin" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Library:     $ax_python_lib" >&5
-$as_echo "    Library:     $ax_python_lib" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Include Dir: $ax_python_header" >&5
-$as_echo "    Include Dir: $ax_python_header" >&6; }
-
-if test x$ax_python_header != xno; then
-  PYTHON_INCLUDE_DIR=$ax_python_header
-
-fi
-if test x$ax_python_lib != xno; then
-  PYTHON_LIB=$ax_python_lib
-
-fi
-
-
-PYTHON_LIBDIR=`dirname $PYTHON_LIB`
-
-echo
-echo The Python configuration variables have been set as follows:
-echo PYTHON_BIN=$PYTHON_BIN
-echo PYTHON_LIB=$PYTHON_LIB
-echo PYTHON_LIBDIR=$PYTHON_LIBDIR
-echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
-echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
-echo XSBCONFIG_EMUDIR=$XSBCONFIG_EMUDIR
-echo
-
+CFLAGS="${CFLAGS_backup}"
 
 ldflags="-l$PYTHON_LIB -L$PYTHON_LIBDIR"
 runflags="-Wl,-rpath=$PYTHON_LIBDIR"
@@ -3355,7 +3360,7 @@ echo ldflags=$LIBS
 # NO FILEs ld_pymod.P.in or xsbpym.H.in!!!
 #generated_files="ld_pymod.P xsbpym.H"
 
-support=no
+support1=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing Py_Initialize" >&5
 $as_echo_n "checking for library containing Py_Initialize... " >&6; }
 if ${ac_cv_search_Py_Initialize+:} false; then :
@@ -3409,10 +3414,9 @@ $as_echo "$ac_cv_search_Py_Initialize" >&6; }
 ac_res=$ac_cv_search_Py_Initialize
 if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  support=yes
+  support1=yes
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Py_Initialize not found" >&5
-$as_echo "$as_me: WARNING: Py_Initialize not found" >&2;}
+  message1="       XSBPY: Py_Initialize not found"
 fi
 
 
@@ -4574,6 +4578,12 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
+if test "$support0" = "yes" -a "$support1" = "yes" ; then
+   support=yes
+else
+   support=no
+fi
+
 (
 echo "  XSBPY support (XSB to Python connector):        $support"
 if test "$support" = "yes"; then
@@ -4583,6 +4593,7 @@ if test "$support" = "yes"; then
 
 EOT
 else
-    echo "       XSBPY: Py_Initialize not found"
+    test "$support0" = no && echo "$message0"
+    test "$support1" = no && echo "$message1"
 fi
 ) | tee Installation_summary

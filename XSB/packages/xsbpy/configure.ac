@@ -20,8 +20,6 @@ AC_INIT([xsbpy],[1.0])
 
 AC_CONFIG_MACRO_DIR([./m4])
 
-AC_CHECK_HEADERS(xsbpy_defs.h , , )
-
 source configvars.sh
 
 AX_PYTHON
@@ -38,6 +36,11 @@ echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
 echo XSBCONFIG_EMUDIR=$XSBCONFIG_EMUDIR
 echo
 
+support0=no
+CFLAGS_backup="${CFLAGS}"
+CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
+AC_CHECK_HEADERS([Python.h] , [support0=yes], [message0="       XSBPY: Python.h not found"], [])
+CFLAGS="${CFLAGS_backup}"
 
 ldflags="-l$PYTHON_LIB -L$PYTHON_LIBDIR"
 runflags="-Wl,-rpath=$PYTHON_LIBDIR"
@@ -63,10 +66,16 @@ echo ldflags=$LIBS
 dnl AC_OUTPUT([$generated_files])
 dnl chmod a-w $generated_files
 
-support=no
-AC_SEARCH_LIBS([Py_Initialize], [], [support=yes], [AC_MSG_WARN([Py_Initialize not found], [1])], [])
+support1=no
+AC_SEARCH_LIBS([Py_Initialize], [], [support1=yes], [message1="       XSBPY: Py_Initialize not found"], [])
 
 AC_OUTPUT([ xsb2py_connect_defs.h:xsb2py_connect_defs.in ])
+
+if test "$support0" = "yes" -a "$support1" = "yes" ; then
+   support=yes
+else
+   support=no
+fi
 
 (
 echo "  XSBPY support (XSB to Python connector):        $support"
@@ -77,6 +86,7 @@ if test "$support" = "yes"; then
 
 EOT
 else
-    echo "       XSBPY: Py_Initialize not found"
+    test "$support0" = no && echo "$message0" 
+    test "$support1" = no && echo "$message1"
 fi
 ) | tee Installation_summary
