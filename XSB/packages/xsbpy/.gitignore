@@ -12,3 +12,4 @@ test_xsbpy_out.txt
 /xsb2py_connect_defs.h
 /Installation_summary
 /config.status
+/configvars.sh

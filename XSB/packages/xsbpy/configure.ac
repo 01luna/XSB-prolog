@@ -19,17 +19,20 @@ AC_PREREQ(2.12)
 AC_INIT([xsbpy],[1.0])
 
 AC_CONFIG_MACRO_DIR([./m4])
-AC_CHECK_HEADERS(pcre.h , with_pcre=yes, pcre=yes)
+
+AC_CHECK_HEADERS(xsbpy_defs.h , , )
 
 source configvars.sh
 
 AX_PYTHON
 
+PYTHON_LIBDIR=`dirname $PYTHON_LIB`
+
 echo
 echo The Python configuration variables have been set as follows:
 echo PYTHON_BIN=$PYTHON_BIN
 echo PYTHON_LIB=$PYTHON_LIB
-echo PYTHON_LIBDIR=`dirname $PYTHON_LIB`
+echo PYTHON_LIBDIR=$PYTHON_LIBDIR
 echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
 echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
 echo XSBCONFIG_EMUDIR=$XSBCONFIG_EMUDIR
@@ -55,13 +58,15 @@ LIBS="$ldflags"
 echo ccflags=$ccflags
 echo ldflags=$LIBS
 
-support=no
-AC_SEARCH_LIBS([Py_Initialize], [], [support=yes], [AC_MSG_WARN([Py_Initialize not found], [1])], [])
-
 # NO FILEs ld_pymod.P.in or xsbpym.H.in!!!
 #generated_files="ld_pymod.P xsbpym.H"
 dnl AC_OUTPUT([$generated_files])
 dnl chmod a-w $generated_files
+
+support=no
+AC_SEARCH_LIBS([Py_Initialize], [], [support=yes], [AC_MSG_WARN([Py_Initialize not found], [1])], [])
+
+AC_OUTPUT([ xsb2py_connect_defs.h:xsb2py_connect_defs.in ])
 
 (
 echo "  XSBPY support (XSB to Python connector):        $support"

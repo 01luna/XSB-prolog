@@ -1,4 +1,6 @@
 
+
+/*  @configure_input@ */
 /* XSB and Python configuration paths */
 
 #define PYTHON_BIN         @PYTHON_BIN@

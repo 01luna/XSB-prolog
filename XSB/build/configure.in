@@ -990,7 +990,6 @@ if test -d "$topdir/packages/pcre"; then
     cd "$build_dir"
 fi
 
-
 # xsbpy package
 if test -d "$topdir/packages/xsbpy"; then
     cd "$topdir/packages/xsbpy"
@@ -1932,10 +1931,10 @@ AC_OUTPUT([ '"${arch_config_prefix}/topMakefile"':topMakefile.in
         windows64/MSVC_mkfile.mak:windows64/MSVC_mkfile.in
         '"${prefix}/packages/xmc/xmc-gui"':xmc-gui.in
         '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"'
-        '"${prefix}/packages/xsbpy/xsb2py_connect_defs.h"':'"${prefix}/packages/xsbpy/xsb2py_connect_defs.in"'
         ])
 
 chmod 644 "${arch_config_file}"
+
 
 # Need to re-state the trap since configure resets it occasionally
 trap 'rm buildxsb.lock; exit 1' 1 2 3 15
