@@ -991,6 +991,16 @@ if test -d "$topdir/packages/pcre"; then
 fi
 
 
+# xsbpy package
+if test -d "$topdir/packages/xsbpy"; then
+    cd "$topdir/packages/xsbpy"
+    echo "***Configuring XSBPY (XSB to Python connector)"
+    chmod 700 ./configure
+    ./configure > /dev/null
+    cd "$build_dir"
+fi
+
+
 
 dnl check for Make feature
 AC_PROG_MAKE_SET
@@ -1819,6 +1829,7 @@ AC_SUBST(arch_config_prefix)
 AC_SUBST(arch_install_config_prefix)
 AC_SUBST(arch_config_file)
 AC_SUBST(arch_config_libdir)
+AC_SUBST(emudir)
 AC_SUBST(config_tag)
 
 AC_SUBST(arch_bindir)
@@ -1921,6 +1932,7 @@ AC_OUTPUT([ '"${arch_config_prefix}/topMakefile"':topMakefile.in
         windows64/MSVC_mkfile.mak:windows64/MSVC_mkfile.in
         '"${prefix}/packages/xmc/xmc-gui"':xmc-gui.in
         '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"'
+        '"${prefix}/packages/xsbpy/xsb2py_connect_defs.h"':'"${prefix}/packages/xsbpy/xsb2py_connect_defs.in"'
         ])
 
 chmod 644 "${arch_config_file}"
@@ -2036,6 +2048,10 @@ fi
 
 if test -f "$topdir/packages/pcre/Installation_summary" ; then
     cat "$topdir/packages/pcre/Installation_summary"
+fi
+
+if test -f "$topdir/packages/xsbpy/Installation_summary" ; then
+    cat "$topdir/packages/xsbpy/Installation_summary"
 fi
 
 

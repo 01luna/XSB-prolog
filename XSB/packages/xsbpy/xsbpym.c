@@ -17,9 +17,12 @@
 */
 
 #define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include <frameobject.h>
 #include <traceback.h>
+
+#include "xsb2py_connect_defs.h"
 
 #include "auxlry.h"
 #include "cinterf_defs.h"

@@ -29,40 +29,49 @@ echo
 echo The Python configuration variables have been set as follows:
 echo PYTHON_BIN=$PYTHON_BIN
 echo PYTHON_LIB=$PYTHON_LIB
+echo PYTHON_LIBDIR=`dirname $PYTHON_LIB`
 echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
 echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
+echo XSBCONFIG_EMUDIR=$XSBCONFIG_EMUDIR
 echo
 
 
-# xsbincludedir="/home/canderse-adm/dev/XSBs/XSBsrc/XSB/emu"
-# pythondir="/home/canderse-adm/.conda/envs/embedding-env-gpu"
-xsbincludedir="/usr/local/flora/Flora-2/XSB/bin/xsb"
-pythondir="/root/anaconda3/envs/aidaenv"
-pythonincludedir=$pythondir/include/python3.7m
-pythonlibdir=$pythondir/lib
-pythonlib=python3.7m
+ldflags="-l$PYTHON_LIB -L$PYTHON_LIBDIR"
+runflags="-Wl,-rpath=$PYTHON_LIBDIR"
+ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
 
-ldflags="-l$pythonlib -L$pythonlibdir"
-runflags="-Wl,-rpath=$pythonlibdir"
-ccflags="-I$xsbincludedir -I$pythonincludedir $ldflags $runflags"
-
-generated_files="ld_pymod.P xsbpym.H"
 AC_SUBST(ccflags)
 AC_SUBST(ldflags)
 AC_SUBST(runflags)
 
 AC_SUBST(PYTHON_INCLUDE_DIR)
 AC_SUBST(PYTHON_LIB)
+AC_SUBST(PYTHON_LIBDIR)
 AC_SUBST(PYTHON_BIN)
 AC_SUBST(XSBCONFIG_LIBDIR)
+AC_SUBST(XSBCONFIG_EMUDIR)
 
 LIBS="$ldflags"
 echo ccflags=$ccflags
 echo ldflags=$LIBS
 
-AC_SEARCH_LIBS([Py_Initialize], [], [], [AC_MSG_ERROR([This package needs python.], [1])], [])
-echo 'Py_Initialize found'
+support=no
+AC_SEARCH_LIBS([Py_Initialize], [], [support=yes], [AC_MSG_WARN([Py_Initialize not found], [1])], [])
 
-AC_OUTPUT([$generated_files])
-chmod a-w $generated_files
+# NO FILEs ld_pymod.P.in or xsbpym.H.in!!!
+#generated_files="ld_pymod.P xsbpym.H"
+dnl AC_OUTPUT([$generated_files])
+dnl chmod a-w $generated_files
 
+(
+echo "  XSBPY support (XSB to Python connector):        $support"
+if test "$support" = "yes"; then
+   cat <<EOT
+  XSBPY C flags:                                        $ccflags
+  XSBPY loader flags:                                   $ldflags
+
+EOT
+else
+    echo "       XSBPY: Py_Initialize not found"
+fi
+) | tee Installation_summary

@@ -662,6 +662,7 @@ builtinsCFLAGS
 loaderCFLAGS
 arch_bindir
 config_tag
+emudir
 arch_config_libdir
 arch_config_file
 arch_install_config_prefix
@@ -5203,6 +5204,16 @@ if test -d "$topdir/packages/pcre"; then
 fi
 
 
+# xsbpy package
+if test -d "$topdir/packages/xsbpy"; then
+    cd "$topdir/packages/xsbpy"
+    echo "***Configuring XSBPY (XSB to Python connector)"
+    chmod 700 ./configure
+    ./configure > /dev/null
+    cd "$build_dir"
+fi
+
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 $as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
@@ -7094,6 +7105,7 @@ fi
 
 
 
+
 # Just something so we won't forget to set it in the future
 emumake_goal=doodledandy
 
@@ -7150,7 +7162,7 @@ ac_config_headers="$ac_config_headers '"${arch_config_prefix}/xsb_config.h"':${c
 
 
 
-ac_config_files="$ac_config_files '"${arch_config_prefix}/topMakefile"':topMakefile.in '"${arch_config_prefix}/emuMakefile"':emuMakefile.in '"${arch_config_prefix}/modMakefile"':modMakefile.in '"${arch_config_prefix}/gppMakefile"':gppMakefile.in '"${arch_config_prefix}/smoMakefile"':smoMakefile.in '"${arch_config_prefix}/makedef.sh"':makedef.sh.in '"${arch_config_file}"':xsb_configuration.in windows/xsb_configuration.P:windows/xsb_configuration.in windows64/xsb_configuration.P:windows64/xsb_configuration.in makexsb:makexsb.in '"${scriptdir}/chr_pp${config_tag}"':chr_pp.in '"${scriptdir}/xsb${config_tag}"':xsb.in '"${arch_config_prefix}/banner.msg"':banner.in windows/banner.msg:windows/banner.in windows64/banner.msg:windows64/banner.in windows/MSVC_mkfile.mak:windows/MSVC_mkfile.in windows64/MSVC_mkfile.mak:windows64/MSVC_mkfile.in '"${prefix}/packages/xmc/xmc-gui"':xmc-gui.in '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"'"
+ac_config_files="$ac_config_files '"${arch_config_prefix}/topMakefile"':topMakefile.in '"${arch_config_prefix}/emuMakefile"':emuMakefile.in '"${arch_config_prefix}/modMakefile"':modMakefile.in '"${arch_config_prefix}/gppMakefile"':gppMakefile.in '"${arch_config_prefix}/smoMakefile"':smoMakefile.in '"${arch_config_prefix}/makedef.sh"':makedef.sh.in '"${arch_config_file}"':xsb_configuration.in windows/xsb_configuration.P:windows/xsb_configuration.in windows64/xsb_configuration.P:windows64/xsb_configuration.in makexsb:makexsb.in '"${scriptdir}/chr_pp${config_tag}"':chr_pp.in '"${scriptdir}/xsb${config_tag}"':xsb.in '"${arch_config_prefix}/banner.msg"':banner.in windows/banner.msg:windows/banner.in windows64/banner.msg:windows64/banner.in windows/MSVC_mkfile.mak:windows/MSVC_mkfile.in windows64/MSVC_mkfile.mak:windows64/MSVC_mkfile.in '"${prefix}/packages/xmc/xmc-gui"':xmc-gui.in '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"' '"${prefix}/packages/xsbpy/xsb2py_connect_defs.h"':'"${prefix}/packages/xsbpy/xsb2py_connect_defs.in"'"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -7867,6 +7879,7 @@ do
     "windows64/MSVC_mkfile.mak") CONFIG_FILES="$CONFIG_FILES windows64/MSVC_mkfile.mak:windows64/MSVC_mkfile.in" ;;
     "'"${prefix}/packages/xmc/xmc-gui"'") CONFIG_FILES="$CONFIG_FILES '"${prefix}/packages/xmc/xmc-gui"':xmc-gui.in" ;;
     "'"${prefix}/packages/xsbpy/configvars.sh"'") CONFIG_FILES="$CONFIG_FILES '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"'" ;;
+    "'"${prefix}/packages/xsbpy/xsb2py_connect_defs.h"'") CONFIG_FILES="$CONFIG_FILES '"${prefix}/packages/xsbpy/xsb2py_connect_defs.h"':'"${prefix}/packages/xsbpy/xsb2py_connect_defs.in"'" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -8565,6 +8578,10 @@ fi
 
 if test -f "$topdir/packages/pcre/Installation_summary" ; then
     cat "$topdir/packages/pcre/Installation_summary"
+fi
+
+if test -f "$topdir/packages/xsbpy/Installation_summary" ; then
+    cat "$topdir/packages/xsbpy/Installation_summary"
 fi
 
 

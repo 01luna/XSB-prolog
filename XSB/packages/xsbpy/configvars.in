@@ -1,3 +1,4 @@
 
 %%  @configure_input@
 XSBCONFIG_LIBDIR="@arch_config_libdir@"
+XSBCONFIG_EMUDIR="@emudir@"
