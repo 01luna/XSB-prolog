@@ -6,6 +6,8 @@
 
 :- dynamic token_info_raw/7, token_childOf/2.
 :- dynamic python_obj/2.
+:- index(token_childOf/2,[1,2]).
+:- index(token_info_raw/7,[1,6]).
 :- import python_obj/2 from usermod.
 
 % Use load_and_proc/2 to load a Spacy model and process it into a document.
@@ -19,9 +21,9 @@
 %
 
 %----------------
-% load_and_proc(en_core_web_sm,'ta1doc.txt',Doc).
+% load_and_proc(en_core_web_sm,'ta1doc.txt').
 load_and_proc(Model,File):-
-    retractall(python_obj/2),
+    retractall(python_obj(_,_)),
     pyfunc(spacy,load(Model),NLP),                                              
     pydot(spacy,NLP,add_pipe('merge_entities'),_),
 %    pymeth(spacy,NLP,add_pipe('merge_noun_chunks'),_),                     
