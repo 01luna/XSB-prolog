@@ -1,21 +1,12 @@
 ## File:      configure.ac
 
-dnl  To rebuild the `configure' script from this, execute the command
+dnl  This script is run by the main configure script in XSB/build
+dnl  If this script is changed, run
 dnl	autoconf
-dnl  in the directory containing this script.
-dnl
-dnl
-
-
-dnl Change the definition of four vars:   
-dnl   xsbinclude: point to the include files for XSB installation (its emu directory)
-dnl   pythoninclude: point to the include files for the python installation 
-dnl   pythonlib: main python library name - the actual file name prepends "lib" and appends ".so" to this, e.g. "libpython.so"
-dnl		pythonlibdir: point to the main python library location 
+dnl  here.
 
 
 AC_PREREQ(2.12)
-#AC_INIT([xpy],[1.0])
 AC_INIT([xsbpy],[1.0])
 
 AC_CONFIG_MACRO_DIR([./m4])
