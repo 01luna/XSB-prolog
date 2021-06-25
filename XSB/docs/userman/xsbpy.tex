@@ -721,6 +721,35 @@ Thus although this example is short, the ideas in it can easily be
 extended to a full interface.~\footnote{This has already been done by
   one company that uses XSB.}
 
+\paragraph{Fasttext Language Detection: xp\_fasttext}
+%
+This example provides some code to help the user get started using
+Fasttext's language detection, and relies on the python module {\tt
+fasttext}.  Assuming that Fasttext's language identification module
+is in the current directory, the command:
+\begin{verbatim}
+ pyfunc(fasttext,load_model('./lid.176.bin'),Obj).
+\end{verbatim}
+Loads the model and unifies {\tt Obj} with a reference to the loaded
+module which might look like {\tt pyObj(p0x7faca3428510)}.  Note that
+this can be done by calling the Python {\tt fasttext} module directly.
+Next, a call to the example python module {\tt xp\_fasttext}:
+\begin{verbatim}
+pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
+       'xsbpy is a really useful addition to XSB! But language detection
+        requires a longer string than I usually want to type.'),Lang).  
+\end{verbatim}
+returns the detected language and confidence value, which in this case
+is {\tt (\_\_label\_\_en,0.93856)}.  The only reason that the module
+{\tt xp\_fasttext} needs to be used is because the confidence is
+returned as a {\tt numpy} array, which {\tt xsbpy} does not currently
+translate automatically. \footnote{The examples {\tt xp\_fasttext} and
+  {\tt googleTrans} were written by Albert Ki.}
+
+\paragraph{googleTrans}
+This example provides code to access Google's web-services for
+language translation and language detection.
+
 %\paragraph{mpl}
 %This file has a simple example of how to create, display, and save as
 %pdf a simple matplotlib document.
