@@ -2039,7 +2039,7 @@ done
 
 ax_python_bin=$PYTHON_BIN
 if test x$ax_python_bin != x; then
-   ax_python_conflib=`python3 -m find_libpython || (pip3 install find_libpython; python3 -m find_libpython)`
+   ax_python_conflib=`$PYTHON_BIN -m find_libpython || (pip3 install find_libpython; $PYTHON_BIN -m find_libpython)`
    ax_python_lib=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('LIBDEST'))"`
    ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
    if test x$ax_python_header != x -a x$ax_python_conflib != xno; then
