@@ -622,6 +622,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 XSBCONFIG_EMUDIR
 XSBCONFIG_LIBDIR
+PYTHON_CONFLIBDIR
 PYTHON_LIBDIR
 runflags
 ldflags
@@ -636,6 +637,7 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+PYTHON_CONFLIB
 PYTHON_LIB
 PYTHON_INCLUDE_DIR
 PYTHON_BIN
@@ -1986,7 +1988,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-source configvars.sh
+source ./configvars.sh
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for python build information" >&5
 $as_echo_n "checking for python build information... " >&6; }
@@ -2037,9 +2039,10 @@ done
 
 ax_python_bin=$PYTHON_BIN
 if test x$ax_python_bin != x; then
-   ax_python_lib=`python3 -m find_libpython || (pip3 install find_libpython; python3 -m find_libpython)`
+   ax_python_conflib=`python3 -m find_libpython || (pip3 install find_libpython; python3 -m find_libpython)`
+   ax_python_lib=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('LIBDEST'))"`
    ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
-   if test x$ax_python_header != x -a x$ax_python_lib != xno; then
+   if test x$ax_python_header != x -a x$ax_python_conflib != xno; then
      break;
    fi
 fi
@@ -2050,18 +2053,23 @@ fi
 if test x$ax_python_header = x; then
    ax_python_header=no
 fi
+if test x$ax_python_conflib = x; then
+   ax_python_conflib=no
+fi
 if test x$ax_python_lib = x; then
    ax_python_lib=no
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:   results of the Python check:" >&5
 $as_echo "  results of the Python check:" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Binary:      $ax_python_bin" >&5
-$as_echo "    Binary:      $ax_python_bin" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Library:     $ax_python_lib" >&5
-$as_echo "    Library:     $ax_python_lib" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Include Dir: $ax_python_header" >&5
-$as_echo "    Include Dir: $ax_python_header" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Binary:          $ax_python_bin" >&5
+$as_echo "    Binary:          $ax_python_bin" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Config library:  $ax_python_conflib" >&5
+$as_echo "    Config library:  $ax_python_conflib" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Library:         $ax_python_lib" >&5
+$as_echo "    Library:         $ax_python_lib" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:     Include Dir:     $ax_python_header" >&5
+$as_echo "    Include Dir:     $ax_python_header" >&6; }
 
 if test x$ax_python_header != xno; then
   PYTHON_INCLUDE_DIR=$ax_python_header
@@ -2071,10 +2079,16 @@ if test x$ax_python_lib != xno; then
   PYTHON_LIB=$ax_python_lib
 
 fi
+if test x$ax_python_conflib != xno; then
+  PYTHON_CONFLIB=$ax_python_conflib
+
+fi
 
 
 PYTHON_LIBDIR=`dirname $PYTHON_LIB`
 PYTHON_LIB_NAME=`basename $PYTHON_LIB`
+PYTHON_CONFLIBDIR=`dirname $PYTHON_CONFLIB`
+PYTHON_CONFLIB_NAME=`basename $PYTHON_CONFLIB`
 
 echo
 echo The Python configuration variables have been set as follows:
@@ -2082,6 +2096,9 @@ echo PYTHON_BIN=$PYTHON_BIN
 echo PYTHON_LIB=$PYTHON_LIB
 echo PYTHON_LIB_NAME=$PYTHON_LIB_NAME
 echo PYTHON_LIBDIR=$PYTHON_LIBDIR
+echo PYTHON_CONFLIB=$PYTHON_CONFLIB
+echo PYTHON_CONFLIB_NAME=$PYTHON_CONFLIB_NAME
+echo PYTHON_CONFLIBDIR=$PYTHON_CONFLIBDIR
 echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
 echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
 echo XSBCONFIG_EMUDIR=$XSBCONFIG_EMUDIR
@@ -3310,6 +3327,8 @@ CFLAGS="${CFLAGS_backup}"
 ldflags="-l$PYTHON_LIB_NAME -L$PYTHON_LIBDIR"
 runflags="-Wl,-rpath=$PYTHON_LIBDIR"
 ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
+
+
 
 
 

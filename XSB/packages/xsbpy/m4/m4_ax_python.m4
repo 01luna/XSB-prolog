@@ -59,9 +59,10 @@ for python in python3.11 python3.10 python3.9 python3.8 python3.7 python3.6 pyth
 AC_CHECK_PROGS(PYTHON_BIN, [$python])
 ax_python_bin=$PYTHON_BIN
 if test x$ax_python_bin != x; then
-   ax_python_lib=`python3 -m find_libpython || (pip3 install find_libpython; python3 -m find_libpython)`
+   ax_python_conflib=`python3 -m find_libpython || (pip3 install find_libpython; python3 -m find_libpython)`
+   ax_python_lib=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('LIBDEST'))"`
    ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
-   if test x$ax_python_header != x -a x$ax_python_lib != xno; then
+   if test x$ax_python_header != x -a x$ax_python_conflib != xno; then
      break;
    fi
 fi
@@ -72,14 +73,18 @@ fi
 if test x$ax_python_header = x; then
    ax_python_header=no
 fi
+if test x$ax_python_conflib = x; then
+   ax_python_conflib=no
+fi
 if test x$ax_python_lib = x; then
    ax_python_lib=no
 fi
 
 AC_MSG_RESULT([  results of the Python check:])
-AC_MSG_RESULT([    Binary:      $ax_python_bin])
-AC_MSG_RESULT([    Library:     $ax_python_lib])
-AC_MSG_RESULT([    Include Dir: $ax_python_header])
+AC_MSG_RESULT([    Binary:          $ax_python_bin])
+AC_MSG_RESULT([    Config library:  $ax_python_conflib])
+AC_MSG_RESULT([    Library:         $ax_python_lib])
+AC_MSG_RESULT([    Include Dir:     $ax_python_header])
 
 if test x$ax_python_header != xno; then
   PYTHON_INCLUDE_DIR=$ax_python_header
@@ -88,5 +93,9 @@ fi
 if test x$ax_python_lib != xno; then
   PYTHON_LIB=$ax_python_lib
   AC_SUBST(PYTHON_LIB)
+fi
+if test x$ax_python_conflib != xno; then
+  PYTHON_CONFLIB=$ax_python_conflib
+  AC_SUBST(PYTHON_CONFLIB)
 fi
 ])dnl
