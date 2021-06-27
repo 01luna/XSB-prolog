@@ -716,10 +716,10 @@ load_dyn1(Rfname,Dirctry,Dir,Base,Module,EIU) :-
 	),
 	seen,
 	see(OldFile).
-load_dyn1(Rfname,Dirctry,Dir,Base,Module) :- 
+load_dyn1(Rfname,Dirctry,Dir,Base,Module,EIU) :- 
 	%% If we are restarting due to gpp, then reset needs_restart.
 	conget(needs_restart,1), conset(needs_restart, 0),
-	load_dyn1(Rfname,Dirctry,Dir,Base,Module).
+	load_dyn1(Rfname,Dirctry,Dir,Base,Module,EIU).
 
 close_and_throw(XPP_process,XPPport,Ball) :-
 	(XPP_process == skip
@@ -848,7 +848,7 @@ load_dync0(Dirctry,SExt,Base,Mod,Dir,Module,ErrLimit,EIU) :-
 	cputime(T0),
 	(Hfname == []
          ->     true  % .H always supports operators.
-         ;      load_dyn1(Hfname,Dirctry,Dir,FMod,Module)
+         ;      load_dyn1(Hfname,Dirctry,Dir,FMod,Module,EIU)
         ),
 	load_dync1(ARfname,Dirctry,Dir,FMod,Module,ErrLimit,EIU),
 	(banner_control(quietload)
@@ -934,7 +934,7 @@ load_dync_read_and_assert(IPort,Dir,Base,Module,ErrLimit,EIU) :-
 		fail
 	 ;	do_assert_and_fail(Term,Dir,Base,Module,EIU)
 	).
-load_dync_read_and_assert(_IPort,_Dir,_Base,_Module,_ErrLimit,_) :-
+load_dync_read_and_assert(_IPort,_Dir,_Base,_Module,_ErrLimit,_EIU) :-
 	conget(needs_restart,1), % if needs restart
 	!,			% don't continue to read
 	conset('_$load_dync_line_no',0),
@@ -967,9 +967,8 @@ execute_accumulated_commands(Dir) :-
 	 retractall(load_dyn_cmds(_))
 	).
 
-
 do_assert_and_fail([],_,_,_,_) :- !, fail.
-do_assert_and_fail(:-(Cmd),_Dir,Base,Mod,ExportsInUsermod) :- !, % DIRECTIVE
+do_assert_and_fail(:-(Cmd),_Dir,Base,Mod,EIU) :- !, % DIRECTIVE
 	(load_dyn_module(RMod)
 	 ->	true
 	 ;	RMod = Mod
@@ -992,7 +991,7 @@ do_assert_and_fail(:-(Cmd),_Dir,Base,Mod,ExportsInUsermod) :- !, % DIRECTIVE
 			    NRMod = RMod
 			)
 		),
-		(ExportsInUsermod == yes % define exported predicates in usermod
+		(EIU == yes % ExportIntoUsermod: define exported predicates in usermod
 		 -> add_to_in_mod(PAs,NRMod),
 		    assert(load_dyn_cmds(import(from(PAs,NRMod))))
 		 ;  true
@@ -1232,7 +1231,10 @@ proc_directive(compiler_options,[Options],_RMod) :- !,
 	(xpp_is_off ->  conset(migh_need_restart,1) ;   true),
 	check_file_compiler_options(Options),
 	setoptions1(Options),
-	retractall('_$compiler_option_dynamic'(_)). %only when compiling; must delete here.
+	('_$compiler_option_dynamic'(_)
+	 -> retractall('_$compiler_option_dynamic'(_))
+	 ;  true
+	).
 
 %:- import (use_subsumptive_tabling)/1,(use_variant_tabling)/1,add_incr_table/2 from tables.
 % Table options; only some handled.  Might try to do better.

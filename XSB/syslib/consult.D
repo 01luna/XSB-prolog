@@ -72,7 +72,6 @@
 :- mode load_dyn(+,+).
 :- mode load_dyn(+,+,+).
 :- mode load_dyn0(+,+,+,+,+,?,?).
-:- mode load_dyn1(+,+,+,+,?).
 :- mode load_dyn1(+,+,+,+,?,?).
 :- mode load_dyn_convert(?,?,+).
 :- mode load_dyn_gen(?,?).
