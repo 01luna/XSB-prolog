@@ -62,3 +62,8 @@ options=$2
 
 ../gentest.sh "$XEMU $options" gpp_test "test."
 ../gentest.sh "$XEMU $options" ensure_loaded_tst "test."
+
+
+cd preproc-opt
+rm -f *.xwam
+../../gentest.sh "$XEMU $options" preproc_test "test."

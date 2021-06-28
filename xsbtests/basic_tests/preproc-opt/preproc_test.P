@@ -1,0 +1,3 @@
+
+test :-
+        [optcompile, progr].

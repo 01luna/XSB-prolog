@@ -12,7 +12,3 @@ options=$2
 ./gentest.sh "$XEMU $options" myvarproc
 ./gentest.sh "$XEMU $options" meta
 ./gentest.sh "$XEMU $options" top_down
-
-cd preproc-opt
-rm *.xwam
-../gentest.sh "$XEMU"  preproc_test 

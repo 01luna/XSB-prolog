@@ -22,9 +22,9 @@ flr_preprocess_cmd(_InputFile,_PreprocName,_Options,Cmd) :-
 %% postprocess the output from gpp
 flr_cmpopt :-
 	repeat,
-        writeln(2,'Reading next clause'),
+        writeln('%%Reading next clause'),
 	read(Term),
-	(Term == end_of_file -> writeln(2,'  End of file')
+	(Term == end_of_file -> writeln('  %%End of file')
 	;
 	    opttransform(Term,OptTermList),
 	    optwrite_rules(OptTermList),
@@ -33,9 +33,9 @@ flr_cmpopt :-
 
 
 opttransform((H:-Guard,Rest),OptTermList) :-
-        writeln(2,'  Trying to query preproc_struct/1'),
-        (preproc_struct(Guard) -> write(2,'  '), writeln(2,guard=Guard)
-        ; writeln(2,'  Nothing in preproc_struct/1?????')
+        writeln('  %%Trying to query preproc_struct/1'),
+        (preproc_struct(Guard) -> write('  %%'), writeln(guard=Guard)
+        ; writeln('  %%Nothing in preproc_struct/1?????')
         ),
         findall((H :- Rest),preproc_struct(Guard),OptTermList),
 	OptTermList \= [],
@@ -57,6 +57,5 @@ load_structures :-
 	slash(Slash),
         fmt_write_string(CompStructures, '%s%soptstructures', arg(FlrInstallDir,Slash)),
         load_dyn(CompStructures),
-	%%[CompStructures],
-        write(2,'\nFile '), write(2,CompStructures), writeln(2,' is loaded').
+        write('\n%%File '), write(CompStructures), writeln(' is loaded').
 
