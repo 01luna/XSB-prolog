@@ -177,7 +177,8 @@ reconsult0(Path, Options, Ensure_loaded) :-
 		 ;  load_dyn_gen(Base,OptList)
 		)
 	     ;  private_obj_filename(Obj,LObj),
-		load_exec(LObj, Mod), % Mod would be atomized ModTerm
+		catch(load_exec(LObj, Mod), % Mod would be atomized ModTerm
+		      Ball,remove_xwam_and_throw(LObj,Ball)),
 		rename_private_obj_file(LObj,Obj)
 	    ),
 	    (file_is_consultloaded(ExpObj)
@@ -202,6 +203,10 @@ reconsult0(Path, Options, Ensure_loaded) :-
 	)
      ;  existence_error('file/module',Path,consult/1,1)
     ).
+
+remove_xwam_and_throw(LObj,Ball) :-
+    rm(LObj),
+    throw(Ball).
 
 i_want_compile(SExt, Base, Obj) :-
 	( not(file_exists(Obj)) -> true
