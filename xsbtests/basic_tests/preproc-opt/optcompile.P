@@ -7,6 +7,7 @@
 :- import register_xsb_preprocessor/2 from parse.
 :- import xsb_configuration/2 from xsb_configuration.
 :- import slash/1 from machine.
+:- import str_repl/4 from string.
 
 ?- register_xsb_preprocessor(optcompile,flr_preprocess_cmd(_,_,_,_)).
 ?- load_structures.
@@ -60,5 +61,5 @@ load_structures :-
         banner:set_banner_control(nofeedback,1),
         banner:set_banner_control(nobanner,1),
         load_dyn(CompStructures),
-        write(3,'\n%%File '), write(3,CompStructures), writeln(3,' is loaded').
-
+	str_repl(CompStructures,['\\'],['/'],FCompStructures), % if windows
+        write(3,'\n%%File '), write(3,FCompStructures), writeln(3,' is loaded').
