@@ -22,9 +22,9 @@ flr_preprocess_cmd(_InputFile,_PreprocName,_Options,Cmd) :-
 %% postprocess the output from gpp
 flr_cmpopt :-
 	repeat,
-        writeln('%%Reading next clause'),
+        writeln(3,'%%Reading next clause'),
 	read(Term),
-	(Term == end_of_file -> writeln('  %%End of file')
+	(Term == end_of_file -> writeln(3,'  %%End of file')
 	;
 	    opttransform(Term,OptTermList),
 	    optwrite_rules(OptTermList),
@@ -33,9 +33,9 @@ flr_cmpopt :-
 
 
 opttransform((H:-Guard,Rest),OptTermList) :-
-        writeln('  %%Trying to query preproc_struct/1'),
-        (preproc_struct(Guard) -> write('  %%'), writeln(guard=Guard)
-        ; writeln('  %%Nothing in preproc_struct/1?????')
+        writeln(3,'  %%Trying to query preproc_struct/1'),
+        (preproc_struct(Guard) -> write(3,'  %%'), writeln(3,guard=Guard)
+        ; writeln(3,'  %%Nothing in preproc_struct/1?????')
         ),
         findall((H :- Rest),preproc_struct(Guard),OptTermList),
 	OptTermList \= [],
@@ -56,6 +56,9 @@ load_structures :-
 	opt_installdir(FlrInstallDir),
 	slash(Slash),
         fmt_write_string(CompStructures, '%s%soptstructures', arg(FlrInstallDir,Slash)),
+        banner:set_banner_control(quietload,1),
+        banner:set_banner_control(nofeedback,1),
+        banner:set_banner_control(nobanner,1),
         load_dyn(CompStructures),
-        write('\n%%File '), write(CompStructures), writeln(' is loaded').
+        write(3,'\n%%File '), write(3,CompStructures), writeln(3,' is loaded').
 

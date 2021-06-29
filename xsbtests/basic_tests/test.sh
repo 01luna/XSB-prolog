@@ -65,5 +65,5 @@ options=$2
 
 
 cd preproc-opt
-rm -f *.xwam
-../../gentest.sh "$XEMU $options" preproc_test "test."
+rm -f *.xwam temp[12]
+../../gentest.sh "$XEMU --quietload --nofeedback $options" preproc_test "test."
