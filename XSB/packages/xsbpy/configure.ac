@@ -92,6 +92,7 @@ fi
 echo "  XSBPY support (XSB to Python connector):        $support"
 if test "$support" = "yes"; then
    cat <<EOT
+  Python:             $PYTHON_BIN
   XSBPY C flags:      $ccflags
   XSBPY loader flags: $ldflags
 
