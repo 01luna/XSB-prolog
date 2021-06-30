@@ -72,7 +72,6 @@
 :- mode load_dyn(+,+).
 :- mode load_dyn(+,+,+).
 :- mode load_dyn0(+,+,+,+,+,?,?).
-:- mode load_dyn1(+,+,+,+,?).
 :- mode load_dyn1(+,+,+,+,?,?).
 :- mode load_dyn_convert(?,?,+).
 :- mode load_dyn_gen(?,?).
@@ -246,6 +245,7 @@
 :- mode_on_success remove_file_consultloaded(g).
 :- mode_on_success remove_file_dynloaded(g).
 :- mode_on_success remove_lib_dir(g).
+:- mode_on_success remove_xwam_and_throw(A,B).
 :- mode_on_success removeall_lib_dir(g).
 :- mode_on_success se_assert_code_to_buff(A).
 :- mode_on_success search_module(g,g,g,g,g,g).

@@ -1,2 +1,0 @@
-
-?- [optcompile, preproc_test].
