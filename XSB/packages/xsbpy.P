@@ -7,7 +7,6 @@
 
 :- import bootstrap_package/2 from packaging.
 
-%:- bootstrap_package(xsbpy, xsbpy),[init_xsbpy].
 :-  bootstrap_package(xsbpy, xsbpy).
 
 :- import init_xsbpy/1 from init_xsbpy.
