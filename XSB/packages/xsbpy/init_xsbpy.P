@@ -74,6 +74,22 @@ add_py_lib_dir(Dir):-
 py_lib_dirs(List):-
     pyfunc(xsbpy_utils,python_paths(),List).
 
+% Below:
+% -Wl, Opt passes the option from gcc to the compiler.
+% -l namespec (--library=namespec) adds namespec on list of files to be linked.
+% -L adds a path to be searched.
+% -rpath is the runtime search path.
+
+%use results from configure
+get_compiler_opts(auto,CompilerOpts):-
+    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
+    concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
+%		 ' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
+		' -Wl,-rpath=',PYTHON_BIN_QUOTED,' -l',PYTHON_BIN_QUOTED,
+		' -L',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
+%		' -Wl,-rpath=',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
+
+
 %Use libpython3.7m
 get_compiler_opts(37,CompilerOpts):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),

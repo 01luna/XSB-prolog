@@ -64,8 +64,8 @@ void printPyObj(PyObject *obj1);
 void sprintPyObj(char **s, PyObject *obj1);
 void printPyObjType(CTXTdeclc PyObject *obj1);
 
-#define PYTHON37 1
-//#define PYTHON38 1
+//#define PYTHON37 1
+#define PYTHON38 1
 
 #define XSBPY_MAX_BUFFER 500
 
@@ -560,14 +560,14 @@ DllExport int init_python() {
       printf("pylib is: %s\n",pylib);
       dlopen( pylib, RTLD_LAZY | RTLD_GLOBAL );
     } else {
-      //      printf("no PYTHON_LIBRARY FOUND\n");
-#if defined(PYTHON37)
-     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
-#elif defined(PYTHON38)      
-     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
-#else
-    xsb_abort("++Error[xsbpy]: Improper or unspecified Python version.  Currently only supporting 3.7 and 3.8\n");
-#endif     
+      dlopen(PYTHON_CONFLIB_QUOTED, RTLD_LAZY | RTLD_GLOBAL );
+      //#if defined(PYTHON37)
+      //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+      //#elif defined(PYTHON38)      
+      //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+      //#else
+      //    xsb_abort("++Error[xsbpy]: Improper or unspecified Python version.  Currently only supporting 3.7 and 3.8\n");
+      //#endif     
     }
     Py_Initialize();
     char *path = "";
