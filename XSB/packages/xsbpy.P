@@ -15,7 +15,7 @@
 :- import py_lib_dirs/1 from init_xsbpy as py_lib_dirs/1.
 :- import pydot/4 from xsbpym as pydot/4.
 
-?- init_xsbpy(37).
+?- init_xsbpy(auto).
 
 pyfunc(Mod,Func,Def_vars,Ret):-
     def_vars_to_dict(Def_vars,Dict),

@@ -20,7 +20,7 @@ to that included at the end of this file.
 :- import xsb_configuration/2 from xsb_configuration.
 :- import concat_atom/2 from string.
 
-%:- import existence_error/4 from error_handler.
+:- import misc_error/1 from error_handler.
 :- import shell/1 from shell.
 :- import pyfunc/3 from xsbpy.
 :- import init_python/0 from xsbpym.
@@ -47,7 +47,9 @@ init_xsbpy(Pyversion):-
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
     pyfunc(add_python_path,add_python_path(TestDir),_),
     set_heap_margin(256),   % double the amount in v. 4.0
-    writeln(xsbpy_initted_with_python(Pyversion)).
+    message(xsbpy_initted_with_python(Pyversion)),!.
+init_xsbpy(Pyversion):-
+    misc_error(['xsbpy did not initialize properly for ',Pyversion]).
 
 test_xsbpy:-
     xsb_configuration(packagesdir, PackDir),
