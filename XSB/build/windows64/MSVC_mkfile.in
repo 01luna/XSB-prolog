@@ -18,7 +18,7 @@
 ### DEBUG=yes
 ###
 ### If you have custom directories to use for #include commands or DLLs,
-### create the file custom_settings.mak and put these lines there
+### create the file custom_settings.mak here and put these lines there
 ### MY_INCLUDE_DIRS=/I"incdir1" /I"incdir2" ...
 ### MY_LIBRARY_DIRS=/LIBPATH:"libdir1" /LIBPATH:"libdir2" ...
 ###     For instance, to configure with support for threads, add
