@@ -36,31 +36,51 @@ applications and further examples.
 
 \section{Configuration and Loading}
 
-{\tt xsbpy} does not yet make use of a proper configuration approach,
-and Because of this, {\tt xsbpy} has only been configured and tested
-on Ubuntu Linux.  On this platform, {\tt xsbpy} has been tested using
-versions 3.7 and 3.8 Python libraries.  Because version 3.7 has been
-more extensively tested, is recommended, and is the default Python for
-{\tt xsbpy}. \footnote{To use 3.8, change the goal {\tt ?- init\_xsbpy(37).}
-  in {\tt init\_xsbpy.P} to {\tt ?- init\_xsbpy(38).}  In addition,
-  uncomment the statement {\tt \#define PYTHON38 1} in {\tt
-    xsbpym.c}.}
+An initial version of a configuration process of {\tt xsbpy} has been
+written for Linux and Windows, and is still in the process of being
+tested under various confiugrations.  On these platforms, {\tt xsbpy}
+has been tested using versions 3.7 and 3.8 Python libraries.
 
-If installing {\tt xsbpy} on Ubuntu, the first step is to ensure that
-the proper Python libraries and header files are present.  If using
-Python version 3.7 this command is:
+\subsection{Configuring {\tt xsbpy} under Linux with GCC}
 
-{\tt sudo apt-get install libpython3.7-dev}
+In principle when XSB is configured on Linux, {\tt xsbpy} will also be
+configured so that it can be used like any other XSB module.  However,
+for this configuration to work several things must be in place.
 
-For {\tt xsbpy} to work properly in Linux:
 \begin{itemize}
-\item The {\tt xsbpy} code must be compiled and dynamically loaded into XSB.
-\item A version of {\tt libpython.so} also needs to be dynamically
-  loaded into XSB, and configured with the proper C library paths.
-\item The proper paths must be set for the Python Standard Library.
-\item Paths to {\tt xsbpy} and to {\tt xsbpy/apps} must be set up to
-  access both XSB and Python modules.
+\item GCC (or some other compiler) must be present and usable by the
+  userid performing the cofiguration.
+
+\item A development version of Python 3.X must also be present and
+  usable by the userid performing the configuration.  This version
+  must be a CPython version (this is the usual implementation of
+  Python), In additiion the version of Python must also contain a
+  version of Python as a shared object ({\tt .so}) file.  This often
+  requires an additional download of Python.  On Ubuntu, while Python
+  is ordinarily downloaded as:
+
+  {\tt apt-get install python3.x}
+
+\noindent
+the shared-object library must also be downloaded as, e.g.:
+
+{\tt apt-get install libpython3.x-dev}
+
+\item Next, the user must have permissions to use {\tt pip} on this
+  version of Python, as the configuration process may need to download
+  the Python library {\tt find\_libpython}.
 \end{itemize}
+
+If there are difficulties in configuring {\tt xsbpy}, it is likely
+that one of the above requirements is not met.  However, if these
+requirements are met, but the configuration dows not work properly, it
+is best to check the file {\tt xsb2py\_connect\_defs.h} to see whether
+its definitions are correct.  The definitions in this file are used in
+{\tt get\_compiler\_options/2} in {\tt init\_xsbpy.P} to properly
+compile {\tt xsbpy} and link in {\tt libpython3x.so}.~\footnote{If you
+  can determine that the required software is present and that there
+  is a problem with the configuration please report the problem at
+  {\tt https://sourceforge.net/p/xsb/bugs}.}
 
 In Ubuntu Linux, this is all done automatically when {\tt xsbpy} is
 consulted into XSB via a normal consult or {\tt ensure\_loaded/[1,2]}.
@@ -71,6 +91,22 @@ appropriate for the version of libpython used. \footnote{See {\tt
 When the {\tt xsbpy} module is consulted into XSB, the {\tt libpython}
 shared object file (or DLL) is loaded dynamically along with the {\tt
   xsbpy} shared object file.
+
+%If installing {\tt xsbpy} on Ubuntu, the first step is to ensure that
+%the proper Python libraries and header files are present.  If using
+%Python version 3.7 this command is:
+%
+%{\tt sudo apt-get install libpython3.7-dev}
+%
+%For {\tt xsbpy} to work properly in Linux:
+%\begin{itemize}
+%\item The {\tt xsbpy} code must be compiled and dynamically loaded into XSB.
+%\item A version of {\tt libpython.so} also needs to be dynamically
+%  loaded into XSB, and configured with the proper C library paths.
+%\item The proper paths must be set for the Python Standard Library.
+%\item Paths to {\tt xsbpy} and to {\tt xsbpy/apps} must be set up to
+ % access both XSB and Python modules.
+%\end{itemize}
 
 %\begin{verbatim}
 %-I <path to XSB's emu directory>  
@@ -85,26 +121,21 @@ shared object file (or DLL) is loaded dynamically along with the {\tt
 %configures the path to the XSB {\tt emu} directory but all other paths
 %are currently hard-coded.
 
-To test out whether {\tt xsbpy} has been loaded and is working
-properly, simply change the working directory to {\tt xsbpy/test} and
-execute the command
+\subsection{Configuring {\tt xsbpy} under Windows}
+
+\subsection{Configuring {\tt xsbpy} under MacosX}
+
+\subsection{Testing whether the {\tt xsbpy} configuration was successful}
+
+No matter what platform {\tt xsbpy} is installed on, to test out
+whether {\tt xsbpy} has been loaded and is working properly, simply
+change the working directory to {\tt xsbpy/test} and execute the
+command
 
 \begin{verbatim}
   bash test.sh
 \end{verbatim}
 
-Remaining configuration tasks include
-
-\begin{itemize}
-\item {\em Non-Ubuntu Linux.} On a Linux that is not Ubuntu (e.g.,
-  Debian or CentOs) it needs to be ensured that paths to {\tt
-    libpython} and to Python header files are properly given to gcc.
-\item {\em MacOs.} On MacOs, the proper header file paths need to be
-  used by the compiler, along with the proper run time library for
-  libpython.  In addition, the compilation statement may need to
-  change for Clang.
-\item {\em In Windows:} ... God only knows...
-\end{itemize}
 
 \section{Introductory Examples}
 
