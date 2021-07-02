@@ -211,6 +211,7 @@ current_option(profile).
 
 /* pass through to CC */
 current_option(cc_opts).
+current_option(if_needed).
 
 /* Allow module to differ from filename */
 current_option(module).

@@ -213,6 +213,7 @@ i_want_compile(SExt, Base, Obj) :-
 	;
 	 needs_recompile(SExt, Base, Obj) ).
 
+:- mode needs_recompile(+,+,+).
 needs_recompile(XSB_SRC_EXTENSION_ATOM_SANS_DOT, Base, Obj) :-
 	( str_cat(Base, XSB_SRC_EXTENSION_ATOM, PFileName),
 	    path_sysop(newerthan,PFileName,Obj)
@@ -256,25 +257,30 @@ needs_recompile('', Base, Obj) :-
 	OTime =< PTime.
 needs_recompile('c', Base, Obj) :-
 	xsb_configuration(os_type, OS_type), atom(OS_type),
-	( ( str_sub('solaris', OS_type) -> str_cat(Base, '.so', C_Obj)
+	( str_sub('solaris', OS_type) -> str_cat(Base, '.so', C_Obj)
           ; (str_sub('linux', OS_type) -> str_cat(Base, '.so', C_Obj))
           ; (str_sub('bsd', OS_type) -> str_cat(Base, '.so', C_Obj))
 	  ; str_sub('windows', OS_type) -> str_cat(Base, '.dll', C_Obj)
 	  ; str_sub('cygwin', OS_type) -> str_cat(Base, '.dll', C_Obj)
 	  ; str_sub(darwin, OS_type) -> str_cat(Base, '.dylib', C_Obj)
 	  ; str_cat(Base, '.o', C_Obj)
-	  ),
-	  ( file_exists_here_or_configbin_or_configlib(C_Obj,CC_Obj) -> 
+	),
+	(
+	 (file_exists_here_or_configbin_or_configlib(C_Obj,CC_Obj) -> 
 	      str_cat(Base, '.c', CFileName),
 	      path_sysop(newerthan, CFileName, CC_Obj)
 	  ; true
-	  )
-	)
+	 )
 	; 
-	( str_cat(Base, XSB_HDR_EXTENSION_ATOM, HFileName),
-	    path_sysop(newerthan, HFileName, Obj)
-	)
-        ; object_file_magic_mismatch(Obj).
+	 str_cat(Base, XSB_HDR_EXTENSION_ATOM, HFileName),
+	 path_sysop(newerthan, HFileName, C_Obj)
+	;
+	 (concat_atom([_,XSB_OBJ_EXTENSION_ATOM],Obj)
+	  -> object_file_magic_mismatch(Obj)
+	  ;  concat_atom([Obj,XSB_OBJ_EXTENSION_ATOM],P_Obj),
+	     object_file_magic_mismatch(P_Obj)
+	 )
+	).
 
 file_exists_here_or_configbin_or_configlib(C_Obj,CC_Obj) :-
 	(file_exists(C_Obj)

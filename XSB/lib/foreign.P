@@ -37,9 +37,12 @@
 /* ToLoc >= 1 means to compile to private.  */
 :- mode compile_cH(+,+,+,+,+,?,+).
 compile_cH(Modname, Base, Ext, Options, ToLoc, ExList, Dir) :-
-	compile_H(Modname,Base,Options,ToLoc,ExList,LdOption,CompComm,TempFile),
-	compile_c(Modname,Base,Ext,Options,Dir,LdOption,CompComm,TempFile).
-
+    escape_path(Base,EBase),
+    ((\+ memberchk(if_needed,Options) ; needs_recompile('c',EBase,EBase))
+     -> compile_H(Modname,Base,Options,ToLoc,ExList,LdOption,CompComm,TempFile),
+	compile_c(Modname,Base,Ext,Options,Dir,LdOption,CompComm,TempFile)
+     ;  true
+    ).
 
 %% This is a user-level predicate, that can be used to compile shared objects.
 %% These files don't require .H. They are used as auxiliary dynamically 
@@ -127,13 +130,13 @@ foreign_module_library_extension(Configuration,Extension) :-
 %% CompCom: compiler command--for testing?
 %% TempFile: Directory
 compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
+    escape_path(OrigBase,Base),
     xsb_configuration(configuration, Configuration),
     check_atom(Configuration,'xsb_configuration/2',2),
     xsb_configuration(compiler_flags, XSB_CC_Opts),
     check_atom(XSB_CC_Opts,'xsb_configuration/2',2),
     xsb_configuration(loader_flags, LD_Opts),
     check_atom(LD_Opts,'xsb_configuration/2',2),
-    escape_path(OrigBase,Base),
     retractall(current_compiled_module(_)),
     assert(current_compiled_module(Base)),
     cc_name(Options, CC_Name),
@@ -178,7 +181,7 @@ compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
 	 ; str_sub('cygwin',Configuration)
 	 -> compile_c_cygwin(Ext,LdOption,TempFile,XSB_CC_Opts,LD_Opts,Base,CC_Name,CC_Opts)
 	 ; str_sub('windows',Configuration)
-	 -> compile_c_windows(Modname,Ext,Base)
+	 -> compile_c_windows(Modname,Ext,Base,CC_Opts,LD_Opts)
 	 ;  shell([CC_Name,' -c ',Base,Ext,TempFile,' ',CC_Opts]),
 	    /* The following is here because C compilers usually put 
 	    the object file in the current directory and not in the source one. */
@@ -235,17 +238,16 @@ compile_c_cygwin(Ext,LdOption,TempFile,XSB_CC_Opts,LD_Opts,Base,CC_Name,CC_Opts)
 	   %% NOTE: It is IMPORTANT that LdOption & LD_Opts are at the end!
 	   Obj,' ',TempObj,' ',LdOption,' ',LD_Opts,' -lxsb']).
     
-compile_c_windows(Modname,Ext,Base) :-
+compile_c_windows(Modname,Ext,Base,CC_Opts,LD_Opts) :-
     ((Ext == '.c' ; Ext == '.c ')
-     ->	fmt_write_string(DLLhere,'%s.dll',arg(Modname)),
-	xsb_configuration(config_bindir,BINDIR),
+     ->	xsb_configuration(config_bindir,BINDIR),
 	check_atom(BINDIR,'xsb_configuration/2',2),
 	fmt_write_string(DLLbin,'%s\\%s.dll',arg(BINDIR,Modname)),
-	((file_exists(DLLhere) ; file_exists(DLLbin))
+	(file_exists(DLLbin)
 	 -> true
 	 ;  concat_atom([BINDIR,'\\setvcvars.bat'],Setvcfile),
 	    (file_exists(Setvcfile)
-	     ->	compile_windows_c_to_dll(Base)
+	     ->	compile_windows_c_to_dll(Base,CC_Opts,LD_Opts)
 	     ;	warning((Setvcfile,' not found; required to set variables for compilation.')),
 		misc_error(('[foreign] ERROR: DLL is not found: ',Modname,',and cannot be compiled automatically.'))
 	    )
@@ -253,7 +255,7 @@ compile_c_windows(Modname,Ext,Base) :-
      ;  misc_error(('[foreign] ERROR: No .c file,so DLL must have been created for ',Base,Ext))
     ).
 
-compile_windows_c_to_dll(Base) :-
+compile_windows_c_to_dll(Base,CC_Opts,LD_Opts) :-
     xsb_configuration(config_bindir,ConfigBinDir),
     check_atom(ConfigBinDir,'xsb_configuration/2',2),
     Ext = '.c',
@@ -271,8 +273,9 @@ compile_windows_c_to_dll(Base) :-
 		' /nologo /MT /W3 /EHsc /O2',
 		' /I"',ConfigDir,'"',
 		' /I"',EmuDir,'"',
-		' /I"',InstallDir,'\\prolog_includes"',
-		' /DWIN64 /DNDEBUG /D_WINDOWS /D_MBCS /DXSB_DLL /Fo".\\" /Fd".\\"'
+		' /I"',InstallDir,'\\prolog_includes" ',
+		CC_Opts,
+		' /DWIN_NT /DWIN64 /DNDEBUG /D_WINDOWS /D_MBCS /DXSB_DLL /Fo".\\" /Fd".\\"'
 		],
     concat_atom(CompCmdL,CompCmd),
     LinkCmdL = ['link.exe kernel32.lib user32.lib gdi32.lib winspool.lib',
@@ -280,7 +283,8 @@ compile_windows_c_to_dll(Base) :-
 		' uuid.lib odbc32.lib odbccp32.lib xsb.lib /nologo /DLL',
 		' /machine:',HostCpu,
 		' /out:"',Base,'.dll"',
-		' /libpath:"',ConfigBinDir,'"',
+		' /libpath:"',ConfigBinDir,'" ',
+		LD_Opts,
 		' "',Base,'.obj"'
 		],
     concat_atom(LinkCmdL,LinkCmd),
@@ -294,6 +298,7 @@ compile_windows_c_to_dll(Base) :-
     standard:writeq(userout,cmd(ShellCmd)),standard:nl(userout),
     shell(ShellCmd).
 
+%% not used within system??
 compile_windows_c_to_exe(Base) :-
     xsb_configuration(config_bindir,ConfigBinDir),
     check_atom(ConfigBinDir,'xsb_configuration/2',2),
@@ -333,7 +338,7 @@ compile_windows_c_to_exe(Base) :-
     str_repl(LinkCmd,['\\','"'],['\\\\','""'],LinkCmdR),  %"
     concat_atom(['cmd /c "',SetvcvarsR,' & ',CompCmdR,' & ',LinkCmdR,'"'],ShellCmd),
     atom(ShellCmd),
-    standard:writeq(userout,cmd(ShellCmd)),standard:nl(userout),
+    standard:writeq(userout,ShellCmd),standard:nl(userout),
     shell(ShellCmd).
 
 cc_name(Options,CC_Name) :-

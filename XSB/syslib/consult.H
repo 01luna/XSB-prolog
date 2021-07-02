@@ -39,6 +39,7 @@
 	load_dync/1, load_dync/2, load_dync/3, load_dync/4, load_dynca/1, load_dynca/2,
         read_canonical/1,read_canonical/2,
         if_file_loaded/1,
+        needs_recompile/3,
         (thread_shared)/1,
         (thread_private)/1,
         cvt_canonical/2.
