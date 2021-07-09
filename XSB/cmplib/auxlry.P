@@ -211,6 +211,7 @@ current_option(profile).
 
 /* pass through to CC */
 current_option(cc_opts).
+current_option(ld_opts).
 current_option(if_needed).
 
 /* Allow module to differ from filename */
@@ -245,6 +246,7 @@ current_option(Opt,OptName) :-
 current_option(dynamic(Opts),dynamic) :-
 	assert('_$compiler_option_dynamic'(Opts)).
 current_option(cc_opts(_),cc_opts).
+current_option(ld_opts(_),ld_opts).
 % TLS: used for backward compatability when options change.
 current_option(_,_):- fail.
 
