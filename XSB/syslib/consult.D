@@ -142,8 +142,8 @@
 :- mode_on_success cleanup_for_load.
 :- mode_on_success compile(g).
 :- mode_on_success compile(g,g).
-:- mode_on_success compile0(g,g,g,g).
-:- mode_on_success compile_f(g,g,g,g,g,g,g).
+:- mode_on_success compile0(g,g,g,A).
+:- mode_on_success compile_f(g,g,g,g,A,g,g).
 :- mode_on_success compile_load_user(g).
 :- mode_on_success compile_opt_checked(g,g,g).
 :- mode_on_success consult(g).

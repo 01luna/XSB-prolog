@@ -315,9 +315,12 @@ file_exists_here_or_configbin_or_configlib(C_Obj,CC_Obj) :-
 */
 /* To be called only on .xwam files */
 object_file_magic_mismatch(Obj):- 
-	xsb_configuration(engine_mode,Emode),
+    (file_exists(Obj)
+     -> xsb_configuration(engine_mode,Emode),
 	get_magic_num(Obj,[_,_,_,Four]),
-	\+ (engine_mode_magic_num(Emode,_,LastDigit),Four == LastDigit).
+	\+ (engine_mode_magic_num(Emode,_,LastDigit),Four == LastDigit)
+     ;  true
+    ).
 
 :- mode engine_mode_magic_num(?,?,?).
 engine_mode_magic_num('slg-wam',mutable,8).
