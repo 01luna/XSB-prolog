@@ -62,6 +62,7 @@
 #include "context.h"
 #include "xsb_debug.h"
 #include "socket_xsb.h"
+#include "export.h"
 #include "flags_xsb.h"
 #include "thread_xsb.h"
 #include "thread_defs_xsb.h"

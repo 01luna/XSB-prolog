@@ -5717,7 +5717,7 @@ forest_log_buffer_struct fl_buffer_1;
 forest_log_buffer_struct fl_buffer_2;
 forest_log_buffer_struct fl_buffer_3;
 
-forestLogBuffer forest_log_buffer_1;
+DllExport forestLogBuffer forest_log_buffer_1;
 forestLogBuffer forest_log_buffer_2;
 forestLogBuffer forest_log_buffer_3;
 #endif

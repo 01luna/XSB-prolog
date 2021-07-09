@@ -76,7 +76,11 @@ extern forest_log_buffer_struct fl_buffer_1;
 extern forest_log_buffer_struct fl_buffer_2;
 extern forest_log_buffer_struct fl_buffer_3;
 
-extern  forestLogBuffer forest_log_buffer_1;
+#ifdef WINDOWS_IMP
+__declspec(dllimport) forestLogBuffer forest_log_buffer_1;
+#else
+DllExport extern  forestLogBuffer forest_log_buffer_1;
+#endif
 extern  forestLogBuffer forest_log_buffer_2;
 extern  forestLogBuffer forest_log_buffer_3;
 #endif
@@ -127,7 +131,7 @@ extern void print_subgoal(struct th_context *,FILE *, VariantSF);
 #endif
 
 extern int sprint_quotedname(char *, int,char *);
-extern int sprintTerm(forestLogBuffer, Cell);
+DllExport extern int sprintTerm(forestLogBuffer, Cell);
 extern int ctrace_ctr;
 extern void printterm(FILE *, Cell, long);
 

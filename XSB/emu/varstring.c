@@ -72,7 +72,7 @@
 #endif
 
 #include "varstring_xsb.h"
-
+#include "export.h"
 
 #define DEFAULT_VARSTR_INCREMENT     128
 #define NEWLENGTH(vstr,additional_size) \

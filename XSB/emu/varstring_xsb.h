@@ -22,9 +22,9 @@
 ** 
 */
 
-
 #ifndef VARSTRING_INCLUDED
 #include "export.h"
+
 
 struct varstr;
 typedef struct varstr VarString;
@@ -77,9 +77,12 @@ extern DllExport void call_conv varstring_create(VarString **vstr);
 /* To compile a C program UNDER WINDOWS that will link with the XSB
 dll and includes this .h file (or cinterf.h, which includes this
 file), the following WINDOWS_IMP flag must be defined when compiling
-the C program. */
+the C program.  The reason is that for importing *variables*, one
+needs the dllimport declaration; while for functions one needs the
+dllexport declation.  WINDOWS_IMP allows C functions loaded by XSB to
+include this file and get the necessary dllimport decl. */
 #ifdef WINDOWS_IMP
-_declspec(dllimport) struct varstr_ops VarStrOps;
+__declspec(dllimport) struct varstr_ops VarStrOps;
 #else
 extern DllExport struct varstr_ops VarStrOps;
 #endif
@@ -103,8 +106,9 @@ extern DllExport struct varstr_ops VarStrOps;
 #define XSB_StrDestroy(vstr)           (vstr)->op->destroy(vstr)
 
 
-/* XSB_StrDefine doesn't work in a DLL under Windows for some reason.
-   Can't resolve VarStrOps. So, then use XSB_StrCreate() and XSB_StrInit()
+/* If having trouble using XSB_StrDefine in a DLL under Windows since
+   it can't resolve VarStrOps, you should define WINDOWS_IMP to allow
+   VarStrOps to be dllimport-ed as required in windows for variables.
 */
 #define XSB_StrDefine(vstr)          VarString vstr = {0,0,0,NULL,&VarStrOps}
 /* Allocates space for VarString, assigns the pointer to vstr, then initializes

@@ -59,7 +59,7 @@
 
 extern int  gc_heap(CTXTdeclc int, int);
 extern size_t  mark_heap(CTXTdeclc int,size_t *);
-extern void glstack_ensure_space(CTXTdeclc size_t,int);
+DllExport extern void glstack_ensure_space(CTXTdeclc size_t,int);
 extern xsbBool glstack_realloc(CTXTdeclc size_t,int);
 extern char *string_find_safe(char *str);
 extern void initialize_glstack(CPtr, CPtr);

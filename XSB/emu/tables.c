@@ -22,7 +22,7 @@
 ** 
 */
 
-
+#include "export.h"
 #include "xsb_config.h"
 #include "xsb_debug.h"
 

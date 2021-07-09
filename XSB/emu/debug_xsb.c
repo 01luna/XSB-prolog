@@ -645,7 +645,7 @@ void sprintCyclicTerm(CTXTdeclc forestLogBuffer fl_buf, Cell Term) {
   unwind_cycle_trail;
 }
 
-int sprintTerm(forestLogBuffer fl_buf, Cell Term) {
+DllExport int sprintTerm(forestLogBuffer fl_buf, Cell Term) {
   return sprint_term(fl_buf, 0, Term, CAR, (long)flags[WRITE_DEPTH]);
 }
 

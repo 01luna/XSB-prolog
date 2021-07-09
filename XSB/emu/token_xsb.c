@@ -31,6 +31,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "export.h"
 #include "auxlry.h"
 #include "context.h"
 #include "cell_xsb.h"

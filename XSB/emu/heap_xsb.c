@@ -919,7 +919,7 @@ int gc_heap(CTXTdeclc int arity, int ifStringGC)
 
 /*--------------------------------------------------------------------------*/
 
-void glstack_ensure_space(CTXTdeclc size_t extra, int arity) {
+DllExport void glstack_ensure_space(CTXTdeclc size_t extra, int arity) {
   if ((pb)top_of_localstk < (pb)top_of_heap+(256*ZOOM_FACTOR)) {
     xsb_basic_abort("\nFatal ERROR:  -- "
 		    "Local Stack clobbered Heap --\n");

@@ -30,7 +30,16 @@
 
 #include "cell_xsb.h"
 
-extern Cell flags[];		/* System flags + user flags */
+/* WINDOWS_IMP is defined by C routine that wants to import
+   *variables* from the XSB DLL (in this case flags[]).  Windows
+   requires variables to be *imported*, but allows functions to be
+   "exported" */
+
+#if defined(WINDOWS_IMP)
+__declspec(dllimport) extern Cell flags[];  /* variable must be imported if used from DLL */
+#else
+DllExport extern Cell flags[];		/* System flags + user flags */
+#endif
 #ifndef MULTI_THREAD
 extern Cell pflags[];		/* Thread private flags */
 #endif
