@@ -404,8 +404,40 @@ between(L,U,B) :-
 between_1(L,_U,L).
 between_1(L,U,Res) :- L < U, L1 is L + 1, between_1(L1,U,Res).
 
-/* --------------------- end of file basics.P ------------------------- */
+%----------------
+% Count the occurrences of each value in a list.
+   
+list_valcount([],[]):- !.
+list_valcount(List,Out):-
+    parsort(List,[],0,List1),
+    List1 = [H|T],
+    list_valcount_1(T,H,1,Out).
+    
+list_valcount_1([],Last,Count,[(Last,Count)]).
+list_valcount_1([H|T],Last,Count,Out):-
+    Last == H,!,
+    Count1 is Count + 1,
+    list_valcount_1(T,H,Count1,Out).
+list_valcount_1([H|T],Last,Count,[(Last,Count)|Out]):-
+    list_valcount_1(T,H,1,Out).
 
+%----------------
+% Histogram info for a list of numbers.
+   
+list_hist(ListIn,Start,Inc,ListOut):-
+    parsort(ListIn,[],0,List1),
+    List1 = [H|T],
+    Next is H - ((H-Start) mod Inc),
+    list_hist_1(T,Next,1,Start,Inc,ListOut).
+
+list_hist_1([],Last,Count,_Start,_Inc,[(Last,Count)]).
+list_hist_1([H|T],Last,Count,Start,Inc,Out):-
+    H < Last + Inc,!,
+    Count1 is Count + 1,
+    list_hist_1(T,Last,Count1,Start,Inc,Out).
+list_hist_1([H|T],Last,Count,Start,Inc,[(Last,Count)|Out]):-
+    Next is H - ((H-Start) mod Inc),
+    list_hist_1(T,Next,1,Start,Inc,Out).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Commautils.
@@ -442,4 +474,6 @@ comma_append(','(L,R),Cl,','(L,R1)):- !,
 comma_append(true,Cl,Cl):- !.
 comma_append(L,Cl,Out):- 
 	(Cl == true -> Out = L ; Out = ','(L,Cl)).
+
+/* --------------------- end of file basics.P ------------------------- */
 
