@@ -10,12 +10,12 @@ modules.
 
 \section{List Processing}
 %========================
-The XSB library contains various list utilities, some of which 
-are listed below.  These predicates should be explicitly imported from
-the module specified after the skeletal specification of each predicate.
-There are a lot more useful list processing predicates in various modules
-of the XSB system, and the interested user can find them by 
-looking at the sources.
+The XSB libraries contain various list utilities, some of which are
+listed below.  These predicates should be explicitly imported from the
+module specified after the skeletal specification of each predicate.
+%There are more useful list processing predicates in various modules of
+%the XSB system, and the interested user can find them by looking at
+%the sources.
 
 \begin{description}
 \ourmoditem{append(?List1, ?List2, ?List3)}{append/3}{basics}
@@ -31,6 +31,20 @@ looking at the sources.
     Similar to {\tt member}/2, except that {\tt memberchk}/2 is
     deterministic, i.e.\ does not succeed more than once for any call.
 
+\ourmoditem{absmember(+Element, +List)}{absmember/2}{listutil}
+    Similar to {\tt member}/2, except that it checks for identity
+    (through the use of predicate {\tt '=='/2}) rather than unifiability 
+    (through {\tt '='/2}) of {\tt Element} with elements of {\tt List}.
+
+\ourmoditem{member2(?Element, ?List)}{member2/2}{listutil}
+    Checks whether {\tt Element} unifies with any of the actual elements 
+    of {\tt List}.  The only difference between this predicate and 
+    predicate {\tt member/2} is on lists having a variable tail, 
+    e.g.\ \verb'[a, b, c | _ ]': while {\tt member/2} would insert 
+    {\tt Element} at the end of such a list if it did not find it, 
+    Predicate {\tt member2/2} only checks for membership but does not 
+    insert the {\tt Element} into the list if it is not there.
+
 \ourmoditem{ith(?Index, ?List, ?Element)}{ith/3}{basics}
     Succeeds if the ${\tt Index^{th}}$ element of the list {\tt List} 
     unifies with {\tt Element}.  Fails if {\tt Index} is not a positive
@@ -39,7 +53,7 @@ looking at the sources.
     should be instantiated (but not necessarily ground) at the time of 
     the call.
 
-\ourmoditem{delete\_ith(+Index, +List, ?Element, ?RestList)}{delete\_ith/4}{listutil}
+\ourmoditem{delete\_ith(+Index, +List, ?Element, ?RestList)}{delete\_ith/4}{listutils}
     Succeeds if the ${\tt Index^{th}}$ element of the list {\tt List}
     unifies with {\tt Element}, and {\tt RestList} is {\tt List} with
     {\tt Element} removed.  Fails if {\tt Index} is not a positive
@@ -78,8 +92,6 @@ looking at the sources.
     constructs the {\tt List} that contains all bound values in the
     log\_list {\tt Tree}, in the order they appear in {\tt Tree}.
     
-
-
 \ourmoditem{length(?List, ?Length)}{length/2}{basics}
     Succeeds if the length of the list {\tt List} is {\tt Length}.
     This predicate is deterministic if {\tt List} is instantiated 
@@ -88,7 +100,7 @@ looking at the sources.
     is uninstantiated, it is unified with a list of length {\tt Length}
     that contains variables.
 
-\ourmoditem{same\_length(?List1, ?List2)}{same\_length/2}{basics}
+\ourmoditem{same\_length(?List1, ?List2)}{same\_length/2}{lists}
     Succeeds if list {\tt List1} and {\tt List2} are both lists of
     the same number of elements.  No relation between the types or
     values of their elements is implied.  This predicate may be used
@@ -96,9 +108,9 @@ looking at the sources.
     the other, or to generate two lists of the same length, in which
     case the arguments will be bound to lists of length $0,1,2,\ldots$.
 
-\ourmoditem{select(?Element, ?L1, ?L2)}{select/3}{basics}
-    {\tt List2} derives from {\tt List1} by selecting (removing) an 
-    {\tt Element} non-deterministically.
+\ourmoditem{delete(?Element, ?L1, ?L2)}{select/3}{swi} {\tt List2}
+derives from {\tt List1} by deleting an {\tt Element}
+non-deterministically.
 
 \ourmoditem{reverse(+List, ?ReversedList)}{reverse/2}{basics}
     Succeeds if {\tt ReversedList} is the reverse of list {\tt List}.
@@ -124,37 +136,66 @@ looking at the sources.
     complements together, but can also be used to interleave two lists
     in all possible ways.
 
-\ourmoditem{merge(+List1, +List2, ?List3)}{merge/3}{listutil}
-    Succeeds if {\tt List3} is the list resulting from ``merging'' lists 
-    {\tt List1} and {\tt List2},
-    i.e.\ the elements of {\tt List1} together with any element of 
-    {\tt List2} not occurring in {\tt List1}.
-    If~{\tt List1} or~{\tt List2} contain duplicates, {\tt List3} may 
-    also contain duplicates.
-
-\ourmoditem{absmerge(+List1, +List2, ?List3)}{absmerge/3}{listutil}
-    Predicate {\tt absmerge/3} is similar to {\tt merge/3}, except that 
-    it uses predicate {\tt absmember/2} described below rather than 
-    {\tt member/2}.
-
-\ourmoditem{absmember(+Element, +List)}{absmember/2}{listutil}
-    Similar to {\tt member}/2, except that it checks for identity
-    (through the use of predicate {\tt '=='/2}) rather than unifiability 
-    (through {\tt '='/2}) of {\tt Element} with elements of {\tt List}.
-
-\ourmoditem{member2(?Element, ?List)}{member2/2}{listutil}
-    Checks whether {\tt Element} unifies with any of the actual elements 
-    of {\tt List}.  The only difference between this predicate and 
-    predicate {\tt member/2} is on lists having a variable tail, 
-    e.g.\ \verb'[a, b, c | _ ]': while {\tt member/2} would insert 
-    {\tt Element} at the end of such a list if it did not find it, 
-    Predicate {\tt member2/2} only checks for membership but does not 
-    insert the {\tt Element} into the list if it is not there.
-
 \ourmoditem{closetail(?List)}{closetail/1}{listutil}
     Predicate {\tt closetail/1} closes the tail of an open-ended list.
     It succeeds only once.
 
+\ourmoditem{list\_valcount(+List,?Counts)}{list\_valcount/2}{basics}
+%
+Counts the occurrences of each unique term in {\tt List} (i.e., unique
+via {\tt ==/2}) and returns a sorted list containinng a pair {\tt
+  (Term,Count)} for each such term.
+
+As an exmaple, note that while {\tt p(X)} unifies with all ground terms
+of the list, it is counted separately.
+\begin{verbatim}
+?- list_valcount([p(b),p(c),p(X),p(a),p(X),p(c)],Out).
+
+Out = [(p(_h407),2),(p(a),1),(p(b),1),(p(c),2)]
+\end{verbatim}
+
+Since comparisons are based on {\tt ==/2} terms with distinct
+variables are also counted separately: 
+\begin{verbatim}
+?- list_valcount([p(b),p(c),p(X),p(a),p(Y),p(c)],Out).
+
+Out = [(p(_h407),1),p(_h483),1),(p(a),1),(p(b),1),(p(c),2)]
+\end{verbatim}
+
+\ourmoditem{list\_hist(+List,+Start,+Incr,?Counts)}{list\_hist/4}{basics}
+%
+Given a list of numbers, produces a partial histogram.  The histogram
+begins with {\tt Start} and is divided into intervals of length {\tt
+  Incr}, but any intervals with count 0 are omitted.  Its behavior is
+perhaps easily seen through an example.
+\begin{verbatim}
+?- list_hist( [3.4,4,8,3.7,4.5],1,1,Out).
+
+Out = [(3.0,2),(4.0,2),(8,1)]
+\end{verbatim}
+Because {\tt Start} and {\tt Incr} are both 1, intervals in the
+histogram are of length 1 and are aligned on integer values.  There
+are 2 values in the interval beginning with 3.0, 2 in the interval
+beginning with 4.0 and 1 in the interval beginning with 8.  All other
+intervals have count 0 and are omitted.
+    
+% TES took these two out -- use ordsets for this.  Removing duplicates between lists and
+% keeping them within each list is too funky for a library pred.
+%    \ourmoditem{merge(+List1, +List2, ?List3)}{merge/3}{listutil}
+%
+%Succeeds if {\tt List3} is the list resulting from ``merging'' lists
+%{\tt List1} and {\tt List2}, i.e.\ the elements of {\tt List1}
+%together with any element of {\tt List2} not occurring in {\tt List1}.
+%In contrast to {\tt append/3}, elments in {\tt List2} that occur in
+%{\tt List1} are ignored.  However, if~{\tt List1} or~{\tt List2}
+%contain duplicates, {\tt List3} may also contain duplicates.
+
+%\ourmoditem{absmerge(+List1, +List2, ?List3)}{absmerge/3}{listutil}
+%    Predicate {\tt absmerge/3} is similar to {\tt merge/3}, except that 
+%    it uses predicate {\tt absmember/2} described above rather than 
+%    {\tt member/2}.
+
+   
 \end{description}
 
 \subsection{Processing Comma Lists}
