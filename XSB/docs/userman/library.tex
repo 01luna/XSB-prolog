@@ -8,7 +8,7 @@ when imported them from (or explicitly consult) the corresponding
 modules.
 
 
-\section{List Processing}
+\section{List (and Tree) Processing}
 %========================
 The XSB libraries contain various list utilities, some of which are
 listed below.  These predicates should be explicitly imported from the
@@ -36,62 +36,25 @@ module specified after the skeletal specification of each predicate.
     (through the use of predicate {\tt '=='/2}) rather than unifiability 
     (through {\tt '='/2}) of {\tt Element} with elements of {\tt List}.
 
-\ourmoditem{member2(?Element, ?List)}{member2/2}{listutil}
-    Checks whether {\tt Element} unifies with any of the actual elements 
-    of {\tt List}.  The only difference between this predicate and 
-    predicate {\tt member/2} is on lists having a variable tail, 
-    e.g.\ \verb'[a, b, c | _ ]': while {\tt member/2} would insert 
-    {\tt Element} at the end of such a list if it did not find it, 
-    Predicate {\tt member2/2} only checks for membership but does not 
-    insert the {\tt Element} into the list if it is not there.
+% called member2 (ugh) in listutil.    
+\ourmoditem{opentail\_member(?Element,?List)}{opentail\_member/2}{basics}
+%
+Checks whether {\tt Element} unifies with any of the actual elements
+of {\tt List}.  The only difference between this predicate and {\tt
+  member/2} is on lists having a variable tail,
+e.g.\ \verb'[a, b, c | _ ]': while {\tt member/2} would insert {\tt
+  Element} at the end of such a list if it did not find it, Predicate
+{\tt opentail\_member/2} only checks for membership but does not insert the
+{\tt Element} into the list if it is not there.
 
-\ourmoditem{ith(?Index, ?List, ?Element)}{ith/3}{basics}
-    Succeeds if the ${\tt Index^{th}}$ element of the list {\tt List} 
-    unifies with {\tt Element}.  Fails if {\tt Index} is not a positive
-    integer or greater than the length of {\tt List}.
-    Either {\tt Index} and {\tt List}, or {\tt List} and {\tt Element}, 
-    should be instantiated (but not necessarily ground) at the time of 
-    the call.
+\ourmoditem{closetail(?List)}{closetail/1}{listutil}
+    Predicate {\tt closetail/1} closes the tail of an open-ended list.
+    It succeeds only once.
 
-\ourmoditem{delete\_ith(+Index, +List, ?Element, ?RestList)}{delete\_ith/4}{listutils}
-    Succeeds if the ${\tt Index^{th}}$ element of the list {\tt List}
-    unifies with {\tt Element}, and {\tt RestList} is {\tt List} with
-    {\tt Element} removed.  Fails if {\tt Index} is not a positive
-    integer or greater than the length of {\tt List}.
+\ourmoditem{last(List,Elt)}{last/2}{lists}
+%
+Succeeds if {\tt Elt} unifies with the last element of {\tt List}.
 
-\ourmoditem{log\_ith(?Index, ?Tree, ?Element)}{log\_ith/3}{basics}
-    Succeeds if the ${\tt Index^{th}}$ element of the Tree {\tt Tree}
-    unifies with {\tt Element}.  Fails if {\tt Index} is not a
-    positive integer or greater than the number of elements that can
-    be in {\tt Tree}.  Either {\tt Index} and {\tt Tree}, or {\tt
-    Tree} and {\tt Element}, should be instantiated (but not
-    necessarily ground) at the time of the call.  Tree is a list of
-    full binary trees, the first being of depth 0, and each one being
-    of depth one greater than its predecessor.  So {\tt log\_ith/3} is
-    very similar to {\tt ith/3} except it uses a tree instead of a
-    list to obtain log-time access to its elements.
-
-\ourmoditem{log\_ith\_bound(?Index, ?Tree, ?Element)}{log\_ith\_bound/3}{basics}
-    is like {\tt log\_ith/3}, but only if the ${\tt Index^{th}}$ element
-    of {\tt Tree} is non-variable and equal to Element.  This predicate
-    can be used in both directions, and is most useful with Index
-    unbound, since it will then bind {\tt Index} and {\tt Element} for
-    each non-variable element in {\tt Tree} (in time proportional to
-    $N*logN$, for $N$ the number of non-variable entries in {\tt
-    Tree}.)
-
-\ourmoditem{log\_ith\_new(?Index, ?Tree, ?Element)}{log\_ith\_new/3}{basics}
-    binds {\tt Element} to the ``end'' of the log\_list {\tt Tree},
-    and unifies {\tt Index} with its corresponding index.  The ``end''
-    of a log\_list is the first element after the one with the largest
-    index that has been added.  This can be used to simulate adding an
-    element to the end of an open-tailed list, but with better
-    complexity.
-
-\ourmoditem{log\_ith\_to\_list(?Tree, ?List)}{log\_ith\_to\_list/2}{basics}
-    constructs the {\tt List} that contains all bound values in the
-    log\_list {\tt Tree}, in the order they appear in {\tt Tree}.
-    
 \ourmoditem{length(?List, ?Length)}{length/2}{basics}
     Succeeds if the length of the list {\tt List} is {\tt Length}.
     This predicate is deterministic if {\tt List} is instantiated 
@@ -123,6 +86,20 @@ non-deterministically.
     of a given list.  {\tt List} must be a proper list.
     {\tt Perm} may be partly instantiated.
 
+\ourmoditem{ith(?Index, ?List, ?Element)}{ith/3}{basics}
+    Succeeds if the ${\tt Index^{th}}$ element of the list {\tt List} 
+    unifies with {\tt Element}.  Fails if {\tt Index} is not a positive
+    integer or greater than the length of {\tt List}.
+    Either {\tt Index} and {\tt List}, or {\tt List} and {\tt Element}, 
+    should be instantiated (but not necessarily ground) at the time of 
+    the call.
+
+\ourmoditem{delete\_ith(+Index, +List, ?Element, ?RestList)}{delete\_ith/4}{listutils}
+    Succeeds if the ${\tt Index^{th}}$ element of the list {\tt List}
+    unifies with {\tt Element}, and {\tt RestList} is {\tt List} with
+    {\tt Element} removed.  Fails if {\tt Index} is not a positive
+    integer or greater than the length of {\tt List}.
+
 \ourmoditem{subseq(?Sequence, ?SubSequence, ?Complement)}{subseq/3}{basics}
     Succeeds when {\tt SubSequence} and {\tt Complement} are both
     subsequences of the list {\tt Sequence} (the order of corresponding
@@ -135,10 +112,6 @@ non-deterministically.
     The main use of {\tt subseq/3} is to generate subsets and their
     complements together, but can also be used to interleave two lists
     in all possible ways.
-
-\ourmoditem{closetail(?List)}{closetail/1}{listutil}
-    Predicate {\tt closetail/1} closes the tail of an open-ended list.
-    It succeeds only once.
 
 \ourmoditem{list\_valcount(+List,?Counts)}{list\_valcount/2}{basics}
 %
@@ -179,7 +152,51 @@ are 2 values in the interval beginning with 3.0, 2 in the interval
 beginning with 4.0 and 1 in the interval beginning with 8.  All other
 intervals have count 0 and are omitted.
     
-% TES took these two out -- use ordsets for this.  Removing duplicates between lists and
+\end{description}
+
+\subsection{Library Predicates for Trees}
+
+The following predicates have a functionality similar to the list
+processing predicates described above; however they are based on
+simple n-ary trees can be much faster than lists if information about
+a large number of elements must be maintained.
+
+\begin{description}
+
+\ourmoditem{log\_ith(?Index, ?Tree, ?Element)}{log\_ith/3}{basics}
+    Succeeds if the ${\tt Index^{th}}$ element of the Tree {\tt Tree}
+    unifies with {\tt Element}.  Fails if {\tt Index} is not a
+    positive integer or greater than the number of elements that can
+    be in {\tt Tree}.  Either {\tt Index} and {\tt Tree}, or {\tt
+    Tree} and {\tt Element}, should be instantiated (but not
+    necessarily ground) at the time of the call.  Tree is a list of
+    full binary trees, the first being of depth 0, and each one being
+    of depth one greater than its predecessor.  So {\tt log\_ith/3} is
+    very similar to {\tt ith/3} except it uses a tree instead of a
+    list to obtain log-time access to its elements.
+
+\ourmoditem{log\_ith\_bound(?Index, ?Tree, ?Element)}{log\_ith\_bound/3}{basics}
+    is like {\tt log\_ith/3}, but only if the ${\tt Index^{th}}$ element
+    of {\tt Tree} is non-variable and equal to Element.  This predicate
+    can be used in both directions, and is most useful with Index
+    unbound, since it will then bind {\tt Index} and {\tt Element} for
+    each non-variable element in {\tt Tree} (in time proportional to
+    $N*logN$, for $N$ the number of non-variable entries in {\tt
+    Tree}.)
+
+\ourmoditem{log\_ith\_new(?Index, ?Tree, ?Element)}{log\_ith\_new/3}{basics}
+    binds {\tt Element} to the ``end'' of the log\_list {\tt Tree},
+    and unifies {\tt Index} with its corresponding index.  The ``end''
+    of a log\_list is the first element after the one with the largest
+    index that has been added.  This can be used to simulate adding an
+    element to the end of an open-tailed list, but with better
+    complexity.
+
+\ourmoditem{log\_ith\_to\_list(?Tree, ?List)}{log\_ith\_to\_list/2}{basics}
+    constructs the {\tt List} that contains all bound values in the
+    log\_list {\tt Tree}, in the order they appear in {\tt Tree}.
+    
+v% TES took these two out -- use ordsets for this.  Removing duplicates between lists and
 % keeping them within each list is too funky for a library pred.
 %    \ourmoditem{merge(+List1, +List2, ?List3)}{merge/3}{listutil}
 %
