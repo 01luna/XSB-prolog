@@ -195,7 +195,6 @@
 :- import file_write0/2, file_write/2, file_write_prolog/2, l_write/3,
 	  file_write_quoted/2, file_write_canonical/2, file_nl/1
      from xsb_writ.
-:- import (:-)/2 from usermod.
 :- import term_expansion/2 from usermod.
 :- import start_sleeper_thread/1 from machine.
 :- import assert/1 from assert.

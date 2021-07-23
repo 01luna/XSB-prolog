@@ -284,8 +284,13 @@ check_metapredicates(Sym,Args):-
 	standard_metapredicate(F,A,MetaArg),
 	ith(MetaArg,Args,Meta),
 	Meta = structure(NewSym,_),
-%	message(meta(Meta)),
-	sym_propin(pred,NewSym),
+	(A =:= 1,
+	 (F == assert ; F == asserta ; F == assertz),
+	 sym_name(NewSym,(:-),2)
+	 -> true
+	 ;  %	message(meta(Meta)),
+	    sym_propin(pred,NewSym)
+	),
 	!.
 check_metapredicates(_,_).
 

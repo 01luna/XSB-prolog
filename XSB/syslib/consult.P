@@ -144,7 +144,7 @@ reconsult(Path, Options, Ensure_loaded) :-
     check_atom(Path,'reconsult/1',1),
     \+ (\+ (reconsult0(Path, Options, Ensure_loaded))),!.
 reconsult(Path, Options, _Ensure_loaded) :- 
-    misc_error(['Unknown error while (re)consuting ',Path,' with options ',Options]).
+    misc_error(['Unknown error while (re)consulting ',Path,' with options ',Options]).
 
 /* TLS: restricting to only one thread for now.  Its possible that if
  * the file hasn't been loaded before, we could load it, but I'm not 
