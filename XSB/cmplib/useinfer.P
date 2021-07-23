@@ -283,13 +283,17 @@ check_metapredicates(Sym,Args):-
 	Sym = sym(F,A,_,_),
 	standard_metapredicate(F,A,MetaArg),
 	ith(MetaArg,Args,Meta),
-	Meta = structure(NewSym,_),
+	Meta = structure(NewSym,NSArgs),
+%	message(meta(Meta)),
 	(A =:= 1,
 	 (F == assert ; F == asserta ; F == assertz),
 	 sym_name(NewSym,(:-),2)
-	 -> true
-	 ;  %	message(meta(Meta)),
-	    sym_propin(pred,NewSym)
+	 -> NSArgs = [Head,_],
+	    ((Head = structure(HeadSym,_) ; Head = constant(HeadSym))
+	     -> sym_propin(pred,HeadSym)
+	     ;  true
+	    )
+	 ;  sym_propin(pred,NewSym)
 	),
 	!.
 check_metapredicates(_,_).
