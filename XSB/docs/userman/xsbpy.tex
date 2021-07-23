@@ -736,6 +736,86 @@ from Spacy into a Prolog graph, and show how to navigate the Prolog
 graph to reconstruct sentences, illustrate the parsed dependency graph,
 and so on.
 
+\paragraph{xp\_faiss}
+The dense-vector query engine Faiss \cite{JDH17}, developed by
+Facebook offers an efficient way to perform nearest neighbor searches
+in vector spaces produced by word, network, tuple, or other
+embeddings.  The {\tt xp\_faiss} example provides XSB predicates to
+initialize a Faiss index from a text file of vectors, perform queries
+to the index, and to make a weighted Prolog graph out of the vector
+space.  
+
+As with many machine-learning tooks, Faiss expects that each of the
+vectors is referenced by an integer.  For instance, a vector for the
+string {\em cheugy} would be referenced by an integer, say 37.  The
+XSB programmer thus would be responsible for associating the string
+{\em cheugy} with 37 in order to use Faiss.  The main predicates
+exported by {\tt xp\_faiss.P} include:
+
+\begin{itemize}
+\item {\tt faissInit(+XbFile,+Dim)} initizlizes a Faiss index where
+  {\tt XBFile} is a text file containing the vectors to be indexed and
+  {\tt Dim} is the dimension of these vectors. ({\tt xb} is Faiss
+  terminology for the set of indexed vectors.)  This predicate also
+  creates a {\tt numpy} array with a set of query vectors {\tt xq}
+  consisting of the same vectors.  With the query and index vectors
+  both set up in this manner, the vector space can be explored to
+  understand which of its elements are suitable for clustering, and so
+  on.
+
+  After execution of this predicate, a fact for the predicate {\tt
+    xp\_faiss:xq\_num/1} contains the number of query vectors (xq),
+  which is the same as the number of indexed vectors (xb).
+
+\item {\tt get\_k\_nn(+Node,+K,-Neighbors)} finds the K nearest
+  neighbors of a node.  The predicate takes as input {\tt Node}, the
+  integer identifier of a node, and {\tt K} the number of nearest
+  neighbors to be returned.  The return structure {\tt Neighbors} is
+  the Prolog representation of a 2-ary Python tuple (i.e., {\tt ''/2})
+  containing as its first argument a list of {\tt K} distances and as
+  it second argument a list of {\tt K} neighbors.
+
+
+\item {\tt make\_vector\_graph(K)} Given a Faiss index, this predicate
+  asserts a weighted graph in Prolog by obtaining the nearest {\tt K}
+  neighbors for each indexed vector.  Edges of the graph have the form:
+
+  {\tt vector\_edge\_raw(From,To,Dist)}
+
+  \noindent
+  Where {\tt From} and {\tt To} are integer referents for indexed
+  vectors, and {\tt Dist} is the Euclidean distance between the vector
+  with referent {\tt From} and the vector with referent {\tt To}.
+  Each fact of {\tt vector\_edge\_raw/3} is indexed both on its first
+  and second argument.
+
+  If both the number of indexed vectors and {\tt K} are large,
+  construction of the Prolog vector graph may take a few minutes.
+  Construction time is almost wholly comprised of the time to find the
+  set of nearest neighbors for each node.
+
+\item {\tt vector\_edge(Node1,Node2,Dist)}.  The vector graph, which
+  represents distances is undirected.  However to save space, the {\tt
+    vector\_edge\_raw/3} facts are asserted so that if {\tt
+    vector\_edge\_raw(Node1,Node2,Dist}) has been asserted, {\tt
+    vector\_edge\_raw(Node2,Node1,Dist}) will not be asserted.  {\tt
+    vector\_edge/3} calls {\tt vector\_edge\_raw/3} in both
+  directions, and should be used for querying the vector graph.
+  
+\item {\tt write\_vector\_graph(+File,+Header)} writes out the vector
+  graph to {\tt File}.  This predicate ensures that {\tt File}
+  contains the proper indexing directive for {\tt vector\_edge\_raw/3}
+  as well a directive to the compiler describing how to dynamically
+  load {\tt File} in an efficient manner.  Because of these
+  directives, the file can simply be consulted or ensure\_loaded and
+  the user does not need to worry about which compiler options should
+  be used.  The graph is loaded into the module {\tt vector\_graph}.
+
+  {\tt Header} is simply a string that is written as a comment to the
+  first line of {\tt File} that can serve to contain any necessary
+  provenance information.
+\end{itemize}  
+
 \subsubsection{Other Examples}
 
 \paragraph{xsbpy\_elastic}
@@ -775,7 +855,8 @@ is {\tt (\_\_label\_\_en,0.93856)}.  The only reason that the module
 {\tt xp\_fasttext} needs to be used is because the confidence is
 returned as a {\tt numpy} array, which {\tt xsbpy} does not currently
 translate automatically. \footnote{The examples {\tt xp\_fasttext} and
-  {\tt googleTrans} were written by Albert Ki.}
+  {\tt googleTrans} were written by Albert Ki; {\tt xp\_faiss} was
+  written by ALbert Ki and Theresa Swift.}
 
 \paragraph{googleTrans}
 This example provides code to access Google's web-services for
