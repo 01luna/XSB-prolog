@@ -122,7 +122,8 @@ write_vector_graph(File,String):-
     close(Str).
 
 write_vector_graph_1(Str):-
-    writeln(Str,':- compiler_options([dynamic([canonical(yes),ordering(a)])]).'),
+    writeln(Str,':- compiler_options([dynamic([canonical(yes),ordering(a),modile(vector_graph)])]).'),
+    writeln(:-(export(/(vector_edge_raw,3))),
     writeln(Str,':-(index(/(vector_edge_raw,3),[1,2])).'),
     vector_edge_raw(X,Y,Z),
     write(Str,vector_edge_raw(X,Y,Z)),writeln(Str,'.'),
