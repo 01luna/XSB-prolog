@@ -277,7 +277,8 @@ compute_option(ignore_ops(Flag),Structure):-
 compute_option(quoted(Flag),Structure):- 
 	boolean(Flag),!,
 	option_structure(Structure,_IgOpts,Flag,_NumVars).
-compute_option(numbervars(Flag),Structure):- 
+%% let numbervars/1 be in any module
+compute_option(NVF,Structure):- NVF =.. [numbervars,Flag],
 	boolean(Flag),!,
 	option_structure(Structure,_IgOpts,_Quoted,Flag).
 compute_option(Opt,_Structure):- 

@@ -38,7 +38,7 @@
 :- import check_nonvar/3, instantiation_error/3,
 	  type_error/4,domain_error/4 from error_handler.
 :- import file_function/7 from machine.
-:- import write/1,float/1 from standard.
+:- import write/1,float/1, (=..)/2 from standard.
 :- import xsb_sys_mutex_lock/1, xsb_sys_mutex_unlock/1 from thread.
 :- import current_infixop/4, current_postfixop/3, current_prefixop/3
 								from xsb_ciao. 
@@ -161,12 +161,13 @@ compute_options(_Opts, N, OL, _, _, _, _) :-
 
 one_opt(V, N, _, _, _, _) :- var(V), !,
 	check_nonvar(V,write_term/N,N), fail.
+one_opt(NVF, _, options(Qt,IO,_, Pr,Li,Prec,Width,Spec,Radix), Prio,
+                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :-
+        NVF =.. [numbervars,NV], boolean(NV), !.
 one_opt(quoted(Qt),     _, options(_ ,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio,
                            options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- boolean(Qt), !.
 one_opt(ignore_ops(IO), _, options(Qt,_ ,NV,Pr,Li,Prec,Width,Spec,Radix), Prio,
                            options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- ignore_ops_flag(IO), !.
-one_opt(numbervars(NV), _, options(Qt,IO,_, Pr,Li,Prec,Width,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- boolean(NV), !.
 one_opt(portrayed(Pr),  _, options(Qt,IO,NV,_, Li,Prec,Width,Spec,Radix), Prio,
                            options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- boolean(Pr), !.
 one_opt(max_depth(MD),  _, options(Qt,IO,NV,Pr,_ ,Prec,Width,Spec,Radix), Prio,
