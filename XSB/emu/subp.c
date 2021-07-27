@@ -723,8 +723,18 @@ int compare(CTXTdeclc const void * v1, const void * v2)
       if (islist(val2)) comp = strcmp(get_name(ptr1), ".");
       else comp = strcmp(get_name(ptr1), get_name(ptr2));
       if (comp || (arity1 == 0)) return comp;
-      if (ptr1 != ptr2)
-	return strcmp(get_name(get_mod_for_psc(ptr1)),get_name(get_mod_for_psc(ptr2)));
+      if (ptr1 != ptr2) {
+	Psc modpsc1, modpsc2;
+	char *modname1, *modname2;
+	modpsc1 = get_mod_for_psc(ptr1);
+	modpsc2 = get_mod_for_psc(ptr2);
+	if (modpsc1 == NULL) modname1 = "usermod"; 
+	else modname1 = get_name(modpsc1);
+	if (modpsc2 == NULL) modname2 = "usermod";
+	else modname2 = get_name(modpsc2);
+	comp = strcmp(modname1,modname2);
+	return comp;
+      }
       cptr1 = clref_val(val1);
       cptr2 = clref_val(val2);
       for (arity2 = 1; arity2 <= arity1; arity2++) {
