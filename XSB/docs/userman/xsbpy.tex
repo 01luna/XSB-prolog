@@ -38,7 +38,7 @@ applications and further examples.
 
 An initial version of a configuration process of {\tt xsbpy} has been
 written for Linux and Windows, and is still in the process of being
-tested under various confiugrations.  On these platforms, {\tt xsbpy}
+tested under various configurations.  On these platforms, {\tt xsbpy}
 has been tested using versions 3.7 and 3.8 Python libraries.
 
 \subsection{Configuring {\tt xsbpy} under Linux with GCC}
@@ -49,12 +49,12 @@ for this configuration to work several things must be in place.
 
 \begin{itemize}
 \item GCC (or some other compiler) must be present and usable by the
-  userid performing the cofiguration.
+  userid performing the configuration.
 
 \item A development version of Python 3.X must also be present and
   usable by the userid performing the configuration.  This version
   must be a CPython version (this is the usual implementation of
-  Python), In additiion the version of Python must also contain a
+  Python), In addition the version of Python must also contain a
   version of Python as a shared object ({\tt .so}) file.  This often
   requires an additional download of Python.  On Ubuntu, while Python
   is ordinarily downloaded as:
@@ -73,7 +73,7 @@ the shared-object library must also be downloaded as, e.g.:
 
 If there are difficulties in configuring {\tt xsbpy}, it is likely
 that one of the above requirements is not met.  However, if these
-requirements are met, but the configuration dows not work properly, it
+requirements are met, but the configuration does not work properly, it
 is best to check the file {\tt xsb2py\_connect\_defs.h} to see whether
 its definitions are correct.  The definitions in this file are used in
 {\tt get\_compiler\_options/2} in {\tt init\_xsbpy.P} to properly
@@ -729,7 +729,7 @@ initialize a Faiss index from a text file of vectors, perform queries
 to the index, and to make a weighted Prolog graph out of the vector
 space.  
 
-As with many machine-learning tooks, Faiss expects that each of the
+As with many machine-learning tools, Faiss expects that each of the
 vectors is referenced by an integer.  For instance, a vector for the
 string {\em cheugy} would be referenced by an integer, say 37.  The
 XSB programmer thus would be responsible for associating the string
@@ -737,8 +737,8 @@ XSB programmer thus would be responsible for associating the string
 exported by {\tt xp\_faiss.P} include:
 
 \begin{itemize}
-\item {\tt faissInit(+XbFile,+Dim)} initizlizes a Faiss index where
-  {\tt XBFile} is a text file containing the vectors to be indexed and
+\item {\tt faissInit(+XbFile,+Dim)} initializes a Faiss index where
+  {\tt XbFile} is a text file containing the vectors to be indexed and
   {\tt Dim} is the dimension of these vectors. ({\tt xb} is Faiss
   terminology for the set of {\em base}, i.e., indexed, vectors.)
   This predicate also creates a {\tt numpy} array with a set of query
@@ -912,13 +912,13 @@ provide examples of this.
 
 For most purposes however, it is easier to call the XSB predicate {\tt
   token\_assert()} that asserts tokens and their dependency parse
-edges into XSB as explaned below.  As an example of how to navigate
+edges into XSB as explained below.  As an example of how to navigate
 this graph, {\tt show\_all\_trees/0} and its supporting predicates
 provide a simple but clear representation of the Spacy dependency
 parse in tree form using the Prolog version of the parse.
 
 The code in this package originated as part of a large research
-project and reflects the needs of that project.  Other applciations
+project and reflects the needs of that project.  Other applications
 may have slightly different needs, and the {\tt xp\_spacy} code can be
 easily refactored to support such needs.
 
@@ -964,7 +964,7 @@ are as follows:
     token}.  If {\em token} is a verb, {\tt Lemma} is its stem, if
     {\em token} is a noun, {\tt Lemma} is its singular form.
   \item {\tt Pos} ({\tt token.pos\_ }) is the coarse-grained part of
-    speech for {\em token} accorrding to {\tt
+    speech for {\em token} according to {\tt
       https://universaldependencies.org/docs/u/pos}
   \item {\tt Tag} ({\tt token.tag\_ }) The fine-grained part of speech
     for {\em token} that contains some morphological analysis in
@@ -1080,7 +1080,7 @@ must be written to handle default positional arguments. \footnote{{\tt
 \paragraph{Fasttext Language Detection: xp\_fasttext}
 %
 Facebook's {\tt fasttext} provides a collection of functionality
-including word vectors for 176 lanuages, the language-alignment tool
+including word vectors for 176 languages, the language-alignment tool
 Muse, and the language identification tool {\tt lid.176.bin},.  This
 module provides example code to help the user get started using
 Fasttext's language detection, and relies on the python module {\tt
