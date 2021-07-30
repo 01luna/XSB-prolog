@@ -64,15 +64,21 @@ trie-based predicates can only be used for unit clauses where a
 relation is viewed as a set, and where the order of the facts is not
 important.
 
-XSB does not at this time fully support dynamic predicates defined
-within compiled code.  The only way to generate dynamic code is by
-explicitly asserting it, or by using the standard predicate {\tt
-  load\_dyn/1} (or friends) to read clauses from a file and assert them (see the
-section {\it Asserting Dynamic Code} in Volume 2).  There is a {\tt
-  dynamic/1} predicate (see page~\pageref{dynamic/1}) that declares a
-predicate within the system so that if the predicate is called when no
-clauses are presently defining it, the call will quietly fail instead
-of issuing an {\sf ``Undefined predicate''} error message.
+The directive {\tt dynamic/1} (see page~\pageref{dynamic/1})
+declares a predicate within the system so that if the predicate
+is called when no clauses are presently defining it, the call will
+quietly fail instead of issuing an {\sf ``Undefined predicate''} error
+message.
+
+\index{compiler options!\texttt{dynamic/1}}
+\index{\texttt{load\_dyn\_gen/2}}
+%
+Dynamic code can be generated in several ways.  One may explicitly
+assert clauses, or use the standard predicate {\tt load\_dyn/1} (or
+friends) to read clauses from a file and assert them.  In addition, by
+using the {\tt compiler\_options/1} declaration with the option {\tt
+  dynamic/1} the code will be loaded dynamically, even if it is
+consulted through {\tt []/2}.
 
 \begin{description}
   %

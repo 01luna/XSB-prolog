@@ -1278,7 +1278,21 @@ The following options are currently recognized by the compiler:
   also be slightly longer.  For these reasons, the use of the {\tt
     optimize} option may not be suitable for the development phase,
   but can be helpful once the code has been debugged.
-%
+  %
+  \index{dynamic code!loading}
+  \index{compiler options!\texttt{dynamic/1}} 
+\item[{\tt dynamic(+Options)}] This option instructs the compiler to
+  do a fast load of the file via dynamic loading
+  (cf. Section~\ref{sec:LoadDyn}).  {\tt Options} is a list of options
+  that are the same as those as recognized by the predicate {\tt
+    load\_dyn\_gen/2}.
+
+  If {\tt Options} includes the option {\tt canonical(yes)} a spurious
+  warning may be printed out, since the compiled file will be re-read
+  by the canonical reader.  To avoid this, the {\tt
+    compiler\_options/1} directive can be added to an associated {\tt
+    .H} file.
+  
   \index{Unicode!character\_sets}
   \index{compiler options!\texttt{character\_set/1}} 
 \item[{\tt character\_set/1}] The compiler option of {\tt
