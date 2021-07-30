@@ -18,6 +18,63 @@
 
 <h1>ChangeLog</h1>
 
+<h2> Version 4.1 (TaB)</h2> 
+<li><b> Enhancements </b></li>
+  <ul>
+    <li> A new interface, <tt>xsbpy</tt> allows Python functions and
+      methods to be called from XSB. <tt>xsbpy</tt>
+      <ul>
+	<li> is very high-speed: a simple call to Python and return
+	  takes about 1 microsecond</li>
+	<li> maps nearly all basic Python data structures to Prolog
+	terms, so that implementationally Python can be seen as a sort
+	  of term-server.</li>
+	<li> is robust: tests have been done passing back deeply
+	nested dictionaries as well as lists of length 100,000,000.
+	(Passing a list element from Python to XSB took about 30
+	nanoseconds per list element.)</li>
+	<li> is very easy to use, and requires little to no special
+	coding to access Python Libraries.  Interface code is included
+	to call <tt>Elasticsearch</tt>, Facebook's dense vector
+	management system <tt>faiss</tt> and language
+	identifier, <tt>Spacy</tt>, <tt>RDFlib</tt>, and Google's web
+	services for language identification and translation.</li>
+      </ul>
+    <li> A robust and efficient JSON translation
+    package, <tt>json</tt> that supports standard JSON values as well
+    as non-standard features like embedded comments.  JSON values can
+      be returned either as Prolog terms, or as executable dynamic code.</li>
+    <li> An enhancement to XSB's module system allows a file to be
+    loaded into a module that is different from it's file name.</li>
+    <li> Enhancements to XSB's compiler that allow
+    the <tt>compiler\_options/1</tt> directive to specify
+      <ul>
+	<li>the options needed to compile foreign C code, along with a
+	new compiler option <tt>ld_option/1</tt> that is passed to the
+	C loader.</li>
+	<li>that a file should be dynamically loaded along with
+	  relevant options</li>
+	<li>that compilation should only occur if needed (this
+	behavior had only been available for <tt>consult/1</tt></li>
+      </ul>
+      <li> Added new predicates: <tt>list_valcount/2</tt> to count the
+    occurrences of unique values in a list, and <tt>list_hist/2</tt>
+    to make a histogram-like count of numbers in a list.</li>
+      <tt></tt>
+  </ul>
+    <li><b> Smaller bug fixes and minor changes </b></li>
+    <ul>
+      <li>Added <tt>tab/2</tt> to tab to a stream.</li>
+      <li>Fixed bug in stack handling of unary operators when
+	evaluating an expression.</li>
+      <li>Fixed bug in compiling the <tt>mysql</tt> interface on newer
+      versions of Linux.</li>
+      <li>In the <tt>prolog_db</tt> package, added <tt>eval_db/2</tt>
+	predicate to evaluate set expressions.</li>
+      <li>Fixed bug in Julian dates in <tt>iso8601</tt> package.
+    </ul>
+</ul>
+      
 <h2> Version 4.0 (TaB)</h2> 
 <ul>
 <li><b> Enhancements </b></li>
