@@ -695,48 +695,32 @@ user can reset the {\tt heap\_margin} Prolog flag to ensure extra
 stack space beyond that allocated by {\tt xsbpy} (see Volume 1 for
 details.)
 
-\section{Sample Applications}
+\section{Interfaces to Python Libraries}
+
+The {\tt starters} directory contains code to interface to various
+Python libraries -- and so to start using XSB and Python together to
+solve problems and do research.  Some of the files implement useful
+higher level mappings that translate say, embedding spaces or Spacy
+graphs to Prolog graphs, or translate RDF graphs to lists of Prolog
+structures.  Others are collections of examples to show how to query
+or update Elasticsearch, to detect the language of input text or to
+perform machine translation.  Nearly all of the interfaces have been a
+starting point for research or commercial
+applications.  \footnote{Testing has been done of the interfaces, but
+  the testing has not been exhaustive.  As a result, please
+  double-check any results, and report bugs -- or improvements -- to
+  {\tt xsb.sorceforge.net}.}
+
 When {\tt xsbpy} is loaded, both the {\tt xsbpy} directory and its
-subdirectories, {\tt apps} and {\tt examples}, are added to the Prolog
-and Python paths.  As a result, modules in these subdirectories can be
-loaded into XSB and Python without changing their library paths.
+{\tt starters} subdirectory is added to the Prolog and Python paths.
+As a result, modules in these subdirectories can be loaded into XSB
+and Python without changing their library paths.
 
-Some of these modules, like {\tt xsbpy\_json} and {\tt xsbpy\_rdflib}
-provide useful functionality and can be used as written, or nearly so;
-other modules are included to help the user get started in writing
-hybrid applications.
-
-Note that several of these applications require the underlying Python
+Note that most of these applications require the underlying Python
 libraries to have been installed via a {\tt pip} or {\tt conda}
 install.
 
-\subsubsection{(Rudimentary) Applications}
-
-\paragraph{xsbpy\_json}
-This module contains an interface to the Python {\tt json} module,
-with predicates to read JSON from and write JSON to files and strings.
-The {\tt json} module transforms JSON objects into and from Python
-dictionaries, which the interface maps to and from their term forms.
-
-\paragraph{xsbpy\_rdflib}
-This module interfaces to the Python {\tt rdflib} library to read RDF
-information from files in Turtle, N-triples and N-quads format, and to
-write files in Turtle and N-triples format.  As such it augments XSB's
-RDF package (Chapter~\ref{chapter:RDF}) which handles
-XML-RDF. \footnote{Testing has been done of this {\tt xsbpy}
-  interface, but the testing has not been exhaustive.  As a result,
-  please double-check its results if it is used, and report bugs to
-  {\tt xsb.sorceforge.net}.}
-
-\paragraph{xp\_spacy}
-The Prolog and Python files for {\tt xp\_spacy} have predicates for
-loading a Spacy model into Python and using that model to make a Spacy
-document structure.  Other predicates load much of the information
-from Spacy into a Prolog graph, and show how to navigate the Prolog
-graph to reconstruct sentences, illustrate the parsed dependency graph,
-and so on.
-
-\paragraph{xp\_faiss}
+\subsection{Dense Vector Queries with xp\_faiss}
 The dense-vector query engine Faiss \cite{JDH17}, developed by
 Facebook offers an efficient way to perform nearest neighbor searches
 in vector spaces produced by word, network, tuple, or other
@@ -756,18 +740,19 @@ exported by {\tt xp\_faiss.P} include:
 \item {\tt faissInit(+XbFile,+Dim)} initizlizes a Faiss index where
   {\tt XBFile} is a text file containing the vectors to be indexed and
   {\tt Dim} is the dimension of these vectors. ({\tt xb} is Faiss
-  terminology for the set of indexed vectors.)  This predicate also
-  creates a {\tt numpy} array with a set of query vectors {\tt xq}
-  consisting of the same vectors.  With the query and index vectors
-  both set up in this manner, the vector space can be explored to
-  understand which of its elements are suitable for clustering, and so
-  on.
+  terminology for the set of {\em base}, i.e., indexed, vectors.)
+  This predicate also creates a {\tt numpy} array with a set of query
+  vectors {\tt xq} consisting of the same vectors.  When the query and
+  index vectors are set up in this manner, a nearest-neighbor search
+  can be performed for any of the indexed vectors.  With this, the
+  vector space can be explored, visualized, and so on.
 
   After execution of this predicate, a fact for the predicate {\tt
-    xp\_faiss:xq\_num/1} contains the number of query vectors (xq),
-  which is the same as the number of indexed vectors (xb).
+    xp\_faiss:xq\_num/1} contains the number of query vectors ({\tt
+    xq}), which is the same as the number of indexed vectors ({\tt
+    xb}).
 
-\item {\tt get\_k\_nn(+Node,+K,-Neighbors)} finds the K nearest
+\item {\tt get\_k\_nn(+Node,+K,-Neighbors)} finds the {\tt K} nearest
   neighbors of a node.  The predicate takes as input {\tt Node}, the
   integer identifier of a node, and {\tt K} the number of nearest
   neighbors to be returned.  The return structure {\tt Neighbors} is
@@ -816,11 +801,267 @@ exported by {\tt xp\_faiss.P} include:
   provenance information.
 \end{itemize}  
 
-\subsubsection{Other Examples}
+\subsection{Translating Between RDF and Prolog: xp\_rdflib}
+This module interfaces to the Python {\tt rdflib} library to read RDF
+information from files in Turtle, N-triples and N-quads format, and to
+write files in Turtle and N-triples format.  As such it augments XSB's
+RDF package (Chapter~\ref{chapter:RDF}) which handles
+XML-RDF.
 
-\paragraph{xsbpy\_elastic}
+Within a triple, URIs and blank nodes are returned as Prolog atoms,
+while literals are returned as terms with functor {\tt ''/3} (the
+Prolog representation of a 3-ary tuple) in which the first argument is
+the literal's string as a Prolog atom, the second argument is its
+datatype, and the third argument its language. If the data type or
+language are not included, the argument will be null.  As examples:
+
+\begin{verbatim}
+"That Seventies Show"^^<http://www.w3.org/2001/XMLSchema#string> 
+\end{verbatim}
+is returned as 
+\begin{verbatim}
+("That Seventies Show",'<http://www.w3.org/2001/XMLSchema#string>',) 
+\end{verbatim}
+while 
+\begin{verbatim}
+"That Seventies Show"@en
+\end{verbatim}
+is returned as
+\begin{verbatim}
+("That Seventies Show",,en) 
+\end{verbatim}
+
+The file {\tt xp\_rdflib.P} contains predicates {\tt test\_nt/0}, {\tt
+  test\_ttl/0}, {\tt test\_nq/0} to test reading and writing.  Note
+that Python options needed to deserialize an RDFllb graph write are
+specific to the RDFlib plug-in for a particular format, and these
+plug-ins are not always consistent with one another.  As a result, if
+other formats are desired, minor modifications of {\tt xp\_rdflib} may
+be necessary.
+
+\paragraph{Reading RDF}
+\begin{itemize}
+\item {\tt read\_rdf(+File,+Format,-TripleList)} reads RDF from a file
+  containing an RDF graph formatted as {\tt Format}, where the formats
+  {\tt turtle}, {\tt nt} and {\tt nquads} have been tested.  These
+  formats can be tested on {\tt sample.ttl}, {\tt sample.nt} and {\tt
+    sample.nq}, all of which are in the {\tt starters} directory.
+
+  Due to the structure of the Python {\tt RDFlib} graph, no guarantee
+  is made that the order of facts in {\tt File} will match the order
+  of facts in {\tt TripleList}.
+\end{itemize}
+  
+{\bf Error Cases}
+\bi
+\item {\tt Format} is not {\tt nt}, {\tt turtle} or {\tt nquads}
+\bi
+\item misc\_error
+\ei
+\end{itemize}
+
+\paragraph{Writing RDF}
+
+If {\tt TripleList} is a list of terms, structured as {\tt ''/3} terms
+described above, it can be easily be written to {\tt File} as properly
+formatted RDF.  The Python function {\tt
+  rdflib\_write\_file\_no\_decode()} can be called directly as:
+\begin{verbatim}
+pyfunc(xp_rdflib,rdflib_write_file_no_decode(+TripleList,+File),[format=+Fmt],-Ret).
+\end{verbatim}
+where {\tt Fmt} is {\tt turtle} or {\tt nq}.  {\tt
+  rdflib\_write\_file\_no\_decode()} is a simple function that creates
+an RDFlib graph out of {\tt TripleList}, serializes the graph and
+prints it out.  The Python options needed to write to a file are
+specific to the RDFlib plug-in for a particular format, so if other
+formats are desired, minor modifications of {\tt xp\_rdflib} may be
+necessary.
+
+Due to the structure of the Python {\tt RDFlib} graph, no guarantee is
+made that the order of facts in {\tt File} will match the order of
+facts in {\tt TripleList}.
+  
+\subsection{xp\_spacy}
+Spacy is a well-known and widely used tool that exploits neural
+language models to analyze text via dependency parses, named entity
+recognition, and much else.  Although Spacy is a Python tool, much of
+it is written in C/Cython which makes it highly efficient.  The {\tt
+  xp\_spacy} package offers a flexible and efficient means to use
+Spacy from Prolog (once Spacy has been properly installed for Python).
+
+In Spacy, a user first loads one or more language models for the
+language(s) of interest and of a size suitable to the application.
+Text is then run through this language model and through other Spacy
+code producing a {\em document} containing a great amount of detail
+about the sentences in the text, tokens in the sentence and their
+relations to one another.
+
+The predicate {\tt load\_and\_proc/2} loads a Spacy model and
+processes text, asserting Python references both to the document and
+to the function used to invoke the language model on text.  At this
+point, a user of {\tt xsbpy} has two options: she can either query the
+document directly or call {\tt token\_assert} to assert information
+from the document into a Prolog graph that can be conveniently
+analyzed.  If querying a document directly, a small amount of code may
+need to be written because Spacy's API often returns generators to its
+data structures rather than its data structures themselves.  Generally
+the code that needs to be written is extremely simple and consists of
+little more than a list comprehension: the functions {\tt get\_nps()},
+{\tt get\_ents()} and {\tt get\_token\_info()} in {\tt xp\_spacy.py}
+provide examples of this.
+
+For most purposes however, it is easier to call the XSB predicate {\tt
+  token\_assert()} that asserts tokens and their dependency parse
+edges into XSB as explaned below.  As an example of how to navigate
+this graph, {\tt show\_all\_trees/0} and its supporting predicates
+provide a simple but clear representation of the Spacy dependency
+parse in tree form using the Prolog version of the parse.
+
+The code in this package originated as part of a large research
+project and reflects the needs of that project.  Other applciations
+may have slightly different needs, and the {\tt xp\_spacy} code can be
+easily refactored to support such needs.
+
+As a final point before presenting the the main predicates, note that
+if text from different languages is to be analyzed, the package {\tt
+  xp\_fasttext} can be used to determine the language of a text
+string, and the text can then be sent to one of several language
+models. \footnote{The predicates provided will need a slight
+  refactoring for this.}.
+
+\begin{itemize}
+\item {\tt load\_and\_proc(Model,File)} loads the Spacy model {\tt
+  Model} and processes the text file {\tt File}.  If successful, it
+  asserts two facts to usermod to reference the language model and the
+  document processed from the text in {\tt File}:
+\begin{verbatim}  
+    assert(python_obj(nlp,NLP)),
+    assert(python_obj(doc,Doc)).
+\end{verbatim}
+
+If the language model has been loaded, another file can be processed via:
+\begin{verbatim}
+    pyfunc(xp_spacy,doc_from_file(File,NLP),Doc),                              
+\end{verbatim}
+and similar functions can be used to parse strings directly, etc.
+
+\item {\tt token\_assert()} This predicate calls the Prolog fact {\tt
+  python\_obj(doc,Doc)}, accesses the dependency graph and other
+  information from the Spacy document and asserts it to Prolog as a
+  graph.  The Prolog form of the graph uses two predicates:
+\begin{verbatim}  
+    token_info_raw(Index,Text,Lemma,Pos,Tag,Dep,EntType),
+\end{verbatim}
+represents the nodes of the graph.  For a given {\em token} its fields
+are as follows:
+\begin{itemize}
+  \item {\tt Index} ({\tt token.idx}) is the character offset of {\em
+    token} within the document, and serves as an index for the token
+    both in Spacy and in its Prolog representation.
+  \item {\tt Text} ({\tt token.text}) the verbatim form of {\em token}
+    in the text that was processed.
+  \item {\tt Lemma} ({\tt token.lemma\_}) the base form of {\em
+    token}.  If {\em token} is a verb, {\tt Lemma} is its stem, if
+    {\em token} is a noun, {\tt Lemma} is its singular form.
+  \item {\tt Pos} ({\tt token.pos\_ }) is the coarse-grained part of
+    speech for {\em token} accorrding to {\tt
+      https://universaldependencies.org/docs/u/pos}
+  \item {\tt Tag} ({\tt token.tag\_ }) The fine-grained part of speech
+    for {\em token} that contains some morphological analysis in
+    addition to the part-of-speech.
+    (cf.
+
+    {\tt https://stackoverflow.com/questions/37611061/spacy-token-tag-full-list}
+
+    
+      for a discussion of its meaning and use.
+  \item {\tt Dep} ({\tt token.dep\_ }) The type of relation that {\em
+    token} has with its parent in the dependency graph.
+  \item {\tt EntType} ({\tt token.ent\_type\_ }) The Spacy named entity
+    type, e.g., person, organization, etc.
+\end{itemize}  
+
+Edges of the Prolog graph have the form:
+\begin{verbatim}
+token_childOf(ChildIndex,ParentIndex)
+\end{verbatim}
+where {\tt ChildIndex}, and {\tt ParentIndex} are indexes for {\tt
+  token\_info\_raw/7} facts.
+
+Note that Spacy tokens have many other attributes, of which the above
+are some of the more useful.  If other attributes are needed, the {\tt
+  xp\_spacy} code can easily be expanded to include them.  However
+many aspects of the parse can be easily reconstructed by the Prolog
+graph: for instance {\tt xp\_spacy.P} contains code for constructing
+sentences, subtrees of a given token and so on.
+
+\item {\tt token\_info(Index,Text,Lemma,Pos,Tag,Dep,Ent\_type)} is a
+  convenience predicate that calls {\tt token\_info\_raw/7} and
+  filters out spaces and punctuation.
+  
+\item {\tt show\_all\_trees()} Given a Spacy graph asserted to Prolog
+  as described above, {\tt show\_all\_trees/0} navigates the graph,
+  and for each sentence in the graph converts the dependency graph to
+  a tree and prints it out.  This predicate is useful for reviewing
+  parses, and its code in {\tt xp\_spacy.P} can be modified and
+  repurposed for other needed functionality.
+
+  As an example, if the graph contained the sentence:
+\begin{verbatim}  
+Want to experience what it's like to fly a drone?  
+\end{verbatim}  
+{\tt show\_all\_trees/0} would print out:
+\begin{verbatim}
+     token_info(1,Want,want,VERB,VB,ROOT,)
+        token_info(9,experience,experience,VERB,VB,xcomp,)                                   
+           token_info(6,to,to,PART,TO,aux,)                                                  
+           token_info(27,’s,’,VERB,VBZ,ccomp,)                                               
+             token_info(25,it,it,PRON,PRP,nsubj,)  
+             token_info(30,like,like,ADP,IN,prep,)                                           
+                token_info(20,what,what,PRON,WP,pobj,)                                       
+          token_info(38,fly,fly,VERB,VB,xcomp,)                                              
+             token_info(35,to,to,PART,TO,aux,)                                               
+             token_info(48,drone,drone,NOUN,NN,dobj,)      
+                token_info(42,a,a,DET,DT,det,)                                              \
+\end{verbatim}
+\end{itemize}  
+
+\subsection{xp\_json}
+This module contains an interface to the Python {\tt json} module,
+with predicates to read JSON from and write JSON to files and strings.
+The {\tt json} module transforms JSON objects into and from Python
+dictionaries, which the interface maps to and from their term forms.
+This module can be used to help understand how Python dictionaries
+relate to XSB terms, or as an alternative to XSB's native Json package
+({\tt json} Chapter~\ref{chap:json}).  For instance, while for most
+purposes the {\tt json} package should be used, {\tt xp\_json} can be
+useful if the json constructed and read comes from another {\tt xsbpy}
+application such as {\tt xp\_elastic}.  This is because the format
+used by {\tt xp\_json} maps directly to a Python dictionary, while
+that of the {\tt json} package maps to other (very useful) formats.
+
+The {\tt xp\_json} functions are written in Python and can be
+called directly from Prolog.
+\begin{itemize}
+\item {\tt pyfunc(xp\_json,prolog\_load(+File),+Features,-Json)}
+  opens and reads {\tt File} and returns its Json content in {\tt
+    Json} as a Prolog dictionary term.
+\item {\tt pyfunc(xp\_json,prolog\_dump(+Dict,+File),+Features,-Ret)}
+  converts {\tt Dict} to a Json object, write it to {\tt File} and
+  returns the result of the operation in {\tt Ret}.
+\item {\tt pyfunc(xp\_json,prolog\_loads(+Atom),+Features,-Json)}
+  reads the atom {\tt Atom} and returns its Json content in {\tt Json}
+  as a Prolog dictionary term.
+\item {\tt  pyfunc(xp\_json,prolog\_dumps(+Dict),+Features,-JsonAtom)}
+  converts {\tt Dict} to a Json string, and returns the string as the
+  Prolog atom {\tt JsonAtom}.
+\end{itemize}  
+
+\subsubsection{Other Examples and Demos}
+
+\paragraph{xp\_elastic}
 This module contains sample code for using the Python {\tt
-  elasticsearch} module.  A step by step description shows how a
+  elasticsearch} package.  A step by step description shows how a
 connection is opened, and index is created and a document added and
 committed.  The example then shows how the document can be searched in
 two ways, and finally deleted.
@@ -830,20 +1071,26 @@ format, which the Python interface transforms to dictionaries, and
 {\tt xsbpy} transforms these dictionaries to and from their term form.
 Thus although this example is short, the ideas in it can easily be
 extended to a full interface.~\footnote{This has already been done by
-  one company that uses XSB.}
+  one company that uses XSB.}  Often the {\tt elasticsearch} functions
+can be called directly, but in certain cases simple Python functions
+must be written to handle default positional arguments. \footnote{{\tt
+    xsbpy} correctly handles default keyword arguments, but the Python
+  C API does not seem to support default positional arguments.}
 
 \paragraph{Fasttext Language Detection: xp\_fasttext}
 %
-This example provides some code to help the user get started using
+Facebook's {\tt fasttext} provides a collection of functionality
+including word vectors for 176 lanuages, the language-alignment tool
+Muse, and the language identification tool {\tt lid.176.bin},.  This
+module provides example code to help the user get started using
 Fasttext's language detection, and relies on the python module {\tt
-fasttext}.  Assuming that Fasttext's language identification module
+  fasttext}.  Assuming that Fasttext's language identification module
 is in the current directory, the command:
 \begin{verbatim}
  pyfunc(fasttext,load_model('./lid.176.bin'),Obj).
 \end{verbatim}
 Loads the model and unifies {\tt Obj} with a reference to the loaded
-module which might look like {\tt pyObj(p0x7faca3428510)}.  Note that
-this can be done by calling the Python {\tt fasttext} module directly.
+module which might look like {\tt pyObj(p0x7faca3428510)}.  
 Next, a call to the example python module {\tt xp\_fasttext}:
 \begin{verbatim}
 pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
@@ -851,16 +1098,20 @@ pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
         requires a longer string than I usually want to type.'),Lang).  
 \end{verbatim}
 returns the detected language and confidence value, which in this case
-is {\tt (\_\_label\_\_en,0.93856)}.  The only reason that the module
-{\tt xp\_fasttext} needs to be used is because the confidence is
-returned as a {\tt numpy} array, which {\tt xsbpy} does not currently
-translate automatically. \footnote{The examples {\tt xp\_fasttext} and
-  {\tt googleTrans} were written by Albert Ki; {\tt xp\_faiss} was
-  written by ALbert Ki and Theresa Swift.}
+is {\tt (\_\_label\_\_en,0.93856)}.
 
-\paragraph{googleTrans}
-This example provides code to access Google's web-services for
-language translation and language detection.
+Note that loading the model can be done by calling the Python {\tt
+  fasttext} module directly.  In fact, the only reason that the module
+{\tt xp\_fasttext} needs to be used (as opposed to calling the Python
+functionality directly) is because the confidence of the language
+detection is returned as a {\tt numpy} array, which {\tt xsbpy} does
+not currently translate automatically. \footnote{The examples {\tt
+    xp\_fasttext} and {\tt googleTrans} were written by Albert Ki;
+  {\tt xp\_faiss} was written by Albert Ki and Theresa Swift.}
+
+\paragraph{xp\_googleTrans}
+This example provides demo code to access Google's web-services for
+language translation and language detection using {\tt xsbpy}.
 
 %\paragraph{mpl}
 %This file has a simple example of how to create, display, and save as
