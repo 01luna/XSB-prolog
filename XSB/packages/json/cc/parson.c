@@ -274,6 +274,20 @@ static char *read_file(const char *filename) {
     return file_contents;
 }
 
+static char *fix_windows_line_endings(char *string) {
+  size_t i = 0, j = 0;
+  while (string[i] != '\0') {
+    if (string[i] == '\r' && string[i+1] == '\n') {
+      string[j++] = '\n';
+      i += 2;
+    } else {
+      string[j++] = string[i++];
+    }
+  }
+  string[j] = '\0';
+  return string;
+}
+
 // ERGO change: unterminated comment must return error (fail in Prolog)
 static int remove_comments(char *string, const char *start_token, const char *end_token) {
   int in_string = 0, escaped = 0;
@@ -952,6 +966,9 @@ JSON_Value *json_parse_file(const char *filename) {
     JSON_Value *output_value = NULL;
     if (file_contents == NULL)
         return NULL;
+#ifdef WIN_NT
+    file_contents = fix_windows_line_endings(file_contents);
+#endif
     output_value = json_parse_string(file_contents);
     parson_free(file_contents);
     return output_value;
@@ -962,6 +979,9 @@ JSON_Value *json_parse_file_with_comments(const char *filename) {
     JSON_Value *output_value = NULL;
     if (file_contents == NULL)
         return NULL;
+#ifdef WIN_NT
+    file_contents = fix_windows_line_endings(file_contents);
+#endif
     output_value = json_parse_string_with_comments(file_contents);
     parson_free(file_contents);
     return output_value;

@@ -179,6 +179,9 @@ static int json_from_source(CTXTdeclc char *input, prolog_term *json_prolog,
     */
     input = read_from_input();
     if (input == NULL) return FALSE;
+#ifdef WIN_NT
+    input = fix_windows_line_endings(input);
+#endif
     contents = json_parse_string_with_comments(input);
     free(input);
     break;
