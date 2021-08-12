@@ -808,7 +808,7 @@ void get_filename_disp_len(size_t len_wo_ext, size_t len, char *filename,
       *mlen = len;
     }
     if (filename[*disp] == '\'') {
-      *disp++;
+      (*disp)++;
       *mlen -= 2;
     }
   } else {
@@ -1311,11 +1311,11 @@ static byte *loader1(CTXTdeclc FILE *fd, char *filename, int exp, int immutable,
       }
       break;
     case T_DYNA: {
-      char culprit[255];
+      char culprit[280];
 
       unload_seg(seg_first_inst);
 
-      snprintf(culprit,255,"dynamic predicate %s/%d",name,arity);
+      snprintf(culprit,279,"dynamic predicate %s/%d",name,arity);
       xsb_permission_error(CTXTc "redefine as static",culprit,0,"consult",1);
 	//      xsb_abort("[LOADER] Trying to compile a dynamic predicate, %s/%d",
 	//		name, arity);

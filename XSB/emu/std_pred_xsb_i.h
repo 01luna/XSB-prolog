@@ -557,7 +557,7 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
     } else if (isointeger(term)) {
       sprintf(str, "%" Intfmt, oint_val(term));
     } else if (isofloat(term)) {
-      strncpy(str,cvt_float_to_str(CTXTc ofloat_val(term)),MAXNUMCHARLEN);
+      strncpy(str,cvt_float_to_str(CTXTc ofloat_val(term)),MAXNUMCHARLEN-1);
     } else xsb_type_error(CTXTc "number",term,call_name,1);
     new_list = hreg;
     for (i=0; str[i] != '\0'; i++) {

@@ -202,7 +202,7 @@ inline static xsbBool file_function(CTXTdecl)
      modes any more */
     int ioport, opennew;
     int str_type = 0;
-    char string_mode[3];
+    char string_mode[4];
 
     tmpstr = ptoc_longstring(CTXTc 2);
     pterm = ptoc_tag(CTXTc 3);
@@ -1028,13 +1028,13 @@ inline static xsbBool file_function(CTXTdecl)
 	  unTGetC(*ch_ptr,fptr,sfptr); 
 	}
       } else {
-	ch_ptr = (char *) codepoint_to_str(read_codepoint, charset, (byte *)ss);
+	ch_ptr = (byte *) codepoint_to_str(read_codepoint, charset, (byte *)ss);
 	while (ch_ptr>ss) {
 	  ch_ptr--;
 	  unTGetC(*ch_ptr,fptr,sfptr);
 	}
       }
-      ctop_string(CTXTc 3,s);
+      ctop_string(CTXTc 3,(char *)s);
     }
     XSB_STREAM_UNLOCK(io_port);
     break;

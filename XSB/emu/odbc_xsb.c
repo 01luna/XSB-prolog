@@ -70,6 +70,10 @@
 #define MAXVARSTRLEN                    65000
 #define MAXI(a,b)                       ((a)>(b)?(a):(b))
 
+#ifndef HAVE_SNPRINTF
+extern int snprintf(char *buffer, size_t count, const char *fmt, ...);
+#endif
+
 extern xsbBool unify(CTXTdecltypec Cell, Cell);
 extern int non_ascii_chars(byte *);
 extern int chars_to_utf_string(byte *, int, byte *, size_t);
