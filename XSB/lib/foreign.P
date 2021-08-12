@@ -135,8 +135,12 @@ compile_c(Modname, OrigBase, Ext, Options, Dir, LdOption, CompComm, TempFile) :-
     check_atom(Configuration,'xsb_configuration/2',2),
     xsb_configuration(compiler_flags, XSB_CC_Opts),
     check_atom(XSB_CC_Opts,'xsb_configuration/2',2),
-    xsb_configuration(loader_flags, LD_Opts),
-    check_atom(LD_Opts,'xsb_configuration/2',2),
+    xsb_configuration(loader_flags, LD_Opts0),
+    check_atom(LD_Opts0,'xsb_configuration/2',2),
+    (memberchk(ld_opts(L_O),Options)
+     -> concat_atom([LD_Opts0,' ',L_O],LD_Opts)
+     ;  LD_Opts = LD_Opts0
+    ),
     retractall(current_compiled_module(_)),
     assert(current_compiled_module(Base)),
     cc_name(Options, CC_Name),
@@ -275,7 +279,8 @@ compile_windows_c_to_dll(Base,CC_Opts,LD_Opts) :-
 		' /I"',EmuDir,'"',
 		' /I"',InstallDir,'\\prolog_includes" ',
 		CC_Opts,
-		' /DWIN_NT /DWIN64 /DNDEBUG /D_WINDOWS /D_MBCS /DXSB_DLL /Fo".\\" /Fd".\\"'
+		' /DWIN_NT /DWIN64 /DNDEBUG /D_WINDOWS /D_MBCS /DXSB_DLL',
+		' /Fo"',Base,'.obj" /Fd".\\"'
 		],
     concat_atom(CompCmdL,CompCmd),
     LinkCmdL = ['link.exe kernel32.lib user32.lib gdi32.lib winspool.lib',

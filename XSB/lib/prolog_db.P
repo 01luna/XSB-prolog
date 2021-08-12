@@ -951,11 +951,14 @@ assert_in_db(Clauses,H0,H) :-
     ).
 
 %% simpler alias if desired.
+:- mode add(?,+,?).
 add(Clauses,H0,H) :- assert_in_db(Clauses,H0,H).
 
 %% bug if do this, for very large metainterp??
 %%:- import (table)/1 from standard.
 %%:- table tab_intern_termhash/2 as intern.
+:- mode tab_intern_termhash(+,?),tab_intern_termhash(?,+).
+:- mode_on_success tab_intern_termhash(+,+).
 tab_intern_termhash(DB0,H0) :-
     intern_termhash(DB0,H0).
 
@@ -1013,6 +1016,7 @@ add_to_trie(Head,Body,Trie0,Trie) :-
 	add_tuple_to_trie([Head1],Body1,Trie0,Trie)
     ).
 
+:- mode add_tuple_to_trie(+,+,+,?).
 add_tuple_to_trie(Terms,Body,Trie0,Trie) :-
     (Terms \== []
      ->	get_key_new_terms(Terms,Key,NTerms),
@@ -1308,6 +1312,7 @@ retractall_in_db(Clauses,H0,H) :-
     ).
 
 %% simpler alias if desired
+:- mode remove(?,+,?).
 remove(Clauses,H0,H) :- retractall_in_db(Clauses,H0,H).
 
 retractall_list([]).
@@ -2962,6 +2967,7 @@ in_db(Goal,H) :-
     ).
 
 %% simpler alias, if desired.
+:- mode in(?,+).
 in(Goal,H) :- in_db(Goal,H).
 
 :- comment(in_db/3, "@pred{in_db(+Goal,+DB0,-DB)} is a
@@ -3041,26 +3047,33 @@ dump_db_b(Filename,DB) :-
      ;	close(OStr)
     ).
 
+:- mode write_db(+).
 write_db(DB) :- write_db(userout,DB).
 
+:- mode write_label_db(+,+).
 write_label_db(Label,DB) :-
     write(Label), write(': '),
     write_db(userout,DB).
 
+:- mode write_label_db(+,?,+).
 write_label_db(Filename,Label,DB) :-
     write(Filename,Label), write(Filename,': '),
     write_db(Filename,DB).
 
+:- mode writeln_db(+).
 writeln_db(DB) :- writeln_db(userout,DB).
 
+:- mode writeln_label_db(+,+).
 writeln_label_db(Label,DB) :-
     write(Label), write(': '),
     writeln_db(DB).
 
+:- mode writeln_label_db(+,+,+).
 writeln_label_db(Filename,Label,DB) :-
     write(Filename,Label), write(Filename,': '),
     writeln_db(Filename,DB).
 
+:- mode write_db(+,+).
 write_db(Filename,DB) :-
     (Filename == userout
      ->	OStr = userout
@@ -3078,6 +3091,7 @@ write_db(Filename,DB) :-
      ;	close(OStr)
     ).
     
+:- mode writeln_db(+,+).
 writeln_db(Filename,DB) :-
     (Filename == userout
      ->	OStr = userout
@@ -3697,6 +3711,7 @@ add_to_db(DB0,Ans,DB) :-
 The operations are: * for intersection, - for difference, + for union,
 and xor for symmetric difference. ").
 
+:- mode eval_db(+,?).
 eval_db(Expr,PDB) :-
     (Expr = (E1+E2)
      -> eval_db(E1,PDB1), eval_db(E2,PDB2), union_db(PDB1,PDB2,PDB)
