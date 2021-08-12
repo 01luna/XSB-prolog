@@ -39,15 +39,15 @@
 :- mode_on_success dcg_body(A,g,g,B).
 :- mode_on_success dcg_body(g,A,A,g).
 :- mode_on_success dcg_body_nonvar(A,B,C,ng).
-:- mode_on_success dcg_body_nonvar(A,g,g,B).
 :- mode_on_success dcg_body_nonvar(A,g,B,B).
+:- mode_on_success dcg_body_nonvar(A,g,g,B).
 :- mode_on_success dcg_body_nonvar(g,A,A,g).
 :- mode_on_success dcg_body_var(A,B,ng,ng).
 :- mode_on_success dcg_body_var(A,ng,g,ng).
 :- mode_on_success dcg_body_var(A,g,g,A).
 :- mode_on_success dcg_fillin_arguments(g,A,B).
-:- mode_on_success dcg_list_of_terminals(A,B,g,ng).
 :- mode_on_success dcg_list_of_terminals(A,B,ng,ng).
+:- mode_on_success dcg_list_of_terminals(A,B,g,ng).
 :- mode_on_success dcg_list_of_terminals(g,g,g,A).
 :- mode_on_success dcg_terminal_functor(A,B).
 :- mode_on_success dcg_with_pushback_list(A,B,C,D).
@@ -64,8 +64,8 @@
 :- mode_on_success set_dcg_supported_table(A).
 :- mode_on_success set_dcg_terminal_functor(g,g).
 :- mode_on_success standard_dcg_body_nonvar(A,B,C,ng).
-:- mode_on_success standard_dcg_body_nonvar(A,g,g,B).
 :- mode_on_success standard_dcg_body_nonvar(A,g,B,B).
+:- mode_on_success standard_dcg_body_nonvar(A,g,g,B).
 :- mode_on_success standard_dcg_body_nonvar(g,A,A,g).
 :- mode_on_success tphrase(A).
 :- mode_on_success tphrase(A,g).
@@ -77,6 +77,6 @@
 :- mode_on_success tphrase_set_string_keeping_tables(g).
 :- mode_on_success tphrase_string_length(A).
 :- mode_on_success xsb_dcg_body_nonvar(A,B,C,ng).
-:- mode_on_success xsb_dcg_body_nonvar(A,g,g,B).
 :- mode_on_success xsb_dcg_body_nonvar(A,g,B,B).
+:- mode_on_success xsb_dcg_body_nonvar(A,g,g,B).
 :- mode_on_success xsb_dcg_body_nonvar(g,A,A,g).

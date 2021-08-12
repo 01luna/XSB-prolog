@@ -536,10 +536,9 @@
 :- mode_on_success sdg_print_each_subgoal(A,B,C).
 :- mode_on_success sdg_scc_info(A,g).
 :- mode_on_success sdg_scc_info(ng,A).
+:- mode_on_success sdg_scc_info_1(A,B,g,g,g,g,g,g,g,g,g).
 :- mode_on_success sdg_scc_info_1(A,g,g,g,g,g,g,g,g,g,A).
-:- mode_on_success sdg_scc_info_1(A,g,g,g,g,g,g,g,g,g,g).
-:- mode_on_success sdg_scc_info_1(g,A,g,g,g,g,g,g,g,g,g).
-:- mode_on_success sdg_scc_info_1(ng,A,g,g,g,g,g,g,g,g,B).
+:- mode_on_success sdg_scc_info_1(ng,A,g,g,g,g,g,g,g,g,ng).
 :- mode_on_success set_answer_completed(g).
 :- mode_on_success set_eval_method_for_comma(A,g).
 :- mode_on_success set_forest_logging_for_pred(A,g).

@@ -940,7 +940,7 @@ load_dync_read_and_assert(IPort,Dir,Base,Module,ErrLimit,EIU) :-
 		coninc('_$load_dync_error_cnt',ErrCnt),
 		(ErrCnt > ErrLimit
 		 ->	!,
-                        syntax_error('',['More than ',25,' non canonical terms in the input ',Base,': loading aborted'])
+                        syntax_error('',['More than ',ErrLimit,' non canonical terms in the input ',Base,': loading aborted'])
 %			file_write0(STDMSG,'Too many read_canonical warnings: loading aborted'),
 %			file_nl(STDMSG)
 		 ;	true
