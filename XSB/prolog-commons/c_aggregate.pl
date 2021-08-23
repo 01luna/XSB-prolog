@@ -39,7 +39,8 @@
 	  ]).
 
 :- use_module(c_arith,[succ/2]).
-:- use_module(c_lists,[append/3,length/2,member/2,maplist/4,maplist/5]).
+:- use_module(basics,[append/3,length/2,member/2]).
+:- use_module(c_lists,[maplist/4,maplist/5]).
 :- use_module(c_numlists,[max_list/2,min_list/2,sum_list/2]).
 :- use_module(c_ordsets,[ord_subtract/3,ord_intersection/3]).
 :- use_module(c_pairs,[pairs_values/2]).
