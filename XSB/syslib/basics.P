@@ -439,6 +439,56 @@ list_hist_1([H|T],Last,Count,Start,Inc,[(Last,Count)|Out]):-
     Next is H - ((H-Start) mod Inc),
     list_hist_1(T,Next,1,Start,Inc,Out).
 
+%---------------------------------
+% Need to document
+%:- export list_reduce/3.
+%   
+%list_reduce([H|T],Pred,Result):- !,
+%    list_agg_init(Pred,H,Init),
+%    list_reduce_1(T,Init,Pred,Result).
+%
+%list_reduce_1([],Acc,Pred,Final):-
+%%    writeln(list_agg_final(Pred,Acc,Final)),
+%    list_agg_final(Pred,Acc,Final).
+%list_reduce_1([H|T],In,Pred,Final):-
+%%    writeln(call(Pred,incr,In,H,Out)),
+%    call(Pred,incr,In,H,Out),
+%    list_reduce_1(T,Out,Pred,Final).
+%
+%:- import call/4, call/5 from standard.
+
+%--------------------------------------------
+% Uncomment the next 4 lines
+%:- import (dynamic)/1 from assert.
+%:- dynamic min/3,max/3,sum/3,count/3,avg/3,last/3.
+%avg(final,avg(Sum,Count),Final):-
+%    Final is Sum / Count.
+%
+%list_agg_init(Pred,First,Init):- call(Pred,init,First,Init),!.
+%list_agg_init(_Pred,First,First).
+%
+%count(init,_,1).
+%avg(init,First,avg(First,1)).
+%
+%list_agg_final(Pred,Acc,Final):- call(Pred,final,Acc,Final),  !.
+%list_agg_final(_Pred,Acc,Acc).
+%
+%				 
+%max(incr,X,Y,Max):- (X > Y -> Max = X ; Max = Y).
+%min(incr,X,Y,Min):- (X > Y -> Min = Y ; Min = X).
+%sum(incr,X,Y,Sum):- Sum is X + Y.
+%count(incr,X,_Y,Count):- Count is X + 1.
+%avg(incr,avg(Sum,Count),Y,avg(Sum1,Count1)):- Sum1 is Sum + Y,Count1 is Count + 1.
+%last(incr,_X,Y,Y).
+%    
+%
+%%test:- list_reduce([0,4,6,5,6,4,54,5,7,6,76],max,F),writeln(max(F)),fail.
+%%test:- list_reduce([0,4,6,5,6,4,54,5,7,6,76],min,F),writeln(min(F)),fail.
+%%test:- list_reduce([0,4,6,5,6,4,54,5,7,6,76],sum,F),writeln(sum(F)),fail.
+%%test:- list_reduce([0,4,6,5,6,4,54,5,7,6,76],count,F),writeln(count(F)),fail.
+%%test:- list_reduce([0,4,6,5,6,4,54,5,7,6,76],avg,F),writeln(avg(F)),fail.
+%%test:- list_reduce([0,4,6,5,6,4,54,5,7,6,76],last,F),writeln(last(F)),fail.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Commautils.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

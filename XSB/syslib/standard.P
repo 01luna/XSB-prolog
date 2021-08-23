@@ -2845,6 +2845,68 @@ do_all(SetGoal,DoGoal0) :- do_all(SetGoal,DoGoal0).
 do_all(_Goal).*/
 do_all(Goal) :- do_all(Goal).
 
+%----------------------------------------
+% TES: I use these quite a bit...
+
+:- export lazy_write/1,lazy_write/2,lazy_writeln/1,lazy_writeln/2,
+          lazy_message/1,lazy_messageln/1.
+:- import term_to_atom/2 from string.
+
+lazy_writeln(Ostr,List):-
+    is_list(List),!,
+    atomize_list(List,List1),
+    concat_atom(List1,Atom),
+    writeln(Ostr, Atom).
+lazy_writeln(_Ostr,List):-
+    type_error(list,List,lazy_writeln/2,2).
+
+lazy_writeln(List):-
+    is_list(List),!,
+    atomize_list(List,List1),
+    concat_atom(List1,Atom),
+    writeln(Atom).
+lazy_writeln(List):-
+    type_error(list,List,lazy_writeln/1,1).
+
+lazy_write(Ostr,List):-
+    is_list(List),!,
+    atomize_list(List,List1),
+    concat_atom(List1,Atom),
+    write(Ostr, Atom).
+lazy_write(_Ostr,List):-
+    type_error(list,List,lazy_write/2,2).
+
+lazy_write(List):-
+    is_list(List),!,
+    atomize_list(List,List1),
+    concat_atom(List1,Atom),
+    write(Atom).
+lazy_write(List):-
+    type_error(list,List,lazy_write/1,1).
+    
+lazy_messageln(List):-
+    is_list(List),!,
+    atomize_list(List,List1),
+    concat_atom(List1,Atom),
+    messageln(Atom).
+lazy_writeln(List):-
+    type_error(list,List,lazy_messageln/1,1).
+
+lazy_message(List):-
+    is_list(List),!,
+    atomize_list(List,List1),
+    concat_atom(List1,Atom),
+    message(Atom).
+lazy_write(List):-
+    type_error(list,List,lazy_message/1,1).
+
+atomize_list([],[]).
+atomize_list([H|T],[H1|T1]):-
+    atomize_elt(H,H1),
+    atomize_list(T,T1).
+
+atomize_elt(H,H):- atomic(H),!.
+atomize_elt(H,H1):- term_to_atom(H,H1).
 
 /* --------------------- end of file standard.P ----------------------- */
 end_of_file.
