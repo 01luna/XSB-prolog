@@ -601,6 +601,8 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
 
 #define SHORTLISTLEN 1024
 
+typedef int (*compfptr)(CTXTdeclc const void *, const void *) ;
+
 #ifdef MULTI_THREAD
 
 /* Define own qsort routine when multithreading because it has to pass
@@ -608,8 +610,6 @@ inline static xsbBool number_to_list(CTXTdeclc int call_type)
    standard system qsort routine, which is used when single threading,
    does not support such an extra parameter.
 */
-
-typedef int (*compfptr)(CTXTdeclc const void *, const void *) ;
 
 #define INSERT_SORT	8
 
@@ -834,21 +834,57 @@ int par_key_compare(CTXTdeclc const void * t1, const void * t2) {
     return -compare(CTXTc (void*)term1, (void*)term2);
 }
 
+/* defined in emuloop.c */
+extern int num_compare(CTXTc prolog_term op1, prolog_term op2);
+
+int par_num_compare(CTXTdeclc const void * t1, const void * t2) {
+  Integer ipar, cmp, ind1, ind2;
+  Cell term1 = (Cell) t1 ;
+  Cell term2 = (Cell) t2 ;
+
+  XSB_Deref(term1);		/* term1 is not in register! */
+  XSB_Deref(term2);		/* term2 is not in register! */
+  if (par_spec.sort_num_pars > 0) {
+    ipar = 0;
+    while (ipar < par_spec.sort_num_pars) {
+      ind1 = ind2 = par_spec.sort_par_ind[ipar];
+      if (islist(term1)) ind1--;
+      if (islist(term2)) ind2--;
+      cmp = -num_compare(CTXTc (prolog_term)get_str_arg(term1,ind1),
+		    (prolog_term)get_str_arg(term2,ind2));
+      if (cmp) {
+	if (par_spec.sort_par_dir[ipar]) return (int)cmp;
+	else return (int)-cmp;
+      } else ipar++;
+    }
+    return 0;
+  } else if (par_spec.sort_num_pars == 0) {
+    return -num_compare(CTXTc (prolog_term)term1, (prolog_term)term2);
+  } else
+    return num_compare(CTXTc (prolog_term)term1, (prolog_term)term2);
+}
+
 inline static xsbBool parsort(CTXTdecl)
 {
   /* r1: +list of terms;				*/
   /* r2: +list of sort indicators: asc(I) or desc(I)	*/
   /* r3: 1 if eliminate dupls, 0 if not			*/
-  /* r4: ?sorted list of terms				*/
+  /* r4: 0 if term order; 1 if numeric order            */
+  /* r5: ?sorted list of terms				*/
   unsigned int i, len;
   unsigned int max_ind = 0;
-  int elim_dupls;
+  int elim_dupls, if_numeric_order;
   Cell heap_addr, term, term2, tmp_ind;
   Cell list, new_list;
   Cell *cell_tbl;
   char ermsg[50];
+  compfptr compare_function;
 
   elim_dupls = (int)ptoc_int(CTXTc 3);
+  if_numeric_order = (int)ptoc_int(CTXTc 4);
+
+  if (if_numeric_order) compare_function = par_num_compare;
+  else compare_function = par_key_compare;
 
   list = ptoc_tag(CTXTc 2);
   term2 = list; par_spec.sort_num_pars = 0;
@@ -869,19 +905,19 @@ inline static xsbBool parsort(CTXTdecl)
 		   get_arity(get_str_psc(heap_addr)) == 1 &&
 		   !strcmp(get_name(get_str_psc(heap_addr)),"desc")) {
 	  par_spec.sort_par_dir[par_spec.sort_num_pars] = 0;
-	} else xsb_type_error(CTXTc "asc/1 or desc/1 term",heap_addr,"parsort/4",2);
+	} else xsb_type_error(CTXTc "asc/1 or desc/1 term",heap_addr,"parsort/4/5",2);
 	tmp_ind = get_list_tail(heap_addr); XSB_Deref(tmp_ind);
-	if (!isinteger(tmp_ind)) xsb_type_error(CTXTc "integer arg for asc/1 or desc/1",tmp_ind,"parsort/4",2);
+	if (!isinteger(tmp_ind)) xsb_type_error(CTXTc "integer arg for asc/1 or desc/1",tmp_ind,"parsort/4/5",2);
 	i = (int)int_val(tmp_ind);
 	/* TLS: Should be range below */
 	if (i < 1 || i > 255) xsb_domain_error(CTXTc "arity_sized_integer",tmp_ind,
-					       "parsort/4",2) ;
+					       "parsort/4/5",2) ;
 	par_spec.sort_par_ind[par_spec.sort_num_pars] = i;
 	if (i > max_ind) max_ind = i;
 	par_spec.sort_num_pars++;
 	term2 = get_list_tail(term2);
 	XSB_Deref(term2);
-      } else xsb_type_error(CTXTc "list",list,"parsort/4",2);
+      } else xsb_type_error(CTXTc "list",list,"parsort/4/5",2);
     }
       
   list = ptoc_tag(CTXTc 1);
@@ -897,24 +933,24 @@ inline static xsbBool parsort(CTXTdecl)
 	len++; term2 = get_list_tail(term2);
       } else {
 	sprintf(ermsg,"Term with arity at least %d", max_ind);
-	xsb_domain_error(CTXTc ermsg,(Cell) heap_addr,"parsort/4",1) ;	
+	xsb_domain_error(CTXTc ermsg,(Cell) heap_addr,"parsort/4/5",1) ;	
 	return FALSE;	/* fail */
       }
     } else {
-      if (isref(term2)) xsb_instantiation_error(CTXTc "parsort/4",1);
-      else xsb_type_error(CTXTc "list",list,"parsort/4",1);
+      if (isref(term2)) xsb_instantiation_error(CTXTc "parsort/4/5",1);
+      else xsb_type_error(CTXTc "list",list,"parsort/4/5",1);
       return FALSE;	/* fail */
     }
   } while(1);
 
   check_glstack_overflow(4, pcreg, (2*len)*sizeof(Cell)+OVERFLOW_MARGIN) ;
   list = ptoc_tag(CTXTc 1);  /* reset in case moved */
-  term = ptoc_tag(CTXTc 4);
+  term = ptoc_tag(CTXTc 5);
   if (len > 0) {
     term2 = list;
     cell_tbl = (Cell *)mem_alloc(len * sizeof(Cell),LEAK_SPACE);
     if (!cell_tbl)
-      xsb_resource_error(CTXTc "memory","parsort",4);
+      xsb_resource_error(CTXTc "memory","parsort",5);
     for (i=0 ; i < len ; ++i) {
       XSB_Deref(term2);	/* Necessary for correctness.	*/
       heap_addr = get_list_head(term2); XSB_Deref(heap_addr);
@@ -922,9 +958,9 @@ inline static xsbBool parsort(CTXTdecl)
       term2 = get_list_tail(term2);
     }
 #ifndef MULTI_THREAD
-    qsort(cell_tbl, len, sizeof(Cell), par_key_compare);
+    qsort(cell_tbl, len, sizeof(Cell), compare_function);
 #else
-    mt_qsort(CTXTc cell_tbl, len, sizeof(Cell), par_key_compare);
+    mt_qsort(CTXTc cell_tbl, len, sizeof(Cell), compare_function);
 #endif
     new_list = makelist(hreg);
     if (elim_dupls) {

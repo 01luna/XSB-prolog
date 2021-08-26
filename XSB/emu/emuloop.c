@@ -469,6 +469,90 @@ jmp_buf xsb_abort_fallback_environment;
 char *xsb_segfault_message;
 int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
 
+#define SET_NUMCMP(reg,op1,op2) \
+    if (isointeger(op1)) { \
+      if (isointeger(op2)) { \
+	Integer iop1 = oint_val(op1); \
+	Integer iop2 = oint_val(op2); \
+	if (iop2 > iop1) res = 1; else if (iop2 == iop1) res = 0; else res = -1; \
+      }	else if (isofloat(op2)) { \
+	Float fop1 = (Float)oint_val(op1); \
+	Float fop2 = ofloat_val(op2); \
+	/*printf("arith on old float\n");*/ \
+	if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
+      } else { \
+	FltInt fivar; \
+	if (xsb_eval(CTXTc op2, &fivar)) { \
+	  if (isfiint(fivar)) { \
+	    Integer iop1 = oint_val(op1); \
+	    Integer iop2 = fiint_val(fivar); \
+	    if (iop2 > iop1) res = 1; else if (iop2 == iop1) res = 0; else res = -1; \
+	  } else { \
+	    Float fop1 = (Float)oint_val(op1); \
+	    Float fop2 = fiflt_val(fivar); \
+	    if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
+	  } \
+	} \
+	else { arithmetic_abort(CTXTc op2, "compare-operator", op1); } \
+      } \
+    } \
+    else if (isofloat(op1)) { \
+      Float fop1 = ofloat_val(op1); \
+      /*printf("arith on old float\n");*/ \
+      if (isofloat(op2)) { \
+	Float fop2 = ofloat_val(op2); \
+	/*printf("arith on old float\n");*/ \
+	if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
+      } else if (isointeger(op2)) { \
+	Float fop2 = (Float)oint_val(op2); \
+	if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
+      } else { \
+	FltInt fivar; \
+	if (xsb_eval(CTXTc op2, &fivar)) { \
+	  Float fop2; \
+	  if (isfiint(fivar)) { \
+	    fop2 = (Float)fiint_val(fivar); \
+	  } else { \
+	    fop2 = fiflt_val(fivar); \
+	  } \
+	  if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
+	} else { arithmetic_abort(CTXTc op2, "compare-operator", op1); } \
+      } \
+    } \
+    else { \
+      FltInt fiop1,fiop2; \
+      if (xsb_eval(CTXTc op1,&fiop1) && xsb_eval(CTXTc op2,&fiop2)) { \
+	if (isfiint(fiop1)) { \
+	  if (isfiint(fiop2)) { \
+	    Integer iop1 = fiint_val(fiop1); \
+	    Integer iop2 = fiint_val(fiop2); \
+	    if (iop2 > iop1) res = 1; else if (iop2 == iop1) res = 0; else res = -1; \
+	  } else { \
+	    Float fop1 = (Float)fiint_val(fiop1); \
+	    Float fop2 = fiflt_val(fiop2); \
+	    if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
+	  } \
+	} else { \
+	  Float fop1 = fiflt_val(fiop1); \
+	  Float fop2; \
+	  if (isfiint(fiop2)) { \
+	    fop2 = (Float)fiint_val(fiop2); \
+	  } else { \
+	    fop2 = fiflt_val(fiop2); \
+	  } \
+	  if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
+	} \
+      } else { arithmetic_abort(CTXTc op2, "compare-operator", op1); } \
+    }
+
+int num_compare(CTXTc prolog_term op1, prolog_term op2) {
+  int res;
+  XSB_Deref(op1);
+  XSB_Deref(op2);
+  SET_NUMCMP(res,op1,op2);
+  return res;
+}
+
 /*======================================================================*/
 /* the main emulator loop.						*/
 /*======================================================================*/
@@ -1959,80 +2043,7 @@ argument positions.
     op2 = *(op3);
     XSB_Deref(op1);
     XSB_Deref(op2);
-    if (isointeger(op1)) {
-      if (isointeger(op2)) {
-	Integer iop1 = oint_val(op1);
-	Integer iop2 = oint_val(op2);
-	if (iop2 > iop1) res = 1; else if (iop2 == iop1) res = 0; else res = -1;
-      }	else if (isofloat(op2)) {
-	Float fop1 = (Float)oint_val(op1);
-	Float fop2 = ofloat_val(op2);
-	/*printf("arith on old float\n");*/
-	if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1;
-      } else {
-	FltInt fivar;
-	if (xsb_eval(CTXTc op2, &fivar)) {
-	  if (isfiint(fivar)) {
-	    Integer iop1 = oint_val(op1);
-	    Integer iop2 = fiint_val(fivar);
-	    if (iop2 > iop1) res = 1; else if (iop2 == iop1) res = 0; else res = -1;
-	  } else {
-	    Float fop1 = (Float)oint_val(op1);
-	    Float fop2 = fiflt_val(fivar);
-	    if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1;
-	  }
-	}
-	else { arithmetic_abort(CTXTc op2, "compare-operator", op1); }
-      }
-    }
-    else if (isofloat(op1)) {
-      Float fop1 = ofloat_val(op1);
-      /*printf("arith on old float\n");*/
-      if (isofloat(op2)) {
-	Float fop2 = ofloat_val(op2);
-	/*printf("arith on old float\n");*/
-	if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1;
-      } else if (isointeger(op2)) {
-	Float fop2 = (Float)oint_val(op2);
-	if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1;
-      } else {
-	FltInt fivar;
-	if (xsb_eval(CTXTc op2, &fivar)) {
-	  Float fop2;
-	  if (isfiint(fivar)) {
-	    fop2 = (Float)fiint_val(fivar);
-	  } else {
-	    fop2 = fiflt_val(fivar);
-	  }
-	  if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1;
-	} else { arithmetic_abort(CTXTc op2, "compare-operator", op1); }
-      }
-    }
-    else {
-      FltInt fiop1,fiop2;
-      if (xsb_eval(CTXTc op1,&fiop1) && xsb_eval(CTXTc op2,&fiop2)) {
-	if (isfiint(fiop1)) {
-	  if (isfiint(fiop2)) {
-	    Integer iop1 = fiint_val(fiop1);
-	    Integer iop2 = fiint_val(fiop2);
-	    if (iop2 > iop1) res = 1; else if (iop2 == iop1) res = 0; else res = -1;
-	  } else {
-	    Float fop1 = (Float)fiint_val(fiop1);
-	    Float fop2 = fiflt_val(fiop2);
-	    if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1;
-	  }
-	} else {
-	  Float fop1 = fiflt_val(fiop1);
-	  Float fop2;
-	  if (isfiint(fiop2)) {
-	    fop2 = (Float)fiint_val(fiop2);
-	  } else {
-	    fop2 = fiflt_val(fiop2);
-	  }
-	  if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1;
-	}
-      } else { arithmetic_abort(CTXTc op2, "compare-operator", op1); }
-    }
+    SET_NUMCMP(reg,op1,op2)
     //#ifdef NON_OPT_COMPILE
     //    if (res == 2) xsb_abort("uninitialized use of res in cmpreg instruction");
     //#endif
