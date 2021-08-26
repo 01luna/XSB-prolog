@@ -117,6 +117,7 @@ eval_exp(string(Sym),_R,_Pilr,_Pil,_,_Tin,_Tout,e(PredSym,NC)) :-
 
 eval_constant(pi,real(V)):- eval(pi,V). 
 eval_constant(e,real(V)):- eval(e,V).
+eval_constant(epsilon,real(V)) :- eval(epsilon,V).
 
 eval_binoptab(+,R1,R2,addreg(R2,R1)).
 eval_binoptab(-,R1,R2,subreg(R2,R1)).
@@ -337,6 +338,7 @@ isindeed_binary(_LHS,_Op,_E1,_E2,_HoldR,_Pil,_Pilr,_Tin,_Tout,e(PredSym,NC)) :- 
 	sym_name(PredSym, P, A),
 	error(('variable or numerical constant expected as 1st arg of is/2',
 	       ' (in clause #', NC, ' of predicate ', P,/,A,')')).
+
 isindeed_unary(varocc(Vid,Prag),Op,E,HoldR,Pil,Pilr,Tin,Tout,EPN) :- !,
 	eval_uniop(Op,E,R,Pil,Pilm,HoldR,Tin,Tmid,EPN),
 	release_if_done(Vid,R,Prag,HoldR,Tmid,Tmid2),
