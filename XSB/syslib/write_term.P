@@ -33,10 +33,7 @@
  
 :- export write_term/2, write_term/3, write_option/1,code_class/2.
 
-:- import member/2 from basics.
 :- import xsb_stream_lock/1, xsb_stream_unlock/1 from file_io.
-:- import check_nonvar/3, instantiation_error/3,
-	  type_error/4,domain_error/4 from error_handler.
 :- import file_function/7 from machine.
 :- import write/1,float/1, (=..)/2 from standard.
 :- import xsb_sys_mutex_lock/1, xsb_sys_mutex_unlock/1 from thread.
@@ -65,19 +62,17 @@ display(Term):- write(Term).
 % Mats Carlsson, Daniel Cabeza, and Manuel Hermenegildo.
 
 :- import current_xsb_param/2 from curr_sym.
+:- import parse_options/4 from setof.
 
 :- mode write_term(+,?,+).
+
 write_term(Stream, Term, OptList) :-
 	xsb_stream_lock( Stream ),
         current_output(Curr),
         set_output(Stream),
-        current_xsb_param(float_display_format,L),
-        L = [width(W),precision(P),specifier(S)],
-	atom_codes(W,Lw),number_codes(W1,Lw),
-	atom_codes(P,Lp),number_codes(P1,Lp),
-        Default = options(false,false,false,false,1000000,P1,W1,S,decimal),
-        compute_options(OptList, 3, OptList, Default, 1200, Options, Priority),
-        write_out(Term, Options, Priority, 0, 0, '(', 2'100, _),
+	parse_options(OptList,write_term/3,apply([X,Y],write_option(X,Y)),
+		      [Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix,Prio]),
+	write_out(Term,options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix),Prio,0,0,'(',2'100,_),
 	set_output(Curr),
 	xsb_stream_unlock( Stream ).
 
@@ -85,13 +80,9 @@ write_term(Stream, Term, OptList) :-
 write_term(Term,OptList):- 
         current_output(Curr),
 	xsb_sys_mutex_lock( Curr ),
-        current_xsb_param(float_display_format,L),
-        L = [width(W),precision(P),specifier(S)],
-	atom_codes(W,Lw),number_codes(W1,Lw),
-	atom_codes(P,Lp),number_codes(P1,Lp),
-        Default = options(false,false,false,false,1000000,P1,W1,S,decimal),
-        compute_options(OptList, 2, OptList, Default, 1200, Options, Priority),
-        write_out(Term, Options, Priority, 0, 0, '(', 2'100, _),
+	parse_options(OptList,write_term/3,apply([X,Y],write_option(X,Y)),
+		      [Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix,Prio]),
+        write_out(Term, options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio, 0, 0, '(', 2'100, _),
 	xsb_sys_mutex_unlock( Curr ).
 
 :- comment(write_option/1, "@var{Opt} is a valid write option which
@@ -141,72 +132,36 @@ write_term(Term,OptList):-
 
 @end{itemize}.").
 
-:- mode write_option(+).
-write_option(quoted(Qt)) :- (Qt = true ; Qt = false),!.
-write_option(ignore_ops(IO)) :- ignore_ops_flag(IO).
-write_option(numbervars(NV)) :- (NV = true ; NV = false),!.
-write_option(portrayed(Pr)) :- (Pr = true ; Pr = false),!.
-write_option(max_depth(MD)) :- integer(MD), MD >= 0.
-write_option(priority(Prio)) :- integer(Prio), Prio >= 1, Prio =< 1200.
+%% [Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix,Prio]
+write_option(quoted(Qt),[Qt,_IO,_NV,_Pr,_Li,_Prec,_Width,_Spec,_Radix,_Prio]) :-
+    (Qt == true ; Qt == false).
+write_option(ignore_ops(IO),[_Qt,IO,_NV,_Pr,_Li,_Prec,_Width,_Spec,_Radix,_Prio]) :-
+    (IO == true ; IO == false ; IO == ops).
+write_option(NumberVars,[_Qt,_IO,NV,_Pr,_Li,_Prec,_Width,_Spec,_Radix,_Prio]) :-
+    NumberVars =.. [numbervars,NV], (NV == true ; NV == false).
+write_option(portrayed(Pr),[_Qt,_IO,_NV,Pr,_Li,_Prec,_Width,_Spec,_Radix,_Prio]) :-
+    (Pr == true ; Pr == false).
+write_option(max_depth(MD),[_Qt,_IO,_NV,_Pr,Li,_Prec,_Width,_Spec,_Radix,_Prio]) :-
+    (integer(MD), MD >= 0 -> (MD =:= 0 -> Li = 1000000 ; Li = MD)).
+write_option(float_precision(PrecIn),[_Qt,_IO,_NV,_Pr,_Li,Prec,_Width,_Spec,_Radix,_Prio]) :-
+    (integer(PrecIn), PrecIn >= 0, PrecIn =< 30 -> (PrecIn =:= 0 -> Prec = 17 ; Prec = PrecIn)).
+write_option(float_width(WidthIn),[_Qt,_IO,_NV,_Pr,_Li,_Prec,Width,_Spec,_Radix,_Prio]) :-
+    (integer(WidthIn), WidthIn >= 0, WidthIn =< 30
+     -> (WidthIn =:= 0 -> Width = 2 ; Width = WidthIn)
+    ).
+write_option(float_specifier(Spec),[_Qt,_IO,_NV,_Pr,_Li,_Prec,_Width,Spec,_Radix,_Prio]) :-
+    (Spec == f ; Spec == g ; Spec == 'F' ; Spec == 'G').
+write_option(radix(Radix),[_Qt,_IO,_NV,_Pr,_Li,_Prec,_Width,_Spec,Radix,_Prio]) :-
+    (Radix == decimal ; Radix == octal ; Radix == hex).
+write_option(priority(Prio),[_Qt,_IO,_NV,_Pr,_Li,_Prec,_Width,_Spec,_Radix,Prio]) :-
+    integer(Prio), Prio >= 1, Prio =< 1200.
+write_option('$defaults',[false,false,false,false,1000000,P1,W1,S,decimal,1200]) :-
+        current_xsb_param(float_display_format,L),
+        L = [width(W),precision(P),specifier(S)],
+	atomic(W), atomic(P),
+	atom_codes(W,Lw),number_codes(W1,Lw),
+	atom_codes(P,Lp),number_codes(P1,Lp).
 
-compute_options(V, N, OL,  _, _, _, _) :- var(V), !,
-	instantiation_error(OL,write_term/N,N).
-	%%check_nonvar_list(V,write_term/N,N).
-compute_options([], _, _OL, Options, Prio, Options, Prio) :- !.
-compute_options([Opt|Opts], N, OL, Options1, Prio1, Options, Prio) :- !,
-        one_opt(Opt, N, Options1, Prio1, Options2, Prio2),
-        compute_options(Opts, N, OL, Options2, Prio2, Options, Prio).
-compute_options(_Opts, N, OL, _, _, _, _) :-
-        type_error(list, OL, write_term/N, N).
-
-one_opt(V, N, _, _, _, _) :- var(V), !,
-	check_nonvar(V,write_term/N,N), fail.
-one_opt(NVF, _, options(Qt,IO,_, Pr,Li,Prec,Width,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :-
-        NVF =.. [numbervars,NV], boolean(NV), !.
-one_opt(quoted(Qt),     _, options(_ ,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- boolean(Qt), !.
-one_opt(ignore_ops(IO), _, options(Qt,_ ,NV,Pr,Li,Prec,Width,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- ignore_ops_flag(IO), !.
-one_opt(portrayed(Pr),  _, options(Qt,IO,NV,_, Li,Prec,Width,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :- boolean(Pr), !.
-one_opt(max_depth(MD),  _, options(Qt,IO,NV,Pr,_ ,Prec,Width,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :-
-                           integer(MD), MD >= 0, !,
-                           (MD = 0 -> Li = 1000000; Li = MD).
-one_opt(float_precision(Prec),  _,
-	                   options(Qt,IO,NV,Pr,Li,_DefPrec,Width,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,PrecOut,Width,Spec,Radix), Prio) :-
-                           integer(Prec), Prec >= 0, Prec =< 30,!,
-                           (Prec = 0 -> PrecOut = 17; PrecOut = Prec).
-one_opt(float_width(Width),  _,
-	                   options(Qt,IO,NV,Pr,Li,Prec,_DefWidth,Spec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,WidthOut,Spec,Radix), Prio) :-
-                           integer(Width), Width >= 0, Width =< 30,!,
-                           (Width = 0 -> WidthOut = 2; WidthOut = Prec).
-one_opt(float_specifier(Spec),  _,
-	                   options(Qt,IO,NV,Pr,Li,Prec,Width,_DefSpec,Radix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :-
-                           member(Spec,[f,g,'F','G']),!.
-one_opt(radix(Radix),  _,
-	                   options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,_DefRadix), Prio,
-                           options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio) :-
-                           member(Radix,[decimal,octal,hex]),!.
-one_opt(priority(Prio), _, Opts, _, Opts, Prio) :-
-        integer(Prio), Prio >= 1, Prio =< 1200, !.
-one_opt(Opt, N, _, _, _, _) :-
-        domain_error(write_option, Opt,write_term/N,N).
-
-boolean(true).
-boolean(false).
-
-:- prop(ignore_ops_flag(Flag)
-        # "@var{Flag} is either the atom @tt{true}, the atom
-          @tt{false} or the atom @tt{ops}.").
-
-ignore_ops_flag(true).
-ignore_ops_flag(ops).
-ignore_ops_flag(false).
 
 %   writes a parenthesis if the context demands it.
 %   Context = 2'000 for alpha
@@ -344,6 +299,7 @@ write_out(Atom, Options, _, _, _, _, Ci, Co) :-
 write_out(N,Options, _, _, _, _, Ci, 2'000) :-
     float(N), !,
     Options = options(_Quote,_,_,_,_,Prec,Width,Spec,_Radix),
+    atomic(Spec),
     atom_codes(Spec,[Char]),
 	(   N < 0 -> maybe_space(Ci, 2'010)
 	;   maybe_space(Ci, 2'000)

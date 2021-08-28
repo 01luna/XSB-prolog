@@ -569,44 +569,28 @@ write_canonical_list(Term) :-
     writeln('.').
 
 %-------------------
-	   
+:- import parse_options/4 from setof.	   
 load_dyn_gen(File,Options) :- 
     check_nonvar(File,'load_dyn_gen/1',1),
     check_atom(File,'load_dyn_gen/1',1),
-    process_ldg_options(Options,Canonical,AorZ,Module,Limit,EIU),
+    parse_options(Options,load_dyn/2,apply([X,Y],load_dyn_option(X,Y)),
+		  [Canonical,AorZ,Module,Limit,EIU]),
     (Canonical == yes ->
 	load_dync_nocheck(File,AorZ,Module,Limit,EIU)
       ; load_dyn_nocheck(File,AorZ,Module,EIU) ).
 
-process_ldg_options([canonical(Canonical)|T],Canonical,AorZ,Module,Limit,EIU):- !,
-    ( member(Canonical,[yes,no]) ->
-	 process_ldg_options(T,Canonical,AorZ,Module,Limit,EIU)
-       ; domain_error(load_domain_gen_canonical_option,Canonical,load_dyn_gen/2,2) ).
-process_ldg_options([ordering(AorZ)|T],Canonical,AorZ,Module,Limit,EIU):- !,
-    ( member(AorZ,[a,z]) ->
-	 process_ldg_options(T,Canonical,AorZ,Module,Limit,EIU)
-       ; domain_error(load_domain_gen_ordering_option,AorZ,load_dyn_gen/2,2) ).
-process_ldg_options([module(Module)|T],Canonical,AorZ,Module,Limit,EIU):- !,
-    ( atom(Module) ->
-	 process_ldg_options(T,Canonical,AorZ,Module,Limit,EIU)
-       ; type_error(atom,Module,load_dyn_gen/2,2) ).
-process_ldg_options([error_limit(Limit)|T],Canonical,AorZ,Module,Limit,EIU):- !,
-    ( integer(Limit) ->
-	 process_ldg_options(T,Canonical,AorZ,Module,Limit,EIU)
-       ; type_error(atom,Limit,load_dyn_gen/2,2) ).
-process_ldg_options([exportsInUsermod(EIU)|T],Canonical,AorZ,Module,Limit,EIU) :- !,
-    (atom(EIU)
-     -> process_ldg_options(T,Canonical,AorZ,Module,Limit,EIU)
-     ;  type_error(atom,EIU,load_dyn_gen/2,2)
-    ).
-process_ldg_options([H|_T],_Canonical,_AorZ,_Module,_Limit,_EIU):- !,
-    domain_error(load_domain_gen_option,H,load_dyn_gen/2,2).
-process_ldg_options([],Canonical,AorZ,Module,Limit,EIU):-
-    (var(AorZ) -> AorZ = z ; true),
-    (var(Canonical) -> Canonical = no ; true),
-    (var(Module) -> Module = usermod ; true),
-    (var(EIU) -> EIU = yes ; true),
-    (var(Limit) -> current_prolog_flag(load_dync_error_limit,Limit) ; true).
+%% [Canonical,AorZ,Module,Limit,EIU]
+%% [no,z,usermod,Limit,EIU]
+load_dyn_option(canonical(Can),[Can,_AorZ,_Mod,_Limit,_EIU]) :-
+    (Can == yes ; Can == no).
+load_dyn_option(ordering(AorZ),[_Can,AorZ,_Mod,_Limit,_EIU]) :-
+    (AorZ == a ; AorZ == z).
+load_dyn_option(module(Mod),[_Can,_AorZ,Mod,_Limit,_EIU]).
+load_dyn_option(error_limit(Limit),[_Can,_AorZ,_Mod,Limit,_EIU]) :- integer(Limit).
+load_dyn_option(exportsInUsermod(EIU),[_Can,_AorZ,_Mod,_Limit,EIU]) :-
+    (EIU == yes ; EIU == no).
+load_dyn_option('$defaults',[no,z,usermod,Limit,yes]) :-
+    current_prolog_flag(load_dync_error_limit,Limit).
 
 %------------------- load_dyn
 

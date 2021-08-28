@@ -7,6 +7,7 @@
 :- mode bagof1(?,?,?).
 :- mode bfindall(?,?,?,?).
 :- mode bounded_bagof(?,?,?,?).
+:- mode call_apply(?,?).
 :- mode clean_existentials(?,?).
 :- mode decide(?,?,?,?,?).
 :- mode diff_varsets(?,?).
@@ -23,11 +24,15 @@
 :- mode n_m_times(+,+,?).
 :- mode n_times(+,?).
 :- mode parade(?,?,?,?).
+:- mode parse_options(?,+,?,?).
+:- mode parse_options1(+,+,?,?).
 :- mode pdecide(?,?,?,?,?,?).
 :- mode pick(?,?,?).
 :- mode ppick(?,?,?,?).
+:- mode set_defaults(?,?).
 :- mode setof(?,?,?).
 :- mode sort(?,?).
+:- mode sort(?,?,?).
 :- mode tbagof(?,?,?).
 :- mode term_variables(?,?).
 :- mode tsetof(?,?,?).
@@ -40,6 +45,7 @@
 :- mode_on_success bagof1(A,B,C).
 :- mode_on_success bfindall(A,B,C,D).
 :- mode_on_success bounded_bagof(A,B,C,D).
+:- mode_on_success call_apply(A,B).
 :- mode_on_success clean_existentials(A,A).
 :- mode_on_success clean_existentials(ng,A).
 :- mode_on_success decide(g,A,B,B,A).
@@ -63,6 +69,8 @@
 :- mode_on_success parade(A,B,A,g).
 :- mode_on_success parade(ng,A,B,ng).
 :- mode_on_success parade(ng,ng,g,g).
+:- mode_on_success parse_options(g,g,A,B).
+:- mode_on_success parse_options1(g,g,A,B).
 :- mode_on_success pdecide(A,B,C,D,g,E).
 :- mode_on_success pdecide(g,A,ng,ng,ng,B).
 :- mode_on_success pdecide(g,A,B,ng,ng,g).
@@ -73,8 +81,10 @@
 :- mode_on_success ppick(A,B,g,C).
 :- mode_on_success ppick(A,ng,ng,g).
 :- mode_on_success ppick(ng,ng,ng,A).
+:- mode_on_success set_defaults(A,B).
 :- mode_on_success setof(A,B,C).
 :- mode_on_success sort(A,A).
+:- mode_on_success sort_option(A,B).
 :- mode_on_success tbagof(A,B,C).
 :- mode_on_success term_variables(A,B).
 :- mode_on_success tsetof(A,B,C).

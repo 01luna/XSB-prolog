@@ -102,7 +102,6 @@
 :- mode proc_multifile(?).
 :- mode proc_table(?,?).
 :- mode proc_table_options(?,+).
-:- mode process_ldg_options(?,?,?,?,?,?).
 :- mode push_loaded_file(?,?).
 :- mode read_canonical(?).
 :- mode read_canonical(+,?).
@@ -205,6 +204,7 @@
 :- mode_on_success load_dyn_convert(g,g,g).
 :- mode_on_success load_dyn_gen(g,g).
 :- mode_on_success load_dyn_nocheck(g,g,A,B).
+:- mode_on_success load_dyn_option(A,B).
 :- mode_on_success load_dyn_read_and_assert(g,g,A,B).
 :- mode_on_success load_dyna(g).
 :- mode_on_success load_dync(g).
@@ -231,7 +231,6 @@
 :- mode_on_success proc_multifile(A).
 :- mode_on_success proc_table(g,A).
 :- mode_on_success proc_table_options(g,g).
-:- mode_on_success process_ldg_options(g,A,B,C,D,E).
 :- mode_on_success push_loaded_file(g,g).
 :- mode_on_success read_canonical(A).
 :- mode_on_success read_canonical(g,A).

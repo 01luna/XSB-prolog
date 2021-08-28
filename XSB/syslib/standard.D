@@ -45,6 +45,8 @@
 :- mode atom_disassemble(+,?,?).
 :- mode atom_length(+,?).
 :- mode atomic(?).
+:- mode atomize_elt(?,?).
+:- mode atomize_list(?,?).
 :- mode bounded_call(?,?,?).
 :- mode bounded_call(?,?,?,?).
 :- mode call(?).
@@ -173,6 +175,12 @@
 :- mode is_most_general_term(?).
 :- mode is_number_atom(?).
 :- mode isoify(?,?).
+:- mode lazy_message(?).
+:- mode lazy_messageln(?).
+:- mode lazy_write(?).
+:- mode lazy_write(+,?).
+:- mode lazy_writeln(?).
+:- mode lazy_writeln(+,?).
 :- mode length(?,+,?).
 :- mode listing.
 :- mode listing(?).
@@ -339,6 +347,8 @@
 :- mode_on_success atom_disassemble(g,g,g).
 :- mode_on_success atom_length(g,g).
 :- mode_on_success atomic(g).
+:- mode_on_success atomize_elt(A,g).
+:- mode_on_success atomize_list(A,g).
 :- mode_on_success bounded_call(A,g,g).
 :- mode_on_success bounded_call(A,g,g,B).
 :- mode_on_success bounded_call_abort(A,B,C).
@@ -488,6 +498,12 @@
 :- mode_on_success is_number_atom(g).
 :- mode_on_success isoify(g,g).
 :- mode_on_success isoify(ng,A).
+:- mode_on_success lazy_message(A).
+:- mode_on_success lazy_messageln(A).
+:- mode_on_success lazy_write(A).
+:- mode_on_success lazy_write(g,A).
+:- mode_on_success lazy_writeln(A).
+:- mode_on_success lazy_writeln(g,A).
 :- mode_on_success length(A,g,g).
 :- mode_on_success listing.
 :- mode_on_success listing(A).

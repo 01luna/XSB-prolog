@@ -31,6 +31,10 @@
 :- mode length(?,?).
 :- mode length1(?,+,?).
 :- mode length2(?,+).
+:- mode list_hist(?,?,?,?).
+:- mode list_hist_1(?,+,+,+,+,?).
+:- mode list_valcount(?,?).
+:- mode list_valcount_1(?,?,+,?).
 :- mode log_ith(?,?,?).
 :- mode log_ith0(+,?,?,+).
 :- mode log_ith1(?,?,?,+).
@@ -107,6 +111,11 @@
 :- mode_on_success length(A,g).
 :- mode_on_success length1(A,g,g).
 :- mode_on_success length2(A,g).
+:- mode_on_success list_hist(g,g,g,g).
+:- mode_on_success list_hist_1(g,g,g,g,g,g).
+:- mode_on_success list_valcount(A,A).
+:- mode_on_success list_valcount_1(g,A,g,A).
+:- mode_on_success list_valcount_1(ng,A,g,ng).
 :- mode_on_success log_ith(g,A,g).
 :- mode_on_success log_ith(g,ng,A).
 :- mode_on_success log_ith0(g,A,g,g).

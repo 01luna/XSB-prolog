@@ -451,6 +451,7 @@ standard_symbol(sleep, 1, shell).
 standard_symbol(sleep_ms, 1, shell).
 standard_symbol(skip, 1, standard).  	 	% TLS do we need this one?
 standard_symbol(sort, 2, setof).
+standard_symbol(sort, 3, setof).
 standard_symbol(spawn_process, 5, shell).
 standard_symbol((spy), 1, debugger).
 standard_symbol(statistics, 0, standard).

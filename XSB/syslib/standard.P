@@ -654,7 +654,7 @@ write(S_or_A,Term):-
 write(T) :- stat_flag(CURRENT_OUTPUT, Str), file_write(Str, T).
 
 %writeln(T) :- stat_flag(CURRENT_OUTPUT,File),file_write(File,T),file_nl(File).
-:- mode write(?).
+:- mode writeln(?).
 writeln(T) :- stat_flag(CURRENT_OUTPUT,File),
 	xsb_stream_lock(File),
 	l_write(File, T, 999), 
@@ -2852,6 +2852,7 @@ do_all(Goal) :- do_all(Goal).
           lazy_message/1,lazy_messageln/1.
 :- import term_to_atom/2 from string.
 
+:- mode lazy_writeln(+,?).
 lazy_writeln(Ostr,List):-
     is_list(List),!,
     atomize_list(List,List1),
@@ -2860,6 +2861,7 @@ lazy_writeln(Ostr,List):-
 lazy_writeln(_Ostr,List):-
     type_error(list,List,lazy_writeln/2,2).
 
+:- mode lazy_write(+,?).
 lazy_writeln(List):-
     is_list(List),!,
     atomize_list(List,List1),

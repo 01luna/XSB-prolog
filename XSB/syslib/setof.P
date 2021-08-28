@@ -123,6 +123,54 @@ excess_vars(_Term,_Tmpl,_PVars,_IfExist,_Vars) :- '_$builtin'(EXCESS_VARS).
 /*	Sorting now is implemented in C via qsort(). 			*/
 /* -------------------------------------------------------------------- */
 
+sort(List,SortedList,Opts) :-
+    parse_options(Opts,sort/3,apply([X,Y],sort_option(X,Y)),[Order,Dupls,IfNum]),
+    parsort(List,Order,Dupls,IfNum,SortedList).
+
+/* note that the second argument to parse_options must be an
+   Pred/Arity term, and *not* an atom. */
+:- mode parse_options(?,+,?,?).
+parse_options(Opts,PredAri,Goal,Pars) :-
+    (ground(Opts)
+    -> parse_options1(Opts,PredAri,Goal,Pars)
+    ;  PredAri = _Pred/Ari,
+       instantiation_error(PredAri,Ari,ground)
+    ).
+
+parse_options1([],_,Goal,Pars) :- 
+    call_apply(Goal,['$defaults',Defaults]),
+    set_defaults(Defaults,Pars).
+parse_options1([Opt|Opts],PredAri,Goal,Pars) :-
+    (call_apply(Goal,[Opt,Pars])
+    -> parse_options1(Opts,PredAri,Goal,Pars)
+    ;  Goal = apply(_Args,Call), functor(Call,OptionFor,_),
+       PredAri = Pred/Ari,
+       (call_apply(Goal,[Opt,_])
+       -> concat_atom(['Option ',Opt,
+		       ' is inconsistent with earlier option, in ',OptionFor,
+		       ' in call to ',Pred,'/',Ari],Message),
+	  misc_error(Message)
+       ;  domain_error(OptionFor,Opt,PredAri,Ari)
+       )
+    ).
+
+call_apply(Lambda,Act) :-
+    copy_term(Lambda,apply(Act,Goal)),
+    call(Goal).
+
+set_defaults([],[]).
+set_defaults([D|Ds],[P|Ps]) :-
+    (D = P -> true ; true),
+    set_defaults(Ds,Ps).
+
+%% [SortArg,ElimDupls,Numeric]
+sort_option(numeric,[_,_,1]).
+sort_option(standard_term,[_,_,0]).
+sort_option(argsort(SortArg),[SortArg,_,_]).
+sort_option(no_dups,[_,1,_]).
+sort_option(keep_dups,[_,0,_]).
+sort_option('$defaults',[asc,1,0]).
+
 %sort(List, SortedList) :- sort(List, SortedList).
 :- mode sort(?,?).
 sort(_List, _SortedList) :- '_$builtin'(SORT).
