@@ -124,7 +124,7 @@ excess_vars(_Term,_Tmpl,_PVars,_IfExist,_Vars) :- '_$builtin'(EXCESS_VARS).
 /* -------------------------------------------------------------------- */
 
 sort(List,SortedList,Opts) :-
-    parse_options(Opts,sort/3,apply([X,Y],sort_option(X,Y)),[Order,Dupls,IfNum]),
+    parse_options(Opts,sort/3,lambda([X,Y],sort_option(X,Y)),[Order,Dupls,IfNum]),
     parsort(List,Order,Dupls,IfNum,SortedList).
 
 /* note that the second argument to parse_options must be an
@@ -143,7 +143,7 @@ parse_options1([],_,Goal,Pars) :-
 parse_options1([Opt|Opts],PredAri,Goal,Pars) :-
     (call_apply(Goal,[Opt,Pars])
     -> parse_options1(Opts,PredAri,Goal,Pars)
-    ;  Goal = apply(_Args,Call), functor(Call,OptionFor,_),
+    ;  Goal = lambda(_Args,Call), functor(Call,OptionFor,_),
        PredAri = Pred/Ari,
        (call_apply(Goal,[Opt,_])
        -> concat_atom(['Option ',Opt,
@@ -155,7 +155,7 @@ parse_options1([Opt|Opts],PredAri,Goal,Pars) :-
     ).
 
 call_apply(Lambda,Act) :-
-    copy_term(Lambda,apply(Act,Goal)),
+    copy_term(Lambda,lambda(Act,Goal)),
     call(Goal).
 
 set_defaults([],[]).

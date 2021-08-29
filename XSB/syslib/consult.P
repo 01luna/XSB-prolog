@@ -573,7 +573,7 @@ write_canonical_list(Term) :-
 load_dyn_gen(File,Options) :- 
     check_nonvar(File,'load_dyn_gen/1',1),
     check_atom(File,'load_dyn_gen/1',1),
-    parse_options(Options,load_dyn/2,apply([X,Y],load_dyn_option(X,Y)),
+    parse_options(Options,load_dyn/2,lambda([X,Y],load_dyn_option(X,Y)),
 		  [Canonical,AorZ,Module,Limit,EIU]),
     (Canonical == yes ->
 	load_dync_nocheck(File,AorZ,Module,Limit,EIU)

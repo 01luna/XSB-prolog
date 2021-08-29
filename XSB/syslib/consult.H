@@ -119,3 +119,4 @@
 :- import standard_symbol/3, standard_metapredicate/3 from std_xsb.
 :- import atom_codes/2 from standard.
 %%:- import fmt_write/3 from file_io.
+:- import parse_options/4 from setof.	   

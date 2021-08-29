@@ -70,7 +70,7 @@ write_term(Stream, Term, OptList) :-
 	xsb_stream_lock( Stream ),
         current_output(Curr),
         set_output(Stream),
-	parse_options(OptList,write_term/3,apply([X,Y],write_option(X,Y)),
+	parse_options(OptList,write_term/3,lambda([X,Y],write_option(X,Y)),
 		      [Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix,Prio]),
 	write_out(Term,options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix),Prio,0,0,'(',2'100,_),
 	set_output(Curr),
@@ -80,7 +80,7 @@ write_term(Stream, Term, OptList) :-
 write_term(Term,OptList):- 
         current_output(Curr),
 	xsb_sys_mutex_lock( Curr ),
-	parse_options(OptList,write_term/3,apply([X,Y],write_option(X,Y)),
+	parse_options(OptList,write_term/3,lambda([X,Y],write_option(X,Y)),
 		      [Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix,Prio]),
         write_out(Term, options(Qt,IO,NV,Pr,Li,Prec,Width,Spec,Radix), Prio, 0, 0, '(', 2'100, _),
 	xsb_sys_mutex_unlock( Curr ).
