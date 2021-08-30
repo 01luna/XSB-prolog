@@ -384,16 +384,16 @@ guaranteed to be stable in the presence of uninstantiated variables..
      form \verb'Key-Value'.  
 \end{description}
 
-\ourmoditem{parsort(+L1, +SortSpec, +ElimDupl, ?L2)}{parsort/4}{machine}
+\ourmoditem{parsort(+L1, +SortSpec, +ElimDupl, +NumOrder, ?L2)}{parsort/5}{machine}
 %
-    {\tt parsort/4} is a very general sorting routine.  The list {\tt
-    L1} may consist of elements of any form.  {\tt SortSpec} is the
+    {\tt parsort/5} is a very general sorting routine.  The list {\tt
+      L1} may consist of elements of any form.  {\tt SortSpec} is the
     atom {\tt asc}, the atom {\tt desc}, or a list of terms of the
     form {\tt asc(I)} or {\tt desc(I)} where {\tt I} is an integer
     indicating a sort argument position.  The elements of list {\tt
-    L1} are sorted into order according to the sort specification.
+      L1} are sorted into order according to the sort specification.
     {\tt asc} indicates ascending order based on the entire term; {\tt
-    desc} indicates descending order.  For a sort specification that
+      desc} indicates descending order.  For a sort specification that
     is a list, the individual elements indicate subfields of the
     source terms on which to sort.  For example, a specification of
     {\tt [asc(1)]} sorts the list in ascending order on the first
@@ -401,20 +401,24 @@ guaranteed to be stable in the presence of uninstantiated variables..
     into descending order on the first subfield and within equal first
     subfields into ascending order on the second subfield.  The order
     is determined by the standard predicate {\tt compare}.  If {\tt
-    ElimDupl} is nonzero, merging of multiple occurring elements takes
-    place (i.e., duplicate (whole) terms are eliminated in the
+      ElimDupl} is nonzero, merging of multiple occurring elements
+    takes place (i.e., duplicate (whole) terms are eliminated in the
     output).  If {\tt ElimDupl} is zero, then no merging takes place.
-    A {\tt SortSpec} of {\tt []} is equivalent to ``asc''.  The time
-    to perform the sorting is $O(n log n)$ where $n$ is the length of
-    list {\tt L1}.  The sorting of elements in {\tt L1} is not
-    guaranteed to be stable. {\tt parsort/4} must be imported from
+    A {\tt SortSpec} of {\tt []} is equivalent to ``asc''.  If {\tt
+      NumOrder} is {\tt 1}, then all compared items must be numbers
+    and the numeric ordering is used.  If {\tt NumOrder} is {\tt 0}
+    then the standard term ordering is used, in which all floats are
+    less than any integer.  (See the definition of {\tt @<}.)  The
+    time to perform the sorting is $O(n log n)$ where $n$ is the
+    length of list {\tt L1}.  The sorting of elements in {\tt L1} is
+    not guaranteed to be stable. {\tt parsort/5} must be imported from
     module {\tt machine}.
 
 {\bf     Example:}
     {\footnotesize
      \begin{verbatim}
             | ?- parsort([f(3,1),f(3,2),f(2,1),f(2,2),f(1,3),f(1,4),f(3,1)],
-                 [asc(1),desc(2)],1,L). 
+                 [asc(1),desc(2)],1,0,L). 
 
             L = [f(1,4),f(1,3),f(2,2),f(2,1),f(3,2),f(3,1)];
 
@@ -424,10 +428,16 @@ guaranteed to be stable in the presence of uninstantiated variables..
 \begin{description} 
 \item[{\tt instantiation\_error}]
      {\tt L1} is a variable or not a proper list.  
-% TLS: not sure how to make sense of this...
-%\item[{\tt type\_error}] The elements of {\tt L1} are not terms with at
-%     least as many arguments as required by {\tt SortSpec}, or {\tt
-%     SortSpec} is not of an allowed form.  
+\item[{\tt type\_error}] If {\tt NumOrder} is {\tt 1} but some
+  compared element is not a number; or the elements of {\tt L1} are
+  not terms with at least as many arguments as required by {\tt
+    SortSpec}, or {\tt SortSpec} is not of an allowed form.
 \end{description}
+
+\ourmoditem{parsort(+L1, +SortSpec, +ElimDupl,
+  ?L2)}{parsort/}{machine} {\tt parsort/4} calls {\tt parsort/5}
+setting {\tt NumOrder} to {\tt 0}. i.e., using the standard term
+ordering..
+
 \end{description}
 
