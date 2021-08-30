@@ -328,7 +328,7 @@ collection, or other reasons.
 
 \begin{description}
 \isoitem{sort(+L1, ?L2)}{sort/2}
-    The elements of the list {\tt L1} are sorted into the standard order,
+    The elements of the list {\tt L1} are sorted into the standard term order,
     and any identical (i.e.\ `==') elements are merged, yielding the 
     list~{\tt L2}.  The time to perform the sorting is $O(n log n)$ where 
     $n$ is the length of list {\tt L1}.  
@@ -348,6 +348,60 @@ collection, or other reasons.
 	Argument 1 of {\tt sort/2} is a variable or is not a proper list.
     \item[{\tt type\_error}]
 	Argument 1 of {\tt sort/2} is a non-variable, non-list term.
+    \end{description}
+
+\standarditem{sort(+L1, ?L2, +OptLIst)}{sort/3}\label{sort/3}
+%
+    The elements of the list {\tt L1} are sorted to generate list {\tt
+      L2}, as determined by the options in {\tt OptList}.  The options
+    are as follows:
+    \begin{itemize}
+      \item{{\bf argsort({\tt SortArg}})}: where {\tt SortArg} indicates the
+        field(s) of the input list on which to sort, and the direction
+        (ascending or descending) in which to sort.  {\tt SortArg} may
+        be one of the following forms:
+        \begin{itemize}
+          \item{{\bf asc}}: to use entire input list element and sort in
+            ascending order.
+          \item{{\bf desc}}: to use entire input list element and sort in
+            descending order.
+            \item{{\tt SortList}}: where {\tt SortList} is a list of
+              elements of the form: {\bf asc(I)} or {\bf desc(I)}.  In
+              this case the input list elements must be structure
+              terms, The {\tt I} is an integer indicating a subfield
+              of the input terms (and thus must be between 1 and the
+              arity of the main functor of the input structured
+              terms).  {\tt I} must be 10 or less. The order of these
+              {\tt SortList} elements determine the sort order to use.
+              For example, a {\tt SortList} of the form {\tt
+                [asc(2),desc(1)]} indicates that the input terms are
+              to be sorted in ascending order according to the second
+              subfield of the input term, and then those with the same
+              second subfield are sorted in descending order on the
+              first subfield.
+        \end{itemize}
+        The default is {\tt argsort(asc)}.
+      \item{{\bf numeric}}: indicating that all sort fields are numeric
+        (integer or float) and the sort order is numeric order.
+      \item{{\bf standard\_term}}: indicating that the sort order is Prolog's
+        standard term order.  Sort fields can be any term.  (This is
+        the default.)
+      \item{{\bf no\_dups}}: indicates that duplicate terms in the input are
+        to be eliminated in the output.  (This is the default.)
+      \item{{\bf keep\_dups}}: indicates that duplicate terms in the input are
+        to be retained in the output.
+    \end{itemize}
+    The predicate {\tt sort/3} is implemented by a call to {\tt parsort/5}.
+
+    Exceptions:
+    \begin{description}
+    \item[{\tt instantiation\_error}]
+	Argument 3 of {\tt sort/3} is not a ground term.
+    \item[{\tt domain\_error}]
+      An element of the {\tt OptList} is not a legal option.
+    \item[{\tt miscellaneous\_error}]
+      {\tt OptList} contains inconsistent options, e.g., both {\tt
+        no\_dups} and {\tt keep\_dups}.
     \end{description}
 
 \isoitem{keysort(+L1, ?L2)}{keysort/2} 
