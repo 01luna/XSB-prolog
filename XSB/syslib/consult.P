@@ -569,7 +569,6 @@ write_canonical_list(Term) :-
     writeln('.').
 
 %-------------------
-:- import parse_options/4 from setof.	   
 load_dyn_gen(File,Options) :- 
     check_nonvar(File,'load_dyn_gen/1',1),
     check_atom(File,'load_dyn_gen/1',1),
