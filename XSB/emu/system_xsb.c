@@ -186,19 +186,19 @@ int sys_syscall(CTXTdeclc int callno)
     break;
   }
   case SYS_rename: {
-    char soufile[MAXFILENAME+1];
-    char tarfile[MAXFILENAME+1];
-    strncpy(soufile,ptoc_longstring(CTXTc 3),MAXFILENAME);
-    strncpy(tarfile,ptoc_longstring(CTXTc 4),MAXFILENAME);
+    char soufile[MAXPATHLEN+1];
+    char tarfile[MAXPATHLEN+1];
+    strncpy(soufile,ptoc_longstring(CTXTc 3),MAXPATHLEN);
+    strncpy(tarfile,ptoc_longstring(CTXTc 4),MAXPATHLEN);
 #ifdef WIN_NT
     /* rename on windows returns error if target file exists, so delete first if nec */
     /* dont delete is renaming to self... */
     if (access(tarfile,W_OK_XSB) != -1) {
-      char fsoufile[MAXFILENAME+1];
-      char ftarfile[MAXFILENAME+1];
+      char fsoufile[MAXPATHLEN+1];
+      char ftarfile[MAXPATHLEN+1];
       char *dummy;
-      dummy = _fullpath(fsoufile,soufile,MAXFILENAME);
-      dummy = _fullpath(ftarfile,tarfile,MAXFILENAME);
+      dummy = _fullpath(fsoufile,soufile,MAXPATHLEN);
+      dummy = _fullpath(ftarfile,tarfile,MAXPATHLEN);
       if (strcmp(fsoufile,ftarfile) != 0)
 	unlink(tarfile);
     }
@@ -381,11 +381,11 @@ xsbBool sys_system(CTXTdeclc int callno)
     // assume that the actual temp file is not created by the GET_TMP_FILENAME
     // function. But now it seems to be ok with it.
     {
-      char tempdir[MAXFILENAME+1];
-      char tempfile[MAXFILENAME+1];
+      char tempdir[MAXPATHLEN+1];
+      char tempfile[MAXPATHLEN+1];
       int ret;
-      ret = GetTempPath(MAXFILENAME,tempdir);
-      if (ret > MAXFILENAME || (ret == 0))
+      ret = GetTempPath(MAXPATHLEN,tempdir);
+      if (ret > MAXPATHLEN || (ret == 0))
 	xsb_abort(CTXTc "[GET_TMP_FILENAME] Unable to get temporary filename");
       ret = GetTempFileName(tempdir,"xsb",0,tempfile);
       if (ret == 0)
