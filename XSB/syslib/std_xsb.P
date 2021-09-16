@@ -436,7 +436,7 @@ standard_symbol(set_timer, 1, standard).
 standard_symbol(set_stream_position,2,file_io).     % ISO
 
 standard_symbol(setof, 3, setof).
-standard_metapredicate(setof,3,2).
+%%standard_metapredicate(setof,3,2).
 standard_metapredicate_template(setof,3,(*,0,*)).
 
 standard_symbol(shell, 1, shell).
