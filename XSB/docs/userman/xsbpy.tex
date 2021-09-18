@@ -1,7 +1,7 @@
 \newcommand{\xsbpyversion}{Version 0.3}
 
 \begin{center}
-\chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python Interface} \label{chap:xsbpy}
+\chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python 3 Interface} \label{chap:xsbpy}
 \end{center}
 
 \vspace*{-.30in} 
@@ -14,7 +14,7 @@
 \end{center}
 
 \noindent
-{\large {\bf {\em This chapter provides rough draft documentation of
+{\large {\bf {\em This chapter is a draft documentation of
       alpha-level software with rapidly changing features.}}}
 
 %Both XSB and Python are written in C, which makes possible a robust
@@ -22,7 +22,7 @@
 %
 
 Although it is still under development the {\tt xsbpy} package already
-provides an efficient and easy way for XSB to call Python functions
+provides an efficient and easy way for XSB to call Python 3 functions
 and methods.  {\tt xsbpy} leverages the fact that XSB and most Pythons
 are written in C, so that both systems are loaded into the same
 process. The core interface routines are also written entirely in C,
@@ -39,32 +39,36 @@ applications and further examples.
 An initial version of a configuration process of {\tt xsbpy} has been
 written for Linux and Windows, and is still in the process of being
 tested under various configurations.  On these platforms, {\tt xsbpy}
-has been tested using versions 3.7 and 3.8 Python libraries.
+has been tested using versions 3.5 -- 3.8 Python libraries.
 
 \subsection{Configuring {\tt xsbpy} under Linux with GCC}
 
-In principle when XSB is configured on Linux, {\tt xsbpy} will also be
-configured so that it can be used like any other XSB module.  However,
+In principle, when XSB is configured on Linux, {\tt xsbpy} will also be
+configured so that it can be used like any other XSB module.\footnote{
+  If several versions of Python 3.x are installed, the most recent will be
+  used by the configurator.
+  }
+However,
 for this configuration to work several things must be in place.
 
 \begin{itemize}
 \item GCC (or some other compiler) must be present and usable by the
-  userid performing the configuration.
+  user performing the configuration.
 
-\item A development version of Python 3.X must also be present and
-  usable by the userid performing the configuration.  This version
+\item A development version of Python 3.x must also be present and
+  usable by the user performing the configuration.  This version
   must be a CPython version (this is the usual implementation of
   Python), In addition the version of Python must also contain a
   version of Python as a shared object ({\tt .so}) file.  This often
   requires an additional download of Python.  On Ubuntu, while Python
   is ordinarily downloaded as:
 
-  {\tt apt-get install python3.x}
+  {\tt apt-get install python3}
 
 \noindent
-the shared-object library must also be downloaded as, e.g.:
+the latest shared-object library must also be downloaded as, e.g.:
 
-{\tt apt-get install libpython3.x-dev}
+{\tt apt-get install libpython3-dev}
 
 \item Next, the user must have permissions to use {\tt pip} on this
   version of Python, as the configuration process may need to download
@@ -74,10 +78,10 @@ the shared-object library must also be downloaded as, e.g.:
 If there are difficulties in configuring {\tt xsbpy}, it is likely
 that one of the above requirements is not met.  However, if these
 requirements are met, but the configuration does not work properly, it
-is best to check the file {\tt xsb2py\_connect\_defs.h} to see whether
+is best to check the file {\tt packages/xsbpy/xsb2py\_connect\_defs.h} to see whether
 its definitions are correct.  The definitions in this file are used in
 {\tt get\_compiler\_options/2} in {\tt init\_xsbpy.P} to properly
-compile {\tt xsbpy} and link in {\tt libpython3x.so}.~\footnote{If you
+compile {\tt xsbpy} and link in {\tt libpython3x.so}.\footnote{If you
   can determine that the required software is present and that there
   is a problem with the configuration please report the problem at
   {\tt https://sourceforge.net/p/xsb/bugs}.}
@@ -86,7 +90,7 @@ In Ubuntu Linux, this is all done automatically when {\tt xsbpy} is
 consulted into XSB via a normal consult or {\tt ensure\_loaded/[1,2]}.
 As part of this process, in {\tt init\_xsbpy.P} the main C code for
 {\tt xsbpy} is compiled using gcc compiler options that are
-appropriate for the version of libpython used. \footnote{See {\tt
+appropriate for the version of libpython used.\footnote{See {\tt
     get\_compiler\_options/2} in {\tt init\_xsbpy.P}.}
 When the {\tt xsbpy} module is consulted into XSB, the {\tt libpython}
 shared object file (or DLL) is loaded dynamically along with the {\tt
@@ -129,7 +133,7 @@ shared object file (or DLL) is loaded dynamically along with the {\tt
 
 No matter what platform {\tt xsbpy} is installed on, to test out
 whether {\tt xsbpy} has been loaded and is working properly, simply
-change the working directory to {\tt xsbpy/test} and execute the
+change the working directory to {\tt packages/xsbpy/test} and execute the
 command
 
 \begin{verbatim}
@@ -142,14 +146,14 @@ command
 We introduce some of the core functionality of {\tt xsbpy} via a
 series of simple examples.  As background, when the goal {\tt ?-
   [xsbpy].} is executed, Python is loaded and initialized within the
-XSB process, the core Prolog modules of {\tt xsbpy} is loaded into
+XSB process, the core Prolog modules of {\tt xsbpy} are loaded into
 XSB, and paths to {\tt xsbpy} and its subdirectories are added both to
 Prolog and to Python.  Apart from these directories (added by
 modifying Python's {\tt sys,path}) XSB calls Python, Python will
 search for modules and packages in the same manner as if it were
 stand-alone.
 
-{\bf {\em The translation of JSON through xsbpy, although it is
+{{\em The translation of JSON through xsbpy, although it is
     functional, is mainly presented for pedagogic purposes.  In
     general, we recommend using XSB's native JSON interface described
     in Chapter \ref{chap:json} of this manual.    }}
@@ -173,22 +177,28 @@ Python function
 {\tt xsbpy\_json.loads()}
 
 \noindent
-on the above string which converts a JSON string to a Python
+with the JSON string
+\verb|'{"name": "Bob", "languages": ["English","French","GERMAN"]}'|
+as the argument.
+This call converts the argument to a Python
 dictionary.  In this case, the dictionary would have the Python form:
 \begin{verbatim}
 {
-  "name":'Bob',
+  "name":"Bob",
   "languages":["English", "French","GERMAN"]
 }
 \end{verbatim}
-{\tt xsbpy} then translates this dictionary to a Prolog term, that can
-be pretty printed as::
+Next,
+{\tt xsbpy} translates this dictionary to a Prolog term, that can
+be pretty printed as:
 \begin{verbatim}
 pydict([
         ''(name,'Bob'),
         ''(languages,['English','French','GERMAN'])
         ]).
 \end{verbatim}
+%%
+Note that \verb|''| here is an empty string (Prolog 0-length atom). 
 We call a term that maps to a Python dictionary either {\em a Python
   dictionary in term form} or just {\em a Prolog dictionary} although
 the latter slightly abuses terminology.
@@ -212,7 +222,7 @@ pyfunc(xsbpy_json,prolog_load('test.json'),Ret)
 
 \noindent
 which loads a JSON string from the file {\tt test.json} into a Prolog
-term.  However, the Python function {\tt json.load()} calls requires a
+term.  However, the Python function {\tt json.load()} call requires a
 Python file pointer as its input, and Python file pointers do not
 correspond to XSB I/O streams.  As we shall see in
 Example~\ref{xsbpy-examp:method}, a reference to a Python file pointer
@@ -242,7 +252,7 @@ pyfunc(xsbpy_json,prolog_dump(Dict,'new.json'),[indent=2],Ret)
 in which the third argument is a list of {\tt =/2} terms.  This list
 is turned into a Prolog dictionary and then translated into Python.
 Because {\tt json.dump()} needs a file pointer in the same way {\tt
-  json.load()}, glue code will also needed, but the glue code passes
+  json.load()}, glue code will also be needed, but the glue code passes
 keyword arguments in the usual manner of Python:
 \begin{verbatim}
 def prolog_dump(Dict,File,**Features):
@@ -346,7 +356,7 @@ paragraph, {\tt pydot/4} can be used in two ways.  If the third
 argument, {\tt arg3}, in a call to {\tt pydot/4} is a Prolog
 structure, {\tt arg3} is interpreted as a method.  In this case, a
 Python method is applied to the object, and its return is unified with
-the final argument of {\tt pydot/4}. If {\tt arg} is a Prolog atom,
+the last argument of {\tt pydot/4}. If {\tt arg} is a Prolog atom,
 {\tt arg3} is interpreted as attribute of the object.  In this case,
 the attribute is accessed and unified with {\tt arg3}.  Note that the
 functionality of {\tt pydot/4} is overloaded in analogy to the
@@ -355,7 +365,7 @@ functionality of the {\tt '.'} connector in Python.
 
 To summarize, a great deal of Python functionality is directly
 available via {\tt pyfunc/[3,4]} and {\tt pydot/4}.  In our
-experience so far, many Python libraries can be called directly and
+experience so far, many Python libraries can be called directly and will
 ``just work'' immediately.  Cases where glue code is needed include
 the following.
 
@@ -412,7 +422,7 @@ described from the viewpoint of Python types as follows:
        \item {\em Numeric Types}: Python integers and floats are
          bi-translated to Prolog integers and floats.  Python complex
          numbers are not (yet) translated, and integers are only
-         supported if for integers between XSB's minimum and maximum
+         supported for integers between XSB's minimum and maximum
          integer~\footnote{These integers can be obtained by querying
            {\tt current\_prolog\_flag/2}.}
          \begin{itemize}
@@ -1130,3 +1140,8 @@ language translation and language detection using {\tt xsbpy}.
   garbage collection to list Python objects that may be garbage
   collected, and to send this information back to Python.  
 \end{itemize}  
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual2"
+%%% End: 
