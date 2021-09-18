@@ -14,20 +14,21 @@
 \end{center}
 
 \noindent
-{\large {\bf {\em This chapter is a draft documentation of
-      alpha-level software with rapidly changing features.}}}
+{\large {\bf {\em This chapter is a draft documentation of beta-level
+      software.}}}
 
 %Both XSB and Python are written in C, which makes possible a robust
 %and efficient interface.  
 %
 
-Although it is still under development the {\tt xsbpy} package already
-provides an efficient and easy way for XSB to call Python 3 functions
-and methods.  {\tt xsbpy} leverages the fact that XSB and most Pythons
-are written in C, so that both systems are loaded into the same
-process. The core interface routines are also written entirely in C,
-so the interface is very efficient and -- it is hoped -- very robust
-within its known limitations.
+The new {\tt xsbpy} package provides an efficient and easy way for XSB
+to call Python 3 functions and methods.  {\tt xsbpy} leverages the
+fact that XSB and most Pythons are written in C, so that both systems
+can be readily loaded into the same process. The core interface
+routines are also written entirely in C, so the interface is very
+efficient and -- it is hoped -- very robust within its known
+limitations.\footnote{The {\tt xsbpy} package was partly funded by BBN
+  Technologies.}
 
 This chapter first describes how to configure {\tt xsbpy}, followed by
 introductory examples.  Next is a more precise description of its
@@ -39,36 +40,42 @@ applications and further examples.
 An initial version of a configuration process of {\tt xsbpy} has been
 written for Linux and Windows, and is still in the process of being
 tested under various configurations.  On these platforms, {\tt xsbpy}
-has been tested using versions 3.5 -- 3.8 Python libraries.
+has been tested using versions 3.5 -- 3.8 Python and its
+libraries.\footnote{The {\tt xsbpy} configuration script was written
+  by Michael Kifer.}
 
 \subsection{Configuring {\tt xsbpy} under Linux with GCC}
 
-In principle, when XSB is configured on Linux, {\tt xsbpy} will also be
-configured so that it can be used like any other XSB module.\footnote{
-  If several versions of Python 3.x are installed, the most recent will be
-  used by the configurator.
-  }
-However,
-for this configuration to work several things must be in place.
+In principle, when XSB is configured on Linux, {\tt xsbpy} will also
+be configured so that it can be used like any other XSB module.
+However, for this configuration to work several things must be in
+place.
 
 \begin{itemize}
 \item GCC (or some other compiler) must be present and usable by the
   user performing the configuration.
 
 \item A development version of Python 3.x must also be present and
-  usable by the user performing the configuration.  This version
-  must be a CPython version (this is the usual implementation of
-  Python), In addition the version of Python must also contain a
-  version of Python as a shared object ({\tt .so}) file.  This often
-  requires an additional download of Python.  On Ubuntu, while Python
-  is ordinarily downloaded as:
+  usable by the user performing the configuration.\footnote{If several
+    versions of Python 3.x are installed, the most recent will be used
+    by the configurator.}  Thw version must be a CPython version (this
+  is the usual implementation of Python), and in addition must also
+  contain a version of Python as a shared object ({\tt .so}) file and
+  Python header ({\tt .h})files.  The need for a development version
+  sometimes requires an additional download of Python.  On Ubuntu,
+  while Python is ordinarily downloaded as:
 
   {\tt apt-get install python3}
 
 \noindent
-the latest shared-object library must also be downloaded as, e.g.:
+the shared-object library corresponding to that version must also be
+downloaded as, e.g.:
 
 {\tt apt-get install libpython3-dev}
+
+or if using a particular version of Python-3
+
+{\tt apt-get install libpython3.8-dev}
 
 \item Next, the user must have permissions to use {\tt pip} on this
   version of Python, as the configuration process may need to download
@@ -127,7 +134,7 @@ shared object file (or DLL) is loaded dynamically along with the {\tt
 
 \subsection{Configuring {\tt xsbpy} under Windows}
 
-\subsection{Configuring {\tt xsbpy} under MacosX}
+\subsection{Configuring {\tt xsbpy} under MacOsX}
 
 \subsection{Testing whether the {\tt xsbpy} configuration was successful}
 
@@ -144,37 +151,39 @@ command
 \section{Introductory Examples}
 
 We introduce some of the core functionality of {\tt xsbpy} via a
-series of simple examples.  As background, when the goal {\tt ?-
-  [xsbpy].} is executed, Python is loaded and initialized within the
-XSB process, the core Prolog modules of {\tt xsbpy} are loaded into
-XSB, and paths to {\tt xsbpy} and its subdirectories are added both to
-Prolog and to Python.  Apart from these directories (added by
-modifying Python's {\tt sys,path}) XSB calls Python, Python will
-search for modules and packages in the same manner as if it were
-stand-alone.
-
-{{\em The translation of JSON through xsbpy, although it is
-    functional, is mainly presented for pedagogic purposes.  In
-    general, we recommend using XSB's native JSON interface described
-    in Chapter \ref{chap:json} of this manual.    }}
+series of simple examples.  As background, when {\tt xsbpy} is loaded,
+Python is also loaded and initialized within the XSB process, the core
+Prolog modules of {\tt xsbpy} are loaded into XSB, and paths to {\tt
+  xsbpy} and its subdirectories are added both to Prolog and to Python
+(the latter paths are added by modifying Python's {\tt
+  sys.path}). Later, XSB calls Python, Python will search for modules
+and packages in the same manner as if it were stand-alone.
 
 \begin{example} \rm {\bf Calling a Python Function (I)}
   %
+
+  {{\em The translation of JSON through xsbpy in this example,
+      although it is functional, is mainly presented for pedagogic
+      purposes.  In general, we recommend using XSB's native JSON
+      interface described in Chapter \ref{chap:json} of this manual.
+  }}
+
   
 \noindent  
 Consider the following call:
 
  \begin{verbatim}
-pyfunc(json,
+pyfunc(xp_json,
        loads('{"name": "Bob", "languages": ["English","French","GERMAN"]}'),
        Ret)
 \end{verbatim}
  
 \noindent 
-which loads the Python {\tt json} module if needed, and calls the
-Python function
+which loads the Python {\tt xp\_json} module in {\tt xsbpy/starters}
+if needed (and by extension the Python system {\tt json} module), then
+calls the Python function
 
-{\tt xsbpy\_json.loads()}
+{\tt xp\_json.loads()}
 
 \noindent
 with the JSON string
@@ -192,25 +201,30 @@ Next,
 {\tt xsbpy} translates this dictionary to a Prolog term, that can
 be pretty printed as:
 \begin{verbatim}
-pydict([
+pyDict([
         ''(name,'Bob'),
         ''(languages,['English','French','GERMAN'])
         ]).
 \end{verbatim}
 %%
-Note that \verb|''| here is an empty string (Prolog 0-length atom). 
-We call a term that maps to a Python dictionary either {\em a Python
-  dictionary in term form} or just {\em a Prolog dictionary} although
-the latter slightly abuses terminology.
+Note that \verb|''| here is an empty string (i.e., a Prolog 0-length
+atom).  XSB uses \verb|''| as a functor for terms that are converted
+from or to Python tuples: in this case {\tt ''/2} is used.q We call a
+term that maps to a Python dictionary either {\em a Python dictionary
+  in term form} or just {\em a Prolog dictionary} although the latter
+slightly abuses terminology.
 \end{example}
 
-Note that the above example did not require writing {\em any} special
+Note that although the above example used {\tt xp\_json.loads()}, the
+Python system package call {\tt json.loads()} could also have been
+used.  This latter case would not require writing {\em any} special
 Prolog or Python code.  This is in part because Python's basic data
 structures -- dictionaries, lists, tuples, sets and so on -- are
 mapped to Prolog terms (cf. Section~\ref{sec:bi-translation}).  As a
 result, calling Python is often a simple matter of setting up input
 terms for a Python function, and processing the terms that Python
-returns to Prolog.
+returns to Prolog.\footnote{The module {\tt xp\_json} basically
+  imports and re-exports {\tt loads()}.}
 
 \begin{example} \rm {\bf Calling a Python Function (II): Glue Code} \label{xsbpy-examp:glue}
 
@@ -326,21 +340,20 @@ another {\tt Person} instance:
 \noindent
 and later want to find out all attributes of {\tt bob} both explicitly
 assigned, and default.  This is easily done by {\tt
-  xsbpy\_utils:obj\_dict/2}.  Assuming that {\tt
-  pyObj(p0x7f386e1e9650)} is the object reference for {\tt bob} in
-Prolog, the call
+  xp\_utils:obj\_dict/2}.  Assuming that {\tt pyObj(p0x7f386e1e9650)}
+is the object reference for {\tt bob} in Prolog, the call
 \begin{verbatim}
-obj_dict(pyObj(p0x7f386e1e9650) ,F ) .
+obj_dict(pyObj(p0x7f386e1e9650) ,ObjD ) .
 \end{verbatim}
 returns
 \begin{verbatim}
-    pyDict([(name,bob),(age,34),(favorite_ice_cream,chocolate)])
+    ObjD = pyDict([(name,bob),(age,34),(favorite_ice_cream,chocolate)])
 \end{verbatim}
 
 There are times when using the dictionary associated with a class is
 not appropriate.  For instance, not all Python classes have {\tt
   \_\_dict\_\_} methods defined for them, or only a single attribute
-of an object might be required.  In this case, {\tt pydot/4} can be
+of an object might be required.  In these cases, {\tt pydot/4} can be
 used:
 
 \begin{verbatim}
@@ -363,11 +376,10 @@ functionality of {\tt pydot/4} is overloaded in analogy to the
 functionality of the {\tt '.'} connector in Python.
 \end{example}
 
-To summarize, a great deal of Python functionality is directly
-available via {\tt pyfunc/[3,4]} and {\tt pydot/4}.  In our
-experience so far, many Python libraries can be called directly and will
-``just work'' immediately.  Cases where glue code is needed include
-the following.
+A great deal of Python functionality is directly available via {\tt
+  pyfunc/[3,4]} and {\tt pydot/4}.  In our experience so far, many
+Python libraries can be called directly and will ``just work''
+immediately.  Cases where glue code is needed include the following.
 
 \begin{itemize}
 \item In a case like Example \ref{xsbpy-examp:glue} where a Python
@@ -383,16 +395,17 @@ the following.
   \item Suppose a class with several attributes is defined as a
     subclass of, say a string type.  Currently {\tt xsbpy} will simply
     pass back such objects as strings, rather than as object
-    references.  An example of this occurs in the sample interface
-    {\tt xsbpy/apps/xsbpy\_rdflib}.  In the {\tt rdflib} package {\tt
+    references.  An example of this in fact occurs in the sample
+    interface {\tt xsbpy/starters/xp\_rdflib} (see
+    Section~\ref{secLxp-rdflib}).  In the {\tt rdflib} package {\tt
       rdflib.Literal} objects are in fact subclasses of a string type.
-    These literal objects have as attributes language tags and data
-    types, and these attributes are critical for RDF I/O from Prolog.
-    An example of how to handle this is seen in {\tt
-      xsbpy\_rdflib.py}, where slightly more elaborate bridge
-    functions are needed to marshal an object's attributes as elements
-    of a tuple along with the object.\footnote{This behavior may
-      change in future versions.}
+    These {\tt rdflib.Literal} objects have additional attributes
+    representing language tags and data types; and these attributes
+    are critical for RDF I/O from Prolog.  An example of how to handle
+    this is seen in {\tt xp\_rdflib.py}, where slightly more elaborate
+    glue code is needed to marshal an object's attributes as elements
+    of a tuple, and passed back along with the object.\footnote{This
+      behavior may change in future versions.}
 \end{itemize}
 
 With those disclaimers in mind, all glue code that we have needed to
@@ -479,9 +492,11 @@ described from the viewpoint of Python types as follows:
          translated to the Prolog atom {\tt 'None'}. 
        \item {\em Binary Types:} are not yet supported.  There are no
          current plans to support this type.
-     \item Any Python object {\tt Obj} of a type that is not
-       translated to a specific Prolog term as indicated above is
-       translated to the Prolog term {\tt pyObj(Obj)}. 
+     \item Any Python object {\tt Obj} that is a non-primitive type,
+       or of a type that is not translated to a specific Prolog term
+       as indicated above is translated to the Prolog term {\tt
+         pyObj(Obj)}.  This {\tt pyObj(Obj)} term can be passed back to
+       Python and used for a method call or other purpose.
 \end{itemize}
 
 Additionally, a user with a minimal knowledge of C can change parts of
@@ -507,7 +522,7 @@ pyfunc(xsbpy_rdflib,rdflib_write_file(Triples,'new_sample.ttl'),
        [format=turtle],Ret).
 \end{verbatim}
 
-calls the function {\tt xsbpy\_rdflib,rdflib\_write\_file} to write
+calls the function {\tt xp\_rdflib,rdflib\_write\_file} to write
 {\tt Triples}, a list of triples in Prolog format, to the file {\tt
   new\_sample.ttl} using the {\tt turtle} format.  This format is
 specified as a keyword argument to {\tt rdflib\_write\_file()} in the
@@ -613,7 +628,7 @@ which adds Prolog library directories.
 This convenience predicate returns the current Python library
 directories as a Prolog list.
 
-\altourmoditem{values(+Dict,+Path,?Val)}{values/3}{xsbpy\_utils}
+\altourmoditem{values(+Dict,+Path,?Val)}{values/3}{xp\_utils}
 %
   Convenience predicate to obtain a value from a (possibly nested)
   Prolog dictionary.  The goal
@@ -633,8 +648,8 @@ is equivalent to the Python expression
 
 There are no error conditions associated with this predicate.
 
-\ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{xsbpy\_utils}
-\altourmoditem{items(+Dict,?Items)}{items/2}{xsbpy\_utils}
+\ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{xp\_utils}
+\altourmoditem{items(+Dict,?Items)}{items/2}{xp\_utils}
 %
 Convenience predicates (for the inveterate Python programmer) to
 obtain a list of keys or items from a Prolog dictionary.  There are no
@@ -642,7 +657,7 @@ error conditions associated with these predicates.
 
 
 
-\altourmoditem{obj\_dict(+ObjRef,-Dict)}{obj\_dict/2}{xsbpy\_utils}
+\altourmoditem{obj\_dict(+ObjRef,-Dict)}{obj\_dict/2}{xp\_utils}
 %
 Given a reference to a Python object as {\tt ObjRef}, this predicate
 returns the dictionary of attributes of {\tt ObjRef} in {\tt Dict}.
@@ -656,7 +671,7 @@ using {\tt pydot/4} as:
   pydot('__main__',Obj,'__dict__',Dict).
 \end{verbatim}
 
-\altourmoditem{obj\_dir(+ObjRef,-Dir)}{obj\_dir/2}{xsbpy\_utils}
+\altourmoditem{obj\_dir(+ObjRef,-Dir)}{obj\_dir/2}{xp\_utils}
 %
 Given a reference to a Python object as {\tt ObjRef}, this predicate
 returns the list of attributes of {\tt ObjRef} in {\tt Dir}.  If no
@@ -811,7 +826,7 @@ exported by {\tt xp\_faiss.P} include:
   provenance information.
 \end{itemize}  
 
-\subsection{Translating Between RDF and Prolog: xp\_rdflib}
+\subsection{Translating Between RDF and Prolog: xp\_rdflib} \label{secLxp-rdflib}
 This module interfaces to the Python {\tt rdflib} library to read RDF
 information from files in Turtle, N-triples and N-quads format, and to
 write files in Turtle and N-triples format.  As such it augments XSB's
