@@ -209,7 +209,7 @@ pyDict([
 %%
 Note that \verb|''| here is an empty string (i.e., a Prolog 0-length
 atom).  XSB uses \verb|''| as a functor for terms that are converted
-from or to Python tuples: in this case {\tt ''/2} is used.q We call a
+from or to Python tuples: in this case \verb|''/2| is used.  We call a
 term that maps to a Python dictionary either {\em a Python dictionary
   in term form} or just {\em a Prolog dictionary} although the latter
 slightly abuses terminology.
@@ -217,8 +217,8 @@ slightly abuses terminology.
 
 Note that although the above example used {\tt xp\_json.loads()}, the
 Python system package call {\tt json.loads()} could also have been
-used.  This latter case would not require writing {\em any} special
-Prolog or Python code.  This is in part because Python's basic data
+used.  Such a switch would not require writing {\em any} special
+new Prolog or Python code.  This is in part because Python's basic data
 structures -- dictionaries, lists, tuples, sets and so on -- are
 mapped to Prolog terms (cf. Section~\ref{sec:bi-translation}).  As a
 result, calling Python is often a simple matter of setting up input
@@ -231,7 +231,7 @@ returns to Prolog.\footnote{The module {\tt xp\_json} basically
 \noindent
   A slightly more complex call to Python is:
  \begin{verbatim}
-pyfunc(xsbpy_json,prolog_load('test.json'),Ret)
+pyfunc(xp_json,prolog_load('test.json'),Ret)
 \end{verbatim}
 
 \noindent
@@ -259,7 +259,7 @@ dictionary corresponding to the JSON file.
 Python functions often make heavy use of keyword arguments.  These can
 be easily handled by {\tt pyfunc/4}:
 \begin{verbatim}
-pyfunc(xsbpy_json,prolog_dump(Dict,'new.json'),[indent=2],Ret)
+pyfunc(xp_json,prolog_dump(Dict,'new.json'),[indent=2],Ret)
 \end{verbatim}
 
 \noindent
@@ -277,7 +277,7 @@ def prolog_dump(Dict,File,**Features):
 \end{example}
 
 The previous examples have sketched an approach that can efficiently
-call virtually any Python function or method, \footnote{{\tt xsbpy}
+call virtually any Python function or method,\footnote{{\tt xsbpy}
   does not currently support Python's binary types.}  although it
 might require a small amount of glue code.  However, Python methods can
 also be called directly.
@@ -439,8 +439,8 @@ described from the viewpoint of Python types as follows:
          integer~\footnote{These integers can be obtained by querying
            {\tt current\_prolog\_flag/2}.}
          \begin{itemize}
-           \item {\em Boolean Types} which are numeric types are
-             translated to their integer value: {\tt True} as {\tt 1}
+           \item {\em Boolean Types} are
+             translated to integer values: {\tt True} as {\tt 1}
              and {\tt False} as {\tt 0}.
          \end{itemize}
        \item {\em String Types}: Python string types are bi-translated
@@ -518,11 +518,11 @@ all be redefined my modifying the file {\tt xsbpy\_defs.h} in the {\tt
  For example the goal
 
 \begin{verbatim}
-pyfunc(xsbpy_rdflib,rdflib_write_file(Triples,'new_sample.ttl'),
+pyfunc(xp_rdflib,rdflib_write_file(Triples,'new_sample.ttl'),
        [format=turtle],Ret).
 \end{verbatim}
 
-calls the function {\tt xp\_rdflib,rdflib\_write\_file} to write
+calls the function {\tt xp\_rdflib.rdflib\_write\_file} to write
 {\tt Triples}, a list of triples in Prolog format, to the file {\tt
   new\_sample.ttl} using the {\tt turtle} format.  This format is
 specified as a keyword argument to {\tt rdflib\_write\_file()} in the
