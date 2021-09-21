@@ -2040,25 +2040,25 @@ fi
 done
 
 ax_python_bin=$PYTHON_BIN
-if test x$ax_python_bin != x; then
-   ax_python_conflib=`$PYTHON_BIN -m find_libpython || (pip3 install find_libpython; $PYTHON_BIN -m find_libpython)`
+if test "x$ax_python_bin" != "x"; then
+   ax_python_conflib=`$PYTHON_BIN -m find_libpython || ($PYTHON_BIN -m pip install find_libpython; $PYTHON_BIN -m find_libpython)`
    ax_python_lib=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('LIBDEST'))"`
    ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
-   if test x$ax_python_header != x -a x$ax_python_conflib != xno; then
+   if test "x$ax_python_header" != "x" -a "x$ax_python_conflib" != "xno"; then
      break;
    fi
 fi
 done
-if test x$ax_python_bin = x; then
+if test "x$ax_python_bin" = "x"; then
    ax_python_bin=no
 fi
-if test x$ax_python_header = x; then
+if test "x$ax_python_header" = "x"; then
    ax_python_header=no
 fi
-if test x$ax_python_conflib = x; then
+if test "x$ax_python_conflib" = "x"; then
    ax_python_conflib=no
 fi
-if test x$ax_python_lib = x; then
+if test "x$ax_python_lib" = "x"; then
    ax_python_lib=no
 fi
 
@@ -2073,15 +2073,15 @@ $as_echo "    Library:         $ax_python_lib" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:     Include Dir:     $ax_python_header" >&5
 $as_echo "    Include Dir:     $ax_python_header" >&6; }
 
-if test x$ax_python_header != xno; then
+if test "x$ax_python_header" != xno; then
   PYTHON_INCLUDE_DIR=$ax_python_header
 
 fi
-if test x$ax_python_lib != xno; then
+if test "x$ax_python_lib" != "xno"; then
   PYTHON_LIB=$ax_python_lib
 
 fi
-if test x$ax_python_conflib != xno; then
+if test "x$ax_python_conflib" != "xno"; then
   PYTHON_CONFLIB=$ax_python_conflib
 
 fi
