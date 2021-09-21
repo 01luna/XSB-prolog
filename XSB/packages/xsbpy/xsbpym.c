@@ -560,7 +560,7 @@ DllExport int init_python() {
       printf("pylib is: %s\n",pylib);
       dlopen( pylib, RTLD_LAZY | RTLD_GLOBAL );
     } else {
-      dlopen(PYTHON_CONFLIB_QUOTED, RTLD_LAZY | RTLD_GLOBAL );
+      dlopen(PYTHON_CONFLIB_2QUOTED, RTLD_LAZY | RTLD_GLOBAL );
       //#if defined(PYTHON37)
       //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
       //#elif defined(PYTHON38)      

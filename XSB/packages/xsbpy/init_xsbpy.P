@@ -83,7 +83,9 @@ get_compiler_opts(auto,CompilerOpts):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
 %		 ' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
-		' -Wl,-rpath=',PYTHON_BIN_QUOTED,' -l',PYTHON_BIN_QUOTED,
+		' -Wl,-rpath=', PYTHON_BIN_QUOTED,
+                 ' -Wl,-rpath=', PYTHON_LIBDIR_QUOTED,
+                 ' -l',PYTHON_BIN_QUOTED,
 		' -L',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
 %		' -Wl,-rpath=',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
 
