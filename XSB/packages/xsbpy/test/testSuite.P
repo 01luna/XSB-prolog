@@ -7,19 +7,19 @@
 :- import concat_atom/2 from string.
 :- import length/2 from basics.
 :- import xsb_error_get_message/2 from error_handler.
-:- import pyfunc/3, pydot/4 from xsbpy.
+:- import pyfunc/3, pydot/4, pyfunc/4 from xsbpy.
 
 testSuite:-
     sumlist_tests, 
     dataConversionTests,
     pyc_tests,
+%    callback_test,
     json_tests,
     kwargs_tests,
     error_tests,
     object_tests,
     pyfunc(gc,collect(),Collect),
     writeln(collect(Collect)).
-%  callback_test,
 
 %--------------------------------
 
