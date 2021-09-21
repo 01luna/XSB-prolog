@@ -679,7 +679,7 @@ DllExport int pydot(CTXTdecl) {
   ensureXSBStackSpace(CTXTc pObjOut);
   prolog_term return_pr = p2p_new(CTXT);
   if(!convert_pyObj_prObj(CTXTc pObjOut, &return_pr, 1)) {
-    xsb_abort("++Error[xsbpy]: The return of xsbpy_meth/4  could not be translated to Prolog");
+    xsb_abort("++Error[xsbpy]: The return of pydot/4  could not be translated to Prolog");
   } 
   if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
     return FALSE;
