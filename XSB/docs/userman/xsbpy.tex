@@ -179,9 +179,9 @@ pyfunc(xp_json,
 \end{verbatim}
  
 \noindent 
-which loads the Python {\tt xp\_json} module in {\tt xsbpy/starters}
-if needed (and by extension the Python system {\tt json} module), then
-calls the Python function
+which loads the Python {\tt xp\_json} module in {\tt
+  packages/xsbpy/starters} if needed (and by extension the Python
+system {\tt json} module), then calls the Python function
 
 {\tt xp\_json.loads()}
 
@@ -396,7 +396,7 @@ immediately.  Cases where glue code is needed include the following.
     subclass of, say a string type.  Currently {\tt xsbpy} will simply
     pass back such objects as strings, rather than as object
     references.  An example of this in fact occurs in the sample
-    interface {\tt xsbpy/starters/xp\_rdflib} (see
+    interface {\tt packages/xsbpy/starters/xp\_rdflib} (see
     Section~\ref{secLxp-rdflib}).  In the {\tt rdflib} package {\tt
       rdflib.Literal} objects are in fact subclasses of a string type.
     These {\tt rdflib.Literal} objects have additional attributes
@@ -423,9 +423,9 @@ be nested in other data structures.
      
 As mentioned above, when a Python data structure $D$, say a
 dictionary, is translated into a Prolog term $T$, $T$ is sometimes
-called the {\em term form} of $D$.  Due to a syntactic overlap between
-Prolog terms and Python data structures, the Prolog term forms are
-easy to translate and use -- and sometimes appear syntactically
+called the {\em term form} of $D$.  Due to syntactic similarities
+between Prolog terms and Python data structures, the Prolog term forms
+are easy to translate and use -- and sometimes appear syntactically
 identical.
 
 More specifically, bi-translation between Prolog and Python can be
@@ -546,11 +546,11 @@ queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
 \bi
 \item {\tt Module} cannot be found in the current Python search paths:
 \bi
-\item misc\_error
+\item {\tt misc\_error}
 \ei
 \item {\tt Function} does not correspond to a Python function in {\tt Module}
 \bi
-\item misc\_error
+\item {\tt misc\_error}
   \ei \ei
 %
   In addition, errors thrown by Python are
@@ -580,15 +580,16 @@ one of two ways:
 \bi
 \item {\tt Module} cannot be found in the current Python search paths:
 \bi
-\item misc\_error
+\item {\tt misc\_error}
 \ei
 \item {\tt ObjRef} is not a Python object reference in Prolog term form:
 \bi
-\item misc\_error
+\item {\tt misc\_error}
 \ei
 \item {\tt MethAttr} is neither a Prolog compound term nor a Prolog atom:
 \bi
-\item misc\_error \ei \ei In addition, errors thown by Python are
+\item {\tt misc\_error}
+  \ei \ei In addition, errors thown by Python are
   caught by XSB and re-thrown as {\tt misc\_error} errors.
 
 \ourrepeatmoditem{pp\_py(+Stream,+Term)}{pp\_py/2}{xsbpy}
@@ -615,7 +616,7 @@ is printed as
 \end{verbatim}
 
 Such pretty printing can be useful for developing applications such as
-the {\tt xsbpy} Elasticsearch interface.
+with {\tt xp\_elastic}, the {\tt xsbpy} Elasticsearch interface.
 
 \altourmoditem{add\_py\_lib\_dir(+Path)}{add\_py\_lib\_dir/1}{xsbpy}
 %
@@ -661,7 +662,7 @@ error conditions associated with these predicates.
 %
 Given a reference to a Python object as {\tt ObjRef}, this predicate
 returns the dictionary of attributes of {\tt ObjRef} in {\tt Dict}.
-If no \_\_dict\_\_ attribute is associated with {\tt ObjRef} the
+If no {\tt \_\_dict\_\_} attribute is associated with {\tt ObjRef} the
 predicate fails.
 
 {\tt obj\_dict/2} is a convenience predicate, and could be written
@@ -711,9 +712,11 @@ limit on the size of Python structures passed back to Prolog: stress
 tests have passed lists of length 100 million from Python to Prolog
 without problems. However, it should be noted that {\tt xsbpy} must
 ensure that XSB's heap is properly expanded before copying a large
-structure from Python to XSB.  XSB currently uses size routines from
-the Python C-API which only return the length of structures, and not
-their exact size.  Accordingly long lists of large structures, heavily
+structure from Python to XSB.  XSB currently relies on the Python C
+API size routine {\tt Py\_SIZE} to estimate the size of a structure,
+since this routine has a constant-time overhead.  However, {\tt
+  Py\_SIZE} only returns return the length of a structure, and not its
+exact size.  Accordingly long lists of large structures, heavily
 nested dictionaries and other such structures may currently present a
 problem.  This will be addressed in a future version, but until then a
 user can reset the {\tt heap\_margin} Prolog flag to ensure extra
@@ -722,14 +725,14 @@ details.)
 
 \section{Interfaces to Python Libraries}
 
-The {\tt packages/xsbpy/starters} directory contains code to interface to various
-Python libraries---to help start projects using XSB with Python together.
-Some of the files implement useful
-higher level mappings that translate say, embedding spaces or Spacy
-graphs to Prolog graphs, or translate RDF graphs to lists of Prolog
-structures.  Others are collections of examples to show how to query
-or update Elasticsearch, to detect the language of input text or to
-perform machine translation.  Nearly all of the interfaces have been a
+The {\tt packages/xsbpy/starters} directory contains code to interface
+to various Python libraries---to help ysers start projects using {\tt
+  xsbpy}.  Some of the files implement useful higher level mappings
+that translate say, embedding spaces or Spacy graphs to Prolog graphs,
+or translate RDF graphs to lists of Prolog structures.  Others are
+simple collections of examples to show how to query or update
+Elasticsearch, to detect the language of input text or to perform
+machine translation.  Nearly all of the interfaces have been a
 starting point for research or commercial
 applications.  \footnote{Testing has been done of the interfaces, but
   the testing has not been exhaustive.  As a result, please
@@ -737,9 +740,9 @@ applications.  \footnote{Testing has been done of the interfaces, but
   {\tt xsb.sorceforge.net}.}
 
 When {\tt xsbpy} is loaded, both the {\tt xsbpy} directory and its
-{\tt starters} subdirectory is added to the Prolog and Python paths.
-As a result, modules in these subdirectories can be loaded into XSB
-and Python without changing their library paths.
+{\tt packages/xsbpy/starters} subdirectory is added to the Prolog and
+Python paths.  As a result, modules in these subdirectories can be
+loaded into XSB and Python without changing their library paths.
 
 Note that most of these applications require the underlying Python
 libraries to have been installed via a {\tt pip} or {\tt conda}
@@ -802,7 +805,7 @@ exported by {\tt xp\_faiss.P} include:
   If both the number of indexed vectors and {\tt K} are large,
   construction of the Prolog vector graph may take a few minutes.
   Construction time is almost wholly comprised of the time to find the
-  set of nearest neighbors for each node.
+  set of {\tt K} nearest neighbors for each node.
 
 \item {\tt vector\_edge(Node1,Node2,Dist)}.  The vector graph, which
   represents distances is undirected.  However to save space, the {\tt
@@ -845,7 +848,7 @@ language are not included, the argument will be null.  As examples:
 \end{verbatim}
 is returned as 
 \begin{verbatim}
-("That Seventies Show",'<http://www.w3.org/2001/XMLSchema#string>',) 
+('"That Seventies Show"','<http://www.w3.org/2001/XMLSchema#string>',) 
 \end{verbatim}
 while 
 \begin{verbatim}
@@ -853,7 +856,7 @@ while
 \end{verbatim}
 is returned as
 \begin{verbatim}
-("That Seventies Show",,en) 
+('"That Seventies Show"',,en) 
 \end{verbatim}
 
 The file {\tt xp\_rdflib.P} contains predicates {\tt test\_nt/0}, {\tt
@@ -868,9 +871,11 @@ be necessary.
 \begin{itemize}
 \item {\tt read\_rdf(+File,+Format,-TripleList)} reads RDF from a file
   containing an RDF graph formatted as {\tt Format}, where the formats
-  {\tt turtle}, {\tt nt} and {\tt nquads} have been tested.  These
+  {\tt turtle}, {\tt nt} and {\tt nquads} have been tested (the format
+  {\tt ttl} is also allowed as a substitute for {\tt turtle}.  These
   formats can be tested on {\tt sample.ttl}, {\tt sample.nt} and {\tt
-    sample.nq}, all of which are in the {\tt starters} directory.
+    sample.nq}, all of which are in the {\tt packages/xsbpy/starters}
+  directory.
 
   Due to the structure of the Python {\tt RDFlib} graph, no guarantee
   is made that the order of facts in {\tt File} will match the order
@@ -879,9 +884,9 @@ be necessary.
   
 {\bf Error Cases}
 \bi
-\item {\tt Format} is not {\tt nt}, {\tt turtle} or {\tt nquads}
-\bi
-\item misc\_error
+\item {\tt Format} is not {\tt nt}, {\tt turtle}, {\tt ttl}, or {\tt
+  nquads} \bi
+\item {\tt misc\_error}
 \ei
 \end{itemize}
 
@@ -912,7 +917,8 @@ language models to analyze text via dependency parses, named entity
 recognition, and much else.  Although Spacy is a Python tool, much of
 it is written in C/Cython which makes it highly efficient.  The {\tt
   xp\_spacy} package offers a flexible and efficient means to use
-Spacy from Prolog (once Spacy has been properly installed for Python).
+Spacy from Prolog (once Spacy has been properly installed for Python,
+along with appropriate Spacy language models).
 
 In Spacy, a user first loads one or more language models for the
 language(s) of interest and of a size suitable to the application.
@@ -1044,7 +1050,7 @@ Want to experience what it's like to fly a drone?
              token_info(25,it,it,PRON,PRP,nsubj,)  
              token_info(30,like,like,ADP,IN,prep,)                                           
                 token_info(20,what,what,PRON,WP,pobj,)                                       
-          token_info(38,fly,fly,VERB,VB,xcomp,)                                              
+           token_info(38,fly,fly,VERB,VB,xcomp,)                                              
              token_info(35,to,to,PART,TO,aux,)                                               
              token_info(48,drone,drone,NOUN,NN,dobj,)      
                 token_info(42,a,a,DET,DT,det,)                                              \
@@ -1057,13 +1063,14 @@ with predicates to read JSON from and write JSON to files and strings.
 The {\tt json} module transforms JSON objects into and from Python
 dictionaries, which the interface maps to and from their term forms.
 This module can be used to help understand how Python dictionaries
-relate to XSB terms, or as an alternative to XSB's native Json package
-({\tt json} Chapter~\ref{chap:json}).  For instance, while for most
-purposes the {\tt json} package should be used, {\tt xp\_json} can be
-useful if the json constructed and read comes from another {\tt xsbpy}
-application such as {\tt xp\_elastic}.  This is because the format
-used by {\tt xp\_json} maps directly to a Python dictionary, while
-that of the {\tt json} package maps to other (very useful) formats.
+relate to XSB terms, or as an alternative to XSB's Json package ({\tt
+  json} Chapter~\ref{chap:json}).  For instance, while for most
+purposes XSB's {\tt json} package should be used, {\tt xp\_json} can
+be useful if the json constructed and read comes from another {\tt
+  xsbpy} application such as {\tt xp\_elastic}.  This is because the
+format used by {\tt xp\_json} maps directly to a Python dictionary,
+while that of the {\tt json} package maps to other (very useful)
+formats.
 
 The {\tt xp\_json} functions are written in Python and can be
 called directly from Prolog.
@@ -1085,7 +1092,7 @@ called directly from Prolog.
 \subsubsection{Other Examples and Demos}
 
 \paragraph{xp\_elastic}
-This module contains sample code for using the Python {\tt
+This module contains example code for using the Python {\tt
   elasticsearch} package.  A step by step description shows how a
 connection is opened, and index is created and a document added and
 committed.  The example then shows how the document can be searched in
@@ -1095,7 +1102,7 @@ Much of the information that Elasticsearch reads and writes is in JSON
 format, which the Python interface transforms to dictionaries, and
 {\tt xsbpy} transforms these dictionaries to and from their term form.
 Thus although this example is short, the ideas in it can easily be
-extended to a full interface.~\footnote{This has already been done by
+extended to a full interface.\footnote{This has already been done by
   one company that uses XSB.}  Often the {\tt elasticsearch} functions
 can be called directly, but in certain cases simple Python functions
 must be written to handle default positional arguments. \footnote{{\tt
@@ -1123,7 +1130,10 @@ pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
         requires a longer string than I usually want to type.'),Lang).  
 \end{verbatim}
 returns the detected language and confidence value, which in this case
-is {\tt (\_\_label\_\_en,0.93856)}.
+is
+\begin{verbatim}
+''('__label__en',0.93856)}.
+\end{verbatim}
 
 Note that loading the model can be done by calling the Python {\tt
   fasttext} module directly.  In fact, the only reason that the module
