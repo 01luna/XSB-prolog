@@ -59,7 +59,7 @@ for python in python3.11m python3.11 python3.10m python3.10 python3.9m python3.9
 AC_CHECK_PROGS(PYTHON_BIN, [$python])
 ax_python_bin=$PYTHON_BIN
 if test "x$ax_python_bin" != "x"; then
-   ax_python_conflib=`$PYTHON_BIN -m find_libpython || ($PYTHON_BIN -m pip install find_libpython; $PYTHON_BIN -m find_libpython)`
+   ax_python_conflib=`$PYTHON_BIN -m find_libpython 2> /dev/null || ($PYTHON_BIN -m pip install find_libpython > /dev/null 2>&1; $PYTHON_BIN -m find_libpython)`
    ax_python_lib=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('LIBDEST'))"`
    ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
    if test "x$ax_python_header" != "x" -a "x$ax_python_conflib" != "xno"; then
