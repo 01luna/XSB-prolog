@@ -21,15 +21,16 @@ to that included at the end of this file.
 :- import concat_atom/2 from string.
 
 :- import misc_error/1 from error_handler.
+:- import xsb_error_get_message/2 from error_handler.
 :- import shell/1 from shell.
 :- import pyfunc/3 from xsbpy.
 :- import init_python/0 from xsbpym.
 :- import add_lib_dir/1 from consult.
-:- import message/1 from standard.
+:- import messageln/1 from standard.
 %:- import getenv/2 from machine.
 
 init_xsbpy(Pyversion):-
-    get_compiler_opts(Pyversion,CompilerOpts),
+    get_compiler_opts(Pyversion,CompilerOpts,Version),
 %    writeln(CompilerOpts),
 %    consult(xsbpym,[cc_opts(CompilerOpts)]),
     compile(xsbpym,[cc_opts(CompilerOpts),if_needed]),
@@ -43,11 +44,14 @@ init_xsbpy(Pyversion):-
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
     pyfunc(add_python_path,add_python_path(TestDir),_),
     set_heap_margin(256),   % double the amount in v. 4.0
-    message(xsbpy_initted_with_python(Pyversion)),!.
+    messageln(xsbpy_initted_with_python(Version)),!.
 init_xsbpy(Pyversion):-
     misc_error(['xsbpy did not initialize properly for ',Pyversion]).
 
 test_xsbpy:-
+    catch(test_xsbpy_1,E,(xsb_error_get_message(E,Mess),writeln(Mess))).
+    
+test_xsbpy_1:-
     xsb_configuration(packagesdir, PackDir),
 %    concat_atom([PackDir,'/xsbpy'],XSBpyDir),
     concat_atom([PackDir,'/xsbpy/test'],TestDir),
@@ -58,7 +62,8 @@ test_xsbpy:-
     shell(['rm -f ',TestOut]),
     tell(TestOut),
     usermod:testSuite,
-    told.
+    told,!.
+test_xsbpy_1:- told.
 
 %test_xsbpy_1:-
 %    ensure_loaded(testSuite),
@@ -70,7 +75,7 @@ add_py_lib_dir(Dir):-
     pyfunc(add_python_path,add_python_path(Dir),_).
 
 py_lib_dirs(List):-
-    pyfunc(xsbpy_utils,python_paths(),List).
+    pyfunc(xp_utils,python_paths(),List).
 
 % Below:
 % -Wl, Opt passes the option from gcc to the compiler.
@@ -79,19 +84,17 @@ py_lib_dirs(List):-
 % -rpath is the runtime search path.
 
 %use results from configure
-get_compiler_opts(auto,CompilerOpts):-
+get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
 %		 ' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
-		' -Wl,-rpath=', PYTHON_BIN_QUOTED,
-                 ' -Wl,-rpath=', PYTHON_LIBDIR_QUOTED,
-                 ' -l',PYTHON_BIN_QUOTED,
+	       	' -Wl,-rpath=','/usr/lib',' -l',PYTHON_BIN_QUOTED,
 		' -L',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
-%		' -Wl,-rpath=',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
+%		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -g' ],CompilerOpts).
 
 
 %Use libpython3.7m
-get_compiler_opts(37,CompilerOpts):-
+get_compiler_opts(37,CompilerOpts,'python3.7'):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.7m  -I/usr/include/python3.7',
 		 ' -lpython3.7m -L/usr/lib/python3.7 -Wl,',
@@ -99,7 +102,7 @@ get_compiler_opts(37,CompilerOpts):-
 		 '-rpath=/usr/lib/python3.7 -g' ],CompilerOpts).
 
 %Use libpython3.8
-get_compiler_opts(38,CompilerOpts):-
+get_compiler_opts(38,CompilerOpts,'python3.8'):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.8  -I/usr/include/python3.8',
 		 ' -lpython3.8 -L/usr/lib/python3.8 -Wl,',
