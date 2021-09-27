@@ -35,7 +35,6 @@
 /*======================================================================*/
 /*  This file contains the main program of the interpreter.		*/
 /*======================================================================*/
-
 :- interpreter.
 
 interpreter :-
@@ -210,9 +209,16 @@ process_query1(X, Vars) :-
 	fail.
 
 no_more :-
-	file_get(0, X),
-	( X =:= CH_EOF_P ; X =:= CH_NEWLINE ), !.
+    repeat_file_get(0, X),
+    ( X =:= CH_EOF_P ; X =:= CH_NEWLINE ), !.
 no_more :- no_more, fail.
+
+repeat_file_get(0, Final):-
+    file_get(0,X),
+    (X == CH_SPACE ->
+	repeat_file_get(0, Final)
+      ; Final = X).
+	
 
 scan_thru_nl(FileIn) :-
 	file_get(FileIn,C),
