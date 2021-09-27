@@ -8,6 +8,12 @@
 :- import bootstrap_package/2 from packaging.
 
 :-  bootstrap_package(xsbpy, xsbpy).
+/*
+:- import expand_filename/2 from machine.
+:- import xpp_include_dir/1 from parse.
+:- expand_filename(xsbpy,PkgDir),
+        assert(xpp_include_dir(PkgDir)).
+*/
 
 :- import init_xsbpy/1 from init_xsbpy.
 :- import pyfunc_int/4 from xsbpym.
