@@ -231,13 +231,13 @@ sym_propin1(Def, prop(_,_,ODef,_,_,_), N, A) :-
 	def_prop(Def),
 	!,
 	( Def = ODef, !
-	; error((N/A, ' is said ', ODef, ', cannot say ', Def, ' !'))
+	; error((N/A, ' is declared ', ODef, ', cannot declare it ', Def, ' !'))
 	).
 sym_propin1(Use, prop(_,_,_,OUse,_,_), N, A) :-
 	use_prop(Use),
 	!,
 	( Use = OUse, !
-	; error((N/A, ' is said ', OUse, ', cannot say ', Use, ' !'))
+	; error((N/A, ' is declared ', OUse, ', cannot declare it ', Use, ' !'))
 	).
 sym_propin1(ep(EP), prop(_,_,_,_,ep(OEP),_), N, A) :- 
 	!,
