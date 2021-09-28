@@ -2,7 +2,7 @@
 % DO NOT EDIT; ALL CHANGES WILL BE LOST!
 
 :- mode add_commas_to_list(?,?).
-:- mode add_mode_to_symtab(?,?).
+:- mode add_mode_to_symtab(?,+).
 :- mode add_varocc(?,?,?).
 :- mode analyze.
 :- mode analyze_fail_loop.
@@ -37,7 +37,7 @@
 :- mode cvt_modelist_ie(?,?).
 :- mode cvt_modes_ec(?,?).
 :- mode cvt_modes_ec_list(?,?).
-:- mode cvt_modes_ie_lists(?,+,?).
+:- mode cvt_modes_ie_lists(+,+,?).
 :- mode cvt_modes_to_ilists(?,?).
 :- mode debug(?).
 :- mode decl_imported(?,+).
@@ -105,9 +105,8 @@
 :- mode read_counter(+,?).
 :- mode reconstruct_pterm(?,?,?,?).
 :- mode reconstruct_pterms(?,?,?,?).
-:- mode reduce_by_subsumption(?,?,?).
 :- mode reduce_by_subsumption(+,+,?).
-:- mode reduce_by_variant(?,?).
+:- mode reduce_by_variant(+,?).
 :- mode remove_asserted_stuff.
 :- mode remove_tabled_stuff.
 :- mode set_to_call(?,?).
@@ -118,17 +117,16 @@
 :- mode update_lib_dirs(?).
 :- mode update_lib_dirs_cl(?).
 :- mode varocc2var(?,?,?).
-:- mode weaker_mode(?,?).
-:- mode weaker_mode1(?,?).
-:- mode weaker_symbol(?,?).
-:- mode weaker_than_declared(?,?).
+:- mode weaker_mode(+,?).
+:- mode weaker_mode1(+,?).
+:- mode weaker_symbol(+,?).
+:- mode weaker_than_declared(?,+).
 :- mode wrap(?,?,?).
 :- mode write_all_modes(+,?).
 :- mode write_mode_pattern(+,?).
 
 :- mode_on_success add_commas_to_list(A,A).
 :- mode_on_success add_mode_to_symtab(A,g).
-:- mode_on_success add_mode_to_symtab(ng,ng).
 :- mode_on_success add_varocc(A,g,A).
 :- mode_on_success add_varocc(A,ng,ng).
 :- mode_on_success analyze.
@@ -170,7 +168,7 @@
 :- mode_on_success cvt_modelist_ie(ng,ng).
 :- mode_on_success cvt_modes_ec(A,B).
 :- mode_on_success cvt_modes_ec_list(A,B).
-:- mode_on_success cvt_modes_ie_lists(A,g,g).
+:- mode_on_success cvt_modes_ie_lists(g,g,g).
 :- mode_on_success cvt_modes_to_ilists(A,B).
 :- mode_on_success debug(A).
 :- mode_on_success decl_imported(A,g).
@@ -257,27 +255,25 @@
 :- mode_on_success reconstruct_pterms(A,B,C,g).
 :- mode_on_success reconstruct_pterms(g,ng,A,ng).
 :- mode_on_success reconstruct_pterms(ng,A,B,ng).
-:- mode_on_success reduce_by_subsumption(g,A,g).
-:- mode_on_success reduce_by_subsumption(ng,ng,A).
-:- mode_on_success reduce_by_variant(A,g).
-:- mode_on_success reduce_by_variant(ng,ng).
+:- mode_on_success reduce_by_subsumption(g,g,g).
+:- mode_on_success reduce_by_variant(g,g).
 :- mode_on_success remove_asserted_stuff.
 :- mode_on_success remove_tabled_stuff.
 :- mode_on_success set_to_call(g,g).
-:- mode_on_success simplify_mode_lists(A,B).
+:- mode_on_success simplify_mode_lists(A,g).
 :- mode_on_success simplify_mode_lists1(A,ng).
 :- mode_on_success simplify_mode_lists1(g,g).
 :- mode_on_success translate_varocc(g,A,g).
 :- mode_on_success translate_varocc(g,ng,A).
-:- mode_on_success unnumbervar_each(A,B).
+:- mode_on_success unnumbervar_each(g,g).
 :- mode_on_success update_lib_dirs(A).
 :- mode_on_success update_lib_dirs_cl(A).
 :- mode_on_success varocc2var(g,A,g).
 :- mode_on_success varocc2var(g,ng,ng).
-:- mode_on_success weaker_mode(A,B).
-:- mode_on_success weaker_mode1(A,B).
+:- mode_on_success weaker_mode(g,A).
+:- mode_on_success weaker_mode1(g,A).
 :- mode_on_success weaker_symbol(g,g).
-:- mode_on_success weaker_than_declared(A,B).
+:- mode_on_success weaker_than_declared(A,g).
 :- mode_on_success wrap(A,B,B).
 :- mode_on_success write_all_modes(g,A).
 :- mode_on_success write_mode_pattern(g,A).

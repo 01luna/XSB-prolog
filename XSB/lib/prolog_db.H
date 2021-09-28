@@ -32,7 +32,7 @@
 
 :- import findall/3, term_variables/2, sort/2 from setof.
 :- import (tnot)/1, abolish_table_pred/1 from tables.
-:- import numbervars/3 from num_vars.
+   :- import numbervars/3, unnumbervars/5 from num_vars.
 :- import copy_term/2, length/2, append/3 from basics.
 
 :- import read_canonical/2 from consult.
@@ -47,7 +47,8 @@
 %%:- import (multifile)/1 from standard.
 
 :- import intern_termhash/2, term_hash/3, term_compare/3,
-   term_arg/3, term_new/2, psc_arity/2, term_psc/2, term_type/2
+   term_arg/3, psc_arity/2, term_psc/2, term_type/2,
+   call0/1
    from machine.
 :- import member/2, append/3, log_ith/3 from basics.
 :- import gensym/2, conset/2, coninc/1, conget/2 from gensym.

@@ -141,6 +141,7 @@ int mem_flag;
 
 /*======================================================================*/
 
+extern void print_term(FILE *, Cell, byte, long);
 extern int  sys_syscall(CTXTdeclc int);
 extern xsbBool sys_system(CTXTdeclc int);
 extern xsbBool formatted_io(CTXTdecl), read_canonical(CTXTdecl);
@@ -210,6 +211,8 @@ extern int  findall_init(CTXTdecl), findall_add(CTXTdecl),
   findall_get_solutions(CTXTdecl);
 extern int  copy_term(CTXTdecl);
 extern int  copy_term_3(CTXTdecl);
+extern int  unnumbervars(CTXTdecl);
+extern int log_ith0(CTXTdeclc Integer, prolog_term, prolog_term, Integer);
 
 extern xsbBool substring(CTXTdecl);
 extern xsbBool string_substitute(CTXTdecl);
@@ -1330,6 +1333,7 @@ void init_builtin_table(void)
   set_builtin_table(IS_LIST, "is_list");
 
   set_builtin_table(FUNCTOR, "functor");
+  set_builtin_table(FUNCTOR4, "functor4");
   set_builtin_table(ARG, "arg");
   set_builtin_table(UNIV, "univ");
   set_builtin_table(IS_MOST_GENERAL_TERM, "is_most_general_term");
@@ -1370,6 +1374,8 @@ void init_builtin_table(void)
   set_builtin_table(XSB_PROFILE,"xsb_profile");
   set_builtin_table(XSB_BACKTRACE,"xsb_backtrace");
   set_builtin_table(COPY_TERM_3,"copy_term_3");
+  set_builtin_table(UNNUMBERVARS,"unnumbervars");
+  set_builtin_table(LOG_ITH0,"log_ith0");
   set_builtin_table(MARK_HEAP, "mark_heap");
   set_builtin_table(GC_STUFF, "gc_stuff");
   set_builtin_table(FINDALL_INIT, "$$findall_init");
@@ -1623,12 +1629,15 @@ int builtin_call(CTXTdeclc byte number)
     }
     termpsc = term_psc(term);
     modname = ptoc_string(CTXTc 1);
-    if (strncmp(modname,"usermod(",strlen("usermod(")) == 0) {
+    if (!strncmp(modname,"usermod",7)) {
+      //	/*||!strncmp(modname,"usermod(",strlen("usermod(")*/
       import_from_usermod = TRUE;
       modpsc = global_mod;
     } else {
       char filename[MAXFILENAME];
       char modwpars[MAXFILENAME];
+      if (strlen(modname) >= MAXFILENAME) /* could allow longer if an issue */
+	xsb_domain_error(CTXTc "module_name_size",ptoc_tag(CTXTc 1),"term_new_mod/3",1);
       split_modspec(modname,NULL,modwpars,filename);
       modpsc = pair_psc(insert_module(0,modwpars));
       psc_set_ep(modpsc,(byte *)makestring(string_find(filename,1)));
@@ -3106,6 +3115,17 @@ case WRITE_OUT_PROFILE:
 
   case COPY_TERM_3:
     return copy_term_3(CTXT);
+
+  case UNNUMBERVARS:
+    return unnumbervars(CTXT);
+
+  case LOG_ITH0: {
+    Integer k;
+    k = ptoc_int(CTXT 1);
+    check_glstack_overflow(4,pcreg,((Integer)log2((double)(k+1)))*4*sizeof(Cell));
+    return log_ith0(CTXTc k, ptoc_tag(CTXTc 2),
+		    ptoc_tag(CTXTc 3), ptoc_int(CTXTc 4));
+  }
 
     // Does not appear to be used
   case EXP_HEAP: glstack_realloc(CTXTc glstack.size + 1,0) ; return TRUE ;

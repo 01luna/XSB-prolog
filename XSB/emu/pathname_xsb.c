@@ -170,6 +170,7 @@ char *tilde_expand_filename_norectify(char *filename, char *expanded) {
     while ( (*path_suffix != '\0') && (*path_suffix != '/') )
       path_suffix++;
     username_len = path_suffix - path_prefix;
+    if (username_len >= MAXFILENAME) xsb_exit("username too long; giving up.");
     memmove(username, path_prefix, username_len);
     username[username_len] = '\0';
     
@@ -435,6 +436,7 @@ static char *rectify_pathname(char *inpath, char *outpath) {
     } /* done processing '.' and '..' */
     
     /* copy the filename just found to the right slot in the names array */
+    if (length >= MAXFILENAME) xsb_exit("since file/directory name in path is too long");
     strncpy(names[nameidx], inptr1, length);
     names[nameidx][length] = '\0'; /* make a string out of the file name */
     nameidx++;

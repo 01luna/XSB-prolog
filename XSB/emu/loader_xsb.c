@@ -903,6 +903,8 @@ static xsbBool load_one_sym(CTXTdeclc FILE *fd, char *filename, Psc cur_mod, int
 
       dummy = get_obj_byte(&t_modlen);
       dummy = get_obj_string(filemodname, t_modlen);
+      if (t_modlen > MAXFILENAME)
+	xsb_exit("Module name too long in loader; corrupted!!");
       filemodname[t_modlen] = '\0';
       replace_form_by_act(filemodname,modformals,modpars);
 
@@ -922,6 +924,8 @@ static xsbBool load_one_sym(CTXTdeclc FILE *fd, char *filename, Psc cur_mod, int
 	char defasname[MAXFILENAME+1];
 	dummy = get_obj_byte(&t_defaslen);
 	dummy = get_obj_string(defasname, t_defaslen);
+	if (t_defaslen > MAXFILENAME)
+	  xsb_exit("defined as name too long in loading; corrupted!!");
 	defasname[t_defaslen] = '\0';
 	defas_pair = insert(defasname, t_arity, mod, &def_is_new);
 	if (def_is_new) {

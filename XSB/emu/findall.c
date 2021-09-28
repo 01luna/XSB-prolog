@@ -880,6 +880,9 @@ Integer term_size(CTXTdeclc Cell term)
   return FALSE;
 }
 
+Cell numvars[256];  // fix!
+int initted_numvars;
+
 /* rewritten */
 /* recursively copies a term to a area of memory */
 /* used by copy_term to build a variant in the heap */
@@ -898,11 +901,7 @@ copy_again : /* for tail recursion optimisation */
     
     case XSB_REF :
     case XSB_REF1 :
-#ifndef MULTI_THREAD
-      if ((CPtr)from < hreg)  /* meaning: a not yet copied undef */
-#else
-      if ( ((CPtr)from < hreg) || ((CPtr)from >= (CPtr)glstack.high) )
-#endif
+	if ( ((CPtr)from < hreg) || ((CPtr)from >= (CPtr)glstack.high) )
 	{
 	  findall_trail(CTXTc (CPtr)from,from) ;
 	  *(CPtr)from = (Cell)to ;
@@ -953,11 +952,7 @@ copy_again : /* for tail recursion optimisation */
 	*/
 	if (isinternstr(from)) {*to = from; return;} // DSWDSW
 	pfirstel = clref_val(from) ;
-#ifndef MULTI_THREAD
-	if (pfirstel >= hreg)
-#else
 	if ( ((CPtr)pfirstel >= hreg) && ((CPtr)pfirstel < (CPtr)glstack.high) )
-#endif
 	  {
 	    /* pick up the old value and copy it */
 	    *to = *pfirstel;
@@ -970,11 +965,7 @@ copy_again : /* for tail recursion optimisation */
 	    CPtr p;
 
 	    p = clref_val(q);
-#ifndef MULTI_THREAD
-	    if (p >= hreg)  /* meaning it is a shared list */
-#else
             if ( (p >= hreg) && (p < (CPtr)glstack.high) )
-#endif
 	      {
 		*to = q;
 		return;
@@ -1146,7 +1137,7 @@ copy_again : /* for tail recursion optimisation */
     } /* switch */
 } /* do_copy_term */
 
-
+extern int log_ith0(CTXTdeclc Integer, prolog_term, prolog_term, Integer);
 
 static void do_copy_term_3(CTXTdeclc Cell from, CPtr to, CPtr *h)
 {
@@ -1162,11 +1153,7 @@ copy_again_3 : /* for tail recursion optimisation */
     
     case XSB_REF :
     case XSB_REF1 :
-#ifndef MULTI_THREAD
-      if ((CPtr)from < hreg)  /* meaning: a not yet copied undef */
-#else
       if ( ((CPtr)from < hreg) || ((CPtr)from >= (CPtr)glstack.high) )
-#endif
 	{
 	  findall_trail(CTXTc (CPtr)from,from) ;
 	  *(CPtr)from = (Cell)to ;
@@ -1189,8 +1176,8 @@ copy_again_3 : /* for tail recursion optimisation */
 	 *  
 	 *  
 	 *  +----+        +----+----+
-	 *  | x L|    (x) | x'L| b  |
-	 *  +----+        +----+----+
+	 *  | x L|    (x) | x'L| b  |  
+	 *  +----+        +----+----+  
 	 *  
 	 *  
 	 *  trail:
@@ -1217,14 +1204,12 @@ copy_again_3 : /* for tail recursion optimisation */
 	*/
 	if (isinternstr(from)) {*to = from; return;} // DSWDSW
 	pfirstel = clref_val(from) ;
-#ifndef MULTI_THREAD
-	if (pfirstel >= hreg)
-#else
 	if ( ((CPtr)pfirstel >= hreg) && ((CPtr)pfirstel < (CPtr)glstack.high) )
-#endif
 	  {
 	    /* pick up the old value and copy it */
-	    *to = *pfirstel;
+	    printf("copy_3 old list ptr\n");
+	    //	    *to = get_list_head(*pfirstel); // dswdsw
+	    *to = *pfirstel; // dswdsw
 	    return;
 	  }
 
@@ -1234,11 +1219,7 @@ copy_again_3 : /* for tail recursion optimisation */
 	    CPtr p;
 
 	    p = clref_val(q);
-#ifndef MULTI_THREAD
-	    if (p >= hreg)  /* meaning it is a shared list */
-#else
             if ( (p >= hreg) && (p < (CPtr)glstack.high) )
-#endif
 	      {
 		*to = q;
 		return;
@@ -1357,11 +1338,7 @@ copy_again_3 : /* for tail recursion optimisation */
 	CPtr var;
     
 	var = clref_val(from);	/* the VAR part of the attv  */
-#ifndef MULTI_THREAD
-      if ((CPtr)var < hreg)  /* meaning: a not yet copied undef */
-#else
       if ( ((CPtr)var < hreg) || ((CPtr)var >= (CPtr)glstack.high) )
-#endif
 	{
 	  //	  printf("before trail %p @%p @@%p\n",var,cell(var),cell((CPtr) dec_addr(cell(var))));
 	  findall_trail(CTXTc var,cell(var)) ;
@@ -1440,7 +1417,190 @@ copy_again_3 : /* for tail recursion optimisation */
    arg2 - new term; copy of old term unifies with new term
 */
 
-int copy_term(CTXTdecl)
+static void do_unnumbervars(CTXTdeclc Cell from, CPtr to, Psc psc, Integer first, prolog_term vars, CPtr beghreg)
+{
+unnumber_again : /* for tail recursion optimisation */
+
+  switch ( cell_tag( from ) )
+    {
+    case XSB_INT :
+    case XSB_FLOAT :
+    case XSB_STRING :
+    case XSB_REF :
+    case XSB_REF1 :
+      *to = from ;
+      return ;
+    
+    case XSB_LIST :
+      {
+	/* see do_copy_term for representations to support 
+	   sharing of list structures */
+
+	CPtr pfirstel;
+	Cell q ;
+
+	/* first test whether from - which is an L - is actually the left over
+	   of a previously copied first list element
+	*/
+	pfirstel = clref_val(from) ;
+	if ( ((CPtr)pfirstel >= beghreg) && ((CPtr)pfirstel < (CPtr)glstack.high) )
+	  {
+	    *to = *pfirstel;
+	    return;
+	  }
+
+	q = *pfirstel;
+	if (islist(q))
+	  {
+	    CPtr p;
+
+	    p = clref_val(q);
+	    if (p >= beghreg && (p < (CPtr)glstack.high))  /* meaning it is a shared list */
+	      {
+		*to = q;
+		return;
+	      }
+	  }
+
+	/* this list cell has not been copied before */
+	/* now be careful: if the first element of the list to be copied
+	   is an undef (a ref to an undef is not special !)
+	   we have to copy this undef now, before we do the general
+	   thing for lists
+	*/
+
+	{
+	  *to = makelist(hreg) ;
+	  to = hreg ;
+	  (hreg) += 2 ;
+	  if (q == (Cell)pfirstel) /* it is an UNDEF - special care needed */
+	    {
+	      /* it is an undef in the part we are copying from */
+	      findall_trail(CTXTc pfirstel,(Cell)pfirstel);
+	      *to = (Cell)q ;
+	      *pfirstel = makelist((CPtr)to);
+	    } else {
+	      findall_trail(CTXTc pfirstel,q);
+	      *pfirstel = makelist((CPtr)to);
+	      XSB_Deref(q);
+	      do_unnumbervars(CTXTc q,to,psc,first,vars,beghreg);
+	    }
+
+	  from = *(pfirstel+1) ; XSB_Deref(from) ; to++ ;
+	  goto unnumber_again ;
+	}
+      }
+
+    case XSB_STRUCT : {
+      /* see do_copy_term for share structure representation */
+      
+	CPtr pfirstel ;
+	Cell newpsc;
+	int ar ;
+
+	if (get_str_psc(from) == psc) {
+	  prolog_term intterm = get_str_arg(from,1);
+	  XSB_Deref(intterm);
+	  if (isinteger(get_str_arg(from,1)) &&
+	      int_val(get_str_arg(from,1)) >= first) {
+	    int vnum = (int)int_val(get_str_arg(from,1));
+
+	    *to = (Cell)to;
+	    log_ith0(CTXTc vnum, vars, (prolog_term)to, 1);  // updates hreg
+	    return;
+	  }
+	}
+
+	pfirstel = (CPtr)cs_val(from) ;
+	if ( cell_tag((*pfirstel)) == XSB_STRUCT )
+	  {
+	    /* this struct was copied before - it must be shared */
+	    *to = *pfirstel;
+	    return;
+	  }
+
+	/* first time we visit this struct */
+
+	findall_trail(CTXTc pfirstel,*pfirstel);
+
+	ar = get_arity((Psc)(*pfirstel)) ;
+	
+	newpsc = *to = makecs((Cell)(hreg)) ;
+	to = hreg ;
+	*to = *pfirstel ; /* the functor */
+	*pfirstel = newpsc; /* was trailed already */
+	
+	hreg += ar + 1 ;
+	if (ar > 0) {
+	  while ( --ar )
+	    {
+	      from = *(++pfirstel) ; 
+	      XSB_Deref(from) ; to++ ;
+	      do_unnumbervars(CTXTc from,to,psc,first,vars,beghreg) ;
+	    }
+	  from = *(++pfirstel) ; 
+	  XSB_Deref(from) ; to++ ;
+	  goto unnumber_again ;
+	} else return;
+      }
+
+    case XSB_ATTV: {
+	CPtr var;
+    
+	var = clref_val(from);	/* the VAR part of the attv  */
+      if ( ((CPtr)var < beghreg) || ((CPtr)var >= (CPtr)glstack.high) )
+	{
+	  findall_trail(CTXTc var,cell(var)) ;
+	  *(CPtr)clref_val(from) = (Cell)var ;
+	  *to = (Cell)var ;
+	}
+      else *to = from ;
+      return ;
+    }
+    }
+}
+
+int unnumbervars(CTXTdecl) {
+  size_t size ;
+  Cell arg1from, arg3to, arg4vars, arg5psc, to ;
+  CPtr hptr ;
+  Integer arg2num;
+  Psc unnumpsc;
+
+  arg1from = ptoc_tag(CTXTc 1);
+  
+  if( isref(arg1from) ) return 1;
+
+  init_findall_trail(CTXT) ;
+  size = term_size(CTXTc arg1from) ;
+  findall_untrail(CTXT) ;
+
+  check_glstack_overflow(5, pcreg, size*sizeof(Cell)) ;
+  
+  /* again because stack might have been reallocated */
+  arg1from = ptoc_tag(CTXTc 1);
+  arg2num = (Integer)ptoc_int(CTXTc 2);
+  arg3to = ptoc_tag(CTXTc 3);
+  arg4vars = ptoc_tag(CTXTc 4); XSB_Deref(arg4vars);
+  arg5psc = ptoc_tag(CTXTc 5);
+
+  if (isconstr(arg5psc)) {
+      unnumpsc = get_str_psc(arg5psc);
+    } else {
+      xsb_type_error(CTXTc "NULL or $VAR term",arg5psc,"unnumbervars/3 ",3);
+    }
+  
+  hptr = hreg ;
+  
+  gl_bot = (CPtr)glstack.low ; gl_top = (CPtr)glstack.high ;
+  init_findall_trail(CTXT) ;
+  do_unnumbervars( CTXTc arg1from, &to, unnumpsc, arg2num, arg4vars, hptr ) ;
+  findall_untrail(CTXT) ;
+  
+  return(unify(CTXTc arg3to, to));
+}
+
+int copy_term(CTXTdeclc)
 {
   size_t size ;
   Cell arg1, arg2, to ;
@@ -1459,7 +1619,7 @@ int copy_term(CTXTdecl)
   /* again because stack might have been reallocated */
   arg1 = ptoc_tag(CTXTc 1);
   arg2 = ptoc_tag(CTXTc 2);
-  
+
   hptr = hreg ;
   
   gl_bot = (CPtr)glstack.low ; gl_top = (CPtr)glstack.high ;
@@ -1564,7 +1724,7 @@ Cell copy_term_from_thread( th_context *th, th_context *from, Cell arg1 )
   hptr = hreg ;
 
   init_findall_trail(th) ;
-  do_copy_term( th, arg1, &to, &hptr ) ;
+  do_copy_term( th, arg1, &to, NULL, &hptr ) ;
   findall_untrail(th) ;
 
   hreg = hptr ;

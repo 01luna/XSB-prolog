@@ -394,7 +394,7 @@ grammar rule @pred{a/3} takes polynomial time; it is the
 produce the combinatorially many parses.
 
 @section{Sets of Relations}
-
+
 Another way the @tt{prolog_db} data type can be used is to store an
 extensional relational database in a Prolog variable.  A set of ground
 terms can be interpreted as defining a set of relations by
@@ -1179,7 +1179,7 @@ returned facts is indeterminate.").
 fact_in_db(Head,H) :-
     tab_intern_termhash(DB,H),
     (DB == internalDB
-     ->	call_c(Head)
+     ->	call0(Head)
      ;	find_tuple_in_trie([Head],true,_Vars,DB)
     ).
 
@@ -2836,7 +2836,7 @@ rtl_insert(rtl(OK,OVal0,RTLr),K,Val,OVal,NRTL) :-
 	NRTL = rtl(K,Val,rtl(OK,OVal0,RTLr))
     ).
 
-appl(lambda(X,Y,G),X,Y) :- call_c(G). % HiLog
+appl(lambda(X,Y,G),X,Y) :- call0(G). % HiLog
 %%appl(lambda(X,G),X) :- call_c(G).	 % HiLog
 
 
@@ -2907,9 +2907,15 @@ my_numbervars(Y,I,J,N,A) :-
     ).
 
 
+:- mode pdb_unnumbervars(?,+,?,?).
 pdb_unnumbervars(TermIn,FirstN,TermOut,Vars) :-
+    unnumbervars(TermIn,FirstN,TermOut,Vars,'_$Var$'(_)).
+%%    pdb_unnumbervars00(TermIn,FirstN,TermOut,Vars).
+
+/**:- import term_new/2 from machine.
+pdb_unnumbervars00(TermIn,FirstN,TermOut,Vars) :-
     term_type(TermIn,Type),
-    (Type =:= 1/*XSB_STRUCT*/
+    (Type =:= 1 %XSB_STRUCT
      ->	(TermIn = '_$Var$'(I), integer(I)
 	 -> (I >= FirstN
 	     ->	log_ith(I,Vars,TermOut)
@@ -2921,7 +2927,7 @@ pdb_unnumbervars(TermIn,FirstN,TermOut,Vars) :-
 	    psc_arity(PSC,Arity),
 	    pdb_unnumbervars(TermIn,FirstN,TermOut,Vars,1,Arity)
 	)
-     ;	Type =:= 3/*XSB_LIST*/
+     ;	Type =:= 3 %XSB_LIST
      ->	TermIn = [A1|A2],
 	TermOut = [B1|B2],
 	pdb_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) % avoid allocate
@@ -2929,18 +2935,19 @@ pdb_unnumbervars(TermIn,FirstN,TermOut,Vars) :-
     ).
 
 pdb_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) :-
-    pdb_unnumbervars(A1,FirstN,B1,Vars),
-    pdb_unnumbervars(A2,FirstN,B2,Vars).
+    pdb_unnumbervars00(A1,FirstN,B1,Vars),
+    pdb_unnumbervars00(A2,FirstN,B2,Vars).
 
 pdb_unnumbervars(TermIn,FirstN,TermOut,Vars,I,Arity) :-
 	(I =< Arity
          ->     term_arg(TermIn,I,ArgIn),
 		term_arg(TermOut,I,ArgOut),
-	        pdb_unnumbervars(ArgIn,FirstN,ArgOut,Vars),
+	        pdb_unnumbervars00(ArgIn,FirstN,ArgOut,Vars),
 		I1 is I+1,
 		pdb_unnumbervars(TermIn,FirstN,TermOut,Vars,I1,Arity)
 	 ;      true
         ).
+***/
 
 my_functor(Term,Mod,Fun,Ari) :-
     (var(Term)
@@ -2989,7 +2996,7 @@ in_db_b((A;B),DB) :- !, (in_db_b(A,DB) ; in_db_b(B,DB)).
 in_db_b(table(Goal),DB) :- !, db_table_call(DB,Goal).
 in_db_b(xact(G),DB) :- !, phrase(G,DB,DB).  % for transaction logic, if useful.
 in_db_b(G,_DB) :- functor(G,F,A), standard_symbol(F,A,_), !,
-    call_c(G).
+    call0(G).
 in_db_b(G,DB) :-
     clause_in_db_b(G,B,DB),
     in_db_b(B,DB).

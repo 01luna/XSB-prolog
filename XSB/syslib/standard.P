@@ -778,31 +778,10 @@ proper_hilog(X) :-
 :- mode functor(?,?,?).
 functor(T, F, N) :- functor(T, F, N).
 
+
 :- mode functor(?,?,?,?).
-functor(Term,Mod,Fun,Arity) :-
-    (var(Term)
-     ->	(Mod == usermod
-	 -> functor(Term,Fun,Arity)
-	 ;  (var(Mod)
-	     ->	instantiation_error(functor/4,2,bound)
-	     ;	functor(Term0,Fun,Arity),
-		term_new_mod(Mod,Term0,Term)
-	    )
-	)
-     ; atomic(Term)
-     ->	Mod = usermod, Fun = Term, Arity = 0
-     ;	functor(Term,Fun,Arity),
-	(Fun == '.', Arity =:= 2
-	 -> Mod = usermod
-	 ;  term_psc(Term,Psc),
-	    psc_mod(Psc,MPsc),
-	    (MPsc =:= 0
-	     ->	Mod = usermod
-	     ;	psc_name(MPsc,Mod0),
-		Mod = Mod0
-	    )
-	)
-    ).
+:- export functor4/4.
+functor(_Term,_Mod,_Fun,_Arity) :- '_$builtin'(FUNCTOR4).
 
 :- mode arg(+,?,?).
 arg(I, T, A) :- arg(I, T, A).
@@ -1731,26 +1710,28 @@ do_once(_Breg) :-
 	
 repeat :- true; repeat.
 
-(A,B) :- call_c(A), call_c(B).
+(A,B) :- call_c(A), call0(B).
 
 (A->B;C) :- !,
-	(call_c(A) -> call_c(B) ; call_c(C)).
+	(call_c(A) -> call0(B) ; call0(C)).
+
 (A;_B) :- 
-	call_c(A).
+	call0(A).
+
 (_A;B) :- 
-	call_c(B).
+	call0(B).
 
 %% ';' for in calls, to separate from ';' in asserted goal bodies (for
 %%	retract gc)
 :- export ';;'/2.
 ';;'((A->B),C) :- !,
-	(call_c(A) -> call_c(B) ; call_c(C)).
+	(call_c(A) -> call0(B) ; call0(C)).
 ';;'(A,_B) :- 
-	call_c(A).
+	call0(A).
 ';;'(_A,B) :- 
-	call_c(B).
+	call0(B).
 
-(A->B) :- call_c(A) -> call_c(B).
+(A->B) :- call_c(A) -> call0(B).
 
 %%:- mode ':'(+,?).   % infers conflict, seems a call to curl:p(X) in close is triggering it.
 %% figure out why mode inferencing is messing up....
@@ -2294,7 +2275,7 @@ messageln(Message, File) :-
 call_expose(Goal) :-
 	stat_flag(HIDE_STATE,N),
 	(N =:= 0
-	 ->     call_c(Goal)
+	 ->     call0(Goal)
 	 ;      N1 is N-1,
 		(stat_set_flag(HIDE_STATE,N1)
 		 ;
@@ -2685,7 +2666,7 @@ timer_interrupt_trap(One,_Two) :-
         (Interval > 0 ->
             start_sleeper_thread(Interval)
 	 ; true),!,
-	 call_c(One).
+	 call0(One).
 timer_interrupt_trap(_One,_Two) :-
         get_interpreter_index(Index),
         '_$timed_call_max_handler'(Index,Handler,_Max,_Walltime,_Orig),!,
@@ -2705,12 +2686,12 @@ timer_interrupt_trap(One,_Two) :-
 	      assert('_$timed_call_rep_max_handler'(Index,Rep_handler,Rep_int,Max_handler,New_Max,NewWalltime,Orig)),
               start_sleeper_thread(Rep_int)	
 	  ; true),!,
-	call_c(One).
+	call0(One).
 timer_interrupt_trap(_One,_Two):- 
 %	writeln((_One,_Two)),
-	call_c(_One).
+	call0(_One).
 %timer_interrupt_trap(One,_Two) :- 
-%	call_c(One).
+%	call0(One).
 
 timed_call_handler(Handler):- call(Handler),!.
 %call_handler(_).

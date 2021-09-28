@@ -25,6 +25,7 @@
 :- compiler_options([xpp_on,sysmod]).
 
 #include "celltags_xsb.h"
+#include "builtin.h"
 
 %   numbervars(+Term, +FirstN, ?LastN) 
 %   Each variable in the HiLog Term is instantiated to a term of the form 
@@ -100,14 +101,26 @@ terms where <int> >= FirstN with new variables.  It is the converse of
 numbervars, and must copy the input term. */
 
 :- mode unnumbervars(?,?).
-unnumbervars(TermIn,TermOut) :- unnumbervars(TermIn,0,TermOut,_Vars).
+unnumbervars(TermIn,TermOut) :-
+    unnumbervars(TermIn,0,TermOut,_Vars).
 
-:- mode unnumbervars(?,?,?).
+:- mode unnumbervars(?,+,?).
 unnumbervars(TermIn,FirstN,TermOut) :- 
 	unnumbervars(TermIn,FirstN,TermOut,_Vars).
 
-:- mode unnumbervars(?,?,?,?).
-unnumbervars(TermIn,FirstN,TermOut,Vars) :-
+:- mode unnumbervars(?,+,?,?).
+unnumbervars(TermIn,First,TermOut,Vars) :-
+    unnumbervars(TermIn,First,TermOut,Vars,'$VAR'(_)).
+
+:- mode unnumbervars(?,+,?,?,?).
+unnumbervars(_TermIn,_First,_TermOut,_Vars,_Varform) :-
+    '_$builtin'(UNNUMBERVARS).
+
+:- export old_unnumbervars/2, old_unnumbervars/4.
+old_unnumbervars(TermIn,TermOut) :-
+    old_unnumbervars(TermIn,0,TermOut,_).
+
+old_unnumbervars(TermIn,FirstN,TermOut,Vars) :-
     term_type(TermIn,Type),
     (Type =:= XSB_STRUCT
      ->	(TermIn = '$VAR'(I), integer(I)
@@ -119,25 +132,25 @@ unnumbervars(TermIn,FirstN,TermOut,Vars) :-
 	    term_new(PSC,NTermOut),
 	    NTermOut = TermOut,
 	    psc_arity(PSC,Arity),
-	    unnumbervars(TermIn,FirstN,TermOut,Vars,1,Arity)
+	    old_unnumbervars(TermIn,FirstN,TermOut,Vars,1,Arity)
 	)
      ;	Type =:= XSB_LIST
      ->	TermIn = [A1|A2],
 	TermOut = [B1|B2],
-	unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) % avoid allocate
+	old_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) % avoid allocate
      ;	TermOut = TermIn
     ).
 
-unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) :-
-    unnumbervars(A1,FirstN,B1,Vars),
-    unnumbervars(A2,FirstN,B2,Vars).
+old_unnumbervars_list(A1,FirstN,B1,Vars,A2,B2) :-
+    old_unnumbervars(A1,FirstN,B1,Vars),
+    old_unnumbervars(A2,FirstN,B2,Vars).
 
-unnumbervars(TermIn,FirstN,TermOut,Vars,I,Arity) :-
+old_unnumbervars(TermIn,FirstN,TermOut,Vars,I,Arity) :-
 	(I =< Arity
          ->     term_arg(TermIn,I,ArgIn),
 		term_arg(TermOut,I,ArgOut),
-	        unnumbervars(ArgIn,FirstN,ArgOut,Vars),
+	        old_unnumbervars(ArgIn,FirstN,ArgOut,Vars),
 		I1 is I+1,
-		unnumbervars(TermIn,FirstN,TermOut,Vars,I1,Arity)
+		old_unnumbervars(TermIn,FirstN,TermOut,Vars,I1,Arity)
 	 ;      true
         ).

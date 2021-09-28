@@ -60,7 +60,7 @@
 :- import sort/2 from setof.
 
 :- import (table)/1 from standard.
-:- import (';')/2 from standard.
+   :- import (';')/2, (',')/2 from standard.
 :- import writeln/1 from standard.
 :- import call_c/1,functor/3 from standard.
 

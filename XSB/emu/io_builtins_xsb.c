@@ -877,21 +877,29 @@ int read_canonical(CTXTdecl)
   return TRUE;
 }
 
+CPtr read_canonical_return_location;
+
 Cell read_canonical_return_var(CTXTdeclc int code) {
-  if (code == 1) { /* from read_canonical */
+  switch (code) {
+  case 1: /* from read_canonical */
     return (Cell)ptoc_tag(CTXTc 2);
-  } else if (code == 2) { /* from odbc */
+  case 2: { /* from odbc */
     Cell op1, op;
     op = ptoc_tag(CTXTc 4);
     op1 = get_str_arg(op,1);
     XSB_Deref(op1);
     return op1;
-  } else if (code == 3) { /* from loader, use r5 */
+  }
+  case 3: { /* from loader, use r5 */
     Cell op;
     op = ptoc_tag(CTXTc 5);
     XSB_Deref(op);
     return op;
-  } else return (Cell)NULL;
+  }
+  case 4:
+    return *read_canonical_return_location;
+  default: return (Cell)NULL;
+  }
 }
 
 /* copied from emuloop.c and added param */

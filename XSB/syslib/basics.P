@@ -99,12 +99,14 @@ ith1([_|L],I1,I,X) :- I2 is I1+1, ith1(L,I2,I,X).
 % log_ith(Index,ListStr,Element)
 log_ith(K,T,E) :- 
 	(integer(K)	% integer
-	 ->	log_ith0(K,T,E,1)
+	 ->     log_ith0(K,T,E,1)
 	 ;	log_ith1(K,T,E,1)
 	).
 
-% K is bound
-log_ith0(K,[L|R],E,N) :-
+log_ith0(_K,_L,_E,_N) :- '_$builtin'(LOG_ITH0).
+
+/*% K is bound
+old_log_ith0(K,[L|R],E,N) :-
 	(K < N
 	 ->	bintree0(K,L,E,N)
 	 ;	K1 is K-N,
@@ -125,7 +127,7 @@ bintree0(K,T,E,N) :-
 	 ;      K =:= 0,
 		T = E
 	).
-
+***/
 
 % K is unbound
 log_ith1(K,[L|_R],E,N) :-

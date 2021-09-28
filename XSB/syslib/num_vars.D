@@ -7,11 +7,14 @@
 :- mode numbervars(?,+,?,+).
 :- mode numbervars(?,+,?,+,+,+).
 :- mode numbervars_int(?,+,?,+).
+:- mode old_unnumbervars(?,?).
+:- mode old_unnumbervars(?,?,?,?).
+:- mode old_unnumbervars(?,?,?,?,+,+).
+:- mode old_unnumbervars_list(?,?,?,?,?,?).
 :- mode unnumbervars(?,?).
-:- mode unnumbervars(?,?,?).
-:- mode unnumbervars(?,?,?,?).
-:- mode unnumbervars(?,?,?,?,+,+).
-:- mode unnumbervars_list(?,?,?,?,?,?).
+:- mode unnumbervars(?,+,?).
+:- mode unnumbervars(?,+,?,?).
+:- mode unnumbervars(?,+,?,?,?).
 
 :- mode_on_success check_numbervars_options(g,g).
 :- mode_on_success numbervars(A).
@@ -19,8 +22,7 @@
 :- mode_on_success numbervars(A,g,g,g).
 :- mode_on_success numbervars(A,g,g,g,g,g).
 :- mode_on_success numbervars_int(A,g,g,g).
-:- mode_on_success unnumbervars(A,B).
-:- mode_on_success unnumbervars(A,B,C).
-:- mode_on_success unnumbervars(A,B,C,D).
-:- mode_on_success unnumbervars(A,B,C,D,g,g).
-:- mode_on_success unnumbervars_list(A,B,C,D,E,F).
+:- mode_on_success old_unnumbervars(A,B).
+:- mode_on_success old_unnumbervars(A,B,C,D).
+:- mode_on_success old_unnumbervars(A,B,C,D,g,g).
+:- mode_on_success old_unnumbervars_list(A,B,C,D,E,F).

@@ -53,7 +53,7 @@
 #endif
 
 #ifndef MAXFILENAME
-#define MAXFILENAME   255  /* SYSV */
+#define MAXFILENAME   255  /* SYSV: WARNING!!, if might contain path, must use MAXPATHLEN*/
 #endif
 
 #ifndef MAXBUFSIZE
