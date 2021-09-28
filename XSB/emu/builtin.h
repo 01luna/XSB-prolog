@@ -267,6 +267,7 @@
 #define CHECK_CYCLIC              226
 #define IS_ACYCLIC                227
 /*#define GROUND_CYC              228 */
+#define FUNCTOR4		  228
 
 #define FINDALL_FREE    	229
 
@@ -288,6 +289,8 @@
 #define XSB_BACKTRACE		238
 
 #define COPY_TERM_3             240
+#define UNNUMBERVARS		241
+#define LOG_ITH0                242
 
 #define EXP_HEAP                246
 #define MARK_HEAP               247

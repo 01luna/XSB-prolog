@@ -100,6 +100,7 @@ byte *inst_begin_gl;
 
 char *nil_string, *true_string, *cut_string, *cyclic_string;
 char float_format[10];
+Cell usermod_cell, list_dot_cell;
 
 Pair list_pscPair;
 

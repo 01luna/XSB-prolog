@@ -43,6 +43,7 @@
 #include "xsb_config.h"
 #include "context.h"
 #include "cell_xsb.h"
+#include "binding.h"
 #include "cinterf.h"
 #include "deref.h"
 #include "register.h"
@@ -133,4 +134,117 @@ void setrand(CTXTdecl) {
   random_seeds->IX = (short)ptoc_int(CTXTc 2);
   random_seeds->IY = (short)ptoc_int(CTXTc 3);
   random_seeds->IZ = (short)ptoc_int(CTXTc 4);
+}
+
+
+/* try implementing log_ith0 in C? */
+extern xsbBool unify(CTXTdeclc Cell, Cell);
+
+/*******
+int bintree0(CTXTdeclc Integer k, prolog_term t, prolog_term e, Integer n) {
+  prolog_term he, ta;
+  if (n > 1) {
+    if (islist(t)) {
+      he = get_list_head(t);
+      ta = get_list_tail(t);
+    } else if (isref(t)) {
+      bind_list((CPtr)t,hreg);
+      bld_free(hreg);
+      bld_ref(&he,hreg);
+      bld_free((hreg+1));
+      bld_ref(&ta,hreg+1);
+      hreg += 2;
+    } else {return FALSE;}
+    n = n/2;
+    if (k < n) {
+      return bintree0(k,he,e,n);
+    } else {
+      k -= n;
+      return bintree0(k,ta,e,n);
+    }
+  }
+  if (k != 0) printf("error: %lld\n",k);
+  return unify(CTXTc t,e);
+}
+  
+int log_ith0(CTXTdeclc Integer k, prolog_term t, prolog_term e, Integer n) {
+  prolog_term he, ta;
+  if (islist(t)) {
+    he = get_list_head(t);
+    ta = get_list_tail(t);
+  } else if (isref(t)) {
+    bind_list((CPtr)t,hreg);
+    bld_free(hreg);
+    bld_ref(&he,hreg);
+    bld_free((hreg+1));
+    bld_ref(&ta,hreg+1);
+    hreg += 2;
+  } else {return FALSE;}
+  if (k < n) {
+    return bintree0(k,he,e,n);
+  } else {
+    k -= n; n += n;
+    return log_ith0(k,ta,e,n);
+  }
+}
+**************/
+
+int log_ith0(CTXTdeclc Integer k, prolog_term t, prolog_term e, Integer n) {
+ START_LOG_ITH0:
+  XSB_Deref(t);
+  if (k >= n) {
+    if (islist(t)) {
+      t = get_list_tail(t);
+    } else if (isref(t)) {
+      bind_list((CPtr)t,hreg);
+      bld_free(hreg);
+      bld_free((hreg+1));
+      bld_ref(&t,hreg+1);
+      hreg += 2;
+    } else return 0;
+    k -= n;  n += n;
+    goto START_LOG_ITH0;
+  } else {
+    if (islist(t)) {
+      t = get_list_head(t);
+    } else if (isref(t)) {
+      bind_list((CPtr)t,hreg);
+      bld_free(hreg);
+      bld_ref(&t,hreg);
+      bld_free((hreg+1));
+      hreg += 2;
+    } else return 0;
+    goto START_BINTREE0;
+  }
+ START_BINTREE0:
+  if (n > 1) {
+    XSB_Deref(t);
+    n = n / 2;
+    if (k < n) {
+      if (islist(t)) {
+	t = get_list_head(t);
+      } else if (isref(t)) {
+	bind_list((CPtr)t,hreg);
+	bld_free(hreg);
+	bld_ref(&t,hreg);
+	bld_free(hreg+1);
+	hreg += 2;
+      } else return 0;
+      goto START_BINTREE0;
+    }  else {
+      if (islist(t)) {
+	t = get_list_tail(t);
+      } else if (isref(t)) {
+	bind_list((CPtr)t,hreg);
+	bld_free(hreg);
+	bld_free(hreg+1);
+	bld_ref(&t,hreg+1);
+	hreg += 2;
+      } else return 0;
+      k -= n;
+      goto START_BINTREE0;
+    }
+  } else {
+    return unify(CTXTc t,e);
+  }
 }

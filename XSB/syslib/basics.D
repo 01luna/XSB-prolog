@@ -6,7 +6,6 @@
 :- mode append(?,?,?).
 :- mode between(+,+,?).
 :- mode between_1(+,+,?).
-:- mode bintree0(+,?,?,+).
 :- mode bintree1(?,?,?,+).
 :- mode bintree2(+,?,?,+).
 :- mode bintree3(?,?,?,+).
@@ -67,9 +66,6 @@
 :- mode_on_success append(ng,A,ng).
 :- mode_on_success between(g,g,g).
 :- mode_on_success between_1(g,g,g).
-:- mode_on_success bintree0(g,A,g,g).
-:- mode_on_success bintree0(g,A,A,g).
-:- mode_on_success bintree0(g,ng,A,g).
 :- mode_on_success bintree1(g,A,g,g).
 :- mode_on_success bintree1(g,A,A,g).
 :- mode_on_success bintree1(g,ng,A,g).
@@ -118,8 +114,6 @@
 :- mode_on_success list_valcount_1(ng,A,g,ng).
 :- mode_on_success log_ith(g,A,g).
 :- mode_on_success log_ith(g,ng,A).
-:- mode_on_success log_ith0(g,A,g,g).
-:- mode_on_success log_ith0(g,ng,A,g).
 :- mode_on_success log_ith1(g,A,g,g).
 :- mode_on_success log_ith1(g,ng,A,g).
 :- mode_on_success log_ith2(g,A,g,g).

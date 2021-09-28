@@ -154,7 +154,7 @@ typedef struct psc_pair *Pair;
 #define  get_ep(psc)		((psc)->ep)
 #define  get_data(psc)		((psc)->data)
 #define  get_name(psc)		((psc)->nameptr)
-#define  get_mod_for_psc(psc)	(isstring(get_data(psc))?global_mod:get_data(psc))
+#define  get_mod_for_psc(psc)	((!get_data(psc) || isstring(get_data(psc)))?global_mod:get_data(psc))
 #define  get_mod_name(psc)	get_name(get_mod_for_psc(psc))
 
 #define  psc_set_type(psc, type)	(psc)->entry_type = type
@@ -245,7 +245,10 @@ extern char *true_string;
 extern char *cut_string;
 extern Pair list_pscPair;
 extern char *list_dot_string;
-extern char * cyclic_string;
+extern char *cyclic_string;
+
+extern Cell usermod_cell;
+extern Cell list_dot_cell;
 
 extern int force_string_gc;
 

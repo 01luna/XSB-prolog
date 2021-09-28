@@ -469,7 +469,7 @@ jmp_buf xsb_abort_fallback_environment;
 char *xsb_segfault_message;
 int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
 
-#define SET_NUMCMP(reg,op1,op2) \
+#define SET_NUMCMP(res,op1,op2) \
     if (isointeger(op1)) { \
       if (isointeger(op2)) { \
 	Integer iop1 = oint_val(op1); \
@@ -2043,7 +2043,7 @@ argument positions.
     op2 = *(op3);
     XSB_Deref(op1);
     XSB_Deref(op2);
-    SET_NUMCMP(reg,op1,op2)
+    SET_NUMCMP(res,op1,op2)
     //#ifdef NON_OPT_COMPILE
     //    if (res == 2) xsb_abort("uninitialized use of res in cmpreg instruction");
     //#endif

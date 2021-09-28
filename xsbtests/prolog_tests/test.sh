@@ -168,6 +168,8 @@ rm -f varcond.xwam
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" large_arity_prolog "test."
 #------------------------------------------------------------------------
+../gentest.sh "$XEMU $options" functor4_tests "test."
+#------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" range_tree_tests "test."
 #------------------------------------------------------------------------
 ../gentest.sh "$XEMU $options" test_large_atom_codes "test."

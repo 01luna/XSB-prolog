@@ -3497,16 +3497,16 @@ as arguments, or if {\tt X} is an atom. (It fails if X is a cons node.)
           \end{itemize}
     \end{enumerate}
 
-{\bf Error Cases}
+{\bf Error Cases:}
     \begin{description}
     \item[{\tt atom\_or\_variable}]
 	{\tt Functor} is not an atom or variable.
     \item[{\tt instantiation\_error}]
-	Both {\tt Term}, and either {\tt Functor}, or {\tt Arity} are 
+	Both {\tt Term} and either {\tt Functor} or {\tt Arity} are 
 	uninstantiated.
     \end{description}
 
-    Examples:
+{\bf Examples:}
     {\footnotesize
      \begin{verbatim}
                 | ?- functor(p(f(a),b,t), F, A).
@@ -3551,17 +3551,77 @@ as arguments, or if {\tt X} is an atom. (It fails if X is a cons node.)
                 A = 3
 
                 | ?- functor(T, foo(a), 1).
-                ++Error: Wrong type in argument 2 of functor/3
-                Aborting...
+                ++Error[XSB/Runtime/P]: [Type (foo(a) in place of atomic)] in arg 2
+                                        of predicate functor/3
+                Forward Continuation...
 
                 | ?- functor(T, F, 3).
-                ++Error: Uninstantiated argument 2 of functor/3
-                Aborting...
+                ++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+                Forward Continuation...
 
                 | ?- functor(T, foo, A).
-                ++Error: Uninstantiated argument 3 of functor/3
-                Aborting...
+                ++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+                Forward Continuation...
      \end{verbatim}}
+
+\ourstandarditem{functor(?Term, ?Module, ?Functor, ?Arity)}{functor/4}{}
+    The predicate {\tt functor/4} extends the functionality of {\tt
+      functor/3} to include the handling of modules. In XSB's module
+    system (See \ref{Modules}), every structured term is in a module.  The
+    default module is {\tt usermod} where most terms reside.  A term
+    that corresponds to a predicate defined in a module resides in
+    that module.  Also terms declared {\tt local} in a module or
+    explicitly created by the builtin {\tt term\_new\_mod/3} reside in
+    their named modules.
+    
+    This predicate {\tt functor/4}succeeds if the {\em functor} of the
+    Prolog term {\tt Term} is {\tt Functor}, the {\em arity} (number
+    of arguments) of {\tt Term} is {\tt Arity} and {\tt Term} resides
+    in module {\tt Module}\@.
+
+    A call to {\tt functor(Term, \_, Functor, Arity)} (with the module
+    parameter as a variable) acts exactly like a call to {\tt
+      functor(Term, Functor, Arity)} with respect to {\tt Term}, {\tt
+      Functor}, and {\tt Arity}\@.  If {\tt Term} and {\tt Module} are
+    variables in a call, then {\tt Module} will be unified with {\tt
+      usermod} and {\tt Term} will be constructed in module {\tt
+      usermod}\@.  If {\tt Term} is variable and {\tt Module} is not
+    variable, then {\tt Module} must be a ground term and {\tt Term}
+    will be constructed in that (possibly parameterized) module.
+
+    If {\tt Term} is bound, then {\tt Module} will be unified with the
+    name of the module of {\tt Term}\@.  If {\tt Term} is in a
+    parameterized module, then {\tt Module} will be unified with the
+    structured term representing its module.
+
+    {\bf Error Cases}
+    \begin{description}
+    \item[{\tt type\_error:}] {\tt Functor} is not atomic or a
+      variable; {\tt Arity} is not an integer or variable; {\tt
+        Module} is a number.
+    \item[{\tt domain\_error:}] {\tt Arity} is not a positive integer
+      less than or equal to MAX\_ARITY.
+    \item[{\tt instantiation\_error:}] Both {\tt Term} and either
+      {\tt Functor} or {\tt Arity} are uninstantiated.
+    \end{description}
+
+    {\bf Examples}
+    \begin{verbatim}
+    | ?- standard:functor(AGoal,basics,append,3),arg(3,AGoal,[a,b]),call(AGoal).
+    AGoal = append([],[a,b],[a,b]);
+    AGoal = append([a],[b],[a,b]);
+    AGoal = append([a,b],[],[a,b]);
+    no
+    | ?- 
+
+    | ?- functor(T,M,f,3).
+    T = f(_h421,_h422,_h423)
+    M = usermod
+
+    | ?- standard:functor(T,trans(_),f,3).
+    ++Error[XSB/Runtime/P]: [Instantiation]  in arg 2 of predicate functor/4
+    Forward Continuation...
+    \end{verbatim}
 
 \ourstandarditem{hilog\_functor(?Term, ?F, ?Arity)}{hilog\_functor/3}{HiLog}
 %

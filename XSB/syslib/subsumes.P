@@ -124,7 +124,7 @@ variant1(X,Y,I0,I) :-
 	 	variant1(X1,Y1,I0,I1), variant1(X2,Y2,I1,I)
 	 ; Ty =:= 1	% str
 	 ->	term_psc(X,Xpsc), psc_arity(Xpsc,Arity),
-		term_psc(Y,Ypsc), psc_arity(Ypsc,Arity1), Arity=Arity1,
+		%%term_psc(Y,Ypsc), psc_arity(Ypsc,Arity1), Arity=Arity1,
 		variant1(X,Y,1,Arity,I0,I)
 	 ; Ty =:= 0	% vars
 	 ->	X = '$VAR'(I0), I is I0 + 1, Y = X

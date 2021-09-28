@@ -1632,6 +1632,8 @@ void init_symbols(CTXTdecl)
   strcpy(cyclic_string_array,"<cyclic>");
   cyclic_string = cyclic_string_array;
   cut_string = string_find("!",1);
+  usermod_cell = makestring(string_find("usermod",1));
+  list_dot_cell = makestring(string_find(".",1));
   //  flags[FLOAT_DISPLAY_FORMAT] = (Cell)  string_find("%1.16g", 1);
   //  cyclic_string = (char *) string_find(,"<cyclic>"1);
 

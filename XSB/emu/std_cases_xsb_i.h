@@ -86,6 +86,9 @@
   case FUNCTOR:	/* r1: ?term; r2: ?functor; r3: ?arity (int)	*/
     return functor_builtin(CTXT);
     
+  case FUNCTOR4:
+    return functor4_builtin(CTXT); 
+
   case ARG:	/* r1: +index (int); r2: +term; r3: ?arg (term) */
     return arg_builtin(CTXT);
     

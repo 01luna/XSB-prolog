@@ -32,6 +32,77 @@
 static xsbBool atom_to_list(CTXTdeclc int call_type);
 static xsbBool number_to_list(CTXTdeclc int call_type);
 
+#define with_quotes_if_nec(name,namelen)	\
+  do {						\
+  if (mustquote(name)) {			\
+    string[(*loc)++] = '\'';			\
+    memcpy(string+*loc,name,namelen);		\
+    *loc += namelen;				\
+    string[(*loc)++] = '\'';			\
+  } else {					\
+    memcpy(string+*loc,name,namelen);		\
+    *loc += namelen;				\
+  }						\
+  }  while (FALSE)
+  
+
+extern int mustquote(char *);
+/* convert a term representing a parameterized module reference to a
+   string. Caller must provide space and, on successful return,
+   end-of-string marker. */
+int modterm_to_string(Cell term, char *string, int *loc) {
+  char *name; int namelen;
+  XSB_Deref(term);
+  switch (cell_tag(term)) {
+  case XSB_STRING: {
+    name = string_val(term);
+    namelen = (int)strlen(name);
+    with_quotes_if_nec(name,namelen);
+    return TRUE;
+  }
+  case XSB_STRUCT: {
+    int arity, j;
+    Cell subterm;
+    if (isointeger(term) || isofloat(term)) return FALSE;
+    name = get_name(get_str_psc(term));
+    namelen = (int)strlen(name);
+    with_quotes_if_nec(name,namelen);
+    if (!strcmp(name,"usermod")) return TRUE;
+    arity = get_arity(get_str_psc(term));
+    if (arity == 0) return TRUE;
+    string[(*loc)++] = '(';
+    for (j = 1; j < arity ; j++) {
+      subterm = get_str_arg(term,j);
+      if (!modterm_to_string(subterm, string, loc)) return FALSE;
+      string[(*loc)++] = ',';
+    }
+    subterm = get_str_arg(term,j);
+    if (!modterm_to_string(subterm, string, loc)) return FALSE;    
+    string[(*loc)++] = ')';
+    return TRUE;
+  }
+  case XSB_REF:
+  case XSB_REF1:
+    xsb_instantiation_error(CTXTc "functor/4", 2);
+  default:
+    return FALSE;
+  }
+}
+
+extern CPtr read_canonical_return_location;
+extern void print_term(FILE *, Cell, byte, long);
+
+Integer string_to_modterm(CTXTdeclc char *string, Cell term) {
+  Integer rc;
+  STRFILE strfile;
+  strfile.strcnt = strlen(string);
+  strfile.strptr = strfile.strbase = (byte *)string;
+  iostrs[0] = &strfile;
+  read_canonical_return_location = &term;  // a XSB_REF
+  //  XSB_CptrDeref(read_canonical_return_location);
+  rc = read_canonical_term(CTXTc iostrdecode(0), 4);
+  return rc;
+}
 
 /* TLS 10/01 changed functor so that it did not core dump on 
    functor(X,1,2) */
@@ -116,6 +187,111 @@ inline static xsbBool functor_builtin(CTXTdecl)
       }
   }
   return TRUE;
+}
+
+xsbBool functor4_builtin(CTXTdecl) {
+  Cell argTerm, argMod, argFunctor, argArity;
+  argTerm = ptoc_tag(CTXTc 1);
+  argArity = ptoc_tag(CTXTc 4);
+  if (isref(argTerm) && isinteger(argArity) && int_val(argArity) > 20) {
+    if (int_val(argArity) > MAX_ARITY) {
+      xsb_representation_error(CTXTc "max_arity",
+			       makestring(string_find("Arity of term",1)),
+			       "functor/4",3);
+    }
+    check_glstack_overflow(4, pcreg, (int_val(argArity)+1)*sizeof(Cell));
+    argTerm = ptoc_tag(CTXTc 1);
+    argArity = ptoc_tag(CTXTc 4);
+  }
+  argMod = ptoc_tag(CTXTc 2);
+  argFunctor = ptoc_tag(CTXTc 3);
+
+  /* check all type/domain errors */
+  if (!(isref(argTerm) || !isointeger(argTerm) ||
+	!(isconstr(argTerm) && !isofloat(argTerm) && !isointeger(argTerm))))
+    xsb_type_error(CTXTc "atom or structure",argMod,"functor/4",2);
+  if (isconstr(argFunctor) && !isofloat(argFunctor) && !isointeger(argFunctor))
+    xsb_type_error(CTXTc "atomic",argFunctor,"functor/4",3);
+  if (isnonvar(argArity)) {
+    if (!isinteger(argArity))
+      xsb_type_error(CTXTc "integer",argArity,"functor/4",4);
+    else if (int_val(argArity) < 0 || int_val(argArity) > MAX_ARITY)
+      xsb_domain_error(CTXTc "not_legal_arity",argArity,"functor/4",4);
+  }
+  /* now do work and instantiation errors */
+  if (isnonvar(argTerm)) { /* generate mod,functor,arity from term */
+    if (isstring(argTerm) || isofloat(argTerm) ||
+	isointeger(argTerm) || xsb_isnumber(argTerm)) {
+      return (atom_unify(CTXTc usermod_cell, argMod) &&
+	      unify(CTXTc argTerm, argFunctor) &&
+	      int_unify(CTXTc makeint(0), argArity));
+    } else if (isconstr(argTerm)) {
+      Psc termpsc = get_str_psc(argTerm);
+      char *modname = get_mod_name(termpsc);
+      Cell modnameterm;
+      if (strchr(modname,'(')) {
+	modnameterm = (Cell)&modnameterm;
+	if (string_to_modterm(CTXTc modname, modnameterm))
+	  xsb_exit("Internal error: module name read_canonical!");
+      } else modnameterm = makestring(modname);
+      return (unify(CTXTc modnameterm, argMod) &&
+	      atom_unify(CTXTc makestring(get_name(termpsc)), argFunctor) &&
+	      int_unify(CTXTc makeint(get_arity(termpsc)), argArity));
+    } else if (islist(argTerm)) {
+      return (atom_unify(CTXTc usermod_cell, argMod) &&
+	      atom_unify(CTXTc list_dot_cell, argFunctor) &&
+	      int_unify(CTXTc makeint(2), argArity));
+    }
+  } else { /* generate term from mod,functor,arity */
+    if (xsb_isnumber(argFunctor) || isofloat(argFunctor) || isointeger(argFunctor)) {
+      return (atom_unify(CTXTc usermod_cell, argMod) &&
+	      unify(CTXTc argTerm, argFunctor) &&
+	      int_unify(CTXTc makeint(0), argArity));
+    } else if (isstring(argFunctor)) {
+      Cell term;
+      Psc modpsc;
+      int arity;
+      if (isref(argMod)) { // if mod (and term) are vars, assume usermod
+	atom_unify(CTXT usermod_cell, argMod);
+	modpsc = global_mod;
+      } else {
+	if (!strcmp(string_val(argMod),"usermod")) modpsc = global_mod;
+	else if (isstring(argMod))
+	  modpsc = (insert_module(0,string_val(argMod)))->psc_ptr;
+	else {/* mod is structured */
+	  int loc = 0;
+	  char modname[MAXFILENAME];
+	  modterm_to_string(argMod,modname,&loc);
+	  modname[loc] = '\0';
+	  modpsc = (insert_module(0,modname))->psc_ptr;
+	}
+      }
+      if (isref(argArity))
+	xsb_instantiation_error(CTXTc "functor/4", 4);
+      arity = (int)int_val(argArity);
+      if (arity == 0 && modpsc == global_mod) {
+	term = argFunctor;
+      } else if (arity == 2 && !strcmp(string_val(argFunctor),".") &&
+		 modpsc == global_mod) {
+	term = makelist(hreg);
+	new_heap_free(hreg);
+	new_heap_free(hreg);
+      } else {  /* handle building general structure */
+	int disp, is_new;
+	Psc termpsc = (insert_psc(string_val(argFunctor),
+				  arity, modpsc, &is_new))->psc_ptr;
+	if (is_new && modpsc != global_mod) psc_set_data(termpsc, modpsc);
+	term = makecs(hreg);
+	new_heap_functor(hreg, termpsc);
+	for (disp=0; disp<arity; disp++) {
+	  new_heap_free(hreg);
+	}
+      }
+      return unify(CTXT argTerm, term);
+    }
+    else xsb_instantiation_error(CTXTc "functor/4", 1);
+  }
+  return FALSE; /* should not get here */
 }
 
 /* TLS 12/08 replaced what had been a fail if arg 2 was not a compound

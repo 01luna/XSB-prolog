@@ -195,7 +195,8 @@
 	functor/3, is_attv/1, tcall/1,
 	(index)/2, (==)/2
    from standard.
-   :- import call_c/1,nl/0,write/1, tell/1, told/0, (\=)/2, arg/3 from standard.
+:- import ('^')/2 from setof.
+:- import call_c/1,nl/0,write/1, tell/1, told/0, (\=)/2, arg/3 from standard.
 :- import writeln/2, write/2, writeq/2 from standard.
 :- import is_most_general_term/1 from standard.
 :- import call/3 from standard.

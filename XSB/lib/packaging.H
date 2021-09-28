@@ -37,8 +37,7 @@
 
 %% :- import abort/1 from standard.
 
-:- import slash/1, expand_filename/2
-   from machine.
+:- import slash/1, expand_filename/2 from machine.
 :- import xsb_configuration/2 from xsb_configuration.
 :- import add_lib_dir/1 from consult.
 :- import fmt_write_string/3 from file_io.

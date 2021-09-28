@@ -441,7 +441,6 @@
 :- mode_on_success forall(A,B).
 :- mode_on_success forbidden_operator(g,g,g,g).
 :- mode_on_success functor(A,g,g).
-:- mode_on_success functor(A,B,g,g).
 :- mode_on_success gc_atoms.
 :- mode_on_success gc_dynamic(g).
 :- mode_on_success gc_tables(g).

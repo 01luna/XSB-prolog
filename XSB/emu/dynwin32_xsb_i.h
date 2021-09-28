@@ -84,12 +84,12 @@ static byte *load_obj_dyn(CTXTdeclc char *pofilename, Psc cur_mod, char *ld_opti
   char	*name;
 #ifndef WIN64
 #ifdef XSB_DLL
-  char tempname[MAXFILENAME];
+  char tempname[MAXPATHLEN];
   size_t  tempsize;
 #endif
 #endif
   Pair	search_ptr;
-  char	sofilename[MAXFILENAME];
+  char	sofilename[MAXPATHLEN];
   char  *sofilenameA;
   HMODULE handle;
   void	*funcep;
