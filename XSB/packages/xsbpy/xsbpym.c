@@ -18,6 +18,14 @@
 
 #define PY_SSIZE_T_CLEAN
 
+#ifdef WIN64
+//this allows varstring_xsb to compile
+#define WINDOWS_IMP
+//CFA put this in to override xsb_config_aux.h's incorrect value of 8
+//#define SIZEOF_LONG 4
+#include "windows.h"
+#endif
+
 #include <Python.h>
 #include <frameobject.h>
 #include <traceback.h>
@@ -40,7 +48,6 @@
 
 #include "xsb_config.h"
 #ifdef WIN_NT
-#define XSB_DLL
 //this allows varstring_xsb to compile
 #define WINDOWS_IMP
 //CFA put this in to override xsb_config_aux.h's incorrect value of 8
@@ -323,10 +330,10 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     PyObject *pyObjInner = NULL;
     size_t size = PyTuple_Size(pyObj);
     prolog_term P = p2p_new();
-    c2p_functor("",size,P);
+    c2p_functor("",(int)size,P);
     for (i = 0; i < size; i++) {
       pyObjInner = PyTuple_GetItem(pyObj, i);
-      prolog_term ithterm = p2p_arg(P, i+1);
+      prolog_term ithterm = p2p_arg(P, (int)(i+1));
       convert_pyObj_prObj(pyObjInner, &ithterm,1);
     }
     //    Py_DECREF(pyObjinner);
@@ -557,12 +564,20 @@ DllExport int init_python() {
   if(!Py_IsInitialized()) {
     const char *pylib = getenv( "PYTHON_LIBRARY" );
     if (pylib) {
-      printf("pylib is: %s\n",pylib);
+      printf("pylib is: %s\n",pylib); fflush(stdout);
+#ifdef WIN_NT
+      LoadLibrary(pylib);
+#else
       dlopen( pylib, RTLD_LAZY | RTLD_GLOBAL );
+#endif
     } else {
+#ifdef WIN_NT
+      xsb_abort("++Error[xsbpy]: PYTHON_LIBRARY not found; Is environment variable set?\n");
+#else
       dlopen(PYTHON_CONFLIB_2QUOTED, RTLD_LAZY | RTLD_GLOBAL );
       //#if defined(PYTHON37)
       //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+#endif
       //#elif defined(PYTHON38)      
       //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
       //#else
@@ -679,7 +694,7 @@ DllExport int pydot(CTXTdecl) {
   ensureXSBStackSpace(CTXTc pObjOut);
   prolog_term return_pr = p2p_new(CTXT);
   if(!convert_pyObj_prObj(CTXTc pObjOut, &return_pr, 1)) {
-    xsb_abort("++Error[xsbpy]: The return of pydot/4  could not be translated to Prolog");
+    xsb_abort("++Error[xsbpy]: The return of xsbpy_meth/4  could not be translated to Prolog");
   } 
   if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
     return FALSE;
