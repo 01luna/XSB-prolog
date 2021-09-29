@@ -1095,7 +1095,7 @@ inline static xsbBool parsort(CTXTdecl)
 	XSB_Deref(term2);
       } else xsb_type_error(CTXTc "list",list,"parsort/4/5",2);
     }
-      
+
   list = ptoc_tag(CTXTc 1);
   term2 = list; len = 0;
   do {
@@ -1119,7 +1119,7 @@ inline static xsbBool parsort(CTXTdecl)
     }
   } while(1);
 
-  check_glstack_overflow(4, pcreg, (2*len)*sizeof(Cell)+OVERFLOW_MARGIN) ;
+  check_glstack_overflow(5, pcreg, (2*len)*sizeof(Cell)+OVERFLOW_MARGIN) ;
   list = ptoc_tag(CTXTc 1);  /* reset in case moved */
   term = ptoc_tag(CTXTc 5);
   if (len > 0) {
