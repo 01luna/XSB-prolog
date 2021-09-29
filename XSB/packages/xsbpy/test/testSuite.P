@@ -7,7 +7,7 @@
 :- import concat_atom/2 from string.
 :- import length/2 from basics.
 :- import xsb_error_get_message/2 from error_handler.
-:- import pyfunc/3, pydot/4, pyfunc/4 from xsbpy.
+:- import pyfunc/3, pydot/4, pyfunc/4,pyfunc/5 from xsbpy.
 
 testSuite:-
     sumlist_tests, 
@@ -70,7 +70,12 @@ dataConversionTests :-
      ;   write('!!!set conversion tests failed\n')),
     (tupleConvTest->
 	 write('tuple conversion tests successful\n')
-    ;   write('!!!tuple conversion tests failed\n')),
+    ;    write('!!!tuple conversion tests failed\n')),
+    fail.
+dataConversionTests :- 
+    (dictConvTest->
+	 write('dict conversion tests successful\n')
+    ;    write('!!!dict conversion tests failed\n')),
     fail.
 dataConversionTests :- 
     pyfunc(returnVal,return_None(),PYNONE_PROLOG),
@@ -84,10 +89,36 @@ dataConversionTests :-
     pyfunc(returnVal,return_False(),0),
     writeln('return_False_succeeded'),
     fail.
+dataConversionTests :- 
+    (intConvTest_sizecheck->
+	 write('int conversion_sizecheck tests successful\n')
+     ;   write('!!!int conversion_sizecheck tests failed\n')), 
+    (floatConvTest_sizecheck->
+	 write('float conversion_sizecheck tests successful\n')
+     ;   write('!!!float conversion_sizecheck tests failed\n')),
+    (stringConvTest_sizecheck->
+	 write('string conversion_sizecheck tests successful\n')
+     ;   write('!!!string conversion_sizecheck tests failed\n')),
+    (listConvTest_sizecheck->
+	 write('list conversion_sizecheck tests successful\n')
+     ;   write('!!!list conversion_sizecheck tests failed\n')),
+    (setConvTest_sizecheck->
+	 write('set conversion_sizecheck tests successful\n')
+     ;   write('!!!set conversion_sizecheck tests failed\n')),
+    (tupleConvTest_sizecheck->
+	 write('tuple conversion_sizecheck tests successful\n')
+    ;   write('!!!tuple conversion_sizecheck tests failed\n')),
+    fail.
+dataConversionTests:- 
+    (dictConvTest_sizecheck->
+	 write('dict conversion_sizecheck tests successful\n')
+    ;    write('!!!dict conversion_sizecheck tests failed\n')),
+    fail.
 dataConversionTests.
 
+pyfunc_sc(Mod,Func,Reg):-
+    pyfunc(Mod,Func,[],[sizecheck(true)],Reg).
 
-%@@
 intConvTest :-
     current_prolog_flag(min_integer, MinValue), 
     not(var(MinValue)), 
@@ -96,25 +127,46 @@ intConvTest :-
     pyfunc('test/returnVal', returnVal(MinValue), MinValue), 
     pyfunc('test/returnVal', returnVal(MaxValue), MaxValue).
 
+intConvTest_sizecheck :-
+    current_prolog_flag(min_integer, MinValue), 
+    not(var(MinValue)), 
+    current_prolog_flag(max_integer, MaxValue), 
+    not(var(MaxValue)),
+    pyfunc_sc('test/returnVal', returnVal(MinValue), MinValue), 
+    pyfunc_sc('test/returnVal', returnVal(MaxValue), MaxValue).
+
 floatConvTest :- 
     pyfunc('test/returnVal', returnVal(3.54), 3.54),
     pyfunc('test/returnVal', returnVal(3.5535252352), 3.5535252352).
+
+floatConvTest_sizecheck :- 
+    pyfunc_sc('test/returnVal', returnVal(3.54), 3.54),
+    pyfunc_sc('test/returnVal', returnVal(3.5535252352), 3.5535252352).
 
 stringConvTest :-
     pyfunc('test/returnVal', returnVal(helloworld), helloworld),
     pyfunc('test/returnVal', returnVal('helloworld'), helloworld),
     pyfunc('test/returnVal', returnVal('Санкт-Петербург'),R3),R3 == 'Санкт-Петербург'.
 				  
+stringConvTest_sizecheck :-
+    pyfunc_sc('test/returnVal', returnVal(helloworld), helloworld),
+    pyfunc_sc('test/returnVal', returnVal('helloworld'), helloworld),
+    pyfunc_sc('test/returnVal', returnVal('Санкт-Петербург'),R3),R3 == 'Санкт-Петербург'.
+				  
 listConvTest:-
     pyfunc('test/returnVal', returnVal([a,b,c]), R1),R1 = [a,b,c],
     pyfunc('test/returnVal', returnVal([]), R2), R2 == [],
     pyfunc('test/returnVal', returnVal([1,[2,3,4],[hello,155]]), R3),
     R3 ==  [1, [2, 3, 4], ['hello', 155]],
-    pyfunc('test/tupInList', func(), R4), R4 == [1,2,3, ''(5, 6), 'hello', [11,17]],
-%    writeln('listConvTest successful'),
+    pyfunc('test/tupInList', func(), R4), R4 == [1,2,3, PYTUP_PROLOG(5, 6), 'hello', [11,17]],
     !.
-%listConvTest:-
-%    writeln('!!!listConvTest failed'),fail.
+listConvTest_sizecheck:-
+    pyfunc_sc('test/returnVal', returnVal([a,b,c]), R1),R1 = [a,b,c],
+    pyfunc_sc('test/returnVal', returnVal([]), R2), R2 == [],
+    pyfunc_sc('test/returnVal', returnVal([1,[2,3,4],[hello,155]]), R3),
+    R3 ==  [1, [2, 3, 4], ['hello', 155]],
+    pyfunc_sc('test/tupInList', func(), R4), R4 == [1,2,3, PYTUP_PROLOG(5, 6), 'hello', [11,17]],
+    !.
 
 setConvTest:- 
     pyfunc('test/returnVal',returnSet( ) ,F ),
@@ -122,15 +174,31 @@ setConvTest:-
     length(S,3),
     pyfunc('test/returnVal', returnVal(PYSET_PROLOG([a,b,c])), R1 ),
     arg(1,R1,A), length(A,3),!.
-%setConvTest:- 
-%    writeln('!!!setConvTest failed'),fail.
+
+setConvTest_sizecheck:- 
+    pyfunc_sc('test/returnVal',returnSet( ) ,F ),
+    F = ['"foo"','''bar''',PYSET_PROLOG(S)],
+    length(S,3),
+    pyfunc_sc('test/returnVal', returnVal(PYSET_PROLOG([a,b,c])), R1 ),
+    arg(1,R1,A), length(A,3),!.
 
 tupleConvTest:-
-    pyfunc('test/returnVal', returnVal(''(a,b,c)), R1),R1 = ''(a,b,c),
-    pyfunc('test/tupletest',func(),R2), R2 = ''(5,''(),hello,''(5,6,7)),
+    pyfunc('test/returnVal', returnVal(PYTUP_PROLOG(a,b,c)), R1),R1 = PYTUP_PROLOG(a,b,c),
+    pyfunc('test/tupletest',func(),R2), R2 = PYTUP_PROLOG(5,PYTUP_PROLOG(),hello,PYTUP_PROLOG(5,6,7)),
     !.
-%tupleConvTest:-
-%    writeln('!!!tupleConvTest failed'),fail.
+
+tupleConvTest_sizecheck:-
+    pyfunc_sc('test/returnVal', returnVal(PYTUP_PROLOG(a,b,c)), R1),R1 = PYTUP_PROLOG(a,b,c),
+    pyfunc_sc('test/tupletest',func(),R2), R2 = PYTUP_PROLOG(5,PYTUP_PROLOG(),hello,PYTUP_PROLOG(5,6,7)),
+    !.
+
+dictConvTest_sizecheck:-
+    pyfunc(returnVal,return_dictionary(),[],[sizecheck(true)],Ret),
+    Ret = pyDict([''('Name','Geeks'),''(1,[1,2,3,4])]),!.
+
+dictConvTest:-
+    pyfunc(returnVal,return_dictionary(),Ret),
+    Ret = pyDict([''('Name','Geeks'),''(1,[1,2,3,4])]),!.
 
 %--------------------------------
 
@@ -161,7 +229,7 @@ pyc_tests:-
 json_tests:-
     Jstring = '{"name": "Bob", "languages": ["English", "Fench","GERMAN"]}',
      pyfunc('test/jintf',prolog_loads(Jstring),F),
-     (F = PYDICT_PROLOG([''(name,'Bob'),''(languages,['English','Fench','GERMAN'])]) ->
+     (F = PYDICT_PROLOG([PYTUP_PROLOG(name,'Bob'),PYTUP_PROLOG(languages,['English','Fench','GERMAN'])]) ->
 	  writeln('json_loads_test successful')
         ; writeln('!!!json_loads_test_failed') ),
      fail.
@@ -182,7 +250,7 @@ json_tests:-
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy/test/sample.json'],JsonFile),
     pyfunc('test/jintf',prolog_load(JsonFile),F),
-    (F = PYDICT_PROLOG([''(glossary,PYDICT_PROLOG([''(title,'example glossary'),''('GlossDiv',PYDICT_PROLOG([''(title,'S'),''('GlossList',PYDICT_PROLOG([''('GlossEntry',PYDICT_PROLOG([''('ID','SGML'),''('SortAs','SGML'),''('GlossTerm','Standard Generalized Markup Language'),''('Acronym','SGML'),''('Abbrev','ISO 8879:1986'),''('GlossDef',PYDICT_PROLOG([''(para,'A meta-markup language, used to create markup languages such as DocBook.'),''('GlossSeeAlso',['GML','XML'])])),''('GlossSee',markup)]))]))]))]))]) -> 
+    (F = PYDICT_PROLOG([PYTUP_PROLOG(glossary,PYDICT_PROLOG([PYTUP_PROLOG(title,'example glossary'),PYTUP_PROLOG('GlossDiv',PYDICT_PROLOG([PYTUP_PROLOG(title,'S'),PYTUP_PROLOG('GlossList',PYDICT_PROLOG([PYTUP_PROLOG('GlossEntry',PYDICT_PROLOG([PYTUP_PROLOG('ID','SGML'),PYTUP_PROLOG('SortAs','SGML'),PYTUP_PROLOG('GlossTerm','Standard Generalized Markup Language'),PYTUP_PROLOG('Acronym','SGML'),PYTUP_PROLOG('Abbrev','ISO 8879:1986'),PYTUP_PROLOG('GlossDef',PYDICT_PROLOG([PYTUP_PROLOG(para,'A meta-markup language, used to create markup languages such as DocBook.'),PYTUP_PROLOG('GlossSeeAlso',['GML','XML'])])),PYTUP_PROLOG('GlossSee',markup)]))]))]))]))]) -> 
 	 writeln('json_load_test successful')
         ; writeln('!!!json_load_test_failed') ),
      fail.
@@ -190,7 +258,7 @@ json_tests.
 
 kwargs_tests:-
     pyfunc(kwargs,kwargs_append(foo),[bar=1,baz=2],Ret),
-    (Ret = [foo,''(bar,1),''(baz,2)] -> 
+    (Ret = [foo,PYTUP_PROLOG(bar,1),PYTUP_PROLOG(baz,2)] -> 
        writeln('kwargs_test1 successful')
      ; writeln('!!!kwargs_test1_failed') ).
 

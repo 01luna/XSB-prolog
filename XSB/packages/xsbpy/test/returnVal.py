@@ -10,6 +10,7 @@ def easy_returnSet():
         X = {1,"hello",('a','b',7)}
         return(X)
 
+
 def return_None():
         return(None)
 
@@ -33,3 +34,5 @@ def return_apostrophe_1():
 def return_apostrophe_2():
     return("Hello my name is " + 'John' + " and I'm a " + "doofus")
 
+def return_dictionary():
+        return {'Name': 'Geeks', 1: [1, 2, 3, 4]}
