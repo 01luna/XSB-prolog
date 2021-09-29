@@ -21,8 +21,6 @@
 #ifdef WIN64
 //this allows varstring_xsb to compile
 #define WINDOWS_IMP
-//CFA put this in to override xsb_config_aux.h's incorrect value of 8
-//#define SIZEOF_LONG 4
 #include "windows.h"
 #endif
 
@@ -48,10 +46,9 @@
 
 #include "xsb_config.h"
 #ifdef WIN_NT
+#define XSB_DLL
 //this allows varstring_xsb to compile
 #define WINDOWS_IMP
-//CFA put this in to override xsb_config_aux.h's incorrect value of 8
-//#define SIZEOF_LONG 4
 #endif
 
 #include <cinterf.h>
@@ -71,19 +68,24 @@ void printPyObj(PyObject *obj1);
 void sprintPyObj(char **s, PyObject *obj1);
 void printPyObjType(CTXTdeclc PyObject *obj1);
 
-//#define PYTHON37 1
-#define PYTHON38 1
-
 #define XSBPY_MAX_BUFFER 500
 
 //char xsbpy_err[500];
-
 //void xsbpy_abort(char *fmt,...) {
 //  va_list args;
 //  va_start(args, fmt);
 //  vsnprintf(xsbpy_err, 500, fmt, args);
 //  va_end(args);
 //}
+
+/* TES: these sizes are from sys.getsizeof() on 64-bit Lunux*/
+#define UTF8_SIZE         4     // usually an overestimate, but safe.
+#define PYLONG_SIZE      24
+#define PYFLOAT_SIZE     24
+#define PYDICT_OVERHEAD 232
+#define PYSET_OVERHEAD  232
+#define PYLIST_OVERHEAD  56
+#define PYTUP_OVERHEAD   40
 
 enum prolog_term_type 
 {
@@ -121,7 +123,7 @@ int find_prolog_term_type(CTXTdeclc prolog_term term) {
     //      return PPYLIST;
     else if(strcmp(p2c_functor(term),"pyIterator") == 0)
       return PYITER;
-    else if(strcmp(p2c_functor(term), "") == 0)
+    else if(strcmp(p2c_functor(term), PYTUP_C) == 0)
       return PYTUP;
     return PYFUNCTOR;
   }
@@ -142,18 +144,73 @@ int find_length_prolog_list(prolog_term V)
 	return count;
 }
 
+// TES: tries to make a reasonable but safe approximation of the size of a Python term
+// Counts 4 bytes for each character just to be sure.
+long get_safe_python_size(PyObject *pyObj) {
+  long size = 0;
+  size_t i = 0;
+  if(PyLong_Check(pyObj)) {
+    return PYLONG_SIZE; 
+  } else if (PyFloat_Check(pyObj)) {
+    return PYFLOAT_SIZE;
+  } else if (PyUnicode_Check(pyObj)) {
+    return UTF8_SIZE*PyUnicode_GET_LENGTH(pyObj); 
+  } else if (PyList_Check(pyObj)) {
+    size_t listlength = PyList_GET_SIZE(pyObj); //change tes
+    size = size + PYLIST_OVERHEAD;
+    
+    for(i = 0; i < listlength; i++) {
+      size = size + get_safe_python_size(PyList_GetItem(pyObj, i));
+      //      printf("list %ld\n",size);
+    }
+  } else if (PyTuple_Check(pyObj)) {
+    size_t tuplesize = PyTuple_Size(pyObj);
+    size = size + PYTUP_OVERHEAD;
+    for (i = 0; i < tuplesize; i++) {
+      size = size + get_safe_python_size(PyTuple_GetItem(pyObj, i));
+      //      printf("tuple %ld\n",size);
+      
+    }
+  } else if(PyDict_Check(pyObj)) {
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+    size = size + PYDICT_OVERHEAD;
+    while (PyDict_Next(pyObj, &pos, &key, &value)) {
+      size = size + PYTUP_OVERHEAD;     // TES: not sure of this 
+      size = size + get_safe_python_size(key);   //printf("key %ld\n",size);
+      size = size + get_safe_python_size(value);// printf("value %ld\n",size);
+    }
+    //    Py_DECREF(key); Py_DECREF(value);  pydict_next borrows
+  } else if(PySet_Check(pyObj)) {           // maybe PyAnySet_Check
+    PyObject *iterator = PyObject_GetIter(pyObj);
+    PyObject *pyObjInner;
+    size = size + PYDICT_OVERHEAD;
+    while ((pyObjInner = PyIter_Next(iterator))) {
+      size = size + get_safe_python_size(pyObjInner);      //printf("set %ld\n",size);
+      Py_DECREF(pyObjInner);
+    }
+    Py_DECREF(iterator);  
+  }
+  return size;
+}
+
 // On ubuntu sizeof(size_t) is 8.
 // check_glstack overflow expands by Overflow margin + input
 void ensureXSBStackSpace(CTXTdeclc PyObject *pyObj) {
-  if (PyList_Check(pyObj) || PySet_Check(pyObj)) {
-    //    printf("asking for %ld bytes \n",4*PyList_Size(pyObj)*sizeof(size_t));
-    check_glstack_overflow(4,pcreg,4*PyList_Size(pyObj)*sizeof(size_t));
+  int sizecheck_flag = p2c_int(extern_reg_term(4));
+  if (sizecheck_flag == 1) {
+    long size = get_safe_python_size(pyObj);
+    //    printf("safe size %ld\n",size);
+    check_glstack_overflow(5,pcreg,2*size*sizeof(size_t));
+  }
+  else if (PyList_Check(pyObj) || PySet_Check(pyObj)) {
+    check_glstack_overflow(5,pcreg,8*PyList_Size(pyObj)*sizeof(size_t));
   }
   else if (PyDict_Check(pyObj)) {
-    check_glstack_overflow(4,pcreg,12*PyDict_Size(pyObj)*sizeof(size_t));
+    check_glstack_overflow(5,pcreg,24*PyDict_Size(pyObj)*sizeof(size_t));
   }
   else if (PyTuple_Check(pyObj)) {
-    check_glstack_overflow(4,pcreg,2*PyTuple_Size(pyObj)*sizeof(size_t));
+    check_glstack_overflow(5,pcreg,4*PyTuple_Size(pyObj)*sizeof(size_t));
   }
 }
 
@@ -208,7 +265,7 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
     return TRUE;
   }
   else if (is_functor(CTXTc prTerm)) {
-    if(strcmp(p2c_functor(prTerm),"") == 0 ) {
+    if(strcmp(p2c_functor(prTerm),PYTUP_C) == 0 ) {
       PyObject *tup, *arg;
       prolog_term temp;
       int arity = p2c_arity(prTerm);
@@ -265,37 +322,16 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
 }
 
 // -------------------- Python to Prolog
-
-/* TES: For some reason, PyFloat_Check(), PySet_Check and the Py_None
-   check work for Python 3.7 but not for Python 3.8.  Accordingly, for
-   3.8 I get the type for the object, then check if its type name is
-   the same as "float", "set", or "NoneType".  This seems a bit
-   dangerous, but I couldn't get the code to work otherwise.
-
-  If anyone understands why this may be, please let me know.
-*/
+// TES: need to add decrefs
 
 int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag) {
-  
-  //#if defined(PYTHON38)  
-  //  PyTypeObject* type = pyObj->ob_type;
-  //  const char* tname = type->tp_name;
-  //#endif  
-  //  printf("pyobj typ: |%s|\n",tname);
   if(PyLong_Check(pyObj)) {
     prolog_int result = PyLong_AsSsize_t(pyObj);
-    // Py_DECREF(pyObj);  
     c2p_int(CTXTc result, *prTerm);
     return 1;
   }
-  //#if defined(PYTHON38)
-  //  else if (!strcmp(tname,"float")) {
-  //    double result = PyFloat_AsDouble(pyObj);
-  //#else    
   else if(PyFloat_Check(pyObj)) {
     double result = PyFloat_AS_DOUBLE(pyObj);
-    //#endif    
-    //    Py_DECREF(pyObj);
     c2p_float(CTXTc result, *prTerm);
     return 1;
   }
@@ -315,13 +351,8 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       c2p_string(CTXTc (char *) result, *prTerm);
     return 1;
   }
-  //#if defined(PYTHON38)  
-  //  else if (!strcmp(tname,"NoneType")) {
-  //#else    
   else if(pyObj == Py_None){
-    //#endif    
     char* result = PYNONE_C;
-    // Py_DECREF(pyObj);
     c2p_string(CTXTc result,*prTerm);
     return 1;
   }
@@ -330,13 +361,12 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     PyObject *pyObjInner = NULL;
     size_t size = PyTuple_Size(pyObj);
     prolog_term P = p2p_new();
-    c2p_functor("",(int)size,P);
+    c2p_functor(PYTUP_C,(int)size,P);
     for (i = 0; i < size; i++) {
       pyObjInner = PyTuple_GetItem(pyObj, i);
-      prolog_term ithterm = p2p_arg(P, (int)(i+1));
+      prolog_term ithterm = p2p_arg(P, (int)i+1);
       convert_pyObj_prObj(pyObjInner, &ithterm,1);
     }
-    //    Py_DECREF(pyObjinner);
     // prolog_term P = convert_pyTuple_prTuple(CTXTc pyObj);
     if(!p2p_unify(CTXTc P, *prTerm))
       return FALSE;
@@ -356,7 +386,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
   //  else if(flag == 1 && PyList_Check(pyObj)) {
   else if(PyList_Check(pyObj)) {
     PyObject *pyObjInner;
-    size_t size = PyList_Size(pyObj);
+    size_t size = PyList_GET_SIZE(pyObj); //change tes
     size_t i = 0;
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
@@ -404,13 +434,8 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
     return TRUE;
   }
   //  else if(PyAnySet_Check(pyObj)) {           // maybe PyAnySet_Check
-  //#if defined(PYTHON38)  
-  //  else if (!strcmp(tname,"set")) {
-  //    size_t size = PySet_Size(pyObj);  // macro version since obj is a set
-  //#else    
   else if(PySet_Check(pyObj)) {           // maybe PyAnySet_Check
     size_t size = PySet_GET_SIZE(pyObj);  // macro version since obj is a set
-    //#endif    
     size_t i = 0;
     prolog_term head, tail;
     prolog_term P = p2p_new(CTXT);
@@ -556,7 +581,7 @@ void set_python_argument(CTXTdeclc prolog_term temp, PyObject *pArgs,int i, char
   PyObject *pValue;
   if(!convert_prObj_pyObj(CTXTc temp, &pValue))
     xsb_abort("++Error[xsbpy]: argument %d of %s/%d could not be translated to python"
-		"(arg 2 of pyfunc/[3,4])\n",i,funct,arity);
+		"(arg 2 of pyfunc/[3,4,5])\n",i,funct,arity);
   PyTuple_SetItem(pArgs, i-1, pValue);
 }
 
@@ -575,14 +600,7 @@ DllExport int init_python() {
       xsb_abort("++Error[xsbpy]: PYTHON_LIBRARY not found; Is environment variable set?\n");
 #else
       dlopen(PYTHON_CONFLIB_2QUOTED, RTLD_LAZY | RTLD_GLOBAL );
-      //#if defined(PYTHON37)
-      //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
 #endif
-      //#elif defined(PYTHON38)      
-      //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
-      //#else
-      //    xsb_abort("++Error[xsbpy]: Improper or unspecified Python version.  Currently only supporting 3.7 and 3.8\n");
-      //#endif     
     }
     Py_Initialize();
     char *path = "";
@@ -645,7 +663,7 @@ void xp_python_error() {
 // Does not take dictionary values, as this doesn't seem to be supported
 // By the Python C-API
 // Tried to decref pObjIn but this didn't work. Not collecting pObjOut
-DllExport int pydot(CTXTdecl) {
+DllExport int pydot_int(CTXTdecl) {
   PyObject *pModule = NULL, *pObjIn = NULL, *pObjOut = NULL;
   prolog_term prObjIn, prMethIn, mod;
   char *function, *module;
@@ -694,9 +712,9 @@ DllExport int pydot(CTXTdecl) {
   ensureXSBStackSpace(CTXTc pObjOut);
   prolog_term return_pr = p2p_new(CTXT);
   if(!convert_pyObj_prObj(CTXTc pObjOut, &return_pr, 1)) {
-    xsb_abort("++Error[xsbpy]: The return of xsbpy_meth/4  could not be translated to Prolog");
+    xsb_abort("++Error[xsbpy]: The return of pydot/4  could not be translated to Prolog");
   } 
-  if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
+  if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 5)))
     return FALSE;
   return TRUE;
 }
@@ -754,9 +772,9 @@ DllExport int pyfunc_int(CTXTdecl) {
     // ususally returns pyobject by default.
     if(!convert_pyObj_prObj(CTXTc pValue, &return_pr, 1)) {
       xsb_abort("++Error[xsbpy]: The return of %s/%d could not be translated to Prolog"
-		"(in pyfunc/[3,4])\n",function,args_count);
+		"(in pyfunc/[3,4,5])\n",function,args_count);
     }
-    if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 4)))
+    if(!p2p_unify(CTXTc return_pr, reg_term(CTXTc 5))) 
       return FALSE;
     return TRUE;
   } /* if is_functor(V) */
@@ -1030,3 +1048,19 @@ void printPyObjType(CTXTdeclc PyObject *obj1) {
 //}
 
 
+//CFA put this in to override xsb_config_aux.h's incorrect value of 8
+//#define SIZEOF_LONG 4
+
+  //#if defined(PYTHON38)  
+  //  PyTypeObject* type = pyObj->ob_type;
+  //  const char* tname = type->tp_name;
+  //#endif  
+    //  printf("pyobj typ: |%s|\n",tname);
+
+      //#if defined(PYTHON37)
+      //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.7m.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+      //#elif defined(PYTHON38)      
+      //     dlopen("/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0", RTLD_LAZY | RTLD_GLOBAL );
+      //#else
+      //    xsb_abort("++Error[xsbpy]: Improper or unspecified Python version.  Currently only supporting 3.7 and 3.8\n");
+      //#endif     

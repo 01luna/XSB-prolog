@@ -1,4 +1,4 @@
-:-export pyfunc_int/4, pydot/4.
+:-export pyfunc_int/5, pydot_int/5.
 :- export init_python/0.
 
 %:-export pyObj_GetIter/2.

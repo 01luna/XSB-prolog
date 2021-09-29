@@ -18,7 +18,7 @@ pp_py([H|T],Str,N):- !,
 pp_py(PYSET_PROLOG(List),Str,N):- !,
     pp_set(List,Str,N).
 pp_py(Term,Str,N):-
-    functor(Term,'',_),!,
+    functor(Term,PYTUP_PROLOG,_),!,
     pp_tuple(Term,Str,N).
 pp_py(Term,Str,N):-
     pp_elt(Term,Str,N),!.
@@ -31,7 +31,7 @@ pp_dict(List,Str,N):-
     tab(Str,N),writeln(Str,'}').
 
 pp_dict1([],_Str,_).
-pp_dict1([''(K,V)|T],Str,N):- !,
+pp_dict1([PYTUP_PROLOG(K,V)|T],Str,N):- !,
     tab(Str,N),write(Str,K),write(Str,': '),
     atom_length(K,Kl), % need to handle tuples as keys.
     % writeln(atom_length(K,Kl)),
@@ -53,7 +53,7 @@ pp_list([H|T],Str,N):-
     tab(Str,N),write(Str,']'),nl(Str).
 
 pp_tuple(Term,Str,N):-
-    Term =.. [''|L],
+    Term =.. [PYTUP_PROLOG|L],
     tab(Str,N),writeln(Str,'('),
     N1 is N + 1,
     pp_seq(L,Str,N1),

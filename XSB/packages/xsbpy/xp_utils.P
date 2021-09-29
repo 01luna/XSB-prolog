@@ -10,7 +10,7 @@ items(PYDICT_PROLOG(Items),Items).
 
 keys(Dict,Keys):-
    Dict = PYDICT_PROLOG(List),!,
-   setof(Key,Val^member(''(Key,Val),List),Keys).
+   setof(Key,Val^member(PYTUP_PROLOG(Key,Val),List),Keys).
 
 values(Dict,[Key],Val):- !,
     values(Dict,Key,Val).
@@ -19,7 +19,7 @@ values(Dict,[Key|Rest],Val):- !,
     values(Dict1,Rest,Val).
 values(Dict,Key,Val):-
     Dict = PYDICT_PROLOG(List),
-    memberchk(''(Key,Val),List).
+    memberchk(PYTUP_PROLOG(Key,Val),List).
 
 % TES: should be able to call builtin function directly.
 obj_dict(Obj,Dict):-
