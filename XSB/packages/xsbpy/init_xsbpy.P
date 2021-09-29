@@ -27,13 +27,16 @@ to that included at the end of this file.
 :- import init_python/0 from xsbpym.
 :- import add_lib_dir/1 from consult.
 :- import messageln/1 from standard.
-%:- import getenv/2 from machine.
+:- import getenv/2 from machine.
 
 init_xsbpy(Pyversion):-
     get_compiler_opts(Pyversion,CompilerOpts,Version),
-%    writeln(CompilerOpts),
-%    consult(xsbpym,[cc_opts(CompilerOpts)]),
-    compile(xsbpym,[cc_opts(CompilerOpts),if_needed]),
+    xsb_configuration(configuration,Configuration),
+    (str_sub('windows',Configuration)
+    -> compile_xsbpym_for_windows
+    ;  compile(xsbpym,[cc_opts(CompilerOpts),if_needed])
+    ),
+
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
     concat_atom([PackDir,'/xsbpy/starters'],StarterDir),
@@ -47,6 +50,14 @@ init_xsbpy(Pyversion):-
     messageln(xsbpy_initted_with_python(Version)),!.
 init_xsbpy(Pyversion):-
     misc_error(['xsbpy did not initialize properly for ',Pyversion]).
+
+compile_xsbpym_for_windows :-
+    getenv('PYTHON_LIBRARY',PyLib),
+%%  e.g. PyLib=  'c:\Users\warren\AppData\Local\Programs\Python\Python39\libs\python3.lib'
+    concat_atom([PythonDir,'\\libs\\',_,'.lib'],PyLib),
+    concat_atom(['/I"',PythonDir,'\\include"'],PyInclude),
+    concat_atom(['/libpath:"',PythonDir,'\\libs"'],PyLibs),
+    compile(xsbpym,[if_needed,cc_opts(PyInclude),ld_opts(PyLibs)]).
 
 test_xsbpy:-
     catch(test_xsbpy_1,E,(xsb_error_get_message(E,Mess),writeln(Mess))).
