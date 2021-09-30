@@ -493,7 +493,7 @@ int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
 	    if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
 	  } \
 	} \
-	else { arithmetic_abort(CTXTc op2, "compare-operator", op1); } \
+	else { arithmetic_abort(CTXTc op2, "compare-operator", op1); res = 0;} \
       } \
     } \
     else if (isofloat(op1)) { \
@@ -516,7 +516,7 @@ int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
 	    fop2 = fiflt_val(fivar); \
 	  } \
 	  if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
-	} else { arithmetic_abort(CTXTc op2, "compare-operator", op1); } \
+	} else { arithmetic_abort(CTXTc op2, "compare-operator", op1); res = 0;} \
       } \
     } \
     else { \
@@ -542,7 +542,7 @@ int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
 	  } \
 	  if (fop2 > fop1) res = 1; else if (fop2 == fop1) res = 0; else res = -1; \
 	} \
-      } else { arithmetic_abort(CTXTc op2, "compare-operator", op1); } \
+      } else { arithmetic_abort(CTXTc op2, "compare-operator", op1); res = 0;} \
     }
 
 int num_compare(CTXTc prolog_term op1, prolog_term op2) {
@@ -2036,7 +2036,7 @@ argument positions.
 
   XSB_Start_Instr(cmpreg,_cmpreg) /* PRR */
     Def3ops
-    int res = 2; /* TLS: compiler thinks res may be used uninitialized, but I dont thinks so */
+    int res;
     Op1(Register(get_xrx));
     Op3(get_xxr);
     ADVANCE_PC(size_xxx);
@@ -2044,9 +2044,6 @@ argument positions.
     XSB_Deref(op1);
     XSB_Deref(op2);
     SET_NUMCMP(res,op1,op2)
-    //#ifdef NON_OPT_COMPILE
-    //    if (res == 2) xsb_abort("uninitialized use of res in cmpreg instruction");
-    //#endif
     bld_oint(op3,res);
   XSB_End_Instr() 
 

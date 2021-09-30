@@ -1588,6 +1588,7 @@ int unnumbervars(CTXTdecl) {
       unnumpsc = get_str_psc(arg5psc);
     } else {
       xsb_type_error(CTXTc "NULL or $VAR term",arg5psc,"unnumbervars/3 ",3);
+      unnumpsc = NULL;  // to avoid warning
     }
   
   hptr = hreg ;

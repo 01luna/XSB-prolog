@@ -168,13 +168,13 @@ inline static void swap_with_tag(CTXTdeclc CPtr p, CPtr q, int tag)
  *b = temp; \
 }
 #define push_sort_stack(X,Y) \
-addr_stack[stack_index] = X;\
-size_stack[stack_index] = Y;\
-stack_index++
+  do {addr_stack[stack_index] = X;		\
+  size_stack[stack_index] = Y;			\
+  stack_index++; } while (0)
 #define pop_sort_stack(X,Y)\
-stack_index--; \
-X = addr_stack[stack_index]; \
-Y = size_stack[stack_index]
+  do {stack_index--;	     \
+  X = addr_stack[stack_index];			\
+  Y = size_stack[stack_index]; } while (0)
 #define sort_stack_empty \
 (stack_index == 0)
 
