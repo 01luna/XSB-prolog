@@ -3,32 +3,49 @@
 #include "xsbpy/xsbpy_defs.h"
 
 :- export pyfunc/3, add_py_lib_dir/1, py_lib_dirs/1.
-:- export pyfunc/4,pydot/4,pymeth/4.
+:- export pyfunc/4,pydot/4,pydot/5.
+:- export pyfunc/5.
+
+% obsolescent
+:- export pymeth/4.
 
 :- import bootstrap_package/2 from packaging.
 
 :-  bootstrap_package(xsbpy, xsbpy).
-/*
-:- import expand_filename/2 from machine.
-:- import xpp_include_dir/1 from parse.
-:- expand_filename(xsbpy,PkgDir),
-        assert(xpp_include_dir(PkgDir)).
-*/
 
 :- import init_xsbpy/1 from init_xsbpy.
-:- import pyfunc_int/4 from xsbpym.
+:- import pyfunc_int/5,pydot_int/5 from xsbpym.
 :- import add_py_lib_dir/1 from init_xsbpy as add_py_lib_dir/1.
 :- import py_lib_dirs/1 from init_xsbpy as py_lib_dirs/1.
-:- import pydot/4 from xsbpym as pydot/4.
 
 ?- init_xsbpy(auto).
 
+pyfunc(Mod,Func,Def_vars,Opts,Ret):-
+    (Def_vars == [] -> Dict = 0 ; def_vars_to_dict(Def_vars,Dict)),
+    xsbpy_opts(Opts,Sizecheck_flag),
+    pyfunc_int(Mod,Func,Dict,Sizecheck_flag,Ret).
+
 pyfunc(Mod,Func,Def_vars,Ret):-
     def_vars_to_dict(Def_vars,Dict),
-    pyfunc_int(Mod,Func,Dict,Ret).
+    pyfunc_1(Mod,Func,Dict,Ret).
 
 pyfunc(Mod,Func,Ret):-
-    pyfunc_int(Mod,Func,0,Ret).
+    pyfunc_1(Mod,Func,0,Ret).
+
+pyfunc_1(Mod,Func,Dict,Ret):- 
+    pyfunc_int(Mod,Func,Dict,0,Ret).
+
+pydot(Mod,Obj,MethAttr,Ret):-
+    pydot_int(Mod,Obj,MethAttr,0,Ret).
+
+pydot(Mod,Obj,MethAttr,Opts,Ret):-
+    xsbpy_opts(Opts,Sizecheck_flag),
+    pydot_int(Mod,Obj,MethAttr,Sizecheck_flag,Ret).
+
+xsbpy_opts([],0).
+xsbpy_opts([sizecheck(true)],1):- !.
+xsbpy_opts([sizecheck(false)],0):- !.
+xsbpy_opts(Opts,_):- abort(Opts).
 
 pymeth(Mod,Obj,Meth,Ret):- 
     pydot(Mod,Obj,Meth,Ret).
