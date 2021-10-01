@@ -274,6 +274,7 @@ static char *read_file(const char *filename) {
     return file_contents;
 }
 
+#ifdef WIN_NT
 static char *fix_windows_line_endings(char *string) {
   size_t i = 0, j = 0;
   while (string[i] != '\0') {
@@ -287,6 +288,7 @@ static char *fix_windows_line_endings(char *string) {
   string[j] = '\0';
   return string;
 }
+#endif
 
 // ERGO change: unterminated comment must return error (fail in Prolog)
 static int remove_comments(char *string, const char *start_token, const char *end_token) {
