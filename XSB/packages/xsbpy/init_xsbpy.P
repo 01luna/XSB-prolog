@@ -98,26 +98,23 @@ get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
 %		 ' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
-	       	' -Wl,-rpath=','/usr/lib',' -l',PYTHON_BIN_QUOTED,
+	       	' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -l',PYTHON_BIN_QUOTED, 
 		' -L',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
 %		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -g' ],CompilerOpts).
 
-
-%Use libpython3.7m
-get_compiler_opts(37,CompilerOpts,'python3.7'):-
-    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
-    concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.7m  -I/usr/include/python3.7',
-		 ' -lpython3.7m -L/usr/lib/python3.7 -Wl,',
-		 '-rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 -Wl,',
-		 '-rpath=/usr/lib/python3.7 -g' ],CompilerOpts).
-
 %Use libpython3.8
-get_compiler_opts(38,CompilerOpts,'python3.8'):-
+get_compiler_opts(mac38,CompilerOpts,'python3.8'):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
-    concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.8  -I/usr/include/python3.8',
-		 ' -lpython3.8 -L/usr/lib/python3.8 -Wl,',
-		 '-rpath=/usr/lib/python3.8 -lpython3.8 -L/usr/lib/python3.8 -Wl,',
-		 '-rpath=/usr/lib/python3.8 -g' ],CompilerOpts).
+    concat_atom(['-I',XSB,'../../emu',                 % ,' -H ',' -nostdinc ',
+		 ' -I/usr/local/include',
+		 ' -I/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include',
+		 ' -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include',
+		 ' -I/Library/Developer/CommandLineTools/usr/include',
+		 ' -I/usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/Current/Headers',
+%	       	 ' -Wl,-rpath=','/usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/Current/lib/',
+		 ' -L','/usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/Current/lib',
+		 ' -l','python3.8',
+		    ' -g' ],CompilerOpts).
 
 set_heap_margin(Kbs):-
     Amount is Kbs*1024,
@@ -165,3 +162,28 @@ end_of_file.
 %    usermod:testSuite,
 %    cd(Pwd).
 
+%		 ' -I/usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/Current/Headers/cpython',
+%%		 ' -iframework/usr/local/opt/python@3.8/Frameworks/Python -g' ],CompilerOpts).
+%		 ' -iframework/usr/local/opt/python@3.8/Frameworks/Python.framework -g' ],CompilerOpts).
+%		 ' -I/usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/Current/include',
+%		 ' -I/usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/Current/include/cpython',
+%		 ' -I/usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/Current/include/python3.8',
+
+
+%Use libpython3.7m
+%get_compiler_opts(37,CompilerOpts,'python3.7'):-
+%    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
+%    concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.7m  -I/usr/include/python3.7',
+%		 ' -lpython3.7m -L/usr/lib/python3.7 -Wl,',
+%		 '-rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 -Wl,',
+%		 '-rpath=/usr/lib/python3.7 -g' ],CompilerOpts).
+%
+%%Use libpython3.8
+%get_compiler_opts(38,CompilerOpts,'python3.8'):-
+%    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
+%    concat_atom(['-I',XSB,'../../emu',' -I/usr/include/python3.8  -I/usr/include/python3.8',
+%		 ' -lpython3.8 -L/usr/lib/python3.8 -Wl,',
+%		 '-rpath=/usr/lib/python3.8 -lpython3.8 -L/usr/lib/python3.8 -Wl,',
+%		 '-rpath=/usr/lib/python3.8 -g' ],CompilerOpts).
+%
+%
