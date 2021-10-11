@@ -728,7 +728,7 @@ details.)
 The {\tt packages/xsbpy/starters} directory contains code to interface
 to various Python libraries---to help ysers start projects using {\tt
   xsbpy}.  Some of the files implement useful higher level mappings
-that translate say, embedding spaces or Spacy graphs to Prolog graphs,
+that translate say, embedding spaces or SpaCy graphs to Prolog graphs,
 or translate RDF graphs to lists of Prolog structures.  Others are
 simple collections of examples to show how to query or update
 Elasticsearch, to detect the language of input text or to perform
@@ -912,68 +912,68 @@ made that the order of facts in {\tt File} will match the order of
 facts in {\tt TripleList}.
   
 \subsection{xp\_spacy}
-Spacy is a well-known and widely used tool that exploits neural
-language models to analyze text via dependency parses, named entity
-recognition, and much else.  Although Spacy is a Python tool, much of
-it is written in C/Cython which makes it highly efficient.  The {\tt
-  xp\_spacy} package offers a flexible and efficient means to use
-Spacy from Prolog (once Spacy has been properly installed for Python,
-along with appropriate Spacy language models).
+SpaCy is widely used tool that exploits neural language models to
+analyze text via dependency parses, named entity recognition, and much
+else.  Although SpaCy is a Python tool, much of it is written in
+C/Cython which makes it highly efficient.  The {\tt xp\_spacy} package
+offers a flexible and efficient means to use SpaCy from Prolog (once
+SpaCy has been properly installed for Python, along with appropriate
+SpaCy language models).
 
-In Spacy, a user first loads one or more language models for the
+In SpaCy, a user first loads one or more language models for the
 language(s) of interest and of a size suitable to the application.
-Text is then run through this language model and through other Spacy
-code producing a {\em document} containing a great amount of detail
-about the sentences in the text, tokens in the sentence and their
-relations to one another.
+Text is then run through this language model and through other SpaCy
+code producing a {\tt Document} object containing a great amount of
+detail about the sentences in the text, tokens in the sentence and
+their relations to one another.
 
-Reflecting this sequence the predicate {\tt load\_model/1} is used to
-load a Spacy model into the XSB/Python session, e.g.:
+Reflecting this sequence, the predicate {\tt load\_model/1} is used to
+load a SpaCy model into the XSB/Python session:
 
 \begin{verbatim}
-load_model(en_core_web_sm) }
+load_model(en_core_web_sm) 
 \end{verbatim}
 
 \noindent
 On the Python side the identifier {\tt en\_core\_web\_sm} is
-associated with a {\tt Language} object, and using this association
-same atom can be used to process text through out the session.
-Multiple models can be loaded and used to process different text or
-files in different languages or for different purposes.  For instance,
-the command:
+associated with a {\tt Language} object, and using this
+association the same atom can be used to process text throughout the
+session.  Multiple models can be loaded and used to process different
+text or files in different languages or for different purposes.  For
+instance, the command:
 
 \begin{verbatim}
-proc_string(en_core_web_sm,'She was the youngest of the two daughters of a most affectionate,
-indulgent father; and had, in consequence of her sister's marriage,
-been mistress of his house from a very early period.',Doc) }
+proc_string(en_core_web_sm,'She was the youngest of the two daughters of a
+most affectionate, indulgent father; and had, in consequence of her sister's
+marriage, been mistress of his house from a very early period.',Doc)
 \end{verbatim}
 
 \noindent
 processes the above text, and unifying {\tt Doc} with the referent to
-the resulting Spacy {\tt document} object, which contains the textual
+the resulting SpaCy {\tt Document} object, which contains the textual
 analysis of the string.  The predicate {\tt proc\_file/3} works
 similarly for textual files.
 
 At this point, a user of {\tt xp\_spacy} has two options: she can
-either query the document directly or call {\tt token\_assert} to
-assert information from the document into a Prolog graph that can be
-conveniently analyzed.  If querying a document directly, a small
-amount of code may need to be written because Spacy's API often
-returns generators to its data structures rather than its data
-structures themselves.  Generally the code that needs to be written is
-extremely simple and consists of little more than a list
-comprehension: the functions {\tt get\_nps()}, {\tt get\_ents()} and
-{\tt get\_token\_info()} in {\tt xp\_spacy.py} provide examples of
-this. (See the file {\tt xp\_spacy.py} for examples.)
+either query the {\tt Document} object directly or call {\tt
+  token\_assert} to assert information from the {\tt Document} object
+into a Prolog graph that can be conveniently analyzed.  If querying a
+{\tt Document} object directly, a small amount of code may need to be
+written because SpaCy's API often returns generators to its data
+structures rather than its data structures themselves.  Generally the
+code that needs to be written is extremely simple and consists of
+little more than a list comprehension: the functions {\tt get\_nps()},
+{\tt get\_ents()} and {\tt get\_token\_info()} in {\tt xp\_spacy.py}
+provide examples of this. 
 
-%The predicate {\tt load\_and\_proc/2} loads a Spacy model and
+%The predicate {\tt load\_and\_proc/2} loads a SpaCy model and
 %processes text, asserting Python references both to the document and
 %to the function used to invoke the language model on text.  At this
 %point, a user of {\tt xsbpy} has two options: she can either query the
 %document directly or call {\tt token\_assert} to assert information
 %from the document into a Prolog graph that can be conveniently
 %analyzed.  If querying a document directly, a small amount of code may
-%need to be written because Spacy's API often returns generators to its
+%need to be written because SpaCy's API often returns generators to its
 %data structures rather than its data structures themselves.  Generally
 %the code that needs to be written is extremely simple and consists of
 %little more than a list comprehension: the functions {\tt get\_nps()},
@@ -984,13 +984,13 @@ For most purposes however, it is easier to call the XSB predicate {\tt
   token\_assert(Doc)} that asserts tokens and their dependency parse
 edges into XSB as explained below.  As an example of how to navigate
 this graph, {\tt show\_all\_trees/0} and its supporting predicates
-provide a simple but clear representation of the Spacy dependency
-parse in tree form using the Prolog version of the parse.
+provide a simple but clear representation of the SpaCy dependency
+parse in constituency tree form using the Prolog version of the parse.
 
-The code in this package originated as part of a large research
-project and reflects the needs of that project.  Other applications
-may have slightly different needs, and the {\tt xp\_spacy} code can be
-easily refactored to support such needs.
+%The code in this package originated as part of a large research
+%project and reflects the needs of that project.  Other applications
+%may have slightly different needs, and the {\tt xp\_spacy} code can be
+%easily refactored to support such needs.
 
 As a final point before presenting the the main predicates, note that
 if text from different languages is to be analyzed, the package {\tt
@@ -998,61 +998,71 @@ if text from different languages is to be analyzed, the package {\tt
 string, and the text can then be sent to one of several language
 models. 
 
-\begin{itemize}
-  \altourmoditem{load\_model(+Model,+Options)}{load\_model/2}{xp\_spacy}
+\paragraph{{\tt xp\_spacy} Predicates}
+
+\begin{description}
+  \ourrepeatmoditem{load\_model(+Model,+Options)}{load\_model/2}{xp\_spacy}
   \altourmoditem{load\_model(+Model)}{load\_model/1}{xp\_spacy}
 %  
-loads the Spacy model {\tt Model} and associates the Prolog atom {\tt
-  Model} with the Spacy loaded Language object corresponding to the
-model.  Currently, the only form for an option is {\tt pipe(Pipe)}
-where {\tt Pipe} is the name of a Spacy pipe, i.e., a process to add
-to the NLP pipeline of the Spacy Language object {\tt Model}.
+Loads the SpaCy model {\tt Model} and associates the Prolog atom {\tt
+  Model} with the corresponding SpaCy {\tt Language} object.
+Currently, the only form for {\tt Options} is a (possibly empty) list
+of terms of the form {\tt pipe(Pipe)} where {\tt Pipe} is the name of
+a SpaCy pipe, i.e., a process to add to the NLP pipeline of the SpaCy
+Language object {\tt Model}.
+
+{\tt load\_model(Model)} is a convenience predicate for {\tt
+  load\_model(Model,[])}.
 
 \ourrepeatmoditem{ proc\_string(+Model,+Atom,-Doc,+Options)} {\tt proc\string/4}{xp\_spacy}
 \altourmoditem{ proc\_string(+Model,+Atom,-Doc)} {\tt proc\string/3}{xp\_spacy}
 %
 Processes the text {\tt Atom} using the model {\tt Model} and unifying
-{\tt Doc} with the resulting Spacy {\tt Document} object.  The only
+{\tt Doc} with the resulting SpaCy {\tt Document} object.  The only
 option currently allowed in {\tt Options} is {\tt token\_assert},
-which asserts information from {\tt Doc} into a Prolog graph.  {\tt
-  proc\_string(+Model,+Atom,-Doc)} is a convenience predicate for
+which in addition asserts information from {\tt Doc} into a Prolog
+graph.
+
+{\tt proc\_string(+Model,+Atom,-Doc)} is a convenience predicate for\\
 {\tt proc\_string(+Model,+Atom,-Doc,[])}.
 
 \altourmoditem{token\_assert(+Doc)}{token\_assert/1}{xp\_spacy}
 %    
-This predicate accesses the Spacy Document object {\tt Doc} and 
-accesses the dependency graph and other information from the Spacy
-document and asserts it to Prolog as a graph.  The Prolog form of the
-graph uses two predicates:
+This predicate accesses the SpaCy Document object {\tt Doc}, then
+queries the dependency graph and other information from {\tt Doc}, and
+asserts it to Prolog as a graph.  The Prolog form of the graph uses
+two predicates.  The first:
 \begin{verbatim}  
-    token_info_raw(Index,Text,Lemma,Pos,Tag,Dep,EntType),
+    token_info_raw(Index,Text,Lemma,Pos,Tag,Dep,EntType)
 \end{verbatim}
-represents the nodes of the graph.  For a given {\em token} its fields
+represents the nodes of the graph; For a given SpaCy {\tt token}
+object the fields in the corresponding {\tt token\_info\_raw/7} fact are:
 are as follows:
 \begin{itemize}
-  \item {\tt Index} ({\tt token.idx}) is the character offset of {\em
-    token} within the document, and serves as an index for the token
-    both in Spacy and in its Prolog representation.
-  \item {\tt Text} ({\tt token.text}) the verbatim form of {\em token}
+  \item {\tt Index} ({\tt token.idx}) is the character offset of {\tt
+    token} within the document (i.e., the input file or atom), and
+    serves as an index for the token both in SpaCy and in its Prolog
+    representation.
+  \item {\tt Text} ({\tt token.text}) the verbatim form of {\tt token}
     in the text that was processed.
-  \item {\tt Lemma} ({\tt token.lemma\_}) the base form of {\em
-    token}.  If {\em token} is a verb, {\tt Lemma} is its stem, if
-    {\em token} is a noun, {\tt Lemma} is its singular form.
+  \item {\tt Lemma} ({\tt token.lemma\_}) the base form of {\tt
+    token}.  If {\tt token} is a verb, {\tt Lemma} is its stem, if
+    {\tt token} is a noun, {\tt Lemma} is its singular form.
   \item {\tt Pos} ({\tt token.pos\_ }) is the coarse-grained part of
-    speech for {\em token} according to {\tt
+    speech for {\tt token} according to {\tt
       https://universaldependencies.org/docs/u/pos}
   \item {\tt Tag} ({\tt token.tag\_ }) The fine-grained part of speech
-    for {\em token} that contains some morphological analysis in
+    for {\tt token} that contains some morphological analysis in
     addition to the part-of-speech.
-    (cf.
+    Cf.
 
     {\tt https://stackoverflow.com/questions/37611061/spacy-token-tag-full-list}
 
     
       for a discussion of its meaning and use.
-  \item {\tt Dep} ({\tt token.dep\_ }) The type of relation that {\em
+  \item {\tt Dep} ({\tt token.dep\_ }) The type of relation that {\tt
     token} has with its parent in the dependency graph.
-  \item {\tt EntType} ({\tt token.ent\_type\_ }) The Spacy named entity
+  \item {\tt EntType} ({\tt token.ent\_type\_ }) The SpaCy named entity
     type, e.g., person, organization, etc.
 \end{itemize}  
 
@@ -1063,18 +1073,19 @@ token_childOf(ChildIndex,ParentIndex)
 where {\tt ChildIndex}, and {\tt ParentIndex} are indexes for {\tt
   token\_info\_raw/7} facts.
 
-Note that Spacy tokens have many other attributes, of which the above
+Note that SpaCy tokens have many other attributes, of which the above
 are some of the more useful.  If other attributes are needed, the {\tt
   xp\_spacy} code can easily be expanded to include them.  However
 many aspects of the parse can be easily reconstructed by the Prolog
-graph: for instance {\tt xp\_spacy.P} contains code for constructing
-sentences, subtrees of a given token and so on.
+graph and don't need to be materialized in Prolog.  For instance the
+code for {\tt show\_all\_trees/0} in {\tt xp\_spacy.P} contains code
+for constructing sentences, subtrees of a given token and so on.
 
 \item {\tt token\_info(Index,Text,Lemma,Pos,Tag,Dep,Ent\_type)} is a
   convenience predicate that calls {\tt token\_info\_raw/7} and
   filters out spaces and punctuation.
   
-\item {\tt show\_all\_trees()} Given a Spacy graph asserted to Prolog
+\item {\tt show\_all\_trees()} Given a SpaCy graph asserted to Prolog
   as described above, {\tt show\_all\_trees/0} navigates the graph,
   and for each sentence in the graph converts the dependency graph to
   a tree and prints it out.  This predicate is useful for reviewing
@@ -1088,7 +1099,7 @@ She was the youngest of the two daughters of a most affectionate,
 indulgent father; and had, in consequence of her sister's marriage,
 been mistress of his house from a very early period.  
 \end{verbatim}
-    {\tt show\_all\_trees/0} would print out the list of tokens for this sentence followed by:
+    {\tt show\_all\_trees/0} will print out the list of tokens for this sentence followed by:
     {\footnotesize
 \begin{verbatim}
 token_info(245,was,be,AUX,VBD,ROOT,)
@@ -1127,7 +1138,7 @@ token_info(245,was,be,AUX,VBD,ROOT,)
 \end{verbatim}
 }
  
-\end{itemize}  
+\end{description}  
 
 \subsection{xp\_json}
 This module contains an interface to the Python {\tt json} module,
