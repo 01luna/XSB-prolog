@@ -1,4 +1,5 @@
-\newcommand{\xsbpyversion}{Version 0.3}
+
+\newcommand{\xsbpyversion}{Version 0.4}
 
 \begin{center}
 \chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python 3 Interface} \label{chap:xsbpy}
@@ -14,8 +15,7 @@
 \end{center}
 
 \noindent
-{\large {\bf {\em This chapter is a draft documentation of beta-level
-      software.}}}
+{\large {\bf {\em This chapter documents beta-level software.}}}
 
 %Both XSB and Python are written in C, which makes possible a robust
 %and efficient interface.  
@@ -927,22 +927,61 @@ code producing a {\em document} containing a great amount of detail
 about the sentences in the text, tokens in the sentence and their
 relations to one another.
 
-The predicate {\tt load\_and\_proc/2} loads a Spacy model and
-processes text, asserting Python references both to the document and
-to the function used to invoke the language model on text.  At this
-point, a user of {\tt xsbpy} has two options: she can either query the
-document directly or call {\tt token\_assert} to assert information
-from the document into a Prolog graph that can be conveniently
-analyzed.  If querying a document directly, a small amount of code may
-need to be written because Spacy's API often returns generators to its
-data structures rather than its data structures themselves.  Generally
-the code that needs to be written is extremely simple and consists of
-little more than a list comprehension: the functions {\tt get\_nps()},
-{\tt get\_ents()} and {\tt get\_token\_info()} in {\tt xp\_spacy.py}
-provide examples of this.
+Reflecting this sequence the predicate {\tt load\_model/1} is used to
+load a Spacy model into the XSB/Python session, e.g.:
+
+\begin{verbatim}
+load_model(en_core_web_sm) }
+\end{verbatim}
+
+\noindent
+On the Python side the identifier {\tt en\_core\_web\_sm} is
+associated with a {\tt Language} object, and using this association
+same atom can be used to process text through out the session.
+Multiple models can be loaded and used to process different text or
+files in different languages or for different purposes.  For instance,
+the command:
+
+\begin{verbatim}
+proc_string(en_core_web_sm,'She was the youngest of the two daughters of a most affectionate,
+indulgent father; and had, in consequence of her sister's marriage,
+been mistress of his house from a very early period.',Doc) }
+\end{verbatim}
+
+\noindent
+processes the above text, and unifying {\tt Doc} with the referent to
+the resulting Spacy {\tt document} object, which contains the textual
+analysis of the string.  The predicate {\tt proc\_file/3} works
+similarly for textual files.
+
+At this point, a user of {\tt xp\_spacy} has two options: she can
+either query the document directly or call {\tt token\_assert} to
+assert information from the document into a Prolog graph that can be
+conveniently analyzed.  If querying a document directly, a small
+amount of code may need to be written because Spacy's API often
+returns generators to its data structures rather than its data
+structures themselves.  Generally the code that needs to be written is
+extremely simple and consists of little more than a list
+comprehension: the functions {\tt get\_nps()}, {\tt get\_ents()} and
+{\tt get\_token\_info()} in {\tt xp\_spacy.py} provide examples of
+this. (See the file {\tt xp\_spacy.py} for examples.)
+
+%The predicate {\tt load\_and\_proc/2} loads a Spacy model and
+%processes text, asserting Python references both to the document and
+%to the function used to invoke the language model on text.  At this
+%point, a user of {\tt xsbpy} has two options: she can either query the
+%document directly or call {\tt token\_assert} to assert information
+%from the document into a Prolog graph that can be conveniently
+%analyzed.  If querying a document directly, a small amount of code may
+%need to be written because Spacy's API often returns generators to its
+%data structures rather than its data structures themselves.  Generally
+%the code that needs to be written is extremely simple and consists of
+%little more than a list comprehension: the functions {\tt get\_nps()},
+%{\tt get\_ents()} and {\tt get\_token\_info()} in {\tt xp\_spacy.py}
+%provide examples of this.
 
 For most purposes however, it is easier to call the XSB predicate {\tt
-  token\_assert()} that asserts tokens and their dependency parse
+  token\_assert(Doc)} that asserts tokens and their dependency parse
 edges into XSB as explained below.  As an example of how to navigate
 this graph, {\tt show\_all\_trees/0} and its supporting predicates
 provide a simple but clear representation of the Spacy dependency
@@ -957,29 +996,34 @@ As a final point before presenting the the main predicates, note that
 if text from different languages is to be analyzed, the package {\tt
   xp\_fasttext} can be used to determine the language of a text
 string, and the text can then be sent to one of several language
-models. \footnote{The predicates provided will need a slight
-  refactoring for this.}.
+models. 
 
 \begin{itemize}
-\item {\tt load\_and\_proc(Model,File)} loads the Spacy model {\tt
-  Model} and processes the text file {\tt File}.  If successful, it
-  asserts two facts to usermod to reference the language model and the
-  document processed from the text in {\tt File}:
-\begin{verbatim}  
-    assert(python_obj(nlp,NLP)),
-    assert(python_obj(doc,Doc)).
-\end{verbatim}
+  \altourmoditem{load\_model(+Model,+Options)}{load\_model/2}{xp\_spacy}
+  \altourmoditem{load\_model(+Model)}{load\_model/1}{xp\_spacy}
+%  
+loads the Spacy model {\tt Model} and associates the Prolog atom {\tt
+  Model} with the Spacy loaded Language object corresponding to the
+model.  Currently, the only form for an option is {\tt pipe(Pipe)}
+where {\tt Pipe} is the name of a Spacy pipe, i.e., a process to add
+to the NLP pipeline of the Spacy Language object {\tt Model}.
 
-If the language model has been loaded, another file can be processed via:
-\begin{verbatim}
-    pyfunc(xp_spacy,doc_from_file(File,NLP),Doc),                              
-\end{verbatim}
-and similar functions can be used to parse strings directly, etc.
+\ourrepeatmoditem{ proc\_string(+Model,+Atom,-Doc,+Options)} {\tt proc\string/4}{xp\_spacy}
+\altourmoditem{ proc\_string(+Model,+Atom,-Doc)} {\tt proc\string/3}{xp\_spacy}
+%
+Processes the text {\tt Atom} using the model {\tt Model} and unifying
+{\tt Doc} with the resulting Spacy {\tt Document} object.  The only
+option currently allowed in {\tt Options} is {\tt token\_assert},
+which asserts information from {\tt Doc} into a Prolog graph.  {\tt
+  proc\_string(+Model,+Atom,-Doc)} is a convenience predicate for
+{\tt proc\_string(+Model,+Atom,-Doc,[])}.
 
-\item {\tt token\_assert()} This predicate calls the Prolog fact {\tt
-  python\_obj(doc,Doc)}, accesses the dependency graph and other
-  information from the Spacy document and asserts it to Prolog as a
-  graph.  The Prolog form of the graph uses two predicates:
+\altourmoditem{token\_assert(+Doc)}{token\_assert/1}{xp\_spacy}
+%    
+This predicate accesses the Spacy Document object {\tt Doc} and 
+accesses the dependency graph and other information from the Spacy
+document and asserts it to Prolog as a graph.  The Prolog form of the
+graph uses two predicates:
 \begin{verbatim}  
     token_info_raw(Index,Text,Lemma,Pos,Tag,Dep,EntType),
 \end{verbatim}
@@ -1037,24 +1081,52 @@ sentences, subtrees of a given token and so on.
   parses, and its code in {\tt xp\_spacy.P} can be modified and
   repurposed for other needed functionality.
 
-  As an example, if the graph contained the sentence:
-\begin{verbatim}  
-Want to experience what it's like to fly a drone?  
-\end{verbatim}  
-{\tt show\_all\_trees/0} would print out:
+  As an example, if the graph contained the sentence processed above:
+  
 \begin{verbatim}
-     token_info(1,Want,want,VERB,VB,ROOT,)
-        token_info(9,experience,experience,VERB,VB,xcomp,)                                   
-           token_info(6,to,to,PART,TO,aux,)                                                  
-           token_info(27,’s,’,VERB,VBZ,ccomp,)                                               
-             token_info(25,it,it,PRON,PRP,nsubj,)  
-             token_info(30,like,like,ADP,IN,prep,)                                           
-                token_info(20,what,what,PRON,WP,pobj,)                                       
-           token_info(38,fly,fly,VERB,VB,xcomp,)                                              
-             token_info(35,to,to,PART,TO,aux,)                                               
-             token_info(48,drone,drone,NOUN,NN,dobj,)      
-                token_info(42,a,a,DET,DT,det,)                                              \
+She was the youngest of the two daughters of a most affectionate,
+indulgent father; and had, in consequence of her sister's marriage,
+been mistress of his house from a very early period.  
 \end{verbatim}
+    {\tt show\_all\_trees/0} would print out the list of tokens for this sentence followed by:
+    {\footnotesize
+\begin{verbatim}
+token_info(245,was,be,AUX,VBD,ROOT,)
+   token_info(241,She,she,PRON,PRP,nsubj,)
+   token_info(253,youngest,young,ADJ,JJS,attr,)
+      token_info(249,the,the,DET,DT,det,)
+      token_info(262,of,of,ADP,IN,prep,)
+         token_info(273,daughters,daughter,NOUN,NNS,pobj,)
+            token_info(265,the,the,DET,DT,det,)
+            token_info(269,two,two,NUM,CD,nummod,CARDINAL)
+            token_info(283,of,of,ADP,IN,prep,)
+               token_info(317,father,father,NOUN,NN,pobj,)
+                  token_info(286,a,a,DET,DT,det,)
+                  token_info(293,affectionate,affectionate,ADJ,JJ,amod,)
+                     token_info(288,most,most,ADV,RBS,advmod,)
+                  token_info(307,indulgent,indulgent,ADJ,JJ,amod,)
+   token_info(325,and,and,CCONJ,CC,cc,)
+   token_info(375,been,be,VERB,VBN,conj,)
+      token_info(329,had,have,AUX,VBD,aux,)
+         token_info(334,in,in,ADP,IN,prep,)
+            token_info(337,consequence,consequence,NOUN,NN,pobj,)
+               token_info(349,of,of,ADP,IN,prep,)
+                  token_info(365,marriage,marriage,NOUN,NN,pobj,)
+                     token_info(356,sister,sister,NOUN,NN,poss,)
+                        token_info(352,her,her,PRON,PRP$,poss,)
+                        token_info(362,'s,'s,PART,POS,case,)
+      token_info(380,mistress,mistress,NOUN,NN,attr,)
+         token_info(389,of,of,ADP,IN,prep,)
+            token_info(396,house,house,NOUN,NN,pobj,)
+               token_info(392,his,his,PRON,PRP$,poss,)
+      token_info(402,from,from,ADP,IN,prep,)
+         token_info(420,period,period,NOUN,NN,pobj,)
+            token_info(407,a,a,DET,DT,det,)
+            token_info(414,early,early,ADJ,JJ,amod,)
+               token_info(409,very,very,ADV,RB,advmod,)
+\end{verbatim}
+}
+ 
 \end{itemize}  
 
 \subsection{xp\_json}
