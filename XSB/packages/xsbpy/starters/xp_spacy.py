@@ -1,11 +1,25 @@
 import spacy
                                                                                 
 #nlp=  spacy.load("en_core_web_lg")
-                                                                                
-#doc = nlp('')                                                                  
-                                                                                
-def doc_from_file(file,nlp):                                                    
-    with open(file,"r") as fp:                                                  
+#doc = nlp('')                     
+
+doc_dict = dict()
+
+def load_model(Model):
+    nlp = spacy.load(Model)
+    doc_dict[Model] = nlp
+
+def add_pipe(Model,Pipe):
+    nlp = doc_dict[Model]
+    nlp.add_pipe(Pipe)
+
+def proc_string(Model,String):
+    nlp = doc_dict[Model]
+    return(nlp(String))
+
+def doc_from_file(Model,File): 
+    nlp = doc_dict[Model]
+    with open(File,"r") as fp: 
         file_text = fp.read()                                                   
         return(nlp(file_text))                                                  
                                                                                 

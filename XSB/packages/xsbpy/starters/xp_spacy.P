@@ -1,7 +1,7 @@
 :- import member/2 from basics.                                                 
 :- import pyfunc/3, pydot/4 from xsbpy.                                                  
 
-:- export load_and_proc/2, token_assert/0, token_info/7, token_info_raw/7, entity/2.
+:- export load_and_proc/2, token_assert/1, token_info/7, token_info_raw/7, entity/2.
 :- export show_all_trees/0.
 
 :- dynamic token_info_raw/7, token_childOf/2.
@@ -19,8 +19,42 @@
 % show_all_trees/0 gives a crude textual depiction of the dependency graph in
 % tree form.
 %
+% Note that Python calls to the module spacy are direct calls to
+% Spacy; calls to xp_spacy are to the xsbpy Python helper functions.
 
 %----------------
+
+% Example: load_model(en_core_web_sm).
+:- export load_model/2, load_model/1.
+load_model(Model,Pipes):- 
+    pyfunc(xp_spacy,load_model(Model),_), 
+    load_model_1(Pipes,Model).
+
+load_model_1([],_Model).
+load_model_1([pipe(Pipe)|Rest],Model):-
+    pyfunc(xp_spacy,add_pipe(Model,Pipe),_),
+    load_model_1(Rest,Model).
+
+load_model(Model):- 
+    load_model(Model,['merge_entities']).
+
+%----------------
+
+:- export proc_string/3, proc_string/4, proc_file/3.
+proc_string(Model,String,Doc,Opts):-
+    pyfunc(xp_spacy,proc_string(Model,String),Doc),
+    (member(token_assert,Opts) ->
+	 token_assert(Doc)
+       ; true).
+
+proc_string(Model,String,Doc):-
+    proc_string(Model,String,Doc,[]).
+
+proc_file(File,NLP,Doc):-
+    pyfunc(xp_spacy,doc_from_file(File,NLP),Doc).
+
+%----------------
+
 % load_and_proc(en_core_web_sm,'ta1doc.txt').
 load_and_proc(Model,File):-
     retractall(python_obj(_,_)),
@@ -33,13 +67,9 @@ load_and_proc(Model,File):-
                                                                                 
 %----------------
 % filters out punctuation from the dependency graph.
-token_info(CIndex,_Text,_Lemma,Pos,_Tag,Dep,Ent\_type):-
+token_info(CIndex,_Text,_Lemma,Pos,_Tag,Dep,Ent_type):-
     token_info_raw(CIndex,_Text,_Lemma,Pos,_Tag,Dep,Ent_type),
     Dep \= punct,Pos \= 'SPACE'.
-
-token_assert():- 
-    python_obj(doc,Doc),
-    token_assert(Doc).                                                             
 
 % Below                                                                         
 % POS: The simple UPOS part-of-speech tag.                                      
@@ -164,3 +194,7 @@ ent_report(Doc):-
     fail.                                                                       
 ent_report(_Doc).                                                               
                                       
+%token_assert():- 
+%    python_obj(doc,Doc),
+%    token_assert(Doc).                                                             
+
