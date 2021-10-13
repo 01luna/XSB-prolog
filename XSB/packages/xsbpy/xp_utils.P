@@ -1,4 +1,5 @@
 :- export items/2, keys/2, values/3, obj_dict/2, obj_dir/2.
+:- export key/2, value/3.
 
 :- compiler_options([xpp_on]).
 #include "xsbpy_defs.h"
@@ -11,6 +12,10 @@ items(PYDICT_PROLOG(Items),Items).
 keys(Dict,Keys):-
    Dict = PYDICT_PROLOG(List),!,
    setof(Key,Val^member(PYTUP_PROLOG(Key,Val),List),Keys).
+
+key(Dict,Key):-
+    Dict = PYDICT_PROLOG(List),!,
+	member(PYTUP_PROLOG(Key,_Val),List).
 
 values(Dict,[Key],Val):- !,
     values(Dict,Key,Val).
