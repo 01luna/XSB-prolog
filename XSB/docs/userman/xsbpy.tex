@@ -650,11 +650,15 @@ is equivalent to the Python expression
 There are no error conditions associated with this predicate.
 
 \ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{xp\_utils}
+\ourrepeatmoditem{key(+Dict,?Keys)}{key/2}{xp\_utils}
 \altourmoditem{items(+Dict,?Items)}{items/2}{xp\_utils}
 %
 Convenience predicates (for the inveterate Python programmer) to
 obtain a list of keys or items from a Prolog dictionary.  There are no
 error conditions associated with these predicates.
+
+The predicate {\tt key/2} returns each key of a dictionary on
+backtracking, rather than returning all keys as one list, as in {\tt keys/2}.
 
 
 
@@ -1014,8 +1018,8 @@ Language object {\tt Model}.
 {\tt load\_model(Model)} is a convenience predicate for {\tt
   load\_model(Model,[])}.
 
-\ourrepeatmoditem{ proc\_string(+Model,+Atom,-Doc,+Options)} {\tt proc\string/4}{xp\_spacy}
-\altourmoditem{ proc\_string(+Model,+Atom,-Doc)} {\tt proc\string/3}{xp\_spacy}
+\ourrepeatmoditem{proc\_string(+Model,+Atom,-Doc,+Options)}{proc\_string/4}{xp\_spacy}
+\altourmoditem{proc\_string(+Model,+Atom,-Doc)}{proc\_string/3}{xp\_spacy}
 %
 Processes the text {\tt Atom} using the model {\tt Model} and unifying
 {\tt Doc} with the resulting SpaCy {\tt Document} object.  The only
