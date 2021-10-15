@@ -38,7 +38,11 @@ load_csv(FileName,PSpec,Options) :-
 
 :- mode load_psv(+,?).
 load_psv(FileName,PSpec) :-
-    load_dsv(FileName,PSpec,[separator="|"]).
+    load_dsv(FileName,PSpec,[separator="|",order=reverse]).
+
+:- mode load_tsv(+,?).
+load_tsv(FileName,PSpec) :-
+    load_dsv(FileName,PSpec,[separator="\t",order=reverse]).
 
 :- mode read_dsv(+,+,?).
 read_dsv(FileName,Options,Term) :-

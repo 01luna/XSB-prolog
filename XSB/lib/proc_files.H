@@ -24,10 +24,7 @@
 
 :- compiler_options([ciao_directives]).
 
-:- export
-        load_csv/3,
-        load_csv/2,
-        load_psv/2.
+:- export load_csv/3, load_csv/2, load_psv/2, load_tsv/2.
 :- export load_dsv/3.
 :- export save_dsv/3.
 :- export copy_dsv/4.
