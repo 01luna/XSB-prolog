@@ -2576,12 +2576,16 @@ delimiter-separaed files. \footnote{The name of the library, {\tt
 
 \begin{description}
 
-\ourmoditem{load\_csv(+File,+PredSpec)}{load\_csv/2}{proc\_files}
+\ourrepeatmoditem{load\_csv(+File,+PredSpec)}{load\_csv/2}{proc\_files}
+\ourrepeatmoditem{load\_tsv(+File,+PredSpec)}{load\_tsv/2}{proc\_files}
+\ourrepeatmoditem{load\_psv(+File,+PredSpec)}{load\_psv/2}{proc\_files}
 
-{\tt load\_csv/2} takes a file in csv format along with a predicate
-specification, and loads its contents into memory to define
-the predicate {\tt PredSpec}.  The simplest form of {\tt PredSpec} is
-{\tt PredName/Arity}. e.g.,
+{\tt load\_csv/2}, {\tt load\_tsv/2}, and {\tt load\_psv/2}, each
+respecively takes a file in csv format, tsv (tab-delimited) format or
+psv (pipe-delimited format) along with a predicate specification, and
+loads its contents into memory to define the predicate {\tt PredSpec}.
+
+The simplest form of {\tt PredSpec} is {\tt PredName/Arity}. e.g.,
 
 {\tt load\_csv('weather\_stats.csv',weather\_stats/7)}.
 
@@ -2638,6 +2642,22 @@ a float in the loaded fact.
   \texttt{remove\_cvt\_type\_hook(date)}.
 \end{itemize}
 
+{\tt load\_csv/2}, {\tt load\_tsv/2}, and {\tt load\_psv/2} are all
+convenience predicates defined in terms of the general predicate {\tt
+  load\_dsv/3} described below.  Their definitions are as follows:
+
+\begin{verbatim}
+load_csv(FileName,PSpec) :-
+    load_dsv(FileName,PSpec,[]).
+	
+load_psv(FileName,PSpec) :-
+    load_dsv(FileName,PSpec,[separator="|",order=reverse]).
+
+load_tsv(FileName,PSpec) :-
+    load_dsv(FileName,PSpec,[separator="\t",order=reverse]).
+\end{verbatim}
+
+
 \ourmoditem{load\_dsv(+FileName,+PredSpec,+Options)}{load\_dsv/3}{proc\_files}
 
 This predicate supports the loading of more general forms of files
@@ -2667,7 +2687,7 @@ list, {\tt load\_dsv} acts as {\tt load\_csv/2}.)  The options are:
   options list, the one in {\tt PredSpec} is used.
 \item[{\tt returns=''S''}] (or {\tt returns(''S'')}), where {\tt S} is
   a string to be substituted for any newlines in non-delimited fields.
-\item[{\tt reverse}] causes {\tt asserta/1} to be used to assert the
+\item[{\tt order=reverse}] causes {\tt asserta/1} to be used to assert the
   input terms, so {\tt PredSpec} will contain the file records in
   reverse order.  This can significantly improve performance if {\tt
     File} has a large number of lines or if indexing is particularly
