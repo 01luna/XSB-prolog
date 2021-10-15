@@ -427,7 +427,8 @@ list_valcount_1([H|T],Last,Count,[(Last,Count)|Out]):-
 % Histogram info for a list of numbers.
    
 list_hist(ListIn,Start,Inc,ListOut):-
-    parsort(ListIn,[],0,List1),
+%   parsort(ListIn,[],0,List1),
+   sort(ListIn,List1,[keep_dups,numeric]),
     List1 = [H|T],
     Next is H - ((H-Start) mod Inc),
     list_hist_1(T,Next,1,Start,Inc,ListOut).

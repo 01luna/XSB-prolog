@@ -36,4 +36,4 @@
 :- import arg/3, functor/3 from standard.
 :- import check_nonvar/3, check_integer/3, check_nonneg_integer/3 from error_handler.
 :- import parsort/4 from machine.
-
+:- import sort/3 from setof.
