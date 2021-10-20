@@ -205,7 +205,7 @@ reconsult0(Path, Options, Ensure_loaded) :-
     ).
 
 remove_xwam_and_throw(LObj,Ball) :-
-    rm(LObj),
+    (rm(LObj) -> true ; true), % may already have been removed
     throw(Ball).
 
 i_want_compile(SExt, Base, Obj) :-
