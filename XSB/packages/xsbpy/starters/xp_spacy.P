@@ -1,7 +1,8 @@
-:- import member/2 from basics.                                                 
+:- import length/2,list_last/2,member/2from basics.
 :- import pyfunc/3, pydot/4 from xsbpy.                                                  
 
-:- export load_and_proc/2, token_assert/1, token_info/7, token_info_raw/7, entity/2.
+:- export load_and_proc/2, token_assert/1, token_info/7, token_info_raw/7, entity/2,
+   token_childOf/2.
 :- export show_all_trees/0.
 
 :- dynamic token_info_raw/7, token_childOf/2.
@@ -9,6 +10,8 @@
 :- index(token_childOf/2,[1,2]).
 :- index(token_info_raw/7,[1,6]).
 :- import python_obj/2 from usermod.
+
+?- ensure_loaded(xsbpy).
 
 % Use load_and_proc/2 to load a Spacy model and process it into a document.
 % This predicate asserts python_object/2 facts that are used by other predicates.
@@ -36,7 +39,7 @@ load_model_1([pipe(Pipe)|Rest],Model):-
     load_model_1(Rest,Model).
 
 load_model(Model):- 
-    load_model(Model,['merge_entities']).
+    load_model(Model,[pipe('merge_entities')]).
 
 %----------------
 
@@ -149,6 +152,28 @@ entity(Ent_type,Token):-
     token_info(Index,_Text,_Lemma,_Pos,_Tag,Dep,Ent_type),
     Token = token_info(Index,_Text,_Lemma,_Pos,_Tag,Dep,Ent_type).
 
+:- export get_subtree_span/3.
+get_subtree_span(Rindex,Subtree,[First,Last]):-
+abolish_table_pred(trans_token_childOf(_,_)),
+    setof(Index,trans_token_childOf(Rindex,Index),Subtree),
+    list_last(Subtree,Last1),
+    token_info_raw(Last1,Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type),
+    atom_codes(Text,Tlist),length(Tlist,Tlen),
+    Last is Last1 + Tlen,
+    Subtree = [First|_].
+
+:- table trans_token_childOf/2.    
+trans_token_childOf(Index,Index).
+trans_token_childOf(Index,IndexChild):-
+    trans_token_childOf(Index,IndexMid),
+    token_childOf(IndexMid,IndexChild).
+
+% should use range trees
+tok_in_span(First,Last,Token):-
+    token_info_raw(Token,_Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type),
+    Token >= First,Token =< Last.
+
+	    
 end_of_file.
 
 %token_report():-                                                                
