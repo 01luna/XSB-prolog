@@ -776,10 +776,12 @@ proper_hilog(X) :-
 	).
 
 :- mode functor(?,?,?).
+:- mode_on_success functor(?,+,+).
 functor(T, F, N) :- functor(T, F, N).
 
 
 :- mode functor(?,?,?,?).
+:- mode_on_success functor(?,+,+,+).
 :- export functor4/4.
 functor(_Term,_Mod,_Fun,_Arity) :- '_$builtin'(FUNCTOR4).
 

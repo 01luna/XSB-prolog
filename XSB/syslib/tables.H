@@ -64,6 +64,7 @@
    print_incomplete_tables/0,print_incomplete_tables/1,
    /*print_ls/0, print_tr/0, print_heap/2, print_cp/1, print_regs/0,	print_all_stacks/0, */
            retract_table/1,          /* abolish/1 */
+   re_delay/1,
    sdg_scc_info/2, 
    sk_not/1,
 %      table_state/2,
@@ -91,6 +92,7 @@
 :- export get_residual_sccs/3.
 :- export get_residual_sccs/5.
 :- export get_tabling_options/2.
+:- export '_$$get_returns_and_dls'/4.
 
 %:- export add_alt_semantics/2.
 :- export truth_value/2.
@@ -193,7 +195,7 @@
 :- import
    (=..)/2, abort/1, call/1,arg/3,
 	functor/3, is_attv/1, tcall/1,
-	(index)/2, (==)/2
+   (index)/2, (==)/2, ','/2, ';'/2
    from standard.
 :- import ('^')/2 from setof.
 :- import call_c/1,nl/0,write/1, tell/1, told/0, (\=)/2, arg/3 from standard.

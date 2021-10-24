@@ -53,9 +53,9 @@
 	  term_new_mod/3 from machine.
 :- import findall/3, setof/3 from setof.
 :- import sys_main_memory/1 from shell.
-:- import atom_codes/2, number_codes/2,catch/3,(index)/2,tab/1,write/1 from standard.
+:- import atom_codes/2, number_codes/2,catch/3,(index)/2,tab/1,write/1,','/2 from standard.
 :- import functor/3, warning/1, abort/1, integer/1, atom/1, structure/1 from standard.
-:- import '_$multifile'/1, '_$multifile_comp'/2 from standard.
+:- import '_$multifile'/1, '_$multifile_comp'/2, fail/0 from standard.
 :- import standard_symbol/3, standard_metapredicate_template/3 from std_xsb.
 :- import atom_to_term/2,str_length/2,str_sub/2 from string.
 :- import get_callsto_number/2, get_answer_number/2,table_status/5,
