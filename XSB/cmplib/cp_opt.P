@@ -356,7 +356,7 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 		YY = 0,			  % varibles seen in groupby values?
 		Pred1Term,
 		xwam_state(2,DelayReg),
-		(XX =:= 0, DelayReg =:= 0 % opt for all defined
+		(XX =:= 0, DelayReg =:= 0 % opt for all defined (no undef ans and this true)
 		 ->	(YY =:= 0, ground(Vars) % opt for all groupby vals ground
 			 ->	(Vars = Vars1,
 				 '_$$get_returns'(Cs,OSkel,Leaf)
@@ -388,10 +388,10 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 					)
 				)
 			)
-		 ;	term_set_arg(DefTerm,1,1,1), % undef, must handle from now on
+		 ;	term_set_arg(DefTerm,1,1,1), % undef before or now, set seen undef
 			Vars = Vars1,
-			findall(t(OSkel,Leaf1,TV1,Var),
-				('_$$get_returns_and_tvs'(Cs,OSkel,Leaf1,TV1),
+			findall(t(OSkel,Leaf1,DL1,Var),
+				('_$$get_returns_and_dls'(Cs,OSkel,Leaf1,DL1),
 				 OpSpec1),
 				RetList),
 			(DelayReg =:= 0, % all deletion before returning any ans, otw bug
@@ -401,18 +401,12 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 			 Actions,
 			 fail
 			 ;	
-			 \+ '_$member'(t(_,_,t,_),RetList),
+			 \+ '_$member'(t(_,_,[],_),RetList),
 			 Init
 			 ;	
-			 '_$member'(t(OSkel,Leaf,TV1,Var),RetList),
+			 '_$member'(t(OSkel,Leaf,DL1,Var),RetList),
 			 Var \== OVar,
-			 (DelayReg =:= 0
-			  ->	 (TV1 == t
-				  ->	 true
-				  ;	 undefined
-				 )
-			  ;	 true
-			 )
+			 re_delay(DL1)
 			)
 		)
 	       ),
@@ -433,7 +427,8 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 			      im(findall/3,setof),
 			      im(copy_term/2,basics),
 			      im(instantiation_error/3,error_handler),
-			      im('_$$get_returns_and_tvs'/4,tables),
+			      im('_$$get_returns_and_dls'/4,tables),
+			      im(re_delay/1,tables),
 			      im('_$$get_returns'/3,tables),
 			      im(delete_return/2,tables),
 			      im(undefined/0,tables),
@@ -999,7 +994,6 @@ approx_trans_pred([],_Sym,_Oth,_NewClList,_Symtab).
 approx_trans_pred([Clause|R],Sym,Oth,NewClList,_Symtab):- 
 	get_max_varocc(Clause,MaxV),
 	approx_trans_pred(R,Sym,Oth,NewClList,_Symtab). 
-
 % Original, before changes of Sept 2014
 generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClList2,SymTab) :-
 	(AggrSpec = fold(OpSpec,Id)
