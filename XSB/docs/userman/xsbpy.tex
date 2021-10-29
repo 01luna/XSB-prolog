@@ -510,7 +510,7 @@ all be redefined my modifying the file {\tt xsbpy\_defs.h} in the {\tt
 \begin{description}
 
 \ourrepeatmoditem{pyfunc(+Module,+Function,+Kwargs,?Return)}{pyfunc/4}{xsbpy}
-\altourmoditem{pyfunc(+Module,+Function,?Return)}{pyfunc/3}{xsbpy}
+\indourmoditem{pyfunc(+Module,+Function,?Return)}{pyfunc/3}{xsbpy}
 %
  Ensures that the Python module {\tt Module} is loaded, and calls {\tt
    Module.Function} unifying the return of {\tt Function} with {\tt
@@ -556,7 +556,7 @@ queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
   In addition, errors thrown by Python are
   caught by XSB and thrown as {\tt misc\_error} errors.
 
-\altourmoditem{pydot(+Module,+ObjRef,+MethAttr,?Ret)}{pydot/4}{xsbpy}
+\indourmoditem{pydot(+Module,+ObjRef,+MethAttr,?Ret)}{pydot/4}{xsbpy}
 %
 Applies a method to {\tt ObjRef}, or obtains an attribute from it.  As
 with {\tt pyfunc/[3,4]}, {\tt Module} is a Python module or
@@ -593,7 +593,7 @@ one of two ways:
   caught by XSB and re-thrown as {\tt misc\_error} errors.
 
 \ourrepeatmoditem{pp\_py(+Stream,+Term)}{pp\_py/2}{xsbpy}
-\altourmoditem{pp\_py(Term)}{pp\_py/1}{xsbpy}
+\indourmoditem{pp\_py(Term)}{pp\_py/1}{xsbpy}
 %
 Pretty prints the Prolog translation of a Python data structure in
 Python-like syntax.  For instance, the term
@@ -618,18 +618,18 @@ is printed as
 Such pretty printing can be useful for developing applications such as
 with {\tt xp\_elastic}, the {\tt xsbpy} Elasticsearch interface.
 
-\altourmoditem{add\_py\_lib\_dir(+Path)}{add\_py\_lib\_dir/1}{xsbpy}
+\indourmoditem{add\_py\_lib\_dir(+Path)}{add\_py\_lib\_dir/1}{xsbpy}
 %
 This convenience predicate allows the user to add a path to the Python
 library directories in a manner similar to {\tt add\_lib\_dir/1},
 which adds Prolog library directories.
 
-\altourmoditem{py\_lib\_dirs(?Path)}{py\_lib\_dirs/1}{xsbpy}
+\indourmoditem{py\_lib\_dirs(?Path)}{py\_lib\_dirs/1}{xsbpy}
 %
 This convenience predicate returns the current Python library
 directories as a Prolog list.
 
-\altourmoditem{values(+Dict,+Path,?Val)}{values/3}{xp\_utils}
+\indourmoditem{values(+Dict,+Path,?Val)}{values/3}{xp\_utils}
 %
   Convenience predicate to obtain a value from a (possibly nested)
   Prolog dictionary.  The goal
@@ -651,7 +651,7 @@ There are no error conditions associated with this predicate.
 
 \ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{xp\_utils}
 \ourrepeatmoditem{key(+Dict,?Keys)}{key/2}{xp\_utils}
-\altourmoditem{items(+Dict,?Items)}{items/2}{xp\_utils}
+\indourmoditem{items(+Dict,?Items)}{items/2}{xp\_utils}
 %
 Convenience predicates (for the inveterate Python programmer) to
 obtain a list of keys or items from a Prolog dictionary.  There are no
@@ -662,7 +662,7 @@ backtracking, rather than returning all keys as one list, as in {\tt keys/2}.
 
 
 
-\altourmoditem{obj\_dict(+ObjRef,-Dict)}{obj\_dict/2}{xp\_utils}
+\indourmoditem{obj\_dict(+ObjRef,-Dict)}{obj\_dict/2}{xp\_utils}
 %
 Given a reference to a Python object as {\tt ObjRef}, this predicate
 returns the dictionary of attributes of {\tt ObjRef} in {\tt Dict}.
@@ -676,7 +676,7 @@ using {\tt pydot/4} as:
   pydot('__main__',Obj,'__dict__',Dict).
 \end{verbatim}
 
-\altourmoditem{obj\_dir(+ObjRef,-Dir)}{obj\_dir/2}{xp\_utils}
+\indourmoditem{obj\_dir(+ObjRef,-Dir)}{obj\_dir/2}{xp\_utils}
 %
 Given a reference to a Python object as {\tt ObjRef}, this predicate
 returns the list of attributes of {\tt ObjRef} in {\tt Dir}.  If no
@@ -1006,7 +1006,7 @@ models.
 
 \begin{description}
   \ourrepeatmoditem{load\_model(+Model,+Options)}{load\_model/2}{xp\_spacy}
-  \altourmoditem{load\_model(+Model)}{load\_model/1}{xp\_spacy}
+  \indourmoditem{load\_model(+Model)}{load\_model/1}{xp\_spacy}
 %  
 Loads the SpaCy model {\tt Model} and associates the Prolog atom {\tt
   Model} with the corresponding SpaCy {\tt Language} object.
@@ -1019,7 +1019,7 @@ Language object {\tt Model}.
   load\_model(Model,[])}.
 
 \ourrepeatmoditem{proc\_string(+Model,+Atom,-Doc,+Options)}{proc\_string/4}{xp\_spacy}
-\altourmoditem{proc\_string(+Model,+Atom,-Doc)}{proc\_string/3}{xp\_spacy}
+\indourmoditem{proc\_string(+Model,+Atom,-Doc)}{proc\_string/3}{xp\_spacy}
 %
 Processes the text {\tt Atom} using the model {\tt Model} and unifying
 {\tt Doc} with the resulting SpaCy {\tt Document} object.  The only
@@ -1027,10 +1027,23 @@ option currently allowed in {\tt Options} is {\tt token\_assert},
 which in addition asserts information from {\tt Doc} into a Prolog
 graph.
 
-{\tt proc\_string(+Model,+Atom,-Doc)} is a convenience predicate for\\
+{\tt proc\_string(+Model,+File,-Doc)} is a convenience predicate for\\
 {\tt proc\_string(+Model,+Atom,-Doc,[])}.
 
-\altourmoditem{token\_assert(+Doc)}{token\_assert/1}{xp\_spacy}
+\ourrepeatmoditem{proc\_file(+Model,+File,-Doc,+Options)}{proc\_file/4}{xp\_spacy}
+\indourmoditem{proc\_file(+Model,+File,-Doc)}{proc\_file/3}{xp\_spacy}
+%
+Opens {\tt File} and processes its contents using the model {\tt
+  Model} and unifying {\tt Doc} with the resulting SpaCy {\tt
+  Document} object. {\tt File} is opened in Python, and the stream for
+{\tt File} is closed automatially.  The only option currently allowed
+in {\tt Options} is {\tt token\_assert}, which in addition asserts
+information from {\tt Doc} into a Prolog graph.
+
+{\tt proc\_file(+Model,+File,-Doc)} is a convenience predicate for\\
+{\tt proc\_file(+Model,+File,-Doc,[])}.
+
+\indourmoditem{token\_assert(+Doc)}{token\_assert/1}{xp\_spacy}
 %    
 This predicate accesses the SpaCy Document object {\tt Doc}, then
 queries the dependency graph and other information from {\tt Doc}, and

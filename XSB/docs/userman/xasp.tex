@@ -376,23 +376,21 @@ Examples of use of the various interfaces can be found in the
 subdirectory {\tt intf\_examples}
 
 \begin{description}
-\ouritem{smcInit}
-\index{\texttt{smcInit/0}} 
+\indourmoditem{smcInit}{smcInit/0}{xasp}
+
 %
 Initializes the XSB clause store and the Smodels API.  This predicate
 must be executed before building up a clause store for the first time.
 The corresponding raw predicate, {\tt smrInit(Num)}, initializes the
 Smodels API assuming that it will require at most {\tt Num} atoms.
 
-\ouritem{smcReInit}
-\index{\texttt{smcReInit}} 
+\indourmoditem{smcReInit}{\texttt{smcReInit}}{xasp}
 %
 Reinitializes the Smodels API, but does \emph{not} affect the XSB
 clause store.  This predicate is provided so that a user can reuse
 rules in a clause store in the context of more than one sub-program.
 
-\ouritem{smcAddRule(+Head,+Body)}
-\index{\texttt{smcAddRule/2}} 
+\indourmoditem{smcAddRule(+Head,+Body)}{smcAddRule/2}{xasp}
 %
 Interns a ground rule into the XSB clause store.  {\tt Head} must be a
 \emph{GeneralLiteral} as defined at the beginning of this section, and
@@ -402,18 +400,16 @@ Interns a ground rule into the XSB clause store.  {\tt Head} must be a
      corresponding raw predicates, {\tt smrAddBasicRule/3}, {\tt
        smrAddChoiceRule/3}, {\tt smrAddConstraintRule/4}, and {\tt
        smrAddWeightRule/3} can be used to add raw predicates
-     immediately into the SModels API.
-
-\ouritem{smcRetractRule(+Head,+Body)}
-\index{\texttt{smcRetractRule/2}} 
+     immediately into the SModels API.\
+indourmoditem{smcRetractRule(+Head,+Body)}{smcRetractRule/2}{xasp}
 %
 Retracts a ground (basic) rule from the XSB clause store.  Currently,
 this predicate cannot retract rules with weight constraints: {\tt
   Head} must be a \emph{Literal} as defined at the beginning of this
 section, and {\tt Body} must be a list of \emph{GeneralLiterals}.
 
-\ouritem{smcSetCompute(+List)}
-\index{\texttt{smcCompute/1}} 
+\indourmoditem{smcSetCompute(+List)}{smcCompute/1}{xasp}
+
 %
 Requires that {\tt List} be a list of literals -- i.e. atoms or the
 default negation of atoms).  This predicate ensures that each literal
@@ -423,8 +419,8 @@ convention the cooked interface ensures that {\tt true} is present and
 it calls the raw interface predicates {\tt smrSetPosCompute/1} and
 {\tt smrSetNegCompute/1}
 
-\ouritem{smcCommitProgram}
-\index{\texttt{smcCommitProgram/0}} 
+\indourmoditem{smcCommitProgram}{smcCommitProgram/0}{xasp}
+
 %
 This predicate translates all of the clauses from the XSB clause store
 into the data structures of the Smodels API.  It then signals to the
@@ -432,8 +428,7 @@ API that all clauses have been added, and initializes the Smodels
 computation.  The corresponding raw predicate, {\tt smrCommitProgram},
 performs only the last two of these features.
 
-\ouritem{smComputeModel}
-\index{\texttt{smcComputeModel/0}} 
+\indourmoditem{smComputeModel}{smcComputeModel/0}{xasp}
 %
 This predicate calls Smodels to compute a stable model, and succeeds
 if a stable model can be computed.  Upon backtracking, the predicate
@@ -441,8 +436,8 @@ will continue to succeed until all stable models for a given program
 cache have been computed.  {\tt smComputeModel/0} is used by both the
 raw and the cooked levels.
 
-\ouritem{smcExamineModel(+List,-Atoms)}
-\index{\texttt{smcExamineModel/2}} 
+\indourmoditem{smcExamineModel(+List,-Atoms)}{smcExamineModel/2}{xasp}
+
 %
 {\tt smcExamineModel/(+List,-Atoms)} filters the literals in {\tt
   List} to determine which are true in the most recently computed
@@ -451,14 +446,14 @@ stable model.  These true literals are returned in the list {\tt
 raw interface in which integers from {\tt 0} to {\tt N}, true in the
 most recently computed stable model, are input and output.
 
-\ouritem{smEnd}
-\index{\texttt{smcEnd/0}} 
+\indourmoditem{smEnd}{smcEnd/0}{xasp}
+
 %
 Reclaims all resources consumed by Smodels and the various APIs.  This
 predicate is used by both the cooked and the raw interfaces.
 
-\ouritem{print\_cache}
-\index{\texttt{print\_cache/0}} 
+\indourmoditem{print\_cache}{print\_cache/0}{xasp}
+
 %
 This predicate can be used to examine the XSB clause store, and may
 be useful for debugging.
@@ -558,15 +553,15 @@ directly calls the Smodels C interface, and can be thought of as a
 special-purpose alternative to {\tt sm\_int}.
 %
 \begin{description}
-\ouritem{init\_smodels(+Query)}
-\index{\texttt{init\_smodels/1}}
+\indourmoditem{init\_smodels(+Query)}{init\_smodels/1}{xasp}
+
 %
 Initializes smodels with the residual program produced by evaluating
 {\tt Query}.  {\tt Query} must be a call to a tabled predicate that is
 currently completely evaluated (and should have a delay list)
 
-\ouritem{atom\_handle(?Atom,?AtomHandle)} 
-\index{\texttt{atom\_handle/2}}
+\indourmoditem{atom\_handle(?Atom,?AtomHandle)}{atom\_handle/2}{xasp}
+
 % 
 The {\em handle} of an atom is set by {\tt init\_smodels/1} to be an
 integer uniquely identifying each atoms in the residual program (and
@@ -574,8 +569,8 @@ thus each atom in the Herbrand base of the program for which the
 stable models are to be derived).  The initial query given to
 {\tt init\_smodels} has the atom-handle of 1.
 
-\ouritem{in\_all\_stable\_models(+AtomHandle,+Neg)}
-\index{\texttt{in\_all\_stable\_models/2}}
+\indourmoditem{in\_all\_stable\_models(+AtomHandle,+Neg)}{in\_all\_stable\_models/2}{xasp}
+
 %
 {\tt in\_all\_stable\_models/2} returns true if {\tt Neg} is 0 and the
 atom numbered {\tt AtomHandle} returns true in all stable models (of
@@ -583,16 +578,16 @@ the residual program set by the previous call to {\tt
   init\_smodels/1}).  If {\tt Neg} is nonzero, then it is true if the
 atom is in NO stable model.
 
-\ouritem{pstable\_model(+Query,-Model,+Flag)}
-\index{\texttt{pstable\_model/3}}
+\indourmoditem{pstable\_model(+Query,-Model,+Flag)}{pstable\_model/3}{xasp}
+
 %
 returns nondeterministically a list of atoms true in the partial
 stable model total on the atoms relevant to instances of {\tt Query},
 if {\tt Flag} is 0.  If {\tt Flag} is 1, it only returns models in
 which the instance of {\tt Query} is true.
 
-\ouritem{a\_stable\_model}
-\index{\texttt{a\_stable\_model/0}}
+\indourmoditem{a\_stable\_model}{a\_stable\_model/0}{xasp}
+
 %
 This predicate invokes Smodels to find a (new) stable model (of the
 program set by the previous invocation of {\tt init\_smodels/1}.)  It
@@ -600,19 +595,19 @@ will compute all stable models through backtracking.  If there are no
 (more) stable models, it fails.  Atoms true in a stable model can be
 examined by {\tt in\_current\_stable\_model/1}.
 
-\ouritem{in\_current\_stable\_model(?AtomHandle)} 
-\index{\texttt{in\_current\_stable\_model/1}}
+\indourmoditem{in\_current\_stable\_model(?AtomHandle)}{in\_current\_stable\_model/1}{xasp}
+
 %
 This predicate is true of handles of atoms true in the current stable
 model (set by an invocation of {\tt a\_stable\_model/0}.)
 
-\ouritem{current\_stable\_model(-AtomList)}
-\index{\texttt{current\_stable\_model/1}}
+\indourmoditem{current\_stable\_model(-AtomList)}{current\_stable\_model/1}{xasp}
+
 %
 returns the list of atoms true in the current stable model.
 
-\ouritem{print\_current\_stable\_model}
-\index{\texttt{print\_current\_stable\_model/0}}
+\indourmoditem{print\_current\_stable\_model}{print\_current\_stable\_model/0}{xasp}
+
 %
 prints the current stable model to the stream to which answers are
 sent (i.e {\tt stdfbk})
