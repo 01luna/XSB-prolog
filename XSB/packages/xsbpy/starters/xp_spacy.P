@@ -4,6 +4,9 @@
 :- export load_and_proc/2, token_assert/1, token_info/7, token_info_raw/7, entity/2,
    token_childOf/2.
 :- export show_all_trees/0.
+:- export load_model/2, load_model/1.
+:- export proc_string/3, proc_string/4, proc_file/3,proc_file/4.
+:- export get_subtree_span/3.
 
 :- dynamic token_info_raw/7, token_childOf/2.
 :- dynamic python_obj/2.
@@ -28,7 +31,6 @@
 %----------------
 
 % Example: load_model(en_core_web_sm).
-:- export load_model/2, load_model/1.
 load_model(Model,Pipes):- 
     pyfunc(xp_spacy,load_model(Model),_), 
     load_model_1(Pipes,Model).
@@ -43,7 +45,6 @@ load_model(Model):-
 
 %----------------
 
-:- export proc_string/3, proc_string/4, proc_file/3.
 proc_string(Model,String,Doc,Opts):-
     pyfunc(xp_spacy,proc_string(Model,String),Doc),
     (member(token_assert,Opts) ->
@@ -53,8 +54,14 @@ proc_string(Model,String,Doc,Opts):-
 proc_string(Model,String,Doc):-
     proc_string(Model,String,Doc,[]).
 
+proc_file(File,NLP,Doc,Opts):-
+    pyfunc(xp_spacy,doc_from_file(NLP,File),Doc),
+    (member(token_assert,Opts) ->
+	 token_assert(Doc)
+       ; true).
+
 proc_file(File,NLP,Doc):-
-    pyfunc(xp_spacy,doc_from_file(File,NLP),Doc).
+    pyfunc(xp_spacy,doc_from_file(NLP,File),Doc).
 
 %----------------
 
@@ -64,7 +71,7 @@ load_and_proc(Model,File):-
     pyfunc(spacy,load(Model),NLP),                                              
     pydot(spacy,NLP,add_pipe('merge_entities'),_),
 %    pymeth(spacy,NLP,add_pipe('merge_noun_chunks'),_),                     
-    pyfunc(xp_spacy,doc_from_file(File,NLP),Doc),                              
+    pyfunc(xp_spacy,doc_from_file(NLP,File),Doc),                              
     assert(python_obj(nlp,NLP)),
     assert(python_obj(doc,Doc)).
                                                                                 
@@ -152,7 +159,6 @@ entity(Ent_type,Token):-
     token_info(Index,_Text,_Lemma,_Pos,_Tag,Dep,Ent_type),
     Token = token_info(Index,_Text,_Lemma,_Pos,_Tag,Dep,Ent_type).
 
-:- export get_subtree_span/3.
 get_subtree_span(Rindex,Subtree,[First,Last]):-
 abolish_table_pred(trans_token_childOf(_,_)),
     setof(Index,trans_token_childOf(Rindex,Index),Subtree),
@@ -193,9 +199,6 @@ end_of_file.
 % obsolete -- use load_and_proc/2.
 %spacy_load_model(Model,NLP):-                                                   
 %    pyfunc(spacy,load(Model),NLP).                                              
-                                                                                
-%spacy_proc_file(NLP,File,Doc):-                                                 
-%    pyfunc(xp_spacy,doc_from_file(File,NLP),Doc).                              
                                                                                 
 % obsolete -- this can easily be done by traversing the dependeny graph in Prolog.
 np_report():-                                                                   
