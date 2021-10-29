@@ -51,6 +51,7 @@
 :- import '_$timed_call_rep_max_handler'/7 from standard.
 :- import get_interpreter_index/1 from standard.
 :- import '$$exception_ball'/2 from standard.
+:- import ','/2 from standard.
 :- import close_open_tables/1,
           is_xwammode/1, 
 	  stat_flag/2, stat_set_flag/2,
@@ -81,7 +82,7 @@
 :- import constraint_portray_hook/4 from machine.
 :- import cancel_sleeper_thread/0,start_sleeper_thread/1, stat_walltime/1 from machine.
 :- import token_type/2 from xsb_read.
-:- import misc_error/2 from error_handler.
+:- import misc_error/2, default_error_handler/1 from error_handler.
 :- import thread_get_signal/1 from mutex_xsb.
 :- import thread_peek_signal/1 from mutex_xsb.
 :- import repeat/0 from standard.

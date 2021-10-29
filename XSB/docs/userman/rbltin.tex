@@ -245,14 +245,16 @@ with {\tt retract/1}.
 \isoitem{abolish(+PredSpec)}{abolish/1} 
 %
 Removes all information about the specified predicate. {\tt PredSpec}
-is of the form {\tt Pred/Arity}.  Everything about the abolished
-predicate is completely forgotten by the system (including the {\tt
-  dynamic or static} property, whether the predicate is tabled, and
-whether the predicate is thread-shared or
+is either of the form {\tt Pred/Arity}, or a term (whos main functor
+symbol is taken as the predicate to abolish).  Everything about the
+abolished predicate is completely forgotten by the system (including
+the {\tt dynamic or static} property, whether the predicate is tabled,
+and whether the predicate is thread-shared or
 thread-private)~\footnote{For compatibility with older Prologs, there
-  is also an {\tt abolish/2} which takes {\tt Pred} and {\tt Arity} as
-  its two arguments.}.  Any completed tables for the predicate are
-also removed.
+is also an {\tt abolish/2} which takes {\tt Pred} and {\tt Arity} as
+its two arguments. The predicate {\tt abolish/2} can be used only to abolish
+predicates in usermod, and its use is discouraged.}.  Any completed
+tables for the predicate are also removed.
 
 It is an error to abolish a predicate when there is more than 1 active
 thread, regardless of whether the predicate is thread-private or

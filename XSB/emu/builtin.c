@@ -254,6 +254,7 @@ Cell pflags[MAX_PRIVATE_FLAGS];		  /* Thread private flags */
 
 #include "ptoc_tag_xsb_i.h"
 
+#define biargreg(argno) cell(reg+ *(biarg+argno))
 
 DllExport prolog_int call_conv ptoc_int(CTXTdeclc int argnum)
 {
@@ -262,7 +263,7 @@ DllExport prolog_int call_conv ptoc_int(CTXTdeclc int argnum)
    * multi-threaded engine
    */
   //  register Cell addr = cell(reg+argnum);
-  register Cell addr = cell(reg + *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -290,7 +291,7 @@ DllExport prolog_int call_conv iso_ptoc_int(CTXTdeclc int argnum,const char * Pr
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -321,7 +322,7 @@ DllExport prolog_int call_conv iso_ptoc_int_arg(CTXTdeclc int argnum,const char 
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -362,7 +363,7 @@ inline Cell iso_ptoc_callable(CTXTdeclc int argnum,const char * PredString)
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -383,7 +384,7 @@ inline Cell iso_ptoc_callable_arg(CTXTdeclc int argnum,const int PredString,cons
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -398,7 +399,7 @@ inline Cell iso_ptoc_callable_arg(CTXTdeclc int argnum,const int PredString,cons
 }
 
 inline void iso_check_var(CTXTdeclc int argnum,const char * PredString) {
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   XSB_Deref(addr);
   if (!isref(addr)) xsb_type_error(CTXTc "variable",addr,PredString,argnum);
@@ -412,7 +413,7 @@ DllExport prolog_float call_conv ptoc_float(CTXTdeclc int argnum)
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref( addr );
@@ -441,7 +442,7 @@ DllExport char* call_conv iso_ptoc_string(CTXTdeclc int argnum,char * PredString
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -466,7 +467,7 @@ DllExport char* call_conv ptoc_string(CTXTdeclc int argnum)
    * multi-threaded engine
    */
 
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -500,7 +501,7 @@ DllExport prolog_float call_conv ptoc_number(CTXTdeclc int argnum)
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   /* XSB_Deref and then check the type */
   XSB_Deref(addr);
@@ -587,7 +588,7 @@ DllExport char* call_conv ptoc_longstring(CTXTdeclc int argnum)
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
   XSB_Deref(addr);
   if (isstring(addr)) return string_val(addr);
   if (isointeger(addr)) return (char *)oint_val(addr);
@@ -614,7 +615,7 @@ DllExport char* call_conv ptoc_longstring(CTXTdeclc int argnum)
  */
 DllExport void call_conv ctop_int(CTXTdeclc int argnum, prolog_int value)
 {
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   XSB_Deref(addr);
   if (isref(addr)) {
@@ -633,7 +634,7 @@ DllExport void call_conv ctop_float(CTXTdeclc int argnum, prolog_float value)
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   XSB_Deref(addr);
   if (isref(addr)) {
@@ -649,7 +650,7 @@ DllExport void call_conv ctop_string(CTXTdeclc int argnum, const char *value)
    * and is defined as a thread-specific macro in context.h in the
    * multi-threaded engine
    */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   XSB_Deref(addr);
   if (isref(addr)) {
@@ -667,7 +668,7 @@ DllExport void call_conv extern_ctop_string(CTXTdeclc int argnum, const char *va
 
 inline static void ctop_constr(CTXTdeclc int argnum, Pair psc_pair)
 {				/* from psc_pair ptr form an constr node */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   XSB_Deref(addr);
   if (isref(addr)) {
@@ -678,7 +679,7 @@ inline static void ctop_constr(CTXTdeclc int argnum, Pair psc_pair)
 
 inline static void ctop_list(CTXTdeclc int argnum, Pair psc_pair)
 {				/* from psc_pair ptr form an constr node */
-  register Cell addr = cell(reg+ *(biarg+argnum));
+  register Cell addr = biargreg(argnum);
 
   XSB_Deref(addr);
   if (isref(addr)) {
@@ -2033,7 +2034,8 @@ int builtin_call(CTXTdeclc byte number)
       ctop_int(CTXTc 2, (pb)tcpstack.high - (pb)breg);
       break;
     case 2: /* value of delayreg */
-      ctop_int(CTXTc 2, (UInteger)delayreg);
+      //      ctop_int(CTXTc 2, (UInteger)delayreg);
+      int_unify(CTXTc makeint((UInteger)delayreg),biargreg(2));
       break;
     case 3: /* current interned trie space used, SLOW */
       {NodeStats abtn;
