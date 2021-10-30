@@ -98,6 +98,7 @@
 :- export truth_value/2.
 :- export check_table_option/4.
 
+:- export print_current_delay_list/0.
 
 % Obsolete
 :- export    abolish_table_call/1,       abolish_table_call/2.

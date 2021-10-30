@@ -206,9 +206,13 @@ t_not_variant(Subgoal,AnsSetStatus,SF,PTCP):-
 		 )
           ;  %get_producer_call(Subgoal,ProducerSF,_AnswerTmplt),
 	     is_incomplete(SF,PTCP), % suspend if is incomplete, succeed if complete
-	     ensure_answer_completed(Subgoal,SF),
+%% DSW deleted: 10/30/2021
+%% following causes problems with aggregation, with resid program being partial.
+%% Not needed for testsuite. Is it even right? Can't always answer complete here?
+%%	     ensure_answer_completed(Subgoal,SF),
 	     slg_not(SF) ).
 
+/**
 ensure_answer_completed(Subgoal,SF) :-
 	stat_flag(ANSWER_COMPLETION,AC),
 	(AC =:= 0		% not doing answer_completion
@@ -222,7 +226,7 @@ ensure_answer_completed(Subgoal,SF) :-
 	     %%standard:writeln(userout,ac_from_tnot(Subgoal)),
 	     answer_completion(SF,Tmp)
 	    )
-	).
+	). **/
 
 % needs to be optimized!
 t_not_subsumptive_sf_comp(Subgoal,SF,_):- 
@@ -2552,7 +2556,7 @@ ac_loop(SGF,Tmp,Dir) :-
 	(do_all eval_subgoal_in_residual(SGF,Tmp,Dir)),
 	delete_answers_for_failing_calls,
 	(stat_flag(SIMPLIFICATION_DONE,SimpFlg), SimpFlg =:= 1
-	 ->	standard:writeln(userout,iterate),
+	 ->	%%standard:writeln(userout,iterate),
 		Dir1 is (Dir+1) mod 2,
 		gensym:conset('_ac_ctr',Dir1),
 		ac_loop(SGF,Tmp,Dir1)
@@ -2603,7 +2607,7 @@ eval_dl_in_residual([G|Gs],Dir) :-
 eval_subgoal_in_residual(Gs,Tmp,Dir) :-
     %%standard:writeln(eval(Gs,Tmp)),
     get_returns_and_dls(Gs,Tmp,DelayLists),
-    %%standard:writeln(call(Gs,Tmp,DelayLists)),
+%%    standard:writeln(call(Gs,Tmp,DelayLists)),
     (DelayLists == []
      ->	true
      ;	(is_answer_completed(Gs)
@@ -2625,11 +2629,17 @@ is_answer_completed(SGF) :-
     answer_completion_ops(2,SGF,Flag),
     Flag =:= 1.
 
-is_answer_completed(SGF,Flag) :-
-	answer_completion_ops(2,SGF,Flag).
+%%is_answer_completed(SGF,Flag) :-
+%%	answer_completion_ops(2,SGF,Flag).
 
 answer_completion_ops(_Op,_SGF,_Res) :-
 	'_$builtin'(ANSWER_COMPLETION_OPS).
+
+print_current_delay_list :-
+    get_current_delay_list(1,_).
+
+get_current_delay_list(_Cmd,_Res) :-
+    	'_$builtin'(GET_CURRENT_DELAY_LIST).
 
 /*************
 :- import nl/1, writeq/2 from standard.
@@ -2715,6 +2725,7 @@ print_clause((Head:-Body)) :- !,
 print_clause(Head) :-
 	writeq(userout,Head),
 	writeln(userout,'.').
+******/
 
 /*======================================================================*/
 /* Deprecated (but maintained for backwards compatability) */
