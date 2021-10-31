@@ -140,6 +140,7 @@
 
 #define IS_INCOMPLETE           104
 #define ANSWER_COMPLETION_OPS	105
+#define GET_CURRENT_DELAY_LIST	106
 
 #define GET_PTCP	        107
 #define GET_PRODUCER_CALL	108
