@@ -14,14 +14,32 @@ def add_pipe(Model,Pipe):
     nlp.add_pipe(Pipe)
 
 def proc_string(Model,String):
-    nlp = doc_dict[Model]
-    return(nlp(String))
+    try:
+        nlp = doc_dict[Model]
+        return(nlp(String))
+    except:
+        try:
+            load_model(Model)
+            nlp = doc_dict[Model]
+            return(nlp(String))
+        except:
+            raise NameError(Model)
 
-def doc_from_file(Model,File): 
-    nlp = doc_dict[Model]
-    with open(File,"r") as fp: 
-        file_text = fp.read()                                                   
-        return(nlp(file_text))                                                  
+def doc_from_file(Model,File):
+    try:
+        nlp = doc_dict[Model]
+        with open(File,"r") as fp: 
+            file_text = fp.read()                                                   
+            return(nlp(file_text))                                                  
+    except:
+        try:
+            load_model(Model)
+            nlp = doc_dict[Model]
+            with open(File,"r") as fp: 
+                file_text = fp.read()                                                   
+                return(nlp(file_text))                                                  
+        except:
+            raise NameError(Model)
                                                                                 
 def get_nps(Doc):                                                               
     return([chunk.text for chunk in Doc.noun_chunks])                           
