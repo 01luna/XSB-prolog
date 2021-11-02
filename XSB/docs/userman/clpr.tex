@@ -564,7 +564,7 @@ operators.
 
 \begin{description}
 
-\ournewitem{in(-Variable,+Bound)}{bounds}\index{\texttt{in/2}}
+\indourmoditem{in(-Variable,+Bound)}{in/2}{bounds}
 %
 Adds the constraint {\tt Bound} to {\tt Variable}, where {\tt Bound}
 should be of the form {\tt Low..High}, with {\tt Low} and {\tt High}
@@ -587,7 +587,7 @@ considered to be in the range {\tt min\_integer}..{\tt max\_integer}.
 \ourrepeatnewitem{\#>=(Expr1,Expr2)}{bounds}\index{\texttt{\#>=/2}}
 \ourrepeatnewitem{\#=<(Expr1,Expr2)}{bounds}\index{\texttt{\#=</2}}
 \ourrepeatnewitem{\#=(Expr1,Expr2)}{bounds}\index{\texttt{\#=/2}}
-\ournewitem{\#\\=(Expr1,Expr2)}{bounds} %\index{\texttt{\#\=/2}}
+\indourmoditem{\#\\=(Expr1,Expr2)}{\#\=/2}{bounds} %\index{\texttt{\#\=/2}}
 %
 Ensures that a given relation holds between {\tt Expr1} and {\tt
   Expr2}.  Within these constraints, expressions may contain the
@@ -597,25 +597,26 @@ variables.
 
 \ourrepeatnewitem{\#<=>(Const1,Const2)}{bounds}\index{\texttt{\#>/2}}
 \ourrepeatnewitem{\#=>(Const1,Const2)}{bounds}\index{\texttt{\#>/2}}
-\ournewitem{\#<=(Const1,Const2)}{bounds}\index{\texttt{\#>/2}}
+\indourmoditem{\#<=(Const1,Const2)}{\#>/2}{bounds}
 %
 Constrains the truth-value of {\tt Const1} to have the speficied
 logical relation (``iff'', ``only-if'' or ``if'') to {\tt Const2},
 where {\tt Const1} and {\tt Const2} have one of the six relational
 operators above.  
 
-\ournewitem{all\_different(+VarList)}{bounds}\index{\texttt{all\_different/1}}
+\indourmoditem{all\_different(+VarList)}{all\_different/1}{bounds}
 %
 {\tt VarList} must be a list of variables: constrains all variables in
 {\tt VarList} to have different values.
 
-\ournewitem{sum(VarList,Op,?Value)}{bounds}\index{\texttt{sum/3}}
+\indourmoditem{sum(VarList,Op,?Value)}{sum/3}{bounds}
 %
 {\tt VarList} must be a list of variables and {\tt Value} an integer
 or variable: constrains the sum of all variables in {\tt VarList} to
 have the relation {\tt Op} to {\tt Value} (see preceding example).
 
-\ournewitem{labeling(+Opts,+VarList}{bounds}\index{\texttt{labelling/2}}
+\indourmoditem{labeling(+Opts,+VarList}{labeling/2}{bounds}
+%\index{\texttt{labelling/2}}
 %
 This predicate succeeds if it can assign a value to each variable in
 {\tt VarList} such that no constraint is violated.  Note that
@@ -673,16 +674,16 @@ no
 }
 \end{itemize}
 
-\ournewitem{label(+VarList)}{bounds}\index{\texttt{label/1}}
+\indourmoditem{label(+VarList)}{label/1}{bounds}
 %
 Shorthand for {\tt labeling([leftmost],+VarList)}.
 
-\ournewitem{indomain(?Var)}{bounds}\index{\texttt{indomain/1}}
+\indourmoditem{indomain(?Var)}{indomain/1}{bounds}
 %
 Unifies {\tt Var} with an element of its domain, and upon sucessive
 backttrakcing, with all other elements of its domain.
 
-\ournewitem{serialized(+BeginList,+Durations}{bounds}\index{\texttt{serialized/2}}
+\indourmoditem{serialized(+BeginList,+Durations}{serialized/2}{bounds}
 % 
 {\tt serialized/2} can be useful for scheduling problems.  As input it
 takes a list of variables or integers representing the beginnings of
@@ -713,7 +714,7 @@ X in 1..10, Y in 1..10, serialized([X,Y],[8,1]),X #< Y,label([X,Y]),writeln((X,Y
 %
 removes all solutions where {\tt Y} is less than {\tt X}.
 
-\ournewitem{lex\_chain(+List)}{bounds}\index{\texttt{lex\_chain/1}}
+\indourmoditem{lex\_chain(+List)}{lex\_chain/1}{bounds}
 %
 {\tt lex\_chain/1} takes as input a list of lists of variables and
 integers, and enforces the constraint that each element in a given

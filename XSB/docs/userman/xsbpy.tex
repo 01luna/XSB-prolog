@@ -960,15 +960,15 @@ similarly for textual files.
 
 At this point, a user of {\tt xp\_spacy} has two options: she can
 either query the {\tt Document} object directly or call {\tt
-  token\_assert} to assert information from the {\tt Document} object
-into a Prolog graph that can be conveniently analyzed.  If querying a
-{\tt Document} object directly, a small amount of code may need to be
-written because SpaCy's API often returns generators to its data
-structures rather than its data structures themselves.  Generally the
-code that needs to be written is extremely simple and consists of
+  token\_assert/1} to assert information from the {\tt Document}
+object into a Prolog graph that can be conveniently analyzed.  If
+querying a {\tt Document} object directly, a small amount of code may
+need to be written because SpaCy's API often returns generators to its
+data structures rather than its data structures themselves.  Generally
+the code that needs to be written is extremely simple and consists of
 little more than a list comprehension: the functions {\tt get\_nps()},
 {\tt get\_ents()} and {\tt get\_token\_info()} in {\tt xp\_spacy.py}
-provide examples of this. 
+provide examples of this.
 
 %The predicate {\tt load\_and\_proc/2} loads a SpaCy model and
 %processes text, asserting Python references both to the document and
@@ -990,6 +990,9 @@ edges into XSB as explained below.  As an example of how to navigate
 this graph, {\tt show\_all\_trees/0} and its supporting predicates
 provide a simple but clear representation of the SpaCy dependency
 parse in constituency tree form using the Prolog version of the parse.
+Example~\ref{spacy-examp} below shows a similar sequence as it might
+be executed in a simple session.
+
 
 %The code in this package originated as part of a large research
 %project and reflects the needs of that project.  Other applications
@@ -1025,10 +1028,15 @@ Processes the text {\tt Atom} using the model {\tt Model} and unifying
 {\tt Doc} with the resulting SpaCy {\tt Document} object.  The only
 option currently allowed in {\tt Options} is {\tt token\_assert},
 which in addition asserts information from {\tt Doc} into a Prolog
-graph.
+graph (after removing information about any previous dependency
+graphs).
 
 {\tt proc\_string(+Model,+File,-Doc)} is a convenience predicate for\\
 {\tt proc\_string(+Model,+Atom,-Doc,[])}.
+
+If {\tt Model} has not been loaded, {\tt proc\_string/[3,4]} will try
+to load it before processing.  If {\tt Model} cannot be found, a
+Python {\tt NameError} error is thrown as an XSB miscellaneous error.
 
 \ourrepeatmoditem{proc\_file(+Model,+File,-Doc,+Options)}{proc\_file/4}{xp\_spacy}
 \indourmoditem{proc\_file(+Model,+File,-Doc)}{proc\_file/3}{xp\_spacy}
@@ -1043,12 +1051,17 @@ information from {\tt Doc} into a Prolog graph.
 {\tt proc\_file(+Model,+File,-Doc)} is a convenience predicate for\\
 {\tt proc\_file(+Model,+File,-Doc,[])}.
 
+If {\tt Model} has not been loaded, {\tt proc\_file/[3,4]} will try to
+load it before processing.  If {\tt Model} cannot be found, a Python
+{\tt NameError} error is thrown as an XSB miscellaneous error.
+
 \indourmoditem{token\_assert(+Doc)}{token\_assert/1}{xp\_spacy}
 %    
 This predicate accesses the SpaCy Document object {\tt Doc}, then
 queries the dependency graph and other information from {\tt Doc}, and
-asserts it to Prolog as a graph.  The Prolog form of the graph uses
-two predicates.  The first:
+asserts it to Prolog as a graph (after retracting information from any
+previous dependency graphs).  The Prolog form of the graph uses two
+predicates.  The first:
 \begin{verbatim}  
     token_info_raw(Index,Text,Lemma,Pos,Tag,Dep,EntType)
 \end{verbatim}
@@ -1109,14 +1122,37 @@ for constructing sentences, subtrees of a given token and so on.
   parses, and its code in {\tt xp\_spacy.P} can be modified and
   repurposed for other needed functionality.
 
-  As an example, if the graph contained the sentence processed above:
-  
+\end{description}  
+
+\begin{example} \rm \label{spacy-examp}
+We provide an example session where {\tt xp\_spacy} is used.  For a
+session like this to work SpaCy would need to be installed along with
+the SpaCy model {\tt en\_core\_web\_sm}.  The session would start by
+consulting the appropriate files and model:
 \begin{verbatim}
-She was the youngest of the two daughters of a most affectionate,
-indulgent father; and had, in consequence of her sister's marriage,
-been mistress of his house from a very early period.  
+| ?- [xsbpy,xp_spacy].
+:
+| ?- load_model(en_core_web_sm).
 \end{verbatim}
-    {\tt show\_all\_trees/0} will print out the list of tokens for this sentence followed by:
+Next SpaCy is used to process a string (i.e., a Prolog atom):
+\begin{verbatim}
+| ?- proc_string(en_core_web_sm,'She was the youngest of the two daughters of a most affectionate,indulgent father; and had, in consequence of her sister''''s marriage,been mistress of his house from a very early period.  ',Doc,[token_assert]).
+
+Doc = pyObj(p0x7f36ed5b3580)
+
+yes
+\end{verbatim}
+The option {\tt token\_assert} automatically loads the Spacy
+dependency graph and other information to Prolog.  Alternately, one
+could omit this option and later call {\tt
+  token\_assert(pyObj(p0x7f36ed5b3580))}: i.e., call {\tt
+  token\_assert/1} with the first argument as the reference to the
+SpaCy document object in Python.  Either way, once the dependency
+graph has been loaded into XSB the command: 
+\begin{verbatim}
+show_all_trees().
+\end{verbatim}
+will print out the list of tokens for this sentence followed by:
     {\footnotesize
 \begin{verbatim}
 token_info(245,was,be,AUX,VBD,ROOT,)
@@ -1153,10 +1189,15 @@ token_info(245,was,be,AUX,VBD,ROOT,)
             token_info(414,early,early,ADJ,JJ,amod,)
                token_info(409,very,very,ADV,RB,advmod,)
 \end{verbatim}
-}
- 
-\end{description}  
+    }
 
+A similar sequence, but with {\tt
+  proc\_file(en\_core\_web\_sm,'emma.txt',Doc,[token\_assert])} parses
+the sentences in {\tt emma.txt} and loads the results into XSB.  In
+this case the command {\tt show\_all\_trees()} displays the dependency
+graph for each sentence in tree form.
+  \end{example}
+ 
 \subsection{xp\_json}
 This module contains an interface to the Python {\tt json} module,
 with predicates to read JSON from and write JSON to files and strings.
@@ -1189,7 +1230,7 @@ called directly from Prolog.
   Prolog atom {\tt JsonAtom}.
 \end{itemize}  
 
-\subsubsection{Other Examples and Demos}
+\subsection{Other Examples and Demos}
 
 \paragraph{xp\_elastic}
 This module contains example code for using the Python {\tt

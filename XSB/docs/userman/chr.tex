@@ -196,14 +196,14 @@ file is preprocessed into a {\tt .P} file containing XSB code.  This
 normally.
 
 \begin{description}
-\ournewitem{load\_chr(File)} {chr\_pp}\index{\texttt{load\_chr/1}}
+\indourmoditem{load\_chr(File)}{load\_chr/1}{chr\_pp}
 %
 {\tt load\_chr/1} takes as input a file name whose extension is either
 {\tt .chr} or that has no extension.  It preprocesses {\tt File} if
 the times of the CHR rule file is newer than that of the corresponding
 Prolog file, and then consults the Prolog file.
 
-\ournewitem{preprocess(File,PFile)} {chr\_pp}\index{\texttt{preprocess/2}}
+\indourmoditem{preprocess(File,PFile)}{preprocess/2}{chr\_pp}
 %
 {\tt preprocess/2} takes as input a file name whose extension is
 either {\tt .chr} or that has no extension.  It preprocesses {\tt
@@ -259,10 +259,10 @@ The \texttt{chr} module contains several useful predicates that allow
 inspecting and printing the content of the constraint store.
 
 \begin{description}
-\ournewitem{show\_store(+Mod)}{chr}\index{\texttt{show\_store/1}}
+\indourmoditem{show\_store(+Mod)}{show\_store/1}{chr}
   Prints all suspended constraints of module \texttt{Mod} to
   the standard output.
-\ournewitem{suspended\_chr\_constraints(+Mod,-List)}{chr}\index{\texttt{suspended\_constraints/2}}
+\indourmoditem{suspended\_chr\_constraints(+Mod,-List)}{suspended\_chr\_constraints/2}{chr}
   Returns the list of all suspended CHR constraints of the given module.
 \end{description}
 
@@ -603,14 +603,14 @@ The sorting canonicalizes the answer stores, so that they can be compared.
 \subsection{Overview of Tabling-related Predicates}
 %-------------------------------------------------
 \begin{description}
-\ournewitem{merge\_answer\_store(+AnswerStore)}{chr}\index{\texttt{merge\_answer\_store/1}}
+\indourmoditem{merge\_answer\_store(+AnswerStore)}{merge\_answer\_store/1}{chr}
   Merges the given CHR answer store into the current global CHR constraint store.
-\ournewitem{get\_chr\_store(-ConstraintStore)}{chr}\index{\texttt{get\_chr\_store/1}}
+\indourmoditem{get\_chr\_store(-ConstraintStore)}{get\_chr\_store/1}{chr}
   Returns the current global CHR constraint store.
-\ournewitem{set\_chr\_store(?ConstraintStore)}{chr}\index{\texttt{set\_chr\_store/1}}
+\indourmoditem{set\_chr\_store(?ConstraintStore)}{set\_chr\_store/1}{chr}
   Set the current global CHR constraint store. If the argument is a fresh variable,
   the current global CHR constaint store is set to be an empty store.
-\ournewitem{get\_chr\_answer\_store(+Mod,-AnswerStore)}{chr}\index{\texttt{get\_chr\_answer\_store/1}}
+\indourmoditem{get\_chr\_answer\_store(+Mod,-AnswerStore)}{get\_chr\_answer\_store/1}{chr}
   Returns the part of the current global CHR constraint store of constraints
   in the specified CHR module, in the format of an answer store
   usable as a return argument of a tabled predicate.
