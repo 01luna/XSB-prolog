@@ -158,6 +158,8 @@ extern int prolog_code_call(CTXTdeclc Cell, int);
 extern void init_psc_ep_info(Psc psc);
 extern Integer intern_term_size(CTXTdeclc Cell);
 
+extern void print_delay_list(CTXTdeclc FILE *, CPtr);
+
 int is_cyclic(CTXTdeclc Cell);
 int ground_cyc(CTXTdeclc Cell, int);
 char *cvt_float_to_str_with_fmt(CTXTdeclc Float, char *);
@@ -1278,6 +1280,7 @@ void init_builtin_table(void)
   set_builtin_table(TABLE_STATUS, "table_status");
   set_builtin_table(GET_DELAY_LISTS, "get_delay_lists");
   set_builtin_table(ANSWER_COMPLETION_OPS, "answer_completion_ops");
+  set_builtin_table(GET_CURRENT_DELAY_LIST, "get_current_delay_list");
 
   set_builtin_table(ABOLISH_TABLE_PREDICATE, "abolish_table_pred");
   set_builtin_table(ABOLISH_TABLE_CALL, "abolish_table_call");
@@ -2745,6 +2748,18 @@ case WRITE_OUT_PROFILE:
       break;
     default: 
       xsb_abort("builtin(ANSWER_COMPLETION_OPS): illegal op: %d",ptoc_int(CTXTc 1));
+    }
+    return TRUE;
+  }
+
+  case GET_CURRENT_DELAY_LIST: {
+    switch (ptoc_int(CTXTc 1)) {
+    case 1: // print current delay list
+      print_delay_list(stdout,delayreg);
+      break;
+    case 2: // future, build delay list to r2
+    default:
+      xsb_abort("builtin(GET_CURRENT_DELAY_LIST): illegal option: %d",ptoc_int(CTXTc 1));
     }
     return TRUE;
   }
