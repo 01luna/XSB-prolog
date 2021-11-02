@@ -36,55 +36,55 @@ By Mats Carlsson
 AVL trees (i.e., triees subject to the Adelson-Velskii-Landis balance
 criterion) provide a mechanism to maintain key value pairs so that
 loop up, insertion, and deletion all have complexity ${\cal O}(\log
-n)$.  This library contains predicates to transform a sorted list to
-an AVL tree and back, along with predicates to manipulate the AVL
-trees~\footnote{This library contains functionality not documented
-  here: see the code file for further documentation.}
+n)$.  The library, {\tt assoc\_xsb} contains predicates to transform a
+sorted list to an AVL tree and back, along with predicates to
+manipulate the AVL trees~\footnote{This library contains functionality
+  not documented here: see the code file for further documentation.}
 
 \begin{description}
-\ourmoditem{list\_to\_assoc(+List, ?Assoc)}{list\_to\_assoc/2} 
+\indourmoditem{list\_to\_assoc(+List, ?Assoc)}{list\_to\_assoc/2}{assoc\_xsb}
 %
 is true when {\tt List} is a proper list of Key-Val pairs (in any
 order) and {\tt Assoc} is an association tree specifying the same
 finite function from Keys to Values.
 
-\ourmoditem{assoc\_to\_list(+Assoc, ?List)}{assoc\_to\_list/2}{assoc}
+\indourmoditem{assoc\_to\_list(+Assoc, ?List)}{assoc\_to\_list/2}{assoc\_xsb}
    assumes that {\tt Assoc} is a proper AVL tree, and is true when
    {\tt List} is a list of Key-Value pairs in ascending order with no
    duplicate keys specifying the same finite function as {\tt Assoc}.
    Use this to convert an {\tt Assoc} to a list.
 
-\ourmoditem{assoc\_vals\_to\_list(+Assoc, ?List)}{assoc\_vals\_to\_list/2}{assoc}
+\indourmoditem{assoc\_vals\_to\_list(+Assoc, ?List)}{assoc\_vals\_to\_list/2}{assoc\_xsb}
    assumes that {\tt Assoc} is a proper AVL tree, and is true when
    {\tt List} is a list of Values in ascending order of Key with no
    duplicate keys specifying the same finite function as {\tt Assoc}.
    Use this to extract the list of Values from {\tt Assoc}.
 
-\ourmoditem{is\_assoc(+Assoc)}{is\_assoc/1}{assoc}
+\indourmoditem{is\_assoc(+Assoc)}{is\_assoc/1}{assoc\_xsb}
 %
 is true when {\tt Assoc} is a (proper) AVL tree.  It checks both that
 the keys are in ascending order and that {\tt Assoc} is properly
 balanced.  
 
-\ourmoditem{gen\_assoc(?Key, +Assoc, ?Value)}{gen\_assoc/3}{assoc}
+\indourmoditem{gen\_assoc(?Key, +Assoc, ?Value)}{gen\_assoc/3}{assoc\_xsb}
    assumes that {\tt Assoc} is a proper AVL tree, and is true when
    Key is associated with Value in {\tt Assoc}.  Can be used to enumerate
    all Values by ascending Keys.
 
-\ourmoditem{get\_assoc(+Key, +OldAssoc,?OldValue,?NewAssoc,?NewValue)}{get\_assoc/5}{assoc}
+\indourmoditem{get\_assoc(+Key, +OldAssoc,?OldValue,?NewAssoc,?NewValue)}{get\_assoc/5}{assoc\_xsb}
 %
 is true when {\tt OldAssoc} and {\tt NewAssoc} are AVL trees of the
 same shape having the same elements except that the value for {\tt
   Key} in {\tt OldAssoc} is {\tt OldValue} and the value for {\tt Key}
 in {\tt NewAssoc} is {\tt NewValue}.
 
-\ourmoditem{put\_assoc(+Key,+OldAssoc,+Val,-NewAssoc)}{put\_assoc/4}{assoc}
+\indourmoditem{put\_assoc(+Key,+OldAssoc,+Val,-NewAssoc)}{put\_assoc/4}{assoc\_xsb}
 is true when {\tt OldAssoc} and {\tt NewAssoc} define the same finite
 function except that {\tt NewAssoc} associates {\tt Val} with {\tt
   Key}.  {\tt OldAssoc} need not have associated any value at all with
 {\tt Key}.
 
-\ourmoditem{del\_assoc(+Key,+OldAssoc,?Val,-NewAssoc)}{del\_assoc/4}{assoc}
+\indourmoditem{del\_assoc(+Key,+OldAssoc,?Val,-NewAssoc)}{del\_assoc/4}{assoc\_xsb}
 %
  is true when {\tt OldAssoc} and {\tt NewAssoc} define the same finite
  function except that {\tt OldAssoc} associates {\tt Key} with {\tt
