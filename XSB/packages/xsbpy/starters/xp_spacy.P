@@ -6,7 +6,7 @@
 :- export show_all_trees/0.
 :- export load_model/2, load_model/1.
 :- export proc_string/3, proc_string/4, proc_file/3,proc_file/4.
-:- export get_subtree_span/3.
+:- export get_subtree_span/3, dependent_tokens/2.
 
 :- dynamic token_info_raw/7, token_childOf/2.
 :- dynamic python_obj/2.
@@ -107,6 +107,10 @@ show_all_trees():-
     fail.
 show_all_trees().
 
+:- export sentence_roots/1.
+sentence_roots(Tokens):-
+    setof(Token,sentence_root(Token),Tokens).
+
 sentence_root(Token):- 
     token_info_raw(Index,_Text,_Lemma,Pos,_Tag,'ROOT',_Type),
     Pos \== 'SPACE',
@@ -128,6 +132,9 @@ show_root(Index):-
 show_root(_Index).
 
 subtree_span(Index,Words):-
+    dependent_tokens(Index,Words).`
+
+dependent_tokens(Index,Words):-
     setof(Desc,descendant(Index,Desc),Inds),
     findall(Text,(member(Ind,Inds),get_text(Ind,Text)),Words).
 
