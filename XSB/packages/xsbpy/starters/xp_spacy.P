@@ -132,7 +132,7 @@ show_root(Index):-
 show_root(_Index).
 
 subtree_span(Index,Words):-
-    dependent_tokens(Index,Words).`
+    dependent_tokens(Index,Words).
 
 dependent_tokens(Index,Words):-
     setof(Desc,descendant(Index,Desc),Inds),
