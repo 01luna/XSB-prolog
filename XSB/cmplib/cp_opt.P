@@ -349,12 +349,14 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 	Body = ('_$savecp'(Breg),
 		breg_retskel(Breg,Arity,Skel,Cs),
 		(nonvar(Var) -> instantiation_error(Pred/Arity,Arity,var) ; true),
-		excess_vars(Skel,[Var|ExistVarList],[],Vars),
+		excess_vars(PredTerm,[Var|ExistVarList],[],Vars),
 		copy_term(t(Vars,Skel,Var),t(Vars1,OSkel,OVar)),
+		excess_vars(Pred1Term,[],[],NEVars),  %non-existential vars
+		copy_term(Pred1Term-NEVars,NPred1Term-NEVars),
 		DefTerm = ifUndef(XX,YY), % if seen undefined
 		XX = 0,			  % undef seen?
 		YY = 0,			  % varibles seen in groupby values?
-		Pred1Term,
+		NPred1Term,
 		xwam_state(2,DelayReg),
 		(XX =:= 0, DelayReg =:= 0 % opt for all defined (no undef ans and this true)
 		 ->	(YY =:= 0, ground(Vars) % opt for all groupby vals ground
@@ -362,7 +364,6 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 				 '_$$get_returns'(Cs,OSkel,Leaf)
 				 ->	OpSpec1,
 					Var \== OVar,
-				    	%%\+ variant(Var,OVar),
 				    	Actions
 				 ;	Init
 				)
@@ -379,7 +380,6 @@ generate_agg_clauses(AggrSpec,Sym,PredTerm,Var1,ExistVarList,Pred1Term,Var,ClLis
 				 ->	fail % a subsuming answer as good or better
 				 ;	('_$member'(t(OVar,Var,Leaf,_,1),AllRets),
 					 Var \== OVar,
-					 %%\+ variant(Var,OVar),
 					 atomic(Leaf), % for mi
 					 Actions, % delete answer this one is better than
 					 fail
