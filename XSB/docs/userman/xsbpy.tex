@@ -1088,7 +1088,6 @@ are as follows:
 
     {\tt https://stackoverflow.com/questions/37611061/spacy-token-tag-full-list}
 
-    
       for a discussion of its meaning and use.
   \item {\tt Dep} ({\tt token.dep\_ }) The type of relation that {\tt
     token} has with its parent in the dependency graph.
@@ -1111,16 +1110,43 @@ graph and don't need to be materialized in Prolog.  For instance the
 code for {\tt show\_all\_trees/0} in {\tt xp\_spacy.P} contains code
 for constructing sentences, subtrees of a given token and so on.
 
-\item {\tt token\_info(Index,Text,Lemma,Pos,Tag,Dep,Ent\_type)} is a
-  convenience predicate that calls {\tt token\_info\_raw/7} and
-  filters out spaces and punctuation.
+\ourrepeatmoditem{get\_text(Index,Text)}{get\_text/2}{xp\_spacy}
+\ourrepeatmoditem{get\_lemma(Index,Lemma)}{get\_lemma/2}{xp\_spacy}
+\ourrepeatmoditem{get\_pos(Index,Pos)}{get\_pos/2}{xp\_spacy}
+\ourrepeatmoditem{get\_tag(Index,Tag)}{get\_tag/2}{xp\_spacy}
+\ourrepeatmoditem{get\_dep(Index,Dep)}{get\_dep/2}{xp\_spacy}
+\ourrepeatmoditem{get\_ner\_type(Index,NER)}{get\_ner\_type/2}{xp\_spacy}
+\indourmoditem{\tt token\_info(Index,Text,Lemma,Pos,Tag,Dep,Ent\_type)}{token\_info/7}{xp\_spacy}
+%
+Various convenience predicates for accessing {\tt token\_info\_raw/7}.
+{\tt token\_info/7} is a convenience predicate that calls {\tt
+  token\_info\_raw/7} and filters out spaces and punctuation.  {\tt
+  get\_text/2}, {\tt get\_lemma/2} etc. get the appropriate field from
+a {\tt token\_info\_raw/7} fact indexed by {\tt Index}.a
   
-\item {\tt show\_all\_trees()} Given a SpaCy graph asserted to Prolog
-  as described above, {\tt show\_all\_trees/0} navigates the graph,
-  and for each sentence in the graph converts the dependency graph to
-  a tree and prints it out.  This predicate is useful for reviewing
-  parses, and its code in {\tt xp\_spacy.P} can be modified and
-  repurposed for other needed functionality.
+\indourmoditem{\tt show\_all\_trees()}{show\_all\_trees/0}{xp\_spacy}
+%
+  Given a SpaCy graph asserted to Prolog as described above, {\tt
+    show\_all\_trees/0} navigates the graph, and for each sentence in
+  the graph converts the dependency graph to a tree and prints it out.
+  This predicate is useful for reviewing parses, and its code in {\tt
+    xp\_spacy.P} can be modified and repurposed for other needed
+  functionality.
+
+\indourmoditem{sentence\_roots(-RootList)}{sentence\_root/1}{xp\_spacy}
+%
+Returns a list of the dependency graph nodes (i.e., {\tt
+  token\_info\_raw/7} terms) that are roots of a sentence in the
+Prolog dependency graph.  By backtracking through {\tt RootList},
+sentence by sentence processing can be done for a document.
+
+\indourmoditem{dependent\_tokens(+Root,-Toklist)}{dependent\_tokens/2}{xp\_spacy}
+%
+Given the index of token {\tt Root}, returns a sorted list of the
+tokens dependent on {\tt Root}.  If {\tt Root} is the root of a
+sentence, {\tt Toklist} will be the words in the sentence; if {\tt
+  Root} is the root of a noun phrase, {\tt Toklist} will be the words
+in the noun phrase, etc.
 
 \end{description}  
 
