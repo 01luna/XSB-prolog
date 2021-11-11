@@ -200,11 +200,11 @@ yes
 \ei
 \ei
 
-\ourrepeatnewitem{inf(+Expr,-Val)} {clpr} \index{\texttt{inf/2}}
+\ourrepeatmoditem{inf(+Expr,-Val)}{inf/2}{clpr}
 
-\ourrepeatnewitem{sup(+Expr,-Val)} {clpr} \index{\texttt{sup/2}}
+\ourrepeatmoditem{sup(+Expr,-Val)}{sup/2}{clpr} 
 
-\ourrepeatnewitem{minimize(Expr)} {clpr} \index{\texttt{minimize/1}}
+\ourrepeatmoditem{minimize(Expr)}{minimize/1}{clpr} 
 
 \ourmoditem{maximize(Expr)} {clpr} \index{\texttt{maximize/1}}
 %
@@ -253,9 +253,9 @@ yes
 \end{verbatim}
 }
 
-\ourrepeatnewitem{inf(+Expr,-Val, +Vector, -Vertex)} {clpr} \index{\texttt{inf/4}}
+\ourrepeatmoditem{inf(+Expr,-Val, +Vector, -Vertex)}{inf/4}{clpr} 
 
-\ourmoditem{sup(+Expr,-Val, +Vector, -Vertex)} {clpr} \index{\texttt{sup/4}}
+\indourmoditem{sup(+Expr,-Val, +Vector, -Vertex)}{sup/4}{clpr}
 %
 These predicates work like {\tt inf/2} and {\tt sup/2} with the
 following addition.  {\tt Vector} is a list of Variables, and for each
@@ -582,12 +582,12 @@ considered to be in the range {\tt min\_integer}..{\tt max\_integer}.
 %\ourrepeatitem{\#\(Expr1,Expr2)}{bound}\index{\texttt{\#>/2}}
 %\ournewitem{\#\(Expr1,Expr2)}{bound}\index{\texttt{\#>/2}}
 
-\ourrepeatnewitem{\#>(Expr1,Expr2)}{bounds}\index{\texttt{\#>/2}}
-\ourrepeatnewitem{\#<(Expr1,Expr2)}{bounds}\index{\texttt{\#</2}}
-\ourrepeatnewitem{\#>=(Expr1,Expr2)}{bounds}\index{\texttt{\#>=/2}}
-\ourrepeatnewitem{\#=<(Expr1,Expr2)}{bounds}\index{\texttt{\#=</2}}
-\ourrepeatnewitem{\#=(Expr1,Expr2)}{bounds}\index{\texttt{\#=/2}}
-\indourmoditem{\#\\=(Expr1,Expr2)}{\#\=/2}{bounds} %\index{\texttt{\#\=/2}}
+\ourrepeatmoditem{\#>(Expr1,Expr2)}{\#>/2}{bounds}
+\ourrepeatmoditem{\#<(Expr1,Expr2)}{\#</2}{bounds}
+\ourrepeatmoditem{\#>=(Expr1,Expr2)}{\#>=/2}{bounds}
+\ourrepeatmoditem{\#=<(Expr1,Expr2)}{\#=</2}{bounds}
+\ourrepeatmoditem{\#=(Expr1,Expr2)}{\#=/2}{bounds}
+\indourmoditem{\#\\=(Expr1,Expr2)}{\#\=/2}{bounds} 
 %
 Ensures that a given relation holds between {\tt Expr1} and {\tt
   Expr2}.  Within these constraints, expressions may contain the
@@ -595,8 +595,8 @@ functions {\tt +/2}, {\tt -/2}, {\tt */2}, {\tt +/2}, {\tt +/2}, {\tt
   +/2}, {\tt mod/2}, and {\tt abs/1} in addition to integers and
 variables.
 
-\ourrepeatnewitem{\#<=>(Const1,Const2)}{bounds}\index{\texttt{\#>/2}}
-\ourrepeatnewitem{\#=>(Const1,Const2)}{bounds}\index{\texttt{\#>/2}}
+\ourrepeatmoditem{\#<=>(Const1,Const2)}{\#>/2}{bounds}
+\ourrepeatmoditem{\#=>(Const1,Const2)}{\#>/2}{bounds}
 \indourmoditem{\#<=(Const1,Const2)}{\#>/2}{bounds}
 %
 Constrains the truth-value of {\tt Const1} to have the speficied
