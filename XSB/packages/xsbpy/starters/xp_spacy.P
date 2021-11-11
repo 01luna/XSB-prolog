@@ -54,13 +54,13 @@ proc_string(Model,String,Doc,Opts):-
 proc_string(Model,String,Doc):-
     proc_string(Model,String,Doc,[]).
 
-proc_file(File,NLP,Doc,Opts):-
+proc_file(NLP,File,Doc,Opts):-
     pyfunc(xp_spacy,doc_from_file(NLP,File),Doc),
     (member(token_assert,Opts) ->
 	 token_assert(Doc)
        ; true).
 
-proc_file(File,NLP,Doc):-
+proc_file(NLP,File,Doc):-
     pyfunc(xp_spacy,doc_from_file(NLP,File),Doc).
 
 %----------------
@@ -102,7 +102,7 @@ token_assert(_Doc).
 
 show_all_trees():-
     sentence_root(Token),
-    Token = token_info(Index,_Text,_Lemma,_Pos,_Tag,_,_Type),
+    Token = token_info_raw(Index,_Text,_Lemma,_Pos,_Tag,_,_Type),
     show_root(Index),
     fail.
 show_all_trees().
@@ -114,7 +114,7 @@ sentence_roots(Tokens):-
 sentence_root(Token):- 
     token_info_raw(Index,_Text,_Lemma,Pos,_Tag,'ROOT',_Type),
     Pos \== 'SPACE',
-    Token = token_info(Index,_Text,_Lemma,Pos,_Tag,'ROOT',_Type).
+    Token = token_info_raw(Index,_Text,_Lemma,Pos,_Tag,'ROOT',_Type).
 
 show_root(Index):- 
     writeln('---------------------'),
@@ -131,15 +131,27 @@ show_root(Index):-
     fail.
 show_root(_Index).
 
-subtree_span(Index,Words):-
-    dependent_tokens(Index,Words).`
+subtree_span(Index,Tokens):-
+    dependent_tokens(Index,Tokens).
 
-dependent_tokens(Index,Words):-
+dependent_tokens(Index,Tokens):-
     setof(Desc,descendant(Index,Desc),Inds),
-    findall(Text,(member(Ind,Inds),get_text(Ind,Text)),Words).
+    findall(Text,(member(Ind,Inds),get_text(Ind,Text)),Tokens).
 
+:- export get_text/2,get_lemma/2,get_pos/2,get_tag/2,get_dep/2,get_ner_type/2.
 get_text(Ind,Text):- 
     token_info(Ind,Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type).
+get_lemma(Ind,Lemma):- 
+    token_info_raw(Ind,_Tok,Lemma,_POS,_Tag,_Dep,_Ent_type).
+get_pos(Ind,POS):- 
+    token_info_raw(Ind,_Tok,_Lemma,POS,_Tag,_Dep,_Ent_type).
+get_tag(Ind,Tag):- 
+    token_info_raw(Ind,_Tok,_Lemma,_POS,Tag,_Dep,_Ent_type).
+get_dep(Ind,Dep):- 
+    token_info_raw(Ind,_Tok,_Lemma,_POS,_Tag,Dep,_Ent_type).
+get_ner_type(Ind,Ent_type):- 
+    token_info_raw(Ind,_Tok,_Lemma,_POS,_Tag,_Dep,Ent_type).
+
     
 descendant(Index,Index).
 descendant(Index,Desc):-
@@ -167,7 +179,7 @@ entity(Ent_type,Token):-
     Token = token_info(Index,_Text,_Lemma,_Pos,_Tag,Dep,Ent_type).
 
 get_subtree_span(Rindex,Subtree,[First,Last]):-
-abolish_table_pred(trans_token_childOf(_,_)),
+    abolish_table_pred(trans_token_childOf(_,_)),
     setof(Index,trans_token_childOf(Rindex,Index),Subtree),
     list_last(Subtree,Last1),
     token_info_raw(Last1,Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type),
@@ -182,9 +194,9 @@ trans_token_childOf(Index,IndexChild):-
     token_childOf(IndexMid,IndexChild).
 
 % should use range trees
-tok_in_span(First,Last,Token):-
-    token_info_raw(Token,_Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type),
-    Token >= First,Token =< Last.
+%tok_in_span(First,Last,Token):-
+%    token_info_raw(Token,_Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type),
+%    Token >= First,Token =< Last.
 
 	    
 end_of_file.
