@@ -852,7 +852,7 @@ abolish_table_subgoals_internal(Call,Action) :-
       table_error(['abolishing undefined tabled call ',Call]) 
     ; AnsSetStatus == incomplete ->
       table_error(['abolishing incomplete tabled call ',Call])
-    ; abolish_table_subgoal_bi(Handle,Action) ),
+    ; abolish_table_subgoal_bi(Handle,Action) ),  % sometimes crashes here, bad Action? testable?
     fail.
 abolish_table_subgoals_internal(_Call,_Action).
 
@@ -2583,7 +2583,10 @@ mark_succeeding_calls_as_answer_completed_and_fail :-
 eval_dl_in_residual([],_).
 eval_dl_in_residual([tnot G|Gs],Dir) :- !,
 	get_call(G,SGF,Tmp),
-	tnot eval_subgoal_in_residual(SGF,Tmp,Dir),
+	(eval_subgoal_in_residual(SGF,Tmp,Dir), fail
+	 ;
+	 tnot eval_subgoal_in_residual(SGF,Tmp,Dir)
+	),
 	eval_dl_in_residual(Gs,Dir).
 eval_dl_in_residual([G|Gs],Dir) :-
 	(get_call(G,SGF,Tmp)
@@ -2607,6 +2610,7 @@ eval_dl_in_residual([G|Gs],Dir) :-
 eval_subgoal_in_residual(Gs,Tmp,Dir) :-
     %%standard:writeln(eval(Gs,Tmp)),
     get_returns_and_dls(Gs,Tmp,DelayLists),
+
 %%    standard:writeln(call(Gs,Tmp,DelayLists)),
     (DelayLists == []
      ->	true
