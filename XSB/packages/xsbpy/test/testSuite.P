@@ -304,22 +304,26 @@ object_tests:-
 object_tests.
 
 meth_tests:-
-    test_Person(_Obj,Ret1,Ret2,Ret3,M1,M2),
-%    writeln(test_Person(_Obj,Ret1,Ret2,Ret3,M1,M2)),
+    test_Person(_Obj,Ret1,Ret2,Ret3,Ret4,Ret5,M1,M2),
+%    writeq(Ret4),nl,
     Ret1 = 'Hello my name is john',
     Ret2 = 'Hello my name is john and I''m a doofus',
     Ret3 = chocolate,
+    Ret4 = 'Hello my name is john and I''m a real doofus',
+    Ret5 = 'Hello my name is john and I''m a real big doofus',
     M1 = ' ++Error[xsbpy]: arg 2 of pydot/4 is not a Python Object: 1',
     M2 = ' ++Error[xsbpy]: arg 3 of pydot/4 is not a Python function or attribute: 1',
     writeln('Person test succeeded'),!.
 meth_tests:- 
     writeln('!!!Person test failed').
 
-test_Person(Obj,Ret1,Ret2,Ret3,Msg2,Msg3):- 
+test_Person(Obj,Ret1,Ret2,Ret3,Ret4,Ret5,Msg2,Msg3):- 
     pyfunc('Person','Person'(john,35),Obj),
     pydot('Person',Obj,func0(),Ret1),
     pydot('Person',Obj,func1(doofus),Ret2),
     pydot('Person',Obj,favorite_ice_cream,Ret3),
+    pydot('Person',Obj,func2(real,doofus),Ret4),
+    pydot('Person',Obj,func3(real,big,doofus),Ret5),
     catch(pydot('Person',1,favorite_ice_cream,_Ret4),E2,xsb_error_get_message(E2,Msg2)),
     catch(pydot('Person',Obj,1,_Ret5),E3,xsb_error_get_message(E3,Msg3)).
 

@@ -622,6 +622,34 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
     prolog_term prArg1 = p2p_arg(prMethIn, 1);
     convert_prObj_pyObj(CTXTc prArg1, &pyArg1);
     pObjOut = PyObject_CallMethodObjArgs(pObjIn,pyMeth,pyArg1,NULL);
+    Py_DECREF(pyArg1);
+  }
+  else if (args_count == 2) {
+    PyObject *pyArg1 = NULL;    PyObject *pyArg2 = NULL;
+    prolog_term prArg1;
+    prArg1 = p2p_arg(prMethIn, 1);
+    convert_prObj_pyObj(CTXTc prArg1, &pyArg1);
+    prArg1 = p2p_arg(prMethIn, 2);
+    convert_prObj_pyObj(CTXTc prArg1, &pyArg2);
+    pObjOut = PyObject_CallMethodObjArgs(pObjIn,pyMeth,pyArg1,pyArg2,NULL);
+    Py_DECREF(pyArg1); Py_DECREF(pyArg2);
+  }
+  else if (args_count == 3) {
+    printf("ac 2\n");
+    PyObject *pyArg1 = NULL;    PyObject *pyArg2 = NULL; PyObject *pyArg3 = NULL;
+    prolog_term prArg1;
+    prArg1 = p2p_arg(prMethIn, 1);
+    convert_prObj_pyObj(CTXTc prArg1, &pyArg1);
+    prArg1 = p2p_arg(prMethIn, 2);
+    convert_prObj_pyObj(CTXTc prArg1, &pyArg2);
+    prArg1 = p2p_arg(prMethIn, 3);
+    convert_prObj_pyObj(CTXTc prArg1, &pyArg3);
+    pObjOut = PyObject_CallMethodObjArgs(pObjIn,pyMeth,pyArg1,pyArg2,pyArg3,NULL);
+    Py_DECREF(pyArg1); Py_DECREF(pyArg2); Py_DECREF(pyArg3);
+  }
+  else {
+    xsb_abort("++Error[xsbpy]: Cannot call pydot/[3,4] with a method of arity greater than "
+	    "three: %s/%d\n",p2c_functor(prMethIn),args_count);
   }
   return pObjOut;
 }
@@ -689,7 +717,9 @@ DllExport int pydot_int(CTXTdecl) {
       function = p2c_functor(prMethIn);
       pyMeth = PyUnicode_FromString(function);  
       int args_count = p2c_arity(prMethIn);
+      printf("arity %d\n",args_count);
       pObjOut = call_variadic_method(pObjIn,pyMeth,prMethIn,args_count);
+      printf("finished cvm %p\n",pObjOut);
       Py_DECREF(pyMeth);
     }
     else if (isstring(prMethIn)) {

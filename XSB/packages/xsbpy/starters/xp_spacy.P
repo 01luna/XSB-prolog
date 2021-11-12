@@ -4,6 +4,8 @@
 :- export load_and_proc/2, token_assert/1, token_info/7, token_info_raw/7, entity/2,
    token_childOf/2.
 :- export show_all_trees/0.
+:- export get_text/2,get_lemma/2,get_pos/2,get_tag/2,get_dep/2,get_ner_type/2.
+
 :- export load_model/2, load_model/1.
 :- export proc_string/3, proc_string/4, proc_file/3,proc_file/4.
 :- export get_subtree_span/3, dependent_tokens/2.
@@ -90,7 +92,6 @@ token_assert(Doc):-
     retractall(token_childOf(_,_)),
     pyfunc(xp_spacy,get_token_info(Doc),Toks),                                 
     member(Tok,Toks),
-%    writeln(Tok),
     Tok = ''(Index,_Text,_Lemma,_Pos,_Tag,Dep,_Type,Chln), %Dep \== punct,
     assert(token_info_raw(Index,_Text,_Lemma,_Pos,_Tag,Dep,_Type)),
     member(Child,Chln),
@@ -138,9 +139,8 @@ dependent_tokens(Index,Tokens):-
     setof(Desc,descendant(Index,Desc),Inds),
     findall(Text,(member(Ind,Inds),get_text(Ind,Text)),Tokens).
 
-:- export get_text/2,get_lemma/2,get_pos/2,get_tag/2,get_dep/2,get_ner_type/2.
 get_text(Ind,Text):- 
-    token_info(Ind,Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type).
+    token_info_raw(Ind,Text,_Lemma,_Pos,_Tag,_Dep,_Ent_type).
 get_lemma(Ind,Lemma):- 
     token_info_raw(Ind,_Tok,Lemma,_POS,_Tag,_Dep,_Ent_type).
 get_pos(Ind,POS):- 

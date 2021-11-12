@@ -12,5 +12,17 @@ class Person:
   def func1(self,myclass):
     return("Hello my name is " + self.name + " and I'm a " + myclass)
 
+  def func2(self,myclass1,myclass2):
+    return("Hello my name is " + self.name + " and I'm a " + myclass1 + " " + myclass2)
+
+  def func3(self,myclass1,myclass2,myclass3):
+    return("Hello my name is " + self.name + " and I'm a " + myclass1 + " " + myclass2 
+           + " " + myclass3)
+
+  def func4(self,myclass1,myclass2,myclass3,myclas4):
+    return("Hello my name is " + self.name + " and I'm a " + myclass1 + " " + myclass2 
+           + " " + myclass3 + " I mean " + mylass4)
+
+  
 #p1 = Person("John", 36)
 #p1.myfunc() 
