@@ -659,7 +659,7 @@ void call_conv xsb_permission_error(CTXTdeclc
   if (heap_local_overflow(ball_len)) {
     xsb_exit("no heap space in xsb_permission_error");
   }
-  snprintf(message,ERRMSGLEN,"in predicate %s/%d)",predicate,arity);
+  snprintf(message,ERRMSGLEN,"%s/%d",predicate,arity);
 
   ball_to_throw = makecs(hreg);
 

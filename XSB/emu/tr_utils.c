@@ -4822,9 +4822,9 @@ void abolish_all_tables_cps_check(CTXTdecl)
       if (IsInAnswerTrie(trieNode) || cp_inst == trie_fail) {
 	char message[ERRMSGLEN/2];
 	Psc psc = get_psc_for_trie_cp(CTXTc cp_top1, trieNode);
-	snprintf(message,ERRMSGLEN/2,"backtracking through tables to be abolished; found %s/%d",
-		 get_name(psc),get_arity(psc));
-	xsb_permission_error(CTXTc "abolish",message,0,"abolish_all_tables",0);
+	snprintf(message,ERRMSGLEN/2,
+		 "abolish_all_tables is backtracking through tables to be abolished; ");
+	xsb_permission_error(CTXTc "abolish",message,0,get_name(psc),get_arity(psc));
       }
     }
     /* Now check delaylist */
