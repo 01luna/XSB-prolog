@@ -47,6 +47,9 @@
 /*
 #include "socketcall.h"
 */
+#ifdef DARWIN
+extern char* strdup(const char*);
+#endif
 
 #define PD_MAGIC        0x36472ba1      /* just a number */
 
