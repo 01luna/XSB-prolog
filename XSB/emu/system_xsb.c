@@ -282,7 +282,7 @@ int sys_syscall(CTXTdeclc int callno)
     static struct timespec time_epoch;
     clock_gettime(CLOCK_REALTIME,&time_epoch),
     ctop_int(CTXTc 3,(Integer)(time_epoch.tv_sec));
-    ctop_int(CTXTc 4,(Integer)(time_epoch.tv_nsec/1000));
+    ctop_int(CTXTc 4,(Integer)(time_epoch.tv_nsec/1000000));
 #endif
     break;
   }
