@@ -127,7 +127,7 @@ how this is done.
 %
 `
 \begin{description}
-\ourmoditem{\{+Constraints\}} {clpr} \index{\texttt{\{\}/1}}
+\indourmoditem{\{+Constraints\}}{\{\}/1}{clpr} 
 %
 When the CLP(R) package is loaded, inclusion of equations in braces
 ({\tt \{\}}) adds {\tt Constraints} to the constraint store where they
@@ -171,7 +171,7 @@ are checked for satisfiability.
 \ei
 \ei
 
-\ourmoditem{entailed(+Constraint)} {clpr} \index{\texttt{entailed/1}}
+\indourmoditem{entailed(+Constraint)}{entailed/1}{clpr}
 %
 Succeeds if {\tt Constraint} is logically implied by the current
 constraint store.  {\tt entailed/1} does not change the constraint
@@ -206,7 +206,7 @@ yes
 
 \ourrepeatmoditem{minimize(Expr)}{minimize/1}{clpr} 
 
-\ourmoditem{maximize(Expr)} {clpr} \index{\texttt{maximize/1}}
+\indourmoditem{maximize(Expr)}{maximize/1}{clpr} 
 %
 These four related predicates provide various mechanisms to compute
 the maximum and minimum of expressions over variables in a constraint
@@ -281,8 +281,8 @@ Vertex = [7.0000,2.0000]
 \end{verbatim}
 }
 
-\ourmoditem{bb\_inf(+IntegerList,+Expr,-Inf,-Vertex, +Eps)}  {clpr}
-\index{\texttt{bb\_inf/4}}
+\indourmoditem{bb\_inf(+IntegerList,+Expr,-Inf,-Vertex, +Eps)}{bb\_inf/4}{clpr}
+
 %
 Works like {\tt inf/2} in {\tt Expr} but assumes that all the
 variables in {\tt IntegerList} have integral values.  {\tt Eps} is a
@@ -319,8 +319,8 @@ yes
 \ei
 \ei
 
-\ourmoditem{bb\_inf(+IntegerList,+Expr,-Inf)}  {clpr}
-\index{\texttt{bb\_inf/3}}
+\indourmoditem{bb\_inf(+IntegerList,+Expr,-Inf)}{bb\_inf/3}{clpr}
+
 %
 Works like {\tt bb\_inf/5}, but with the neighborhood, {\tt Eps}, set
 to {\tt 0.001}.
@@ -371,8 +371,8 @@ CS = [y > 2.0000,x - y > 1.0000];
 \ei
 \ei
 
-\ourmoditem{projecting\_assert(+Clause)}{dump}
-\index{projecting\_assert/1}
+\indourmoditem{projecting\_assert(+Clause)}{projecting\_assert/1}{dump}
+
 \index{constraints!asserting dynamic code with}
 %
 In XSB, when a subgoal is tabled, the tabling system automatically

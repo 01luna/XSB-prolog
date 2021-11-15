@@ -509,13 +509,15 @@ all be redefined my modifying the file {\tt xsbpy\_defs.h} in the {\tt
 
 \begin{description}
 
+\ourrepeatmoditem{pyfunc(+Module,+Function,+Kwargs,+Prolog\_Opts,?Return)}{pyfunc/5}{xsbpy}
 \ourrepeatmoditem{pyfunc(+Module,+Function,+Kwargs,?Return)}{pyfunc/4}{xsbpy}
 \indourmoditem{pyfunc(+Module,+Function,?Return)}{pyfunc/3}{xsbpy}
 %
  Ensures that the Python module {\tt Module} is loaded, and calls {\tt
-   Module.Function} unifying the return of {\tt Function} with {\tt
-   Return}.  A list of keyword arguments may or may not be included.
- For example the goal
+   Module.Function} unifying the return of {\tt Function} with {\tt tt
+   Return}.  Lists of keyword arguments ({\tt Kwargs}) and Prolog
+ options ({\tt Prolog\_Opts}) may or may not be included.  For example
+ the goal
 
 \begin{verbatim}
 pyfunc(xp_rdflib,rdflib_write_file(Triples,'new_sample.ttl'),
@@ -537,6 +539,11 @@ needed, {\tt Kwargs} can be an empty list -- or {\tt pyfunc/3} may be
 used.  Finally the return value from {\tt Function} is unified with
 {\tt Return}.
 
+The only Prolog option currently allowed is {\tt sizecheck(true)},
+which traverses the Python data structure to determine its size before
+returning the data structure to XSB.  (See
+Section~\ref{sec:xsbpy-memory} for details of this option.)
+
 Python modules are searched for in the paths maintained in Python's
 {\tt sys.path} list.  As indicated below, these Python paths can be
 queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
@@ -556,6 +563,7 @@ queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
   In addition, errors thrown by Python are
   caught by XSB and thrown as {\tt misc\_error} errors.
 
+\ourrepeatmoditem{pydot(+Module,+ObjRef,+MethAttr,+Prolog\_Opts,?Ret)}{pydot/5}{xsbpy}
 \indourmoditem{pydot(+Module,+ObjRef,+MethAttr,?Ret)}{pydot/4}{xsbpy}
 %
 Applies a method to {\tt ObjRef}, or obtains an attribute from it.  As
@@ -567,14 +575,25 @@ one of two ways:
 \begin{itemize}
 \item If {\tt MethAttr} is a Prolog compound term corresponding to a
   Python method for {\tt ObjRef}, the method is called and its return
-  unified with {\tt Ret}.  Unfortunately, due to limitations in the
-  Python C API version 3.9.4, keyword arguments cannot be used when
-  calling Python method as they can for Python functions.
+  unified with {\tt Ret}.
+
+  Unfortunately, limitations in the Python C API version 3.9.4 lead to
+  two limitations in calling Python methods from XSB through C.
+  First, keyword arguments cannot be used when calling Python method
+  as they can for Python functions.  Second, {\tt MethAttr} must have
+  3 or fewer arguments.\footnote{The reason for this is that to
+    execute Python n-ary methods from the C-API a variadic function
+    call must be made, and variadic function {\em calls} cannot be
+    contsructed dynamically in C (or at any rate, I don't know how to
+    do this).}
 %
 \item If {\tt MethAttr} is a Prolog atom corresponding to the name of
   an attribute of {\tt ObjRef}, the attribute is accessed and unified
   with {\tt Ret}.
 \end{itemize}
+
+Both the Prolog options ({\tt Prolog\_Opts}) and the handling of Python
+paths is as with {\tt pyfunc/[3-5]}.
 
 {\bf Error Cases}
 \bi
@@ -589,6 +608,10 @@ one of two ways:
 \item {\tt MethAttr} is neither a Prolog compound term nor a Prolog atom:
 \bi
 \item {\tt misc\_error}
+\item {\tt MethAttr} has arity greater than 3.
+\bi
+\item {\tt misc\_error}
+  \ei
   \ei \ei In addition, errors thown by Python are
   caught by XSB and re-thrown as {\tt misc\_error} errors.
 
@@ -692,12 +715,7 @@ using {\tt pydot/4} as:
 
 \end{description}
 
-\section{Allowing Python to Reclaim Space}
-%
-TBD: Discuss space issues for Python how they are now addressed and
-how they will be addressed in the future.
-
-\section{Performance}
+\section{Performance and Space Management}
 
 The core {\tt xsbpy} routines -- {\tt pyfunc/[3,4]} and {\tt pydot/4}
 -- are written almost entirely in C, have shown good performance so
@@ -713,19 +731,44 @@ will far outweigh any {\tt xsbpy} overhead.
 
 Apart from system resource limitations, there is virtually no upper
 limit on the size of Python structures passed back to Prolog: stress
-tests have passed lists of length 100 million from Python to Prolog
-without problems. However, it should be noted that {\tt xsbpy} must
-ensure that XSB's heap is properly expanded before copying a large
-structure from Python to XSB.  XSB currently relies on the Python C
-API size routine {\tt Py\_SIZE} to estimate the size of a structure,
-since this routine has a constant-time overhead.  However, {\tt
-  Py\_SIZE} only returns return the length of a structure, and not its
-exact size.  Accordingly long lists of large structures, heavily
-nested dictionaries and other such structures may currently present a
-problem.  This will be addressed in a future version, but until then a
-user can reset the {\tt heap\_margin} Prolog flag to ensure extra
-stack space beyond that allocated by {\tt xsbpy} (see Volume 1 for
-details.)
+tests have passed lists of initegers of length 100 million from Python
+to Prolog without problems. However, it should be noted that {\tt
+  xsbpy} must ensure that XSB's heap is properly expanded before
+copying a large structure from Python to XSB, a topic to which we now
+turn.
+
+\subsection{Space Management for XSB's Heap} \label{sec:xsbpy-memory}
+
+Because Python data structures are directly copied onto the XSB heap
+stack, the heap serves as a buffer for the return of information from
+Python.  XSB currently relies on the Python C API size routine {\tt
+  Py\_SIZE} to estimate the size of a structure, since accessing this
+routine has a constant-time overhead.\footnote{XSB estimates the size
+  multiplying {\tt Py\_SIZE} by a constant factor.}  However, {\tt
+  Py\_SIZE} only returns the length of a structure, and not its exact
+size.  Accordingly long lists of large structures, heavily nested
+dictionaries and other such structures may present a problem.  It
+should be noted that when {\tt xsbpy} is initialized, XSB's default
+heap margin is reset to to 1 megabyte so that any data structure whose
+size is less than 1 megabyte will be copied safely, even if its size
+is under-estimated.\footnote{XSB's default heap margin is 64 kbytes.}
+
+Fortunatly, this default works for most users.  In using {\tt xsbpy}
+the only times large data structures have proven a problem is when
+returning large bulk queries from Elasticsearch, or returning large
+sets of ontology instances from Wikidata.  In such a case there are
+two options.  First, one may reset the heap margin to an even larger
+value (see Volume 1 for details).  Alternately, one may use the option
+{\tt sizecheck(true)} for those {\tt pyfunc} or {\tt pydot} calls that
+are expected to return large data structures.  If this option is
+specified, the call performs two traversals of the data structure to
+be returned: one to determine its size and ensure heap space, and another
+to copy the data structure.
+
+\subsection{Allowing Python to Reclaim Space}
+%
+TBD: Discuss space issues for Python how they are now addressed and
+how they will be addressed in the future.
 
 \section{Interfaces to Python Libraries}
 
@@ -1026,10 +1069,10 @@ Language object {\tt Model}.
 %
 Processes the text {\tt Atom} using the model {\tt Model} and unifying
 {\tt Doc} with the resulting SpaCy {\tt Document} object.  The only
-option currently allowed in {\tt Options} is {\tt token\_assert},
-which in addition asserts information from {\tt Doc} into a Prolog
-graph (after removing information about any previous dependency
-graphs).
+option currently allowed in {\tt Options} is {\tt
+  token\_assert}, which in addition asserts information from {\tt Doc}
+into a Prolog graph (after removing information about any previous
+dependency graphs).
 
 {\tt proc\_string(+Model,+File,-Doc)} is a convenience predicate for\\
 {\tt proc\_string(+Model,+Atom,-Doc,[])}.
