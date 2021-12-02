@@ -2,7 +2,10 @@
 % Very simple example XSB query's for RDF input and output.  See
 % xp_rdflib.py for details of how rdflib graph objects are
 % translated to Prolog data structures.
-
+:- export read_rdf/3.
+:- export test_nt/0,test_ttl/0,test_nq/0.
+:- export hdt_load/2.
+:- import pyfunc/4,pyfunc/3 from xsbpy.
 :- import member/2, length/2 from basics.
 :- import misc_error/1 from error_handler.
 ?- ensure_loaded(xsbpy).
@@ -63,3 +66,14 @@ test_nq_1(List):-
     fail.
 test_nq_1(_List).
 
+hdt_load(File,Obj):-
+    time(pyfunc(xp_rdflib,hdt_load(File),Obj)).
+
+:- export hdt_query/4.
+hdt_query(Arg1,Arg2,Arg3,List):-
+    (var(Arg1) -> Parg1 = 'None' ; Parg1 = Arg1),
+    (var(Arg2) -> Parg2 = 'None' ; Parg2 = Arg2),
+    (var(Arg3) -> Parg3 = 'None' ; Parg3 = Arg3),
+%    time(pyfunc(xp_rdflib,hdt_query(Parg1,Parg2,Parg3),List)).
+    pyfunc(xp_rdflib,hdt_query(Parg1,Parg2,Parg3),List).
+	

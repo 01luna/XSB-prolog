@@ -17,6 +17,7 @@
 # This has been tested out on N-triple and Turtle files.
 
 from rdflib import *
+from rdflib_hdt import HDTStore
 
 # leaves non-literals unaffected.
 def rdflib_term_to_tuple(o):
@@ -93,3 +94,43 @@ def rdflib_write_file(Inlist, File,**Kwargs):
     with open(File,"w") as fp:
         print(g.serialize(**Kwargs).decode("utf-8"),file = fp)
 
+#------------------------------------------
+# HDT
+
+hdt_store = None
+hdt_graph = None
+
+def hdt_load(hdtFile):
+    global hdt_store
+    hdt_store = HDTStore(hdtFile)
+    new_graph()
+    return hdt_store
+
+def new_graph():
+    global hdt_graph
+    hdt_graph = Graph(store=hdt_store)
+
+import validators    
+def hdt_query(Arg1,Arg2,Arg3):
+    global hdt_graph
+    Rarg1 = validate(Arg1)
+    Rarg2 = validate(Arg2)
+    Rarg3 = validate(Arg3)
+    It = hdt_graph.triples((Rarg1,Rarg2,Rarg3))
+#    print([trip for trip in It])
+    return [rdf_triple_to_xsb(trip) for trip in It]
+
+def rdf_triple_to_xsb(TripIn):
+    Arg0 =  rdflib_term_to_tuple(TripIn[0])
+    Arg1 =  rdflib_term_to_tuple(TripIn[1])		
+    Arg2 =  rdflib_term_to_tuple(TripIn[2])
+    return (Arg0,Arg1,Arg2)
+
+            
+def validate(Arg):
+    if Arg == 'None':
+        return None
+    elif validators.url(Arg):
+        return URIRef(Arg)
+    else:
+        return Arg
