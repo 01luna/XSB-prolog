@@ -1,5 +1,5 @@
 
-\newcommand{\xsbpyversion}{Version 0.4}
+\newcommand{\xsbpyversion}{Version 0.5}
 
 \begin{center}
 \chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python 3 Interface} \label{chap:xsbpy}
@@ -58,7 +58,7 @@ place.
 \item A development version of Python 3.x must also be present and
   usable by the user performing the configuration.\footnote{If several
     versions of Python 3.x are installed, the most recent will be used
-    by the configurator.}  Thw version must be a CPython version (this
+    by the configurator.}  The version must be a CPython version (this
   is the usual implementation of Python), and in addition must also
   contain a version of Python as a shared object ({\tt .so}) file and
   Python header ({\tt .h})files.  The need for a development version
@@ -612,7 +612,7 @@ paths is as with {\tt pyfunc/[3-5]}.
 \bi
 \item {\tt misc\_error}
   \ei
-  \ei \ei In addition, errors thown by Python are
+  \ei \ei In addition, errors thrown by Python are
   caught by XSB and re-thrown as {\tt misc\_error} errors.
 
 \ourrepeatmoditem{pp\_py(+Stream,+Term)}{pp\_py/2}{xsbpy}
@@ -753,7 +753,7 @@ heap margin is reset to to 1 megabyte so that any data structure whose
 size is less than 1 megabyte will be copied safely, even if its size
 is under-estimated.\footnote{XSB's default heap margin is 64 kbytes.}
 
-Fortunatly, this default works for most users.  In using {\tt xsbpy}
+Fortunately, this default works for most users.  In using {\tt xsbpy}
 the only times large data structures have proven a problem is when
 returning large bulk queries from Elasticsearch, or returning large
 sets of ontology instances from Wikidata.  In such a case there are
@@ -773,7 +773,7 @@ how they will be addressed in the future.
 \section{Interfaces to Python Libraries}
 
 The {\tt packages/xsbpy/starters} directory contains code to interface
-to various Python libraries---to help ysers start projects using {\tt
+to various Python libraries---to help users start projects using {\tt
   xsbpy}.  Some of the files implement useful higher level mappings
 that translate say, embedding spaces or SpaCy graphs to Prolog graphs,
 or translate RDF graphs to lists of Prolog structures.  Others are
@@ -879,9 +879,10 @@ exported by {\tt xp\_faiss.P} include:
 \subsection{Translating Between RDF and Prolog: xp\_rdflib} \label{secLxp-rdflib}
 This module interfaces to the Python {\tt rdflib} library to read RDF
 information from files in Turtle, N-triples and N-quads format, and to
-write files in Turtle and N-triples format.  As such it augments XSB's
-RDF package (Chapter~\ref{chapter:RDF}) which handles
-XML-RDF.
+write files in Turtle and N-triples format.  In addition, RDF hdt
+files can be loaded and queried using rdflib-hdt.  As such {\tt
+  xp\_rdflib} augments XSB's RDF package (Chapter~\ref{chapter:RDF})
+which handles XML-RDF.
 
 Within a triple, URIs and blank nodes are returned as Prolog atoms,
 while literals are returned as terms with functor {\tt ''/3} (the
@@ -913,6 +914,17 @@ specific to the RDFlib plug-in for a particular format, and these
 plug-ins are not always consistent with one another.  As a result, if
 other formats are desired, minor modifications of {\tt xp\_rdflib} may
 be necessary.
+
+The use of {\tt xp\_rdflib} differs on the RDF format used.  For the
+turtle, ntriples and nquads formats a file is read into XSB as a
+(large) list, and an XSB list of terms of the proper form can be
+transformed into RDF and written to a file.  For the hdt format the
+usage pattern is different: when an hdt file is loaded, it is simply
+memory mapped into a process and facts are loaded into a rdflib graph
+(and into XSB) purely on demand~\footnote{At least I think that's how
+  it works...}.
+
+\subsubsection{Functionality for Turtle, Ntriples and Nquads Formats}
 
 \paragraph{Reading RDF}
 \begin{itemize}
@@ -958,6 +970,47 @@ Due to the structure of the Python {\tt RDFlib} graph, no guarantee is
 made that the order of facts in {\tt File} will match the order of
 facts in {\tt TripleList}.
   
+\subsubsection{Functionality for the Hdt Format}
+
+The RDF hdt format is intended to support large, read-only knowledge
+bases, such as Wikidata, that may contain billions of triples.  A hdt
+file is a compressed binary serialization that can be directly browsed
+and queried.  The advantage of querying over compressed data is that
+large data stores become manageable that otherwise wouldn't be.  For
+instance, a Wikidata snapshot that contains several billion rows along
+with indexes takes up about 160 Gbytes on disk and takes about 3
+seconds to initialize into (xp\_)rdflib.  Furthermore, the data is
+loaded into RAM only as needed for query evaluation.  {\tt xp\_rdflib}
+offers two main predicates for use with rdflib hdt:
+
+\begin{description}
+  \indourmoditem{hdt\_load(+Store,-Obj)}{hdt\_load/2}{xsbpy}
+  %
+  Initializes rdflib for the hdt file {\tt Store} and creates a rdflib
+  graph in which to store the results of queries.  {\tt Obj} is the
+  Python reference to the data store.
+  
+  \indourmoditem{hdt\_query(?Arg1,?Arg2,?Arg3,-List)}{hdt\_query/4}{xsbpy}
+  %
+
+  Allows a user to query a HDT store using Prolog-like syntax and
+  returning the results of the query in {\tt List}.  For instance the query
+\begin{verbatim}
+    hdt_query('http://www.wikidata.org/entity/Q144',Pred,Obj,List)
+\end{verbatim}
+finds all triples having the above URI as their subject.  In this
+case, {\tt List} would be unified with a long list beginning with
+\begin{footnotesize}
+\begin{verbatim}
+[('http://www.wikidata.org/entity/Q144','http://schema.org/name',''(dog,'',en))
+ ('http://www.wikidata.org/entity/Q144','http://schema.org/description',''('domestic animal,'',en))
+...
+\end{verbatim}
+\end{footnotesize}
+\end{description}
+
+
+
 \subsection{xp\_spacy}
 SpaCy is widely used tool that exploits neural language models to
 analyze text via dependency parses, named entity recognition, and much
@@ -1087,7 +1140,7 @@ Python {\tt NameError} error is thrown as an XSB miscellaneous error.
 Opens {\tt File} and processes its contents using the model {\tt
   Model} and unifying {\tt Doc} with the resulting SpaCy {\tt
   Document} object. {\tt File} is opened in Python, and the stream for
-{\tt File} is closed automatially.  The only option currently allowed
+{\tt File} is closed automatically.  The only option currently allowed
 in {\tt Options} is {\tt token\_assert}, which in addition asserts
 information from {\tt Doc} into a Prolog graph.
 
@@ -1211,7 +1264,7 @@ Doc = pyObj(p0x7f36ed5b3580)
 
 yes
 \end{verbatim}
-The option {\tt token\_assert} automatically loads the Spacy
+The option {\tt token\_assert} automatically loads the SpaCy
 dependency graph and other information to Prolog.  Alternately, one
 could omit this option and later call {\tt
   token\_assert(pyObj(p0x7f36ed5b3580))}: i.e., call {\tt
