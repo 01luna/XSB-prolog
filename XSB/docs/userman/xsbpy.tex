@@ -980,8 +980,9 @@ large data stores become manageable that otherwise wouldn't be.  For
 instance, a Wikidata snapshot that contains several billion rows along
 with indexes takes up about 160 Gbytes on disk and takes about 3
 seconds to initialize into (xp\_)rdflib.  Furthermore, the data is
-loaded into RAM only as needed for query evaluation.  {\tt xp\_rdflib}
-offers two main predicates for use with rdflib hdt:
+loaded into RAM only as needed for query evaluation.  
+
+{\tt xp\_rdflib} offers two main predicates for use with rdflib hdt:
 
 \begin{description}
   \indourmoditem{hdt\_load(+Store,-Obj)}{hdt\_load/2}{xsbpy}
@@ -1393,7 +1394,7 @@ pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
         requires a longer string than I usually want to type.'),Lang).  
 \end{verbatim}
 returns the detected language and confidence value, which in this case
-is
+
 \begin{verbatim}
 ''('__label__en',0.93856)}.
 \end{verbatim}
@@ -1407,13 +1408,72 @@ not currently translate automatically. \footnote{The examples {\tt
     xp\_fasttext} and {\tt googleTrans} were written by Albert Ki;
   {\tt xp\_faiss} was written by Albert Ki and Theresa Swift.}
 
+%\paragraph{mpl}
+%This file has a simple example of how to create, display, and save as
+%pdf a simple matplotlib document.
+
+\paragraph{Reading XML files as {\tt xsbpy} Dictionaries}
+%
+Although XSB's {\tt SGML} package allows XML files to be read, the
+ability to read XML structures as {\tt xsbpy} dictionaries can be
+convenient, especially if an application already must navigate through
+{\tt xsbpy} dictionaries for other purposes.  The module {\tt
+  xp\_xmldict}, based on the Python package {\tt
+  xmltodict} \footnote{{\tt https://pypi.org/project/xmltodict}}
+provides a simple implementation of this based on Python's {\tt Expat}
+XML parser, and so retains the advantages of {\tt Expat} in terms of
+reliability, Unicode support and speed.
+
+\begin{description}
+  \indourmoditem{xmldict\_read(+File,-Dict)}{xmldict\_read/2}{xp\_xmldict}
+  
+  Given an XML file {\tt File}, this predicate opens {\tt File},
+  parses its contents, transforms the contents into a dictionary, and
+  unifies {\tt Dict} with dictionary.  
+\end{description}
+
+\noindent
+It is worthwhile noting that the Python {\tt xmltodict} package offers
+several keyword arguments and other options for parsing XML files and
+strings, that can be easily accessed via user-written {\tt xsbpy}
+calls.
+
+\paragraph{Wikidata queries with {\tt xp\_wdi}}
+
+{\sc Preliminary: package is still under development}
+
+This package provides a simple interface to the Wikidata website via
+the Python library {\tt wikidataintegrator}.  It is one of two ways in
+which {\tt xsbpy} can be used to query Wikidata: the other is to query
+a compressed local snapshot of Wikidata via the {\tt hdt}
+functionality in {\tt xp\_rdflib}.  Each approach has advantages and
+disadvantages.  The use of {\tt hdt} can be much faster: in part
+because it requires no webservice calls, but also because the Wikidata
+site slows down responses to requests from a session that is using the
+site heavily.  On the other hand, to use {\tt hdt} the a Wikidata {\tt
+  hdt} file must be locally mounted; and when a process loads the hdt
+file, it must allocate a large amount of virtual memory, although this
+memory does not usually affect RAM usage.\footnote{In Linux, this
+  means that the process has a large virtual memory size, but its
+  resident set size is low.}  So for applications that take place on
+servers or that use Wikidata extensively the {\tt hdt} approach for
+{\tt xp\_rdflib} is best; for other uses {\tt xp\_wdi} may be more
+convenient.
+
+\begin{description}
+\indourmoditem{wdi\_get\_dict(+Qnode,-Dict))}{wdi\_get\_dict(+Qnode,-Dict)}{xp\_wdi}
+
+\indourmoditem{wdi\_get\_entity(+Qnode,-EDict))}{wdi\_get\_entity/2}{xp\_wdi}
+
+\indourmoditem{wdi\_sparql\_query(+Qnode,+PropertyNode,-Ret)}{wdi\_sparql\_query/3}{xp\_wdi}
+
+\end{description}
+
 \paragraph{xp\_googleTrans}
 This example provides demo code to access Google's web-services for
 language translation and language detection using {\tt xsbpy}.
 
-%\paragraph{mpl}
-%This file has a simple example of how to create, display, and save as
-%pdf a simple matplotlib document.
+
 
 \section{Current and Future Work}
 

@@ -49,15 +49,29 @@ Web documents are opened by the usual predicates {\bf see/1}, {\bf open/3},
 
 \begin{description}
 
-  \index{\texttt{see/1}}
-\item[see({\it url}({\it +Url}))]\mbox{}
-  \index{\texttt{see/1}}
-\item[see({\it url}({\it +Url,Options}))]\mbox{}
-  \index{\texttt{open/3}}
-\item[open({\it url}({\it +Url}), {\it +Mode}, {\it -Stream})]\mbox{}
-  \index{\texttt{open/4}}
-\item[open({\it url}({\it +Url}), {\it +Mode}, {\it -Stream}, {\it +Options})]\mbox{}
-  \\
+%  \index{\texttt{see/1}}
+%\item[see({\it url}({\it +Url}))]\mbox{}
+%  \index{\texttt{see/1}}
+%\item[see({\it url}({\it +Url,Options}))]\mbox{}
+%  \index{\texttt{open/3}}
+%\item[open({\it url}({\it +Url}), {\it +Mode}, {\it -Stream})]\mbox{}
+%  \index{\texttt{open/4}}
+%\item[open({\it url}({\it +Url}), {\it +Mode}, {\it -Stream}, {\it +Options})]\mbox{}
+
+  %  \index{\texttt{see/1}}
+%\item[see({\it url}({\it +Url}))]\mbox{}
+%  \index{\texttt{see/1}}
+%\item[see({\it url}({\it +Url,Options}))]\mbox{}
+%  \index{\texttt{open/3}}
+%\item[open({\it url}({\it +Url}), {\it +Mode}, {\it -Stream})]\mbox{}
+%  \index{\texttt{open/4}}
+%\item[open({\it url}({\it +Url}), {\it +Mode}, {\it -Stream}, {\it +Options})]\mbox{}
+
+\ourrepeatmoditem{see(url(+Url))}{see/1}{curl}
+\ourrepeatmoditem{see(url(+Url,Options))}{see/1}{curl}
+\ourrepeatmoditem{open(url(+Url),+Mode,-Stream)}{open/3}{curl}
+\indourmoditem{open(url)(+Url),+Mode,-Stream,+Options)}{open/4}{curl}
+\\
 
 {\it Url} is an atom that specifies a URL.
 \emph{Stream} is the file stream of the open file.
@@ -113,10 +127,12 @@ a list of warnings is returned.
 
 \begin{description}
 
-  \index{\texttt{close/2}}
-\item[close({\it +Source, +Options})]\mbox{}
-  \index{\texttt{close/4}}
-\item[close({\it +Source, +Options, -Response, -Warnings})]\mbox{}
+%\index{\texttt{close/2}}
+%\item[close({\it +Source, +Options})]\mbox{}
+\ourrepeatmoditem{close(+Source, +Options)}{close/2}{curl}
+%\index{\texttt{close/4}}
+%\item[close({\it +Source, +Options, -Response, -Warnings})]\mbox{}
+\indourmoditem{close(+Source, +Options, -Response, -Warnings)}{close/4}{curl}
   \\
 These versions of \texttt{close} are typically used for sources that
 are open for writing. URL-streams open for reading can be closed using the
@@ -147,8 +163,9 @@ many options. The parameters of this predicate are described below.
 
 
 \begin{description}
-  \index{\texttt{load\_page/5}}
-\item[load\_page({\it +Source, +Options, -Properties, -Content, -Warn})]\mbox{}
+%  \index{\texttt{load\_page/5}}
+%\item[load\_page({\it +Source, +Options, -Properties, -Content, -Warn})]\mbox{}
+\indourmoditem{load\_page(+Source,+Options,-Properties,-Content,-Warn)}{load\_page/5}{curl}
   \\
   {\it Source} is of the form {\tt url({\it {url}})}.
   The document is returned in {\it Content}.
@@ -210,8 +227,10 @@ The properties of a web document are loaded by the predicates {\bf
   url\_properties/3} and {\bf url\_properties/2}. 
 
 \begin{description}
-  \index{\texttt{url\_properties/3}}
-\item[url\_properties({\it +Url, +Options, -Properties})]\mbox{}
+%  \index{\texttt{url\_properties/3}}
+%\item[url\_properties({\it +Url, +Options, -Properties})]\mbox{}
+
+\indourmoditem{url\_properties(+Url,+Options,-Properties)}{url\_properties/3}{curl}
   \\
   The {\it Options} and {\it Properties} are same as in {\bf load\_page/5}:
   a \emph{list} of properties of the document, which
@@ -220,8 +239,9 @@ The properties of a web document are loaded by the predicates {\bf
   \emph{RedirectionURL} is the same as \emph{Url}. 
   Some Web servers will not report page sizes or modification times (or
   both) in which case they appear as -1.
-  \index{\texttt{url\_properties/2}}
-\item[url\_properties({\it +Url, -Properties})]\mbox{}
+%  \index{\texttt{url\_properties/2}}
+%\item[url\_properties({\it +Url, -Properties})]\mbox{}
+\indourmoditem{url\_properties(+Url,-Properties)}{url\_properties/2}{curl}
   \\
   This uses the default options (\texttt{secure(false)}, \texttt{redirect(true)}). 
 
@@ -234,8 +254,9 @@ be used, for example, as a file name. This is done by the following
 predicate.
 
 \begin{description}
-  \index{\texttt{encode\_url/2}}
-\item[encode\_url({\it +Source, -Result})]\mbox{}
+%  \index{\texttt{encode\_url/2}}
+%\item[encode\_url({\it +Source, -Result})]\mbox{}
+\indourmoditem{encode\_url(+Source,-Result)}{encode\_url/2}{curl}
   \\
 {\it Source} has the form {\it url(url-string)}, where
 \emph{url-string} is an atom.
