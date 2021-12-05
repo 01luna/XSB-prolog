@@ -1,0 +1,12 @@
+
+:- ensure_loaded(xsbpy).
+
+wdi_get_dict(Qnode,Dict):- 
+    pyfunc(xp_wdi,get_wd_dict(Qnode),Dict).
+
+wdi_get_entity(Qnode,Edict):- 
+    pyfunc(xp_wdi,get_wd_entity(Qnode),Edict).
+
+wdi_sparql_query(Qnode,PropertyNode,Ret):-
+    pyfunc(xp_wdi,wdi_sparql_query(Qnode,PropertyNode),Ret).
+
