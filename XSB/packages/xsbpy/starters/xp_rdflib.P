@@ -66,8 +66,13 @@ test_nq_1(List):-
     fail.
 test_nq_1(_List).
 
+:- dynamic hdt_loaded/2.
+
 hdt_load(File,Obj):-
-    time(pyfunc(xp_rdflib,hdt_load(File),Obj)).
+    (hdt_loaded(File,Obj) ->
+       true
+    ;  time(pyfunc(xp_rdflib,hdt_load(File),Obj)),
+       assert(hdt_loaded(File,Obj))).
 
 :- export hdt_query/4.
 hdt_query(Arg1,Arg2,Arg3,List):-
