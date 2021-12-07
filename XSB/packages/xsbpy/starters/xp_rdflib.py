@@ -116,9 +116,15 @@ def hdt_query(Arg1,Arg2,Arg3):
     Rarg1 = validate(Arg1)
     Rarg2 = validate(Arg2)
     Rarg3 = validate(Arg3)
+#    print((Rarg1,Rarg2,Rarg3))
     It = hdt_graph.triples((Rarg1,Rarg2,Rarg3))
+#    print("hdt finished")
 #    print([trip for trip in It])
-    return [rdf_triple_to_xsb(trip) for trip in It]
+#    Sum = sum(1 for _ in It)
+#    print(Sum)
+    ret =  [rdf_triple_to_xsb(trip) for trip in It]
+#    print("ret constructed")
+    return ret
 
 def rdf_triple_to_xsb(TripIn):
     Arg0 =  rdflib_term_to_tuple(TripIn[0])
@@ -130,6 +136,14 @@ def rdf_triple_to_xsb(TripIn):
 def validate(Arg):
     if Arg == 'None':
         return None
+    elif type(Arg) == tuple:
+        if Arg[2] != '':
+            eltnew = Literal(Arg[0],lang=Arg[2])
+        elif Arg[1] != '':
+            eltnew = Literal(Arg[0],datatype=Arg[1])
+        else:
+            eltnew = Literal(Arg[0])
+        return eltnew
     elif validators.url(Arg):
         return URIRef(Arg)
     else:
