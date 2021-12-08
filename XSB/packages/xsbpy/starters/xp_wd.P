@@ -1,0 +1,255 @@
+:- export wd_query/4, wd_get_label/3, wd_get_labels/3, print_tree/1.
+:- export wd_has_subclass/2,wd_has_instance/2,wd_subclass_of/2,wd_instance_of/2.
+:- export wd_get_qnode/3,wd_get_qnode/4,wd_parent_of/2.
+:- export wd_is_instance/1,wd_is_class/1.
+
+:- import member/2,append/3 from basics.
+:- import concat_atom/2,split_atom/3 from string.
+:- import hdt_query/4 from xp_rdflib.
+:- import check_nonvar/3 from error_handler.
+
+?- ensure_loaded(xsbpy).
+?- ensure_loaded(xp_rdflib).
+
+%===============================================
+
+% wd_query(?Arg1,?Arg2,?Arg3,?Lang) queries the hdt version of WD and
+% backtracks to unify the various arguments with WD triples that match
+% the input.  Arg1/Arg3 can either be Qnode identifiers (e.g., Q144)
+% or URLs that may or may not represent Qnodes.  Lang is a 2 character
+% language designation, which serves as a filter if instantiated.
+% Arg3 can also be a string like 'Italy' which the underlying code
+% turns into rdflib form using Lang.  This predicate is the basis of
+% other predicates in this module.
+%
+% You should instantiate at least one of Arg1 and Arg3 -- otherwise
+% the query can take a long time.
+%
+% Finally, there are many properties that are uninteresting for our
+% purposes. Some, but not all of these are filtered out on return --
+% cf. ignore/1.
+
+wd_query(ArgIn1,ArgIn2,ArgIn3,Lang):-
+    qnodeurl_maybe(ArgIn1,Arg1),    
+    qnodeurl_maybe(ArgIn3,Arg3),    
+    hdt_query(Arg1,ArgIn2,Arg3,List),
+%    writeln(hdt_query2(Arg1,_Arg2,Arg3,List)),
+    member(''(ArgOut1,ArgIn2,ArgOut3),List),
+%    writeln(zero(ArgOut1,ArgIn2,ArgOut3)),
+    \+ ignore(ArgIn2),
+%    writeln(one(ArgOut1,ArgIn2,ArgOut3)),
+    urlqnode_maybe(ArgOut1,ArgIn1),
+%    writeln(two(ArgOut1,ArgIn2,ArgOut3)),
+    (ArgOut3 = ''(Arg3,_,LangOut) ->
+	 LangOut = Lang,
+	 urlqnode_maybe(Arg3,ArgIn3)
+      ;  urlqnode_maybe(ArgOut3,ArgIn3) ).
+%    writeln(three1(ArgIn1,ArgIn2,ArgIn3)).
+
+ignore('http://www.wikidata.org/prop/P10').    %   video
+ignore('http://www.wikidata.org/prop/P18').    %   image
+ignore('http://www.wikidata.org/prop/P345').   %   IMDB id
+ignore('http://www.wikidata.org/prop/P1014').  % Getty art and architecture thesaurus id
+ignore('http://www.wikidata.org/prop/P1036').  % dewey decimal classification
+ignore('http://www.wikidata.org/prop/P1051').  % PSH id ('Czeck library id)
+%P1081 -- Human development index
+ignore('http://www.wikidata.org/prop/P1190').  % Universal decimal system
+ignore('http://www.wikidata.org/prop/P1245').  % Omega wiki meaning
+ignore('http://www.wikidata.org/prop/P1256').  % Iconclass notification
+ignore('http://www.wikidata.org/prop/P1282').  % Open streetmap tag
+ignore('http://www.wikidata.org/prop/P1292').  % DNP classification ('German library)p12
+ignore('http://www.wikidata.org/prop/P1296').  % Wikimedia category
+ignore('http://www.wikidata.org/prop/P1343').  % described by source (e.g., Encyclopedia Brittaniignore('http://www.wikidata.org/prop/direct/P1343').  % described by source (e.g., Encyclopedia Brittanica, Great Soviet encyclopedia)
+ignore('http://www.wikidata.org/prop/P1843').  % taxon name
+% 5869 -- model idem.
+
+%This type has properties: the meta proprty is P1963
+%http://www.wikidata.org/prop/direct/P1963,P451
+
+%===============================================
+
+% wd_get_labels(+Qnode,-Label,?Lang) tries to get the best label --
+%  name then prefLabel then label. then first lang-specific
+% label.  Other properties may be added if needed.
+%
+% wd_get_label/3 gets the first label and no others.
+
+wd_get_label(Qnode,Label,Lang):-
+    wd_get_labels(Qnode,Label,Lang),!.
+	
+wd_get_labels(Qnode,Label,Lang):-
+    check_nonvar(Qnode,'wd_get_labels',3),
+    setof((Lab,Lng),wd_get_labels_1(Qnode,Lab,Lng),Labels),
+    member((Label,Lang),Labels).
+
+wd_get_labels_1(Qnode,Label,Lang):-
+    qnode_id(Qnode),
+    wd_query(Qnode,'http://schema.org/name',Label,Lang).
+wd_get_labels_1(Qnode,Label,Lang):-
+    qnode_id(Qnode),
+    wd_query(Qnode,'http://www.w3.org/2004/02/skos/core#prefLabel',Label,Lang).
+wd_get_labels_1(Qnode,Label,Lang):-
+    qnode_id(Qnode),
+    wd_query(Qnode,'http://www.w3.org/2000/01/rdf-schema#label',Label,Lang).
+%wd_get_label(Qnode,_Label,Lang):-
+%    abort(('Could not find label for ',Qnode,' in ',Lang)).
+
+%===============================================
+
+/* wd_get_qnode/[3,4] gets a qnode that matches a string via names and
+ * labels.  There often are several qnodes (although duplicates are
+ * removed) so you can try to restrict the properties of the qnodes it
+ * uses via wd_is_instance, iwd_s_class, etc. */
+
+wd_get_qnode(Label,Qnode,Lang):-
+    wd_get_qnode(Label,any,Qnode,Lang).
+
+wd_get_qnode(Label,List,Qnode,Lang):-
+    preds_to_call(List,Preds),
+    setof(Q,wd_get_qnode_1(Label,Preds,Q,Lang),Qnodes),
+    member(Qnode,Qnodes).
+
+wd_get_qnode_1(Label,Preds,Q,Lang):-
+    member(Pred,Preds),
+    wd_query(Q,Pred,''(Label,'',Lang),_).
+
+preds_to_call(any,['http://schema.org/name','http://www.w3.org/2004/02/skos/core#prefLabel',
+		   'http://www.w3.org/2000/01/rdf-schema#label']).
+preds_to_call([],[]).
+preds_to_call([Tag|TR],[Pred|PR]):-
+    preds_to_call_1(Tag,Pred),
+    preds_to_call(TR,PR).
+
+preds_to_call_1(name,'http://schema.org/name').
+preds_to_call_1(prefLabel,'http://www.w3.org/2004/02/skos/core#prefLabel').
+preds_to_call_1(label,'http://www.w3.org/2000/01/rdf-schema#label').
+							 
+%===============================================
+/* wd_subclass_of/2 and wd_instance_of/2 both go up the WD ontology
+   dag and should not have any problems with speed.  I try to handle
+   the case where the instance/subclass property has as object a
+   reified statement.  In this case, I try another call from the
+   reified statement to try to get a Qnode, and this works at least
+   sometimes.  Why WD uses reified statements I don't know -- they
+   don't seem to provide much info of use. */
+
+wd_subclass_of(Node,Class):- 
+    wd_query(Node,'http://www.wikidata.org/prop/direct/P279',Class1,en),
+    (wd_is_statement(Class1) ->
+	 (wd_query(Class1,'http://www.wikidata.org/prop/direct/P279',Class,en) ->
+	     true
+	 ; Class = Class1)
+    ; Class = Class1).
+
+wd_instance_of(Node,Class):- 
+    check_nonvar(Node,'xp_wd:instance_of',1),
+    wd_query(Node,'http://www.wikidata.org/prop/direct/P31',Class1,en),
+    (wd_is_statement(Class1) ->
+	 (wd_query(Class1,'http://www.wikidata.org/prop/direct/P31',Class,en) ->
+	     true
+	 ; Class = Class1)
+    ; Class = Class1).
+
+%===========================================
+
+% Thar be monsters here!  These predicates go down in the WD ontology
+% tree and at least wd_has_instance can take a long time if a Node has
+% many instances (e.g., Q5).  The time is all on the Python side.  But
+% it works fine for finding instances of, say house cats or countries.
+wd_has_subclass(Node,Subclass):- 
+    wd_query(Subclass,'http://www.wikidata.org/prop/direct/P279',Node,en).
+
+wd_has_instance(Node,Subclass):- 
+    wd_query(Subclass,'http://www.wikidata.org/prop/direct/P31',Node,en).
+
+%===========================================
+% This group contains convenience predicates.  BTW, the only reason
+% wd_is_instance and wd_is_class don't use instance_of and subclass_of
+% is that they avoid a second call in the case of a reified statement
+% (see above).
+
+wd_is_instance(Qnode):-
+    check_nonvar(Qnode,'xp_wd:wd_is_instance',1),
+    wd_query(Qnode,'http://www.wikidata.org/prop/direct/P31',_,_),!.
+
+wd_is_class(Qnode):-
+    check_nonvar(Qnode,'xp_wd:is_class',1),
+    wd_query(Qnode,'http://www.wikidata.org/prop/direct/P279',_,_),!.
+
+wd_parent_of(Node,Parent):- 
+    wd_subclass_of(Node,Parent).
+wd_parent_of(Node,Parent):- 
+    wd_instance_of(Node,Parent).
+
+%===========================================
+% Given a qnode prints out all ancestors as a tree.  Its kinda cool,
+% if I do say so myself.
+
+print_tree(Qnode):- 
+    setof(_L,_F^dfs_ancestor(Qnode,_L,_F),List),
+    print_tree(_,0,List),
+    fail.
+print_tree(_Qnode).
+
+print_tree(Pref,N,List):-
+    setof((_Ext,_NewPref),prefix_extension(Pref,List,_Ext,_NewPref),Exts),
+    member((Ext,NewPref),Exts),
+    tab(N),writeln(Ext),
+    N1 is N + 3,
+    print_tree(NewPref,N1,List).
+
+% Given a Qnode, backtracks through ancestor paths.
+dfs_ancestor(Qnode,List,Anc):-
+   wd_subclass_of(Qnode,PQnode),
+    once(wd_get_label(PQnode,Label,en)),
+    (   \+ wd_subclass_of(PQnode,_),List = [(PQnode,Label)],Anc = (PQnode,Label)
+    ;   List = [(PQnode,Label)|Rest],dfs_ancestor(PQnode,Rest,Anc)).
+
+prefix_extension(Var,List,Ext,[Ext]):-
+    var(Var),!,
+    member([Ext|_],List).
+prefix_extension(Pref,List,Ext,NewPref):-
+    member(Path,List),
+    append(Pref,[Ext|_],Path),
+    append(Pref,[Ext],NewPref).
+
+%dfs_ancestor(Qnode,Anc):-
+%    dfs_ancestor(Qnode,_A,Anc).
+    
+%dfs_ancestor(Qnode,List,Anc):-
+%    get_parent(Qnode,PQnode),
+%    once(wd_get_label(PQnode,Label,en)),
+%    (   List = [(PQnode,Label)],Anc = (PQnode,Label)
+%    ;   List = [(PQnode,Label)|Rest],dfs_ancestor(PQnode,Rest,Anc)).
+
+%===========================================
+% Utility Predicates.
+
+qnode_id(Id):-
+    atom(Id),
+    atom_codes(Id,[81|Rest]),
+    qnode_id_1(Rest).
+
+qnode_id_1([]).
+qnode_id_1([H|T]):-
+    H >= 48,H=<57,
+    qnode_id_1(T).
+
+urlqnode_maybe(Url,Qnode):-
+    atom(Url),
+    split_atom(Url,'/',List),
+    List = ['http:','www.wikidata.org',entity,Qnode],!.
+urlqnode_maybe(Url,Url).
+
+qnodeurl_maybe(Qnode,Url):-
+    qnode_id(Qnode),
+    concat_atom(['http://www.wikidata.org/entity/',Qnode],Url),!.
+qnodeurl_maybe(Url,Url).
+
+:- export wd_is_statement/1.
+wd_is_statement(Url):- 
+    atom(Url),
+    split_atom(Url,'/',List),
+    List = ['http:','www.wikidata.org',entity,statement|_],!.
+    
+end_of_file.
