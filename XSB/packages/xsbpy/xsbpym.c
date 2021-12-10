@@ -717,9 +717,7 @@ DllExport int pydot_int(CTXTdecl) {
       function = p2c_functor(prMethIn);
       pyMeth = PyUnicode_FromString(function);  
       int args_count = p2c_arity(prMethIn);
-      printf("arity %d\n",args_count);
       pObjOut = call_variadic_method(pObjIn,pyMeth,prMethIn,args_count);
-      printf("finished cvm %p\n",pObjOut);
       Py_DECREF(pyMeth);
     }
     else if (isstring(prMethIn)) {
@@ -822,12 +820,12 @@ DllExport int pyfunc_int(CTXTdecl) {
 
 //------------------------------- Utilities
 
-void printPlgTerm(CTXTdeclc prolog_term term) {
-	XSB_StrDefine(StrArgBuf);
-  XSB_StrSet(&StrArgBuf,"");
-  print_pterm(CTXTc term,1, &StrArgBuf);
-  printf("printPlgTerm: %s\n", StrArgBuf.string);
-}
+//void printPlgTerm(CTXTdeclc prolog_term term) {
+//	XSB_StrDefine(StrArgBuf);
+//  XSB_StrSet(&StrArgBuf,"");
+//  print_pterm(CTXTc term,1, &StrArgBuf);
+//  printf("printPlgTerm: %s\n", StrArgBuf.string);
+//}
 
 void printPyObj(CTXTdeclc PyObject *obj1) {
 	PyObject* objectsRepresentation = PyObject_Repr(obj1);
