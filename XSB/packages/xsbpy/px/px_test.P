@@ -1,0 +1,23 @@
+:- export zero_ary_true/0,instan/1,
+   zero_ary_undef/0, win/1, one_ary_undef/1,
+   zero_ary_fail/0,one_ary_fail/1,
+   throw_an_error/2.
+
+throw_an_error(Message,_Out):-
+    abort(Message).
+
+instan(a).
+
+zero_ary_true:-
+    writeln('     I am a zero-ary predicate called from pt.P').
+
+:- table win/1.
+win(X):- tnot(win(X)).
+
+:- table zero_ary_undef/0.
+zero_ary_undef :- tnot(zero_ary_undef).
+
+zero_ary_fail():- fail.
+
+one_ary_fail(_):- fail.
+one_ary_undef(b):- zero_ary_undef.
