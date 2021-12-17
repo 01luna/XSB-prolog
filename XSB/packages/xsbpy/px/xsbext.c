@@ -20,6 +20,8 @@ void pPO(PyObject *obj1);
 static PyObject *pyxsb_init();
 static PyObject *px_query(PyObject *self,PyObject *args);
 static PyObject *px_cmd(PyObject *self,PyObject *args);
+static PyObject *px_get_error_message();
+
 //void printPyObj(PyObject *self,PyObject *obj1);
 
 //-------------------------------------------------
@@ -31,8 +33,13 @@ static PyMethodDef XsbMethods[] = {
     {"pyxsb_init", pyxsb_init, METH_VARARGS, "Init XSB"},
     {"px_query", px_query, METH_VARARGS, "XSB query execution from Python"},
     {"px_cmd", px_cmd, METH_VARARGS, "XSB command execution from Python"},
+    {"px_get_error_message", px_get_error_message, METH_VARARGS, "Find the XSB error message"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
+
+PyObject *px_get_error_message() {
+  return PyUnicode_FromString(xsb_get_error_message(CTXT));
+}
 
 static struct PyModuleDef moduledef = {					\
             PyModuleDef_HEAD_INIT, "xsbext", "xsbCextenstion", -1, XsbMethods, \
@@ -99,7 +106,6 @@ void ensurePyXSBStackSpace(CTXTdeclc PyObject *pyObj) {
   }
 }
 
-
 PyObject* newPyObj;
 
 static PyObject *px_query(PyObject *self,PyObject *args) {
@@ -125,7 +131,7 @@ static PyObject *px_query(PyObject *self,PyObject *args) {
   xsb(CTXTc XSB_EXECUTE,0,0);
   //  printf("before conv: "); printPlgTerm(new_call);
   if (ccall_error_thrown(CTXT))  {
-    printf("Error: %s\n",xsb_get_error_message(CTXT));
+    //    printf("Error: %s\n",xsb_get_error_message(CTXT));
     PyErr_SetString(PyExc_Exception,xsb_get_error_message(CTXT));
     return Py_None;
   } else {
@@ -170,7 +176,7 @@ static PyObject *px_cmd(PyObject *self,PyObject *args) {
   //  printf("before conv: "); printPlgTerm(new_call);
   if (ccall_error_thrown(CTXT)) {
     PyErr_SetString(PyExc_Exception,xsb_get_error_message(CTXT));
-    printf("Error: %s\n",xsb_get_error_message(CTXT));
+    //    printf("Error: %s\n",xsb_get_error_message(CTXT));
     return Py_None;
     } else { return get_tv(); }
 }

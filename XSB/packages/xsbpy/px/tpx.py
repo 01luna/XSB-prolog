@@ -56,8 +56,8 @@ def tpx():
     print('calling basics:reverse([1,2,3,{a:{b:c}},X)')
     print_query(px_query('basics','reverse',[1,2,3,{'a':{'b':'c'}}]))
     print('')
-    mylist = makelist(100000000)
-    print('getting the length of List = makelist(2000000)')
+    mylist = makelist(100000)
+    print('getting the length of List = makelist(100000)')
     start = time.time()
     print_query(px_query('basics','length',mylist))
     end = time.time()
@@ -75,21 +75,21 @@ def tpx():
         print('Try calling: px_query(nomod,nopred,1)')
         px_query('nomod','nopred',1)
     except Exception as err:
-        print('Python Caught: ')
-        print(err)
-#        print(sys.exec_info())
-#        print(err.message)
+        display_xsb_error(err)
         
 #    except ChildProcessError as err:
     print('----------- user file error --------------')
     try:
-        print('Try calling: px_query(px_test,throw_an_error,here is an error thrown from Prolog)')
+        print('Try : px_query(px_test,throw_an_error,here is an error thrown from Prolog)')
         px_query('px_test','throw_an_error','here is an error thrown from Prolog')
     except Exception as err:
-        print('Python Caught: ')
-        print(err)
-        
+        display_xsb_error(err)            
     print('----------- done with test --------------')
+
+def display_xsb_error(err):    
+        print('Exception Caught from XSB: ')
+        print('   ' + str(err))
+        print('      ' + px_get_error_message())
 
 def makelist(N):
     list = []
@@ -125,4 +125,8 @@ def test_iteration_1(N):
 def test_iteration_query_1(N):
     for i in range(1,N):
         px_query('px_test','simple_call',N)
+    
+def px_list(call,tup):
+    [mod,pred] = call.split('.')
+    print('px_query('+mod+','+'pred'+','+str(tup)+')')
     
