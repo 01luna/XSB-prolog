@@ -1,5 +1,6 @@
 from xsbext import *
 import sys
+import time
 
 pyxsb_init ( )
 #px_cmd('curr_sym','set_prolog_flag','heap_margin',16433152)
@@ -55,9 +56,12 @@ def tpx():
     print('calling basics:reverse([1,2,3,{a:{b:c}},X)')
     print_query(px_query('basics','reverse',[1,2,3,{'a':{'b':'c'}}]))
     print('')
-    mylist = makelist(2000000)
+    mylist = makelist(100000000)
     print('getting the length of List = makelist(2000000)')
+    start = time.time()
     print_query(px_query('basics','length',mylist))
+    end = time.time()
+    print((end-start))
     print('')
     print('calling string:concat_atom([a,b,c,d,e,f,g],X)')
     print_query(px_query('string','concat_atom',['a','b','c','d','e','f','g']))
@@ -93,3 +97,32 @@ def makelist(N):
         list.append(i)
     return list
        
+def list_retest():
+    mylist = makelist(100000000)
+    print('getting the length of List = makelist(2000000)')
+    start = time.time()
+    print_query(px_query('basics','length',mylist))
+    end = time.time()
+    print((end-start))
+
+def test_iteration(N):
+    Start = time.time()
+    test_iteration_1(N)
+    End = time.time()
+    print((End-Start))
+
+def test_iteration_query(N):
+    px_cmd('consult','consult','px_test')
+    Start = time.time()
+    test_iteration_query_1(N)
+    End = time.time()
+    print((End-Start))
+    
+def test_iteration_1(N):
+    for i in range(1,N):
+        pass
+
+def test_iteration_query_1(N):
+    for i in range(1,N):
+        px_query('px_test','simple_call',N)
+    

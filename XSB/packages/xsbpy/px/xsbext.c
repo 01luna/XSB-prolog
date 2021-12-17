@@ -55,21 +55,21 @@ PyInit_xsbext(void)
 
 // TES: need to get from env var
 // To init xsb once the Python module has been initted
-static PyObject *pyxsb_init() {
-  char *mychar = "/home/tswift/xsb-repo/xsb-code/XSB";
-  PyObject* ret = PyLong_FromLong((long) xsb_init(1,&mychar)); 
-  return ret;
-}
-
 //static PyObject *pyxsb_init() {
 //  char *mychar = "/home/tswift/xsb-repo/xsb-code/XSB";
-//  char *argarray[3];
-//  argarray[0] =  "/home/tswift/xsb-repo/xsb-code/XSB";
-//  argarray[1] = "30";
 //  PyObject* ret = PyLong_FromLong((long) xsb_init(1,&mychar)); 
-//  //  PyObject* ret = PyLong_FromLong((long) xsb_init(3,argarray)); 
 //  return ret;
 //}
+
+static PyObject *pyxsb_init() {
+  //  char *mychar = "/home/tswift/xsb-repo/xsb-code/XSB";
+  char *argarray[3];
+  argarray[0] =  "/home/tswift/xsb-repo/xsb-code/XSB";
+  argarray[1] = "30";
+  //  PyObject* ret = PyLong_FromLong((long) xsb_init(1,&mychar)); 
+  PyObject* ret = PyLong_FromLong((long) xsb_init(1,argarray)); 
+  return ret;
+}
 
 #define PYFALSE 0
 #define PYTRUE  1
@@ -84,18 +84,17 @@ void ensurePyXSBStackSpace(CTXTdeclc PyObject *pyObj) {
   PyObject * thirdArg;
   if (PyTuple_Check(pyObj) && PyTuple_Size(pyObj) > 2) {
     thirdArg = PyTuple_GetItem(pyObj,2);
-    printf("found third arg\n");
     if (PyList_Check(thirdArg) || PySet_Check(thirdArg)) {
       printf("list size %ld\n",PyList_Size(thirdArg));
-      //      check_glstack_overflow(5,pcreg,8*PyList_Size(pyObj)*sizeof(size_t));
+      check_glstack_overflow(5,pcreg,2*PyList_Size(thirdArg)*sizeof(Cell));
     }
     else if (PyDict_Check(thirdArg)) {
-      printf("dict size %ld\n",PyDict_Size(thirdArg)*sizeof(size_t));
-      //      check_glstack_overflow(5,pcreg,24*PyDict_Size(pyObj)*sizeof(size_t));
+      printf("dict size %ld\n",PyDict_Size(thirdArg));
+      check_glstack_overflow(5,pcreg,24*PyDict_Size(pyObj)*sizeof(Cell));
     }
     else if (PyTuple_Check(thirdArg)) {
-      printf("tuple size %ld\n",PyTuple_Size(thirdArg)*sizeof(size_t));
-      //      check_glstack_overflow(5,pcreg,4*PyTuple_Size(pyObj)*sizeof(size_t));
+      printf("tuple size %ld\n",PyTuple_Size(thirdArg));
+      check_glstack_overflow(5,pcreg,4*PyTuple_Size(pyObj)*sizeof(Cell));
     }
   }
 }
@@ -147,7 +146,7 @@ static PyObject *px_cmd(PyObject *self,PyObject *args) {
   size_t tuplesize = PyTuple_Size(args);
   arity = tuplesize-2;
   reset_ccall_error(CTXT);
-  printf("gc margin %ld\n",flags[HEAP_GC_MARGIN]);
+  //  printf("gc margin %ld\n",flags[HEAP_GC_MARGIN]);
   //  ensurePyXSBStackSpace(CTXTc args);
   prolog_term return_pr = p2p_new();
   convert_pyObj_prObj(args, &return_pr);
