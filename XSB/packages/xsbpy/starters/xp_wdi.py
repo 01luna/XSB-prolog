@@ -26,11 +26,9 @@ def get_wd_parent(qnode_dict):
     return qnode_dict['claims']['P279']
 
 # Return dict of results from SPARQL query
-# TES: exchanged arguments.
-def sparql_query(qnode,propertyNode):
+def sparql_query(propertyNode,qnode):
     try:
-#        return wdi_core.WDItemEngine.execute_sparql_query('SELECT ?childLabel WHERE { ?child wdt:%s wd:%s. SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }} LIMIT 10000'%(propertyNode,qnode))['results']['bindings']
-        return wdi_core.WDItemEngine.execute_sparql_query('SELECT ?childLabel WHERE { ?child wdt:%s wd:%s. SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }} '%(propertyNode,qnode))['results']['bindings']
+        return wdi_core.WDItemEngine.execute_sparql_query('SELECT ?childLabel WHERE { ?child wdt:%s wd:%s. SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }} LIMIT 10000'%(propertyNode,qnode))['results']['bindings']
         # wdi_core.WDItemEngine.execute_sparql_query('SELECT ?childLabel WHERE { ?child wdt:%s wd:%s. SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }} LIMIT 10000'%('P31','Q51591359'))['results']['bindings']
         # if len(results) <= 10000:
         #     return results

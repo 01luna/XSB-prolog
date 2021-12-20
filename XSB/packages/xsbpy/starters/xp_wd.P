@@ -2,6 +2,7 @@
 :- export wd_has_subclass/2,wd_has_instance/2,wd_subclass_of/2,wd_instance_of/2.
 :- export wd_get_qnode/3,wd_get_qnode/4,wd_parent_of/2.
 :- export wd_is_instance/1,wd_is_class/1.
+:- export wd_ancestor/2,wd_ancestor_nt/2.
 
 :- import member/2,append/3 from basics.
 :- import concat_atom/2,split_atom/3 from string.
@@ -176,9 +177,13 @@ wd_is_class(Qnode):-
     check_nonvar(Qnode,'xp_wd:is_class',1),
     wd_query(Qnode,'http://www.wikidata.org/prop/direct/P279',_,_),!.
 
+
 wd_parent_of(Node,Parent):- 
+    catch(wd_parent_of_1(Node,Parent),_,fail).
+
+wd_parent_of_1(Node,Parent):- 
     wd_subclass_of(Node,Parent).
-wd_parent_of(Node,Parent):- 
+wd_parent_of_1(Node,Parent):- 
     wd_instance_of(Node,Parent).
 
 %===========================================
@@ -186,7 +191,7 @@ wd_parent_of(Node,Parent):-
 % if I do say so myself.
 
 print_tree(Qnode):- 
-    setof(_L,_F^dfs_ancestor(Qnode,_L,_F),List),
+    setof(_L,_F^pt_ancestor(Qnode,_L,_F),List),
     print_tree(_,0,List),
     fail.
 print_tree(_Qnode).
@@ -199,11 +204,15 @@ print_tree(Pref,N,List):-
     print_tree(NewPref,N1,List).
 
 % Given a Qnode, backtracks through ancestor paths.
-dfs_ancestor(Qnode,List,Anc):-
-   wd_subclass_of(Qnode,PQnode),
-    once(wd_get_label(PQnode,Label,en)),
-    (   \+ wd_subclass_of(PQnode,_),List = [(PQnode,Label)],Anc = (PQnode,Label)
-    ;   List = [(PQnode,Label)|Rest],dfs_ancestor(PQnode,Rest,Anc)).
+:- table pt_ancestor/3.
+pt_ancestor(Qnode,List,Anc):-
+   writeln(calling(Qnode)),
+   wd_parent_of(Qnode,PQnode),writeln(PQnode),
+    once(wd_get_label(PQnode,Label,en)),writeln(label(Label)),
+    ( \+ wd_parent_of(PQnode,_),List = [(PQnode,Label)],
+	Anc = (PQnode,Label),writeln(suc(Anc))
+    ;   List = [(PQnode,Label)|Rest],
+	writeln(abt(PQnode,Rest,Anc)),pt_ancestor(PQnode,Rest,Anc)).
 
 prefix_extension(Var,List,Ext,[Ext]):-
     var(Var),!,
@@ -213,14 +222,12 @@ prefix_extension(Pref,List,Ext,NewPref):-
     append(Pref,[Ext|_],Path),
     append(Pref,[Ext],NewPref).
 
-%dfs_ancestor(Qnode,Anc):-
-%    dfs_ancestor(Qnode,_A,Anc).
-    
-%dfs_ancestor(Qnode,List,Anc):-
-%    get_parent(Qnode,PQnode),
-%    once(wd_get_label(PQnode,Label,en)),
-%    (   List = [(PQnode,Label)],Anc = (PQnode,Label)
-%    ;   List = [(PQnode,Label)|Rest],dfs_ancestor(PQnode,Rest,Anc)).
+:- table wd_ancestor/2.
+wd_ancestor(Qnode,Anc):- wd_parent_of(Qnode,Anc).
+wd_ancestor(Qnode,Anc):- wd_ancestor(Qnode,AncMid),wd_parent_of(AncMid,Anc).
+
+wd_ancestor_nt(Qnode,Anc):- wd_parent_of(Qnode,Anc).
+wd_ancestor_nt(Qnode,Anc):- wd_ancestor_nt(Qnode,AncMid),wd_parent_of(AncMid,Anc).
 
 %===========================================
 % Utility Predicates.
@@ -251,5 +258,7 @@ wd_is_statement(Url):-
     atom(Url),
     split_atom(Url,'/',List),
     List = ['http:','www.wikidata.org',entity,statement|_],!.
-    
+
+
+
 end_of_file.
