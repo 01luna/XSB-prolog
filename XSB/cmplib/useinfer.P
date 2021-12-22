@@ -203,7 +203,10 @@ infer_usage_of_symbol(Sym, InList, OutList, Module,Ps_or_real) :-
 		      true	% exporting function symbol, OK
 		  ; sym_name(Sym, P, A),
 		    sym_propin(undef, Sym),
-		    warning(('Undefined predicate ', P, '/', A))
+		    (option(undefined_warnings_off)
+		     -> true
+		     ;  warning(('Undefined predicate ', P, '/', A))
+		    )
 		  ),
 		  OutList = InList
 		)
@@ -323,7 +326,10 @@ infer_fillunused(SymTab) :-
 	sym_scan(Sym, SymTab, RestTab),
 	( sym_prop(used, Sym) -> true 
 	; sym_propin(unused, Sym), sym_name(Sym, N, A),
-	  warning(('Unused symbol ', N, '/', A))
+	  (option(unused_warnings_off)
+	   -> true
+	   ;  warning(('Unused symbol ', N, '/', A))
+	  )
 	),
 	infer_fillunused(RestTab).
 infer_fillunused(_).

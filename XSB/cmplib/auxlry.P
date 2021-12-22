@@ -218,6 +218,9 @@ current_option(if_needed).
 current_option(module).
 
 current_option(singleton_warnings_off).
+current_option(undefined_warnings_off).
+current_option(unused_warnings_off).
+current_option(singleton_warnings_off).
 current_option(allow_redefinition).
 
 % TLS: taken out 11/03: these do not seem to be used.
