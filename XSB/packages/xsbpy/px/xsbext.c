@@ -107,26 +107,41 @@ void ensurePyXSBStackSpace(CTXTdeclc PyObject *pyObj) {
 }
 
 PyObject* newPyObj;
+//extern CPtr heap_bot;
+
+#define reset_local_heap_ptrs						\
+  heap_offset = (CPtr)new_call-(CPtr)gl_bot;				\
+  new_call = (prolog_term) ((CPtr)glstack.low + heap_offset) ;		\
+  gl_bot = (CPtr)glstack.low;
 
 static PyObject *px_query(PyObject *self,PyObject *args) {
   size_t tuplesize = PyTuple_Size(args);
+  size_t heap_offset;
   reset_ccall_error(CTXT);
   ensurePyXSBStackSpace(CTXTc args);
   prolog_term return_pr = p2p_new();
   convert_pyObj_prObj(args, &return_pr);
   //  printPlgTerm(p2p_arg(return_pr, 1));
   //  printf("new prolog obj: ");printPlgTerm(return_pr);
+  CPtr gl_bot = (CPtr)glstack.low;
   prolog_term new_call = p2p_new();
   c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),
 		     tuplesize-1,new_call);
+  if (gl_bot != (CPtr)glstack.low) printf("2 heap bot old %p new %p\n",gl_bot, glstack.low);
   for (int i = 1; i < (int) tuplesize-1; i++) {
     //    printPlgTerm(p2p_arg(return_pr,3));
     prolog_term call_arg = p2p_arg(new_call,i); 
     p2p_unify(call_arg,p2p_arg(return_pr,i+2));
   }
+  if (gl_bot != (CPtr)glstack.low) printf("3 heap bot old %p new %p\n",gl_bot, glstack.low);
   xsb_query_save(tuplesize-1);
+if (gl_bot != (CPtr)glstack.low) {
+    printf("q4 heap bot old %p new %p\n",gl_bot, glstack.low);
+    reset_local_heap_ptrs;
+  }
   p2p_unify(reg_term(CTXTc 1),new_call);
   //  printf("about to call: ");printPlgTerm(reg_term(1));
+  if (gl_bot != (CPtr)glstack.low) printf("5 heap bot old %p new %p\n",gl_bot, glstack.low);
   c2p_int(CTXTc 0,reg_term(CTXTc 3));  /* set command for calling a goal */
   xsb(CTXTc XSB_EXECUTE,0,0);
   //  printf("before conv: "); printPlgTerm(new_call);
@@ -138,10 +153,16 @@ static PyObject *px_query(PyObject *self,PyObject *args) {
     if (is_var(reg_term(CTXTc 1))) return PyLong_FromLong(PYFALSE);
     else {
       PyObject *tup = PyTuple_New(2);
+      if (gl_bot != (CPtr)glstack.low) {
+	printf("6 heap bot old %p new %p\n",gl_bot, glstack.low);
+	reset_local_heap_ptrs;
+      }
       convert_prObj_pyObj(p2p_arg(new_call,tuplesize-1),&newPyObj);
       PyTuple_SET_ITEM(tup,0,newPyObj);
       PyTuple_SET_ITEM(tup,1,(delayreg?PyLong_FromLong(PYUNDEF):PyLong_FromLong(PYTRUE)));
       //      pPO(CTXTc tup);
+      //      c2p_int(CTXTc 3,reg_term(CTXTc 3));  /* set command for calling a goal */
+      //      xsb(CTXTc XSB_EXECUTE,0,0);
       return tup;
     }
   }
@@ -150,10 +171,12 @@ static PyObject *px_query(PyObject *self,PyObject *args) {
 static PyObject *px_cmd(PyObject *self,PyObject *args) {
   size_t arity;
   size_t tuplesize = PyTuple_Size(args);
+  size_t heap_offset;
   arity = tuplesize-2;
   reset_ccall_error(CTXT);
   //  printf("gc margin %ld\n",flags[HEAP_GC_MARGIN]);
   //  ensurePyXSBStackSpace(CTXTc args);
+  CPtr gl_bot = (CPtr)glstack.low;
   prolog_term return_pr = p2p_new();
   convert_pyObj_prObj(args, &return_pr);
   //  printf("new prolog obj: ");printPlgTerm(return_pr);
@@ -168,6 +191,10 @@ static PyObject *px_cmd(PyObject *self,PyObject *args) {
   //  printf("done with first unify\n");
   if (arity==0) xsb_query_save(1);
   else  xsb_query_save(arity);
+  if (gl_bot != (CPtr)glstack.low) {
+    printf("4 heap bot old %p new %p\n",gl_bot, glstack.low);
+    reset_local_heap_ptrs;
+  }
   //  printf("done with query_save\n");
   p2p_unify(reg_term(CTXTc 1),new_call);
   //  printf("about to call: ");printPlgTerm(reg_term(1));
