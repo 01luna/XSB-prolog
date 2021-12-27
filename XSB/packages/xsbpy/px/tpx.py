@@ -52,9 +52,12 @@ def tpx():
     print('calling px_test:one_ary_fail(X)')
     print('     TV = ' + printable_tv(px_query('px_test','one_ary_fail')))
     print('')
-    print('')
     print('calling test_iteration_cmd(200000)')
     test_iteration_cmd(200000)
+    print('')
+    print('calling test_iteration_nondet(200000)')
+    test_iteration_nondet(200000)
+    print('')
     
     print('------------ query: arity 2 -------------')
     print('calling basics:reverse([1,2,3,{a:{b:c}},X)')
@@ -72,6 +75,12 @@ def tpx():
     print('')
     print('calling test_iteration_query(200000)')
     test_iteration_query(200000)
+    print('')
+    print('calling prolog_makelist(1000000)')
+    start = time.time()
+    px_query('px_test','prolog_makelist',1000000)    
+    end = time.time()
+    print((end-start))
     print('')
     print('------------ query: arity 3 -------------')
     print('calling basics:append([1,2],[3,4],X)')
@@ -130,7 +139,14 @@ def test_iteration_cmd(N):
     Start = time.time()
     test_iteration_cmd_1(N)
     End = time.time()
-    print((End-Start))
+    print('test_iteration_cmd('+str(N)+'): '+str(End-Start))
+    
+def test_iteration_nondet(N):
+    px_cmd('consult','consult','px_test')
+    Start = time.time()
+    test_iteration_nondet_1(N)
+    End = time.time()
+    print('test_iteration_nondet('+str(N)+'): '+str(End-Start))
     
 def test_iteration_1(N):
     for i in range(1,N):
@@ -144,6 +160,10 @@ def test_iteration_cmd_1(N):
     for i in range(1,N):
         px_cmd('px_test','simple_cmd',N)
     
+def test_iteration_nondet_1(N):
+    for i in range(1,N):
+        px_query('px_test','nondet_query')
+
 def px_list(call,tup):
     [mod,pred] = call.split('.')
     print('px_query('+mod+','+'pred'+','+str(tup)+')')

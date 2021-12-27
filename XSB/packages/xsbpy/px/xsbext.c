@@ -114,6 +114,44 @@ PyObject* newPyObj;
   new_call = (prolog_term) ((CPtr)glstack.low + heap_offset) ;		\
   gl_bot = (CPtr)glstack.low;
 
+/* TES: maybe complstack */
+
+#define print_starting_registers			\
+  printf("srting hreg %p\n",hreg);			\
+  printf("srting hbreg %p\n",hbreg);			\
+  printf("srting breg %p\n",breg);			\
+  printf("srting ereg %p\n",ereg);			\
+  printf("srting ebreg %p\n",ebreg);			\
+  printf("srting trreg %p\n",trreg);			\
+  printf("srting cpreg %p\n",cpreg);			
+
+#define print_ending_registers			\
+  printf("ending hreg %p\n",hreg);		\
+  printf("ending hbreg %p\n",hbreg);		\
+  printf("ending breg %p\n",breg);		\
+  printf("ending ereg %p\n",ereg);		\
+  printf("ending ebreg %p\n",ebreg);		\
+  printf("ending trreg %p\n",trreg);			\
+  printf("ending cpreg %p\n",cpreg);			
+
+#define get_reg_offsets					\
+  size_t hreg_offset = hreg - gl_bot;			\
+  size_t hbreg_offset = hbreg - gl_bot;			\
+  size_t ereg_offset = (CPtr)glstack.high - ereg;	\
+  size_t ebreg_offset = (CPtr)glstack.high - ebreg;	\
+  size_t trreg_offset = (CPtr) trreg - (CPtr)tcpstack.low;	\
+  size_t breg_offset = (CPtr) tcpstack.high - breg;	\
+  //  print_starting_registers;
+
+#define reset_regs					\
+  hreg = (CPtr)glstack.low + hreg_offset;		\
+  hbreg = (CPtr)glstack.low +  hbreg_offset;		\
+  ereg = (CPtr)glstack.high - ereg_offset;		\
+  ebreg = (CPtr)glstack.high - ebreg_offset;		\
+  trreg = (CPtr *)((CPtr)tcpstack.low + trreg_offset);	\
+  breg = (CPtr)tcpstack.high - breg_offset;		\
+  //     print_ending_registers;  
+
 static PyObject *px_query(PyObject *self,PyObject *args) {
   size_t tuplesize = PyTuple_Size(args);
   size_t heap_offset;
@@ -124,6 +162,8 @@ static PyObject *px_query(PyObject *self,PyObject *args) {
   //  printPlgTerm(p2p_arg(return_pr, 1));
   //  printf("new prolog obj: ");printPlgTerm(return_pr);
   CPtr gl_bot = (CPtr)glstack.low;
+  get_reg_offsets;
+
   prolog_term new_call = p2p_new();
   c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),
 		     tuplesize-1,new_call);
@@ -160,6 +200,7 @@ if (gl_bot != (CPtr)glstack.low) {
       convert_prObj_pyObj(p2p_arg(new_call,tuplesize-1),&newPyObj);
       PyTuple_SET_ITEM(tup,0,newPyObj);
       PyTuple_SET_ITEM(tup,1,(delayreg?PyLong_FromLong(PYUNDEF):PyLong_FromLong(PYTRUE)));
+      reset_regs;
       //      pPO(CTXTc tup);
       //      c2p_int(CTXTc 3,reg_term(CTXTc 3));  /* set command for calling a goal */
       //      xsb(CTXTc XSB_EXECUTE,0,0);
@@ -177,6 +218,7 @@ static PyObject *px_cmd(PyObject *self,PyObject *args) {
   //  printf("gc margin %ld\n",flags[HEAP_GC_MARGIN]);
   //  ensurePyXSBStackSpace(CTXTc args);
   CPtr gl_bot = (CPtr)glstack.low;
+  get_reg_offsets;
   prolog_term return_pr = p2p_new();
   convert_pyObj_prObj(args, &return_pr);
   //  printf("new prolog obj: ");printPlgTerm(return_pr);
@@ -205,7 +247,11 @@ static PyObject *px_cmd(PyObject *self,PyObject *args) {
     PyErr_SetString(PyExc_Exception,xsb_get_error_message(CTXT));
     //    printf("Error: %s\n",xsb_get_error_message(CTXT));
     return Py_None;
-    } else { return get_tv(); }
+    } else {
+    PyObject *tv = get_tv();
+    reset_regs;
+    return tv;
+  }
 }
 
 //-------------------------------------------------
