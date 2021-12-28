@@ -9,10 +9,17 @@
 :- export tc_rep_max/0.
 % Utils.
 :- export prolog_paths/1,append_prolog_paths/1.
-
+:- export test_callback_1/1.
+    
 :- import timed_call/2 from standard.
 :- import add_lib_dir/1 from consult.
 
+%:- import pyfunc/3 from xsbpy.
+?- [xsbpy].
+
+test_callback_1(Paths):-
+    pyfunc(xp_utils,python_paths(),Paths).
+    
 prolog_paths(Dirs):-
     findall(Dir,usermod:library_directory(Dir),Dirs).
 

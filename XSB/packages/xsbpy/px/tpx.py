@@ -22,6 +22,8 @@ def prolog_paths():
     
 def add_prolog_path(List):
     px_cmd('px_test','append_prolog_paths',List)
+    
+add_prolog_path(['../../../../xsbtests/attv_tests'])
 
 def printable_tv(TV):
     if TV == 1:
