@@ -1,0 +1,212 @@
+
+\newcommand{\pxversion}{Version 0.1}
+
+\begin{center}
+\chapter[Python and XSB]{{\tt px}: The Python 3-XSB Interface} \label{chap:px}
+\end{center}
+
+\vspace*{-.30in} 
+\begin{center}
+{\Large {\bf  \pxversion}}
+\end{center}
+
+\begin{center}
+  {\Large {\bf By Theresa Swift}}
+\end{center}
+
+\noindent
+{\large {\bf {\em This chapter documents rapidly-developing software that is alpha-level at best.}}}
+
+The {\tt px} module allows XSB to be used as an embedded subprocess
+within a Python process.  {\tt px} currently works independently of
+{\tt xsbpy}, although they both use much of the same code.  (Hopefully
+this will soon be fixed.)
+
+\section{Configuration, Loading and Start-up}
+
+{\em Currently only tested on Linux}
+
+The current configuration of {\tt px} works via the Python {\tt
+  distutils} package.  Currently {\tt setup.py} requires include and
+library directories as shown below.  The paths to these directories
+must be change to include the proper {\tt \$XSB\_ROOT} and, in the
+case of the library directory the path of the XSB binary appropriate
+to your system.  An example is shown as:
+
+\begin{footnotesize}
+  \begin{verbatim}
+module1 = Extension('xsbext',
+                    include_dirs = ['/usr/include/python3.8',
+                                    '/home/tswift/xsb-code/XSB/emu',
+                                    '/home/tswift/xsb-code/XSB/packages/xsbpy',
+                                    '/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu'],
+                    libraries = ['xsb'],
+                    library_dirs = ['/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu/bin'],
+                    sources = ['xsbext.c','xsbpy_common.c'])
+  \end{verbatim}
+\end{footnotesize}
+
+Once {\tt setup.py} is properly configured, the user need only enter a
+python comaand to build and install the module ({\tt sudo} privilege
+may be needed for this).  For the above file the command is:
+
+\begin{verbatim}
+python3.8 setup.py install
+\end{verbatim}
+\noindent
+This command compiles the px sources, builds a Python egg, and
+installs the egg in the Python libary for distributed packages
+(e.g. {\tt dist-packages})
+
+After {\tt px} has been installed, it can be used like any other Python
+package, e.g.:
+
+\begin{verbatim}
+>>> from px import *
+[xsb_configuration loaded]
+[sysinitrc loaded]
+[xsbbrat loaded]
+[xsbrc loaded]
+\end{verbatim}
+\noindent
+Note that XSB is initialized in the Python process when the {\tt px}
+module is loaded.
+
+\subsection{Python Functions in {\tt px}}
+
+The intention of {\tt px} is to make essentially all of XSB's
+functionality directly callable by Python.  As noted, many of these
+featues are still under development.
+
+XSB goals may succeed with truth value {\tt true} or {\tt undefined}
+and fail with truth value {\tt false}.  Truth values are returned to
+Python with {\tt true} as {\tt 1}, {\tt undefined} as {\tt 2} and {\tt
+  false} as {\tt 0}.
+
+If an exception occurs when XSB is executing a goal, the error is
+caught by XSB, translated to a Python exception of the vanilla {\tt
+  Exception} class\footnote{A future implementation will use more
+  precise mapping of XSB error types to Python error types.}, and can
+be caught as any other Python exception of that time.  Precise
+information on the XSB exception is available through {\tt
+  px\_get\_error\_message()},
+
+
+\begin{description}
+
+  \pymoditem{px\_cmd(module,pred,*args)}{px\_cmd()}{px}
+%
+  Allows Python to execute a Prolog goal {\tt Goal} containing no
+  variables.  Each argument in {\tt Goal} corresponds to an element of
+  in {\tt args}.  For instance the Python call
+
+  {\tt px\_cmd('consult','ensure\_loaded','px\_test')}
+
+  calls {\tt consult:ensure\_loaded(px\_test)}.  Calls to XSB
+  predicates that are not in a module may be made with {\tt module}
+  set to {\tt usermod}.
+
+  {\tt px\_cmd()} returns the truth value of the goal, or {\tt None}
+  if an error occured.
+  
+  \pymoditem{px\_qdet(module,pred,*args)}{px\_qdet()}{px}
+%
+  Allows Python to execute a Prolog query, the last argument of which
+  is a variable.  If the number of {\tt args} is {\tt n}, a call will
+  be made to {\tt pred/(n+1)} in which the first {\tt n} arguments
+  correspond to the arguments in {\tt args} and the binding of the
+  final argument is returned to Python as a Python object along with
+  its truth value.  For example: the call
+
+  {\tt px\_qdet('basics','reverse',[1,2,3,{'a':{'b':'c'}}]))}
+
+  \noindent
+  executes the prolog goal {\tt
+    basics.reverse([1,2,3,{'a':{'b':'c'}}],Ret} and passes back the tuple
+
+  {\tt ( [{'a':{'b':'c'}},3,2,1], 1)}
+
+  \noindent
+  to Python, where the second argument of the tuple is the truth value
+  of the answer.  More precisely the Prolog goal {\tt Goal} returns as
+  follows.
+
+  \bi
+  \item If {\tt truthValue} is {\tt 1} (true) or {\tt 2} (undefined),
+    {\tt Goal} succeeded and the return of {\tt px\_qdet()} is a tuple
+    {\tt (dataStructure,truthValue)} in which {\tt dataStructure}
+    corresponds to the binding of the last argument of {\tt Goal};
+   \item If {\tt truthValue} is {\tt 0}, {\tt Goal} failed, and the
+     return of {\tt px\_qdet()} is a tuple {\tt
+       (dataStructure,truthValue)} in which {\tt dataStructure} is the
+     Python {\tt None} object;
+   \item If the execution of {\tt Goal} caused a Prolog error the
+     Python {\tt None} object is returned.
+     \ei
+
+     If {\tt Goal} is non-deterministic, only the first answer will be
+     produced; multiple answers for a goal can be returned by {\tt
+       px\_list} and {\tt px\_set}.
+
+     Note that {\tt px\_cmd()} and {\tt px\_query()} will always call
+     different Prolog goals.  For instance {\tt
+       px\_cmd(mod,pred,arg1,arg2)} will call the Prolog goal {\tt
+       mod:pred(arg1,arg2)} while {\tt px\_query(mod,pred,arg1,arg2)}
+     will call {\tt mod:pred(arg1,arg2,Ret)}.v
+     
+     Calls to XSB predicates that are not in a module may be made with
+     {\tt module} set to {\tt usermod}.
+
+  \pymoditem{px\_list(module,pred,*args)}{px\_list()}{px}
+%
+  Performs the {\tt px} equivalent of list comprehension, returning a
+  list of all bindings to {\tt Ret} in the goal {\tt
+    module:pred(args,Ret)}.
+  
+  \pymoditem{px\_set(module,pred,*args)}{px\_set()}{px}
+%
+  Performs the {\tt px} equivalent of set comprehension, returning tje
+  set of all bindings to {\tt Ret} in the goal {\tt
+    module:pred(args,Ret)}.
+
+  \pymoditem{px\_get\_error\_message()}{px\_get\_error\_message()}{px}
+%
+  If an XSB exception was raised by the previous call to XSB, {\tt
+    px\_get\_error\_message()} returns the XSB exception message as a
+  Python Unicide string.
+  
+  \pymoditem{px\_consult(File)}{px\_consult(File)}{px}
+%
+  Convenience function for consulting (loading and/or compiling)
+  Prolog files, and is defined as 
+  {\tt px\_cmd('consult','consult',File)}.
+
+  \pymoditem{prolog\_paths()}{prolog\_paths()}{px}
+%  
+  Convenience function to return a list of XSB library paths, and is
+  defined as {\tt px\_query('px','prolog\_paths')},
+
+  \pymoditem{add\_prolog\_path(Paths)}{add\_prolog\_path()}{px}
+%  
+    Convenience function to add one or more XSB library paths, and is
+    defined as: {\tt px\_cmd('consult',add\_lib\_dir(Paths)}.
+  
+\end{description}
+
+\subsection{Current Issues and Limitations}
+
+{\tt px} is under active development and its issues and limitations
+change on a weekly or even daily basis.
+
+\bi
+
+\item {\tt px} has not been tested on any platform other than Ubuntu
+  Linux.
+\item {\tt px} does not yet work with {\tt xsbpy}.
+\item List and set comprehension ({\tt px\_list()} and {\tt px\_set()}
+  are not yet implemented.
+\item Heap garbage collection is currently disabled when XSB is called
+  from Python, although expansion is allowed for all stacks. 
+\item Python sometimes core dumps on after using {\tt px}.
+  
+\ei  
