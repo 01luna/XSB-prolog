@@ -17,7 +17,8 @@ int convert_pyObj_prObj(PyObject *, prolog_term *);
 int convert_prObj_pyObj(prolog_term , PyObject **);
 void printPlgTerm(prolog_term term2);
 void pPO(PyObject *obj1);
-static PyObject *pyxsb_init();
+static PyObject *px_init();
+static PyObject *px_close();
 static PyObject *px_query(PyObject *self,PyObject *args);
 static PyObject *px_cmd(PyObject *self,PyObject *args);
 static PyObject *px_get_error_message();
@@ -30,7 +31,8 @@ static PyObject *px_get_error_message();
 
 static PyMethodDef XsbMethods[] = {
   //    {"printPyObj", printPyObj, METH_VARARGS, "Print Python Obj from C"},
-    {"pyxsb_init", pyxsb_init, METH_VARARGS, "Init XSB"},
+    {"px_init", px_init, METH_VARARGS, "Init XSB"},
+    {"px_close", px_close, METH_VARARGS, "Close XSB"},
     {"px_query", px_query, METH_VARARGS, "XSB query execution from Python"},
     {"px_cmd", px_cmd, METH_VARARGS, "XSB command execution from Python"},
     {"px_get_error_message", px_get_error_message, METH_VARARGS, "Find the XSB error message"},
@@ -68,7 +70,7 @@ PyInit_xsbext(void)
 //  return ret;
 //}
 
-static PyObject *pyxsb_init() {
+static PyObject *px_init() {
   //  char *mychar = "/home/tswift/xsb-repo/xsb-code/XSB";
   char *argarray[3];
   argarray[0] =  "/home/tswift/xsb-repo/xsb-code/XSB";
@@ -76,6 +78,12 @@ static PyObject *pyxsb_init() {
   //  PyObject* ret = PyLong_FromLong((long) xsb_init(1,&mychar)); 
   PyObject* ret = PyLong_FromLong((long) xsb_init(1,argarray)); 
   return ret;
+}
+
+static PyObject *px_close() {
+  xsb_close();
+  return PyLong_FromLong(0);
+		
 }
 
 #define PYFALSE 0

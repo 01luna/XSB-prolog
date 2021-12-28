@@ -1,11 +1,28 @@
 from xsbext import *
 import sys
 import time
+import atexit
 
-pyxsb_init ( )
+def myexit():
+    px_close()
+    print("Bye!")
+
+atexit.register(myexit)
+
+px_init ( )
 #px_cmd('curr_sym','set_prolog_flag','heap_margin',16433152)
 px_cmd('curr_sym','set_prolog_flag','heap_garbage_collection','none')
+px_cmd('consult','consult','px_test')
+
+def px_consult(File):
+    px_cmd('consult','consult',File)
+
+def prolog_paths():
+    return px_query('px_test','prolog_paths')
     
+def add_prolog_path(List):
+    px_cmd('px_test','append_prolog_paths',List)
+
 def printable_tv(TV):
     if TV == 1:
         return('True')
@@ -99,9 +116,16 @@ def tpx():
         print('Try : px_query(px_test,throw_an_error,here is an error thrown from Prolog)')
         px_query('px_test','throw_an_error','here is an error thrown from Prolog')
     except Exception as err:
-        display_xsb_error(err)            
+        display_xsb_error(err)    
+    print('----------- testi~ng interrupts --------------')
+    test_interrupts()
     print('----------- done with test --------------')
 
+def test_interrupts():
+    px_cmd('px_test','tc_rep_max') 
+    px_cmd('consult','consult','attv_test')
+    px_cmd('usermod','test')
+    
 def display_xsb_error(err):    
         print('Exception Caught from XSB: ')
         print('   ' + str(err))
