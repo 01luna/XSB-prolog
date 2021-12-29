@@ -19,8 +19,15 @@
 
 The {\tt px} module allows XSB to be used as an embedded subprocess
 within a Python process.  {\tt px} currently works independently of
-{\tt xsbpy}, although they both use much of the same code.  (Hopefully
-this will soon be fixed.)
+{\tt xsbpy}, although they both use much of the same code and in
+particular bi-translate Prolog terms and Python data structures in the
+same manner.\footnote{Combinind the two systems is a high priority
+  for development.}
+
+{\tt px} is only slightly slower than {\tt xsbpy}.  Nearly a million
+calls to, and returns from a simple XSB predicate can be made per
+second.  Data is transferred very quickly: for instance list elements
+can be transferred at a few tens of nanoseconds per list element.
 
 \section{Configuration, Loading and Start-up}
 
@@ -29,9 +36,9 @@ this will soon be fixed.)
 The current configuration of {\tt px} works via the Python {\tt
   distutils} package.  Currently {\tt setup.py} requires include and
 library directories as shown below.  The paths to these directories
-must be change to include the proper {\tt \$XSB\_ROOT} and, in the
+must be changed to include the proper {\tt \$XSB\_ROOT} and, in the
 case of the library directory the path of the XSB binary appropriate
-to your system.  An example is shown as:
+to your system.  An example is:
 
 \begin{footnotesize}
   \begin{verbatim}
@@ -78,6 +85,19 @@ The intention of {\tt px} is to make essentially all of XSB's
 functionality directly callable by Python.  As noted, many of these
 featues are still under development.
 
+Although Python and Prolog have similiarities at the data structure
+level, they differ substanially in their execution.  The design of
+{\tt px} is to restrict the form of Prolog goals so that they fit well
+with Python's function execution.  Fortunately, this can be done
+without sacrificing XSB's expressivity.  {\tt px} functions are
+variadic and pass to XSB a module, a predicate name and zero or more
+input arguments.  At a general level, XSB then constructs a call from
+these pieces and passes the return back to Python, though how this is
+done differs for the various {\tt px} functions.  It should be noted
+that {\tt px} does not provide a way to represent logical variables in
+Python so that if an argument is passed to XSB it will be fully
+ground.
+
 XSB goals may succeed with truth value {\tt true} or {\tt undefined}
 and fail with truth value {\tt false}.  Truth values are returned to
 Python with {\tt true} as {\tt 1}, {\tt undefined} as {\tt 2} and {\tt
@@ -87,10 +107,11 @@ If an exception occurs when XSB is executing a goal, the error is
 caught by XSB, translated to a Python exception of the vanilla {\tt
   Exception} class\footnote{A future implementation will use more
   precise mapping of XSB error types to Python error types.}, and can
-be caught as any other Python exception of that time.  Precise
-information on the XSB exception is available through {\tt
-  px\_get\_error\_message()},
+be caught as any other Python exception of that type.  Precise
+information on the XSB exception is available to Python through the
+{\tt px} function {\tt px\_get\_error\_message()},
 
+\subsubsection{The {\tt px} API}
 
 \begin{description}
 
@@ -98,7 +119,9 @@ information on the XSB exception is available through {\tt
 %
   Allows Python to execute a Prolog goal {\tt Goal} containing no
   variables.  Each argument in {\tt Goal} corresponds to an element of
-  in {\tt args}.  For instance the Python call
+  in {\tt args}, i.e., the input is translated to
+  $module.pred(\vec{args})$, where $\vec{args}$ is an argument vector.
+  For instance the Python call
 
   {\tt px\_cmd('consult','ensure\_loaded','px\_test')}
 
@@ -106,8 +129,8 @@ information on the XSB exception is available through {\tt
   predicates that are not in a module may be made with {\tt module}
   set to {\tt usermod}.
 
-  {\tt px\_cmd()} returns the truth value of the goal, or {\tt None}
-  if an error occured.
+  {\tt px\_cmd()} returns the truth value of the goal as explained
+  above, or {\tt None} if an error occured.
   
   \pymoditem{px\_qdet(module,pred,*args)}{px\_qdet()}{px}
 %
@@ -116,7 +139,9 @@ information on the XSB exception is available through {\tt
   be made to {\tt pred/(n+1)} in which the first {\tt n} arguments
   correspond to the arguments in {\tt args} and the binding of the
   final argument is returned to Python as a Python object along with
-  its truth value.  For example: the call
+  its truth value, i.e. a call $module.pred(\vec{args},Ret)$ is
+  created, where the binding of $Ret$ forms part of the return.  For
+  example: the call
 
   {\tt px\_qdet('basics','reverse',[1,2,3,{'a':{'b':'c'}}]))}
 
@@ -127,19 +152,18 @@ information on the XSB exception is available through {\tt
   {\tt ( [{'a':{'b':'c'}},3,2,1], 1)}
 
   \noindent
-  to Python, where the second argument of the tuple is the truth value
-  of the answer.  More precisely the Prolog goal {\tt Goal} returns as
-  follows.
+  to Python, where the second argument of the {\em retrun tuple} is
+  the truth value of the answer.  More precisely the Prolog goal {\tt
+    Goal} returns as follows.
 
   \bi
   \item If {\tt truthValue} is {\tt 1} (true) or {\tt 2} (undefined),
-    {\tt Goal} succeeded and the return of {\tt px\_qdet()} is a tuple
+    {\tt Goal} succeeded.  The return of {\tt px\_qdet()} is a tuple
     {\tt (dataStructure,truthValue)} in which {\tt dataStructure}
-    corresponds to the binding of the last argument of {\tt Goal};
-   \item If {\tt truthValue} is {\tt 0}, {\tt Goal} failed, and the
-     return of {\tt px\_qdet()} is a tuple {\tt
-       (dataStructure,truthValue)} in which {\tt dataStructure} is the
-     Python {\tt None} object;
+    corresponds to the binding of the last argument of {\tt Goal}, and
+    {\tt truthValue} is the truth value of the answer;
+   \item If {\tt truthValue} is {\tt 0} (false), {\tt Goal} failed,
+     and the return of {\tt px\_qdet()} is a tuple {\tt (None,0)};
    \item If the execution of {\tt Goal} caused a Prolog error the
      Python {\tt None} object is returned.
      \ei
@@ -152,7 +176,7 @@ information on the XSB exception is available through {\tt
      different Prolog goals.  For instance {\tt
        px\_cmd(mod,pred,arg1,arg2)} will call the Prolog goal {\tt
        mod:pred(arg1,arg2)} while {\tt px\_query(mod,pred,arg1,arg2)}
-     will call {\tt mod:pred(arg1,arg2,Ret)}.v
+     will call {\tt mod:pred(arg1,arg2,Ret)}.
      
      Calls to XSB predicates that are not in a module may be made with
      {\tt module} set to {\tt usermod}.
@@ -173,23 +197,25 @@ information on the XSB exception is available through {\tt
 %
   If an XSB exception was raised by the previous call to XSB, {\tt
     px\_get\_error\_message()} returns the XSB exception message as a
-  Python Unicide string.
+  Python Unicode string.
   
   \pymoditem{px\_consult(File)}{px\_consult(File)}{px}
 %
   Convenience function for consulting (loading and/or compiling)
-  Prolog files, and is defined as 
-  {\tt px\_cmd('consult','consult',File)}.
+  Prolog files, and is defined as {\tt
+    px\_cmd('consult','consult',File)}.\footnote{On-demand loading,
+    available in XSB, is not yet available within {\tt px}.}
 
   \pymoditem{prolog\_paths()}{prolog\_paths()}{px}
 %  
-  Convenience function to return a list of XSB library paths, and is
-  defined as {\tt px\_query('px','prolog\_paths')},
+  Convenience function to return a list of all current XSB library
+  paths (XSB's equivalent of Python's {\tt sys.path}).
 
   \pymoditem{add\_prolog\_path(Paths)}{add\_prolog\_path()}{px}
 %  
-    Convenience function to add one or more XSB library paths, and is
-    defined as: {\tt px\_cmd('consult',add\_lib\_dir(Paths)}.
+    Convenience function to add one or more XSB library paths, (XSB's
+    equivalent of Python's {\tt sys.path}) and is defined as: {\tt
+      px\_cmd('consult','add\_lib\_dir',Paths)}.
   
 \end{description}
 
@@ -207,6 +233,7 @@ change on a weekly or even daily basis.
   are not yet implemented.
 \item Heap garbage collection is currently disabled when XSB is called
   from Python, although expansion is allowed for all stacks. 
-\item Python sometimes core dumps on after using {\tt px}.
+\item Python sometimes core dumps on exit (via {\tt quit()} or {\tt
+  ctrl-D} after using {\tt px}.
   
 \ei  

@@ -37,10 +37,10 @@ applications and further examples.
 
 \section{Configuration and Loading}
 
-An initial version of a configuration process of {\tt xsbpy} has been
-written for Linux and Windows, and is still in the process of being
-tested under various configurations.  On these platforms, {\tt xsbpy}
-has been tested using versions 3.5 -- 3.8 Python and its
+Initial versions of a configuration process of {\tt xsbpy} has been
+written for Linux, Mac and Windows, and is still in the process of
+being tested under various configurations.  On these platforms, {\tt
+  xsbpy} has been tested using versions 3.5 -- 3.8 Python and its
 libraries.\footnote{The {\tt xsbpy} configuration script was written
   by Michael Kifer.}
 
@@ -132,9 +132,60 @@ shared object file (or DLL) is loaded dynamically along with the {\tt
 %configures the path to the XSB {\tt emu} directory but all other paths
 %are currently hard-coded.
 
-\subsection{Configuring {\tt xsbpy} under Windows}
-
 \subsection{Configuring {\tt xsbpy} under MacOsX}
+
+When XSB is configured on the Mac, the configuration script also tries
+to configure {\tt xsbpy} so that it can be loaded and used like any
+other module.  However for this process to work correctly other
+software must be present.
+
+\subsubsection{A Development Version of Python}
+
+First, there must be a development version of Python 3.x on the Mac,
+since the default software for Macs does not include code needed by
+{\tt xsbpy} like {\tt Python.h} or {\tt libpython<xxx>.so}.
+
+Fortunately, there are several installation tools available for the
+Mac.  One of the most popular is {\tt brew}.  Once {\tt brew} itself
+is installed it will be used to make two further installations.
+First, type:
+
+{\tt brew install autoconf automake libtool}
+
+\noindent
+which is a prerequisite for a development version of Python to be
+installed.  Next, type 
+
+{\tt brew install python@3.8}
+
+\noindent
+to install the Python itself (other version numbers of Python can be
+used) and save the output of this installatoin.  Brew installs this
+Python in a directory that for many users is not an execution path.
+Therefore the path to the Python will need to be added to the user's
+execution paths as specified in the brew installation output.  This
+addition is important, because XSB's configuration checks the users
+execution paths as one way to find software.
+
+\subsubsection{A C Compiler and Loader}
+
+Second -- naturally -- there must be a C compiler installed on your
+Mac.  C compilers can be installed on the Mac through Xcode or Apple's
+Command Line Tools.  (A user needn't be familiar with how a compiler
+works -- the compiler just needs to be installed).  Two compilers are
+available on Macs, Clang and GCC; as of this writing configuration has
+only used GCC.
+
+\subsubsection{The Configuration Itself}
+
+Once a C compiler has been installed; and a development version of
+Python has been installed and added to the user's execution paths,
+simply run the {\tt configure} and {\tt makexsb} scripts in {\tt
+  \$XSB\_ROOT/XSB/build} and {\tt xsbpy} will be built automatically.
+
+As you can see, the entire process is simplicity itself!
+
+\subsection{Configuring {\tt xsbpy} under Windows}
 
 \subsection{Testing whether the {\tt xsbpy} configuration was successful}
 
