@@ -15,7 +15,7 @@
 :- import add_lib_dir/1 from consult.
 
 %:- import pyfunc/3 from xsbpy.
-?- [xsbpy].
+%?- [xsbpy].
 
 test_callback_1(Paths):-
     pyfunc(xp_utils,python_paths(),Paths).

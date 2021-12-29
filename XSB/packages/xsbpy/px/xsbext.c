@@ -102,15 +102,15 @@ void ensurePyXSBStackSpace(CTXTdeclc PyObject *pyObj) {
   if (PyTuple_Check(pyObj) && PyTuple_Size(pyObj) > 2) {
     thirdArg = PyTuple_GetItem(pyObj,2);
     if (PyList_Check(thirdArg) || PySet_Check(thirdArg)) {
-      printf("list size %ld\n",PyList_Size(thirdArg));
+      //      printf("list size %ld\n",PyList_Size(thirdArg));
       check_glstack_overflow(5,pcreg,2*PyList_Size(thirdArg)*sizeof(Cell));
     }
     else if (PyDict_Check(thirdArg)) {
-      printf("dict size %ld\n",PyDict_Size(thirdArg));
+      //      printf("dict size %ld\n",PyDict_Size(thirdArg));
       check_glstack_overflow(5,pcreg,24*PyDict_Size(pyObj)*sizeof(Cell));
     }
     else if (PyTuple_Check(thirdArg)) {
-      printf("tuple size %ld\n",PyTuple_Size(thirdArg));
+      //      printf("tuple size %ld\n",PyTuple_Size(thirdArg));
       check_glstack_overflow(5,pcreg,4*PyTuple_Size(pyObj)*sizeof(Cell));
     }
   }
