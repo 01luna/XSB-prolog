@@ -136,14 +136,14 @@ shared object file (or DLL) is loaded dynamically along with the {\tt
 
 When XSB is configured on the Mac, the configuration script also tries
 to configure {\tt xsbpy} so that it can be loaded and used like any
-other module.  However for this process to work correctly other
+other module.  However for this process to work correctly additional
 software must be present.
 
 \subsubsection{A Development Version of Python}
 
 First, there must be a development version of Python 3.x on the Mac,
 since the default software for Macs does not include code needed by
-{\tt xsbpy} like {\tt Python.h} or {\tt libpython<xxx>.so}.
+{\tt xsbpy} like {\tt Python.h} or {\tt libpython<xxx>.dylib}.
 
 Fortunately, there are several installation tools available for the
 Mac.  One of the most popular is {\tt brew}.  Once {\tt brew} itself
@@ -159,11 +159,22 @@ installed.  Next, type
 {\tt brew install python@3.8}
 
 \noindent
-to install the Python itself (other version numbers of Python can be
-used) and save the output of this installatoin.  Brew installs this
-Python in a directory that for many users is not an execution path.
-Therefore the path to the Python will need to be added to the user's
-execution paths as specified in the brew installation output.  This
+to install the Python itself (other version numbers of Python can be used)
+and save the output of this installatoin.  Brew installs this Python in a
+directory that for many users is not on the execution path determined by
+the \texttt{PATH} environment variable.  Therefore the directory
+\emph{Python-installation-folder}\texttt{/bin/} will need to be added to
+the user's execution path (to the \texttt{PATH} variable), as instructed in
+the brew installation output that appears after installing Python.
+This can be done, for instance, by executing
+%% 
+\begin{verbatim}
+echo 'export PATH="/usr/local/opt/python@3.8/bin:$PATH"' >> ~/.zshrc
+echo 'export LDFLAGS="-L/usr/local/opt/python@3.8/lib"' >> ~/.zshrC 
+\end{verbatim}
+%% 
+if the development version of
+Python is installed in \texttt{/usr/local/opt/python@3.8}. This
 addition is important, because XSB's configuration checks the users
 execution paths as one way to find software.
 
