@@ -3,17 +3,27 @@ import sys
 import time
 import atexit
 
+# ================ Setup  ================
 def myexit():
     px_close()
-    print("Bye!")
+    print("XSB has been closed")
 
 atexit.register(myexit)
 
 px_init ( )
-#px_cmd('curr_sym','set_prolog_flag','heap_margin',16433152)
+
+# TES: need to fix
 px_cmd('curr_sym','set_prolog_flag','heap_garbage_collection','none')
 
-def px_consult(File):
+px_cmd('consult','consult','px')
+px_cmd('consult','consult','px_test')
+
+# ================ Utils  ================
+
+def ensure_loaded(File):
+    px_cmd('consult','ensure_loaded',File)
+
+def consult(File):
     px_cmd('consult','consult',File)
 
 def prolog_paths():
@@ -22,6 +32,9 @@ def prolog_paths():
 def add_prolog_path(List):
     px_cmd('px_test','append_prolog_paths',List)
     
+# ================ Pretty Printing  ================
+# Gives a Prolog-like echo to calls and writes answers in a Prolog-like manner
+
 def pp_px_query(Module,Pred,*args):
     try: 
         if len(args) == 0:
@@ -30,6 +43,24 @@ def pp_px_query(Module,Pred,*args):
             print('?- '+Module+':'+Pred+'('+str(args)+',Answer).')
         print('')
         Tup = px_query(Module,Pred,*args)
+        if Tup != 0:
+            print('   Answer  = ' + str(Tup[0]))
+            print('   TV = ' + printable_tv(Tup[1]))
+        else:
+            print('   TV = ' + printable_tv(Tup))
+        print('')
+    except Exception as err:
+        display_xsb_error(err)
+        print('')
+    
+def pp_px_comp(Module,Pred,*args):
+    try: 
+        if len(args) == 0:
+            print('?- comprehension('+Module+':'+Pred+'(_),Answer.')
+        else: 
+            print('?- '+Module+':'+Pred+'('+str(args)+',Answer).')
+        print('')
+        Tup = px_comp(Module,Pred,*args)
         if Tup != 0:
             print('   Answer  = ' + str(Tup[0]))
             print('   TV = ' + printable_tv(Tup[1]))

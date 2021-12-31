@@ -27,7 +27,7 @@ set_comprehension_nontabled(Goal,AnsList):-
 %    writeln(ans(AnsList)).
 
 set_comprehension_tabled(Goal,AnsList):-
-    writeln(set_comprehension_tabled(Goal)),
+%    writeln(set_comprehension_tabled(Goal)),
     table_status(Goal, _PredTypeCode, _CallTypeCode, AnsSetStatusCode,_SF),
     (AnsSetStatusCode == COMPLETED_ANSWER_SET -> 
 	 true
@@ -35,8 +35,8 @@ set_comprehension_tabled(Goal,AnsList):-
     findall((Goal,Resid),variant_get_residual(Goal,Resid),AnsList1),
 %    writeln(goal(AnsList1)),
     sort(AnsList1,AnsList2,[keep_dups]),
-    pythonize_list(AnsList2,AnsList),
-    writeln(anslist(AnsList)).
+    pythonize_list(AnsList2,AnsList).
+%    writeq(anslist(AnsList)),nl.
 
 pythonize_term(H1,H1):- atomic(H1),!.
 pythonize_term(H1,H2):- H1 = [_|_],!,pythonize_list(H1,H2).

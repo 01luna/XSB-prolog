@@ -31,8 +31,8 @@ throw_an_error(Message,_Out):-
 
 instan(a).
 
-zero_ary_true:-
-    writeln('     I am a zero-ary predicate called from pt.P').
+zero_ary_true.
+%    writeln('     I am a zero-ary predicate called from pt.P').
 
 :- table win/1.
 win(X):- tnot(win(X)).
@@ -70,5 +70,42 @@ mymax_3:- abort('tc_3 phew!').
 
 loop:- loop.
 
+:- export table_comp/1,test_comp/1.
 
+:- table table_comp/1.
+table_comp(a).
+table_comp(b).
+table_comp(c).
+table_comp(d).
+table_comp(e):- unk(something).
+table_comp(e):- unk(something_else).
 
+test_comp(a).
+test_comp(b).
+test_comp(c).
+test_comp(d).
+test_comp(e):- unk(something).
+test_comp(e):- unk(something_else).
+
+:- export table_comp/2,test_comp/2.
+
+test_comp(a,1).
+test_comp(b,2).
+test_comp(c,3).
+test_comp(d,4).
+test_comp(e,5):- unk(something).
+test_comp(e,5):- unk(something_else).
+   
+:- table table_comp/2.
+table_comp(a,1).
+table_comp(b,2).
+table_comp(c,3).
+table_comp(d,4).
+table_comp(e,5):- unk(something).
+table_comp(e,5):- unk(something_else).
+
+:- table unk/1.
+unk(X):- tnot(unk(X)).
+
+:- export test_empty_set/1.
+test_empty_set([]).
