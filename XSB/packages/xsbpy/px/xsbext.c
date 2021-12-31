@@ -22,6 +22,7 @@ void pPO(PyObject *obj1);
 static PyObject *px_init();
 static PyObject *px_close();
 static PyObject *px_query(PyObject *self,PyObject *args);
+static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs);
 static PyObject *px_cmd(PyObject *self,PyObject *args);
 static PyObject *px_get_error_message();
 
@@ -36,6 +37,7 @@ static PyMethodDef XsbMethods[] = {
     {"px_init", px_init, METH_VARARGS, "Init XSB"},
     {"px_close", px_close, METH_VARARGS, "Close XSB"},
     {"px_query", px_query, METH_VARARGS, "XSB query execution from Python"},
+    {"px_comp", px_comp, METH_VARARGS | METH_KEYWORDS, "Set comprehehsion using XSB from Python"},
     {"px_cmd", px_cmd, METH_VARARGS, "XSB command execution from Python"},
     {"px_get_error_message", px_get_error_message, METH_VARARGS, "Find the XSB error message"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
@@ -204,7 +206,7 @@ if (gl_bot != (CPtr)glstack.low) {
     else {
       PyObject *tup = PyTuple_New(2);
       if (gl_bot != (CPtr)glstack.low) {
-	printf("6 heap bot old %p new %p\n",gl_bot, glstack.low);
+	printf("#6 heap bot old %p new %p\n",gl_bot, glstack.low);
 	reset_local_heap_ptrs;
       }
       convert_prObj_pyObj(p2p_arg(new_call,tuplesize-1),&newPyObj);
@@ -214,6 +216,60 @@ if (gl_bot != (CPtr)glstack.low) {
       //      pPO(CTXTc tup);
       //      c2p_int(CTXTc 3,reg_term(CTXTc 3));  /* set command for calling a goal */
       //      xsb(CTXTc XSB_EXECUTE,0,0);
+      return tup;
+    }
+  }
+}
+
+static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
+  //static PyObject *px_comp(PyObject *self,PyObject *args) {
+  //  pPO(kwargs);
+  size_t tuplesize = PyTuple_Size(args);
+  size_t heap_offset;
+  reset_ccall_error(CTXT);
+  ensurePyXSBStackSpace(CTXTc args);
+  prolog_term return_pr = p2p_new();
+  convert_pyObj_prObj(args, &return_pr);
+  CPtr gl_bot = (CPtr)glstack.low;
+  get_reg_offsets;
+  prolog_term new_call = p2p_new();
+  c2p_functor_in_mod("px","set_comprehension",2,new_call);
+
+  //  c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),tuplesize-1,p2p_arg(new_call, 1));
+  prolog_term inner_term = p2p_arg(new_call, 1);
+  c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),tuplesize-1,inner_term);
+  //printPlgTerm(new_call);
+  if (gl_bot != (CPtr)glstack.low) printf("2 heap bot old %p new %p\n",gl_bot, glstack.low);
+  for (int i = 1; i < (int) tuplesize-1; i++) {
+    prolog_term call_arg = p2p_arg(inner_term,i); 
+    p2p_unify(call_arg,p2p_arg(return_pr,i+2));
+  }
+  //  printPlgTerm(new_call);
+  if (gl_bot != (CPtr)glstack.low) printf("3 heap bot old %p new %p\n",gl_bot, glstack.low);
+  xsb_query_save(tuplesize-1);
+if (gl_bot != (CPtr)glstack.low) {
+    printf("q4 heap bot old %p new %p\n",gl_bot, glstack.low);
+    reset_local_heap_ptrs;
+  }
+  p2p_unify(reg_term(CTXTc 1),new_call);
+  if (gl_bot != (CPtr)glstack.low) printf("5 heap bot old %p new %p\n",gl_bot, glstack.low);
+  c2p_int(CTXTc 0,reg_term(CTXTc 3));  /* set command for calling a goal */
+  xsb(CTXTc XSB_EXECUTE,0,0);
+  if (ccall_error_thrown(CTXT))  {
+    PyErr_SetString(PyExc_Exception,xsb_get_error_message(CTXT));
+    return Py_None;
+  } else {
+    if (is_var(reg_term(CTXTc 1))) return PyLong_FromLong(PYFALSE);
+    else {
+      PyObject *tup = PyTuple_New(2);
+      if (gl_bot != (CPtr)glstack.low) {
+	reset_local_heap_ptrs;
+      }
+      //      convert_prObj_pyObj(p2p_arg(new_call,tuplesize-1),&newPyObj);
+      convert_prObj_pyObj(p2p_arg(new_call,2),&newPyObj);
+      PyTuple_SET_ITEM(tup,0,newPyObj);
+      PyTuple_SET_ITEM(tup,1,(delayreg?PyLong_FromLong(PYUNDEF):PyLong_FromLong(PYTRUE)));
+      reset_regs;
       return tup;
     }
   }

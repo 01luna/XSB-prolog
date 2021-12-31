@@ -1,12 +1,23 @@
 from px import *
+import sys
 
-px_cmd('consult','consult','px_test')
 
-add_prolog_path(['../../../../xsbtests/attv_tests'])
+px_cmd('consult','ensure_loaded','px_test')
+
+def tpx_file(file):
+    sys.stdout = open('file', 'w')
+    tpx()
+    sys.stdout.close()
 
 def tpx():
+    print('starting now')
+    test_cmd_query()
+    test_comps()
+    test_iterations()
+    test_errors()
+
+def test_cmd_query():
     print('------------ command: arity 1 -------------')
-    print('')
     pp_px_cmd('px_test','win',0)
     pp_px_cmd('px_test','one_ary_fail','p')
     pp_px_cmd('px_test','instan','b')
@@ -18,60 +29,98 @@ def tpx():
     pp_px_query('px_test','one_ary_undef')
     pp_px_query('px_test','instan')
     pp_px_query('px_test','one_ary_fail')
-    print('calling test_iteration_cmd(200000)')
-    test_iteration_cmd(200000)
-    print('')
-    print('calling test_iteration_nondet(200000)')
-    test_iteration_nondet(200000)
-    print('')
     print('------------ query: arity 2 -------------')
-    print('calling basics:reverse([1,2,3,{a:{b:c}},X)')
     pp_px_query('basics','reverse',[1,2,3,{'a':{'b':'c'}}])
-    print('')
-    mylist = makelist(100000)
-    print('getting the length of List = makelist(100000)')
-    start = time.time()
-    px_query('basics','length',mylist)
-    end = time.time()
-    print((end-start))
-    print('')
-    print('calling string:concat_atom([a,b,c,d,e,f,g],X)')
     pp_px_query('string','concat_atom',['a','b','c','d','e','f','g'])
-    print('')
-    print('calling test_iteration_query(200000)')
-    test_iteration_query(200000)
-    print('')
-    print('calling prolog_makelist(1000000)')
-    start = time.time()
-    px_query('px_test','prolog_makelist',1000000)    
-    end = time.time()
-    print((end-start))
-    print('')
     print('------------ query: arity 3 -------------')
-    print('calling basics:append([1,2],[3,4],X)')
     pp_px_query('basics','append',[1,2],[3,4])
-
-    print('----------- undef error --------------')
-    pp_px_query('nomod','nopred',1)
-        
-#    except ChildProcessError as err:
-    print('----------- user file error --------------')
-    pp_px_query('px_test','throw_an_error','here is an error thrown from Prolog')
-    print('----------- testi~ng interrupts --------------')
+    print('----------- testing interrupts --------------')
     test_interrupts()
-    print('----------- done with test --------------')
+    print('----------- done with test_cmd_query --------------')
 
 def test_interrupts():
+    add_prolog_path(['../../../../xsbtests/attv_tests'])
     px_cmd('px_test','tc_rep_max') 
     px_cmd('consult','consult','attv_test')
     px_cmd('usermod','test')
 
+# these numbers can be increased but these are reasonable for a test script.    
+def test_iterations():
+    pp_iteration(test_iteration_cmd,200000)
+    pp_iteration(test_iteration_nondet,200000)
+    pp_iteration(test_iteration_query,200000)
+    py_to_xsb_list_xfer(1000000)        
+    xsb_to_py_list_xfer(1000000)        
+
+def test_errors():    
+    print('----------- undef error --------------')
+    pp_px_query('nomod','nopred',1)
+#    except ChildProcessError as err:
+    print('----------- user file error --------------')
+    pp_px_query('px_test','throw_an_error','here is an error thrown from Prolog')
+
+# Test of various comprehensions    
+
+
+def test_comps():
+    pp_px_comp('px_test','test_comp')
+    print('------------------------')
+    pp_px_comp('px_test','test_comp','e')
+    print('------------------------')
+    pp_px_comp('px_test','table_comp')
+    print('------------------------')
+    pp_px_comp('px_test','table_comp','e')
+
+# ============= Iteration Code  =============
+
+def pp_iteration(test_func,argument):
+    Start = time.time()
+    test_func(argument)
+    End = time.time()
+    print(test_func.__name__+'('+str(argument)+') succeeded')
+    print('# Time: '+str(End-Start))
+    print('')    
+
+def test_iteration_cmd(N):
+    for i in range(1,N):
+        px_cmd('px_test','simple_cmd',N)
+
+# deterministic query        
+def test_iteration_query(N):
+    for i in range(1,N):
+        px_query('px_test','simple_call',N)
+    
+def test_iteration_nondet(N):
+    for i in range(1,N):
+        px_query('px_test','nondet_query')
+
+def py_to_xsb_list_xfer(N):
+    mylist = makelist(N)
+#    print('getting the length of List = makelist(100000)')
+    start = time.time()
+    px_query('basics','length',mylist)
+    end = time.time()
+    print('py_to_xsb_list_xfer succeded: '+str(N))
+    print('# Time: '+str(end-start))
+    print('')
+
+def xsb_to_py_list_xfer(N):
+#    print('calling prolog_makelist(1000000)')
+    start = time.time()
+    px_query('px_test','prolog_makelist',N)    
+    end = time.time()
+    print('xsb_to_py_list_xfer succeded: '+str(N))
+    print('# Time: '+str(end-start))
+    print('')
+    
 def makelist(N):
     list = []
     for i in range(1,N):
         list.append(i)
     return list
-       
+
+# ========== unused ==========
+
 def list_retest():
     mylist = makelist(100000000)
     print('getting the length of List = makelist(2000000)')
@@ -81,47 +130,8 @@ def list_retest():
     print((end-start))
 
 def test_iteration(N):
-    Start = time.time()
-    test_iteration_1(N)
-    End = time.time()
-    print((End-Start))
-
-def test_iteration_query(N):
-    px_cmd('consult','consult','px_test')
-    Start = time.time()
-    test_iteration_query_1(N)
-    End = time.time()
-    print('test_iteration_query('+str(N)+'): '+str(End-Start))
-    
-def test_iteration_cmd(N):
-    px_cmd('consult','consult','px_test')
-    Start = time.time()
-    test_iteration_cmd_1(N)
-    End = time.time()
-    print('test_iteration_cmd('+str(N)+'): '+str(End-Start))
-    
-def test_iteration_nondet(N):
-    px_cmd('consult','consult','px_test')
-    Start = time.time()
-    test_iteration_nondet_1(N)
-    End = time.time()
-    print('test_iteration_nondet('+str(N)+'): '+str(End-Start))
-    
-def test_iteration_1(N):
     for i in range(1,N):
         pass
-
-def test_iteration_query_1(N):
-    for i in range(1,N):
-        px_query('px_test','simple_call',N)
-    
-def test_iteration_cmd_1(N):
-    for i in range(1,N):
-        px_cmd('px_test','simple_cmd',N)
-    
-def test_iteration_nondet_1(N):
-    for i in range(1,N):
-        px_query('px_test','nondet_query')
 
 def px_list(call,tup):
     [mod,pred] = call.split('.')
