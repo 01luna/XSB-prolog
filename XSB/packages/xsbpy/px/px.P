@@ -5,7 +5,7 @@
 :- export set_comprehension/2.
 :- export test_pred/2.
 :- import table_status/5 from tables.
-:- import functor/4 from standard.
+%:- import functor/4 from standard.
 :- import comma_to_list/2 from basics.
 
 set_comprehension(Goal,Set):-
@@ -20,12 +20,16 @@ set_comprehension_nontabled(Goal,AnsList):-
 %    writeln(set_comprehension_nontabled(Goal,Goals)),
     abolish_table_pred(px_table_call(_)),
     (px_table_call(Goal),fail ; true),
-    findall((Goal,Resid),variant_get_residual(px_table_call(Goal),Resid),AnsList1),
+    findall((Goal,Resid),simple_variant_get_residual(px_table_call(Goal),Resid),AnsList1),
     sort(AnsList1,AnsList2,[keep_dups]),
 %    writeln(al2(AnsList2)),
     pythonize_list(AnsList2,AnsList).
-%    writeln(ans(AnsList)).
+    %    writeln(ans(AnsList)).
 
+simple_variant_get_residual(Goal,Resid):-
+    variant_get_residual(Goal,R1),
+    (R1 = [] -> Resid = 1 ; Resid = R1).
+	
 set_comprehension_tabled(Goal,AnsList):-
 %    writeln(set_comprehension_tabled(Goal)),
     table_status(Goal, _PredTypeCode, _CallTypeCode, AnsSetStatusCode,_SF),

@@ -14,11 +14,11 @@
 :- import timed_call/2 from standard.
 :- import add_lib_dir/1 from consult.
 
-%:- import pyfunc/3 from xsbpy.
+%%:- import pyfunc/3 from xsbpy.
 %?- [xsbpy].
 
-test_callback_1(Paths):-
-    pyfunc(xp_utils,python_paths(),Paths).
+%test_callback_1(Paths):-
+%    pyfunc(xp_utils,python_paths(),Paths).
     
 prolog_paths(Dirs):-
     findall(Dir,usermod:library_directory(Dir),Dirs).
