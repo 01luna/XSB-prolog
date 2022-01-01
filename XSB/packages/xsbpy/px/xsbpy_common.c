@@ -328,7 +328,19 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
       *pyObj = pyobj_ref;
       return TRUE;
     }
-    return FALSE;
+    else {  // found a Prolog term 
+      PyObject *tup, *arg;
+      int arity = p2c_arity(prTerm);
+      tup = PyTuple_New(arity+2);
+      PyTuple_SET_ITEM(tup,0,PyUnicode_FromString(PROLOG_TERM_C));    
+      PyTuple_SET_ITEM(tup,1,PyUnicode_FromString(p2c_functor(prTerm)));    
+      for (int i = 1; i <= arity; i++) {
+	convert_prObj_pyObj(CTXTc p2p_arg(prTerm, i), &arg) ;
+	PyTuple_SET_ITEM(tup,(i+1),arg);
+      }
+      *pyObj = tup;
+      return TRUE;
+    }
   }
   return FALSE;
 }

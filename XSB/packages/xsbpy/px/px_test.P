@@ -109,3 +109,9 @@ unk(X):- tnot(unk(X)).
 
 :- export test_empty_set/1.
 test_empty_set([]).
+
+:- export return_term/1.
+return_term(p([1,a,f(a)],g(b))).
+
+:- export return_tuple/1.
+return_tuple(''([1,a,''(a)],''(b,c,d),''())).

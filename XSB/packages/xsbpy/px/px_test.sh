@@ -14,7 +14,7 @@ if test "$status" = 0 ; then
 	rm -f px_test_new.txt
 else
 	echo "px test failed: outputs differ!!!"
-	diff -w  px_test_new.txt px_test_old.txt
+	diff -w  px_test_new_grepped.txt px_test_old_grepped.txt
 fi
 
 rm -f px_test_old_grepped.txt
