@@ -1,0 +1,142 @@
+tc_rep_max interrupt
+tc_rep_max interrupt
+tc_rep_max interrupt
+tc_rep_max interrupt
+finished_tc_rep_max
+== test_deref OK
+== test_update 1 OK
+== test_update 2 OK
+== test_unify OK
+Var's attribute = v(1)
+Value = 5
+== test_attv_interrupt OK
+Var's attribute = v(12)
+Value = 7
+disjunct_A
+== test_attv_disj_interrupt OK
+disjunct_B
+== test_attv_disj_interrupt OK
+Attribute = v(11)
+Attribute = v(22)
+== test_implict_unify OK
+== test_cut1 SUCCEEDED
+Var's attribute = v(30)
+Value = 2
+== test_cut2 SUCCEEDED
+PASSED attv_test!
+# proceed_gc margin 131072 gap sz pb 131064 gap sz word 16383
+# Reallocating the Heap and Local Stack data area from 16384 to 32768
+#6 heap bot old 0x7fac340b0010 new 0x7fac30feb010
+# Reallocating the Heap and Local Stack data area from 32768 to 65536
+starting now
+------------ command: arity 1 -------------
+?- px_test:win(0)
+
+   TV = Undefined
+
+?- px_test:one_ary_fail(p)
+
+   TV = False
+
+?- px_test:instan(b)
+
+   TV = False
+
+----------- command arity 0 --------------
+?- px_test:zero_ary_true()
+
+   TV = True
+
+?- px_test:zero_ary_fail()
+
+   TV = False
+
+?- px_test:zero_ary_undef()
+
+   TV = Undefined
+
+----------- query: arity 1 --------------
+?- px_test:one_ary_undef(Answer).
+
+   Answer  = b
+   TV = Undefined
+
+?- px_test:instan(Answer).
+
+   Answer  = a
+   TV = True
+
+?- px_test:one_ary_fail(Answer).
+
+   TV = False
+
+------------ query: arity 2 -------------
+?- basics:reverse(([1, 2, 3, {'a': {'b': 'c'}}],),Answer).
+
+   Answer  = [{'a': {'b': 'c'}}, 3, 2, 1]
+   TV = True
+
+?- string:concat_atom((['a', 'b', 'c', 'd', 'e', 'f', 'g'],),Answer).
+
+   Answer  = abcdefg
+   TV = True
+
+------------ query: arity 3 -------------
+?- basics:append(([1, 2], [3, 4]),Answer).
+
+   Answer  = [1, 2, 3, 4]
+   TV = True
+
+----------- testing interrupts --------------
+----------- done with test_cmd_query --------------
+?- comprehension(px_test:test_comp(_),Answer.
+
+   Answer  = [(('plgTerm', 'test_comp', 'a'), 1), (('plgTerm', 'test_comp', 'b'), 1), (('plgTerm', 'test_comp', 'c'), 1), (('plgTerm', 'test_comp', 'd'), 1), (('plgTerm', 'test_comp', 'e'), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'test_comp', 'e'), [('plgTerm', 'unk', 'something_else')])]
+   TV = True
+
+------------------------
+?- px_test:test_comp(('e',),Answer).
+
+   Answer  = [(('plgTerm', 'test_comp', 'e', 5), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'test_comp', 'e', 5), [('plgTerm', 'unk', 'something_else')])]
+   TV = True
+
+------------------------
+?- comprehension(px_test:table_comp(_),Answer.
+
+   Answer  = [(('plgTerm', 'table_comp', 'a'), '[]'), (('plgTerm', 'table_comp', 'b'), '[]'), (('plgTerm', 'table_comp', 'c'), '[]'), (('plgTerm', 'table_comp', 'd'), '[]'), (('plgTerm', 'table_comp', 'e'), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'table_comp', 'e'), [('plgTerm', 'unk', 'something_else')])]
+   TV = True
+
+------------------------
+?- px_test:table_comp(('e',),Answer).
+
+   Answer  = [(('plgTerm', 'table_comp', 'e', 5), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'table_comp', 'e', 5), [('plgTerm', 'unk', 'something_else')])]
+   TV = True
+
+test_iteration_cmd(200000) succeeded
+# Time: 0.382612943649292
+
+test_iteration_nondet(200000) succeeded
+# Time: 0.39383387565612793
+
+test_iteration_query(200000) succeeded
+# Time: 0.4194486141204834
+
+py_to_xsb_list_xfer succeded: 1000000
+# Time: 0.08099603652954102
+
+xsb_to_py_list_xfer succeded: 1000000
+# Time: 0.09711647033691406
+
+----------- undef error --------------
+?- nomod:nopred((1,),Answer).
+
+Exception Caught from XSB: 
+      ++Error[XSB/Runtime/P]: [Existence (No predicate :(usermod,/(nopred,2)) exists)] 
+
+----------- user file error --------------
+?- px_test:throw_an_error(('here is an error thrown from Prolog',),Answer).
+
+Exception Caught from XSB: 
+      ++Error[XSB/Runtime/P]: [Miscellaneous] here is an error thrown from Prolog
+
+XSB has been closed
