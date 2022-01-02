@@ -255,7 +255,12 @@ int convert_prObj_pyObj(CTXTdeclc prolog_term prTerm, PyObject **pyObj) {
     *pyObj = PyLong_FromSsize_t(argument_int);
     return TRUE;
   }
-  else if(is_string(CTXTc prTerm)) {
+  //  else if(is_string(CTXTc prTerm)) {
+  else if(isstring(CTXTc (Cell) prTerm)) {
+    if (isnil(prTerm)) {
+      *pyObj = PyList_New(0);
+      return TRUE;
+    }
     prolog_term argument = prTerm;
     char *argument_char = p2c_string(argument);
     *pyObj = PyUnicode_FromString(argument_char);

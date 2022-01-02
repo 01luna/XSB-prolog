@@ -29,6 +29,9 @@ def test_cmd_query():
     pp_px_query('px_test','one_ary_undef')
     pp_px_query('px_test','instan')
     pp_px_query('px_test','one_ary_fail')
+    pp_px_query('px_test','return_tuple')
+    pp_px_query('px_test','return_term')
+    
     print('------------ query: arity 2 -------------')
     pp_px_query('basics','reverse',[1,2,3,{'a':{'b':'c'}}])
     pp_px_query('string','concat_atom',['a','b','c','d','e','f','g'])

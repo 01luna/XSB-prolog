@@ -202,7 +202,12 @@ if (gl_bot != (CPtr)glstack.low) {
     PyErr_SetString(PyExc_Exception,xsb_get_error_message(CTXT));
     return Py_None;
   } else {
-    if (is_var(reg_term(CTXTc 1))) return PyLong_FromLong(PYFALSE);
+    if (is_var(reg_term(CTXTc 1))) {
+      PyObject *tup = PyTuple_New(2);
+      PyTuple_SET_ITEM(tup,0,Py_None);
+      PyTuple_SET_ITEM(tup,1,PyLong_FromLong(PYFALSE));
+      return tup;
+    }
     else {
       PyObject *tup = PyTuple_New(2);
       if (gl_bot != (CPtr)glstack.low) {
@@ -221,9 +226,24 @@ if (gl_bot != (CPtr)glstack.low) {
   }
 }
 
+#define COLLECTION_TYPE_SET 0
+#define COLLECTION_TYPE_LIST 1
+
 static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
   //static PyObject *px_comp(PyObject *self,PyObject *args) {
-  //  pPO(kwargs);
+  int varnum = 1;
+  int collection_type = COLLECTION_TYPE_SET;
+  int delay_lists = 0;
+  if (kwargs) {
+    pPO(kwargs);
+    PyObject *dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("vars"));
+    if (dictval) varnum = PyLong_AsSsize_t(dictval);
+    dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("list_collect"));
+    if (dictval) collection_type =  PyObject_IsTrue(dictval);
+    dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("delay_lists"));
+    if (dictval) delay_lists = PyObject_IsTrue(dictval);
+  }
+  printf("varnum %d collect_list %d delay_lists %d\n",varnum,collection_type,delay_lists);
   size_t tuplesize = PyTuple_Size(args);
   size_t heap_offset;
   reset_ccall_error(CTXT);
