@@ -94,6 +94,8 @@ extern void reclaim_uninterned_nr(CTXTdeclc Integer rootidx);
 extern void delete_trie(CTXTdeclc BTNptr);
 extern xsbBool is_completed_table(TIFptr);
 
+extern Cell build_call_on_heap(CTXTdeclc VariantSF);
+
 extern xsbBool varsf_has_unconditional_answers(VariantSF);
 extern void    first_trie_property(CTXTdecl);
 extern void    next_trie_property(CTXTdecl);

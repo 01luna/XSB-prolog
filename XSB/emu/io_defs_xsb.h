@@ -77,6 +77,8 @@
 #define STREAM_CLASS                      7
 #define STREAM_TYPE                        8
 #define STREAM_EOF_ACTION            9
+#define STREAM_LINE_NUMBER	10
+#define STREAM_POS_AT_LINE	11
 
 /* Need in here for stream_property/2 */
 #define MAX_OPEN_FILES    55

@@ -916,10 +916,10 @@ load_dync_read_and_assert(IPort,Dir,Base,Module,ErrLimit,EIU) :-
 	 ->	!,
 		fail
 	 ; Term == read_canonical_error
-	 ->	conget('_$load_dync_line_no',BadLineNo),
-		file_write0(STDMSG,'     read_canonical warning at (or about) term number (and line number if one term per line) '),
-		file_write0(STDMSG,BadLineNo),
-		file_nl(STDMSG),
+	 ->	%%conget('_$load_dync_line_no',BadLineNo),
+%%		file_write0(STDMSG,'     read_canonical warning at (or about) term number (and line number if one term per line) '),
+%%		file_write0(STDMSG,BadLineNo),
+%%		file_nl(STDMSG),
 		coninc('_$load_dync_error_cnt',ErrCnt),
 		(ErrCnt > ErrLimit
 		 ->	!,

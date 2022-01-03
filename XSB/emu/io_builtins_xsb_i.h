@@ -83,10 +83,18 @@ void strclose(int i)
   }
 }
 
+/* to make sequence of call for same unset more efficient. For counting lines. */
+int last_of_index = 0;
+
 int unset_fileptr(FILE *stream) {
-  int i;
-  for (i = 0; i <= MAX_OPEN_FILES; i++) {
-    if (open_files[i].file_ptr == stream) return(i);
+  if (open_files[last_of_index].file_ptr == stream)
+    return(last_of_index);
+  for (last_of_index = 0;
+       last_of_index <= MAX_OPEN_FILES;
+       last_of_index++) {
+    if (open_files[last_of_index].file_ptr == stream) {
+      return(last_of_index);
+    }
   }
   return(-1);
 }
@@ -319,6 +327,8 @@ inline static xsbBool file_function(CTXTdecl)
 	}
 	open_files[io_port].file_ptr = NULL;
 	open_files[io_port].file_name = NULL;
+	open_files[io_port].line_number = 0;
+	open_files[io_port].pos_at_line = 0;
 	open_files[io_port].io_mode = '\0';
 	open_files[io_port].stream_type = 0;
 	open_files[io_port].charset = CURRENT_CHARSET;
@@ -804,6 +814,12 @@ inline static xsbBool file_function(CTXTdecl)
       }
       break;
     }
+    case STREAM_LINE_NUMBER:
+      ctop_int(CTXTc 4, open_files[stream].line_number);
+      break;
+    case STREAM_POS_AT_LINE:
+      ctop_int(CTXTc 4, open_files[stream].pos_at_line);
+      break;
     }
     XSB_STREAM_UNLOCK(stream);
     break;

@@ -774,6 +774,9 @@ user_stream_property_1(input,STREAM_INPUT,_).
 user_stream_property_1(output,STREAM_OUTPUT,_).
 user_stream_property_1(reposition(Bool),STREAM_REPOSITIONABLE,Bool).
 user_stream_property_1(eof_action(Act),STREAM_EOF_ACTION,Act).
+user_stream_property_1(line_number(Line),STREAM_LINE_NUMBER,Line).
+user_stream_property_1(pos_at_line(Pos),STREAM_POS_AT_LINE,Pos).
+
 /* TLS: not yet done
 user_stream_property_1(end_of_stream(E),STREAM_END_OF_STREAM,E).
 */
@@ -861,6 +864,8 @@ transform_property_returned(STREAM_EOF_ACTION,Ret,Ret_out):-
 	(Ret == PIPE_STREAM -> 
 	    Ret_out = error
 	  ; Ret_out = eof_code).
+transform_property_returned(STREAM_LINE_NUMBER,Line,Line).
+transform_property_returned(STREAM_POS_AT_LINE,Pos,Pos).
 
 transform_stream_class(TEXT_FILE_STREAM,file).
 transform_stream_class(BINARY_FILE_STREAM,file).

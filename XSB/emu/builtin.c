@@ -3261,7 +3261,7 @@ case WRITE_OUT_PROFILE:
     prolog_term term = ptoc_tag(CTXTc 1); // term
     prolog_term iterm = ptoc_tag(CTXTc 2); // interned term, or termhash
     prolog_term iiterm;
-    Integer ifHashIntern = ptoc_int(CTXTc 3); // 0:intern, 1:termhashstr, 2:termhashint, 2:test termhash
+    Integer ifHashIntern = ptoc_int(CTXTc 3); // 0:intern, 1:termhashstr, 2:termhashint, 3:test termhash
 
     XSB_Deref(term);
     XSB_Deref(iterm);

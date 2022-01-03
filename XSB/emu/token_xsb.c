@@ -52,6 +52,23 @@
   }\
 }
 
+#define update_line_number(card)		\
+  do {						\
+    if (card) {					\
+      int i;					\
+      i = unset_fileptr(card);			\
+      open_files[i].line_number += 1;		\
+      open_files[i].pos_at_line = ftell(card);	\
+/*printf("upd %d, ln: %lld, pos: %lld\n",i,open_files[i].line_number,open_files[i].pos_at_line);*/ \
+    }						\
+  } while (0)
+
+#define curr_line_number(card) \
+  (open_files[unset_fileptr(card)].line_number + 1)
+
+#define curr_line_pos(card) \
+  (input_file_position(card,0) - open_files[unset_fileptr(card)].pos_at_line)
+
 #define Char unsigned char
 #define AlphabetSize 256
  
@@ -889,13 +906,17 @@ static int read_character(CTXTdeclc register FILE *card,
 	char message[200];
  
         c = GetCode(charset,card,instr);
-BACK:   if (c < 0) {
+BACK:	if (c < 0) {
           if (c == EOF) { /* to mostly handle cygwin stdio.h bug ... */
 READ_ERROR: 
 	    if (!instr && ferror(card)) {
-	      xsb_warn(CTXTc "[TOKENIZER] I/O error in file %s: %s at position %d\n",
-		       input_file_name(card,instr),input_file_position(card,instr),
-		       strerror(errno));
+	      int stream = unset_fileptr(card);
+	      xsb_warn(CTXTc "[TOKENIZER] I/O error in file %s: %s on line %d at position %d\n",
+		       input_file_name(card,instr),
+		       strerror(errno),		       
+		       curr_line_number(card),
+		       curr_line_pos(card)
+		       );
 	    }
 	    if (q < 0) {
 	      snprintf(message,200,"end of file in character constant in %s",
@@ -925,8 +946,10 @@ READ_ERROR:
         switch (c) {
             case EOF:
 	        if (!instr && ferror(card)) 
-		  xsb_warn(CTXTc "[TOKENIZER] I/O error: %s at position %d in %s\n",
-			   strerror(errno),input_file_position(card,instr),
+		  xsb_warn(CTXTc "[TOKENIZER] I/O error: %s on line %d at position %d in %s\n",
+			   strerror(errno),
+			   curr_line_number(card),
+			   curr_line_pos(card),
 			   input_file_name(card,instr));
 		clearerr(card);
                 goto READ_ERROR;
@@ -938,11 +961,15 @@ READ_ERROR:
                 return '\f';
             case '\n':		      /* seeing a newline */
 	      //	      while (IsLayout(c = GetCode(charset,card,instr)));
+	        update_line_number(card);
 	        c = GetCode(charset,card,instr); // ignore it
                 goto BACK;
-	case '\r':  // newline for windows eol?
+	    case '\r':  // newline for windows eol?
 	        c = GetCode(charset,card,instr); // ignore it
-		if (c == '\n') c = GetCode(charset,card,instr);
+		if (c == '\n') {
+		  update_line_number(card);
+		  c = GetCode(charset,card,instr);
+		}
 		goto BACK;
             case 'n':		        /* newline */
 	        return '\n';
@@ -987,8 +1014,10 @@ READ_ERROR:
 			n = (n<<4) + DigVal(c);
 		      } else if (c != '\\') {
 			unTGetC(c,card,instr);
-			xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
-				 n,input_file_position(card,instr),
+			xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) on line %d at position %d in %s",
+				 n,
+				 curr_line_number(card),
+				 curr_line_pos(card),
 				 input_file_name(card,instr));
 			return n;
 		      } else return n;
@@ -1002,8 +1031,10 @@ READ_ERROR:
 			  n = (n<<4) + DigVal(c);
 			} else if (c != '\\') {
 			  unTGetC(c,card,instr);
-			  xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) at position %d in %s",
-				   n,input_file_position(card,instr),
+			  xsb_warn(CTXTc "Ill-formed \\u unicode escape: %d (dec) on line " Intfmt " at position " Intfmt " in %s",
+				   n,
+				   curr_line_number(card),
+				   curr_line_pos(card),
 				   input_file_name(card,instr));
 			  return n;
 			} else return n;
@@ -1081,6 +1112,7 @@ static int com0plain(CTXTdeclc register FILE *card,	/* source file */
     int cnt = 0;
  
     while ((c = TGetC(card,instr)) >= 0 && c != '\n' && c != endeol && ++cnt) ;
+    if (c == '\n') update_line_number(card);
     if (c >= 0) c = TGetC(card,instr);
     if (cnt > EOL_COMMENT_WARN_LENGTH) {
       xsb_warn(CTXTc "Extra-long comment to end of line. Bad file format?");
@@ -1123,6 +1155,7 @@ static int com2plain(register FILE *card,	/* source file */
         register int state;
 
         for (state = 0; (c = TGetC(card,instr)) >= 0; ) {
+	    if (c == '\n') update_line_number(card);
             if (c == endcom && state) break;
             state = c == astcom;
         }
@@ -1172,6 +1205,7 @@ struct xsb_token_t *GetToken(CTXTdeclc int io_port, int prevch)
 	int charset;
 	FILE *card;
 	STRFILE *instr;
+	char message[256];
 
 	tok_printf(("==> GetToken prevch %d\n",prevch));
 	if (strbuff == NULL)
@@ -1238,7 +1272,11 @@ START:
 			    oldv = newv;
 			    newv = newv*d + DigVal(c);
 			    if (newv < oldv || newv > MY_MAXINT) {
-				xsb_error("Overflow in radix notation, returning float");
+			        snprintf(message,255,
+				       "Overflow in radix notation on line %" Intfmt " at position %" Intfmt " in file %s, returning float",
+				       curr_line_number(card), curr_line_pos(card),
+				       input_file_name(card,instr));
+				xsb_error(message);
 			        double_v = oldv*1.0*d + DigVal(c);
 				while (c = GetCode(charset,card,instr), DigVal(c) < 99)
                         	    if (c != '_') 
@@ -1328,7 +1366,11 @@ LAB_DECIMAL:                *s++ = '.';
 		      (rad_int == MY_MAXINT/10 && (c-'0') <= MY_MAXINT % 10)) 
 		    rad_int = rad_int*10-'0'+c;
 		  else {
-		    xsb_error("Overflow in integer, returning MAX_INT");
+		    snprintf(message,255,
+			     "Overflow in integer on line %" Intfmt " at position %" Intfmt " in file %s, returning MAX_INT",
+			     curr_line_number(card), curr_line_pos(card),
+			     input_file_name(card,instr));
+		    xsb_error(message);
 		    rad_int = MY_MAXINT;
 		    break;
 		  }		    
@@ -1570,9 +1612,9 @@ case deleted ****/
                 return token;
 
             case EOLN:
+	      if (c == '\n') update_line_number(card);
             case SPACE:
 	      tok_printf(("In EOLN/SPACE %c",c));
-	      //c = TGetC(card,instr); // more efficient than GetCode
 	      c = GetCode(charset,card,instr);
 	      goto START;
  
@@ -1580,7 +1622,11 @@ case deleted ****/
 	  tok_printf(("In EOFCH %c",c));
 	        if (!instr) {
 		  if (ferror(card) && !(asynint_val & KEYINT_MARK)) 
-		    xsb_warn(CTXTc "[TOKENIZER] I/O error: %s",strerror(errno));
+		    xsb_warn(CTXTc "[TOKENIZER] I/O error: %s on line %" Intfmt " at position %" Intfmt " in file %s",
+			     strerror(errno),
+			     curr_line_number(card),
+			     curr_line_pos(card),
+			     input_file_name(card,instr));
 		  clearerr(card);
 	        }
 		token->nextch = ' ';

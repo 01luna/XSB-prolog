@@ -93,12 +93,13 @@
 :- export get_residual_sccs/5.
 :- export get_tabling_options/2.
 :- export '_$$get_returns_and_dls'/4.
+:- export trie_get_return/2.
 
 %:- export add_alt_semantics/2.
 :- export truth_value/2.
 :- export check_table_option/4.
 
-:- export print_current_delay_list/0.
+:- export print_current_delay_list/0, get_current_delay_list/1.
 
 % Obsolete
 :- export    abolish_table_call/1,       abolish_table_call/2.

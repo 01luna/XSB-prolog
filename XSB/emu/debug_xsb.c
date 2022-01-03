@@ -55,6 +55,7 @@
 #include "tr_utils.h"
 #include "tst_utils.h"
 #include "cell_xsb_i.h"
+#include "heap_xsb.h"
 
 #if (defined(DEBUG_VERBOSE) || defined(DEBUG_VM))
 #include "subp.h"
@@ -1531,9 +1532,8 @@ void print_delay_list(CTXTdeclc FILE *fp, CPtr dlist)
     if (islist(dlist) || isnil(dlist)) {
       fprintf(fp, "["); cptr = dlist;
       while (islist(cptr)) {
-	cptr = clref_val(cptr);
-	print_delay_element_heap(CTXTc fp, cell(cptr));
-	cptr = (CPtr)cell(cptr+1);
+	print_delay_element_heap(CTXTc fp, get_list_head(cptr));
+	cptr = (CPtr)get_list_tail(cptr);
 	if (islist(cptr)) fprintf(fp, ", ");
       }
       if (isnil(cptr)) {
