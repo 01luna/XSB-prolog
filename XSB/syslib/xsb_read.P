@@ -48,7 +48,7 @@ if it finds an error (and doesn''t try again to read another term.)
 file_read_foe(File, Answer, Variables) :-
 	xsb_stream_lock(File),
 	term_psc('_$synerr'(_), Psc), psc_set_prop(Psc, -1),
-	read_tokens(File, 10, Tokens, Variables, _Pos),	% 10 is the first char
+	read_tokens(File, 13, Tokens, Variables, _Pos),	% <ret> is the first char
 	read4(Tokens, 1200, Term, LeftOver),	% 1200 is the maximum
 	read_all(LeftOver),			% precedence
 	Answer = Term,
@@ -70,7 +70,7 @@ file_read_fapoe(File, Answer, Variables) :-
 %	    term_psc('_$synerr'(_), Psc), 
 	    get_synerr_psc(Psc),
 	    psc_set_prop(Psc, -1),
-	    read_tokens(File, 10, Tokens, Variables, _Pos),	% 10 is the first char
+	    read_tokens(File, 13, Tokens, Variables, _Pos),	% 13 is the first char
 	    ( read4(Tokens, 1200, Term, LeftOver),	% 1200 is the maximum
 	      read_all(LeftOver)			% precedence
 	    ; read_syntax_error(Psc,Tokens), 
@@ -96,7 +96,7 @@ file_read(File, Answer, Variables) :-
 %	    term_psc('_$synerr'(_), Psc), 
 	    get_synerr_psc(Psc),
 	    psc_set_prop(Psc, -1),
-	    read_tokens(File, 10, Tokens, Variables, Positions),	% 10 is the first char
+	    read_tokens(File, 13, Tokens, Variables, Positions), % <ret> is the first char
 	    ( read4(Tokens, 1200, Term, LeftOver),	% 1200 is the maximum
 	      read_all(LeftOver)			% precedence
 	    ; iso_read_syntax_error(Psc,Tokens,Positions),
@@ -833,7 +833,10 @@ read_writecon(X) :- file_write0(STDERR, X).
 :- mode read_tokens(+,+,?,?,?).
 read_tokens(File, Char, TokenList, Dict, Positions) :-
 %	read_next_token(Char, Type, Value, NextChar),	      % Prolog Version
-	file_pos(File,Pos1),
+	stream_property(File,position(FilePos1)),
+	(stream_property(File,line_number(Line)) -> true ; Line = 0),
+	(stream_property(File,pos_at_line(LinePos)) -> true ; LinePos = 0),
+	Pos1 = pos(FilePos1,Line,LinePos),
 	read_next_token_c(File, Char, Type, Value, NextChar), % C Version
 	( Type == tk_eoc -> (TokenList = [], Positions = [])
 	; ( Type == tk_eof -> (TokenList = [atom(end_of_file)], Positions = [Pos1])
