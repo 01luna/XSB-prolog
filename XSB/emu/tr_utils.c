@@ -5500,6 +5500,28 @@ void unfounded_component(CTXTdecl) {
   }
 }
 
+/*****************************************************************************
+build_call_on_heap takes a subgoal pointer and builds its term onto the heap
+and returns a cs-tagged pointer to it.
+*****************************************************************************/
+
+extern Cell cell_array[MAXTERMBUFSIZE];
+
+Cell build_call_on_heap(CTXTdeclc VariantSF subg) {
+  int j;
+  Psc subg_psc = TIF_PSC(subg_tif_ptr(subg));
+  CPtr beg_hreg = hreg;
+  int arity = get_arity(subg_psc);
+  
+  new_heap_functor(hreg,subg_psc);
+  for (j = 1; j <= arity; j++) {
+    new_heap_free(hreg);
+    cell_array[arity-j] = cell(hreg-1);
+  }
+  load_solution_trie(CTXTc arity, 0, &cell_array[arity-1], subg_leaf_ptr(subg));
+  
+  return makecs(beg_hreg);
+}
 
 /*****************************************************************************/
 static unsigned int hashid(void *ky)

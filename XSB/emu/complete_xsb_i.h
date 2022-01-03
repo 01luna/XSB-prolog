@@ -48,7 +48,6 @@
       pflags[ANSWER_COMPLETION] = 0;					\
       reg[1] = makeint(SGF);						\
       reg[2] = build_ret_term_reverse(CTXTc tsize, trieinstr_unif_stk);	\
-      /*      lpcreg = (byte *) subg_ans_root_ptr(SGF);	*/		\
       lpcreg = (pb)get_ep(answer_completion_psc);			\
     } else {								\
       lpcreg = (byte *) subg_ans_root_ptr(SGF);				\

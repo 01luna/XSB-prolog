@@ -785,8 +785,13 @@ CPtr init_term_buffer(CTXTdeclc int *findall_chunk_index) {
 static int read_can_error(CTXTdeclc int stream, int prevchar, Cell prologvar, int findall_chunk_index)
 {
   char *ptr;
-
-  xsb_warn(CTXTc "[read_canonical] illegal format near these tokens:");
+  char message[256];
+  snprintf(message,255,"[read_canonical] syntax issue on line %" Intfmt " at position %" Intfmt " in file %s; before:",
+	   open_files[stream].line_number + 1,
+	   ftell(fileptr(stream)) - open_files[stream].pos_at_line,
+	   open_files[stream].file_name
+	   );
+  xsb_warn(CTXTc message);	   
   while ((token->type != TK_EOC) && (token->type != TK_EOF)) {
     ptr = token->value;
     switch (token->type) {
@@ -966,7 +971,7 @@ Integer read_canonical_term(CTXTdeclc int stream, int return_location_code)
   h = init_term_buffer(CTXTc &findall_chunk_index);
   size = 0;
 
-  prevchar = 10;
+  prevchar = 13;
   while (1) {
     token = GetToken(CTXTc stream,prevchar);
     //print_token(token->type,token->value);
@@ -1587,6 +1592,8 @@ int xsb_intern_fileptr(CTXTdeclc FILE *fptr, char *context,char* name,char *strm
   } else {
     open_files[i].file_ptr = fptr;
     open_files[i].file_name = string_find(name,1);
+    open_files[i].line_number = 0;
+    open_files[i].pos_at_line = 0;
     open_files[i].io_mode = mode;
     open_files[i].charset = charset;
     return i;
@@ -1670,6 +1677,8 @@ int xsb_intern_file(CTXTdeclc char *context,char *addr, int *ioport,char *strmod
 	/* file exists and isn't a dir */
       open_files[first_null].file_ptr = fptr;
       open_files[first_null].file_name = string_find(addr,1);
+      open_files[first_null].line_number = 0;
+      open_files[first_null].pos_at_line = 0;
       open_files[first_null].io_mode = mode;
       open_files[first_null].charset = CURRENT_CHARSET;
       *ioport = first_null;

@@ -655,7 +655,7 @@ char *init_para(CTXTdeclc int flag, int argc, char *argv[]) {
 
   pflags[TABLING_METHOD] = VARIANT_EVAL_METHOD;
 
-  flags[ERRORS_WITH_POSITION] = 0;
+  flags[ERRORS_WITH_POSITION] = 1;  // dsw changed default 1/22
 
   /* Modify Parameters Using Command Line Options
      -------------------------------------------- */

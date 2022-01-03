@@ -32,6 +32,8 @@
 typedef struct  {
   FILE *file_ptr;
   char *file_name;
+  Integer line_number;
+  Integer pos_at_line;
   char io_mode;
   int stream_type;
   int reposition;
