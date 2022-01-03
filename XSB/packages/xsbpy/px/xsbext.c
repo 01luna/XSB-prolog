@@ -235,7 +235,7 @@ static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
   int collection_type = COLLECTION_TYPE_SET;
   int delay_lists = 0;
   if (kwargs) {
-    pPO(kwargs);
+    //    pPO(kwargs);
     PyObject *dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("vars"));
     if (dictval) varnum = PyLong_AsSsize_t(dictval);
     dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("list_collect"));
@@ -243,8 +243,9 @@ static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
     dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("delay_lists"));
     if (dictval) delay_lists = PyObject_IsTrue(dictval);
   }
-  printf("varnum %d collect_list %d delay_lists %d\n",varnum,collection_type,delay_lists);
-  size_t tuplesize = PyTuple_Size(args);
+  //  printf("varnum %d collect_list %d delay_lists %d\n",varnum,collection_type,delay_lists);
+  size_t tuplesize = PyTuple_Size(args) + (varnum-2);   // tupsz is varnum + input args
+  size_t inputsize = tuplesize-varnum;
   size_t heap_offset;
   reset_ccall_error(CTXT);
   ensurePyXSBStackSpace(CTXTc args);
@@ -255,18 +256,17 @@ static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
   prolog_term new_call = p2p_new();
   c2p_functor_in_mod("px","set_comprehension",2,new_call);
 
-  //  c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),tuplesize-1,p2p_arg(new_call, 1));
   prolog_term inner_term = p2p_arg(new_call, 1);
-  c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),tuplesize-1,inner_term);
-  //printPlgTerm(new_call);
+  c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),tuplesize,inner_term);
+  //  printPlgTerm(new_call);
   if (gl_bot != (CPtr)glstack.low) printf("2 heap bot old %p new %p\n",gl_bot, glstack.low);
-  for (int i = 1; i < (int) tuplesize-1; i++) {
+  for (int i = 1; i <= (int) inputsize; i++) {
     prolog_term call_arg = p2p_arg(inner_term,i); 
     p2p_unify(call_arg,p2p_arg(return_pr,i+2));
   }
   //  printPlgTerm(new_call);
   if (gl_bot != (CPtr)glstack.low) printf("3 heap bot old %p new %p\n",gl_bot, glstack.low);
-  xsb_query_save(tuplesize-1);
+  xsb_query_save(tuplesize);
 if (gl_bot != (CPtr)glstack.low) {
     printf("q4 heap bot old %p new %p\n",gl_bot, glstack.low);
     reset_local_heap_ptrs;
@@ -285,7 +285,6 @@ if (gl_bot != (CPtr)glstack.low) {
       if (gl_bot != (CPtr)glstack.low) {
 	reset_local_heap_ptrs;
       }
-      //      convert_prObj_pyObj(p2p_arg(new_call,tuplesize-1),&newPyObj);
       convert_prObj_pyObj(p2p_arg(new_call,2),&newPyObj);
       PyTuple_SET_ITEM(tup,0,newPyObj);
       PyTuple_SET_ITEM(tup,1,(delayreg?PyLong_FromLong(PYUNDEF):PyLong_FromLong(PYTRUE)));

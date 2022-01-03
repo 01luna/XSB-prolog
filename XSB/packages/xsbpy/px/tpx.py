@@ -70,9 +70,13 @@ def test_comps():
     print('------------------------')
     pp_px_comp('px_test','test_comp','e')
     print('------------------------')
+    pp_px_comp('px_test','test_comp',vars=2)
+    print('------------------------')
     pp_px_comp('px_test','table_comp')
     print('------------------------')
     pp_px_comp('px_test','table_comp','e')
+    print('------------------------')
+    pp_px_comp('px_test','table_comp',vars=2)
 
 # ============= Iteration Code  =============
 

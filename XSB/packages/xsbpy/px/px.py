@@ -52,15 +52,32 @@ def pp_px_query(Module,Pred,*args):
     except Exception as err:
         display_xsb_error(err)
         print('')
-    
-def pp_px_comp(Module,Pred,*args):
-    try: 
-        if len(args) == 0:
-            print('?- comprehension('+Module+':'+Pred+'(_),Answer.')
-        else: 
-            print('?- '+Module+':'+Pred+'('+str(args)+',Answer).')
-        print('')
-        Tup = px_comp(Module,Pred,*args)
+
+def print_comp_goal(Module,Pred,varnum,*args):
+    print('?- comprehension('+Module+':'+Pred+'(',end="")
+    argnum = len(args)
+    for i in range(0,argnum-1):
+        print(str(args[i])+',',end = "")
+
+    if argnum > 0 and varnum==0:
+        print(str(args[argnum-1])+'),Answer).',end = "")
+        return
+    elif argnum>0:
+        print(str(args[argnum-1])+',',end = "")
+    if varnum > 0:
+        for i in range(0,varnum-1):
+            print('_,',end = "")
+        print('_',end = "")
+    print('),Answer).')
+        
+def pp_px_comp(Module,Pred,*args,**kwargs):
+    if 'vars' in kwargs:
+        varnum = kwargs.get('vars')
+    else:
+        varnum = 1
+    print_comp_goal(Module,Pred,varnum,*args)
+    try:
+        Tup = px_comp(Module,Pred,*args,**kwargs)
         if Tup != 0:
             print('   Answer  = ' + str(Tup[0]))
             print('   TV = ' + printable_tv(Tup[1]))
