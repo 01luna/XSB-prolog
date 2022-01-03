@@ -181,30 +181,74 @@ information on the XSB exception is available to Python through the
      Calls to XSB predicates that are not in a module may be made with
      {\tt module} set to {\tt usermod}.
 
-  \pymoditem{px\_list(module,pred,*args)}{px\_list()}{px}
+  \pymoditem{px\_comp(module,pred,*args,**kwargs)}{px\_com()}{px}
 %
-  Performs the {\tt px} equivalent of list comprehension, returning a
-  list of all bindings to {\tt Ret} in the goal {\tt
-    module:pred(args,Ret)}.
+{\em TES: this function is under construction and its behavior does
+  not yet support all of the features below.}
   
-  \pymoditem{px\_set(module,pred,*args)}{px\_set()}{px}
-%
-  Performs the {\tt px} equivalent of set comprehension, returning tje
-  set of all bindings to {\tt Ret} in the goal {\tt
-    module:pred(args,Ret)}.
+  Allows Python to call XSB to perform the equivalent of list or set
+  comprehension.  {\tt px\_comp()} allows zero or more input arguments
+  each containing a Python term ($\overrightarrow{input}$) and zero or
+  more output arguments ($\overrightarrow{output}$) to call an XSB goal
 
+\[module:pred(\overrightarrow{inputs},\overrightarrow{outputs}) \]
+
+It then returns to Python a list or set of tuples representing all
+bindings (or all unique bindings) to $\overrightarrow{outputs}$ for
+whcih the above goal is true.  The actual behavior of {\tt px\_comp()}
+depends on the keyword arguments passed to it.
+
+{\tt kwargs} can take the following values:
+\begin{itemize}
+  \item {\tt vars} determines the number of binding variables for the
+    call.  For instance
+\begin{tabular}{lll}
+    {\tt px\_comp(mod,pred,a,vars=0)} & calls the goal & {\tt
+      mod:pred(a)}. \\
+    {\tt px\_comp(mod,pred,a)} & calls the goal & {\tt mod:pred(a,X1)} \\
+    {\tt px\_comp(mod,pred,a,vars=1)} & calls the goal & {\tt mod:pred(a,X1)} \\
+    {\tt px\_comp(mod,pred,a,vars=2)} & calls the goal & {\tt mod:pred(a,X1,X2)} \\
+\end{tabular}    
+    
+    \noindent
+    The default is {\tt 1}.
+    
+    \item {\tt list\_collect} determines the type of collection in
+      which the bindings are returned.  The allowed values are {\tt
+        'list'} or {\tt 'set'}.  Default is {\tt 'list'}.
+      
+    \item {\tt delay\_lists} determines whether the full delay list of
+      each answer will be returned or only the answer's truth value.
+      Values can be {\tt 'on'} or {\tt 'off'}.  Default is {\tt
+        'off'}.
+  \end{itemize}
+
+  As an example consider the XSB predicate: .....
+\begin{verbatim}
+\end{verbatim}
+  
   \pymoditem{px\_get\_error\_message()}{px\_get\_error\_message()}{px}
 %
   If an XSB exception was raised by the previous call to XSB, {\tt
     px\_get\_error\_message()} returns the XSB exception message as a
   Python Unicode string.
   
-  \pymoditem{px\_consult(File)}{px\_consult(File)}{px}
+  \repeatpymoditem{pp\_px\_cmd(Module,Pred,*args)}{pp\_px\_cmd()}{px}
+  \repeatpymoditem{pp\_px\_qdet(Module,Pred,*args)}{pp\_px\_qdet()}{px}
+  \pymoditem{pp\_px\_comp(Module,Pred,*args,**kwargs)}{pp\_px\_comp()}{px}
+  
+  \repeatpymoditem{consult(File)}{consult()}{px}
+  \pymoditem{ensure\_loaded(File)}{ensure\_loaded()}{px}
 %
-  Convenience function for consulting (loading and/or compiling)
-  Prolog files, and is defined as {\tt
-    px\_cmd('consult','consult',File)}.\footnote{On-demand loading,
-    available in XSB, is not yet available within {\tt px}.}
+  Convenience functions for loading and/or compiling Prolog files.
+  They are defined as {\tt px\_cmd('consult','consult',File)} and {\tt
+    px\_cmd('consult','ensure\_loaded',File)}.\footnote{On-demand
+    loading, available in XSB, is not yet available within {\tt px}.}
+
+  Note that a given XSB file can be compiled and/or loaded into the
+  running Python-XSB session (via {\tt consult()} or {\tt
+    ensure\_loaded()}), edited and then repeatedly recompiled and
+    reloaded without problems.
 
   \pymoditem{prolog\_paths()}{prolog\_paths()}{px}
 %  
@@ -229,8 +273,6 @@ change on a weekly or even daily basis.
 \item {\tt px} has not been tested on any platform other than Ubuntu
   Linux.
 \item {\tt px} does not yet work with {\tt xsbpy}.
-\item List and set comprehension ({\tt px\_list()} and {\tt px\_set()}
-  are not yet implemented.
 \item Heap garbage collection is currently disabled when XSB is called
   from Python, although expansion is allowed for all stacks. 
 \item Python sometimes core dumps on exit (via {\tt quit()} or {\tt
