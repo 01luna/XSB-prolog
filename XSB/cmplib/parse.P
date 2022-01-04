@@ -494,7 +494,7 @@ enqueue_preprocessor(Preprocessor) :-
 dequeue_preprocessor(Name,Options) :-
 	preprocessor_queue(Name,Options),
 	(preprocessor_registry(Name,_) -> true
-	; error(('Non-registered preprocessor in xpp_on(...)/xpp_dump(...): ',
+	; error(('Unregistered preprocessor in xpp_on(...)/xpp_dump(...): ',
 		 Name, '(', Options, ')'))
 	),
 	!,
@@ -507,8 +507,9 @@ get_xpp_call_cmd(XPP_call,Preproc_cmd) :- arg(4,XPP_call,Preproc_cmd).
 
 xpp_is_off :- conget(xpp_on,0).
 xpp_is_on :- conget(xpp_on,1).
-xppdump_is_on :- conget(xpp_dump,1).
 set_xpp_off :- conset(xpp_on,0), conset(xpp_dump,0).
+xppdump_is_on :- conget(xpp_dump,1).
+set_xppdump_on :- conset(xpp_dump,1).
 
 set_preprocessing_done   :- conset(xpp_preprocessing_done,1).
 unset_preprocessing_done :- conset(xpp_preprocessing_done,0).

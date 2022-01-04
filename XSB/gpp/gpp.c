@@ -375,7 +375,43 @@ void usage(void) {
   fprintf(stderr," -nocurinc : don't search the current directory for files to include\n");
   fprintf(stderr," -curdirinclast : search the current directory last\n");
   fprintf(stderr," -warninglevel n : set warning level\n");
-  fprintf(stderr," -includemarker formatstring : keep track of #include directives in output\n\n");
+  fprintf(stderr," -includemarker FORMATSTRING : keep track of #include directives in output\n\n");
+  /*
+    The above FORMATSTRING is a string without spaces
+    (use @ if you want to add spaces that is used as follows.
+    It is dumped with changes at the top of the root file and also before and
+    after any #included file.
+    FORMATSTRING must have three ?'s in it, eg.
+              "@'_$_$_xsb_gpp_markup'(?,'?','?')."
+    When this string is dumped, it is modified as follows:
+      The first ? is replaced with the current line number in the file that
+      replaces the 2nd ? in the dumped FORMATSTRING.
+      Replacement of the second ? and third ? depends on where FORMATSTRING
+      is dumped.
+        If dumped at the top of the root file, the 2nd ? is replaces with the
+        root file name and 3d ? is replaced with "".
+        If dumped just before an included file, the second ? is replaced with
+        the included file name and the third is replaced with 1.
+        If dumped just after an included file, the 2nd ? is replaced with the
+        name of the file that contained the processed #include and the 3d
+        is replaced with 2.
+        For instance, for the above FORMATSTRING, we'll get something like
+
+         '_$_$_xsb_gpp_markup'(1,'path-to-/myfile.P','').
+        r.   %% contents of myfile.P begins
+        p:-r.
+        tt.  %% contents of myfile.P is interrupted below by included file
+         '_$_$_xsb_gpp_markup'(1,'path-to-/includedfile.P','1').
+        ppp.            %% contents of includedfile.P starts
+        gggg:-ppppp,q.  %% end of the included text from includedfile.P
+         '_$_$_xsb_gpp_markup'(4,'path-to-/myfile.P','2').
+        %% contents of myfile.P continues
+
+      All this is needed in order to enable tokenizers to refer to the correct
+      lines in the source files. (Note that tokenizers get files after the gpp
+      substitutions, so the line numbers with respect to the source files are
+      likely to be lost.)
+   */
   exit(1);
 }
 
