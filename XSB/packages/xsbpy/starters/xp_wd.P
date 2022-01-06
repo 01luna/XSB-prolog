@@ -1,13 +1,16 @@
-:- export wd_query/4, wd_get_label/3, wd_get_labels/3, print_tree/1.
+:- export wd_query/4, wd_get_label/3, wd_get_labels/3.
 :- export wd_has_subclass/2,wd_has_instance/2,wd_subclass_of/2,wd_instance_of/2.
 :- export wd_get_qnode/3,wd_get_qnode/4,wd_parent_of/2.
-:- export wd_is_instance/1,wd_is_class/1.
+:- export wd_is_instance/1,wd_is_class/1, wd_show_instances/2.
 :- export wd_ancestor/2,wd_ancestor_nt/2.
+:- export wd_geoquery/4,wd_in_admin/2.
 
-:- import member/2,append/3 from basics.
+:- import member/2,append/3,length/2 from basics.
 :- import concat_atom/2,split_atom/3 from string.
 :- import hdt_query/4 from xp_rdflib.
 :- import check_nonvar/3 from error_handler.
+:- import pyfunc/3 from xsbpy.							 
+:- import lazy_writeln/1 from standard.
 
 ?- ensure_loaded(xsbpy).
 ?- ensure_loaded(xp_rdflib).
@@ -163,6 +166,18 @@ wd_has_subclass(Node,Subclass):-
 wd_has_instance(Node,Subclass):- 
     wd_query(Subclass,'http://www.wikidata.org/prop/direct/P31',Node,en).
 
+wd_show_instances(Node,Lang):-
+    wd_get_label(Node,Lab,Lang),
+    lazy_writeln(['Instance info for ',Node,' : ',Lab]),
+    setof((Instance,Label),(wd_has_instance(Node,Instance),
+			   wd_get_label(Instance,Label,Lang)),Insts),
+    length(Insts,InstLen),
+    tab(2),lazy_writeln([InstLen,' instances']),
+    member((I,L),Insts),
+    tab(4),lazy_writeln([I,' : ',L]),
+    fail.
+wd_show_instances(_Node,_Lang).
+    
 %===========================================
 % This group contains convenience predicates.  BTW, the only reason
 % wd_is_instance and wd_is_class don't use instance_of and subclass_of
@@ -190,11 +205,56 @@ wd_parent_of_1(Node,Parent):-
 % Given a qnode prints out all ancestors as a tree.  Its kinda cool,
 % if I do say so myself.
 
-print_tree(Qnode):- 
-    setof(_L,_F^pt_ancestor(Qnode,_L,_F),List),
-    print_tree(_,0,List),
+:- export print_bounded_tree/2.
+print_bounded_tree(Qnode,Bound):- 
+    setof(_L,_F^bounded_pt_ancestor(Qnode,_L,_F,Bound),List),
+        writeln(found(List)),
+    wd_get_label(Qnode,Label,en),
+    writeln((Qnode,Label)),
+    print_tree(_,2,List),
     fail.
-print_tree(_Qnode).
+print_bounded_tree(_Qnode,_Bound).
+
+:- table bounded_pt_ancestor/4.
+bounded_pt_ancestor(Qnode,List,Anc,Bound):-
+    wd_parent_of(Qnode,PQnode),
+    once(wd_get_label(PQnode,Label,en)),%writeln(label(Label)),
+    (  (\+ wd_parent_of(PQnode,_) ->
+	    List = [(PQnode,Label)],Anc = (PQnode,Label))
+    ; (bs_class(PQnode) ->
+	   List = [],Anc = bs
+      ; bounded_pt_ancestor(PQnode,Rest,Anc,Bound),\+ member((PQnode,Label),Rest),length(Rest,Rlen),
+	(Rlen > Bound ->
+	    first_n(Bound,Rest,Rest1),
+	    List = [(PQnode,Label)|Rest1]
+	; 
+	    List = [(PQnode,Label)|Rest]))).
+
+first_n(0,_,[]):-!.
+first_n(_,[],[]):-!.
+first_n(N,[H|T],[H|T1]):-
+    N1 is N -1,
+    first_n(N1,T,T1).
+
+
+bs_class('Q104086571').               % first-order class
+bs_class('Q104093226').               % class that shouldn't be used as class)
+bs_class('Q1207505').                 % quality)
+bs_class('Q1263068').                 % duplicate entry
+bs_class('Q17362920').                % Wikimedia duplicated page)
+bs_class('Q19478619').                % metaclass
+bs_class('Q21522864').                % class or metaclass of Wikidata ontology)
+bs_class('Q23958852').                % variable order class
+bs_class('Q24017414').                % second-order class)
+bs_class('Q24017465').                % third-order class
+bs_class('Q24027474').                % fourth-order class)
+bs_class('Q24034552').                % mathematical concept
+bs_class('Q246672').                  % mathematical object)
+bs_class('Q41796').                   % sentence
+bs_class('Q4671286').                 % academic major
+bs_class('Q474328').                  % declarative sentence
+bs_class('Q7184903').                 % abstract object
+bs_class('Q98119401').                % group or class of physical objects
 
 print_tree(Pref,N,List):-
     setof((_Ext,_NewPref),prefix_extension(Pref,List,_Ext,_NewPref),Exts),
@@ -202,17 +262,6 @@ print_tree(Pref,N,List):-
     tab(N),writeln(Ext),
     N1 is N + 3,
     print_tree(NewPref,N1,List).
-
-% Given a Qnode, backtracks through ancestor paths.
-:- table pt_ancestor/3.
-pt_ancestor(Qnode,List,Anc):-
-   writeln(calling(Qnode)),
-   wd_parent_of(Qnode,PQnode),writeln(PQnode),
-    once(wd_get_label(PQnode,Label,en)),writeln(label(Label)),
-    ( \+ wd_parent_of(PQnode,_),List = [(PQnode,Label)],
-	Anc = (PQnode,Label),writeln(suc(Anc))
-    ;   List = [(PQnode,Label)|Rest],
-	writeln(abt(PQnode,Rest,Anc)),pt_ancestor(PQnode,Rest,Anc)).
 
 prefix_extension(Var,List,Ext,[Ext]):-
     var(Var),!,
@@ -259,6 +308,68 @@ wd_is_statement(Url):-
     split_atom(Url,'/',List),
     List = ['http:','www.wikidata.org',entity,statement|_],!.
 
+wd_geoquery(ArgIn1,ArgIn3,Lat,Long):-
+    qnodeurl_maybe(ArgIn1,Arg1),
+    pnodeurl_maybe('P625',Arg2),
+    qnodeurl_maybe(ArgIn3,Arg3),    
+    hdt_geoquery(Arg1,Arg2,Arg3,[Long,Lat]).
+hdt_geoquery(Arg1,Arg2,Arg3,Coord):-
+    (var(Arg1) -> Parg1 = 'None' ; Parg1 = Arg1),
+    (var(Arg2) -> Parg2 = 'None' ; Parg2 = Arg2),
+    (var(Arg3) -> Parg3 = 'None' ; Parg3 = Arg3),
+    pyfunc(xp_wd,hdt_geoquery(Parg1,Parg2,Parg3),Coord).
+
+wd_in_admin(Node,Class):- 
+    wd_query(Node,'http://www.wikidata.org/prop/direct/P131',Class1,en),
+    (wd_is_statement(Class1) ->
+	 (wd_query(Class1,'http://www.wikidata.org/prop/direct/P131',Class,en) ->
+	     true
+	 ; Class = Class1)
+    ; Class = Class1).
+							 
+% Given a P-node id (e.g. "P279"), return its wikidata url
+pnodeurl_maybe(Pnode,Url):-
+    % pnode_id(Pnode),
+    concat_atom(['http://www.wikidata.org/prop/direct/',Pnode],Url),!.
+pnodeurl_maybe(Url,Url).
 
 
 end_of_file.
+% Somehow not working -- should integrate with print_bounded_tree
+%print_tree(Qnode):- 
+%    setof(_L,_F^pt_ancestor(Qnode,_L,_F),List),
+%%    writeln(found(List)),
+%    print_tree(_,0,List),
+%    fail.
+%print_tree(_Qnode).
+%
+
+%--------------
+% Given a Qnode, backtracks through ancestor paths.
+%:- table pt_ancestor/3.
+%pt_ancestor(Qnode,List,Anc):-
+%   wd_parent_of(Qnode,PQnode),%writeln(PQnode),
+%    once(wd_get_label(PQnode,Label,en)),%writeln(label(Label)),
+%    ( \+ wd_parent_of(PQnode,_),List = [(PQnode,Label)],
+%	Anc = (PQnode,Label)
+%    ;   pt_ancestor(PQnode,Rest,Anc),
+%	length(Rest,RLen),
+%	(RLen > 10 ->
+%	     Rest = [A,B,C,D,E,F,G|_],
+%	     Rest1 = [A,B,C,D,E,F,G,'...'],
+%	     List = [(PQnode,Label)|Rest1]
+%	   ; List = [(PQnode,Label)|Rest])).
+%
+%alt_pt_ancestor(Qnode,List,Anc):-
+%   wd_parent_of(Qnode,PQnode),%writeln(PQnode),
+%    once(wd_get_label(PQnode,Label,en)),%writeln(label(Label)),
+%    ( \+ wd_parent_of(PQnode,_),List = [(PQnode,Label)],
+%	Anc = (PQnode,Label)
+%    ;   alt_pt_ancestor(PQnode,Rest,Anc),
+%	length(Rest,RLen),
+%	(RLen > 10 ->
+%	     Rest = [A,B,C,D,E,F,G|_],
+%	     Rest1 = [A,B,C,D,E,F,G,'...'],
+%	     List = [(PQnode,Label)|Rest1]
+%	   ; List = [(PQnode,Label)|Rest])).
+%
