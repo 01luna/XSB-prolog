@@ -1,45 +1,68 @@
 :- compiler_options([xpp_on]).
 
 #include "table_status_defs.h"
+#include "../xsbpy_defs.h"
 
-:- export set_comprehension/2.
+:- export set_comprehension/3.
 :- export test_pred/2.
 :- import table_status/5 from tables.
 %:- import functor/4 from standard.
 %:- import comma_to_list/2 from basics.
 
-set_comprehension(Goal,Set):-
-%    writeln(tables:is_tabled(Goal)),
-%    functor(Goal,M,P,A),writeln(functor(Goal,M,P,A)),    functor(Goal1,M,P,A),
+set_comprehension(Goal,Set,Flag):-
     (tables:is_tabled(Goal) ->
-        set_comprehension_tabled(Goal,Set)
+        set_comprehension_tabled(Goal,Set,Flag)
        ; 
-        set_comprehension_nontabled(Goal,Set)).
+       set_comprehension_nontabled(Goal,Set,Flag)).
+%       writeln(set(Set))).
 
-set_comprehension_nontabled(Goal,AnsList):- 
+set_comprehension_nontabled(Goal,AnsList,Flag):- 
 %    writeln(set_comprehension_nontabled(Goal,Goals)),
     abolish_table_pred(px_table_call(_)),
     (px_table_call(Goal),fail ; true),
-    findall(''(Goal,Resid),simple_variant_get_residual(px_table_call(Goal),Resid),AnsList1),
-    sort(AnsList1,AnsList,[keep_dups]).
-    %    pythonize_list(AnsList2,AnsList).
-    %    writeln(ans(AnsList)).
-
-simple_variant_get_residual(Goal,Resid):-
-    variant_get_residual(Goal,R1),
-    (R1 = [] -> Resid = 1 ; Resid = R1).
-	
-set_comprehension_tabled(Goal,AnsList):-
+    findall(''(NewGoal,Resid),
+	    px_get_residual(px_table_call(Goal),NewGoal,Resid,Flag),AnsList1),
+    (SET_COLLECTION =:= SET_COLLECTION/\Flag ->
+	 sort(AnsList1,AnsList2),
+	 AnsList = PYSET_PROLOG(AnsList2)
+    ;	 AnsList = AnsList1).
+ 
+set_comprehension_tabled(Goal,AnsList,Flag):-
 %    writeln(set_comprehension_tabled(Goal)),
     table_status(Goal, _PredTypeCode, _CallTypeCode, AnsSetStatusCode,_SF),
     (AnsSetStatusCode == COMPLETED_ANSWER_SET -> 
 	 true
        ; (Goal,fail ; true) ),
-    findall(''(Goal,Resid),variant_get_residual(Goal,Resid),AnsList1),
-%    writeln(g<oal(AnsList1)),
-    sort(AnsList1,AnsList,[keep_dups]).
-%    pythonize_list(AnsList2,AnsList).
-%    writeq(anslist(AnsList)),nl.
+    findall(''(NewGoal,Resid),
+	    px_get_residual(Goal,NewGoal,Resid,Flag),AnsList1),
+    (SET_COLLECTION =:= SET_COLLECTION/\Flag ->
+	 sort(AnsList1,AnsList2),
+	 AnsList = PYSET_PROLOG(Anslist2)
+    ;    AnsList = AnsList1).
+
+px_get_residual(Goal,NewGoal,Resid,Flag):-
+    (Goal = px_table_call(Goal1) -> TrueGoal = Goal1 ; TrueGoal = Goal),
+    StripNum is Flag >> 16,
+    (USE_DL =:= USE_DL/\Flag -> 
+         variant_get_residual(Goal,R1),
+	 TrueGoal =.. [_|Args],
+	 strip_first_n(StripNum,Args,NewArgs),
+	 NewGoal =.. [''|NewArgs],
+	 (R1 = [] -> Resid = 1 ; Resid = R1)
+    ;    variant_get_residual(Goal,R1),
+	 TrueGoal =.. [_|Args],
+	 strip_first_n(StripNum,Args,NewArgs),
+	 NewGoal =.. [''|NewArgs],
+         (R1 = [] -> Resid = 1 ; Resid = 2) ).
+
+strip_first_n(0,L,L):- !.
+strip_first_n(1,[_|L],L):-!.
+strip_first_n(2,[_,_|L],L):-!.
+strip_first_n(3,[_,_,_|L],L):-!.
+strip_first_n(N,[_|Lin],Lout):-
+    N1 is N - 1,
+    strip_first_n(N1,Lin,Lout).
+	
 
 :- table px_table_call/1 as variant, opaque.
 px_table_call(X) :- call(X).

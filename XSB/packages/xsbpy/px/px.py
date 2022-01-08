@@ -53,12 +53,26 @@ def pp_px_query(Module,Pred,*args):
         display_xsb_error(err)
         print('')
 
+def pp_px_comp(Module,Pred,*args,**kwargs):
+    if 'vars' in kwargs:
+        varnum = kwargs.get('vars')
+    else:
+        varnum = 1
+    try:
+        if kwargs != {}:
+            print(kwargs)
+        print_comp_goal(Module,Pred,varnum,*args)
+        Ret = px_comp(Module,Pred,*args,**kwargs)
+        print_comp_answer(Ret)
+    except Exception as err:
+        display_xsb_error(err)
+        print('')
+
 def print_comp_goal(Module,Pred,varnum,*args):
-    print('?- comprehension('+Module+':'+Pred+'(',end="")
+    print('?- px_comp('+Module+':'+Pred+'(',end="")
     argnum = len(args)
     for i in range(0,argnum-1):
         print(str(args[i])+',',end = "")
-
     if argnum > 0 and varnum==0:
         print(str(args[argnum-1])+'),Answer).',end = "")
         return
@@ -70,24 +84,68 @@ def print_comp_goal(Module,Pred,varnum,*args):
         print('_',end = "")
     print('),Answer).')
         
-def pp_px_comp(Module,Pred,*args,**kwargs):
-    if 'vars' in kwargs:
-        varnum = kwargs.get('vars')
-    else:
-        varnum = 1
-    print_comp_goal(Module,Pred,varnum,*args)
-    try:
-        Tup = px_comp(Module,Pred,*args,**kwargs)
-        if Tup != 0:
-            print('   Answer  = ' + str(Tup[0]))
-            print('   TV = ' + printable_tv(Tup[1]))
-        else:
-            print('   TV = ' + printable_tv(Tup))
-        print('')
-    except Exception as err:
-        display_xsb_error(err)
-        print('')
+def print_comp_answer(Ret):
+    print_term(Ret,5)
+
+def tab(N):
+    print(N*' ',end='')
     
+def print_term(Term,Offset):
+    if type(Term) is tuple:
+        print_tuple(Term,Offset)
+    elif type(Term) is list:
+        tab(Offset)
+        print('[')
+        for i in range(0,len(Term)):
+            print_term_tup(Term[i],(Offset+1))
+            if i < len(Term)-1:
+                print(',')
+            else:
+                print(' ')
+                tab(Offset)
+                print(']')
+    elif type(Term) is set:
+        tab(Offset)
+        print('{')
+        i=0
+        for setelt in Term:
+            print_term_tup(setelt,(Offset+1))
+            if i < len(Term)-1:
+                print(',')
+                i = i+1
+            else:
+                print(' ')
+                tab(Offset)
+                print('}')
+    else:
+        tab(Offset)
+        print(Term)
+
+def print_term_tup(Term,Offset):
+    if type(Term) is tuple:
+        print_tuple(Term,Offset)
+    elif type(Term) is list:
+        print('[',end="")
+        for elt in Term:
+            print_term_tup(elt,0)
+        print(']',end="")
+    else:
+        print(Term,end="")
+
+def print_tuple(Tup,Offset):
+    if Tup[0] == 'plgTerm':
+        print(Tup[1],end="")
+        print_tuple(Tup[2:],0)
+    else:
+        tab(Offset)
+        print('(',end="")
+        for i in range(0,len(Tup)):
+            print_term_tup(Tup[i],0)
+            if i != len(Tup)-1:
+                print(',',end='')
+        print(')',end="")          
+
+        
 def pp_px_cmd(Module,Pred,*args):
     try:
         Ret = px_cmd(Module,Pred,*args)

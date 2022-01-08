@@ -24,9 +24,12 @@ Var's attribute = v(30)
 Value = 2
 == test_cut2 SUCCEEDED
 PASSED attv_test!
-# proceed_gc margin 131072 gap sz pb 131048 gap sz word 16381
+# proceed_gc margin 131072 gap sz pb 131056 gap sz word 16382
+# Reallocating the Heap and Local Stack data area from 8192 to 16384
+#6 heap bot old 0x7f5202ffb010 new 0x7f5201136010
+# proceed_gc margin 131072 gap sz pb 131040 gap sz word 16380
 # Reallocating the Heap and Local Stack data area from 16384 to 32768
-#6 heap bot old 0x7f5f382b4010 new 0x7f5f351ef010
+#6 heap bot old 0x7f5201136010 new 0x7f51ff135010
 # Reallocating the Heap and Local Stack data area from 32768 to 65536
 starting now
 ------------ command: arity 1 -------------
@@ -100,43 +103,170 @@ starting now
 
 ----------- testing interrupts --------------
 ----------- done with test_cmd_query --------------
-?- comprehension(px_test:test_comp(_),Answer.
-
-   Answer  = [(('plgTerm', 'test_comp', 'a'), 1), (('plgTerm', 'test_comp', 'b'), 1), (('plgTerm', 'test_comp', 'c'), 1), (('plgTerm', 'test_comp', 'd'), 1), (('plgTerm', 'test_comp', 'e'), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'test_comp', 'e'), [('plgTerm', 'unk', 'something_else')])]
-   TV = True
-
+?- px_comp(px_test:test_comp(_),Answer).
+     [
+      ((e),2),
+      ((e),2),
+      ((d),1),
+      ((c),1),
+      ((b),1),
+      ((a),1) 
+     ]
 ------------------------
-?- px_test:test_comp(('e',),Answer).
-
-   Answer  = [(('plgTerm', 'test_comp', 'e', 5), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'test_comp', 'e', 5), [('plgTerm', 'unk', 'something_else')])]
-   TV = True
-
+?- px_comp(px_test:test_comp(e,_),Answer).
+     [
+      ((5),2),
+      ((5),2) 
+     ]
 ------------------------
-?- comprehension(px_test:table_comp(_),Answer.
-
-   Answer  = [(('plgTerm', 'table_comp', 'a'), []), (('plgTerm', 'table_comp', 'b'), []), (('plgTerm', 'table_comp', 'c'), []), (('plgTerm', 'table_comp', 'd'), []), (('plgTerm', 'table_comp', 'e'), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'table_comp', 'e'), [('plgTerm', 'unk', 'something_else')])]
-   TV = True
-
+{'vars': 2}
+?- px_comp(px_test:test_comp(_,_),Answer).
+     [
+      ((e,5),2),
+      ((e,5),2),
+      ((d,4),1),
+      ((c,3),1),
+      ((b,2),1),
+      ((a,1),1) 
+     ]
 ------------------------
-?- px_test:table_comp(('e',),Answer).
-
-   Answer  = [(('plgTerm', 'table_comp', 'e', 5), [('plgTerm', 'unk', 'something')]), (('plgTerm', 'table_comp', 'e', 5), [('plgTerm', 'unk', 'something_else')])]
-   TV = True
-
+{'set_collect': True}
+?- px_comp(px_test:test_comp(_),Answer).
+     {
+      ((d),1),
+      ((a),1),
+      ((e),2),
+      ((b),1),
+      ((c),1) 
+     }
+------------------------
+{'set_collect': True}
+?- px_comp(px_test:test_comp(e,_),Answer).
+     {
+      ((5),2) 
+     }
+------------------------
+{'vars': 2, 'set_collect': True}
+?- px_comp(px_test:test_comp(_,_),Answer).
+     {
+      ((a,1),1),
+      ((b,2),1),
+      ((e,5),2),
+      ((d,4),1),
+      ((c,3),1) 
+     }
+------------------------
+{'delay_lists': True}
+?- px_comp(px_test:test_comp(_),Answer).
+     [
+      ((e),[unk(something_else)]),
+      ((e),[unk(something)]),
+      ((d),1),
+      ((c),1),
+      ((b),1),
+      ((a),1) 
+     ]
+------------------------
+{'delay_lists': True}
+?- px_comp(px_test:test_comp(e,_),Answer).
+     [
+      ((5),[unk(something_else)]),
+      ((5),[unk(something)]) 
+     ]
+------------------------
+{'vars': 2, 'delay_lists': True}
+?- px_comp(px_test:test_comp(_,_),Answer).
+     [
+      ((e,5),[unk(something_else)]),
+      ((e,5),[unk(something)]),
+      ((d,4),1),
+      ((c,3),1),
+      ((b,2),1),
+      ((a,1),1) 
+     ]
+------------------------
+?- px_comp(px_test:table_comp(_),Answer).
+     [
+      ((e),2),
+      ((e),2),
+      ((d),1),
+      ((c),1),
+      ((b),1),
+      ((a),1) 
+     ]
+------------------------
+?- px_comp(px_test:table_comp(e,_),Answer).
+     [
+      ((5),2),
+      ((5),2) 
+     ]
+------------------------
+{'vars': 2}
+?- px_comp(px_test:table_comp(_,_),Answer).
+     [
+      ((e,5),2),
+      ((e,5),2),
+      ((d,4),1),
+      ((c,3),1),
+      ((b,2),1),
+      ((a,1),1) 
+     ]
+------------------------
+{'set_collect': True}
+?- px_comp(px_test:table_comp(_),Answer).
+     {
+------------------------
+{'set_collect': True}
+?- px_comp(px_test:table_comp(e,_),Answer).
+     {
+------------------------
+{'vars': 2, 'set_collect': True}
+?- px_comp(px_test:table_comp(_,_),Answer).
+     {
+------------------------
+{'delay_lists': True}
+?- px_comp(px_test:table_comp(_),Answer).
+     [
+      ((e),[unk(something_else)]),
+      ((e),[unk(something)]),
+      ((d),1),
+      ((c),1),
+      ((b),1),
+      ((a),1) 
+     ]
+------------------------
+{'delay_lists': True}
+?- px_comp(px_test:table_comp(e,_),Answer).
+     [
+      ((5),[unk(something_else)]),
+      ((5),[unk(something)]) 
+     ]
+------------------------
+{'vars': 2, 'delay_lists': True}
+?- px_comp(px_test:table_comp(_,_),Answer).
+     [
+      ((e,5),[unk(something_else)]),
+      ((e,5),[unk(something)]),
+      ((d,4),1),
+      ((c,3),1),
+      ((b,2),1),
+      ((a,1),1) 
+     ]
+------------------------
 test_iteration_cmd(200000) succeeded
-# Time: 0.3779885768890381
+# Time: 0.39784741401672363
 
 test_iteration_nondet(200000) succeeded
-# Time: 0.408405065536499
+# Time: 0.4109821319580078
 
 test_iteration_query(200000) succeeded
-# Time: 0.42628931999206543
+# Time: 0.43828606605529785
 
 py_to_xsb_list_xfer succeded: 1000000
-# Time: 0.07640790939331055
+# Time: 0.07650637626647949
 
 xsb_to_py_list_xfer succeded: 1000000
-# Time: 0.09478044509887695
+# Time: 0.09960198402404785
 
 ----------- undef error --------------
 ?- nomod:nopred((1,),Answer).
