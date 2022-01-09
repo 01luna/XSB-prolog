@@ -1,3 +1,6 @@
+:- compiler_options([xpp_on]).
+
+
 :- export zero_ary_true/0,instan/1,
    zero_ary_undef/0, win/1, one_ary_undef/1,
    zero_ary_fail/0,one_ary_fail/1,

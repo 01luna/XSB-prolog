@@ -72,6 +72,8 @@ def test_comps():
     print('------------------------')
     pp_px_comp('px_test','test_comp',vars=2)
     print('------------------------')
+    pp_px_comp('px_test','test_comp',truth_vals=PLAIN_TRUTHVALS)
+    print('------------------------')
 
     pp_px_comp('px_test','test_comp',set_collect=True)
     print('------------------------')
@@ -80,11 +82,18 @@ def test_comps():
     pp_px_comp('px_test','test_comp',vars=2,set_collect=True)
     print('------------------------')
 
-    pp_px_comp('px_test','test_comp',delay_lists=True)
+    pp_px_comp('px_test','test_comp',truth_vals=DELAY_LISTS)
     print('------------------------')
-    pp_px_comp('px_test','test_comp','e',delay_lists=True)
+    pp_px_comp('px_test','test_comp','e',truth_vals=DELAY_LISTS)
     print('------------------------')
-    pp_px_comp('px_test','test_comp',vars=2,delay_lists=True)
+    pp_px_comp('px_test','test_comp',vars=2,truth_vals=DELAY_LISTS)
+    print('------------------------')
+
+    pp_px_comp('px_test','test_comp',truth_vals=NO_TRUTHVALS)
+    print('------------------------')
+    pp_px_comp('px_test','test_comp','e',truth_vals=NO_TRUTHVALS)
+    print('------------------------')
+    pp_px_comp('px_test','test_comp',vars=2,truth_vals=NO_TRUTHVALS)
     print('------------------------')
 
     pp_px_comp('px_test','table_comp')
@@ -92,6 +101,8 @@ def test_comps():
     pp_px_comp('px_test','table_comp','e')
     print('------------------------')
     pp_px_comp('px_test','table_comp',vars=2)
+    print('------------------------')
+    pp_px_comp('px_test','table_comp','e',truth_vals=PLAIN_TRUTHVALS)
     print('------------------------')
 
     pp_px_comp('px_test','table_comp',set_collect=True)
@@ -101,12 +112,20 @@ def test_comps():
     pp_px_comp('px_test','table_comp',vars=2,set_collect=True)
     print('------------------------')
 
-    pp_px_comp('px_test','table_comp',delay_lists=True)
+    pp_px_comp('px_test','table_comp',truth_vals=DELAY_LISTS)
     print('------------------------')
-    pp_px_comp('px_test','table_comp','e',delay_lists=True)
+    pp_px_comp('px_test','table_comp','e',truth_vals=DELAY_LISTS)
     print('------------------------')
-    pp_px_comp('px_test','table_comp',vars=2,delay_lists=True)
+    pp_px_comp('px_test','table_comp',vars=2,truth_vals=DELAY_LISTS)
     print('------------------------')
+
+    pp_px_comp('px_test','table_comp',truth_vals=NO_TRUTHVALS)
+    print('------------------------')
+    pp_px_comp('px_test','table_comp','e',truth_vals=NO_TRUTHVALS)
+    print('------------------------')
+    pp_px_comp('px_test','table_comp',vars=2,truth_vals=NO_TRUTHVALS)
+    print('------------------------')
+
 
 # ============= Iteration Code  =============
 

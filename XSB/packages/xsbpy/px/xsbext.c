@@ -229,19 +229,23 @@ if (gl_bot != (CPtr)glstack.low) {
 static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
   //static PyObject *px_comp(PyObject *self,PyObject *args) {
   int varnum = 1;
-  int flag_arg = 0;
+  int flag_arg = PLAIN_TRUTHVALS;
+  PyObject *dictval = NULL;
   if (kwargs) {
     //    pPO(kwargs);
-    PyObject *dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("vars"));
-    if (dictval) varnum = PyLong_AsSsize_t(dictval); 
-    dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("delay_lists"));
-    if (dictval == Py_True) flag_arg = USE_DL;
+    dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("vars"));
+    if (dictval) varnum = PyLong_AsSsize_t(dictval);
+    dictval = NULL;
+    dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("truth_vals"));
+    if (dictval) {
+      if (PyLong_AsSsize_t(dictval) == NO_TRUTHVALS) flag_arg = NO_TRUTHVALS;
+      else if (PyLong_AsSsize_t(dictval) == DELAY_LISTS) flag_arg = DELAY_LISTS;
+    }
     dictval = PyDict_GetItem(kwargs,PyUnicode_FromString("set_collect"));
-    //    printf("PBC %d PT %p dv %p\n",PyBool_Check(dictval),Py_True,dictval);
     if (dictval == Py_True) flag_arg = flag_arg | SET_COLLECTION;
   }
-  //  printf("varnum %d collect_list %d delay_lists %d\n",
-  //	 varnum,(flag_arg&LIST_COLLECTION),(flag_arg&USE_DL));
+  //  printf("varnum %d collect_set %x flag_arg %d\n",
+  //  	 varnum,(flag_arg&SET_COLLECTION),(flag_arg));
   size_t tuplesize = PyTuple_Size(args) + (varnum-2);   // tupsz is varnum + input args
   size_t inputsize = tuplesize-varnum;
   flag_arg = flag_arg | (inputsize << 16);
@@ -253,7 +257,7 @@ static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
   CPtr gl_bot = (CPtr)glstack.low;
   get_reg_offsets;
   prolog_term new_call = p2p_new();
-  c2p_functor_in_mod("px","set_comprehension",3,new_call);
+  c2p_functor_in_mod("px","px_comp",3,new_call);
 
   prolog_term inner_term = p2p_arg(new_call, 1);
   c2p_int(flag_arg,p2p_arg(new_call, 3));
@@ -284,9 +288,9 @@ static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
       if (gl_bot != (CPtr)glstack.low) {
 	reset_local_heap_ptrs;
       }
+      //      printPlgTerm(new_call);
       convert_prObj_pyObj(p2p_arg(new_call,2),&newPyObj);
-      //      PyTuple_SET_ITEM(tup,0,newPyObj);
-      //      PyTuple_SET_ITEM(tup,1,(delayreg?PyLong_FromLong(PYUNDEF):PyLong_FromLong(PYTRUE)));
+      //      pPO(newPyObj);
       reset_regs;
       return newPyObj;
     }
