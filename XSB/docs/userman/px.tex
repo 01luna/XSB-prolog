@@ -15,7 +15,9 @@
 \end{center}
 
 \noindent
-{\large {\bf {\em This chapter documents rapidly-developing software that is alpha-level at best.}}}
+{\large {\bf {\em This chapter documents rapidly-developing software
+      that is alpha-level at best.  See Section~\ref{sec:px-limits}
+      for a list of currently unsupported features and known bugs.}}}
 
 The {\tt px} module allows XSB to be used as an embedded subprocess
 within a Python process.  {\tt px} currently works independently of
@@ -183,8 +185,6 @@ information on the XSB exception is available to Python through the
 
   \pymoditem{px\_comp(module,pred,*args,**kwargs)}{px\_com()}{px}
 %
-{\em TES: this function is under construction and its behavior does
-  not yet support all of the features below.}
   
   Allows Python to call XSB to perform the equivalent of list or set
   comprehension.  {\tt px\_comp()} allows zero or more input arguments
@@ -195,35 +195,65 @@ information on the XSB exception is available to Python through the
 
 It then returns to Python a list or set of tuples representing all
 bindings (or all unique bindings) to $\overrightarrow{outputs}$ for
-whcih the above goal is true.  The actual behavior of {\tt px\_comp()}
+which the above goal is true.
+
+{\sc TES add example here.}
+
+The actual behavior of {\tt px\_comp()}
 depends on the keyword arguments passed to it.
 
 {\tt kwargs} can take the following values:
 \begin{itemize}
-  \item {\tt vars} determines the number of binding variables for the
-    call.  For instance
+  \item {\tt vars=N} where {\tt N} is a non-negative integer,
+    determines the number {\tt N} of output variables for the call.
+    For instance
+    
 \begin{tabular}{lll}
-    {\tt px\_comp(mod,pred,a,vars=0)} & calls the goal & {\tt
-      mod:pred(a)}. \\
-    {\tt px\_comp(mod,pred,a)} & calls the goal & {\tt mod:pred(a,X1)} \\
-    {\tt px\_comp(mod,pred,a,vars=1)} & calls the goal & {\tt mod:pred(a,X1)} \\
-    {\tt px\_comp(mod,pred,a,vars=2)} & calls the goal & {\tt mod:pred(a,X1,X2)} \\
+    {\tt px\_comp(mod,pred)}            & calls the goal & {\tt mod:pred(X1)} \\
+    {\tt px\_comp(mod,pred),vars=2}     & calls the goal & {\tt mod:pred(X1,X2)} \\
+    {\tt px\_comp(mod,pred,a,vars=0)}   & calls the goal & {\tt mod:pred(a)}. \\
+    {\tt px\_comp(mod,pred,a)}          & calls the goal & {\tt mod:pred(a,X1)} \\
+    {\tt px\_comp(mod,pred,a,vars=1)}   & calls the goal & {\tt mod:pred(a,X1)} \\
+    {\tt px\_comp(mod,pred,a,vars=2)}   & calls the goal & {\tt mod:pred(a,X1,X2)} \\
+    {\tt px\_comp(mod,pred,a,b,vars=2)} & calls the goal & {\tt mod:pred(a,b,X1,X2)} \\
 \end{tabular}    
     
     \noindent
     The default is {\tt 1}.
     
-    \item {\tt list\_collect} determines the type of collection in
-      which the bindings are returned.  The allowed values are {\tt
-        'list'} or {\tt 'set'}.  Default is {\tt 'list'}.
+    \item {\tt set\_collect=True/False} determines the type of
+      collection in which the bindings are returned: if the keyword
+      argument is {\tt True}, the answers are collected as a set, and
+      if {\tt False} the answers are collected as a list.  Default is
+      {\tt False}. \footnote{The reason for making lists the default
+        collection type is that Python sets can only contain
+        non-mutable objects, and so cannot contain lists or
+        dictionaries.}
       
-    \item {\tt delay\_lists} determines whether the full delay list of
-      each answer will be returned or only the answer's truth value.
-      Values can be {\tt 'on'} or {\tt 'off'}.  Default is {\tt
-        'off'}.
+    \item {\tt truth\_vals} determines whether how each answer in the
+      collection is associated with its truth value.  Values can be:
+      
+      \bi
+
+      \item {\tt PLAIN\_TRUTHVALS} which associates each answer with its
+      truth value 1 or 2 (False answers are never included in the
+      collection.)  In this case, each element of the collection is a
+      2-ary tuple consisting of an answer and its truth value.
+      
+      \item {\tt DELAY\_LISTS} which associates each answer with its
+        SLG delay list \cite{}. (False answers are never included in
+        the collection.)  In this case, each element of the collection
+        is a 2-ary tuple consisting of an answer and its delay list.
+
+      \item {\tt NO\_TRUTHVALS} does not associate an answer with any
+        truth value.  This should only be used in situations where it
+        is know that no answers will be undefined.
+
+        \ei
+
   \end{itemize}
 
-  As an example consider the XSB predicate: .....
+  As an example consider the XSB predicate: ..... {\sc TES: add example}
 \begin{verbatim}
 \end{verbatim}
   
@@ -263,16 +293,16 @@ depends on the keyword arguments passed to it.
   
 \end{description}
 
-\subsection{Current Issues and Limitations}
+\subsection{Current Issues and Limitations} \label{sec:px-limits}
 
 {\tt px} is under active development and its issues and limitations
 change on a weekly or even daily basis.
 
 \bi
-
 \item {\tt px} has not been tested on any platform other than Ubuntu
   Linux.
-\item {\tt px} does not yet work with {\tt xsbpy}.
+\item {\tt px} does not yet work with {\tt xsbpy}, i.e., callbacks are
+  not currently implemented.
 \item Heap garbage collection is currently disabled when XSB is called
   from Python, although expansion is allowed for all stacks. 
 \item Python sometimes core dumps on exit (via {\tt quit()} or {\tt
