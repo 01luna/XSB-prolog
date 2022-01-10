@@ -1273,8 +1273,8 @@ typedef ClRef SOBRef ;
 #define ClRefNumNonemptyBuckets(Cl)	(ClRefWord((Cl),8))
 #define ClRefHashTable(Cl)	(&ClRefWord((Cl),9))
 #define ClRefHashBucket(Cl,b)	((CPtr)(ClRefHashTable(Cl)[(b)]))
-#define ClRefCacheBucket(Cl)    (CPtr *)(*(ClRefHashTable(Cl)+ClRefHashSize(Cl)))
-#define ClRefCacheBucketLast(Cl) (CPtr)(*(ClRefHashTable(Cl)+ClRefHashSize(Cl)+1))
+#define ClRefCacheBucket(Cl)    *(CPtr *)((ClRefHashTable(Cl)+ClRefHashSize(Cl)))
+#define ClRefCacheBucketLast(Cl) *(CPtr *)((ClRefHashTable(Cl)+ClRefHashSize(Cl)+1))
 
 #define ClRefSOBArg(Cl,n)	(cell_operandn(&ClRefWord((Cl),2),(n)))
 
@@ -1752,10 +1752,10 @@ CPtr cached_bucket_last;
 
 CPtr last_if_cached(CPtr *Bucketaddr, SOBRef sob, CPtr NewInd) {
   CPtr OldInd;
-  if (Bucketaddr == ClRefCacheBucket(sob)) {
+  if ((CPtr)Bucketaddr == ClRefCacheBucket(sob)) {
     OldInd = ClRefCacheBucketLast(sob);
   } else {
-    ClRefCacheBucket(sob) = Bucketaddr;
+    ClRefCacheBucket(sob) = (CPtr)Bucketaddr;
     OldInd = *Bucketaddr;
   }
   ClRefCacheBucketLast(sob) = NewInd;
