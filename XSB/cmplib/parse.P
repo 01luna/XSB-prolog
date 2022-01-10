@@ -61,7 +61,7 @@
 
 ?- register_xsb_preprocessor(gpp,make_gpp_command(_,_,_,_)).
 
-/* TLS: not supporting include when compiling from userin */
+/* TES: not supporting include when compiling from userin */
 :- mode parse(+,+,+,?).
 parse(Modname, PFile, HFile, Module) :-
 	filestack_reset,
@@ -84,7 +84,7 @@ parse(Modname, PFile, HFile, Module) :-
 		 -> true
 		 ;  parse1(Modname,PFile,Module0)
 		)
-%%%             ,standard:writeln(parse(Module0))
+	 ; existence_error('path/file/module',Modname,parse/1,1)
 %%%	; 	error(('Cannot find the file ', PFile)), fail, Module0=Module0
 	),
 	conset(needs_restart, 0),  % clean up this var
