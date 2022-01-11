@@ -200,13 +200,22 @@ extern byte *check_interrupts_restore_insts_addr;
   ((unsigned)((top_of_localstk)-hreg)<(unsigned)(Margin))
   //  ((ereg<ebreg)?((ereg-hreg)<(Margin)):((ebreg-hreg)<(Margin)))
 
+#define heap_local_overflow_pb(Margin)					\
+  ((unsigned)(((pb)top_of_localstk)-(pb)hreg)<(unsigned)(Margin))
+  //  ((ereg<ebreg)?((ereg-hreg)<(Margin)):((ebreg-hreg)<(Margin)))
+
 #define glstack_overflow(EXTRA)						\
   ((pb)top_of_localstk < (pb)top_of_heap + (OVERFLOW_MARGIN + EXTRA))	\
 
 /* Bytes, not calls */
-#define check_glstack_overflow(arity,PCREG,EXTRA)			      \
-  if ((pb)top_of_localstk < (pb)top_of_heap + (OVERFLOW_MARGIN + EXTRA))      \
-     glstack_ensure_space(CTXTc EXTRA,arity)
+#define check_glstack_overflow(arity,PCREG,EXTRA)	{		\
+  /*    printf("check_glstack gap: byte sz %ld word size %ld\n",	\
+	   (pb)top_of_localstk-  ((pb)top_of_heap + OVERFLOW_MARGIN),	\
+	   top_of_localstk-  (top_of_heap + OVERFLOW_MARGIN/sizeof(Cell)));*/ \
+  if ((pb)top_of_localstk < (pb)top_of_heap + (OVERFLOW_MARGIN + EXTRA)) \
+    glstack_ensure_space(CTXTc EXTRA,arity);				\
+}
+
 
 
 #define check_completion_stack_overflow				\

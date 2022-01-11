@@ -1530,8 +1530,10 @@ contcase:     /* the main loop */
 	if (heap_local_overflow((Integer)op2))
       {
 #endif
+	//	printf("gap sz %d\n",(pb)top_of_localstk - (pb)top_of_heap); \
+//	printf("resizing1 %ld\n",op2);
         if (gc_heap(CTXTc (int)op1,FALSE)) { /* garbage collection potentially modifies hreg */
-	  if (heap_local_overflow((Integer)op2)) {	
+	  if (heap_local_overflow((Integer)op2)) {
 	    glstack_realloc(CTXTc resize_stack(glstack.size,(op2*sizeof(Cell))),(int)op1);
 	    /*
 	    if (pflags[STACK_REALLOC]) {
@@ -2568,6 +2570,8 @@ argument positions.
     ereg = *(CPtr *)ereg;
     /* following required for recursive loops that build structure on way back up. */
     if (heap_local_overflow(OVERFLOW_MARGIN)) { 
+      //      printf("gap sz %d\n",(pb)top_of_localstk - (pb)top_of_heap); \
+//      printf("resizing2 %d\n",OVERFLOW_MARGIN);
       Def1op
       Op1((lpcreg[-1]));  // already advanced pc, so look back
       if (gc_heap(CTXTc (int)op1,FALSE)) { // no regs, garbage collection potentially modifies hreg 
@@ -2598,7 +2602,10 @@ argument positions.
 
   XSB_Start_Instr(proceed_gc,_proceed_gc) /* PPP */
     /* following required for recursive loops that build structure on way back up. */
-    if (heap_local_overflow(OVERFLOW_MARGIN)) { 
+    if (heap_local_overflow_pb(OVERFLOW_MARGIN)) { 
+      //      printf("# proceed_gc margin %ld gap sz pb %ld gap sz word %ld\n",
+      //     OVERFLOW_MARGIN,((pb)top_of_localstk - (pb)top_of_heap),
+      //     top_of_localstk - top_of_heap);				
       if (gc_heap(CTXTc 0,FALSE)) { // no regs, garbage collection potentially modifies hreg 
 	if (heap_local_overflow(OVERFLOW_MARGIN)) {
 	  glstack_realloc(CTXTc resize_stack(glstack.size,OVERFLOW_MARGIN),0);
@@ -3126,111 +3133,105 @@ DllExport int call_conv xsb(CTXTdeclc int flag, int argc, char *argv[])
 extern pthread_mutexattr_t attr_rec_gl ;
 #endif
 
-   if (flag == XSB_INIT || flag == XSB_C_INIT) {  /* initialize xsb */
-
-     if (flag == XSB_C_INIT)
-     		xsb_mode = C_CALLING_XSB;
-     else
-     {
-     		xsb_mode = DEFAULT; /* MAY BE CHANGED LATER */
+ if (flag == XSB_INIT || flag == XSB_C_INIT) {  /* initialize xsb */
+   if (flag == XSB_C_INIT)
+     xsb_mode = C_CALLING_XSB;
+   else {
+     xsb_mode = DEFAULT; /* MAY BE CHANGED LATER */
 #ifdef MULTI_THREAD
 /* this has to be initialized here and not in main_xsb.c because
    of windows linkage problems for the variable main_thread_gl
  */
    main_thread_gl = th ;
 #endif
-     }
-
-     //     logfile = fopen("XSB_LOGFILE.txt","w");
-     /* Set the name of the executable to the real name.
-	The name of the executable could have been set in cinterf.c:xsb_init
-	if XSB is called from C. In this case, we don't want `executable'
-	to be overwritten, so we check if it is initialized. */
-	perform_IO_Redirect(CTXTc argc, argv);
-
+   }
+   //     logfile = fopen("XSB_LOGFILE.txt","w");
+   /* Set the name of the executable to the real name.  The name of
+      the executable could have been set in cinterf.c:xsb_init if
+      XSB is called from C. In this case, we don't want `executable'
+      to be overwritten, so we check if it is initialized. */
+   perform_IO_Redirect(CTXTc argc, argv);
 #ifdef SIMPLESCALAR
-	strcpy(executable_path_gl,argv[0]);
+   strcpy(executable_path_gl,argv[0]);
 #else
-      	if (executable_path_gl[0] == '\0')
-	  xsb_executable_full_path(argv[0]);
+   if (executable_path_gl[0] == '\0')
+     xsb_executable_full_path(argv[0]);
 #endif
+   /* set install_dir, xsb_config_file and user_home */
+   set_install_dir();
+   set_config_file();
+   set_user_home();
 
-	/* set install_dir, xsb_config_file and user_home */
-	set_install_dir();
-	set_config_file();
-	set_user_home();
-
-	realtime = real_time();
-	setbuf(stdout, NULL);
-	startup_file = init_para(CTXTc flag, argc, argv);	/* init parameters */
+   realtime = real_time();
+   setbuf(stdout, NULL);
+   startup_file = init_para(CTXTc flag, argc, argv);	/* init parameters */
 
 #ifdef MULTI_THREAD
-	/* init c-calling-xsb mutexes, after init_para() */
-	pthread_mutex_init( &(th->_xsb_ready_mut), &attr_rec_gl ) ;
-	pthread_mutex_init( &(th->_xsb_synch_mut), &attr_rec_gl ) ;
-	pthread_mutex_init( &(th->_xsb_query_mut), &attr_rec_gl ) ;
-	xsb_ready = XSB_IN_Prolog;
+   /* init c-calling-xsb mutexes, after init_para() */
+   pthread_mutex_init( &(th->_xsb_ready_mut), &attr_rec_gl ) ;
+   pthread_mutex_init( &(th->_xsb_synch_mut), &attr_rec_gl ) ;
+   pthread_mutex_init( &(th->_xsb_query_mut), &attr_rec_gl ) ;
+   xsb_ready = XSB_IN_Prolog;
 #endif
 
-	init_machine(CTXTc 0, 0, 0, 0);	/* init space, regs, stacks */
-	init_inst_table();		/* init table of instruction types */
-	init_symbols(CTXT);		/* preset symbols in PSC table; initialize Proc-level globals */
-	init_interrupt();		/* catch ^C interrupt signal */
+   init_machine(CTXTc 0, 0, 0, 0);	/* init space, regs, stacks */
+   init_inst_table();		/* init table of instruction types */
+   init_symbols(CTXT);		/* preset symbols in PSC table; initialize Proc-level globals */
+   if (xsb_mode != C_CALLING_XSB) init_interrupt();
+   /* catch ^C interrupt signal */
 
-	/* "b" does nothing in UNIX, denotes binary file in Windows -- 
-	   needed in Windows for reading byte-code files */
-	fd = fopen(startup_file, "rb");
+   /* "b" does nothing in UNIX, denotes binary file in Windows -- 
+      needed in Windows for reading byte-code files */
+   fd = fopen(startup_file, "rb");
 
-	if (!fd) {
-	  char message[MAXPATHLEN + 50];
-	  /* TLS: doing an snprintf here to avoid trouncing memory if XSB is called from C */
-	  snprintf(message, MAXPATHLEN + 50, "The startup file, %s, could not be found!",
-		  startup_file);
-	  xsb_initialization_exit(message); 
-	}
-	magic_num = read_magic(fd);
-	fclose(fd);
-	if (magic_num == 0x11121307  || magic_num == 0x11121305 || magic_num == 0x1112130a) {
-	  inst_begin_gl = loader(CTXTc startup_file,0,makenil);
-	}
-	else 
-	  xsb_initialization_exit("Incorrect startup file format");
+   if (!fd) {
+     char message[MAXPATHLEN + 50];
+     /* TLS: doing an snprintf here to avoid trouncing memory if XSB is called from C */
+     snprintf(message, MAXPATHLEN + 50, "The startup file, %s, could not be found!",
+	      startup_file);
+     xsb_initialization_exit(message); 
+   }
+   magic_num = read_magic(fd);
+   fclose(fd);
+   if (magic_num == 0x11121307  || magic_num == 0x11121305 || magic_num == 0x1112130a) {
+     inst_begin_gl = loader(CTXTc startup_file,0,makenil);
+   }
+   else 
+     xsb_initialization_exit("Incorrect startup file format");
+   
+   if (!inst_begin_gl)
+     xsb_initialization_exit("Error in loading startup file");
 
-	if (!inst_begin_gl)
-	  xsb_initialization_exit("Error in loading startup file");
+   if (xsb_mode == DISASSEMBLE) {
+     if (magic_num == 0x1112130a) {
+       exit(0);
+     }
+     dis(1);
+     exit(0);  /* This raw exit ok -- wont be called by C_CALLING_XSB */
+   }
 
-	if (xsb_mode == DISASSEMBLE) {
-	  if (magic_num == 0x1112130a) {
-	    exit(0);
-	  }
-	  dis(1);
-	  exit(0);  /* This raw exit ok -- wont be called by C_CALLING_XSB */
-	}
+   /* do it after initialization, so that typing 
+      xsb -v or xsb -h won't create .xsb directory */
+   set_xsbinfo_dir();
 
-	/* do it after initialization, so that typing 
-	   xsb -v or xsb -h won't create .xsb directory */
-	set_xsbinfo_dir();
+   current_inst = inst_begin_gl;   // current_inst is thread-specific.
+   
+   init_message_queue(&mq_table[0], MQ_CHECK_FLAGS);
+   init_message_queue(&mq_table[max_threads_glc], MQ_CHECK_FLAGS);
 
-	current_inst = inst_begin_gl;   // current_inst is thread-specific.
+   return(0);
 
-	init_message_queue(&mq_table[0], MQ_CHECK_FLAGS);
-	init_message_queue(&mq_table[max_threads_glc], MQ_CHECK_FLAGS);
-
-	return(0);
-
-   } else if (flag == XSB_EXECUTE) {  /* continue execution */
-
+   } else
+   if (flag == XSB_EXECUTE) {  /* continue execution */
      return(emuloop(CTXTc current_inst));
-
    } else if (flag == XSB_SETUP_X) {  /* initialize for call to XSB, saving argc regs */
      Psc term_psc;
      CPtr term_ptr;
+     delayreg = 0; reset_freeze_registers; 
      term_psc = get_ret_psc((byte)argc);
      term_ptr = (CPtr)build_call(CTXTc term_psc);
      bld_cs((reg+1),((Cell)term_ptr));
-
      return(emuloop(CTXTc (pb)get_ep(c_callloop_psc)));
-
    } else if (flag == XSB_SHUTDOWN) {  /* shutdown xsb */
 
 #ifdef FOREIGN
