@@ -37,7 +37,12 @@ test.
        
 test_dyn:- catch(load_dyn(bad_syntax),E,
 		 (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
-		  functor(T,F,_),writeln(dyn_caught(F,M)))),
+		  functor(T,F,_),
+		  %% compute line number and position in line, which should
+		  %% be the same independent of windows/unix line endings.
+		  M = EM-pos(PofE,Line0,PofL),
+		  Line is Line0+1, PinL is PofE-PofL,
+		  writeln(dyn_caught(F,EM-lpos(Line,PinL))))),
 	   fail.
 test_dyn.
 
