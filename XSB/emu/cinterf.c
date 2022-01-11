@@ -291,15 +291,18 @@ DllExport xsbBool call_conv c2p_functor_in_mod(CTXTdeclc char *modname,
 {
     Cell v = (Cell)var;
     Pair sym;
-    int i;
+    int i, is_new;
     if (is_var(v)) {
       XSB_Deref(v);
-      sym = (Pair)insert_psc(functor, arity, pair_psc(insert_module(0,modname)), &i);
+      sym = (Pair)insert_psc(functor, arity, pair_psc(insert_module(0,modname)), &is_new);
 	sreg = hreg;
 	hreg += arity + 1;
 	bind_cs(vptr(v), sreg);
 	new_heap_functor(sreg, sym->psc_ptr);
 	for (i=0; i<arity; sreg++,i++) { bld_free(sreg); }
+	//	if (is_new) {
+	//	  printf("psc is new \n");
+	//	}
 	return TRUE;
     } else {
 	xsb_warn(CTXTc "[C2P_FUNCTOR] Argument 3 must be a variable");
@@ -1466,6 +1469,9 @@ DllExport int call_conv xsb_init(int argc, char *argv[])
     /* This relies on the caller to tell us in argv[0] the absolute
        or relative path name to the XSB installation directory.
        TLS: added error check.*/
+
+    //    printf("argv[1] %s\n",argv[1]);
+    
     if (MAXPATHLEN < 
         snprintf(executable1, MAXPATHLEN, "%s%cconfig%c%s%cbin%cxsb",
                  argv[0], SLASH, SLASH, FULL_CONFIG_NAME, SLASH, SLASH))
@@ -1476,10 +1482,8 @@ DllExport int call_conv xsb_init(int argc, char *argv[])
     strcpy(executable_path_gl, expfilename);
     mem_dealloc(expfilename,MAXPATHLEN,OTHER_SPACE);
 
-
     /* catch XSB_C_INIT exceptions */
     if ((rc = setjmp(ccall_init_env))) return rc;
-
     if (0 == (rc = xsb(CTXTc XSB_C_INIT,argc,argv)))  {   /* initialize xsb */
       if (0 == (rc = xsb(CTXTc XSB_EXECUTE,0,0))) /* enter xsb to set up regs */
 	xsb_initted_gl = 1;
@@ -1588,11 +1592,11 @@ DllExport int call_conv writeln_to_xsb_stdin(char * input){
 #else
 #define EXECUTE_XSB {						\
     if (th != main_thread_gl) {					\
-      int pthread_cond_wait_err;	\
-      xsb_ready = XSB_IN_Prolog;										\
-      pthread_cond_wait_err = xsb_cond_signal(&xsb_started_cond, "EXECUTE_XSB", __FILE__, __LINE__);	\
-      while ((XSB_IN_Prolog == xsb_ready) && (!pthread_cond_wait_err))										\
-      	pthread_cond_wait_err = xsb_cond_wait(&xsb_done_cond, &xsb_synch_mut, "EXECUTE_XSB", __FILE__, __LINE__);	\
+      int pthread_cond_wait_err;					\
+      xsb_ready = XSB_IN_Prolog;					\
+      pthread_cond_wait_err = xsb_cond_signal(&xsb_started_cond, "EXECUTE_XSB", __FILE__, __LINE__);               \
+      while ((XSB_IN_Prolog == xsb_ready) && (!pthread_cond_wait_err))					    	   \
+      	pthread_cond_wait_err = xsb_cond_wait(&xsb_done_cond, &xsb_synch_mut, "EXECUTE_XSB", __FILE__, __LINE__);   \
     }	\
     else xsb(CTXTc XSB_EXECUTE,0,0);				\
   }
@@ -1601,8 +1605,8 @@ DllExport int call_conv writeln_to_xsb_stdin(char * input){
       int pthread_cond_wait_err;					\
       xsb_ready = XSB_IN_Prolog;										\
       pthread_cond_wait_err = xsb_cond_signal(&xsb_started_cond, "EXECUTE_XSB_SETUP_X", __FILE__, __LINE__);	\
-      while ((XSB_IN_Prolog == xsb_ready) && (!pthread_cond_wait_err))										\
-      	pthread_cond_wait_err = xsb_cond_wait(&xsb_done_cond, &xsb_synch_mut, "EXECUTE_XSB_SETUP_X", __FILE__, __LINE__);	\
+      while ((XSB_IN_Prolog == xsb_ready) && (!pthread_cond_wait_err))	\
+      	pthread_cond_wait_err = xsb_cond_wait(&xsb_done_cond, &xsb_synch_mut, "EXECUTE_XSB_SETUP_X", __FILE__, __LINE__); \
     }	\
     else xsb(CTXTc XSB_SETUP_X,NR,0);				\
   }
@@ -1671,7 +1675,7 @@ DllExport int call_conv xsb_query_restore(CTXTdecl) {
 
 DllExport int call_conv xsb_command(CTXTdecl)
 {
-
+  
 #ifndef MULTI_THREAD
   if (xsb_inquery) {
     create_ccall_error(CTXTc "permission_error","unable to call xsb_command() when query a query is open");
@@ -2114,6 +2118,7 @@ DllExport int call_conv xsb_close(CTXTdecl)
 
     UNLOCK_XSB_SYNCH;
     UNLOCK_XSB_QUERY;
+    xsb(CTXTc XSB_SHUTDOWN, 0, 0);
     return(XSB_SUCCESS);
   }
   else {
@@ -2218,3 +2223,11 @@ DllExport int call_conv xsb_add_c_predicate(CTXTdeclc char *modname, char *predn
   return 0;
 }
 
+/*
+#include <Python.h>
+void printPyObj(CTXTdeclc PyObject *obj1) {
+	PyObject* objectsRepresentation = PyObject_Repr(obj1);
+	const char* s = PyUnicode_AsUTF8(objectsRepresentation);
+	printf("printPyObj: %s\n",s);
+}
+*/
