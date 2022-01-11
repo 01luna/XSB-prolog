@@ -26,17 +26,17 @@ def test_cmd_query():
     pp_px_cmd('px_test','zero_ary_fail')
     pp_px_cmd('px_test','zero_ary_undef')
     print('----------- query: arity 1 --------------')
-    pp_px_query('px_test','one_ary_undef')
-    pp_px_query('px_test','instan')
-    pp_px_query('px_test','one_ary_fail')
-    pp_px_query('px_test','return_tuple')
-    pp_px_query('px_test','return_term')
+    pp_px_qdet('px_test','one_ary_undef')
+    pp_px_qdet('px_test','instan')
+    pp_px_qdet('px_test','one_ary_fail')
+    pp_px_qdet('px_test','return_tuple')
+    pp_px_qdet('px_test','return_term')
     
     print('------------ query: arity 2 -------------')
-    pp_px_query('basics','reverse',[1,2,3,{'a':{'b':'c'}}])
-    pp_px_query('string','concat_atom',['a','b','c','d','e','f','g'])
+    pp_px_qdet('basics','reverse',[1,2,3,{'a':{'b':'c'}}])
+    pp_px_qdet('string','concat_atom',['a','b','c','d','e','f','g'])
     print('------------ query: arity 3 -------------')
-    pp_px_query('basics','append',[1,2],[3,4])
+    pp_px_qdet('basics','append',[1,2],[3,4])
     print('----------- testing interrupts --------------')
     test_interrupts()
     print('----------- done with test_cmd_query --------------')
@@ -57,10 +57,10 @@ def test_iterations():
 
 def test_errors():    
     print('----------- undef error --------------')
-    pp_px_query('nomod','nopred',1)
+    pp_px_qdet('nomod','nopred',1)
 #    except ChildProcessError as err:
     print('----------- user file error --------------')
-    pp_px_query('px_test','throw_an_error','here is an error thrown from Prolog')
+    pp_px_qdet('px_test','throw_an_error','here is an error thrown from Prolog')
 
 # Test of various comprehensions    
 
@@ -144,17 +144,17 @@ def test_iteration_cmd(N):
 # deterministic query        
 def test_iteration_query(N):
     for i in range(1,N):
-        px_query('px_test','simple_call',N)
+        px_qdet('px_test','simple_call',N)
     
 def test_iteration_nondet(N):
     for i in range(1,N):
-        px_query('px_test','nondet_query')
+        px_qdet('px_test','nondet_query')
 
 def py_to_xsb_list_xfer(N):
     mylist = makelist(N)
 #    print('getting the length of List = makelist(100000)')
     start = time.time()
-    px_query('basics','length',mylist)
+    px_qdet('basics','length',mylist)
     end = time.time()
     print('py_to_xsb_list_xfer succeded: '+str(N))
     print('# Time: '+str(end-start))
@@ -163,7 +163,7 @@ def py_to_xsb_list_xfer(N):
 def xsb_to_py_list_xfer(N):
 #    print('calling prolog_makelist(1000000)')
     start = time.time()
-    px_query('px_test','prolog_makelist',N)    
+    px_qdet('px_test','prolog_makelist',N)    
     end = time.time()
     print('xsb_to_py_list_xfer succeded: '+str(N))
     print('# Time: '+str(end-start))
@@ -181,7 +181,7 @@ def list_retest():
     mylist = makelist(100000000)
     print('getting the length of List = makelist(2000000)')
     start = time.time()
-    print_query(px_query('basics','length',mylist))
+    print_query(px_qdet('basics','length',mylist))
     end = time.time()
     print((end-start))
 
@@ -191,5 +191,5 @@ def test_iteration(N):
 
 def px_list(call,tup):
     [mod,pred] = call.split('.')
-    print('px_query('+mod+','+'pred'+','+str(tup)+')')
+    print('px_qdet('+mod+','+'pred'+','+str(tup)+')')
     

@@ -21,7 +21,7 @@ void pPO(PyObject *obj1);
 
 static PyObject *px_init();
 static PyObject *px_close();
-static PyObject *px_query(PyObject *self,PyObject *args);
+static PyObject *px_qdet(PyObject *self,PyObject *args);
 static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs);
 static PyObject *px_cmd(PyObject *self,PyObject *args);
 static PyObject *px_get_error_message();
@@ -36,7 +36,7 @@ static PyMethodDef XsbMethods[] = {
   //    {"printPyObj", printPyObj, METH_VARARGS, "Print Python Obj from C"},
     {"px_init", px_init, METH_VARARGS, "Init XSB"},
     {"px_close", px_close, METH_VARARGS, "Close XSB"},
-    {"px_query", px_query, METH_VARARGS, "XSB query execution from Python"},
+    {"px_qdet", px_qdet, METH_VARARGS, "XSB query execution from Python"},
     {"px_comp", px_comp, METH_VARARGS | METH_KEYWORDS, "Set comprehehsion using XSB from Python"},
     {"px_cmd", px_cmd, METH_VARARGS, "XSB command execution from Python"},
     {"px_get_error_message", px_get_error_message, METH_VARARGS, "Find the XSB error message"},
@@ -164,7 +164,7 @@ PyObject* newPyObj;
   breg = (CPtr)tcpstack.high - breg_offset;		\
   //     print_ending_registers;  
 
-static PyObject *px_query(PyObject *self,PyObject *args) {
+static PyObject *px_qdet(PyObject *self,PyObject *args) {
   size_t tuplesize = PyTuple_Size(args);
   size_t heap_offset;
   reset_ccall_error(CTXT);

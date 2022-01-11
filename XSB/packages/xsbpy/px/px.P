@@ -50,8 +50,8 @@ px_get_residual(Goal,NewGoal,Resid,Flag):-
          variant_get_residual(Goal,R1),
 	 TrueGoal =.. [_|Args],
 	 strip_first_n(StripNum,Args,NewArgs),
-	 NewGoal =.. [''|NewArgs],
-	 (R1 = [] -> Resid = 1 ; Resid = R1)
+	 NewGoal =.. [''|NewArgs],Resid=R1
+%	 (R1 = [] -> Resid = 1 ; Resid = R1)
     ;    variant_get_residual(Goal,R1),
 	 TrueGoal =.. [_|Args],
 	 strip_first_n(StripNum,Args,NewArgs),

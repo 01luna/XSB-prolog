@@ -31,7 +31,7 @@ def consult(File):
     px_cmd('consult','consult',File)
 
 def prolog_paths():
-    return px_query('px_test','prolog_paths')
+    return px_qdet('px_test','prolog_paths')
     
 def add_prolog_path(List):
     px_cmd('px_test','append_prolog_paths',List)
@@ -39,14 +39,14 @@ def add_prolog_path(List):
 # ================ Pretty Printing  ================
 # Gives a Prolog-like echo to calls and writes answers in a Prolog-like manner
 
-def pp_px_query(Module,Pred,*args):
+def pp_px_qdet(Module,Pred,*args):
     try: 
         if len(args) == 0:
             print('?- '+Module+':'+Pred+'(Answer).')
         else: 
             print('?- '+Module+':'+Pred+'('+str(args)+',Answer).')
         print('')
-        Tup = px_query(Module,Pred,*args)
+        Tup = px_qdet(Module,Pred,*args)
         if Tup != 0:
             print('   Answer  = ' + str(Tup[0]))
             print('   TV = ' + printable_tv(Tup[1]))
