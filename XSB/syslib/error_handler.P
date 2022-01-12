@@ -24,7 +24,7 @@
 */
 
 :- compiler_options([xpp_on,sysmod,optimize,spec_off]).
-   :- import writeln/1 from standard.
+%   :- import writeln/1 from standard.
 
 #include "sig_xsb.h"
 #include "flag_defs_xsb.h"
@@ -285,8 +285,6 @@ get_sys_error_description(error(syntax_error,Msg), ExceptionDesc) :-
 			   Line,' position ',Pos,'\n', Msg1).
 get_sys_error_description(error(system_error,Msg), ExceptionDesc) :- 
         get_line_and_position(Msg,Line,Pos,Msg1),
-        writeln(get_line_and_position(Msg,Line,Pos,Msg1)),
-	    
 	ExceptionDesc =   ('++Error[XSB/Runtime/P]: [System] line ',
 			   Line,' position ',Pos,'\n', Msg1).
 get_sys_error_description(error(table_error,Msg), ExceptionDesc) :-
