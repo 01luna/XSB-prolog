@@ -121,4 +121,5 @@ EOF
 fi
 
 echo "*** Installing py-xsb as a Python package"
-$PYTHON_BIN $setupfile0 install
+cd px
+$PYTHON_BIN ../$setupfile0 install
