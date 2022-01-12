@@ -4537,12 +4537,17 @@ setupfile0=".tmp_pxsetup.py"
 setupfile="'$setupfile0'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
+if  -z "$PYTHON_INCLUDE_DIR" ; then
+    echo "Python does not seem to be configured."
+else
 ../../bin/xsb <<EOF
 consult(px_mk_setup).
 %%writeln(setupfile=$setupfile).
 %%writeln(includedir=$py_includedir).
 mk_setup($setupfile,$py_includedir).
 EOF
+
+fi
 
 echo "*** Installing py-xsb as a Python package"
 $PYTHON_BIN $setupfile0 install
