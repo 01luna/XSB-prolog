@@ -4547,8 +4547,8 @@ consult(px_mk_setup).
 mk_setup($setupfile,$py_includedir).
 EOF
 
-fi
-
 echo "*** Installing py-xsb as a Python package"
 cd px
 $PYTHON_BIN ../$setupfile0 install
+
+fi
