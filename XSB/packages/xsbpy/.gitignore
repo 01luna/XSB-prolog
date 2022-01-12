@@ -7,9 +7,14 @@ test_xsbpy_out.txt
 .#*
 \#*
 *.so
+*.o
+*/*.o
+*/*/*.o
+*/*/*/*.o
 *.csav
 *.cnew
 /xsb2py_connect_defs.h
+/confdefs.h
 /Installation_summary
 /config.status
 /configvars.sh

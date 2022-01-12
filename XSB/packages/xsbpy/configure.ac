@@ -32,6 +32,7 @@ echo PYTHON_CONFLIBDIR=$PYTHON_CONFLIBDIR
 echo PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR
 echo XSBCONFIG_LIBDIR=$XSBCONFIG_LIBDIR
 echo XSBCONFIG_EMUDIR=$XSBCONFIG_EMUDIR
+echo XSBCONFIG_BINDIR=$XSBCONFIG_BINDIR
 echo
 
 support1=no
@@ -71,6 +72,7 @@ AC_SUBST(PYTHON_CONFLIBDIR)
 AC_SUBST(PYTHON_BIN)
 AC_SUBST(XSBCONFIG_LIBDIR)
 AC_SUBST(XSBCONFIG_EMUDIR)
+AC_SUBST(XSBCONFIG_BINDIR)
 
 # these are useless
 #LDFLAGS="$ldflags"
@@ -108,6 +110,9 @@ setupfile0=".tmp_pxsetup.py"
 setupfile="'$setupfile0'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
+if [ -z "$PYTHON_INCLUDE_DIR" ]; then
+    echo "Python does not seem to be configured."
+else 
 ../../bin/xsb <<EOF
 consult(px_mk_setup).
 %%writeln(setupfile=$setupfile).
@@ -116,4 +121,7 @@ mk_setup($setupfile,$py_includedir).
 EOF
 
 echo "*** Installing py-xsb as a Python package"
-$PYTHON_BIN $setupfile0 install
+cd px
+$PYTHON_BIN ../$setupfile0 install
+
+fi

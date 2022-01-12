@@ -4,7 +4,7 @@
 :- import concat_atom/2 from string.
 
 mk_setup(File,PythonIncludeDir) :-
-        writeln('*** Creating the settings for the py-xsb package'),
+        writeln(2,'*** Creating the settings for the py-xsb package'),
         tell(File),
         mk_setup(PythonIncludeDir),
         told.
@@ -22,4 +22,11 @@ mk_setup(PythonIncludeDir) :-
         write('                                    \''), write(ConfigDir), writeln('\'],'),
         writeln('                    libraries = [\'xsb\'],'),
         write('                    library_dirs = [\''), write(ConfigBinDir), writeln('\'],'),
-        writeln('                    sources = [\'xsbext.c\', \'xsbpy_common.P\'])').
+        writeln('                    sources = [\'xsbext.c\', \'xsbpy_common.c\'])'),
+        writeln('
+setup (name = \'px\',
+       version = \'0.1\',
+       description = \'Embedding XSB in Python\',
+       author = \'Theresa Swift\',
+       ext_modules = [module1])
+').
