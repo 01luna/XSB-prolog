@@ -33,53 +33,115 @@ can be transferred at a few tens of nanoseconds per list element.
 
 \section{Configuration, Loading and Start-up}
 
-{\em Currently only tested on Linux}
+{\sc Working draft -- not complete.
+  \bi
+  \item Not mentioning LD\_LIBRARY or XSB\_ROOT issues.
+  \item  only describing Linux.
+  \item Once the above kinks are out, I need to integrate this
+    documentation it with the xsbpy configuration.
+    \ei
+    }
 
-The current configuration of {\tt px} works via the Python {\tt
-  distutils} package.  Currently {\tt setup.py} requires include and
-library directories as shown below.  The paths to these directories
-must be changed to include the proper {\tt \$XSB\_ROOT} and, in the
-case of the library directory the path of the XSB binary appropriate
-to your system.  An example is:
+The configuration of {\tt px} works via the Python {\tt distutils}
+package. \footnote{At some point, this confuration will probably be
+  changed to use Python's {\tt setuptools}}.  The configuration
+process compiles the C files needed for the {\tt px} module, and in a
+manner similar to {\tt pip}, installs them in a packages directory for
+the desired Python.  To properly execute these steps the proper Python
+system packages must have been installed.  Also, because {\tt px} is
+installed as a site package for a given version of Python, we strongly
+recommend using a Python virtual envonment, just as a virtual Python
+environment is usually necessary for installation via {\tt pip}.
+Fortunately, once the appropriate Python packages are present and a
+user has set up a virtual Python environment, {\tt px} is easy to set
+up.
 
-\begin{footnotesize}
-  \begin{verbatim}
-module1 = Extension('xsbext',
-                    include_dirs = ['/usr/include/python3.8',
-                                    '/home/tswift/xsb-code/XSB/emu',
-                                    '/home/tswift/xsb-code/XSB/packages/xsbpy',
-                                    '/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu'],
-                    libraries = ['xsb'],
-                    library_dirs = ['/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu/bin'],
-                    sources = ['xsbext.c','xsbpy_common.c'])
-  \end{verbatim}
-\end{footnotesize}
+On Linux, setting up a Python virtual environment requires the {\tt
+  python-dev} and {\tt python-venv} packages to be installed, along
+with other Linux packages like {\tt build-essential} on which these
+packages depend.  In addition, since {\tt px} requires {\tt
+  distutils}, the {\tt python-distutils} package also needs to have
+been installed.  On Ubuntu Linux installation of the above packages
+requires {\tt sudo}; for for a given version of Python {\tt \$PYTHON}
+the command to install these Python packages would be:
 
-Once {\tt setup.py} is properly configured, the user need only enter a
-python comaand to build and install the module ({\tt sudo} privilege
-may be needed for this).  For the above file the command is:
+{\tt sudo apt-get install \$\{PYTHON\}-dev \$\{PYTHON\}-distutils
+\$\{PYTHON\}-venv}
 
-\begin{verbatim}
-python3.8 setup.py install
-\end{verbatim}
 \noindent
-This command compiles the px sources, builds a Python egg, and
-installs the egg in the Python libary for distributed packages
-(e.g. {\tt dist-packages})
+On other Linuxes, an {\tt rpm} or equivalent commend must be
+used.\footnote{{\tt px} has been tested on Python versions 3.7, 3.8
+  and 3.9, although it should work on other recent Python versions as
+  well.}
 
-After {\tt px} has been installed, it can be used like any other Python
-package, e.g.:
+Once the appropriate packages are present, a virtual environment can
+be set up, usually in a user's home directory via a command like:
+
+{\tt \$\{PYTHON\} -m venv {\tt \$VENV\_DIR}}
+
+Next, the virtual environment needs to be activated in a command
+shell,  In {\tt bash} this is done as:
+
+{\tt source \$VENV\_DIR/bin/activate  }
+
+In the same shell the {\tt px} configuration will be run.  If XSB has
+not already been configured and made, you'll need to do so as
+discussed in Volume 1 of this manual, which will configure {\tt px}
+(and {\tt xsbpy}).  Otherwise, {\tt cd} to the {\tt xsbpy}
+subdirectory and run the command
+
+{\tt ./configure}
+
+If all of the above steps have been done properly, {\tt px} will be
+reqdy to run.  In fact, it can be used just as any other package
+installed in {\tt \$\{PYTHON\}}
 
 \begin{verbatim}
+$PYTHON
 >>> from px import *
 [xsb_configuration loaded]
 [sysinitrc loaded]
 [xsbbrat loaded]
 [xsbrc loaded]
 \end{verbatim}
+
 \noindent
 Note that XSB is initialized in the Python process when the {\tt px}
 module is loaded.
+
+
+%\subsection{Configuring on Linux Systems}
+
+%Currently {\tt setup.py} requires include and
+%library directories as shown below.  The paths to these directories
+%must be changed to include the proper {\tt \$XSB\_ROOT} and, in the
+%case of the library directory the path of the XSB binary appropriate
+%to your system.  An example is:
+
+%\begin{footnotesize}
+%  \begin{verbatim}
+%module1 = Extension('xsbext',
+%                    include_dirs = ['/usr/include/python3.8',
+%                                    '/home/tswift/xsb-code/XSB/emu',
+%                                    '/home/tswift/xsb-code/XSB/packages/xsbpy',
+%                                    '/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu'],
+%                    libraries = ['xsb'],
+%                    library_dirs = ['/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu/bin'],
+%                    sources = ['xsbext.c','xsbpy_common.c'])
+%  \end{verbatim}
+%\end{footnotesize}
+%
+%Once {\tt setup.py} is properly configured, the user need only enter a
+%python comaand to build and install the module ({\tt sudo} privilege
+%may be needed for this).  For the above file the command is:
+%
+%\begin{verbatim}
+%%python3.8 setup.py install
+%end{verbatim}
+%\noindent
+%This command compiles the px sources, builds a Python egg, and
+%installs the egg in the Python libary for distributed packages
+%(e.g. {\tt dist-packages})
 
 \subsection{Python Functions in {\tt px}}
 
