@@ -1,6 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <Python.h>
 #include <cinterf.h>
 #include "xsbpy_defs.h"
@@ -12,6 +13,7 @@
 #include <heap_xsb.h>
 #include <memory_xsb.h>
 #include <flags_xsb.h>
+#include <xsb_config.h>
 
 extern int convert_pyObj_prObj(PyObject *, prolog_term *);
 extern int convert_prObj_pyObj(prolog_term , PyObject **);
@@ -75,11 +77,10 @@ PyInit_xsbext(void)
 //}
 
 static PyObject *px_init() {
-  //  char *mychar = "/home/tswift/xsb-repo/xsb-code/XSB";
-  char *argarray[3];
-  argarray[0] =  "/home/tswift/xsb-repo/xsb-code/XSB";
-  argarray[1] = "30";
-  //  PyObject* ret = PyLong_FromLong((long) xsb_init(1,&mychar)); 
+  const char xsb_root[10]  = "XSB_ROOT";
+  //  printf("envvar %s\n",getenv(xsb_root));
+  char *argarray[1];
+  argarray[0] = getenv(xsb_root);
   PyObject* ret = PyLong_FromLong((long) xsb_init(1,argarray)); 
   return ret;
 }
