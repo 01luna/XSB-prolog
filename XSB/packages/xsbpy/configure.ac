@@ -11,7 +11,17 @@ AC_INIT([xsbpy],[1.0])
 
 AC_CONFIG_MACRO_DIR([./m4])
 
+AC_ARG_WITH(with-preferred-python,
+[  --with-preferred-python=X      indicate the preferred version of python to build with],
+   preferred-python=python3.7)
+
 source ./configvars.sh
+
+if test -n "${with_preferred_python}" ; then
+    # used in the macro called below;
+    # if not set, the below macro choses the latest installed
+    ac_preferred_python=$with_preferred_python
+fi
 
 AX_PYTHON
 
@@ -110,7 +120,7 @@ setupfile0=".tmp_pxsetup.py"
 setupfile="'$setupfile0'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
-if [ -z "$PYTHON_INCLUDE_DIR" ]; then
+if test -z "$PYTHON_INCLUDE_DIR" ; then
     echo "Python does not seem to be configured."
 else 
 ../../bin/xsb <<EOF

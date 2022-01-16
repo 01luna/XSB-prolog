@@ -686,6 +686,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_with_preferred_python
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1311,6 +1312,11 @@ if test -n "$ac_init_help"; then
      short | recursive ) echo "Configuration of xsbpy 1.0:";;
    esac
   cat <<\_ACEOF
+
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-preferred-python=X      indicate the preferred version of python to build with
 
 Some influential environment variables:
   CC          C compiler command
@@ -1991,13 +1997,30 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
+# Check whether --with-with-preferred-python was given.
+if test "${with_with_preferred_python+set}" = set; then :
+  withval=$with_with_preferred_python; preferred-python=python3.7
+fi
+
+
 source ./configvars.sh
+
+if test -n "${with_preferred_python}" ; then
+    # used in the macro called below;
+    # if not set, the below macro choses the latest installed
+    ac_preferred_python=$with_preferred_python
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for python build information" >&5
 $as_echo_n "checking for python build information... " >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: " >&5
 $as_echo "" >&6; }
-for python in python3.11m python3.11 python3.10m python3.10 python3.9m python3.9 python3.8m python3.8 python3.7m python3.7 python3.6m python3.6 python3.5m python3.5 python3.4m python3.4 python3.3m python3.3 python3.2m python3.2 python3.1m python3.1 python3.0m python3.0 ; do
+
+# ac_preferred_python may be set by configure so the below will select
+# that version of Python
+
+for python in $ac_preferred_python python3.11m python3.11 python3.10m python3.10 python3.9m python3.9 python3.8m python3.8 python3.7m python3.7 python3.6m python3.6 python3.5m python3.5 python3.4m python3.4 python3.3m python3.3 python3.2m python3.2 python3.1m python3.1 python3.0m python3.0 ; do
 for ac_prog in $python
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -4540,7 +4563,7 @@ setupfile0=".tmp_pxsetup.py"
 setupfile="'$setupfile0'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
-if  -z "$PYTHON_INCLUDE_DIR" ; then
+if test -z "$PYTHON_INCLUDE_DIR" ; then
     echo "Python does not seem to be configured."
 else
 ../../bin/xsb <<EOF

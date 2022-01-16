@@ -378,7 +378,7 @@ void usage(void) {
   fprintf(stderr," -includemarker FORMATSTRING : keep track of #include directives in output\n\n");
   /*
     The above FORMATSTRING is a string without spaces
-    (use @ if you want to add spaces that is used as follows.
+    (use @ if you want to add a space) that is used as follows.
     It is dumped with changes at the top of the root file and also before and
     after any #included file.
     FORMATSTRING must have three ?'s in it, eg.
@@ -388,24 +388,37 @@ void usage(void) {
       replaces the 2nd ? in the dumped FORMATSTRING.
       Replacement of the second ? and third ? depends on where FORMATSTRING
       is dumped.
-        If dumped at the top of the root file, the 2nd ? is replaces with the
-        root file name and 3d ? is replaced with "".
+        If dumped at the top of the root file, the 2nd ? is replaces with that
+        root file name and 3rd ? is replaced with "".
         If dumped just before an included file, the second ? is replaced with
-        the included file name and the third is replaced with 1.
+        the included file name and the third ?  is replaced with 1.
         If dumped just after an included file, the 2nd ? is replaced with the
         name of the file that contained the processed #include and the 3d
-        is replaced with 2.
-        For instance, for the above FORMATSTRING, we'll get something like
+        ? is replaced with 2.
+        For instance, for the above FORMATSTRING, and the file myfile.P       
 
-         '_$_$_xsb_gpp_markup'(1,'path-to-/myfile.P','').
-        r.   %% contents of myfile.P begins
-        p:-r.
-        tt.  %% contents of myfile.P is interrupted below by included file
-         '_$_$_xsb_gpp_markup'(1,'path-to-/includedfile.P','1').
-        ppp.            %% contents of includedfile.P starts
-        gggg:-ppppp,q.  %% end of the included text from includedfile.P
-         '_$_$_xsb_gpp_markup'(4,'path-to-/myfile.P','2').
-        %% contents of myfile.P continues
+          r.  %% contents of myfile.P begins
+          p:-r.
+          tt. %% contents of myfile.P is interrupted below by included file
+          #include "includedfile.P"
+          %% contents of myfile.P continues
+
+        and includedfile.P being
+
+          ppp.            %% contents of includedfile.P starts
+          gggg:-ppppp,q.  %% end of the included text from includedfile.P
+
+        we'll get something like this:
+
+           '_$_$_xsb_gpp_markup'(1,'path-to-/myfile.P','').
+          r.   %% contents of myfile.P begins
+          p:-r.
+          tt.  %% contents of myfile.P is interrupted below by included file
+           '_$_$_xsb_gpp_markup'(1,'path-to-/includedfile.P','1').
+          ppp.            %% contents of includedfile.P starts
+          gggg:-ppppp,q.  %% end of the included text from includedfile.P
+           '_$_$_xsb_gpp_markup'(4,'path-to-/myfile.P','2').
+          %% contents of myfile.P continues
 
       All this is needed in order to enable tokenizers to refer to the correct
       lines in the source files. (Note that tokenizers get files after the gpp
