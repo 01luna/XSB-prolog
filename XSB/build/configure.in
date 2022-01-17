@@ -992,6 +992,10 @@ fi
 
 # xsbpy package
 if test -d "$topdir/packages/xsbpy"; then
+    AC_OUTPUT([
+    '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"'
+    ])
+
     cd "$topdir/packages/xsbpy"
     echo "***Configuring XSBPY (XSB to Python connector)"
     chmod 700 ./configure
@@ -1930,7 +1934,6 @@ AC_OUTPUT([ '"${arch_config_prefix}/topMakefile"':topMakefile.in
         windows/MSVC_mkfile.mak:windows/MSVC_mkfile.in
         windows64/MSVC_mkfile.mak:windows64/MSVC_mkfile.in
         '"${prefix}/packages/xmc/xmc-gui"':xmc-gui.in
-        '"${prefix}/packages/xsbpy/configvars.sh"':'"${prefix}/packages/xsbpy/configvars.in"'
         ])
 
 chmod 644 "${arch_config_file}"
