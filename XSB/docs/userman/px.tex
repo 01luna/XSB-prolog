@@ -166,7 +166,7 @@ of \px{} are presented via its support for commands and
 non-deterministic queries before turning to general support of
 deterministic queries.
 
-\subsection{Non-Deterministic Queries and Commands}
+\subsection{Deterministic Queries and Commands} \label{sec:pxdet}
 
 \begin{example} \rm
 {\em Calling a determinstic query}
@@ -293,11 +293,13 @@ Several points are worth noting here.  If the keyword argument {\tt
 a tuple.  Next, although the number of ground and free arguments can
 vary, when the XSB goal is constructed, all ground arguments will
 precede all non-ground arguments.  In addition \px{} does not provide
-a way to represent logical variables in Python so that any argument
-passed to XSB must be fully ground.  Finally, a call to {\tt
-  px\_qdet()} with {\tt vars=0} acts in much the same way as a call to
-{\tt px\_cmd}.\footnote{Because {\tt px\_cmd()} is slightly simpler
-  than {\tt px\_qdet()} it may be very slightly faster.}
+a way to represent logical variables in Python so that XSB will see
+any argument as fully ground.  (However, as shown in Example~\ref{ex:connstraints} it
+is easy to pass logical varibles to XSB via strings.)  Finally, a
+call to {\tt px\_qdet()} with {\tt vars=0} acts in much the same way
+as a call to {\tt px\_cmd}.\footnote{Because {\tt px\_cmd()} is
+  slightly simpler than {\tt px\_qdet()} it may be very slightly
+  faster.}
 \end{example}
 
 If an exception occurs when XSB is executing a goal, the error is
@@ -516,8 +518,83 @@ The value {\tt NO\_TRUTHVALS} is a (constant) variable in the Python
 module {\tt px}.
 \end{example}
 
-The next example is not necessary to understand unless one wants to
-use \px{} together with XSB's non-monotonic logic.  
+\subsection{Constraints and Non-Monotonic Representations} 
+
+The material in this section is not necessary to understand for a
+basic use of \px{}, but shows how \px{} can be used for
+constaint-based reasoning, and how it can interface to the results of
+non-monotonic reasining.
+
+\begin{example} \rm {\it Evaluating queries with constraints} \label{ex:connstraints}
+
+  XSB provides support for constraint-based reasoning via
+  CLPR~\cite{Holz95} and other packages; this support is present not
+  just for Prolog-style evaluation, but within XSB's tabling system as
+  well.  However, using constraint-based reasoners like CLPR requires
+  explicit use of logical variables
+  (cf. Chapter~\ref{chap:constraints}), and as mentioned in
+  Section~\ref{sec:pxdet} \px{} does not provide a direct way to
+  represent logical variables.  Fortunately, it is not difficut to
+  pass constraint expressions containing logical variables to XSB
+  within Python strings.
+
+  Consider a query to find whether 
+
+  \[X  > 3*Y + 2,Y>0 \models X > Y\]
+
+\noindent  
+  In CLPR this is done by writing a clause to assert the two
+  constraints -- in Prolog syntax as calls to the literals {\tt \{X
+    $>$ 3*Y + 2\}} and {\tt \{Y$>$0\}} -- and then calling the CLPR
+  goal {\tt entailed(Y$>$0)}.  One way to generalize the entailment
+  relation into a predicate would be to see if one set of constraints,
+  represented as a list, implies a given constraint:
+
+{\small  
+\begin{verbatim}  
+  check_entailed(Constraints,Entailed):- 
+     set_up_constraints(Constraints),
+     check_entailed(Entailed).
+
+  set_up_constraints([]).
+  set_up_constraints([Constr,Rest]):- 
+     {Constr},
+     set_up_constraints(Rest).
+\end{verbatim}
+}
+Using our example, a query to this prodicate would have the form
+
+\begin{verbatim}
+ ?- check_entailed([X  > 3*Y + 2,Y>0],X > Y).
+\end{verbatim}
+
+As written, such a formulation requires logical variables to be passed
+into the call.  Checking constraint entailment via \px{} only requires
+writing the constraints as a string in Python and later having XSB
+read the string.  A predicate to do this is 
+
+{\small
+\begin{verbatim}
+px_check_entailed(Atom):-
+    read_atom_to_term(Atom,Cterm,_Cvars),
+    Cterm = [Constraints,Entailed],
+    set_up_constraints(Constraints),
+    entailed(E),
+\end{verbatim}
+}
+
+while the function call from Python is simply:
+
+\begin{verbatim}
+>>>  px_cmd('px_constraints','check_entailed','[X  > 3*Y + 2,Y>0],X > Y')
+\end{verbatim}
+
+Note that the only difference requied when calling from Python is to
+put the two arguments together into a single Python string, so that
+XSB's reader treats the {\tt Y} variable in the input constraints and
+the entailment constraint as the same~\footnote{Code for this is
+  contained in the file {\tt px\_constraints.P}.}
+\end{example}
 
 \begin{example} \rm {\it Understanding Undefined Answers} \label{ex:px-comp-undef}
 
@@ -539,6 +616,8 @@ is undefined.
 {\sc TES: to be continued}
 
   \end{example}
+
+
 
 \subsection{Other \px{} Resources and Examples}
 
