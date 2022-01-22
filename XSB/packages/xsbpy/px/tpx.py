@@ -3,6 +3,7 @@ import sys
 
 
 px_cmd('consult','ensure_loaded','px_test')
+px_cmd('consult','ensure_loaded','constraa')
 
 def tpx_file(file):
     sys.stdout = open('file', 'w')
@@ -46,7 +47,8 @@ def test_interrupts():
     px_cmd('px_test','tc_rep_max') 
     px_cmd('consult','consult','attv_test')
     px_cmd('usermod','test')
-
+    px_cmd('constraa','px_entailed','[[X  > 3*Y + 2,Y>0],[X > Y]]')
+        
 # these numbers can be increased but these are reasonable for a test script.    
 def test_iterations():
     pp_iteration(test_iteration_cmd,200000)
@@ -63,7 +65,6 @@ def test_errors():
     pp_px_qdet('px_test','throw_an_error','here is an error thrown from Prolog')
 
 # Test of various comprehensions    
-
 
 def test_comps():
     pp_px_comp('px_test','test_comp')

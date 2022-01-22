@@ -1,9 +1,8 @@
 :- compiler_options([xpp_on]).
 
-
 :- export zero_ary_true/0,instan/1,
    zero_ary_undef/0, win/1, one_ary_undef/1,
-   zero_ary_fail/0,one_ary_fail/1,
+   zero_ary_fail/0,one_ary_fail/1,p/1,
    throw_an_error/2.
 % for stress tests
 :- export simple_call/2,simple_cmd/1,
@@ -47,6 +46,8 @@ zero_ary_fail():- fail.
 
 one_ary_fail(_):- fail.
 one_ary_undef(b):- zero_ary_undef.
+
+p(a).   
 
 simple_call(N,N1):- N1 is N + 1.
 simple_cmd(N):- _N1 is N + 1.
