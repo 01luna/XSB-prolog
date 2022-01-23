@@ -44,59 +44,128 @@ can be transferred at a few tens of nanoseconds per list element.
     \ei
     }
 
-The configuration of \px{} works via the Python {\tt distutils}
-package. \footnote{At some point, this confuration will probably be
-  changed to use Python's {\tt setuptools}}.  The configuration
-process compiles the C files needed for the \px{} module, and in a
-manner similar to {\tt pip}, installs them in a packages directory for
-the desired Python.  To properly execute these steps the proper Python
-system packages must have been installed.  Also, because \px{} is
-installed as a site package for a given version of Python, we strongly
-recommend using a Python virtual envonment, just as a virtual Python
-environment is usually necessary for installation via {\tt pip}.
-Fortunately, once the appropriate Python packages are present and a
-user has set up a virtual Python environment, \px{} is easy to set
-up.
+%Also, because \px{} is installed as a site
+%package for a given version of Python, we strongly recommend using a
+%Python virtual envonment, just as a virtual Python environment is
+%usually necessary for installation via {\tt pip}.  Fortunately, once
+%the appropriate Python packages are present and a user has set up a
+%virtual Python environment, \px{} is easy to set up.
 
-On Linux, setting up a Python virtual environment requires the {\tt
-  python-dev} and {\tt python-venv} packages to be installed, along
-with other Linux packages like {\tt build-essential} on which these
-packages depend.  In addition, since \px{} requires {\tt
-  distutils}, the {\tt python-distutils} package also needs to have
-been installed.  On Ubuntu Linux installation of the above packages
-requires {\tt sudo}; for for a given version of Python {\tt \$PYTHON}
-the command to install these Python packages would be:
+\subsection{System Prerequisites}
 
-{\tt sudo apt-get install \$\{PYTHON\}-dev \$\{PYTHON\}-distutils
-\$\{PYTHON\}-venv}
+\subsubsection{Linux}
 
-\noindent
+%To properly execute these steps the proper Python system packages must
+%have been installed.
+
+Beyond Linux packages like {\tt build-essential} which are needed to
+build and make XSB itself, \px{} reqires a version of \$\{PYTHON\}-dev
+to have been installed.  
+%On Ubuntu Linux
+%installation of the above packages requires {\tt sudo};
+For for a given version of Python {\tt \$PYTHON} the command to
+install these Python packages would be:
+
+{\tt sudo apt-get install \$\{PYTHON\}-dev \$\{PYTHON\}-distutils}
+
 On other Linuxes, an {\tt rpm} or equivalent commend must be
-used.\footnote{\px{} has been tested on Python versions 3.7, 3.8
-  and 3.9, although it should work on other recent Python versions as
-  well.}
+used.\footnote{\px{} has been tested on Ubuntu v. 18 using Python
+  versions 3.7, 3.8 and 3.9, although it should work on other recent
+  Unix distributions and Python versions as well.}
 
-Once the appropriate packages are present, a virtual environment can
-be set up, usually in a user's home directory via a command like:
+%Since \px{} requires {\tt distutils}, the {\tt python-distutils}
+%package also needs to have been installed.
 
-{\tt \$\{PYTHON\} -m venv {\tt \$VENV\_DIR}}
+%On Linux, setting up a Python virtual environment requires the {\tt
+%  python-dev} and {\tt python-venv} packages to be installed, 
 
-Next, the virtual environment needs to be activated in a command
-shell,  In {\tt bash} this is done as:
+\subsection{Configuring \px{}}
 
-{\tt source \$VENV\_DIR/bin/activate  }
+If the correct Python libraries have been installed, configuration of
+{\tt px} will usually be simple.  When XSB is first configured, via
+\begin{verbatim}
+$XSB_ROOT/XSB/build/configure
+\end{verbatim}
+the {\tt xsbpy} package, which allows XSB to call Python, will be
+configured and compiled.  Using files created during ththe {\tt xsbpy}
+build, \px{} can be configred and build by executing
+\begin{verbatim}
+  $XSB_ROOT/XSB/packages/xsbpy/configure
+\end{verbatim}
+This second {\tt configure} calls the Python {\tt distutils}
+package. \footnote{At some point, this confuration will probably be
+  changed to use Python's {\tt setuptools}}.  When {\tt distutils} is
+called, it compiles the C files needed for the \px{} module, and in a
+manner similar to {\tt pip}, installs them as follows.
 
-In the same shell the \px{} configuration will be run.  If XSB has
-not already been configured and made, you'll need to do so as
-discussed in Volume 1 of this manual, which will configure \px{}
-(and {\tt xsbpy}).  Otherwise, {\tt cd} to the {\tt xsbpy}
-subdirectory and run the command
+\begin{itemize}
+\item As a default, if the command
 
-{\tt ./configure}
+  {\tt \$XSB\_ROOT/XSB/packages/xsbpy/configure}
 
-If all of the above steps have been done properly, \px{} will be
-reqdy to run.  In fact, it can be used just as any other package
-installed in {\tt \$\{PYTHON\}}
+  is issued, \px{} is installed in the directory corresponding to {\tt
+    sys.USER\_SITE} in the version of Python {\tt \$Python} with which
+  {\tt xsbpy} was configured. In Linux this is under the users home
+  directory (\verb|~|):
+\begin{verbatim}
+~/.local/lib/$PYTHON/site-packages
+\end{verbatim}
+If this default directory is used, {\tt px} will only be avaiable to
+the user who installed it, and {\tt px} will be available for all
+Python projects for that user.
+
+\item If \px{} is to be installed in a Python virtual environment
+  that uses {\tt venv}, the virtual environment will first need to be
+  activated in a given shell.  In {\tt bash} this is done as:
+
+\begin{verbatim}
+source $VENV_DIR/bin/activate
+\end{verbatim}
+
+Where {\tt \$VENV\_DIR} is the root directory for the virtual
+environment.  Once this is done, the command
+
+\begin{verbatim}  
+$XSB_ROOT/XSB/packages/xsbpy/configure ???
+\end{verbatim}
+
+is issued, \px{} will be installed in 
+
+\begin{verbatim}
+$VENV_DIR/lib/$PYTHON/site-packages
+\end{verbatim}
+
+\item For system administrators, if the command
+
+\begin{verbatim}  
+sudo $XSB_ROOT/XSB/packages/xsbpy/configure ???
+\end{verbatim}
+
+  is issued, \px{} will be installed in
+
+\begin{verbatim}  
+/usr/local/lib/$PYTHON/dist-packages
+\end{verbatim}  
+
+  If this option is used, \px{} will be avaiable to anyone who uses
+  the version {\tt \$PYTHON}.
+
+\item As a final alternative, the command 
+
+\begin{verbatim}  
+  $XSB_ROOT/XSB/packages/xsbpy/configure ???
+\end{verbatim}
+
+will install \px{} directly in the specified directory.
+\end{itemize}
+
+{\sc TES: If possible, I need to redo setup.py to include px.py in the
+  egg so that px.py does not need to be in the library path.}
+
+Once \px has been built, \px{} can be used just as any other package
+installed in {\tt \$\{PYTHON\}} (As long as
+{\tt \$XSB\_ROOT/XSB/packages/xsbpy/px/px.py} is in the Python library
+  paths).
 
 \begin{verbatim}
 $PYTHON
@@ -111,6 +180,27 @@ $PYTHON
 Note that XSB is initialized in the Python process when the \px{}
 module is loaded.
 
+%------------------------------------------------------------
+
+%\noindent
+%Once the appropriate packages are present, a virtual environment can
+%be set up, usually in a user's home directory via a command like:
+
+%{\tt \$\{PYTHON\} -m venv {\tt \$VENV\_DIR}}
+
+%Next, the virtual environment needs to be activated in a command
+%shell,  In {\tt bash} this is done as:
+
+%{\tt source \$VENV\_DIR/bin/activate  }
+
+%In the same shell the \px{} configuration will be run.  If XSB has
+%not already been configured and made, you'll need to do so as
+%discussed in Volume 1 of this manual, which will configure \px{}
+%(and {\tt xsbpy}).  Otherwise, {\tt cd} to the {\tt xsbpy}
+%subdirectory and run the command
+%
+%{\tt ./configure}
+%%
 
 %\subsection{Configuring on Linux Systems}
 
@@ -320,15 +410,20 @@ session can easily be managed from Python.  For instance, either
 \end{verbatim}
 
 \noindent
-loads the XSB {\tt file.\{P,pl\}}, compiling it if necessary.  In
+loads the XSB {\tt xsb\_file.\{P,pl\}}, compiling it if necessary.  In
 fact, {\tt px} defines a shortcut for consulting:
 
 \begin{verbatim}
->>>  px.consult('file')
+>>>  px.consult('xsb_file')
 \end{verbatim}
 
 \noindent
-along with shortcuts for some other frequent Prolog calls.
+along with shortcuts for some other frequent Prolog calls.  If {\tt
+  xsb\_file} is modified it can be reconsulted just as if the XSB
+interpreter were being used.  Indeed, using {\tt px}, the Python
+interpreter can be used as a command-line interface for writing and
+debugging XSB code (although the XSB interpreter is recommended for
+most XSB development tasks).
 
 However what would happen if XSB threw an exception, perhaps because
 the file didn't exist in any of the paths given to the XSB session?
@@ -383,9 +478,9 @@ lists, sets and aggregates.  \px() fits into this paradugm with {\em
   query comprehension}: calls to XSB that return all solutions to an
 XSB query as a Python list or set.
 
-\begin{example} \rm {\it List and Set Comprehension in \px{}}
+\begin{example} \rm {\it List and Set Comprehension in \px{}} \label{ex:list-comp-1}
 
-  Consider the XSB predicate, {\tt text\_comp/2} defined as
+  Consider the XSB predicate, {\tt test\_comp/2} defined as
 
 {\small  
 \begin{verbatim}  
@@ -393,8 +488,11 @@ test_comp(a,1).
 test_comp(b,2).
 test_comp(c,3).
 test_comp(d,4).
-test_comp(e,5):- unk(something).
-test_comp(e,5):- unk(something_else).
+test_comp(e,5):- unk(something),p.
+test_comp(e,5):- p,unk(something_else).
+test_comp(e,5):- failing_goal,unk(something_else).
+
+p.
 \end{verbatim}
 }
 
@@ -493,7 +591,7 @@ simple_comp(d,4).
 }
 
   The clauses in {\tt simple\_comp/2} are the same as the first four
-  clauses in {\tt text\_comp/2}, and due to this restriction, a query
+  clauses in {\tt test\_comp/2}, and due to this restriction, a query
   to this predicate will produce only answers whose truth value is
   {\em true}.  In this case, the function call
 
@@ -604,9 +702,41 @@ entailment constraint as the same~\footnote{Code for this is contained
 
 \begin{example} \rm {\it Accessing the XSB's Residual Program} \label{ex:px-comp-undef}
 
-{\tt px\_comp()} can return more information about undefined answers,
-including the {\em delay lists} indicating why each undefined answer
-is undefined.
+As discussed, XSB can evaluate queries to programs whose well-founded
+model is 3-valued.  In fact, XSB's evaluation can be seen as a program
+transformation that forms the three-valued reduct of each clause used
+in an evaluation~\cite{ChWa96}.  This reduct is called the {\em
+  residual program} for a given query to a given program, and
+non-empty bodies in the resudual program are called {\tt delay lists}.
+Recall that in our running example, {\tt test\_comp(e,5)} is {\em
+  undefined} in the well-founded model.  The residual program after
+evaluating the query {\tt test\_comp(e,X)} is (in rule form):
+
+\begin{verbatim}
+test_comp(e,5):- unk(something).
+test_comp(e,5):- unk(something_else).
+\end{verbatim}
+
+Note that compared to the source program in
+Example~\ref{ex:list-comp-1}, the true literals {\tt p} and {\tt q}
+have been removed from the rule bodies in which they occurred, while
+the rule body containing {\tt failing\_goal} has been removed.
+
+Residual programs have many uses.  They can be sent to an ASP engine
+to evaluate partial stable models, or the residual program can be
+examined to detrmine why a given literal is undefined. The reason
+could be a negative loop somewhere in the program, or due to a type of
+bounded rationality supported in XSB called {\tt restraint}
+(cf. e.g. \cite{GroS13}).
+
+In our running example, the function call
+
+\begin{verbatim}  
+>>>  px_comp('px_test','test_comp',truth_vals=DELAY_LISTS)}
+\end{verbatim}
+
+\noindent
+returns the delay lists of answers.  
 
 \begin{verbatim}
      [
@@ -619,14 +749,22 @@ is undefined.
      ]
 \end{verbatim}
 
-{\sc TES: to be continued}
-
+Any answer whose delay list is empty ({\tt []}) is {\em true}, and any
+other delay list indicates that an answer is {\em undefined}.  The two
+delay lists for {\tt test\_comp(e,5)} show two instances of this
+answer were returned in previous queries where {\tt sec\_collection}
+was not used.
   \end{example}
-
-
 
 \subsection{Other \px{} Resources and Examples}
 
+Many of the examples from this chapter have been saved in a Jupyter
+notebook {\tt PX.ipynb} in {\tt \$XSB\_ROOT/examples}, and {\tt PX.pdf}
+is a printout of the end of one session on the Jupyter notebook.
+
+In addition, the file {\tt \$XSB\_ROOT/XSB/packages/tpx.py} contains
+function calls for these and other examples, and makes use of the XSB
+files {\tt px\_test.P} and {\tt px\_clpr.P}.
 
 %----------------------------------------------------------------------
 \section{The \px{} API}
@@ -815,13 +953,16 @@ depends on the keyword arguments passed to it.
 change on a weekly or even daily basis.
 
 \bi
-\item \px{} has not been tested on any platform other than Ubuntu
+\item \px{} has not yet been tested on any platform other than Ubuntu
   Linux.
 \item \px{} does not yet work with {\tt xsbpy}, i.e., callbacks are
   not currently implemented.
 \item XSB's heap garbage collection is currently disabled when XSB is
   called from Python, although expansion is allowed for all stacks.
+\item \pxversion{} of \px{} the Python session that calls \px{} must
+  not be itself embedded in another process.
+\ei  
+  
 %\item Python sometimes core dumps on exit (via {\tt quit()} or {\tt
 %  ctrl-D} after using \px.
  
-\ei  
