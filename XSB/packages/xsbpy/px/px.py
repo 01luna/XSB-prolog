@@ -2,10 +2,16 @@ from xsbext import *
 import sys
 import time
 import atexit
+import gc
 
 # ================ Setup  ================
+
+# TES: the gc.disable() is kludgy, but it avoids core dumps.
+# when the code settles down, I'll handle xsbpy references better.
+# Having said that, why gc before an exit of the main process?
 def myexit():
     px_close()
+    gc.disable()
     print("XSB has been closed")
 
 atexit.register(myexit)

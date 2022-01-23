@@ -5,6 +5,7 @@
 #include <Python.h>
 #include <cinterf.h>
 #include "xsbpy_defs.h"
+#include "xsb2py_connect_defs.h"
 #include <error_xsb.h>
 #include <cell_xsb.h>
 #include <emuloop.h>
@@ -76,11 +77,11 @@ PyInit_xsbext(void)
 //  return ret;
 //}
 
-static PyObject *px_init() {
-  const char xsb_root[10]  = "XSB_ROOT";
+  //  const char xsb_root[10]  = "XSB_ROOT";
   //  printf("envvar %s\n",getenv(xsb_root));
+static PyObject *px_init() {
   char *argarray[1];
-  argarray[0] = getenv(xsb_root);
+  argarray[0] = XSB_ROOTDIR_2QUOTED;
   PyObject* ret = PyLong_FromLong((long) xsb_init(1,argarray)); 
   return ret;
 }
