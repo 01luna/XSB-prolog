@@ -3,7 +3,7 @@ import sys
 
 
 px_cmd('consult','ensure_loaded','px_test')
-px_cmd('consult','ensure_loaded','constraa')
+px_cmd('consult','ensure_loaded','px_clpr')
 
 def tpx_file(file):
     sys.stdout = open('file', 'w')
@@ -47,7 +47,7 @@ def test_interrupts():
     px_cmd('px_test','tc_rep_max') 
     px_cmd('consult','consult','attv_test')
     px_cmd('usermod','test')
-    px_cmd('constraa','px_entailed','[[X  > 3*Y + 2,Y>0],[X > Y]]')
+    px_cmd('px_clpr','px_entailed','[[X  > 3*Y + 2,Y>0],[X > Y]]')
         
 # these numbers can be increased but these are reasonable for a test script.    
 def test_iterations():
