@@ -99,8 +99,7 @@ file_read(File, Answer, Variables) :-
 	    read_tokens(File, 13, Tokens, Variables, Positions), % <ret> is the first char
 	    ( read4(Tokens, 1200, Term, LeftOver),	% 1200 is the maximum
 	      read_all(LeftOver)			% precedence
-	    ; iso_read_syntax_error(Psc,Tokens,Positions),
-	      Term = Term			% To avoid an uninitialized variable
+	    ; iso_read_syntax_error(File,Psc,Tokens,Positions)
 	    ),
 	!,
 	Answer = Term,
@@ -720,7 +719,18 @@ print_token(X)			:-    read_writecon(X).
 %--------------------------------------------------------------------------
 
 % Last arg is list of token start positions
-iso_read_syntax_error(Psc,Tokens,Positions):- 
+
+iso_read_syntax_error(File,_Psc,[],_Positions):- !,
+    NewMessage = '  Empty clause (no term)',
+    (current_prolog_flag(errors_with_position,on)
+    -> 	stream_property(File,position(FilePos1)),
+	(stream_property(File,line_number(Line)) -> true ; Line = 0),
+	(stream_property(File,pos_at_line(LinePos)) -> true ; LinePos = 0),
+	Position = pos(FilePos1,Line,LinePos),
+	syntax_error(NewMessage-Position)
+     ;	syntax_error(NewMessage)
+    ).
+iso_read_syntax_error(_File,Psc,Tokens,Positions):- 
 	psc_prop(Psc, After),
 	length(Tokens,L),				
 	Length is L - After,		     
