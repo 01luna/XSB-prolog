@@ -4562,8 +4562,8 @@ fi
 ) | tee Installation_summary
 
 # set up pyxsb Python package
-setupfile0=".tmp_pxsetup.py"
-setupfile="'$setupfile0'"
+setupfile_name=".tmp_pxsetup.py"
+setupfile_path="'px/$setupfile_name'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
 if test -z "$PYTHON_INCLUDE_DIR" ; then
@@ -4573,11 +4573,11 @@ else
 consult(px_mk_setup).
 %%writeln(setupfile=$setupfile).
 %%writeln(includedir=$py_includedir).
-mk_setup($setupfile,$py_includedir).
+mk_setup($setupfile_path,$py_includedir).
 EOF
 
 echo "*** Installing py-xsb as a Python package"
 cd px
-$PYTHON_BIN ../$setupfile0 install
+$PYTHON_BIN $setupfile_name build install --user
 
 fi
