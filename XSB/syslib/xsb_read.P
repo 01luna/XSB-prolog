@@ -730,28 +730,33 @@ iso_read_syntax_error(File,_Psc,[],_Positions):- !,
 	syntax_error(NewMessage-Position)
      ;	syntax_error(NewMessage)
     ).
-iso_read_syntax_error(_File,Psc,Tokens,Positions):- 
+iso_read_syntax_error(_File,Psc,Tokens,Positions):-
 	psc_prop(Psc, After),
 	length(Tokens,L),				
 	Length is L - After,		     
-    iso_read_display_list(Tokens, Length, PrintList,Tail,Remaining),
+	iso_read_display_list(Tokens, Length, PrintList,Tail,Remaining),
 	Tail = [' <--- HERE? ************ 
 ++                              '|T1],
-    iso_read_display_list(Remaining, After, PrintList1,NewTail,_Remaining),
+	iso_read_display_list(Remaining, After, PrintList1,NewTail,_Remaining),
 	SpaceLength is 2*Length,
 	make_spaces(SpaceLength,SpaceList,T2),
 	T1 = SpaceList,
 	T2 = PrintList1,
 	NewTail = [],
+	standard:writeln(userout,sy3(PrintList)),
 	cvt_strings(PrintList,PrintListNoStr),
 	concat_atom(PrintListNoStr,NewMessage),
 	( current_prolog_flag(errors_with_position,on) -> 
-		(Index is Length + 1,
+		((After =:= 0 -> Index = Length ; Index is Length + 1),
 		ith(Index,Positions,Position),
 		syntax_error(NewMessage-Position)) 
 		;
-		syntax_error(NewMessage)).		
-
+		syntax_error(NewMessage)),
+	!. % failsafe, in case it would fail inappropriately
+iso_read_syntax_error(_File,_Psc,_Tokens,_Positions):- 
+    standard:writeln('ERROR: Syntax error, but bug in reporting it:'),
+    %%standard:writeln(iso_read_syntax_error(_File,_Psc,_Tokens,_Positions)),
+    syntax_error('Please report this reader bug').
 
 cvt_strings([],[]).
 cvt_strings([T|Ts],NTs) :-

@@ -15,7 +15,7 @@
 :- mode increase_syntax_errors.
 :- mode is_a_hilog_term(?).
 :- mode iso_read_display_list(?,+,?,?,?).
-:- mode iso_read_syntax_error(+,?,+).
+:- mode iso_read_syntax_error(+,+,?,+).
 :- mode l_length(?,?).
 :- mode make_spaces(+,?,?).
 :- mode print_token(?).
