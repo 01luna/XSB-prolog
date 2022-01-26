@@ -743,7 +743,7 @@ iso_read_syntax_error(_File,Psc,Tokens,Positions):-
 	T1 = SpaceList,
 	T2 = PrintList1,
 	NewTail = [],
-	standard:writeln(userout,sy3(PrintList)),
+%	standard:writeln(userout,sy3(PrintList)),
 	cvt_strings(PrintList,PrintListNoStr),
 	concat_atom(PrintListNoStr,NewMessage),
 	( current_prolog_flag(errors_with_position,on) -> 
