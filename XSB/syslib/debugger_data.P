@@ -51,6 +51,7 @@ hide_this_show(';',2).
 hide_this_show('->',2).
 
 % hide this call and all embedded calls
+hide_this_hide(term_new_mod,3).
 hide_this_hide('_$call',1).
 hide_this_hide(trace,0).
 hide_this_hide(debug_ctl,2).
