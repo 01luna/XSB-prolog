@@ -59,9 +59,9 @@ can be transferred at a few tens of nanoseconds per list element.
 %have been installed.
 
 Beyond Linux packages like {\tt build-essential} that are needed to
-build and make XSB itself, \px{} reqires a version of {\tt
+build and make XSB itself, \px{} requires a version of {\tt
   \$\{PYTHON\}-dev} to have been installed.  On Ubuntu, and other
-Debian-derived Linuxes installation also requires installng {\tt
+Debian-derived Linuxes installation also requires installing {\tt
   \$\{PYTHON\}-distutils}, though this is not required for other
 Linuxes. For a given version of Python {\tt \$PYTHON} on Ubuntu, the
 command to install these Python packages would be:
@@ -88,7 +88,7 @@ $XSB_ROOT/XSB/build/configure
 \end{verbatim}
 the {\tt xsbpy} package, which allows XSB to call Python, will be
 configured and compiled.  Using files created during the {\tt xsbpy}
-build, \px{} can be configred and build by executing
+build, \px{} can be configured and build by executing
 \begin{verbatim}
   $XSB_ROOT/XSB/packages/xsbpy/configure
 \end{verbatim}
@@ -110,7 +110,7 @@ manner similar to {\tt pip}, installs them as follows.
 \begin{verbatim}
 ~/.local/lib/$PYTHON/site-packages
 \end{verbatim}
-If this default directory is used, {\tt px} will only be avaiable to
+If this default directory is used, {\tt px} will only be available to
 the user who installed it, and {\tt px} will be available for all
 Python projects for that user.
 
@@ -239,10 +239,10 @@ module is loaded.
 
 The intention of \px{} is to make essentially all of XSB's
 functionality directly callable by Python.  As noted, many of these
-featues are still under development.
+features are still under development.
 
-Although Python and Prolog have similiarities at the data structure
-level (Section~\ref{sec:bi-translation}) they differ substanially in
+Although Python and Prolog have similarities at the data structure
+level (Section~\ref{sec:bi-translation}) they differ substantially in
 their execution.  The design of \px{} is to restrict the form of
 Prolog goals so that they fit well with Python's function execution.
 Fortunately, this can be done without sacrificing XSB's expressivity.
@@ -260,7 +260,7 @@ support for commands and non-deterministic queries before turning to
 general support of deterministic queries.
 
 \begin{example} \rm
-{\em Calling a determinstic query}
+{\em Calling a deterministic query}
   
   As described in Section~\ref{px:config} \px{} is loaded like any
   other module.  Once loaded, a simple way to use \px{} is to
@@ -300,7 +300,7 @@ can have
   will always be the Python {\tt None} keyword.
 \item {\tt 2} representing the truth value {\em undefined}. This means
   that the XSB query succeeded, but the answer is neither true nor
-  false in the Well-Funded Mdel of the program.  \ei
+  false in the Well-Funded Model of the program.  \ei
 \noindent
 Although XSB's three-valued logic can be highly useful for many
 purposes, it can be safely ignored in many applications, and most
@@ -312,7 +312,7 @@ fail.\footnote{As shown in Example~{ex:px-comp-undef}, truth values
 For learning \px{} or for tutorials, a family of pretty printing calls
 can be useful.  The {\tt pp\_px\_qdet()} function calls {\tt
   px\_qdet()} and upon return pretty prints both the call and return
-in a style like that used in XSB''s command line inferface.  For
+in a style like that used in XSB''s command line interface.  For
 example if the following call is made on the Python command line
 interface:
 
@@ -347,7 +347,7 @@ flexibility of {\tt px} in constructing Prolog queries.
 
   Suppose you wanted to make a ground XSB query, say {\tt ?- p(a)}:
   the information answered by this query would simply indicate whether
-  the atom {\tt p(a)} was true, false,,or underined in the
+  the atom {\tt p(a)} was true, false,,or undefined in the
   well-founded model.In {\tt px} such a query could simply be made
   as
 
@@ -359,12 +359,12 @@ flexibility of {\tt px} in constructing Prolog queries.
 %  px\_cmd()} does not add an extra return argument to the Prolog
 %call.
 Since {\tt px\_cmd} does not return any answer bindings, it returns
-the truth value dirrectly to Python, rather than as part of a tuple.
+the truth value directly to Python, rather than as part of a tuple.
 Note that unlike (the default behavior of) {\tt px\_qdet()}, {\tt
   px\_cmd()} does not add an extra return argument to the Prolog call.
 However, the optional keyword argument {\tt vars} can be used to
 indicate the number of return arguments desired.  So, if {\tt vars=2}
-were added as a keyword argument, two arguments argments would be
+were added as a keyword argument, two arguments arguments would be
 added to the call, with each a free variable.  In addition, {\tt
   px\_qdet()} and {\tt px\_cmd()} are both variadic functions so that
 the number of input arguments can also vary.  Combining both
@@ -394,14 +394,14 @@ all ground arguments will precede all non-ground arguments.  In
 addition \px{} does not provide a way to represent logical variables
 in Python so that XSB will see any argument as fully ground.
 (However, as shown in Example~\ref{ex:connstraints} it is possible to
-pass logical varibles to XSB via strings.)  Finally, a call to {\tt
+pass logical variables to XSB via strings.)  Finally, a call to {\tt
   px\_qdet()} with {\tt vars=0} acts in much the same way as a call to
 {\tt px\_cmd}.\footnote{Because {\tt px\_cmd()} is slightly simpler
   than {\tt px\_qdet()} it may be very slightly faster.}
 \end{example}
 
 Using {\tt px\_qdet()} and {\tt px\_cmd()} the XSB session can be
-controlled from Python.  Furthermore, any errors that arise in xSB can
+controlled from Python.  Furthermore, any errors that arise in XSB can
 also be handled in Python.
 
 \begin{example} \rm {\it Session management and error handling in \px}
@@ -490,7 +490,7 @@ setting a Python Error.
 
 A declarative aspect of Python is its support for comprehension of
 lists, sets and aggregates.  \px() fits into non-deterministic queries
-into this paradugm with {\em query comprehension}: calls to XSB that
+into this paradigm with {\em query comprehension}: calls to XSB that
 return all solutions to an XSB query as a Python list or set.
 
 \begin{example} \rm {\it List and Set Comprehension in \px{}} \label{ex:list-comp-1}
@@ -513,7 +513,7 @@ q.
 }
 
 \noindent
-An XSB query to this predicate may be determinstic (e.g., {\tt ?-
+An XSB query to this predicate may be determinsitic (e.g., {\tt ?-
   test\_comp(a,X1)}) or non-deterministic (e.g., {\tt ?-
   test\_comp(X1,X2)}).  This second query will have multiple answers,
 some of whose truth values are {\em undefined}.  The \px{} query to
@@ -639,8 +639,8 @@ variable in the Python module {\tt px}.
 
 The material in this section is not necessary to understand for a
 basic use of \px{}, but shows how \px{} can be used for
-constaint-based reasoning, and how it can interface to the results of
-non-monotonic reasining.
+constraint-based reasoning, and how it can interface to the results of
+non-monotonic reasioning.
 
 \begin{example} \rm {\it Evaluating queries with constraints} \label{ex:connstraints}
 
@@ -651,7 +651,7 @@ non-monotonic reasining.
   (cf. Chapter~\ref{chap:constraints}), and as mentioned in
   Section~\ref{sec:pxdet}, \px{} does not provide a direct way to
   represent logical variables since logical variables do not naturally
-  correspond to a Python type.  Fortunately, it is not difficut to
+  correspond to a Python type.  Fortunately, it is not difficult to
   pass constraint expressions containing logical variables to XSB
   within Python strings.
 
@@ -682,7 +682,7 @@ non-monotonic reasining.
 \end{verbatim}
 }
 \noindent
-Using our example, a query to this prodicate would have the form
+Using our example, a query to this predicate would have the form
 
 \begin{verbatim}
  ?- check_entailed([X  > 3*Y + 2,Y>0],X > Y).
@@ -744,9 +744,9 @@ the rule body containing {\tt failing\_goal} has been removed.
 
 Residual programs have many uses.  They can be sent to an ASP engine
 to evaluate partial stable models, or the residual program can be
-examined to detrmine why a given literal is undefined. The reason
+examined to determine why a given literal is undefined. The reason
 could be a negative loop somewhere in the program, due to floundering
-negaiion, or due to a type of bounded rationality supported in XSB
+negation, or due to a type of bounded rationality supported in XSB
 called {\tt restraint} (cf. e.g. \cite{GroS13}).
 
 In our running example, the function call
@@ -806,7 +806,7 @@ files {\tt px\_test.P} and {\tt px\_clpr.P}.
   set to {\tt usermod}.
 
   {\tt px\_cmd()} returns the truth value of the goal as explained
-  above, or {\tt None} if an error occured.
+  above, or {\tt None} if an error occurred.
   
   \pymoditem{px\_qdet(module,pred,*args)}{px\_qdet()}{px}
 %
@@ -828,8 +828,8 @@ files {\tt px\_test.P} and {\tt px\_clpr.P}.
   {\tt ( [{'a':{'b':'c'}},3,2,1], 1)}
 
   \noindent
-  to Python, where the first argument of the {\em retrun tuple} is the
-  {\em aswer} and the second is the truth value of that answer.  See
+  to Python, where the first argument of the {\em return tuple} is the
+  {\em answer} and the second is the truth value of that answer.  See
   Section~\ref{sec:pxdet} for precise information.
 
 %  \bi
