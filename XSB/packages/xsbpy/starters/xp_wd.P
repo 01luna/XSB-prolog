@@ -1,11 +1,11 @@
 :- export wd_query/4, wd_get_label/3, wd_get_labels/3.
 :- export wd_has_subclass/2,wd_has_instance/2,wd_subclass_of/2,wd_instance_of/2.
 :- export wd_get_qnode/3,wd_get_qnode/4,wd_parent_of/2.
-:- export wd_is_instance/1,wd_is_class/1, wd_show_instances/2.
+:- export wd_is_instance/1,wd_is_class/1, wd_show_instances/2, wd_show_subclasses/2.
 :- export wd_ancestor/2,wd_ancestor_nt/2.
 :- export wd_geoquery/4,wd_in_admin/2.
 
-:- import member/2,append/3,length/2 from basics.
+:- import member/2,append/3,length/2,reverse/2 from basics.
 :- import concat_atom/2,split_atom/3 from string.
 :- import hdt_query/4 from xp_rdflib.
 :- import check_nonvar/3 from error_handler.
@@ -34,20 +34,24 @@
 % cf. ignore/1.
 
 wd_query(ArgIn1,ArgIn2,ArgIn3,Lang):-
-    qnodeurl_maybe(ArgIn1,Arg1),    
+    qnodeurl_maybe(ArgIn1,Arg1),    % arg1 and arg3 are "normaluzed"
     qnodeurl_maybe(ArgIn3,Arg3),    
+%    writeln(hdt_query1(Arg1,ArgIn2,Arg3,List)),
     hdt_query(Arg1,ArgIn2,Arg3,List),
 %    writeln(hdt_query2(Arg1,_Arg2,Arg3,List)),
     member(''(ArgOut1,ArgIn2,ArgOut3),List),
 %    writeln(zero(ArgOut1,ArgIn2,ArgOut3)),
     \+ ignore(ArgIn2),
 %    writeln(one(ArgOut1,ArgIn2,ArgOut3)),
-    urlqnode_maybe(ArgOut1,ArgIn1),
+%    urlqnode_maybe(ArgOut1,ArgIn1),
+    urlqnode_maybe(ArgOut1,Arg1),
 %    writeln(two(ArgOut1,ArgIn2,ArgOut3)),
-    (ArgOut3 = ''(Arg3,_,LangOut) ->
+    (ArgOut3 = ''(Arg3Out1,_,LangOut) ->
 	 LangOut = Lang,
-	 urlqnode_maybe(Arg3,ArgIn3)
-      ;  urlqnode_maybe(ArgOut3,ArgIn3) ).
+	 urlqnode_maybe(Arg3Out1,Arg3)
+      ;  urlqnode_maybe(ArgOut3,Arg3) ).
+%	 urlqnode_maybe(Arg3,ArgIn3)
+%      ;  urlqnode_maybe(ArgOut3,ArgIn3) ).
 %    writeln(three1(ArgIn1,ArgIn2,ArgIn3)).
 
 ignore('http://www.wikidata.org/prop/P10').    %   video
@@ -88,6 +92,7 @@ wd_get_labels(Qnode,Label,Lang):-
 
 wd_get_labels_1(Qnode,Label,Lang):-
     qnode_id(Qnode),
+%    writeln(wd_query(Qnode,'http://schema.org/name',Label,Lang)),
     wd_query(Qnode,'http://schema.org/name',Label,Lang).
 wd_get_labels_1(Qnode,Label,Lang):-
     qnode_id(Qnode),
@@ -160,6 +165,7 @@ wd_instance_of(Node,Class):-
 % tree and at least wd_has_instance can take a long time if a Node has
 % many instances (e.g., Q5).  The time is all on the Python side.  But
 % it works fine for finding instances of, say house cats or countries.
+
 wd_has_subclass(Node,Subclass):- 
     wd_query(Subclass,'http://www.wikidata.org/prop/direct/P279',Node,en).
 
@@ -177,7 +183,19 @@ wd_show_instances(Node,Lang):-
     tab(4),lazy_writeln([I,' : ',L]),
     fail.
 wd_show_instances(_Node,_Lang).
-    
+
+wd_show_subclasses(Node,Lang):-
+    wd_get_label(Node,Lab,Lang),
+    lazy_writeln(['Subclass info for ',Node,' : ',Lab]),
+    setof((Instance,Label),(wd_has_subclass(Node,Instance),
+			   wd_get_label(Instance,Label,Lang)),Insts),
+    length(Insts,InstLen),
+    tab(2),lazy_writeln([InstLen,' subclasses']),
+    member((I,L),Insts),
+    tab(4),lazy_writeln([I,' : ',L]),
+    fail.
+wd_show_subclasses(_Node,_Lang).
+
 %===========================================
 % This group contains convenience predicates.  BTW, the only reason
 % wd_is_instance and wd_is_class don't use instance_of and subclass_of
@@ -281,26 +299,45 @@ wd_ancestor_nt(Qnode,Anc):- wd_ancestor_nt(Qnode,AncMid),wd_parent_of(AncMid,Anc
 %===========================================
 % Utility Predicates.
 
-qnode_id(Id):-
-    atom(Id),
+% Accepts 'Q1234' or '"Q1234"^^xsd:string'
+qnode_id(IdIn):-
+    qnode_id(IdIn,_Id).
+
+%  '"Q1234"^^xsd:string' --> 'Q1234' ; otherwise unchanged.
+qnode_id(IdIn,Id):-
+    atom(IdIn),
+    atom_from_xsdstring(IdIn,Id),
     atom_codes(Id,[81|Rest]),
-    qnode_id_1(Rest).
+    qnode_id_1(Rest),!.
+qnode_id(IdIn,Id):-
+    urlqnode_maybe(IdIn,Id).
 
 qnode_id_1([]).
 qnode_id_1([H|T]):-
     H >= 48,H=<57,
     qnode_id_1(T).
 
+qnodeurl_maybe(QnodeIn,Url):-
+    atom(QnodeIn),
+    qnode_id(QnodeIn,Qnode),
+    concat_atom(['http://www.wikidata.org/entity/',Qnode],Url),!.
+qnodeurl_maybe(Url,Url).
+
+atom_from_xsdstring(String,Atom):-
+    split_atom(String,'^',[NearAtom|_XSD]),
+    atom_chars(NearAtom,['"'|Rest]),
+    reverse(Rest,['"'|RevRest]),
+    reverse(RevRest,Alist),
+    atom_chars(Atom,Alist),!.
+atom_from_xsdstring(String,String).
+
+%----------------
+
 urlqnode_maybe(Url,Qnode):-
     atom(Url),
     split_atom(Url,'/',List),
     List = ['http:','www.wikidata.org',entity,Qnode],!.
 urlqnode_maybe(Url,Url).
-
-qnodeurl_maybe(Qnode,Url):-
-    qnode_id(Qnode),
-    concat_atom(['http://www.wikidata.org/entity/',Qnode],Url),!.
-qnodeurl_maybe(Url,Url).
 
 :- export wd_is_statement/1.
 wd_is_statement(Url):- 
@@ -330,6 +367,7 @@ wd_in_admin(Node,Class):-
 % Given a P-node id (e.g. "P279"), return its wikidata url
 pnodeurl_maybe(Pnode,Url):-
     % pnode_id(Pnode),
+    atom(Pnode),
     concat_atom(['http://www.wikidata.org/prop/direct/',Pnode],Url),!.
 pnodeurl_maybe(Url,Url).
 
