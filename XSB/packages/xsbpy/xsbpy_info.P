@@ -1,6 +1,6 @@
-%% @configure_input@
+%% xsbpy_info.P.  Generated from xsbpy_info.in by configure.
 
-/* File:      curl_init.in -- configuration info for libcurl
+/* File:      xsbpy_info.in -- configuration info for xsbpy and px
 ** Author(s): kifer
 ** Contact:   xsb-users@lists.sourceforge.net
 ** 
@@ -22,9 +22,9 @@
 */
 
 
-:- export curl_info/2.
+:- export xsbpy_info/2.
 
-curl_info(support, '@support@').
-curl_info(libdir,  '@libdir@').
-curl_info(ccflags, '@CFLAGS@').
-curl_info(ldflags, '@LDFLAGS@').
+xsbpy_info(support, 'yes').
+xsbpy_info(ccflags, '').
+xsbpy_info(ldflags, '').
+xsbpy_info(libdir,  '/usr/lib').
