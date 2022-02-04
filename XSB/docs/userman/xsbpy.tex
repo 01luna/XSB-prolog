@@ -526,21 +526,32 @@ write so far has been simple and straightforward.
 
 {\tt xsbpy} takes advantage of a C-level bi-translation of a large
 portion of Prolog terms and Python data structures: i.e., Python
-lists, tuples, dictionaries, sets and other objects are translated to
-their Prolog term forms, and Prolog terms of special syntax are
-translated to lists, tuples, dictionaries, sets and so on.
+lists, tuples, dictionaries, sets and other data structures are
+translated to their Prolog term forms, and Prolog terms of restricted
+syntax are translated to lists, tuples, dictionaries, sets and so on.
 Bi-translation is recursive in that any of these data structures can
-be nested in other data structures.
+be nested in any other data structures (subject to limitations on
+mutables in Python).
      
-As mentioned above, when a Python data structure $D$, say a
-dictionary, is translated into a Prolog term $T$, $T$ is sometimes
-called the {\em term form} of $D$.  Due to syntactic similarities
-between Prolog terms and Python data structures, the Prolog term forms
-are easy to translate and use -- and sometimes appear syntactically
-identical.
+Due to syntactic similarities between Prolog terms and Python data
+structures, the Prolog term forms are easy to translate and use -- and
+sometimes appear syntactically identical.
 
-More specifically, bi-translation between Prolog and Python can be
-described from the viewpoint of Python types as follows: 
+\index{xp\_struct}
+\index{px\_term}
+\index{term form (of a structure}
+%
+As terminology, when a Python data structure $D$, say a dictionary, is
+translated into a Prolog term $T$, $T$ is sometimes called the {\em
+  term form} of $D$.  The type representing any Python structure that
+can be translated to Prolog is called {\em xp\_struct} while the type
+representing a Prolog term that can be translated into a Python data
+structure is called a {\em px\_term}
+
+\subsection{The Bi-translation Specification}
+
+Bi-translation between Prolog and Python can be described from the
+viewpoint of Python types as follows:
 
 \begin{itemize}
        \item {\em Numeric Types}: Python integers and floats are

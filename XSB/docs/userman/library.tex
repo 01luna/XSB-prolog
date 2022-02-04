@@ -3637,6 +3637,40 @@ which is a real number between 0 and 1.  Jaccard distance is 1 -
 jaccard similarity.
 \end{description}
 
+\section{Further Unicode Support: {\tt xp\_unicode}}
+\index{Unicode!UTF-8}
+
+As discussed in Section~\ref{standard}, XSB supports UTF-8 unicode in
+its I/O and stream handling predicates, in standard predicates like
+{\tt atom\_codes/2} and {\tt atom\_chars/2} and in libraries {\tt
+  prpc\_files} that provides I/O for files in {\tt csv} and similar
+formats.  Beyond this basic support the {\tt xp\_unicode} librariy
+provides further unicode support for capitalizing and lowering unicode
+characters and for finding the caregory of a character.
+
+{\tt xp\_unicode} is in fact a wrapper for Python functions and
+methods available in its standard libraries such as {\tt unicodedata}.
+It therefore will only work if XSB has been configured with Python
+support for {\tt xsbpy}..
+
+The extra functionality provided by this initial version of {\tt
+  xp\_unicode} is limited, but it is expected to expand.
+
+\begin{description}
+
+  \ourpylibitem{unicode\_upper(+Lower,-Upper)}{unicode\_upper/2}{xp\_unicode}
+  %
+  Capitalizes any applicable Unicode characters in the atom {\tt Upper}.
+
+\ourpylibitem{unicode\_lower(+Upper,-Lower)}{unicode\_lower/2}{xp\_unicode}
+  Lower-cases any applicable Unicode characters in the atom {\tt Upper}.
+
+\ourpylibitem{unicode\_char\_category(+Char,-Cat)}{unicode\_char\_category/2}{xp\_unicode}
+Obtains the category {\tt Cat} of any unicode character {\tt Char}:
+e.g., {\tt Lu} for an uppercase letter, {\tt Sz} for a space, and so on.
+
+\end{description}
+
 \section{Miscellaneous Predicates}
 
 \begin{description}
