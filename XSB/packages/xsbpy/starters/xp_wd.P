@@ -299,16 +299,16 @@ wd_ancestor_nt(Qnode,Anc):- wd_ancestor_nt(Qnode,AncMid),wd_parent_of(AncMid,Anc
 %===========================================
 % Utility Predicates.
 
-% Accepts 'Q1234' or '"Q1234"^^xsd:string'
+% Accepts 'Q1234', '"Q1234"^^xsd:string'; 'P1234', '"P1234"^^xsd:string'; 
 qnode_id(IdIn):-
     qnode_id(IdIn,_Id).
 
-%  '"Q1234"^^xsd:string' --> 'Q1234' ; otherwise unchanged.
 qnode_id(IdIn,Id):-
     atom(IdIn),
     atom_from_xsdstring(IdIn,Id),
-    atom_codes(Id,[81|Rest]),
-    qnode_id_1(Rest),!.
+    atom_codes(Id,[First|Rest]),
+    (First = 81 ; First = 80),!,
+    qnode_id_1(Rest).
 qnode_id(IdIn,Id):-
     urlqnode_maybe(IdIn,Id).
 
@@ -317,6 +317,7 @@ qnode_id_1([H|T]):-
     H >= 48,H=<57,
     qnode_id_1(T).
 
+% may not work for pnodes
 qnodeurl_maybe(QnodeIn,Url):-
     atom(QnodeIn),
     qnode_id(QnodeIn,Qnode),

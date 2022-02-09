@@ -135,5 +135,9 @@ EOF
 echo "*** Installing py-xsb as a Python package"
 cd px
 $PYTHON_BIN $setupfile_name build install --user
+cd ..
 
 fi
+
+AC_SUBST(support)
+AC_OUTPUT([xsbpy_info.P:xsbpy_info.in])
