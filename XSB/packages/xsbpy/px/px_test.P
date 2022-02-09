@@ -7,6 +7,8 @@
 % for stress tests
 :- export simple_call/2,simple_cmd/1,
    nondet_query/1, prolog_makelist/2.
+:- export table_comp/1,test_comp/1.
+
 % interrupt tests
 :- export tc_rep_max/0.
 % Utils.
@@ -74,8 +76,6 @@ mymax_3:- abort('tc_3 phew!').
 
 loop:- loop.
 
-:- export table_comp/1,test_comp/1.
-
 :- table table_comp/1.
 table_comp(a).
 table_comp(b).
@@ -122,3 +122,7 @@ return_tuple(''([1,a,''(a)],''(b,c,d),''())).
 
 :- export return_null/1.
 return_null([]).
+
+:- export qdet_variadic/4.
+
+qdet_variadic(a,b,c,d).
