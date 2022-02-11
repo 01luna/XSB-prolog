@@ -548,7 +548,7 @@ PyInit_xsbpym(void)
     
     PyRun_SimpleString(
    "import sys\n"
-   "sys.path.append('.')\n");
+   "sys.path.append('')\n");
     
     return module;
     //Py_InitModule("xsbp", XsbMethods);
