@@ -21,4 +21,5 @@ json_loads_test successful
 json_load_test successful
 kwargs_test1 successful
 Person test succeeded
+variadic tests succeeded
 collect(0)

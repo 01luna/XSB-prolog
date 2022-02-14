@@ -18,6 +18,7 @@ testSuite:-
     kwargs_tests,
     error_tests,
     object_tests,
+    variadic_tests,
     pyfunc(gc,collect(),Collect),
     writeln(collect(Collect)).
 
@@ -324,6 +325,22 @@ test_Person(Obj,Ret1,Ret2,Ret3,Ret4,Ret5,Msg2,Msg3):-
     pydot('Person',Obj,func3(real,big,doofus),Ret5),
     catch(pydot('Person',1,favorite_ice_cream,_Ret4),E2,xsb_error_get_message(E2,Msg2)),
     catch(pydot('Person',Obj,1,_Ret5),E3,xsb_error_get_message(E3,Msg3)).
+
+variadic_tests:-
+    testit(pyfunc(variadic,variadic_print('a','b','c'),A),A,'a|b|c|'),
+    testit(pyfunc(variadic,variadic_print('a','b','c','d'),B),B,'a|b|c|d|'),
+    testit(pyfunc(variadic,opt_print('a'),C),C,'a|1'),
+    testit(pyfunc(variadic,opt_print('b','c'),D),D,'b|c'),
+    writeln('variadic tests succeeded'),!.
+variadic_tests:-
+    writeln('!!!variadic test failed').
+
+testit(Call,Var,Answer):-
+    call(Call),
+    (Var = Answer -> 
+       true
+    ; writeln('!!!wrong_answer'(Call,Var,Answer)),
+      fail).
 
 end_of_file.
 
