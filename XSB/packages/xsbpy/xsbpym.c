@@ -635,7 +635,7 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
     Py_DECREF(pyArg1); Py_DECREF(pyArg2);
   }
   else if (args_count == 3) {
-    printf("ac 2\n");
+    //    printf("ac 2\n");
     PyObject *pyArg1 = NULL;    PyObject *pyArg2 = NULL; PyObject *pyArg3 = NULL;
     prolog_term prArg1;
     prArg1 = p2p_arg(prMethIn, 1);
