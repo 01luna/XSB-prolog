@@ -65,10 +65,17 @@ typedef struct stack_info {
 
 /* The SLG-WAM System Data Regions
    ------------------------------- */
-extern System_Stack pdl,            /* PDL                        */
+#ifdef WINDOWS_IMP
+__declspec(dllimport) System_Stack pdl,            /* PDL                        */
                     glstack,        /* Global + Local Stacks      */
                     tcpstack,       /* Trail + Choice Point Stack */
                     complstack;     /* Completion Stack           */
+#else
+extern DllExport System_Stack pdl,
+                    glstack,
+                    tcpstack,
+                    complstack;
+#endif
 
 
 /*

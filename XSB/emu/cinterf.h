@@ -359,7 +359,12 @@ DllExport extern int call_conv xsb_add_c_predicate(CTXTdeclc char *modname, char
 /*******************************************************************************/
 
 #ifndef MULTI_THREAD
-  extern struct ccall_error_t ccall_error;
+#ifdef WINDOWS_IMP
+__declspec(dllimport) struct ccall_error_t ccall_error;
+#else
+extern DllExport struct ccall_error_t ccall_error;
+#endif
+
 #define ccall_error_thrown(THREAD) ((ccall_error).ccall_error_type[0] != '\0')
 
 #define  UNLOCK_XSB_QUERY 

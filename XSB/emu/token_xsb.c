@@ -1235,15 +1235,15 @@ START:
                 /*  The following kinds of numbers exist:
                       (1) unsigned decimal integers: d+
                       (2) unsigned based integers: d+Ro+[R]
-                      (3) unsigned floats: d* [. d*] [e +/-] d+
-                      (4) characters: 0Rc[R]
+                      (3) unsigned floats: d* [. d+] [e +|-] d+
+                      (4) characters: 0+Rc[R]
                     We allow underscores in numbers too, ignoring them.
                 */
                 do {
                     if (c != '_') *s++ = c;
                     c = GetCode(charset,card,instr);
                 } while (InType(c) <= BREAK);
-                if (c == intab.radix) {  
+                if (c == intab.radix) {  /* single quote */
                     *s = 0;
                     for (d = 0, s = strbuff; (c = *s++);) {
 		      d = d*10-'0'+c;
@@ -1267,7 +1267,7 @@ START:
 		      return token;
 		    }
 		    /* handle non-0 radix */
-		NONZERO_RADIX:      while (c = GetCode(charset,card,instr), DigVal(c) < d)
+NONZERO_RADIX:      while (c = GetCode(charset,card,instr), DigVal(c) < d)
                         if (c != '_') {
 			    oldv = newv;
 			    newv = newv*d + DigVal(c);
@@ -1303,45 +1303,49 @@ START:
 			token->type = TK_INT;
                     return token;
                 }
-		else if (c == intab.dpoint) {
-		  d = GetCode(charset,card,instr);
-                    if (InType(d) == DIGIT) {
-LAB_DECIMAL:                *s++ = '.';
-                        do {
-                            if (d != '_') *s++ = d;
-                            d = GetCode(charset,card,instr);
-                        } while (InType(d) <= BREAK);
-                        if ((d | 32) == 'e') {
-                            *s++ = 'E';
-                            d = GetCode(charset,card,instr);
-                            if (d == '-') *s++ = d, d = GetCode(charset,card,instr);
-                            else if (d == '+') d = GetCode(charset,card,instr);
-                            if (InType(d) > BREAK) {
-				SyntaxError(CTXTc badexpt);
-				//				token->type = TK_ERROR;
-				//				return token;
-			    }
-                            do {
-                                if (d != '_') *s++ = d;
-                                d = GetCode(charset,card,instr);
-                            } while (InType(d) <= BREAK);
-                        }
-                        c = d;
-                        *s = 0;
-			sscanf((char *)strbuff, "%lf", &double_v);
-			token->nextch = c;
-			token->value = (char *)(&double_v);
-			if (c == '(')	/* Modified for HiLog */	
-				token->type = TK_REALFUNC;
-			else
-				token->type = TK_REAL;
-                        return token;
-                    } else {
-		        unTGetC(d, card, instr);
-                        /* c has not changed */
-                    }
-		}
-		else if (c == 'b' || c == 'o' || c == 'x') {
+              else if (c == intab.dpoint || (c | 32) == 'e') {
+		  int dpnt = 0;
+		  if (c == intab.dpoint) { /* handle [.d*] */
+		      d = GetCode(charset,card,instr);
+		      if (InType(d) == DIGIT) {
+LAB_DECIMAL:          *s++ = c;
+		      dpnt = 1;
+		      do {
+			  if (d != '_') *s++ = d;
+			  d = GetCode(charset,card,instr);
+		      } while (InType(d) <= BREAK);
+		      }
+		  } else d = c;
+		  if ((d | 32) == 'e') { /* handle [e[+|-]d*] */
+		      *s++ = 'E';
+		      dpnt = 1;
+		      d = GetCode(charset,card,instr); 
+		      if (d == '-') *s++ = d, d = GetCode(charset,card,instr);
+		      else if (d == '+') d = GetCode(charset,card,instr);
+		      if (InType(d) > BREAK) {
+			  SyntaxError(CTXTc badexpt);
+		      }
+		      do {
+			  if (d != '_') *s++ = d;
+			  d = GetCode(charset,card,instr);
+		      } while (InType(d) <= BREAK);
+		  }
+		  if (dpnt) {
+		      c = d;
+		      *s = 0;
+		      sscanf((char *)strbuff, "%lf", &double_v);
+		      token->nextch = c;
+		      token->value = (char *)(&double_v);
+		      if (c == '(')	/* Modified for HiLog */	
+		      token->type = TK_REALFUNC;
+		      else
+		      token->type = TK_REAL;
+		      return token;
+		  } else {
+		      unTGetC(d, card, instr);
+		      /* c has not changed */
+		  }
+	       } else if (c == 'b' || c == 'o' || c == 'x') {
 		  int oc;
 		  *s = 0;
 		  for (d = 0, s = strbuff; (oc = *s++);)
@@ -1456,7 +1460,7 @@ SYMBOL:         if (c == '(') {
 		    tok_printf(("unreachable"));
                 }
  
-            case SIGN:
+	case SIGN: /* includes dpoint among other things.*/
 	      tok_printf(("In SIGN %c\n",c));
 	        *s = c, d = GetCode(charset,card,instr);
 		tok_printf(("In SIGN.1 nextchar %d\n",d));
