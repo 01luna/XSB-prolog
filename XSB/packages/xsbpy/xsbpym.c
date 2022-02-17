@@ -40,7 +40,9 @@
 #include <memory_xsb.h>
 #include <error_xsb.h>
 #include "xsbpy_defs.h"
+#ifndef WIN64
 #include <dlfcn.h>
+#endif
 #include "deref.h"
 #include "debug_xsb.h"
 
@@ -146,8 +148,8 @@ int find_length_prolog_list(prolog_term V)
 
 // TES: tries to make a reasonable but safe approximation of the size of a Python term
 // Counts 4 bytes for each character just to be sure.
-long get_safe_python_size(PyObject *pyObj) {
-  long size = 0;
+Integer get_safe_python_size(PyObject *pyObj) {
+  Integer size = 0;
   size_t i = 0;
   if(PyLong_Check(pyObj)) {
     return PYLONG_SIZE; 
@@ -199,7 +201,7 @@ long get_safe_python_size(PyObject *pyObj) {
 void ensureXSBStackSpace(CTXTdeclc PyObject *pyObj) {
   int sizecheck_flag = p2c_int(extern_reg_term(4));
   if (sizecheck_flag == 1) {
-    long size = get_safe_python_size(pyObj);
+    Integer size = get_safe_python_size(pyObj);
     //    printf("safe size %ld\n",size);
     check_glstack_overflow(5,pcreg,2*size*sizeof(size_t));
   }
@@ -635,7 +637,6 @@ PyObject *call_variadic_method(PyObject *pObjIn,PyObject *pyMeth,prolog_term prM
     Py_DECREF(pyArg1); Py_DECREF(pyArg2);
   }
   else if (args_count == 3) {
-    //    printf("ac 2\n");
     PyObject *pyArg1 = NULL;    PyObject *pyArg2 = NULL; PyObject *pyArg3 = NULL;
     prolog_term prArg1;
     prArg1 = p2p_arg(prMethIn, 1);
