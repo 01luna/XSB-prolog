@@ -1,0 +1,70 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   Answer  = [1, 2, 3, 4]
+   Answer  = ([1, 'a', ('a',)], ('b', 'c', 'd'), ())
+   Answer  = a
+   Answer  = [{'a': {'b': 'c'}}, 3, 2, 1]
+   Answer  = abcdefg
+   Answer  = b
+   Answer  = None
+   Answer  = ('plgTerm', 'p', [1, 'a', ('plgTerm', 'f', 'a')], ('plgTerm', 'g', 'b'))
+?- basics:append(([1, 2], [3, 4]),Answer).
+?- basics:reverse(([1, 2, 3, {'a': {'b': 'c'}}],),Answer).
+----------- command arity 0 --------------
+------------ command: arity 1 -------------
+----------- done with test_cmd_query --------------
+?- px_test:instan(Answer).
+?- px_test:instan(b)
+?- px_test:one_ary_fail(Answer).
+?- px_test:one_ary_fail(p)
+?- px_test:one_ary_undef(Answer).
+?- px_test:return_term(Answer).
+?- px_test:return_tuple(Answer).
+?- px_test:win(0)
+?- px_test:zero_ary_fail()
+?- px_test:zero_ary_true()
+?- px_test:zero_ary_undef()
+----------- query: arity 1 --------------
+------------ query: arity 2 -------------
+------------ query: arity 3 -------------
+?- string:concat_atom((['a', 'b', 'c', 'd', 'e', 'f', 'g'],),Answer).
+   TV = False
+   TV = False
+   TV = False
+   TV = False
+   TV = True
+   TV = True
+   TV = True
+   TV = True
+   TV = True
+   TV = True
+   TV = True
+   TV = Undefined
+   TV = Undefined
+   TV = Undefined
