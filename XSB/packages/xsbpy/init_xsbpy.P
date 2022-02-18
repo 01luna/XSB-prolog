@@ -34,16 +34,20 @@ init_xsbpy(Pyversion):-
     xsb_configuration(configuration,Configuration),
     (str_sub('windows',Configuration)
     -> compile_xsbpym_for_windows
-    ;  compile(xsbpym,[cc_opts(CompilerOpts),if_needed])
+     ;  compile([xsbpym],[cc_opts(CompilerOpts),if_needed])
     ),
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
+    concat_atom([PackDir,'/../lib'],XSBLibDir),
     concat_atom([PackDir,'/xsbpy/starters'],StarterDir),
+    concat_atom([PackDir,'/xsbpy/px'],PxDir),
+    concat_atom([PackDir,'/xsbpy/test'],TestDir),
     init_python(),
     pyfunc('xsbpy/add_python_path',add_python_path(XSBpyDir),_),
+    pyfunc(add_python_path,add_python_path(XSBLibDir),_),
     pyfunc(add_python_path,add_python_path(StarterDir),_),
-    add_lib_dir(StarterDir),
-    concat_atom([PackDir,'/xsbpy/test'],TestDir),
+    add_lib_dir(StarterDir),  % starters
+    add_lib_dir(PxDir),       % in case XSB is being called from Python
     pyfunc(add_python_path,add_python_path(TestDir),_),
     set_heap_margin(512),   % 4x the amount in v. 4.0
     messageln(xsbpy_initted_with_python(Version)),!.
@@ -95,11 +99,25 @@ py_lib_dirs(List):-
 
 %use results from configure
 get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
+    XSBLIB =  XSBCONFIG_BINDIR_QUOTED,
+    concat_atom(['\'',XSBLIB,'/libxsb.so','\''],LIBXSBSO),
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
-%		 ' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
-	       	' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -l',PYTHON_BIN_QUOTED, 
-		' -L',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
+		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,',',LIBXSBSO,
+		' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,	
+% for debugging ' -Wl,--verbose',
+		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -g' ],CompilerOpts).
+
+
+%get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
+%    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
+%    concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
+%%		 ' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
+%
+%		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,',/home/tswift/xsb-repo/xsb-code/XSB/config/%x86_64-unknown-linux-gnu/bin/libxsb.so',' -l',PYTHON_BIN_QUOTED,
+%		' -L',PYTHON_BIN_QUOTED,	
+%		' -Wl,--verbose',
+%		' -L',PYTHON_BIN_QUOTED,' -g' ],CompilerOpts).
 %		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -g' ],CompilerOpts).
 
 %Use libpython3.8
