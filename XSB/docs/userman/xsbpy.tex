@@ -270,7 +270,7 @@ Prolog modules of {\tt xsbpy} are loaded into XSB, and paths to {\tt
   sys.path}). Later, XSB calls Python, Python will search for modules
 and packages in the same manner as if it were stand-alone.
 
-\begin{example} \rm {\bf Calling a Python Function (I)}
+\begin{example} \rm {\bf Calling a Python Function (I)} \label{ex:xsbpy-json}
   %
 
   {{\em The translation of JSON through xsbpy in this example,
@@ -837,7 +837,7 @@ using {\tt pydot/4} as:
 
 \end{description}
 
-\section{Performance and Space Management}
+\section{Performance and Space Management} \label{sec:xsbpy-perf}
 
 The core {\tt xsbpy} routines -- {\tt pyfunc/[3,4]} and {\tt pydot/4}
 -- are written almost entirely in C, have shown good performance so
