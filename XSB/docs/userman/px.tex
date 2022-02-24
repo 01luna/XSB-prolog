@@ -734,7 +734,7 @@ non-monotonic reasioning.
 \begin{example} \rm {\it Evaluating queries with constraints} \label{ex:connstraints}
 
   XSB provides support for constraint-based reasoning via
-  CLPR~\cite{Holz95} and other packages, both for Prolog-style and
+  CLPR~\cite{Holz95} and other packages, both for Prolog-style and for
   tabled resolution.  However, using constraint-based reasoners like
   CLPR requires explicit use of logical variables
   (cf. Chapter~\ref{chap:constraints}), and as mentioned in
@@ -867,13 +867,14 @@ was not used.
 
 \subsection{Other \px{} Resources and Examples}
 
-Many of the examples from this chapter have been saved in a Jupyter
-notebook {\tt PX.ipynb} in {\tt \$XSB\_ROOT/examples}, and {\tt PX.pdf}
-is a printout of the end of one session on the Jupyter notebook.
+Many of the examples from this chapter have been saved into Jupyter
+notebooks in {\tt \$XSB\_ROOT/XSB/examples}, with associated PDF files in
+{\tt \$XSB\_ROOT/docs/JupyterNotebooks}.
 
-In addition, the file {\tt \$XSB\_ROOT/XSB/packages/tpx.py} contains
-function calls for these and other examples, and makes use of the XSB
-files {\tt px\_test.P} and {\tt px\_clpr.P}.
+In addition, the directory {\tt \$XSB\_ROOT/xsbtests/python\_tests}
+contains a series of tests for the examples in this chapter and many
+others.  It is invoked by {\tt test.sh} and makes use of several
+different Python and XSB files.
 
 %----------------------------------------------------------------------
 \section{The \px{} API}
@@ -919,7 +920,7 @@ files {\tt px\_test.P} and {\tt px\_clpr.P}.
   \noindent
   to Python, where the first argument of the {\em return tuple} is the
   {\em answer} and the second is the truth value of that answer.  See
-  Section~\ref{sec:pxdet} for precise information.
+  Section~\ref{sec:pxdet} for precise information on truth values.
 
 %  \bi
 %  \item If {\tt truthValue} is {\tt 1} (true) or {\tt 2} (undefined),
@@ -948,7 +949,6 @@ files {\tt px\_test.P} and {\tt px\_clpr.P}.
 
   \pymoditem{px\_comp(module,pred,*args,**kwargs)}{px\_com()}{px}
 %
-  
   Allows Python to call XSB to perform the equivalent of list or set
   comprehension.  {\tt px\_comp()} allows zero or more input arguments
   each containing a Python term ($\overrightarrow{input}$) and zero or
@@ -1000,21 +1000,24 @@ arguments passed to it.
 
       \item {\tt PLAIN\_TRUTHVALS} which associates each answer with
         its truth value true (represented as {\tt 1} or {\em
-          undefined} represented as {\tt 2}. (False answers are never
-        included in the collection.)  Using {\tt PLAIN\_TRUTHVALS},
-        each element of the collection is a 2-ary tuple consisting of
-        an answer and its truth value.  This is the default behavior
-        for {\tt px\_comp()}.
+          undefined} represented as {\tt 2}. (Unlike {\tt px\_cmd()}
+        or {\tt px\_qdet()}, {\em false} answers are never included in
+        the collection returned by {\tt px\_comp()}.)  Using {\tt
+          PLAIN\_TRUTHVALS}, each element of the collection is a 2-ary
+        tuple consisting of an answer and its truth value.  This is
+        the default behavior for {\tt px\_comp()}.
       
       \item {\tt DELAY\_LISTS} which associates each answer with its
-        SLG delay list (cf. \cite{ChWa96} or the chapter {\em Using
-          Tabling in XSB: A Tutorial Introduction} in Volume 1 of this
-        manual).  In this case, each element of the collection is a
-        2-ary tuple consisting of an answer and its delay list.
+        SLG delay list (cf. Example~\ref{ex:px-comp-undef} or for more
+        information, \cite{ChWa96} or the chapter {\em Using Tabling
+          in XSB: A Tutorial Introduction} in Volume 1 of this
+        manual).  {\tt DELAY\_LISTS} is specified, each element of the
+        collection is a 2-ary tuple consisting of an answer and its
+        delay list.
 
       \item {\tt NO\_TRUTHVALS} does not associate an answer with any
         truth value.  This option should only be used in situations
-        where it is know that no answers will be undefined.
+        where it is know that no answers will be {\em undefined}.
         \ei
   \end{itemize}
 
