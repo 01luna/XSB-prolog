@@ -156,7 +156,7 @@ load_dsv(FileName,PSpec,Options0) :-
     conset('__recsread',0),
     conset('__linesread',0),
     (member(order=reverse,Options0) -> Reverse = 1 ; Reverse = 0),
-    process_predspec(PSpec,Spec,Types,Args),
+    process_predspec(PSpec,Options0,Spec,Types,Args),
     (ground(Types)
      ->	Options = [types=Types|Options0]
      ;	Options = Options0
@@ -203,20 +203,33 @@ null_after([Arg|ArgsPatched],NumValFields) :-
 	null_after(ArgsPatched,NumValFields)
     ).
 
-process_predspec(PSpec,Spec,Types,Args) :-
+process_predspec(PSpec,Options,Spec,Types,Args) :-
     (atom(PSpec)
      ->	functor(Spec,PSpec,1),
 	Types = _,
 	arg(1,Spec,Args)
-     ;	(PSpec = Functor/Arity, integer(Arity)
-	 -> functor(Spec,Functor,Arity),
+    ;	((PSpec = Functor/Arity ; PSpec = Module:Functor/Arity),
+	 integer(Arity)
+	 -> (member(module=Module,Options)
+	     -> true
+	     ; Module = usermod
+	     -> true
+	     ;  true
+	    ),
+	    functor(Spec,Module,Functor,Arity),
 	    Types = _
-	 ;  (is_most_general_term(PSpec)
-	     ->	Spec = PSpec,
+	;  (PSpec = Module:Spec1
+	   -> term_new_mod(Module,Spec1,Spec2)
+	   ; member(module=Module,Options)
+	     -> term_new_mod(Module,PSpec,Spec2)
+	   ; Spec2 = PSpec
+	   ),
+	   (is_most_general_term(Spec2)
+	     ->	Spec = Spec2,
 		Types = _
-	     ;	PSpec =.. [_|Types],
-		functor(PSpec,Functor,Arity),
-		functor(Spec,Functor,Arity)
+	     ;	Spec2 =.. [_|Types],
+		functor(Spec2,AMod,Functor,Arity),
+		functor(Spec,AMod,Functor,Arity)
 	    )
 	),
 	Spec =.. [_|Args]

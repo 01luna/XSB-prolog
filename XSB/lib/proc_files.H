@@ -47,12 +47,12 @@
 :- import conset/2, coninc/2, conget/2, coninc/1, gensym/2 from gensym.
 :- import file_read_line_list/2, file_put_code/2 from file_io.
 :- import atom_codes/2, repeat/0, '=..'/2,
-	functor/3, arg/3, number_codes/2, call/1, 
+	functor/3, functor/4, arg/3, number_codes/2, call/1, 
 	nl/1, writeq/2, write/2, writeln/2, cputime/1,
 	open/3, open/4, close/1
 	from standard.
 :- import retractall/1, assertz/1, asserta/1, (dynamic)/1 from assert.
-:- import str_match/5 from machine.
+:- import str_match/5, term_new_mod/3 from machine.
 :- import time_message/2 from auxlry.
 :- import atom_to_term/2 from string.
 :- import read_canonical/2 from consult.

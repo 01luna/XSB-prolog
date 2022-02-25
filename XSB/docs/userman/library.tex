@@ -2599,8 +2599,14 @@ the facts from the file are added.  With this simple form of predicate
 specification, each field will be loaded as an atom (including fields
 that contain just integers.)
 
+{\tt PredSpec} may also be of the form {\tt Module:PredName/Arity}.
+In this case, the facts loaded will be in the module {\tt Module}.
+Other allowed forms are $Pred(_1,_2,...,_k)$, which is
+equivalent to {\tt Pred/k}, and $Mod:Pred(_1,_2,...,_k)$,
+which is equivalent to {\tt Mod:Pred/k}.
+
 If more control over typing is needed, {\tt PredSpec} may be of the
-form
+form:
 
 {\tt predName(TypeSpec$_1$,...,TypeSpec$_n$)}
 
@@ -2699,6 +2705,10 @@ list, {\tt load\_dsv} acts as {\tt load\_csv/2}.)  The options are:
     Predspec} must have $|N|$ more fields than the input records
   contain, and they will be padded with terms of the form {\tt
     'NULL'(\_\_)}.
+\item[{tt module=$ModName$}], where $ModName$ is a module name.  With
+  this option, the loaded predicate will be defined in module
+  $ModName$.  (If an explicit module name is given in the {\tt
+    PredSpec} argument, then this $ModName$ will be ignored.)
 \end{itemize}
 
 {\bf Error Cases} 
@@ -3644,7 +3654,7 @@ As discussed in Section~\ref{standard}, XSB supports UTF-8 unicode in
 its I/O and stream handling predicates, in standard predicates like
 {\tt atom\_codes/2} and {\tt atom\_chars/2} and in libraries {\tt
   prpc\_files} that provides I/O for files in {\tt csv} and similar
-formats.  Beyond this basic support the {\tt xp\_unicode} librariy
+formats.  Beyond this basic support the {\tt xp\_unicode} library
 provides further unicode support for capitalizing and lowering unicode
 characters and for finding the caregory of a character.
 
