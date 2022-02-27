@@ -1273,8 +1273,6 @@ typedef ClRef SOBRef ;
 #define ClRefNumNonemptyBuckets(Cl)	(ClRefWord((Cl),8))
 #define ClRefHashTable(Cl)	(&ClRefWord((Cl),9))
 #define ClRefHashBucket(Cl,b)	((CPtr)(ClRefHashTable(Cl)[(b)]))
-#define ClRefCacheBucket(Cl)    *(CPtr *)((ClRefHashTable(Cl)+ClRefHashSize(Cl)))
-#define ClRefCacheBucketLast(Cl) *(CPtr *)((ClRefHashTable(Cl)+ClRefHashSize(Cl)+1))
 
 #define ClRefSOBArg(Cl,n)	(cell_operandn(&ClRefWord((Cl),2),(n)))
 
@@ -1706,7 +1704,7 @@ static SOBRef new_SOBblock(int ThisTabSize, int Ind, Psc psc )
    SOBRef NewSOB ;
 
    /* get NEW SOB block */
-   MakeClRef(NewSOB,SOB_RECORD,9+2+ThisTabSize); //+2 for cached bucket tail ptr(DSW)
+   MakeClRef(NewSOB,SOB_RECORD,9+ThisTabSize);
    /*   xsb_dbgmsg((LOG_DEBUG,"New SOB %p, size = %d", NewSOB, ThisTabSize)); */
 
    if (xsb_profiling_enabled)
@@ -1731,36 +1729,6 @@ static SOBRef new_SOBblock(int ThisTabSize, int Ind, Psc psc )
 
 #define LONG_HASHCHAIN_LENGTH 30000
 static int long_hashchain_warning_given = 0;
-
-CPtr *cached_bucket = 0;
-CPtr cached_bucket_last;
-
-/* All hash tables have 2 extra words in them, at the end.  These are
-   used to cache the end of the most recently used bucket chain.  This
-   is to (sometimes) avoid running a long bucket chain when adding a
-   new fact at the end.  The first extra word contains the address of
-   the cached bucket, and the second contains the address fo the last
-   entry in the bucket list.
-
-   last_if_cached takes the address of a bucket whose last element
-   is desired, the address of the sob containing the hash table, and
-   the address of the new clause to be added at the end of the chain.
-   It returns either the first entry in the bucket list if the cache
-   can't be used, or the last element of the list if it can.  The
-   caller must run the bucket list from the returned element.  The
-   cache is updated. */
-
-CPtr last_if_cached(CPtr *Bucketaddr, SOBRef sob, CPtr NewInd) {
-  CPtr OldInd;
-  if ((CPtr)Bucketaddr == ClRefCacheBucket(sob)) {
-    OldInd = ClRefCacheBucketLast(sob);
-  } else {
-    ClRefCacheBucket(sob) = (CPtr)Bucketaddr;
-    OldInd = *Bucketaddr;
-  }
-  ClRefCacheBucketLast(sob) = NewInd;
-  return OldInd;
-}
 
 static void addto_hashchain( int AZ, Integer Hashval, SOBRef SOBrec, CPtr NewInd,
 			     int Arity, prolog_term Head )
@@ -1791,14 +1759,13 @@ static void addto_hashchain( int AZ, Integer Hashval, SOBRef SOBrec, CPtr NewInd
       Loc = 0;
       dbgen_inst_ppvw(dyntrustmeelsefail,Arity, SOBrec, NewInd,&Loc);
       Loc = 0;
-      if (cell_opcode(OldInd) == dynnoop) {
-	dbgen_inst_ppvw_safe(dyntrymeelse,Arity,NewInd,OldInd,&Loc);
-      } else {
+      if (cell_opcode(OldInd) == dynnoop)
+      {  dbgen_inst_ppvw_safe(dyntrymeelse,Arity,NewInd,OldInd,&Loc); }
+      else {
 	Integer hct = 0;
-	OldInd = last_if_cached(Bucketaddr,SOBrec,NewInd);
-	while (cell_opcode(OldInd) != dyntrustmeelsefail) {
+        while (cell_opcode(OldInd) != dyntrustmeelsefail) {
 	  hct++;
-	  OldInd = IndRefNext(OldInd);
+          OldInd = IndRefNext(OldInd);
 	}
 	if (!long_hashchain_warning_given && hct > LONG_HASHCHAIN_LENGTH) {
 	  long_hashchain_warning_given = 1;
@@ -2100,12 +2067,6 @@ static void delete_from_hashchain(CTXTdeclc ClRef Clause, SOBRef sob, int Ind, i
 {  
     CPtr PI = ClRefIndPtr(Clause,Ind) ;
     byte c = cell_opcode(PI) ;
-
-    /* invalidate cache entry if necessary */
-    if (c == dyntrustmeelsefail &&
-	ClRefCacheBucket(sob) != 0 && ClRefCacheBucketLast(sob) == PI) {
-      ClRefCacheBucket(sob) = 0;
-    }
 
     delete_from_chain(c,PI,(byte)(((NI-Ind)*4+1)*sizeof(Cell)/2)) ;
 
@@ -2968,9 +2929,7 @@ static int really_delete_clause(CTXTdeclc ClRef Clause)
 			    "Addr %p : prev %p : next %p",
 			    sob, ClRefNext(sob), ClRefPrev(sob) ));
 	      }
-	      else if (cell_opcode(IP) == dyntrustmeelsefail) {
-		sob = (SOBRef)IndRefNext(IP); /* so get SOB addr */
-	      } else sob = NULL;
+	      else sob = NULL;
 
 	      delete_from_hashchain(CTXTc Clause,sob,i,NI) ;
 	      if (sob && ClRefNumNonemptyBuckets(sob) == 0) { 
@@ -3668,8 +3627,6 @@ void retractall_prref(CTXTdeclc PrRef prref) {
   ClRef buffer;
   ClRef buffers_to_free[MAXDYNFREEBUFF];
 
-  //  cached_bucket = 0;
-
   if (prref && (cell_opcode((CPtr)prref) != fail)) {
     if (PredOpCode(prref) == jump) {  /* should be trie-asserted */
       abolish_trie_asserted_stuff(CTXTc prref);
@@ -3727,8 +3684,6 @@ void gc_retractall(CTXTdeclc ClRef clref) {
   int btop = 0;
   ClRef buffer;
   ClRef buffers_to_free[MAXDYNFREEBUFF];
-
-  //  cached_bucket = 0;
 
     buffers_to_free[btop++] = clref;
     while (btop > 0) {
