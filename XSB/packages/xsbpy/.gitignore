@@ -19,3 +19,4 @@ test_xsbpy_out.txt
 /config.status
 /configvars.sh
 */.tmp_pxsetup.py
+/.tmp_pxsetup.py
