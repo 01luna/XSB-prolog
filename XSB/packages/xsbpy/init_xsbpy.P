@@ -50,7 +50,9 @@ init_xsbpy(Pyversion):-
     add_lib_dir(PxDir),       % in case XSB is being called from Python
     pyfunc(add_python_path,add_python_path(TestDir),_),
     set_heap_margin(512),   % 4x the amount in v. 4.0
-    messageln(xsbpy_initted_with_python(Version)),!.
+    [px_mk_setup_query],
+    messageln(xsbpy_initted_with_python(Version)),
+    !.
 init_xsbpy(Pyversion):-
     misc_error(['xsbpy did not initialize properly for ',Pyversion]).
 

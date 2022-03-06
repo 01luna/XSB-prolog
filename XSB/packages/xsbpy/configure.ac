@@ -25,10 +25,10 @@ fi
 
 AX_PYTHON
 
-PYTHON_LIBDIR=`dirname $PYTHON_LIB`
-PYTHON_LIB_NAME=`basename $PYTHON_LIB`
-PYTHON_CONFLIBDIR=`dirname $PYTHON_CONFLIB`
-PYTHON_CONFLIB_NAME=`basename $PYTHON_CONFLIB`
+PYTHON_LIBDIR=`dirname "$PYTHON_LIB"`
+PYTHON_LIB_NAME=`basename "$PYTHON_LIB"`
+PYTHON_CONFLIBDIR=`dirname "$PYTHON_CONFLIB"`
+PYTHON_CONFLIB_NAME=`basename "$PYTHON_CONFLIB"`
 
 echo
 echo The Python configuration variables have been set as follows:
@@ -48,11 +48,13 @@ echo
 
 support1=no
 if test -z "$PYTHON_BIN" ; then
-   message1="XSBPY:       Python not found"
+   message1="  XSBPY:       Python not found"
 elif test -z "$PYTHON_LIB" ; then
-   message1="XSBPY:       Python shared library (libpython3.so) not found"
+   message1="  XSBPY:       Python shared library (libpython3.so) not found"
 elif test -z "$PYTHON_INCLUDE_DIR" ; then
-   message1="XSBPY:       Python include directory not found"
+   message1="  XSBPY:       Python include directory not found"
+elif test -z "$PYTHON_CONFLIB" ; then
+   message1="  XSBPY:       Python configuration directory not found"
 else
    support1=yes
 fi
@@ -124,12 +126,9 @@ py_includedir="'$PYTHON_INCLUDE_DIR'"
 
 if test -z "$PYTHON_INCLUDE_DIR" ; then
     echo "Python does not seem to be configured."
+    echo "?- true." > px_mk_setup_query.P
 else 
-../../bin/xsb <<EOF
-consult(px_mk_setup).
-%%writeln(setupfile=$setupfile).
-%%writeln(includedir=$py_includedir).
-mk_setup($setupfile_path,$py_includedir).
+     echo "?- consult(px_mk_setup), mk_setup($setupfile_path,$py_includedir)." > px_mk_setup_query.P
 EOF
 
 echo "*** Installing py-xsb as a Python package"
