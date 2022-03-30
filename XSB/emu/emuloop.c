@@ -1945,7 +1945,7 @@ argument positions.
        byte 3 >> 2 is signed integer that is second argument of sum.
            (Lowest 2 bits indicate reg or local var of 1st 2 args.)
     */
-    register Cell op1; register char op2int; register CPtr op3;
+    register Cell op1; register signed char op2int; register CPtr op3;
     int targvar;
     Op1(get_xax);
     op2int = (char)(get_xxa);
