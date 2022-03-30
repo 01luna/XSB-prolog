@@ -1093,7 +1093,7 @@ inline static xsbBool file_function(CTXTdecl)
 		   ptoc_int(CTXTc 3));
     io_port = (int)ptoc_int(CTXTc 2);
     //    printf("Setting port %d to charset %d\n",io_port,charset);
-    if (io_port > 0)   // Don't do this if we're reading from a string-- trounces memory
+    if (io_port >= 0)   // Don't do this if we're reading from a string-- trounces memory
       open_files[io_port].charset = charset;
 #ifdef WIN_NT
     if (io_port == 0) {
