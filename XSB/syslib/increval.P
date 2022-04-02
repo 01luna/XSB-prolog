@@ -191,6 +191,10 @@ get_calls(_CallTerm) :- '_$builtin'(TRIE_UNIFY_CALL).
 get_callnodeptr_incr(CallTerm,CallNodePtr):-
 		incr_eval_builtin(GET_CALLNODEPTR_INCR, CallTerm, CallNodePtr).	
 
+:- export root_subgoal_is_incr/0.
+root_subgoal_is_incr():- 
+     incr_eval_builtin(ROOT_SUBGOAL_IS_INCR,_).
+
 %-----------
 
 incr_eval_builtin(_BuiltinNo, _A) :-

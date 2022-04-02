@@ -194,10 +194,13 @@ tnot(Subgoal) :-
   	  	      t_not_subsumptive_sf_comp(Subgoal,SF,AnsSetStatus)
 		    ; t_not_subsumptive_sf_incomp(Subgoal,SF,AnsSetStatus) ) ) ).
 
+:- import root_subgoal_is_incr/0 from increval.
 t_not_variant(Subgoal,AnsSetStatus,SF,PTCP):- 
 %	    standard:writeln(t_not_variant(Subgoal,AnsSetStatus,SF,PTCP)),
 %	    get_ptcp(PTCP),
-	    ( AnsSetStatus < 0 ->  % i.e. UNDEFINED_ANSWER_SET or INCR_NEEDS_REEVAL
+    % i.e. UNDEFINED_ANSWER_SET or INCR_NEEDS_REEVAL
+    ( (AnsSetStatus < 0 ; root_subgoal_is_incr()) ->
+%      writeln(recomputing(tnot(Subgoal))),
 	        (tcall(Subgoal), fail 
 	          ;  get_producer_call(Subgoal,ProducerSF,_AnswerTmplt),
 		     is_incomplete(ProducerSF,PTCP),
