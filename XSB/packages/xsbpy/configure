@@ -4574,7 +4574,6 @@ if test -z "$PYTHON_INCLUDE_DIR" ; then
     echo "?- true." > px_mk_setup_query.P
 else
      echo "?- consult(px_mk_setup), mk_setup($setupfile_path,$py_includedir)." > px_mk_setup_query.P
-EOF
 
 echo "*** Installing py-xsb as a Python package"
 cd px
