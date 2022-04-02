@@ -409,6 +409,15 @@ case PSC_GET_INCR: {
     break;
   }
 
+  case ROOT_SUBGOAL_IS_INCR: {
+    //    printf("rsii started\n");
+    if (ptcpreg && get_incr(TIF_PSC(subg_tif_ptr(ptcpreg)))) {
+      //      printf("rsii returining true\n");
+      return TRUE;
+    }
+    return FALSE;
+  }
+
   default:
     xsb_abort("Unknown Incremental Evaluation Builtin %d\n",builtin_number);
     //    xsb_exit("Unknown Incremental Evaluation Builtin: %d\n.", builtin_number);
