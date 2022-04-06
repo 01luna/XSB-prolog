@@ -636,7 +636,7 @@ void dfs_outedges_check_non_completed(CTXTdeclc callnodeptr call1) {
     //	    forest_log_buffer_1->fl_buffer);
     //    sprintf(bufferb,"%s",forest_log_buffer_1->fl_buffer);
     xsb_new_table_error(CTXTc "incremental_tabling",forest_log_buffer_1->fl_buffer,
-			"An incremental update is trying to invalidate the goal %s",forest_log_buffer_1->fl_buffer);
+			"An incremental update is trying to invalidate the non-completed goal %s",forest_log_buffer_1->fl_buffer);
   }
 }
 

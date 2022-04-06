@@ -775,7 +775,7 @@ XSB_Start_Instr(tabletrysinglenoanswers,_tabletrysinglenoanswers)
     //  xsb_abort("Incremental Maintenance of tables is not available for multithreaded engine.\n");
     //#endif  
   
-  //  printf("tabletrysinglenoanswers\n");
+//printf("tabletrysinglenoanswers\n");
 
   xwammode = 1;
    
@@ -814,7 +814,7 @@ XSB_Start_Instr(tabletrysinglenoanswers,_tabletrysinglenoanswers)
       Fail1;
       XSB_Next_Instr();
     }
-  
+
     if(IsNonNULL(ptcpreg)) {
       sf=(VariantSF)ptcpreg;
       if(IsIncrSF(sf)){
@@ -823,23 +823,23 @@ XSB_Start_Instr(tabletrysinglenoanswers,_tabletrysinglenoanswers)
 	  addcalledge(CTXTc cn,sf->callnode);  
 	}
       }
-    }
-    //    printf("creating cn for: "); print_callnode(stddbg, cn); printf("\n");
+      else {
+	if (!get_opaque(TIF_PSC(subg_tif_ptr(sf)))) {
+	  xsb_abort("In call to %s/%d, the calling predicate %s:%s/%d was not declared incrementally_tabled\n",
+		    get_name(TIF_PSC(tip)),
+		    get_arity(TIF_PSC(tip)),
+		    get_mod_name(TIF_PSC(subg_tif_ptr(sf))),
+		    get_name(TIF_PSC(subg_tif_ptr(sf))),
+		    get_arity(TIF_PSC(subg_tif_ptr(sf)))
+		    );
+	}
+      }
+       //    printf("creating cn for: "); print_callnode(stddbg, cn); printf("\n");    
+    }  //  if(IsNonNULL(ptcpreg)) 
   }
-#ifdef NON_OPT_COMPILE
-  else  /* not incremental */
-    if (!get_opaque(TIF_PSC(tip))) {
-      sf=(VariantSF)ptcpreg;
-      xsb_abort("Parent predicate %s:%s/%d not declared incr_table\n", 
-		get_mod_name(TIF_PSC(subg_tif_ptr(sf))),
-		get_name(TIF_PSC(subg_tif_ptr(sf))),
-		get_arity(TIF_PSC(subg_tif_ptr(sf)))
-		); 
-    }
-#endif
   ADVANCE_PC(size_xxx);
   lpcreg = *(pb *)lpcreg;
-
+  
 XSB_End_Instr()
 
 
