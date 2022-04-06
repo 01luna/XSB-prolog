@@ -59,6 +59,8 @@ options=$2
 ../gentest.sh "$XEMU $options" test_idg_abstract "test".
 #------------------------------------------------- testing executable incremental dirs.
 ../gentest.sh "$XEMU -l $options" test_table_errors "test."
+#------------------------------------------------- testing executable incremental dirs.
+../gentest.sh "$XEMU -l $options" test_wfs_mult_upd "test."
 #--------------------------------------------------
 #../gentest.sh "$XEMU -l $options" test_set_pp "test."
 #--------------------------------------------------

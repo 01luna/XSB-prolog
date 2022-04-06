@@ -3,14 +3,23 @@
 :- import numbervars/1 from num_vars.
 :- import xsb_error_get_message/2,xsb_error_get_tag/2,xsb_error_get_goal/2,xsb_error_get_goalatom/2 from error_handler.
 
-test:- catch(t1(_X),E,(xsb_error_get_message(E,M),writeln(message(M)))),fail.
-test:- catch(t1(_X),E,(xsb_error_get_tag(E,M),writeln(tag(M)))),fail.
-test:- catch(t1(_X),E,(xsb_error_get_goal(E,M),numbervars(M),writeln(goal(M)))),fail.
-test:- catch(t1(_X),E,(xsb_error_get_goalatom(E,M),writeln(goalatom(M)))),fail.
+test:- catch(t1_incr(_X),E,(xsb_error_get_message(E,M),writeln(t1_incr_message(M)))),fail.
+test:- catch(t1_incr(_X),E,(xsb_error_get_tag(E,M),writeln(t1_incr_tag(M)))),fail.
+test:- catch(t1_incr(_X),E,(xsb_error_get_goal(E,M),numbervars(M),writeln(t1_incr_goal(M)))),
+       fail.
+test:- catch(t1_incr(_X),E,(xsb_error_get_goalatom(E,M),writeln(t1_incr_goalatom(M)))),fail.
+test:- catch(t1_non_incr(_),E,(xsb_error_get_message(E,M),writeln(t1_non_incr_message(M)))),
+       fail.
+test:- catch(t1_opaque(_),E,(xsb_error_get_message(E,M),writeln(t1_opaque_message(M)))),
+       fail.
 test.
 
-
-t1(X):- d(X),Y is X + 1,incr_assert(d(Y)).
+:- table t1_incr/1 as incremental.
+t1_incr(X):- d(X),Y is X + 1,incr_assert(d(Y)).
+:- table t1_non_incr/1.
+t1_non_incr(X):- d(X),Y is X + 1,incr_assert(d(Y)).
+:- table t1_opaque/1 as opaque.
+t1_opaque(X):- d(X),Y is X + 1,incr_assert(d(Y)).
 
 :- dynamic d/1 as incremental.
 d(1).
@@ -21,5 +30,4 @@ p(_X).
 
 test_1:- put_attr(X, ti, v(1)),p(X).
 
-:- table t1/1 as incremental.
 
