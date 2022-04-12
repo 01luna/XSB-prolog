@@ -15,7 +15,7 @@
 \end{center}
 
 \noindent
-{\large {\bf {\em This chapter documents beta-level software.}}}
+%{\large {\bf {\em This chapter documents beta-level software.}}}
 
 %Both XSB and Python are written in C, which makes possible a robust
 %and efficient interface.  
@@ -42,7 +42,10 @@ written for Linux, Mac and Windows, and is still in the process of
 being tested under various configurations.  On these platforms, {\tt
   xsbpy} has been tested using versions 3.5 -- 3.8 Python and its
 libraries.\footnote{The {\tt xsbpy} configuration script was written
-  by Michael Kifer.}
+  by Michael Kifer.  The {\tt xsbpy} configuration script is called by
+  the main XSB configuration script, can be found in {\tt
+    XSB/packages/xsbpy}, and can be run separately from the main
+  configuration script if desired.}
 
 \subsection{Configuring {\tt xsbpy} under Linux with GCC}
 
@@ -58,50 +61,54 @@ place.
 \item A development version of Python 3.x must also be present and
   usable by the user performing the configuration.\footnote{If several
     versions of Python 3.x are installed, the most recent will be used
-    by the configurator.}  The version must be a CPython version (this
-  is the usual implementation of Python), and in addition must also
-  contain a version of Python as a shared object ({\tt .so}) file and
-  Python header ({\tt .h})files.  The need for a development version
-  sometimes requires an additional download of Python.  On Ubuntu,
-  while Python is ordinarily downloaded as:
+    by the configurator.}  The version must be a C-Python version
+  (this is the usual implementation of Python), and in addition must
+  also contain a version of Python as a shared object ({\tt .so}) file
+  and Python header ({\tt .h})files.  While some version of Python-3
+  is included in almost any version of Linux, additional installations
+  may be needed to obtain a more recent version, or to obtain
+  development extensions that are only included in Python development
+  packages, (basically, {\tt Python.h} and {\tt libpython{\em X}.so}).
+  Suppose version 3.8 of Python is desired.  If it is not present on
+  the platform, it may be installed with its development extensions
+  as:
 
-  {\tt apt-get install python3}
+  {\tt sudo apt-get install python3.8-dev}
 
-\noindent
-the shared-object library corresponding to that version must also be
-downloaded as, e.g.:
+Otherwise, if Python3.8 has been installed but the development version
+is not present the {\tt libpython3.8.so} and {\tt Python.h} files can
+be downloaded as:
 
-{\tt apt-get install libpython3-dev}
-
-or if using a particular version of Python-3
-
-{\tt apt-get install libpython3.8-dev}
+{\tt apt-get install libpython3.8-dev}.
 
 \item Next, the user must have permissions to use {\tt pip} on this
   version of Python, as the configuration process may need to download
-  the Python library {\tt find\_libpython}.
+  the Python library {\tt find\_libpython}. \footnote{Typically {\tt
+      pip} permissions are handled by setting up a Python virtual
+    environment.}
 \end{itemize}
 
 If there are difficulties in configuring {\tt xsbpy}, it is likely
 that one of the above requirements is not met.  However, if these
 requirements are met, but the configuration does not work properly, it
-is best to check the file {\tt packages/xsbpy/xsb2py\_connect\_defs.h} to see whether
-its definitions are correct.  The definitions in this file are used in
-{\tt get\_compiler\_options/2} in {\tt init\_xsbpy.P} to properly
-compile {\tt xsbpy} and link in {\tt libpython3x.so}.\footnote{If you
-  can determine that the required software is present and that there
-  is a problem with the configuration please report the problem at
-  {\tt https://sourceforge.net/p/xsb/bugs}.}
+is best to check the file {\tt packages/xsbpy/xsb2py\_connect\_defs.h}
+to check whether its definitions are correct ({\tt
+  xsb2py\_connect\_defs.h} is created when {\tt xsbpy} is
+configured.\footnote{If you can determine that the required software
+  is present and that there is a problem with the configuration please
+  report the problem at {\tt https://sourceforge.net/p/xsb/bugs}.}
 
-In Ubuntu Linux, this is all done automatically when {\tt xsbpy} is
-consulted into XSB via a normal consult or {\tt ensure\_loaded/[1,2]}.
-As part of this process, in {\tt init\_xsbpy.P} the main C code for
-{\tt xsbpy} is compiled using gcc compiler options that are
-appropriate for the version of libpython used.\footnote{See {\tt
-    get\_compiler\_options/2} in {\tt init\_xsbpy.P}.}
-When the {\tt xsbpy} module is consulted into XSB, the {\tt libpython}
-shared object file (or DLL) is loaded dynamically along with the {\tt
-  xsbpy} shared object file.
+The definitions in {\tt xsb2py\_connect\_defs.h} are used in {\tt
+  get\_compiler\_options/2} in {\tt init\_xsbpy.P} to properly compile
+{\tt xsbpy} and link in {\tt libpython3x.so}.  These final steps are
+done automatically when {\tt xsbpy} is consulted into XSB via a normal
+consult or {\tt ensure\_loaded/[1,2]}.  As part of this process, in
+{\tt init\_xsbpy.P} the main C code for {\tt xsbpy} is compiled using
+gcc compiler options that are appropriate for the version of {\tt
+  libpython} used.\footnote{See {\tt get\_compiler\_options/2} in {\tt
+    init\_xsbpy.P}.}  When the {\tt xsbpy} module is consulted into
+XSB, the {\tt libpython} shared object file (or DLL) is loaded
+dynamically along with the {\tt xsbpy} shared object file.
 
 %If installing {\tt xsbpy} on Ubuntu, the first step is to ensure that
 %the proper Python libraries and header files are present.  If using
