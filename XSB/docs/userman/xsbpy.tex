@@ -58,35 +58,36 @@ place.
 \item GCC (or some other compiler) must be present and usable by the
   user performing the configuration.
 
-\item A development version of Python 3.x must also be present and
-  usable by the user performing the configuration.\footnote{If several
-    versions of Python 3.x are installed, the most recent will be used
-    by the configurator.}  The version must be a C-Python version
-  (this is the usual implementation of Python), and in addition must
-  also contain a version of Python as a shared object ({\tt .so}) file
-  and Python header ({\tt .h})files.  While some version of Python-3
-  is included in almost any version of Linux, additional installations
-  may be needed to obtain a more recent version, or to obtain
-  development extensions that are only included in Python development
-  packages, (basically, {\tt Python.h} and {\tt libpython{\em X}.so}).
-  Suppose version 3.8 of Python is desired.  If it is not present on
-  the platform, it may be installed with its development extensions
-  as:
+\item A version of C-Python 3.x (the usual implementation of Python)
+  with development extensions must be present and usable.\footnote{If
+    several versions of Python 3.x are installed, the most recent will
+    be used by the confige script.}  The Python development extensions
+  are needed because they contain Python as a shared object ({\tt
+    .so}) file along with Python header ({\tt .h}) files.  While some
+  version of Python-3 is included in almost any version of Linux,
+  additional Linux package installations may be needed for these
+  development extensions or to install a more recent version of Python.
+
+  \item {\tt xsbpy} configuration uses a Python package called {\tt
+    find\_libpython}, and will try to do a {\tt pip} installation if
+    it is not present.  For this reason, we recommend configuring {\tt
+      xsbpy} within a virtual environment. \footnote{Some Linuxes like
+      Ubuntu do not include {\tt pip} in their default distribution, in
+      which case the Linux package for {\tt pip} must be installed.}
+\end{itemize}
+
+  As an example, suppose version 3.8 of Python is desired on Ubuntu.
+  If it is not present on the platform, it may be installed with its
+  development extensions as:
 
   {\tt sudo apt-get install python3.8-dev}
 
 Otherwise, if Python3.8 has been installed but the development version
-is not present the {\tt libpython3.8.so} and {\tt Python.h} files can
-be downloaded as:
+is not present the development extensions ({\tt libpython3.8.so} and
+{\tt Python.h}) can be installed as:
 
 {\tt apt-get install libpython3.8-dev}.
 
-\item Next, the user must have permissions to use {\tt pip} on this
-  version of Python, as the configuration process may need to download
-  the Python library {\tt find\_libpython}. \footnote{Typically {\tt
-      pip} permissions are handled by setting up a Python virtual
-    environment.}
-\end{itemize}
 
 If there are difficulties in configuring {\tt xsbpy}, it is likely
 that one of the above requirements is not met.  However, if these
@@ -94,7 +95,7 @@ requirements are met, but the configuration does not work properly, it
 is best to check the file {\tt packages/xsbpy/xsb2py\_connect\_defs.h}
 to check whether its definitions are correct ({\tt
   xsb2py\_connect\_defs.h} is created when {\tt xsbpy} is
-configured.\footnote{If you can determine that the required software
+configured).\footnote{If you can determine that the required software
   is present and that there is a problem with the configuration please
   report the problem at {\tt https://sourceforge.net/p/xsb/bugs}.}
 
@@ -107,8 +108,8 @@ consult or {\tt ensure\_loaded/[1,2]}.  As part of this process, in
 gcc compiler options that are appropriate for the version of {\tt
   libpython} used.\footnote{See {\tt get\_compiler\_options/2} in {\tt
     init\_xsbpy.P}.}  When the {\tt xsbpy} module is consulted into
-XSB, the {\tt libpython} shared object file (or DLL) is loaded
-dynamically along with the {\tt xsbpy} shared object file.
+XSB, the {\tt libpython} shared object file is loaded dynamically
+along with the {\tt xsbpy} shared object file.
 
 %If installing {\tt xsbpy} on Ubuntu, the first step is to ensure that
 %the proper Python libraries and header files are present.  If using
