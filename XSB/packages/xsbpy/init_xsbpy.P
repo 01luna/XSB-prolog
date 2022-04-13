@@ -99,8 +99,23 @@ py_lib_dirs(List):-
 % -L adds a path to be searched.
 % -rpath is the runtime search path.
 
-%use results from configure
 get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
+%    XSBLIB =  XSBCONFIG_BINDIR_QUOTED,
+%    concat_atom(['\'',XSBLIB,'/libxsb.dylib','\''],LIBXSB_DYLIB),
+    xsb_configuration(os_type,darwin),!,
+    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
+    concat_atom(['-I',XSB,'../../emu',                 
+		 ' -I/usr/local/include',' -I',PYTHON_INCLUDE_DIR_QUOTED,
+		 ' -I/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include',
+		 ' -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include',
+		 ' -I/Library/Developer/CommandLineTools/usr/include',
+%		' -I',PYTHON_INCLUDE_DIR_QUOTED	
+		 ' -L',PYTHON_LIBDIR_QUOTED,' ',
+		' -l',PYTHON_BIN_QUOTED,
+		    ' -g' ],CompilerOpts).
+
+get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
+    xsb_configuration(os_type,'linux-gnu'),!,
     XSBLIB =  XSBCONFIG_BINDIR_QUOTED,
     concat_atom(['\'',XSBLIB,'/libxsb.so','\''],LIBXSBSO),
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
