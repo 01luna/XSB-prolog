@@ -37,15 +37,15 @@ applications and further examples.
 
 \section{Configuration and Loading}
 
-Initial versions of a configuration process of {\tt xsbpy} has been
-written for Linux, Mac and Windows, and is still in the process of
-being tested under various configurations.  On these platforms, {\tt
-  xsbpy} has been tested using versions 3.5 -- 3.8 Python and its
-libraries.\footnote{The {\tt xsbpy} configuration script was written
-  by Michael Kifer.  The {\tt xsbpy} configuration script is called by
-  the main XSB configuration script, can be found in {\tt
-    XSB/packages/xsbpy}, and can be run separately from the main
-  configuration script if desired.}
+A configuration process of {\tt xsbpy} has been written for Linux, Mac
+and Windows.  On these platforms, {\tt xsbpy} has been tested using
+versions 3.5 -- 3.10 of Python and its libraries.\footnote{The {\tt
+    xsbpy} configuration script was written by Michael Kifer.  In
+  addition to Windows and Mac testing, it has been tested on Ubuntu,
+  Fedora and CentOs Linuxes.}  The {\tt xsbpy} configuration script is
+called by the main XSB configuration script, and can be found in {\tt
+  XSB/packages/xsbpy}.  {\tt xsbpy} configuration can be run
+separately from the main configuration script if desired.
 
 \subsection{Configuring {\tt xsbpy} under Linux with GCC}
 
@@ -55,7 +55,7 @@ However, for this configuration to work several things must be in
 place.
 
 \begin{itemize}
-\item GCC (or some other compiler) must be present and usable by the
+\item git and gcc (or some other compiler) must be present and usable by the
   user performing the configuration.
 
 \item A version of C-Python 3.x (the usual implementation of Python)
@@ -76,18 +76,25 @@ place.
       which case the Linux package for {\tt pip} must be installed.}
 \end{itemize}
 
-  As an example, suppose version 3.8 of Python is desired on Ubuntu.
-  If it is not present on the platform, it may be installed with its
+  As an example, suppose version 3.8 of Python is desired.  If it is
+  not present on the platform, it may be installed with its
   development extensions as:
 
   {\tt sudo apt-get install python3.8-dev}
 
-Otherwise, if Python3.8 has been installed but the development version
-is not present the development extensions ({\tt libpython3.8.so} and
-{\tt Python.h}) can be installed as:
+\noindent
+  in Ubuntu; or
 
-{\tt apt-get install libpython3.8-dev}.
+  {\tt sudo dnf install python3.10-dev}
 
+\noindent
+  in Fedora (newer versions) or CentOs.
+
+%Otherwise, if Python3.8 has been installed but the development version
+%is not present the development extensions ({\tt libpython3.8.so} and
+%{\tt Python.h}) can be installed as:
+%
+%{\tt apt-get install libpython3.8-dev}.
 
 If there are difficulties in configuring {\tt xsbpy}, it is likely
 that one of the above requirements is not met.  However, if these
