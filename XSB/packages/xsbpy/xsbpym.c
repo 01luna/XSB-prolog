@@ -461,7 +461,7 @@ int convert_pyObj_prObj(CTXTdeclc PyObject *pyObj, prolog_term *prTerm, int flag
       return FALSE;
     return TRUE;
   } 
-  else if PyIter_Check(pyObj) {
+  else if (PyIter_Check(pyObj)) {
       printf("found an iterator\n");
     }
   /* default -- not of a type that is handled */
