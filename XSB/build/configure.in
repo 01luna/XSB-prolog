@@ -999,8 +999,14 @@ if test -d "$topdir/packages/xsbpy"; then
     cd "$topdir/packages/xsbpy"
     echo "***Configuring XSBPY (XSB to Python connector)"
     chmod 700 ./configure
-    ./configure > /dev/null
+    ./configure || xsbpy_config_failed=1
     cd "$build_dir"
+    if test -n "$xsbpy_config_failed" ; then
+       echo
+       echo "***** pip is not installed -- please install it!"
+       echo
+       exit 1
+    fi
 fi
 
 
