@@ -1,5 +1,5 @@
 
-\newcommand{\pxversion}{Version 0.7}
+\newcommand{\pxversion}{Version 1.0 (beta)}
 \newcommand{\px}{{\tt px}}
 
 \begin{center}
@@ -17,16 +17,16 @@
 \end{center}
 
 \noindent
-{\large {\bf {\em This chapter documents rapidly-developing software
-      that is alpha-level at best.  See Section~\ref{sec:px-limits}
-      for a list of currently unsupported features and known bugs.}}}
+{\large {\bf {\em This chapter documents beta-level software.  See
+      Section~\ref{sec:px-limits} for a list of currently unsupported
+      features and known bugs.}}}
 
 The \px{} module allows XSB to be used as an embedded subprocess
-within a Python process.  \px{} currently works independently of
-{\tt xsbpy}, although they both use much of the same code and in
+within a Python process.  \px{} currently works independently of {\tt
+  xsbpy}, although they both use much of the same code and in
 particular bi-translate Prolog terms and Python data structures in the
-same manner.\footnote{Combinind the two systems is a high priority
-  for development.}
+same manner.\footnote{Fully combining the two systems is a high
+  priority for development.}
 
 \px{} is only slightly slower than {\tt xsbpy}.  Nearly a million
 calls to, and returns from a simple XSB predicate can be made per
@@ -35,14 +35,14 @@ can be transferred at a few tens of nanoseconds per list element.
 
 \section{Configuration, Loading and Start-up} \label{px:config}
 
-{\sc Working draft -- not complete.
-  \bi
-  \item Not mentioning LD\_LIBRARY or XSB\_ROOT issues.
-  \item  only describing Linux.
-  \item Once the above kinks are out, I need to integrate this
-    documentation it with the xsbpy configuration.
-    \ei
-    }
+%{\sc Working draft -- not complete.
+%  \bi
+%  \item Not mentioning LD\_LIBRARY or XSB\_ROOT issues.
+%  \item  only describing Linux.
+%  \item Once the above kinks are out, I need to integrate this
+%    documentation it with the xsbpy configuration.
+%    \ei
+%    }
 
 %Also, because \px{} is installed as a site
 %package for a given version of Python, we strongly recommend using a
@@ -51,121 +51,156 @@ can be transferred at a few tens of nanoseconds per list element.
 %the appropriate Python packages are present and a user has set up a
 %virtual Python environment, \px{} is easy to set up.
 
-\subsection{System Prerequisites}
+\subsection{Installation on Linux and macOS}
 
-\subsubsection{Linux}
+\subsubsection{System Prerequisites}
+
+\begin{itemize}
+\item {\bf Linux}
 
 %To properly execute these steps the proper Python system packages must
 %have been installed.
 
 Beyond Linux packages like {\tt build-essential} that are needed to
-build and make XSB itself, \px{} requires a version of {\tt
-  \$\{PYTHON\}-dev} to have been installed.  On Ubuntu, and other
-Debian-derived Linuxes installation also requires installing {\tt
-  \$\{PYTHON\}-distutils}, though this is not required for other
-Linuxes. For a given version of Python {\tt \$PYTHON} on Ubuntu, the
-command to install these Python packages would be:
+build and make XSB itself, \px{} requires Python development packages
+to have been installed for the Python version of interest.  (See
+Section~\ref{sec:xsbpy-linux} for an overview of installing such
+dependencies.) On Ubuntu, and other Debian-derived Linuxes
+installation also requires installing {\tt \$\{PYTHON\}-distutils},
+though this is not required for other Linuxes. For a given version of
+Python {\tt \$PYTHON} on Ubuntu, the command to install these Python
+packages would be:
 
 {\tt sudo apt-get install \$\{PYTHON\}-dev \$\{PYTHON\}-distutils}
 
-On other Linuxes, an {\tt rpm} or equivalent commend must be
-used.\footnote{\px{} has been tested on Ubuntu v. 18 using Python
-  versions 3.7, 3.8 and 3.9, although it should work on other recent
-  Unix distributions and Python versions as well.}
+On Fedora-based Linuxes, the {\tt dnf} command must be
+used.\footnote{\px{} has been tested on Ubuntu v. 18 and v. 20, and on
+  Fedora 35; and Python versions 3.7, 3.8, 3.9 and 3.10were tested.
+  We belive that \px{} will work on other recent Unix distributions
+  and Python versions as well.}
 
 %Since \px{} requires {\tt distutils}, the {\tt python-distutils}
 %package also needs to have been installed.
 
 %On Linux, setting up a Python virtual environment requires the {\tt
-%  python-dev} and {\tt python-venv} packages to be installed, 
+%  python-dev} and {\tt python-venv} packages to be installed,
 
-\subsection{Configuring \px{}}
+\item {\bf macOS}
+\end{itemize}
 
+\subsubsection{Configuring \px{} on Linux and macOS}
+
+\paragraph{Quick Start}
+\begin{enumerate}
+\item cd to {\tt \$XSB\_ROOT/XSB/packages/xsbpy} and execute  {\tt bash px\_configure.sh}
+\item {\tt source \$XSB\_HOME/packages/xsbpy/px\_activate} from anywhere
+\item start using px!
+\end{enumerate}
+
+\paragraph{Discussion}
 If the correct Python libraries have been installed, configuration of
-{\tt px} will usually be simple.  When XSB is first configured, via
+{\tt px} should be simple, and nearly the same on Linux and
+macOS.  When XSB is first configured, via
 \begin{verbatim}
 $XSB_ROOT/XSB/build/configure
 \end{verbatim}
-the {\tt xsbpy} package, which allows XSB to call Python, will be
+the {\tt xsbpy} package, which allows XSB to call Python, is also
 configured and compiled.  Using files created during the {\tt xsbpy}
-build, \px{} can be configured and build by executing
+build, \px{} is configured and build by cd-ing to
 \begin{verbatim}
-  $XSB_ROOT/XSB/packages/xsbpy/configure
+$XSB_ROOT/XSB/packages/xsbpy
 \end{verbatim}
-This second {\tt configure} calls the Python {\tt distutils}
-package.\footnote{At some point, this confuration will probably be
-  changed to use Python's {\tt setuptools}}.  When {\tt distutils} is
-called, it compiles the C files needed for the \px{} module, and in a
-manner similar to {\tt pip}, installs them as follows.
-
-\begin{itemize}
-\item As a default, if the command
-
-  {\tt \$XSB\_ROOT/XSB/packages/xsbpy/configure}
-
-  is issued, \px{} is installed in the directory corresponding to {\tt
-    sys.USER\_SITE} in the version of Python {\tt \$Python} with which
-  {\tt xsbpy} was configured. In Linux this is under the users home
-  directory (\verb|~|):
+\noindent
+and executing
 \begin{verbatim}
-~/.local/lib/$PYTHON/site-packages
+  bash px_configure.sh
 \end{verbatim}
-If this default directory is used, {\tt px} will only be available to
-the user who installed it, and {\tt px} will be available for all
-Python projects for that user.
-
-\item If \px{} is to be installed in a Python virtual environment
-  that uses {\tt venv}, the virtual environment will first need to be
-  activated in a given shell.  In {\tt bash} this is done as:
-
+This second configuration step uses XSB to generate a {\tt setup.py}
+file for the Python {\tt distutils} package, and then builds and
+installs px.  \footnote{At some point, this confuration will be
+  changed to use Python's {\tt setuptools}.}  The compiled C
+extensions for Python are build and put in the user's {\tt
+  site-packages} directory, i.e.,
 \begin{verbatim}
-source $VENV_DIR/bin/activate
+.local/lib/python3.10/site-packages/
 \end{verbatim}
-
-Where {\tt \$VENV\_DIR} is the root directory for the virtual
-environment.  Once this is done, the command
-
-\begin{verbatim}  
-$XSB_ROOT/XSB/packages/xsbpy/configure ???
-\end{verbatim}
-
-is issued, \px{} will be installed in 
-
+In addition the second consideration creates a file, {\tt
+  px\_activate}, somewhat analogous to activation code in {\tt venv}
+or other virtual environments.\footnote{This activation file updates
+  the {\tt LD\_LIBRARY\_PATH} used by the {\tt ld} command, and adds
+  the {\tt px} directory to {\tt PYTHONPATH}.} In {\tt bash} or {\tt
+  zsh}, simply type
 \begin{verbatim}
-$VENV_DIR/lib/$PYTHON/site-packages
+source $XSB_HOME/packages/xsbpy/px_activate
 \end{verbatim}
+and you're ready to go.
 
-\item For system administrators, if the command
+%\begin{itemize}
+%\item As a default, if the command
+%
+%  {\tt \$XSB\_ROOT/XSB/packages/xsbpy/configure}
+%
+%  is issued, \px{} is installed in the directory corresponding to {\tt
+%    sys.USER\_SITE} in the version of Python {\tt \$Python} with which
+%  {\tt xsbpy} was configured. In Linux this is under the users home
+%  directory (\verb|~|):
+%\begin{verbatim}
+%~/.local/lib/$PYTHON/site-packages
+%\end{verbatim}
+%If this default directory is used, {\tt px} will only be available to
+%the user who installed it, and {\tt px} will be available for all
+%Python projects for that user.
+%
+%\item If \px{} is to be installed in a Python virtual environment
+%  that uses {\tt venv}, the virtual environment will first need to be
+%  activated in a given shell.  In {\tt bash} this is done as:
+%
+%\begin{verbatim}
+%source $VENV_DIR/bin/activate
+%\end{verbatim}
+%
+%Where {\tt \$VENV\_DIR} is the root directory for the virtual
+%environment.  Once this is done, the command
+%
+%\begin{verbatim}  
+%$XSB_ROOT/XSB/packages/xsbpy/configure ???
+%\end{verbatim}
+%
+%is issued, \px{} will be installed in 
+%
+%\begin{verbatim}
+%$VENV_DIR/lib/$PYTHON/site-packages
+%\end{verbatim}
+%
+%\item For system administrators, if the command
+%
+%\begin{verbatim}  
+%sudo $XSB_ROOT/XSB/packages/xsbpy/configure ???
+%\end{verbatim}
+%
+%  is issued, \px{} will be installed in
+%
+%\begin{verbatim}  
+%/usr/local/lib/$PYTHON/dist-packages
+%\end{verbatim}  
+%
+%  If this option is used, \px{} will be avaiable to anyone who uses
+%  the version {\tt \$PYTHON}.
+%
+%\item As a final alternative, the command 
+%
+%\begin{verbatim}  
+%  $XSB_ROOT/XSB/packages/xsbpy/configure ???
+%\end{verbatim}
+%
+%will install \px{} directly in the specified directory.
+%\end{itemize}
+%
+%{\sc TES: If possible, I need to redo setup.py to include px.py in the
+%  egg so that px.py does not need to be in the library path.}
 
-\begin{verbatim}  
-sudo $XSB_ROOT/XSB/packages/xsbpy/configure ???
-\end{verbatim}
-
-  is issued, \px{} will be installed in
-
-\begin{verbatim}  
-/usr/local/lib/$PYTHON/dist-packages
-\end{verbatim}  
-
-  If this option is used, \px{} will be avaiable to anyone who uses
-  the version {\tt \$PYTHON}.
-
-\item As a final alternative, the command 
-
-\begin{verbatim}  
-  $XSB_ROOT/XSB/packages/xsbpy/configure ???
-\end{verbatim}
-
-will install \px{} directly in the specified directory.
-\end{itemize}
-
-{\sc TES: If possible, I need to redo setup.py to include px.py in the
-  egg so that px.py does not need to be in the library path.}
-
-Once \px has been built, \px{} can be used just as any other package
-installed in {\tt \$\{PYTHON\}} (As long as
-{\tt \$XSB\_ROOT/XSB/packages/xsbpy/px/px.py} is in the Python library
-  paths).
+Once \px has been built and activated, \px{} can be used just as any other package
+installed in {\tt \$\{PYTHON\}}.
 
 \begin{verbatim}
 $PYTHON
@@ -173,7 +208,10 @@ $PYTHON
 [xsb_configuration loaded]
 [sysinitrc loaded]
 [xsbbrat loaded]
-[xsbrc loaded]
+[xsbpy loaded, cpu time used: 0.001 seconds]
+xsbpy_initted_with_python(auto(python3.9))
+[px loaded]
+[px_test loaded]
 \end{verbatim}
 
 \noindent
@@ -234,6 +272,8 @@ module is loaded.
 %This command compiles the px sources, builds a Python egg, and
 %installs the egg in the Python libary for distributed packages
 %(e.g. {\tt dist-packages})
+
+\subsection{Configuring PX on Windows}
 
 \section{Using \px}
 
@@ -529,7 +569,7 @@ q.
 }
 
 \noindent
-An XSB query to this predicate may be determinsitic (e.g., {\tt ?-
+An XSB query to this predicate may be determinisitic (e.g., {\tt ?-
   test\_comp(a,X1)}) or non-deterministic (e.g., {\tt ?-
   test\_comp(X1,X2)}).  This second query will have multiple answers,
 some of whose truth values are {\em undefined}.  The \px{} query
@@ -729,7 +769,7 @@ purpose.
 The material in this section is not necessary to understand for a
 basic use of \px{}, but shows how \px{} can be used for
 constraint-based reasoning, and how it can interface to the results of
-non-monotonic reasioning.
+non-monotonic reasoning.
 
 \begin{example} \rm {\it Evaluating queries with constraints} \label{ex:connstraints}
 
