@@ -1,13 +1,16 @@
 
-:- export mk_setup/1, mk_setup/2.
+:- export mk_setup/1, mk_setup/2,create_activate_script/0.
 :- import xsb_configuration/2 from xsb_configuration.
 :- import concat_atom/2 from string.
+:- import lazy_writeln/2 from standard.
 
 mk_setup(File,PythonIncludeDir) :-
         writeln(2,'*** Creating the settings for the py-xsb package'),
         tell(File),
         mk_setup(PythonIncludeDir),
-        told.
+        told,
+	create_activate_script().
+
 mk_setup(PythonIncludeDir) :-
         writeln('from distutils.core import setup, Extension'),
         xsb_configuration(packagesdir, PkgsDir),
@@ -30,3 +33,11 @@ setup (name = \'px\',
        author = \'Theresa Swift\',
        ext_modules = [module1])
 ').
+
+create_activate_script():-
+    open(px_activate,write,Str),
+    xsb_configuration(packagesdir, PkgsDir),
+    lazy_writeln(Str,['export PYTHONPATH="$PYTHONPATH:',PkgsDir,'/xsbpy/px"']),
+    xsb_configuration(config_bindir,Cfbin),
+    lazy_writeln(Str,['export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:',Cfbin,'"']),
+    close(Str).
