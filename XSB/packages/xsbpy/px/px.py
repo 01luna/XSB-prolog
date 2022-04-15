@@ -26,12 +26,12 @@ PLAIN_TRUTHVALS = 4
 # TES: need to fix
 px_cmd('curr_sym','set_prolog_flag','heap_garbage_collection','none')
 
+px_cmd('consult','consult','xsbpy')
 px_cmd('consult','consult','px')
 px_cmd('consult','consult','px_test')
 
 # Notice the blank line above. Code should continue on this line.
 # ================ Utils  ================
-
 
 def ensure_loaded(File):
     """Convenience function for loading and/or compiling a Prolog 'file' as necessary.

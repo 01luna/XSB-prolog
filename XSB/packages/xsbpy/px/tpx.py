@@ -43,7 +43,10 @@ def test_cmd_query():
     print('----------- done with test_cmd_query --------------')
 
 def test_interrupts():
-    add_prolog_path(['../../../../xsbtests/attv_tests'])
+    xsb_root,tv = px_qdet('xsb_configuration','xsb_configuration','install_dir')
+    print(xsb_root + '/../xsbtests/attv_tests')
+    add_prolog_path([xsb_root + '/../xsbtests/attv_tests'])
+#    add_prolog_path(['../../../../xsbtests/attv_tests'])
     px_cmd('px_test','tc_rep_max') 
     px_cmd('consult','consult','attv_test')
     px_cmd('usermod','test')
