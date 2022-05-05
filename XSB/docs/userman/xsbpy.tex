@@ -932,6 +932,84 @@ Note that most of these applications require the underlying Python
 libraries to have been installed via a {\tt pip} or {\tt conda}
 install.
 
+\subsection{Fasttext Queries and Language Detection: {\tt xp\_fasttext}}
+%
+Facebook's {\tt fastText} provides a collection of functionality that
+includes querying pre-trained word vectors in over a hundred
+languages~\cite{FBFJM18}, training sets of vectors, aligning vector
+embeddings~\cite{MUSE2018}, and identifying languages via {\tt
+  lid.176.bin}.  This XSB module uses the Python module {\tt fasttext}
+and allows an XSB programmer to immediately start using fastText's
+pre-trained word embeddings.  A related module, {\tt xp\_faiss}
+provides an interface to Facebook's dense vector managment system
+Faiss.  The distinction between the two is that Faiss can manage
+vectors read in from a file, and provides batch-oriented operatoins;
+the fastText module relies on fastText's binary format and provides
+simpler, though useful, query support.
+
+\paragraph{Queries to Word Embeddings}
+\begin{description}
+  \indourmoditem{load\_model(+BinPath,+Name)}{load\_model/2}{xp\_fasttext}
+  Loads a word embedding model in fastText binary form, the path of
+  which is {\tt BinPath}.  {\tt Name} is an atom to be used as a
+  Prolog referent, and so easily allows use of more than one word
+  embedding model at a time.
+
+  \indourmoditem{get\_nearest\_neighbors(+Name,+Word,-Neighbors)}{get\_nearest\_neighbors/3}{xp\_fasttext}
+  Returns the 10 nearest neighbors of {\tt Word} in the model {\tt
+    Name}.  This feature is useful for determining other words that
+  are distributionally similar to {\tt Word}.  {\tt Neighbors} is a
+  list of tuples (terms with functor {\tt ''/2}) containing a
+  neighboring word and its cosine similarity to {\tt Word}.   Although
+  {\tt Word} must be a Prolog atom, it need not be an actual English
+  word.  Because fastText uses subword embeddings rather than word
+  embeddings \cite{BGJM17}, {\tt Word} need not have been in the
+  training set of the model.  This feature can sometimes be useful for
+  correcting misspellings and other purposes.
+
+  \indourmoditem{cosine\_similarity(+Name,+WordList,-SimMat)}{cosine\_similarity/3}{xp\_fasttext}
+  For a model {\tt Name} and {\tt WordList} a list of atoms of length
+  $N$, this predicate returns a (cosine) similarity matrix of
+  dimension $N \times N$.
+    
+  \indourmoditem{get\_word\_vec(+Name,+Word,-Vec)}{get\_word\_vec/3}{xp\_fasttext}
+  Returns a the vecotr for {\tt Word} in the model {\tt Name} as a
+  Prolog list of floats.  In general, if a compuation on word vectors
+  can be done wholly on the Python side, it is much faster to do so,
+  rather than manipulating vectors in XSB.  This is because the word
+  vectors are actually kept as {\tt numpy} arrays and computations
+  performed in C rather than in Python.
+\end{description}
+
+\paragraph{Language Identification via {\tt lid.176.bin}}
+Assuming that Fasttext's language identification module is in the
+current directory, the command:
+\begin{verbatim}
+ pyfunc(fasttext,load_model('./lid.176.bin'),Obj).
+\end{verbatim}
+Loads the model and unifies {\tt Obj} with a reference to the loaded
+module which might look like {\tt pyObj(p0x7faca3428510)}.  
+Next, a call to the example python module {\tt xp\_fasttext}:
+\begin{verbatim}
+pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
+       'xsbpy is a really useful addition to XSB! But language detection
+        requires a longer string than I usually want to type.'),Lang).  
+\end{verbatim}
+returns the detected language and confidence value, which in this case
+
+\begin{verbatim}
+''('__label__en',0.93856)}.
+\end{verbatim}
+
+Note that loading the model can be done by calling the Python {\tt
+  fasttext} module directly.  In fact, the only reason that the module
+{\tt xp\_fasttext} needs to be used (as opposed to calling the Python
+functionality directly) is because the confidence of the language
+detection is returned as a {\tt numpy} array, which {\tt xsbpy} does
+not currently translate automatically. \footnote{The examples {\tt
+    xp\_fasttext} and {\tt googleTrans} were written by Albert Ki;
+  {\tt xp\_faiss} was written by Albert Ki and Theresa Swift.}
+
 \subsection{Dense Vector Queries with xp\_faiss}
 The dense-vector query engine Faiss \cite{JDH17}, developed by
 Facebook offers an efficient way to perform nearest neighbor searches
@@ -1146,8 +1224,6 @@ case, {\tt List} would be unified with a long list beginning with
 \end{verbatim}
 \end{footnotesize}
 \end{description}
-
-
 
 \subsection{xp\_spacy}
 SpaCy is widely used tool that exploits neural language models to
@@ -1510,40 +1586,6 @@ must be written to handle default positional arguments. \footnote{{\tt
     xsbpy} correctly handles default keyword arguments, but the Python
   C API does not seem to support default positional arguments.}
 
-\paragraph{Fasttext Language Detection: xp\_fasttext}
-%
-Facebook's {\tt fasttext} provides a collection of functionality
-including word vectors for 176 languages, the language-alignment tool
-Muse, and the language identification tool {\tt lid.176.bin},.  This
-module provides example code to help the user get started using
-Fasttext's language detection, and relies on the python module {\tt
-  fasttext}.  Assuming that Fasttext's language identification module
-is in the current directory, the command:
-\begin{verbatim}
- pyfunc(fasttext,load_model('./lid.176.bin'),Obj).
-\end{verbatim}
-Loads the model and unifies {\tt Obj} with a reference to the loaded
-module which might look like {\tt pyObj(p0x7faca3428510)}.  
-Next, a call to the example python module {\tt xp\_fasttext}:
-\begin{verbatim}
-pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
-       'xsbpy is a really useful addition to XSB! But language detection
-        requires a longer string than I usually want to type.'),Lang).  
-\end{verbatim}
-returns the detected language and confidence value, which in this case
-
-\begin{verbatim}
-''('__label__en',0.93856)}.
-\end{verbatim}
-
-Note that loading the model can be done by calling the Python {\tt
-  fasttext} module directly.  In fact, the only reason that the module
-{\tt xp\_fasttext} needs to be used (as opposed to calling the Python
-functionality directly) is because the confidence of the language
-detection is returned as a {\tt numpy} array, which {\tt xsbpy} does
-not currently translate automatically. \footnote{The examples {\tt
-    xp\_fasttext} and {\tt googleTrans} were written by Albert Ki;
-  {\tt xp\_faiss} was written by Albert Ki and Theresa Swift.}
 
 %\paragraph{mpl}
 %This file has a simple example of how to create, display, and save as
