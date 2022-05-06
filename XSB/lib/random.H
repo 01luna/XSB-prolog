@@ -27,12 +27,12 @@
 	  random/3,
 	  randseq/3,
 	  randset/3,
-	  randset/3,
 	  getrand/1,
-   setrand/1,
-   gauss/2,
-   exponential/2,
-   weibull/3.
+	  setrand/1,
+	  gauss/2,
+	  exponential/2,
+	  weibull/3.
+:- export sample_all/4,sample_bag/4,sample_set/4.
 
 :- import abort/1, integer/1, repeat/0 from standard.
 :- import keysort/2 from setof.

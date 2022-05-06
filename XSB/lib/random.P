@@ -118,7 +118,7 @@ randset(K, N, L) :-
 		reverse(L1,L)
 	).
 
-:- export randseto/3, randsetn/3.
+%:- export randseto/3, randsetn/3.
 :- import cputime/1, writeln/1 from standard.
 randseto(K,N,L) :- cputime(T0),randset1(K,N,L),cputime(T1),T is T1-T0,writeln(cputime=T).
 randsetn(K,N,L) :- cputime(T0),randset2(K,N,[],L1),reverse(L1,L),cputime(T1),T is T1-T0,writeln(cputime=T).
@@ -195,6 +195,16 @@ exponential(Lambda,X):-
 	X is Lambda * (-log(R)).
 
 %-----------------------------------------------------------------------
+% Sampling Predicates
+	   
+sample_set(Prop,Template,Goal,Ret):-                                                                 setof(Template,Goal,List),                                                                   
+    sample_all(Prop,Elt,(member(Elt,List),random(R),R >=1-Prop),Ret).                                                                                                                             
+sample_bag(Prop,Template,Goal,Ret):-                                                                 bagof(Template,R^(Goal,random(R),R >=1-Prop),Ret).                                                                                                                                            
+sample_all(Prop,Template,Goal,Ret):-                                                                 findall(Template,(Goal,random(R),R >=1-Prop),Ret).
+	   
+%-----------------------------------------------------------------------
 % The builtin predicate
 %-----------------------------------------------------------------------
 wh_random(_Type,_A,_B,_C) :- '_$builtin'(53).
+
+	   
