@@ -4971,7 +4971,7 @@ external pointers are no longer used.
 \end{description}
 
 
-\section{All Solutions and Aggregate Predicates}
+\section{All Solutions and Aggregate Predicates} \label{sec:setofs}
 \index{sets, bags} \index{aggregate predicates!prolog}
 %-----------------------------------------------------
 Often there are many solutions to a problem and it is necessary
@@ -4984,7 +4984,12 @@ wants simply to perform some aggregate operation over the set of
 solutions, for example to find the maximum or minimum of the set of
 solutions.  XSB uses answer subsumption to produce a 
 powerful aggregation facility as discussed in Section
-\ref{sec:table-aggregation}
+\ref{sec:table-aggregation}.
+
+In addition to answer subsumption, predicates can be found for set/bag
+aggregation in Section~\ref{sec:set-aggregation}, and for
+probabilistic sampling of sets and bags of derivations in
+Section~\ref{sec:sample-aggrs}.
 
 \begin{description}
 \isoitem{setof(?Template, +Goal, ?Set)}{setof/3}

@@ -2469,16 +2469,23 @@ Atom}, unifying the result with {\tt Var}.  For instance a call {\tt
 ?- gensym(foo,Var)} might unify {\tt Var} with {\tt foo32}.
 \end{description}
 
-\section{Random Number Generator}
+\section{Random Number Generation and Sampling Predicates}
 %================================
 
 The following predicates are provided in module \texttt{random} to
 generate random numbers (both integers and floating numbers), based on
-the Wichmann-Hill Algorithm \cite{WicH82,McLe85}.  The random number
-generator is entirely portable, and does not require any calls to the
-operating system.  As noted below, it does require 3 seeds, each of
-which must be an integer in a given range.  These seeds are
-thread-specific: thus different threads may generate independent
+the Wichmann-Hill Algorithm \cite{WicH82,McLe85}.  The Wichmann-Hill
+Algorithm generates the uniform distribution produced, but
+transformations are used to also generate Gaussian, Exponential and
+Weibull distributions.  In addition predicates are provided to
+probabilistically sample derivations by extending {\tt setof/3}, {\tt
+  bagof/3} and {\tt findall/3}.
+
+This library and the random number generator it is based on is
+entirely portable, and does not require any calls to the operating
+system random number routines.  As noted below, it does require 3
+seeds, each of which must be an integer in a given range.  These seeds
+are thread-specific: thus different threads may generate independent
 sequences of random numbers.
 
 \index{random variables}
@@ -2557,6 +2564,43 @@ based on the transformation
 of a uniformly distributed ranom variable produce by {\tt random/1}.
 This is the same as the Weibull distribution with $k = 1$.
 
+\end{description}
+
+\subsection{Sampling Predicates} \label{sec:sample-aggrs}
+
+\begin{description}
+  \ourmoditem{sample\_all(+Prob,?Template,+Goal,-List}{sample\_all/4}{random}
+  Acts as {\tt findall/3} but with a probablity of {\tt Prob} that a
+  given success of {\tt Goal} will be added to {\tt List}. As with
+  {\tt findall/3} all variables in {\tt Goal} are taken to be
+  existential.
+
+  In {\tt sample\_all/4} the sampling probablity is applied before a
+  solution is added to {\tt List} so that samples can be taken of
+  solution lists that are too big to materialize in memory.
+  
+  \ourmoditem{sample\_bag(Prob,Template,Goal,-Bag)}{sample\_bag/4}{random}
+  Acts as {\tt bagof/3} but with a probablity of {\tt Prob} that a
+  given success of {\tt Goal} will be added to {\tt Bag}. As with {\tt
+    bagof/3} each variable $V$ in {\tt Goal} is taken to be
+  non-existential unless $V$ occurs in {\tt Goal} or ``quantified'' by
+  the {\tt \^\ /2} term (cf. Section~\ref{sec:setofs}).
+
+  In {\tt sample\_bag/4} the sampling probablity is applied before a
+  solution is added to {\tt Bag} so that samples can be taken of
+  solution lists that are too big to materialize in memory.
+  
+  \ourmoditem{sample\_set(Prob,Template,Goal,-Set)}{sample\_set/4}{random}
+  Acts as {\tt setof/3} but with a probablity of {\tt Prob} that a
+  given success of {\tt Goal} will be added to {\tt Bag}. As with {\tt
+    bagof/3} each variable $V$ in {\tt Goal} is taken to be
+  non-existential unless $V$ occurs in {\tt Goal} or ``quantified'' by
+  the {\tt \^\ /2} term (cf. Section~\ref{sec:setofs}).
+
+  The semantics of {\tt sample\_set/4} is to sample from the solution
+  {\em set}.  For this reason, unlike {\tt sample\_all/4} and {\tt
+    sample\_bag/4}, {\tt sample\_set/4} constructs {\tt Set} {\bf
+    before} applying the sampling probability.
 \end{description}
 
 \section{Loading .CSV and Other Delimiter-Separated Files} \label{sec:procfiles}
@@ -3424,7 +3468,9 @@ performance degradation.
 
 \end{description}
 
-\section{Set Aggregation}
+\section{Set and Bag Aggregation} \label{sec:set-aggregation}
+\index{random sampling}
+\index{sampling!random}
 
 The {\tt c\_aggregate} library provides aggregation operators over the
 solutions of a predicate. The operations are a generalisation of the
