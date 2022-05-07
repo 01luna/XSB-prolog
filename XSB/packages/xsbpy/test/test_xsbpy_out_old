@@ -16,10 +16,10 @@ list conversion_sizecheck tests successful
 set conversion_sizecheck tests successful
 tuple conversion_sizecheck tests successful
 dict conversion_sizecheck tests successful
-pyc_tests successful
 json_loads_test successful
 json_load_test successful
 kwargs_test1 successful
 Person test succeeded
 variadic tests succeeded
+pyc_tests successful
 collect(0)
