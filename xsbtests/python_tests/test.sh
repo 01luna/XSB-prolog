@@ -1,10 +1,19 @@
-#! /bin/sh
+#! /bin/bash
+
+python=$1
+
+#if [ -z ${python+x} ];  then 
+if [ $# -eq 0 ]
+   then
+    echo "No Python version specified";
+    exit 1 ;
+fi
 
 echo "-------------------------------------------------------"
 echo "--- Running python_tests/test.sh                    ---"
 echo "-------------------------------------------------------"
 
-python=$1
+
 
 #if test "$valgrind" = "true"; then
 #    echo "valgrind = $valgrind"
