@@ -15,6 +15,8 @@ $PYTHON $FILE
 
 FILEBASE="${FILE%.*}"    
 
+echo "filebase is $FILEBASE"
+
 # print out differences.
 if test -f ${FILEBASE}_new; then
 	rm -f ${FILEBASE}_new
@@ -33,7 +35,7 @@ if test "$status" = 0 ; then
 	rm -f ${FILEBASE}_new
 else
 	echo "$BASEDIR/$FILE differ!!!"
-	diff -w ${FILE}_new temp
+	diff -w ${FILEBASE}_old temp
 fi
 
 rm -f temp
