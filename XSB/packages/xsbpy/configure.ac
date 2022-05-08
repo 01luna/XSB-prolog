@@ -46,6 +46,8 @@ echo XSBCONFIG_BINDIR=$XSBCONFIG_BINDIR
 echo XSB_ROOTDIR=$XSB_ROOTDIR
 echo
 
+rm -f *.xwam *.so *.dylib
+
 support1=no
 if test -z "$PYTHON_BIN" ; then
    message1="  XSBPY:       Python not found"
