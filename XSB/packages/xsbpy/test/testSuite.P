@@ -12,13 +12,13 @@
 testSuite:-
     sumlist_tests, 
     dataConversionTests,
-    pyc_tests,
 %    callback_test,
     json_tests,
     kwargs_tests,
     error_tests,
     object_tests,
     variadic_tests,
+    pyc_tests,
     pyfunc(gc,collect(),Collect),
     writeln(collect(Collect)).
 
