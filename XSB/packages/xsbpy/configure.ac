@@ -63,15 +63,19 @@ fi
 
 support0=no
 CFLAGS_backup="${CFLAGS}"
-CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
-CPPFLAGS="-I$PYTHON_INCLUDE_DIR ${CPPFLAGS}"
+if test -n "$PYTHON_INCLUDE_DIR" ; then
+   CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
+   CPPFLAGS="-I$PYTHON_INCLUDE_DIR ${CPPFLAGS}"
+fi
 AC_CHECK_HEADERS([Python.h] , [support0=yes], [message0="       XSBPY: Python.h not found"], [])
 CFLAGS="${CFLAGS_backup}"
 
 # these are likely useless
 ldflags="-l$PYTHON_LIB_NAME -L$PYTHON_LIBDIR"
 runflags="-Wl,-rpath=$PYTHON_LIBDIR"
-ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
+if test -n "$PYTHON_INCLUDE_DIR" -a -n "$XSBCONFIG_EMUDIR" ; then
+   ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
+fi
 
 AC_SUBST(ccflags)
 AC_SUBST(ldflags)

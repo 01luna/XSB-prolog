@@ -2160,8 +2160,10 @@ fi
 
 support0=no
 CFLAGS_backup="${CFLAGS}"
-CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
-CPPFLAGS="-I$PYTHON_INCLUDE_DIR ${CPPFLAGS}"
+if test -n "$PYTHON_INCLUDE_DIR" ; then
+   CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
+   CPPFLAGS="-I$PYTHON_INCLUDE_DIR ${CPPFLAGS}"
+fi
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3369,7 +3371,9 @@ CFLAGS="${CFLAGS_backup}"
 # these are likely useless
 ldflags="-l$PYTHON_LIB_NAME -L$PYTHON_LIBDIR"
 runflags="-Wl,-rpath=$PYTHON_LIBDIR"
-ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
+if test -n "$PYTHON_INCLUDE_DIR" -a -n "$XSBCONFIG_EMUDIR" ; then
+   ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
+fi
 
 
 
