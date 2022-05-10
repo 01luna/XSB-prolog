@@ -48,8 +48,8 @@
 
 
 #define WIN_NT 1
-#define RELEASE_DATE 2021-04-01
-#define XSB_VERSION "4.0.0 (TaB)"
+#define RELEASE_DATE 2022-05-15
+#define XSB_VERSION "5.0-beta (Green Tea)"
 
 /* this is used by many to check if config.h was included in proper order */
 #ifndef CONFIG_INCLUDED

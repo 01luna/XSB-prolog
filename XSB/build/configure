@@ -3033,7 +3033,6 @@ fi
 
 # ---------------------- end testing inconsistencies  ----------------------
 
-chmod +x makexsb
 chmod +x MSVC.sh
 chmod +x config.guess
 chmod +x config.sub
@@ -6374,12 +6373,6 @@ fi
     chmod 700 ./configure
     ./configure || xsbpy_config_failed=1
     cd "$build_dir"
-    if test -n "$xsbpy_config_failed" ; then
-       echo
-       echo "***** pip is not installed -- please install it!"
-       echo
-       exit 1
-    fi
 fi
 
 
@@ -9818,6 +9811,13 @@ echo "Site libraries are to be found in ${site_prefix}"
 
 
 echo "Configuration report is saved in ./Installation_summary"
+
+if test -n "$xsbpy_config_failed" ; then
+   echo
+   echo "***** Python integration failed: probably because pip is not installed"
+   echo "***** To use this integration, install pip and reconfigure XSB"
+   echo
+fi
 
 if test "$have_warnings" = "yes"; then
     echo ""

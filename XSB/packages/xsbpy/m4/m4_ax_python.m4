@@ -82,7 +82,6 @@ if test -n "$pip_not_installed" ; then
    echo
    echo "***** pip is not installed for $PYTHON_BIN -- please install it!"
    echo
-   exit 1
 fi
 if test "x$ax_python_bin" = "x"; then
    ax_python_bin=no

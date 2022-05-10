@@ -46,6 +46,8 @@ echo XSBCONFIG_BINDIR=$XSBCONFIG_BINDIR
 echo XSB_ROOTDIR=$XSB_ROOTDIR
 echo
 
+rm -f *.xwam *.so *.dylib
+
 support1=no
 if test -z "$PYTHON_BIN" ; then
    message1="  XSBPY:       Python not found"
@@ -55,21 +57,27 @@ elif test -z "$PYTHON_INCLUDE_DIR" ; then
    message1="  XSBPY:       Python include directory not found"
 elif test -z "$PYTHON_CONFLIB" ; then
    message1="  XSBPY:       Python configuration directory not found"
+elif test "$pip_not_installed" = "1" ; then
+   message1="  XSBPY:       pip is not installed"
 else
    support1=yes
 fi
 
 support0=no
 CFLAGS_backup="${CFLAGS}"
-CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
-CPPFLAGS="-I$PYTHON_INCLUDE_DIR ${CPPFLAGS}"
+if test -n "$PYTHON_INCLUDE_DIR" ; then
+   CFLAGS="-I$PYTHON_INCLUDE_DIR ${CFLAGS}"
+   CPPFLAGS="-I$PYTHON_INCLUDE_DIR ${CPPFLAGS}"
+fi
 AC_CHECK_HEADERS([Python.h] , [support0=yes], [message0="       XSBPY: Python.h not found"], [])
 CFLAGS="${CFLAGS_backup}"
 
 # these are likely useless
 ldflags="-l$PYTHON_LIB_NAME -L$PYTHON_LIBDIR"
 runflags="-Wl,-rpath=$PYTHON_LIBDIR"
-ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
+if test -n "$PYTHON_INCLUDE_DIR" -a -n "$XSBCONFIG_EMUDIR" ; then
+   ccflags="-I$XSBCONFIG_EMUDIR -I$PYTHON_INCLUDE_DIR $ldflags $runflags"
+fi
 
 AC_SUBST(ccflags)
 AC_SUBST(ldflags)
