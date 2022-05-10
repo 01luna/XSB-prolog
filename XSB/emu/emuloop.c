@@ -114,6 +114,11 @@ Integer num_in_sched_heap = 0;
 CPtr	ans_var_pos_reg;
 #endif
 
+// See xsbext.c for an explanation of this
+#ifdef DARWIN 
+CPtr darwinDelayregHack;
+#endif
+
 //int instr_flag = 0;    // Used for switching on PIL_TRACE
 // CPtr hreg_pos; // for debugging iso incremental tables.  Can be removed once these are stable.
 
@@ -2797,6 +2802,10 @@ argument positions.
       	pthread_cond_wait_err = xsb_cond_wait(&xsb_started_cond, &xsb_synch_mut, "emuloop", __FILE__, __LINE__);
     } else  
 #endif
+#ifdef DARWIN
+      darwinDelayregHack = delayreg;
+#endif
+    //    printf("emuloop dr %p ttdr %p\n",delayreg,darwinDelayregHack);
     return(0);	/* not "goto contcase"! */
   XSB_End_Instr()
 
@@ -3227,7 +3236,8 @@ extern pthread_mutexattr_t attr_rec_gl ;
    } else if (flag == XSB_SETUP_X) {  /* initialize for call to XSB, saving argc regs */
      Psc term_psc;
      CPtr term_ptr;
-     delayreg = 0; reset_freeze_registers; 
+     delayreg = 0;
+     reset_freeze_registers; 
      term_psc = get_ret_psc((byte)argc);
      term_ptr = (CPtr)build_call(CTXTc term_psc);
      bld_cs((reg+1),((Cell)term_ptr));

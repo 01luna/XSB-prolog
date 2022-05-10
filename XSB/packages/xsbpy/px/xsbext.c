@@ -31,6 +31,36 @@ static PyObject *px_get_error_message();
 
 //void printPyObj(PyObject *self,PyObject *obj1);
 
+/* The reason for the following hack variable is as follows.  For XSB
+   to be called from C, which is what this module is doing, XSB's
+   stacks are initialized once.  To make a call, the call is built in
+   XSB's stacks and registers and executed by invoking the emuloop()
+   function.  At the end of execution of the goal XSB executes a halt
+   instruction which causes emuloop() to exit.  All this should be
+   fine because the needed variables and data structures are global,
+   which allows the call to be setup and the return of the call to be
+   accessed and used.  
+
+   HOWEVER, on the Mac the delayreg, which is defined as a global
+   variable is always set to 0 when the halt is executed and emuloop()
+   exits.  This may sound strange, but I verified it at least with
+   GCC.  The reason I need this, is to set the truth value for the
+   return to Python.  For some reason, when I copy from delayreg to
+   darwinDelayHack before exiting emuloop() the copied delayreg value
+   remains and is not set to 0.
+
+   I don't know why this happens.  It could be a bug with the
+   compiler, or it could be that somehow we have some non-standard C
+   around delayreg. (I didn't see anything unusual, but there is a lot
+   of non-standard C in XSB.
+
+   Fortunately, its just an extra variable and copy, so it will have
+   no perceptible effect, but it's frustrating.  If anyone understands
+   why this happens on the Mac, please let me (TES) know.
+*/
+
+extern CPtr darwinDelayregHack;
+
 //-------------------------------------------------
 // Initting
 //-------------------------------------------------
@@ -96,10 +126,17 @@ static PyObject *px_close() {
 #define PYTRUE  1
 #define PYUNDEF 2
 
+#if defined(DARWIN)
 #define get_tv()						 \
   (is_var(reg_term(CTXTc 1))?PyLong_FromLong(PYFALSE):		 \
-                             (delayreg?PyLong_FromLong(PYUNDEF): \
-                                       PyLong_FromLong(PYTRUE)))
+   (darwinDelayregHack?PyLong_FromLong(PYUNDEF):		 \
+    PyLong_FromLong(PYTRUE)))
+#else
+#define get_tv()							\
+  (is_var(reg_term(CTXTc 1))?PyLong_FromLong(PYFALSE):			\
+   (delayreg?PyLong_FromLong(PYUNDEF):					\
+    PyLong_FromLong(PYTRUE)))
+#endif
 
 void ensurePyXSBStackSpace(CTXTdeclc PyObject *pyObj) {
   PyObject * thirdArg;
@@ -181,21 +218,21 @@ static PyObject *px_qdet(PyObject *self,PyObject *args) {
   prolog_term new_call = p2p_new();
   c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),
 		     tuplesize-1,new_call);
-  if (gl_bot != (CPtr)glstack.low) printf("2 heap bot old %p new %p\n",gl_bot, glstack.low);
+  //  if (gl_bot != (CPtr)glstack.low) printf("2 heap bot old %p new %p\n",gl_bot, glstack.low);
   for (int i = 1; i < (int) tuplesize-1; i++) {
     //    printPlgTerm(p2p_arg(return_pr,3));
     prolog_term call_arg = p2p_arg(new_call,i); 
     p2p_unify(call_arg,p2p_arg(return_pr,i+2));
   }
-  if (gl_bot != (CPtr)glstack.low) printf("3 heap bot old %p new %p\n",gl_bot, glstack.low);
+  //  if (gl_bot != (CPtr)glstack.low) printf("3 heap bot old %p new %p\n",gl_bot, glstack.low);
   xsb_query_save(tuplesize-1);
 if (gl_bot != (CPtr)glstack.low) {
-    printf("q4 heap bot old %p new %p\n",gl_bot, glstack.low);
+  //    printf("q4 heap bot old %p new %p\n",gl_bot, glstack.low);
     reset_local_heap_ptrs;
   }
   p2p_unify(reg_term(CTXTc 1),new_call);
   //  printf("about to call: ");printPlgTerm(reg_term(1));
-  if (gl_bot != (CPtr)glstack.low) printf("5 heap bot old %p new %p\n",gl_bot, glstack.low);
+  //  if (gl_bot != (CPtr)glstack.low) printf("5 heap bot old %p new %p\n",gl_bot, glstack.low);
   c2p_int(CTXTc 0,reg_term(CTXTc 3));  /* set command for calling a goal */
   xsb(CTXTc XSB_EXECUTE,0,0);
   //  printf("before conv: "); printPlgTerm(new_call);
@@ -213,12 +250,16 @@ if (gl_bot != (CPtr)glstack.low) {
     else {
       PyObject *tup = PyTuple_New(2);
       if (gl_bot != (CPtr)glstack.low) {
-	printf("#6 heap bot old %p new %p\n",gl_bot, glstack.low);
+	//	printf("#6 heap bot old %p new %p\n",gl_bot, glstack.low);
 	reset_local_heap_ptrs;
       }
       convert_prObj_pyObj(p2p_arg(new_call,tuplesize-1),&newPyObj);
       PyTuple_SET_ITEM(tup,0,newPyObj);
+#ifdef DARWIN
+      PyTuple_SET_ITEM(tup,1,(darwinDelayregHack?PyLong_FromLong(PYUNDEF):PyLong_FromLong(PYTRUE)));
+#else
       PyTuple_SET_ITEM(tup,1,(delayreg?PyLong_FromLong(PYUNDEF):PyLong_FromLong(PYTRUE)));
+#endif
       reset_regs;
       //      pPO(CTXTc tup);
       //      c2p_int(CTXTc 3,reg_term(CTXTc 3));  /* set command for calling a goal */
@@ -265,20 +306,20 @@ static PyObject *px_comp(PyObject *self,PyObject *args,PyObject *kwargs) {
   c2p_int(flag_arg,p2p_arg(new_call, 3));
   c2p_functor_in_mod(p2c_string(p2p_arg(return_pr, 1)),p2c_string(p2p_arg(return_pr, 2)),tuplesize,inner_term);
   //  printPlgTerm(new_call);
-  if (gl_bot != (CPtr)glstack.low) printf("2 heap bot old %p new %p\n",gl_bot, glstack.low);
+  //  if (gl_bot != (CPtr)glstack.low) printf("2 heap bot old %p new %p\n",gl_bot, glstack.low);
   for (int i = 1; i <= (int) inputsize; i++) {
     prolog_term call_arg = p2p_arg(inner_term,i); 
     p2p_unify(call_arg,p2p_arg(return_pr,i+2));
   }
   //  printPlgTerm(new_call);
-  if (gl_bot != (CPtr)glstack.low) printf("3 heap bot old %p new %p\n",gl_bot, glstack.low);
+  //  if (gl_bot != (CPtr)glstack.low) printf("3 heap bot old %p new %p\n",gl_bot, glstack.low);
   xsb_query_save(tuplesize);
   if (gl_bot != (CPtr)glstack.low) {
-    printf("q4 heap bot old %p new %p\n",gl_bot, glstack.low);
+    //    printf("q4 heap bot old %p new %p\n",gl_bot, glstack.low);
     reset_local_heap_ptrs;
   }
   p2p_unify(reg_term(CTXTc 1),new_call);
-  if (gl_bot != (CPtr)glstack.low) printf("5 heap bot old %p new %p\n",gl_bot, glstack.low);
+  //  if (gl_bot != (CPtr)glstack.low) printf("5 heap bot old %p new %p\n",gl_bot, glstack.low);
   c2p_int(CTXTc 0,reg_term(CTXTc 3));  /* set command for calling a goal */
   xsb(CTXTc XSB_EXECUTE,0,0);
   if (ccall_error_thrown(CTXT))  {
@@ -324,14 +365,16 @@ static PyObject *px_cmd(PyObject *self,PyObject *args) {
   if (arity==0) xsb_query_save(1);
   else  xsb_query_save(arity);
   if (gl_bot != (CPtr)glstack.low) {
-    printf("4 heap bot old %p new %p\n",gl_bot, glstack.low);
+    //    printf("4 heap bot old %p new %p\n",gl_bot, glstack.low);
     reset_local_heap_ptrs;
   }
   //  printf("done with query_save\n");
   p2p_unify(reg_term(CTXTc 1),new_call);
   //  printf("about to call: ");printPlgTerm(reg_term(1));
   c2p_int(CTXTc 0,reg_term(CTXTc 3));  /* set command for calling a goal */
+  //  printf("delayreg0 %p\n",delayreg);
   xsb(CTXTc XSB_EXECUTE,0,0);
+  //printf("xsbext: delayreg %p %p\n",delayreg,darwinDelayregHack);
   //  printf("before conv: "); printPlgTerm(new_call);
   if (ccall_error_thrown(CTXT)) {
     PyErr_SetString(PyExc_Exception,xsb_get_error_message(CTXT));
