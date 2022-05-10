@@ -40,4 +40,7 @@ create_activate_script():-
     lazy_writeln(Str,['export PYTHONPATH="$PYTHONPATH:',PkgsDir,'/xsbpy/px"']),
     xsb_configuration(config_bindir,Cfbin),
     lazy_writeln(Str,['export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:',Cfbin,'"']),
+    (xsb_configuration(os_type,darwin) -> 
+	 lazy_writeln(Str,['export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:',Cfbin,'"'])
+       ; true),
     close(Str).
