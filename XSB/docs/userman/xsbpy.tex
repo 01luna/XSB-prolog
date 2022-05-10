@@ -40,13 +40,14 @@ applications and further examples.
 A configuration process of {\tt xsbpy} has been written for Linux, Mac
 and Windows.  On these platforms, {\tt xsbpy} has been tested using
 versions 3.5 -- 3.10 of Python and its libraries.\footnote{The {\tt
-    xsbpy} configuration script was written by Michael Kifer.  In
-  addition to Windows and Mac testing, it has been tested on Ubuntu,
-  Fedora and CentOs Linuxes.}  The {\tt xsbpy} configuration script is
-called by the main XSB configuration script, and can be found in {\tt
+    xsbpy} configuration script was written by Michael Kifer.  It has
+  been tested on Windows 10; on Ubuntu, Fedora and CentOs Linuxes; and on
+  on Intel-based Mac.}  The {\tt xsbpy} configuration script is called
+by the main XSB configuration script, and can be found in {\tt
   XSB/packages/xsbpy}.  {\tt xsbpy} configuration can be run
 separately from the main configuration script if desired.
 
+ and Mac testing, 
 \subsection{Configuring {\tt xsbpy} under Linux with GCC} \label{sec:xsbpy-linux}
 
 In principle, when XSB is configured on Linux, {\tt xsbpy} will also
@@ -185,7 +186,7 @@ This can be done, for instance, by executing
 %% 
 \begin{verbatim}
 echo 'export PATH="/usr/local/opt/python@3.8/bin:$PATH"' >> ~/.zshrc
-echo 'export LDFLAGS="-L/usr/local/opt/python@3.8/lib"' >> ~/.zshrC 
+echo 'export LDFLAGS="-L/usr/local/opt/python@3.8/lib"' >> ~/.zshrc
 \end{verbatim}
 %% 
 if the development version of
@@ -214,20 +215,22 @@ As you can see, the entire process is simplicity itself!
 \subsection{Configuring {\tt xsbpy} under Windows}
 
 To run the {\tt xsbpy} interface under Windows 10, you must first
-download and install the development version of Python.  In the
-examples below, we assume Python version 3.9 has been installed for
-the user "warren".  You must adjust the example paths to correctly
-reflect where Python is installed on your machine.
+download and install a development version of Python as described
+above.  You must also have the Microsoft {\tt MSVC} compiler
+installed.  The Visual Studio Community Edition is free (under some
+licensing terms) and can be downloaded from
 
-You must also have the Microsoft {\tt MSVC} compiler installed.  The
-Visual Studio Community Edition is free (under some licensing terms)
-and can be downloaded from {\tt
-  https://visualstudio.microsoft.com/downloads/}.
+{\tt https://visualstudio.microsoft.com/downloads/}.
+
+In the examples below, we assume Python version 3.9 has been installed
+for the user "warren".  You must adjust the example paths to correctly
+reflect where Python is installed on your machine.
 
 With MSVC and Python (development version) installed, you must then
 define a new environment variable named {\tt PYTHON\_LIBRARY} with
-value {\tt
-  C:/Users/warren/AppData/Local/Programs/Python/Python39/libs/python3.lib}.
+value
+
+{\tt C:/Users/warren/AppData/Local/Programs/Python/Python39/libs/python3.lib}.
 
 To install and use Python packages, you will need to have the {\tt
   PYTHONPATH} environment variable defined.  A definition that worked

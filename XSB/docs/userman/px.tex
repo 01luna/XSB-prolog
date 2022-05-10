@@ -17,9 +17,10 @@
 \end{center}
 
 \noindent
-{\large {\bf {\em This chapter documents beta-level software.  See
+    {\large {\bf {\em px has been tested on MacOs and various versions of
+        Linux. It is not currently working on Windows.}} See
       Section~\ref{sec:px-limits} for a list of currently unsupported
-      features and known bugs.}}}
+      features and known bugs.}
 
 The \px{} module allows XSB to be used as an embedded subprocess
 within a Python process.  \px{} currently works independently of {\tt
@@ -75,7 +76,7 @@ packages would be:
 
 On Fedora-based Linuxes, the {\tt dnf} command must be
 used.\footnote{\px{} has been tested on Ubuntu v. 18 and v. 20, and on
-  Fedora 35; and Python versions 3.7, 3.8, 3.9 and 3.10were tested.
+  Fedora 35; and Python versions 3.7, 3.8, 3.9 and 3.10 were tested.
   We belive that \px{} will work on other recent Unix distributions
   and Python versions as well.}
 
@@ -117,19 +118,20 @@ and executing
 \end{verbatim}
 This second configuration step uses XSB to generate a {\tt setup.py}
 file for the Python {\tt distutils} package, and then builds and
-installs px.  \footnote{At some point, this confuration will be
+installs {\tt px}.  \footnote{At some point, this confuration will be
   changed to use Python's {\tt setuptools}.}  The compiled C
 extensions for Python are build and put in the user's {\tt
   site-packages} directory, i.e.,
 \begin{verbatim}
-.local/lib/python3.10/site-packages/
+~/.local/lib/python3.10/site-packages/
 \end{verbatim}
-In addition the second consideration creates a file, {\tt
+In addition the second configuration creates a file, {\tt
   px\_activate}, somewhat analogous to activation code in {\tt venv}
 or other virtual environments.\footnote{This activation file updates
   the {\tt LD\_LIBRARY\_PATH} used by the {\tt ld} command, and adds
-  the {\tt px} directory to {\tt PYTHONPATH}.} In {\tt bash} or {\tt
-  zsh}, simply type
+  the {\tt px} directory to {\tt PYTHONPATH}.  On MacOs {\tt
+    LD\_LIBRARY\_PATH} is also updated.} In {\tt bash} or {\tt zsh},
+simply type
 \begin{verbatim}
 source $XSB_HOME/packages/xsbpy/px_activate
 \end{verbatim}
@@ -218,6 +220,12 @@ xsbpy_initted_with_python(auto(python3.9))
 Note that XSB is initialized in the Python process when the \px{}
 module is loaded.
 
+As a final point, you can test {\tt px} by running the script {\tt
+  \$XSB\_ROOT/xsbtests/python\_tests/test.sh} via the command {\tt
+  test.sh <python>} using whatever version of Python was used to
+configure {\tt px}.  This directory also contains a number of examples
+you can try.
+
 %------------------------------------------------------------
 
 %\noindent
@@ -274,6 +282,10 @@ module is loaded.
 %(e.g. {\tt dist-packages})
 
 \subsection{Configuring PX on Windows}
+
+The {\tt px} configuration is not yet working for Windows.  If you
+have experience in Windows configuration and would like to help,
+please let us know.
 
 \section{Using \px}
 
