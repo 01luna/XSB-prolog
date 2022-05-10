@@ -2,12 +2,17 @@
 
 python=$1
 
+# Only needed for the Mac due to its crypto-fascist System Integrity Protection
+source ../../XSB/packages/xsbpy/px_activate
+
 #if [ -z ${python+x} ];  then 
 if [ $# -eq 0 ]
    then
     echo "No Python version specified";
     exit 1 ;
 fi
+
+#echo "test LLP: $DYLD_LIBRARY_PATH"
 
 echo "-------------------------------------------------------"
 echo "--- Running python_tests/test.sh                    ---"
@@ -30,4 +35,4 @@ echo "Expect slight diffs in test_comps between (...) and (...), due to set crea
 
 #========== the following are non-regression tests ==========
 
-python3.8 test_iterations.py
+$python test_iterations.py
