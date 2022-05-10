@@ -34,7 +34,8 @@ init_xsbpy(Pyversion):-
     xsb_configuration(configuration,Configuration),
     (str_sub('windows',Configuration)
     -> compile_xsbpym_for_windows
-     ;  compile([xsbpym],[cc_opts(CompilerOpts),if_needed])
+    ;  compile([xsbpym],[cc_opts(CompilerOpts),if_needed]),
+       [px_mk_setup_query]
     ),
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),
@@ -50,7 +51,6 @@ init_xsbpy(Pyversion):-
     add_lib_dir(PxDir),       % in case XSB is being called from Python
     pyfunc(add_python_path,add_python_path(TestDir),_),
     set_heap_margin(512),   % 4x the amount in v. 4.0
-    [px_mk_setup_query],
     messageln(xsbpy_initted_with_python(Version)),
     !.
 init_xsbpy(Pyversion):-
