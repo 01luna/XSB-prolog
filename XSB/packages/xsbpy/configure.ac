@@ -57,6 +57,8 @@ elif test -z "$PYTHON_INCLUDE_DIR" ; then
    message1="  XSBPY:       Python include directory not found"
 elif test -z "$PYTHON_CONFLIB" ; then
    message1="  XSBPY:       Python configuration directory not found"
+elif test "$pip_not_installed" = "1" ; then
+   message1="  XSBPY:       pip is not installed"
 else
    support1=yes
 fi

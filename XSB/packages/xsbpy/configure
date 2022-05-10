@@ -2082,7 +2082,6 @@ if test -n "$pip_not_installed" ; then
    echo
    echo "***** pip is not installed for $PYTHON_BIN -- please install it!"
    echo
-   exit 1
 fi
 if test "x$ax_python_bin" = "x"; then
    ax_python_bin=no
@@ -2154,6 +2153,8 @@ elif test -z "$PYTHON_INCLUDE_DIR" ; then
    message1="  XSBPY:       Python include directory not found"
 elif test -z "$PYTHON_CONFLIB" ; then
    message1="  XSBPY:       Python configuration directory not found"
+elif test "$pip_not_installed" = "1" ; then
+   message1="  XSBPY:       pip is not installed"
 else
    support1=yes
 fi
