@@ -30,11 +30,11 @@ to that included at the end of this file.
 :- import getenv/2 from machine.
 
 init_xsbpy(Pyversion):-
-    get_compiler_opts(Pyversion,CompilerOpts,Version),
     xsb_configuration(configuration,Configuration),
     (str_sub('windows',Configuration)
     -> compile_xsbpym_for_windows
-    ;  compile([xsbpym],[cc_opts(CompilerOpts),if_needed]),
+    ;  get_compiler_opts(Pyversion,CompilerOpts,Version),
+       compile([xsbpym],[cc_opts(CompilerOpts),if_needed]),
        [px_mk_setup_query]
     ),
     xsb_configuration(packagesdir, PackDir),

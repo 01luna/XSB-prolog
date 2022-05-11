@@ -34,7 +34,7 @@
 #include "cinterf_defs.h"
 #include <basictypes.h>
 #include <register.h>
-#include <emudef.h>
+//#include <emudef.h>
 #include <flags_xsb.h>
 #include <heap_xsb.h>
 #include <memory_xsb.h>
@@ -48,7 +48,7 @@
 
 #include "xsb_config.h"
 #ifdef WIN_NT
-#define XSB_DLL
+// #define XSB_DLL // already defined?
 //this allows varstring_xsb to compile
 #define WINDOWS_IMP
 #endif
