@@ -17,7 +17,7 @@
 \end{center}
 
 \noindent
-    {\large {\bf {\em px has been tested on MacOs and various versions of
+    {\large {\bf {\em px has been tested on macOS and various versions of
         Linux. It is not currently working on Windows.}} See
       Section~\ref{sec:px-limits} for a list of currently unsupported
       features and known bugs.}
@@ -87,13 +87,25 @@ used.\footnote{\px{} has been tested on Ubuntu v. 18 and v. 20, and on
 %  python-dev} and {\tt python-venv} packages to be installed,
 
 \item {\bf macOS}
+
+  Future versions of PX will likely support automatic installation,
+  but for now you'll have to make sure the following prerequisites are
+  installed, using Xcode, brew or some other installer.  A version of
+  Python 3.6-3.10 is recommended, but for whatever Python version you
+  use you'll need the development package that includes {\tt
+    libpython.dylib} and {\tt python.h}.  You'll also need a C
+  compiler either clang or gcc, wither of whcih can easily be
+  installed via xcode.  
+  
 \end{itemize}
 
 \subsubsection{Configuring \px{} on Linux and macOS}
 
 \paragraph{Quick Start}
 \begin{enumerate}
-\item cd to {\tt \$XSB\_ROOT/XSB/packages/xsbpy} and execute  {\tt bash px\_configure.sh}
+\item cd to {\tt \$XSB\_ROOT/XSB/packages/xsbpy} and execute {\tt
+  bash px\_configure.sh} or {\tt
+  zsh px\_configure.sh}
 \item {\tt source \$XSB\_HOME/packages/xsbpy/px\_activate} from anywhere
 \item start using px!
 \end{enumerate}
@@ -129,7 +141,7 @@ In addition the second configuration creates a file, {\tt
   px\_activate}, somewhat analogous to activation code in {\tt venv}
 or other virtual environments.\footnote{This activation file updates
   the {\tt LD\_LIBRARY\_PATH} used by the {\tt ld} command, and adds
-  the {\tt px} directory to {\tt PYTHONPATH}.  On MacOs {\tt
+  the {\tt px} directory to {\tt PYTHONPATH}.  On macOS {\tt
     LD\_LIBRARY\_PATH} is also updated.} In {\tt bash} or {\tt zsh},
 simply type
 \begin{verbatim}
@@ -201,7 +213,7 @@ and you're ready to go.
 %{\sc TES: If possible, I need to redo setup.py to include px.py in the
 %  egg so that px.py does not need to be in the library path.}
 
-Once \px has been built and activated, \px{} can be used just as any other package
+Once \px{} has been built and activated, \px{} can be used just as any other package
 installed in {\tt \$\{PYTHON\}}.
 
 \begin{verbatim}
