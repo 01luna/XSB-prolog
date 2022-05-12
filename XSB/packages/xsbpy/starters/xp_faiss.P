@@ -4,7 +4,7 @@
           threshold_neighbors/3, test_thresh/2, time_thresh/2,
 	  make_vector_graph/1, write_vector_graph/2, vector_edge/3.
 
-:- import lazy_messageln/1,lazy_writeln/2 from standard.
+:- import lazy_messageln/1,lazy_writeln/2,lazy_writeln/1 from standard.
 :- import pyfunc/3 from xsbpy.
 :- import between/3,length/2 from basics.
 
@@ -123,7 +123,7 @@ write_vector_graph(File,String):-
 
 write_vector_graph_1(Str):-
     writeln(Str,':- compiler_options([dynamic([canonical(yes),ordering(a),modile(vector_graph)])]).'),
-    writeln(:-(export(/(vector_edge_raw,3))),
+    writeln(Str,:-(export(/(vector_edge_raw,3)))),
     writeln(Str,':-(index(/(vector_edge_raw,3),[1,2])).'),
     vector_edge_raw(X,Y,Z),
     write(Str,vector_edge_raw(X,Y,Z)),writeln(Str,'.'),
