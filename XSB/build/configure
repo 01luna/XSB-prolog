@@ -7711,6 +7711,8 @@ fi
 if test "${CC}" = "gcc" -a "${host_os}" != "windows" -a "${host_os}" != "cygwin" ; then
         LD=gcc
     XSBMOD_LDFLAGS="-nodefaultlibs -nostartfiles ${XSBMOD_LDFLAGS}"
+elif test "${CC}" = "clang" -a "${host_os}" != "windows" -a "${host_os}" != "cygwin" ; then
+    LD=clang
 else
     LD=ld
 fi

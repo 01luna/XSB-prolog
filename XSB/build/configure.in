@@ -1607,6 +1607,8 @@ if test "${CC}" = "gcc" -a "${host_os}" != "windows" -a "${host_os}" != "cygwin"
     dnl gcc is smarter when creating dynamic libraries in Unix
     LD=gcc
     XSBMOD_LDFLAGS="-nodefaultlibs -nostartfiles ${XSBMOD_LDFLAGS}"
+elif test "${CC}" = "clang" -a "${host_os}" != "windows" -a "${host_os}" != "cygwin" ; then
+    LD=clang
 else
     LD=ld
 fi
