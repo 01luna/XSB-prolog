@@ -28,7 +28,9 @@
 #include <frameobject.h>
 #include <traceback.h>
 
+#ifndef WIN64
 #include "xsb2py_connect_defs.h"
+#endif
 
 #include "auxlry.h"
 #include "cinterf_defs.h"
