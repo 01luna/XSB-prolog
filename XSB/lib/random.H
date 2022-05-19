@@ -37,3 +37,4 @@
 :- import abort/1, integer/1, repeat/0 from standard.
 :- import keysort/2 from setof.
 :- import datime/1 from standard.
+:- import bagof/3, findall/3, setof/3, (^)/2 from setof.

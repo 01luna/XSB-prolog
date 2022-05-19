@@ -343,6 +343,7 @@ inline_jumpcof_cond(var, 1, VAR_TEST).
 inline_jumpcof_cond(nonvar, 1, NONVAR_TEST).
 inline_jumpcof_cond(is_number_atom, 1, IS_NUMBER_ATOM_TEST).
 inline_jumpcof_cond(ground, 1, GROUND_TEST).
+inline_jumpcof_cond(is_cons, 1, CONS_TEST).
 
 /*======================================================================*/
 /* builtin functions							*/
