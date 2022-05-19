@@ -151,7 +151,7 @@ struct hrec {
 
 /* === variables also used in other parts of the system =============== */
 
-Psc global_mod;	/* points to "global", whose ep is globallist */
+DllExport Psc global_mod;	/* points to "global", whose ep is globallist */
 
 // First and last tifs / dispatch blocks.
 struct tif_list  tif_list = {NULL, NULL};

@@ -197,9 +197,9 @@ pscs can point to jump (or load) to be "equivalent" to this psc. */
 /*======================================================================*/
 
 extern Pair search_in_usermod(int, char *);
-extern Pair insert_module(int, char *);
+DllExport extern Pair insert_module(int, char *);
   //extern Pair insert(char *, byte, Psc, int *);
-extern Pair insert(char *, int, Psc, int *);
+DllExport extern Pair insert(char *, int, Psc, int *);
 extern Pair insert_psc(char *, int, Psc, int *);
 extern Pair search_psc_in_module(int, char *, Pair *);
 
@@ -215,12 +215,15 @@ DllExport extern char* call_conv string_find(const char*, int);
 /*  Special instance (0-arity interface functions)			*/
 /*======================================================================*/
 
-extern Psc global_mod;			/* PSC for "global" */
+#ifdef WINDOWS_IMP
+__declspec(dllimport) extern Psc global_mod;			/* PSC for "global" */
+#else
+DllExport extern Psc global_mod;			/* PSC for "global" */
+#endif
 extern Psc true_psc;
 extern Psc if_psc;
 extern Psc list_psc;
 extern Psc comma_psc;
-extern Psc box_psc;
 extern Psc tnot_psc;
 extern Psc colon_psc;
 extern Psc caret_psc;
@@ -239,8 +242,14 @@ extern Psc answer_completion_psc;
 extern Psc cyclic_psc;
 extern Psc visited_psc;
 extern Psc dollar_var_psc;
+#ifdef WINDOWS_IMP
+__declspec(dllimport) Psc box_psc;
+__declspec(dllimport) char *nil_string;
+#else
+DllExport extern Psc box_psc;
+DllExport extern char *nil_string;
+#endif
 
-extern char *nil_string;
 extern char *true_string;
 extern char *cut_string;
 extern Pair list_pscPair;
@@ -250,7 +259,11 @@ extern char *cyclic_string;
 extern Cell usermod_cell;
 extern Cell list_dot_cell;
 
-extern int force_string_gc;
+#ifdef WINDOWS_IMP
+__declspec(dllimport) int force_string_gc;
+#else
+DllExport extern int force_string_gc;
+#endif
 
 extern Psc ret_psc[];
 extern Psc get_ret_psc(int);

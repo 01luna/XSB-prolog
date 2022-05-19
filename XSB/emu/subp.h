@@ -33,7 +33,7 @@ extern void print_dqatom(FILE *, int, char *);
 extern void print_op(FILE *, int, char *, int);
 extern void remove_incomplete_tables_reset_freezes(CTXTdeclc int);
 
-extern xsbBool unify(CTXTdeclc Cell, Cell);
+DllExport extern xsbBool unify(CTXTdeclc Cell, Cell);
 extern xsbBool unify_rat(CTXTdeclc Cell, Cell, CPtr);
 extern xsbBool are_identical_terms(Cell, Cell);
 extern xsbBool startSleeperThread(int);
@@ -41,7 +41,7 @@ extern xsbBool cancelSleeperThread(void);
 
 /* don't use Cell declarations here, to avoid gcc compiler warnings;
    However, this causes warnings under Windows */
-extern int compare( CTXTdeclc const void *, const void * );
+DllExport extern int compare( CTXTdeclc const void *, const void * );
 extern int key_compare( CTXTdeclc const void *, const void * );
 
 extern byte *exception_handler(CTXTdeclc char *);

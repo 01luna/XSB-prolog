@@ -629,7 +629,7 @@ static int sprint_termsize(Cell term, byte car, int level)
   return size;  // to quiet compiler.
 }
 
-void printterm(FILE *fp, Cell term, long depth) {
+DllExport void printterm(FILE *fp, Cell term, long depth) {
 
   print_term(fp, term, CAR, depth);
   fflush(fp);

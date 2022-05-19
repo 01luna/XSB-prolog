@@ -149,7 +149,7 @@ extern void print_mem_allocs(char *);
 #ifndef MULTI_THREAD
 extern void tcpstack_realloc(size_t);
 extern void complstack_realloc(size_t);
-extern void handle_tcpstack_overflow(void);
+DllExport extern void handle_tcpstack_overflow(void);
 #else
 struct th_context ;
 extern void tcpstack_realloc(struct th_context *, size_t);

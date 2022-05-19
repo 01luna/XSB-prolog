@@ -1907,11 +1907,11 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
       UInteger varval;
       XSB_StrAppendC(wcan_string,'_');
       if (prologterm >= (Cell)glstack.low && prologterm <= (Cell)top_of_heap) {
-	XSB_StrAppendC(wcan_string,'h');
+	XSB_StrAppendC(wcan_string,'H');
 	varval = ((prologterm-(Cell)glstack.low+1)/sizeof(CPtr));
-      } else {
-	if (prologterm >= (Cell)top_of_localstk && prologterm <= (Cell)glstack.high) {
-	  XSB_StrAppendC(wcan_string,'l');
+      } else { /* assuming env above topoflocalstk is <= 20 vars */
+	if (prologterm >= (Cell)top_of_localstk-20*sizeof(CPtr) && prologterm <= (Cell)glstack.high) {
+	  XSB_StrAppendC(wcan_string,'L');
 	  varval = (((Cell)glstack.high-prologterm+1)/sizeof(CPtr));
 	} else varval = prologterm;   /* Should never happen */
       }
@@ -2042,7 +2042,7 @@ char *canonical_term(CTXTdeclc Cell prologterm, int letter_flag) {
   return wcan_string->string;
 }
 
-void print_term_canonical(CTXTdeclc FILE *fptr, int charset, Cell prologterm, int letterflag)
+DllExport void print_term_canonical(CTXTdeclc FILE *fptr, int charset, Cell prologterm, int letterflag)
 {
   write_canonical_term(CTXTc prologterm, letterflag);
   write_string_code(fptr,charset,(byte *)wcan_string->string);

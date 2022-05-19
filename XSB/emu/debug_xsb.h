@@ -133,7 +133,7 @@ extern void print_subgoal(struct th_context *,FILE *, VariantSF);
 extern int sprint_quotedname(char *, int,char *);
 DllExport extern int sprintTerm(forestLogBuffer, Cell);
 extern int ctrace_ctr;
-extern void printterm(FILE *, Cell, long);
+DllExport extern void printterm(FILE *, Cell, long);
 
 /* dbg_* macros */
 #ifdef DEBUG_VERBOSE

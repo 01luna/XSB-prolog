@@ -30,29 +30,29 @@
 #ifndef MULTI_THREAD
 /* Argument Registers
    ------------------ */
-Cell reg[MAX_REGS];
+DllExport Cell reg[MAX_REGS];
 
 //#define CP_DEBUG 1
 
 /* Special Registers
    ----------------- */
-CPtr ereg;		/* last activation record       */
-CPtr breg;		/* last choice point            */
-CPtr hreg;		/* top of heap                  */
-CPtr *trreg;		/* top of trail stack           */
-CPtr hbreg;		/* heap back track point        */
-CPtr sreg;		/* current build or unify field */
-byte *cpreg;		/* return point register        */
+DllExport CPtr ereg;		/* last activation record       */
+DllExport CPtr breg;		/* last choice point            */
+DllExport CPtr hreg;		/* top of heap                  */
+DllExport CPtr *trreg;		/* top of trail stack           */
+DllExport CPtr hbreg;		/* heap back track point        */
+DllExport CPtr sreg;		/* current build or unify field */
+DllExport byte *cpreg;		/* return point register        */
 byte *pcreg;		/* program counter              */
 CPtr ebreg;		/* breg into environment stack	*/
 #ifdef CP_DEBUG
 Psc pscreg;
 #endif
 
-CPtr efreg;
-CPtr bfreg;
-CPtr hfreg;
-CPtr *trfreg;
+DllExport CPtr efreg;
+DllExport CPtr bfreg;
+DllExport CPtr hfreg;
+DllExport CPtr *trfreg;
 
 CPtr pdlreg;
 CPtr openreg;
@@ -98,7 +98,8 @@ byte *current_inst;
  */ 
 byte *inst_begin_gl;
 
-char *nil_string, *true_string, *cut_string, *cyclic_string;
+DllExport char *nil_string;
+char  *true_string, *cut_string, *cyclic_string;
 char float_format[10];
 Cell usermod_cell, list_dot_cell;
 
@@ -107,7 +108,9 @@ Pair list_pscPair;
 Psc list_psc, comma_psc, true_psc, if_psc, colon_psc, caret_psc, ccall_mod_psc, c_callloop_psc, dollar_var_psc;
 Psc tnot_psc, delay_psc, cond_psc, cut_psc, load_undef_psc, setof_psc, bagof_psc;
 Psc forall2_psc, forall3_psc, forall4_psc;
-Psc box_psc, visited_psc, answer_completion_psc;
+Psc visited_psc, answer_completion_psc;
+DllExport Psc box_psc;
+
 /*
  * Ret PSC's are used to store substitution factors for subgoal calls
  * or answers.  A psc with a new arity will be created when needed,

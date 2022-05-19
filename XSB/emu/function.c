@@ -92,7 +92,7 @@ char * function_names[30] = {"","+","-","*","/","/\\","\\/","","","sin",
 extern void inline bld_boxedfloat(CTXTdeclc CPtr, Float);
 int xsb_eval(CTXTdeclc Cell exp, FltInt *value);
 
-int  unifunc_call(CTXTdeclc int funcnum, CPtr regaddr)
+DllExport int  unifunc_call(CTXTdeclc int funcnum, CPtr regaddr)
 {
   Cell value;
   Float fvalue; 

@@ -1256,7 +1256,7 @@ DllExport void call_conv bug_xsb(char *description)
 #define str_op4 (*tsgLBuff2)
 
 /* Not yet passing goals into error messages -- need to do snprinf to another buffer */
-void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
+DllExport void arithmetic_abort(CTXTdeclc Cell op1, char *OP, Cell op2) {
   Pair undefPair;
   struct Table_Info_Frame * Utip;		
   int isNew;
@@ -1345,7 +1345,7 @@ void addintfastuni_abort(CTXTdeclc Cell op1, Cell op2) {
     
 extern char * function_names[];
 
-void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
+DllExport void unifunc_abort(CTXTdeclc int funcnum, CPtr regaddr) {
   Cell value;
   prolog_term term;
   XSB_StrSet(&str_op1,"");   XSB_StrSet(&str_op2,"");  XSB_StrSet(&str_op3,"");

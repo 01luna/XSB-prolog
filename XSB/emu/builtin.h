@@ -322,6 +322,7 @@
 #define DIRECTLY_CALLABLE_TEST  13
 #define IS_NUMBER_ATOM_TEST	14
 #define GROUND_TEST		15
+#define CONS_TEST		16
 
 #define PLUS_FUNCT 1
 #define MINUS_FUNCT 2
@@ -379,3 +380,4 @@
 // BASE64_OPS sub-builtins
 #define BASE64_ENC 1
 #define BASE64_DEC 2
+

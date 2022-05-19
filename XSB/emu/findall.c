@@ -815,7 +815,7 @@ int findall_get_solutions(CTXTdecl)
 
 /* adapted from findall_copy_template_to_chunck */
 /* returns the number of cells needed for the construction of term */
-Integer term_size(CTXTdeclc Cell term)
+DllExport Integer term_size(CTXTdeclc Cell term)
 {
   Integer size = 0 ;
  recur:
@@ -1601,13 +1601,13 @@ int unnumbervars(CTXTdecl) {
   return(unify(CTXTc arg3to, to));
 }
 
-int copy_term(CTXTdeclc)
+DllExport int copy_term_ex(CTXTdeclc int r1,int r2)
 {
   size_t size ;
   Cell arg1, arg2, to ;
   CPtr hptr ;
 
-  arg1 = ptoc_tag(CTXTc 1);
+  arg1 = ptoc_tag(CTXTc r1);
   
   if( isref(arg1) ) return 1;
 
@@ -1615,11 +1615,11 @@ int copy_term(CTXTdeclc)
   size = term_size(CTXTc arg1) ;
   findall_untrail(CTXT) ;
 
-  check_glstack_overflow( 2, pcreg, size*sizeof(Cell)) ;
+  check_glstack_overflow( (r2>r1?r2:r1), pcreg, size*sizeof(Cell)) ;
   
   /* again because stack might have been reallocated */
-  arg1 = ptoc_tag(CTXTc 1);
-  arg2 = ptoc_tag(CTXTc 2);
+  arg1 = ptoc_tag(CTXTc r1);
+  arg2 = ptoc_tag(CTXTc r2);
 
   hptr = hreg ;
   
@@ -1639,6 +1639,8 @@ int copy_term(CTXTdeclc)
 
   return(unify(CTXTc arg2, to));
 } /* copy_term */
+
+int copy_term(CTXTdecl) {return copy_term_ex(CTXTdeclc 1,2);}
 
 int copy_term_3(CTXTdecl)
 {

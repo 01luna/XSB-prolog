@@ -221,7 +221,10 @@ extern unsigned long enc[], dec[];
 #define isstr(dcell) (isconstr(dcell) || islist(dcell))
 
 /* multi-threaded engine has pointers from one heap to another at times; so more care needed */
-#define isinternstr(dcell) (isinternstr_really((prolog_term)(dcell)))
+#define defnot_isinternstr(term) \
+  (((CPtr)dec_addr(term) >= (CPtr)glstack.low) && ((CPtr)dec_addr(term) < hreg))
+
+#define isinternstr(dcell) (defnot_isinternstr((Cell)dcell)?0:isinternstr_really((Cell)(dcell)))
 
 #define isattv(dcell) (cell_tag(dcell)==XSB_ATTV)	/* dcell -> xsbBool */
 

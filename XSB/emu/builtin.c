@@ -710,7 +710,7 @@ int list_unifiable(CTXTdeclc Cell term) {
 
 /* --------------------------------------------------------------------	*/
 
-UInteger val_to_hash(Cell term)
+DllExport UInteger val_to_hash(Cell term)
 {
   UInteger value;
 
@@ -757,7 +757,7 @@ UInteger val_to_hash(Cell term)
 
 /* -------------------------------------------------------------------- */
 
-UInteger  det_val_to_hash(Cell term)
+DllExport UInteger  det_val_to_hash(Cell term)
 {
   UInteger value;
   Psc psc;
@@ -808,7 +808,7 @@ UInteger  det_val_to_hash(Cell term)
 
 /* -------------------------------------------------------------------- */
 
-int ground(Cell temp)
+DllExport int ground(Cell temp)
 {
  int j, arity;
  groundBegin:
@@ -850,7 +850,7 @@ int ground(Cell temp)
 
 /* --------------------------------------------------------------------	*/
 
-int is_proper_list(Cell term)	/* for standard preds */
+DllExport int is_proper_list(Cell term)	/* for standard preds */
 {
   register Cell addr;
 

@@ -33,18 +33,31 @@
 /* Argument Registers
    ------------------ */
 #define MAX_REGS    257
-extern Cell reg[MAX_REGS];
 
 /*---- special registers -----------------------------------------------*/
 
-extern CPtr ereg;	/* last activation record       */
-extern CPtr breg;	/* last choice point            */
-extern CPtr hreg;	/* top of heap                  */
-extern CPtr *trreg;	/* top of trail stack           */
-extern CPtr hbreg;	/* heap back track point        */
-extern CPtr sreg;	/* current build or unify field */
-extern byte *cpreg;	/* return point register        */
+#ifdef WINDOWS_IMP
+__declspec(dllimport) Cell reg[MAX_REGS];
+__declspec(dllimport) CPtr ereg;
+__declspec(dllimport) CPtr breg;
+__declspec(dllimport) CPtr hreg;
+__declspec(dllimport) CPtr *trreg;
+__declspec(dllimport) CPtr hbreg;
+__declspec(dllimport) CPtr sreg;
+__declspec(dllimport) byte *cpreg;
+#else
+DllExport extern Cell reg[MAX_REGS];
+DllExport extern CPtr ereg;	/* last activation record       */
+DllExport extern CPtr breg;	/* last choice point            */
+DllExport extern CPtr hreg;	/* top of heap                  */
+DllExport extern CPtr *trreg;	/* top of trail stack           */
+DllExport extern CPtr hbreg;	/* heap back track point        */
+DllExport extern CPtr sreg;	/* current build or unify field */
+DllExport extern byte *cpreg;	/* return point register        */
+#endif
+
 extern byte *pcreg;	/* program counter              */
+
 extern byte *biarg;
 
 // #define CP_DEBUG 1
@@ -54,15 +67,26 @@ extern Psc pscreg;
 #endif
 /*---- registers added for the SLG-WAM ---------------------------------*/
 
-extern CPtr efreg;
-extern CPtr bfreg;
-extern CPtr hfreg;
-extern CPtr *trfreg;
+#ifdef WINDOWS_IMP
+__declspec(dllimport) CPtr efreg;
+__declspec(dllimport) CPtr bfreg;
+__declspec(dllimport) CPtr hfreg;
+__declspec(dllimport) CPtr *trfreg;
+__declspec(dllimport) CPtr delayreg;
+#else
+DllExport extern CPtr efreg;
+DllExport extern CPtr bfreg;
+DllExport extern CPtr hfreg;
+
+DllExport extern CPtr *trfreg;
+DllExport CPtr delayreg;
+#endif
+
+
 extern CPtr pdlreg;
 extern CPtr openreg;
 
 extern CPtr ptcpreg;	/* parent tabled CP (subgoal)	*/
-extern CPtr delayreg;
 extern CPtr interrupt_reg;
 
 /*---- registers added for demand support ------------------------------*/
@@ -88,7 +112,11 @@ extern CPtr root_address;
 
 /*---- for splitting stack mode ----------------------------------------*/
 
-extern CPtr ebreg;	/* breg into environment stack */
+#ifdef WINDOWS_IMP
+__declspec(dllimport) CPtr ebreg;	/* breg into environment stack */
+#else
+DllExport extern CPtr ebreg;	/* breg into environment stack */
+#endif
 
 #endif
 

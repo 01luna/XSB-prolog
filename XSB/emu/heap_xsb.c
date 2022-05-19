@@ -246,7 +246,7 @@ int garbage_collecting = 0;
 /* Whether to garbage collect strings on this heap gc or not. */
 int gc_strings = FALSE;
 
-int force_string_gc = FALSE; /* flag set when string space has expanded a lot */
+DllExport int force_string_gc = FALSE; /* flag set when string space has expanded a lot */
 size_t last_string_space_size = 100000;
 size_t last_assert_space_size = 10000;
 #define AUTO_STRING_GC_NTH 10

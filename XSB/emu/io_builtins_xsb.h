@@ -89,7 +89,7 @@ extern xsbBool quotes_are_needed(char *string);
 
 Integer read_canonical_term(CTXTdeclc int, int);
 
-void print_term_canonical(CTXTdeclc FILE *, int, Cell, int);
+DllExport void print_term_canonical(CTXTdeclc FILE *, int, Cell, int);
 
 extern int get_more_chunk(CTXTdecl);
 extern void findall_copy_to_heap(CTXTdeclc Cell, CPtr, CPtr *);

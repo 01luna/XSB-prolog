@@ -382,7 +382,7 @@ Pair insert(char *name, int arity, Psc mod_psc, int *is_new) {
 
 /* === insert_module: search for/insert a given module ================	*/
 
-Pair insert_module(int type, char *name)
+DllExport Pair insert_module(int type, char *name)
 {
     Pair new_pair;
     int is_new;

@@ -86,4 +86,6 @@ extern findall_solution_list *findall_solutions, *current_findall ;
 extern CPtr gl_bot, gl_top ;
 #endif
 
+DllExport int copy_term_ex(CTXTdeclc int, int);
+
 #endif /* __FINDALL_H__ */

@@ -331,7 +331,7 @@ CPtr insert_interned_rec(int reclen, struct hc_block_rec *hc_blk_ptr, CPtr termr
   return hc_term;
 }
 
-int isinternstr_really(prolog_term term) {
+DllExport int isinternstr_really(prolog_term term) {
   int areaindex, reclen;
   struct intterm_block *intterm_blk_ptr;
   CPtr tptr;
@@ -443,11 +443,10 @@ Integer ts_array_len = 0;
     ts_array_len = ts_array_len*2;					\
   }
 
-
 /* caller must ensure enough heap space (term_size(term)*sizeof(Cell))
 since intern_term uses heap for temp space to traverse term bottom up.
 */
-prolog_term intern_term(CTXTdeclc prolog_term term) {
+DllExport prolog_term intern_term(CTXTdeclc prolog_term term) {
   Integer ti = 0;
   Cell arg, newterm, interned_term;
   unsigned int subterm_index;

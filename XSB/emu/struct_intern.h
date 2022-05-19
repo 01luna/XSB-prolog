@@ -86,9 +86,9 @@ struct term_subterm {
 };
 
 
-int isinternstr_really(prolog_term term);
+DllExport int isinternstr_really(prolog_term term);
 prolog_term intern_rec(CTXTdeclc prolog_term term);
-prolog_term intern_term(CTXTdeclc prolog_term term);
+DllExport prolog_term intern_term(CTXTdeclc prolog_term term);
 void reclaim_internstr_recs();
 prolog_term term_to_stringhash(CTXTdeclc prolog_term term);
 prolog_term stringhash_to_term(CTXTdeclc char *hashstring);
