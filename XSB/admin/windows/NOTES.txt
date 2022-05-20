@@ -33,14 +33,16 @@ of where xsb.iss was run.)
 tab, and then navigate to the desired directory.  And then button
 "add file".
 
-8. Update the downloads page; in XSB/docs/homepage/downloads.html:
+8. We don't seem to be doing this next step 8 now, so skip:
+Update the downloads page; in XSB/docs/homepage/downloads.html:
 Update to have right filename for windows installer.  Then upload it
 to sf:
 
 In that directory:
  scp downloads.html dwarren,xsb@web.sourceforge.net:/home/project-web/xsb/htdocs/downloads
+or ? scp downloads.html dwarren,xsb@web.sourceforge.net:/downloads
 
-Then upload installer:
+9. Then upload installer:
 On https://sourceforge.net/projects/xsb/files/xsb/ click 
    Add Folder, give it a proper name
    Click on that folder and upload the installer -- also using a propoer
