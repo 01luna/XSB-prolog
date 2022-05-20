@@ -59,15 +59,9 @@ place.
 \item git and gcc (or some other compiler) must be present and usable by the
   user performing the configuration.
 
-\item A version of C-Python 3.x (the usual implementation of Python)
-  with development extensions must be present and usable.\footnote{If
-    several versions of Python 3.x are installed, the most recent will
-    be used by the confige script.}  The Python development extensions
-  are needed because they contain Python as a shared object ({\tt
-    .so}) file along with Python header ({\tt .h}) files.  While some
-  version of Python-3 is included in almost any version of Linux,
-  additional Linux package installations may be needed for these
-  development extensions or to install a more recent version of Python.
+\item As discussed below, a version of C-Python 3.x (the usual
+  implementation of Python) with development extensions must be
+  present and usable.
 
   \item {\tt xsbpy} configuration uses a Python package called {\tt
     find\_libpython}, and will try to do a {\tt pip} installation if
@@ -77,6 +71,29 @@ place.
       which case the Linux package for {\tt pip} must be installed.}
 \end{itemize}
 
+\subsubsection{Installing {\tt xsbpy} to work with Anaconda}
+
+Anaconda comes with all of the Python development extensions needed
+for {\tt xsbpy}.  To make use of them, simply activate your conda
+environment, (re)configure and (re)make XSB as described in the
+manual.
+
+That's all you need to do!
+
+\subsubsection{Installing {\tt xsbpy} to work with a system Python}
+
+If you have {\tt sudo} privileges and want to make {\tt xsbpy} work
+with a system version of Python there are a few more steps needed than
+when working with Anaconda.  First, your system needs a development
+version of Python~\footnote{If several versions of Python 3.x are
+  installed, the most recent will be used by the configure script.}
+The Python development extensions are needed because they contain
+Python as a shared object ({\tt .so}) file along with Python header
+({\tt .h}) files.  While some version of Python-3 is included in
+almost any version of Linux, additional Linux package installations
+either may be needed for these development extensions or to install a
+more recent version of Python.
+  
   As an example, suppose version 3.8 of Python is desired.  If it is
   not present on the platform, it may be installed with its
   development extensions as:
