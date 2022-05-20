@@ -120,10 +120,22 @@ get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
     concat_atom(['\'',XSBLIB,'/libxsb.so','\''],LIBXSBSO),
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
+		' -L',PYTHON_LIBDIR_QUOTED,
 		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,',',LIBXSBSO,
-		' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,	
+		' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
 % for debugging ' -Wl,--verbose',
 		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -g' ],CompilerOpts).
+
+%get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
+%    xsb_configuration(os_type,'linux-gnu'),!,
+%    XSBLIB =  XSBCONFIG_BINDIR_QUOTED,
+%    concat_atom(['\'',XSBLIB,'/libxsb.so','\''],LIBXSBSO),
+%    xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
+%    concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
+%		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,',',LIBXSBSO,
+%		' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,	
+%% for debugging ' -Wl,--verbose',
+%		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -g' ],CompilerOpts).
 
 
 %get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
