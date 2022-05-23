@@ -32,84 +32,104 @@ limitations.\footnote{The {\tt xsbpy} package was partly funded by BBN
 
 This chapter first describes how to configure {\tt xsbpy}, followed by
 introductory examples.  Next is a more precise description of its
-functions, its current limitations followed by some sample
-applications and further examples.
+functions, its current limitations followed by applications and
+further examples.
 
 \section{Configuration and Loading}
 
-A configuration process of {\tt xsbpy} has been written for Linux, Mac
+Configuration processes of {\tt xsbpy} have been written for Linux, Mac
 and Windows.  On these platforms, {\tt xsbpy} has been tested using
 versions 3.5 -- 3.10 of Python and its libraries.\footnote{The {\tt
     xsbpy} configuration script was written by Michael Kifer.  It has
-  been tested on Windows 10; on Ubuntu, Fedora and CentOs Linuxes; and on
-  on Intel-based Mac.}  The {\tt xsbpy} configuration script is called
-by the main XSB configuration script, and can be found in {\tt
+  been tested on Windows 10; on Ubuntu, Fedora and CentOs Linuxes; and
+  on on Intel-based Mac.}  The {\tt xsbpy} configuration script is
+called by the main XSB configuration script, and can be found in {\tt
   XSB/packages/xsbpy}.  {\tt xsbpy} configuration can be run
 separately from the main configuration script if desired.
 
- and Mac testing, 
-\subsection{Configuring {\tt xsbpy} under Linux with GCC} \label{sec:xsbpy-linux}
+\subsection{Installing {\tt xsbpy} to work with Anaconda}
 
-In principle, when XSB is configured on Linux, {\tt xsbpy} will also
-be configured so that it can be used like any other XSB module.
-However, for this configuration to work several things must be in
-place.
+For most users, installing {\tt xsbpy} under Anaconda is
+recommended.  Anaconda comes with all of the Python development
+extensions needed for {\tt xsbpy}.  To make use of them, simply
+activate your conda environment, (re)configure and (re)make XSB as
+described in the manual.
+
+As long as the Anaconda environment is active when you configure,
+that's all you need to do!
+
+\subsection{Configuring {\tt xsbpy} for {\tt venv} or without a virtual environmnet} \label{sec:xsbpy-linux}
+
+If you use {\tt venv} as your environment manager or if you are
+configuring a system installation of {\tt xsbpy} for several users,
+configuration may be slightly more complicated than using Anaconda.
+In principle, when XSB is configured on Linux or the Mac, {\tt xsbpy}
+will also be configured so that it can be used like any other XSB
+module.  However, for this configuration to work several pieces of
+software much be in place.
 
 \begin{itemize}
-\item git and gcc (or some other compiler) must be present and usable by the
-  user performing the configuration.
+\item {\tt git} and {\tt gcc} (or some other compiler) must be present
+  and usable by the user performing the configuration.  Most of these
+  tools need to be installed on Linux or macOS to configure and
+  compile XSB, so they will not usually be an issue.
 
-\item As discussed below, a version of C-Python 3.x (the usual
-  implementation of Python) with development extensions must be
-  present and usable.
+%\item As discussed below, a version of C-Python 3.x (the usual
+\item A version of C-Python (the usual implementation of Python) 3.x
+  with development extensions must be present and usable.\footnote{In
+    particular {\tt libpython} and {\tt Python.h} are needed from the
+    development version.}  Unfortunately, Python development
+  extensions are not contained in a {\tt venv} environment (unlike
+  with Anaconda) so they will need to be installed.\footnote{{\tt
+      venv} is not designed to support applications like {\tt xsbpy}
+    that embed Python in another process.  When a virtual environment
+    is created using {\tt venv}, the virtual environment contains a
+    Python executable, but not {\tt libpython} or {\tt Python.h} which
+    must be linked or included from system directories.}
 
   \item {\tt xsbpy} configuration uses a Python package called {\tt
     find\_libpython}, and will try to do a {\tt pip} installation if
-    it is not present.  For this reason, we recommend configuring {\tt
-      xsbpy} within a virtual environment. \footnote{Some Linuxes like
-      Ubuntu do not include {\tt pip} in their default distribution, in
-      which case the Linux package for {\tt pip} must be installed.}
+    it is not present.  {\tt pip} will install this package under the
+    {\tt venv} or user's {\tt site-packages} directory; otherwise a
+    system {\tt site-packages} directory will be used.\footnote{Some
+      Linuxes like Ubuntu do not include {\tt pip} in their default
+      distribution(!), in which case the Linux package for {\tt pip} must
+      be installed.}
 \end{itemize}
 
-\subsubsection{Installing {\tt xsbpy} to work with Anaconda}
 
-Anaconda comes with all of the Python development extensions needed
-for {\tt xsbpy}.  To make use of them, simply activate your conda
-environment, (re)configure and (re)make XSB as described in the
-manual.
+%\subsubsection{Installing {\tt xsbpy} to work with a system Python}
 
-That's all you need to do!
+\subsubsection{Troubleshooting}
 
-\subsubsection{Installing {\tt xsbpy} to work with a system Python}
+%If you have {\tt sudo} privileges and want to make {\tt xsbpy} work
+%with a system version of Python there are a few more steps needed than
+%when working with Anaconda.  First, your system needs a development
+%version of Python~\footnote{If several versions of Python 3.x are
+%  installed, the most recent will be used by the configure script.}
+%The Python development extensions are needed because they contain
+%Python as a shared object ({\tt .so}) file along with Python header
+%({\tt .h}) files.  While some version of Python-3 is included in
+%almost any version of Linux, additional Linux package installations
+%either may be needed for these development extensions or to install a
+%more recent version of Python.
+%  
+%  As an example, suppose version 3.8 of Python is desired.  If it is
+%  not present on the platform, it may be installed with its
+%  development extensions as:
 
-If you have {\tt sudo} privileges and want to make {\tt xsbpy} work
-with a system version of Python there are a few more steps needed than
-when working with Anaconda.  First, your system needs a development
-version of Python~\footnote{If several versions of Python 3.x are
-  installed, the most recent will be used by the configure script.}
-The Python development extensions are needed because they contain
-Python as a shared object ({\tt .so}) file along with Python header
-({\tt .h}) files.  While some version of Python-3 is included in
-almost any version of Linux, additional Linux package installations
-either may be needed for these development extensions or to install a
-more recent version of Python.
-  
-  As an example, suppose version 3.8 of Python is desired.  If it is
-  not present on the platform, it may be installed with its
-  development extensions as:
-
-  {\tt sudo apt-get install python3.8-dev}
-
-\noindent
-  in Ubuntu; or
-
-  {\tt sudo dnf install python3.10-dev}
-
-\noindent
-  in Fedora (newer versions) or CentOs.
-
-%Otherwise, if Python3.8 has been installed but the development version
-%is not present the development extensions ({\tt libpython3.8.so} and
+%  {\tt sudo apt-get install python3.8-dev}
+%
+%\noindent
+%  in Ubuntu; or
+%
+%  {\tt sudo dnf install python3.10-dev}
+%
+%\noindent
+%  in Fedora (newer versions) or CentOs.
+%
+%%Otherwise, if Python3.8 has been installed but the development version
+%%is not present the development extensions ({\tt libpython3.8.so} and
 %{\tt Python.h}) can be installed as:
 %
 %{\tt apt-get install libpython3.8-dev}.
@@ -165,18 +185,25 @@ along with the {\tt xsbpy} shared object file.
 %configures the path to the XSB {\tt emu} directory but all other paths
 %are currently hard-coded.
 
-\subsection{Configuring {\tt xsbpy} under MacOsX}
+\subsection{Installing a development version of Python under  macOS (if Anaconda is not used)}
 
-When XSB is configured on the Mac, the configuration script also tries
-to configure {\tt xsbpy} so that it can be loaded and used like any
-other module.  However for this process to work correctly additional
-software must be present.
-
-\subsubsection{A Development Version of Python}
-
-First, there must be a development version of Python 3.x on the Mac,
-since the default software for Macs does not include code needed by
-{\tt xsbpy} like {\tt Python.h} or {\tt libpython<xxx>.dylib}.
+Most of the discussion in Section~\ref{sec:xsbpy-linux} pertains
+directly to macOS.  As with Linux, installation of {\tt xsbpy} under
+Anaconda will be easiest for most users, and it is worthwhile noting
+that whether or not Anaconda is used both XSB and {\tt xsbpy} can be
+compiled using either {\tt clang} or {\tt gcc} on both macOS or Linux.
+%When XSB is configured on the Mac, the configuration script also tries
+%to configure {\tt xsbpy} so that it can be loaded and used like any
+%other module.  However for this process to work correctly additional
+%software must be present.
+%
+%\subsubsection{A Development Version of Python}
+%
+However, if XSB is not configured using an Anaconda version of Python
+a development version of Python 3.x needed, but is not included by
+default in {\tt macOS}, so that code needed by {\tt xsbpy} like {\tt
+  Python.h} or {\tt libpython<xxx>.dylib} needs to be installed.  This
+software is not always contained in {\tt xtools} either.
 
 Fortunately, there are several installation tools available for the
 Mac.  One of the most popular is {\tt brew}.  Once {\tt brew} itself
@@ -193,7 +220,7 @@ installed.  Next, type
 
 \noindent
 to install the Python itself (other version numbers of Python can be used)
-and save the output of this installatoin.  Brew installs this Python in a
+and save the output of this installation.  Brew installs this Python in a
 directory that for many users is not on the execution path determined by
 the \texttt{PATH} environment variable.  Therefore the directory
 \emph{Python-installation-folder}\texttt{/bin/} will need to be added to
@@ -208,27 +235,27 @@ echo 'export LDFLAGS="-L/usr/local/opt/python@3.8/lib"' >> ~/.zshrc
 %% 
 if the development version of
 Python is installed in \texttt{/usr/local/opt/python@3.8}. This
-addition is important, because XSB's configuration checks the users
+addition is important, because XSB's configuration checks the user's
 execution paths as one way to find software.
 
-\subsubsection{A C Compiler and Loader}
-
-Second -- naturally -- there must be a C compiler installed on your
-Mac.  C compilers can be installed on the Mac through Xcode or Apple's
-Command Line Tools.  (A user needn't be familiar with how a compiler
-works -- the compiler just needs to be installed).  Two compilers are
-available on Macs, Clang and GCC; as of this writing configuration has
-only used GCC.
-
-\subsubsection{The Configuration Itself}
-
-Once a C compiler has been installed; and a development version of
-Python has been installed and added to the user's execution paths,
-simply run the {\tt configure} and {\tt makexsb} scripts in {\tt
-  \$XSB\_ROOT/XSB/build} and {\tt xsbpy} will be built automatically.
-
-As you can see, the entire process is simplicity itself!
-
+%\subsubsection{A C Compiler and Loader}
+%
+%Second -- naturally -- there must be a C compiler installed on your
+%Mac.  C compilers can be installed on the Mac through Xcode or Apple's
+%Command Line Tools.  (A user needn't be familiar with how a compiler
+%works -- the compiler just needs to be installed).  Two compilers are
+%available on macOS, Clang and GCC; XSB and {\tt xsbpy} have been
+%tested using both compilers.
+%
+%\subsubsection{The Configuration Itself}
+%
+%Once a C compiler has been installed; and a development version of
+%Python has been installed and added to the user's execution paths,
+%simply run the {\tt configure} and {\tt makexsb} scripts in {\tt
+%  \$XSB\_ROOT/XSB/build} and {\tt xsbpy} will be built automatically.
+%
+%As you can see, the entire process is simplicity itself!
+%
 \subsection{Configuring {\tt xsbpy} under Windows}
 
 To run the {\tt xsbpy} interface under Windows 10, you must first
@@ -961,9 +988,9 @@ embeddings~\cite{MUSE2018}, and identifying languages via {\tt
   lid.176.bin}.  This XSB module uses the Python module {\tt fasttext}
 and allows an XSB programmer to immediately start using fastText's
 pre-trained word embeddings.  A related module, {\tt xp\_faiss}
-provides an interface to Facebook's dense vector managment system
+provides an interface to Facebook's dense vector management system
 Faiss.  The distinction between the two is that Faiss can manage
-vectors read in from a file, and provides batch-oriented operatoins;
+vectors read in from a file, and provides batch-oriented operations;
 the fastText module relies on fastText's binary format and provides
 simpler, though useful, query support.
 
@@ -993,8 +1020,8 @@ simpler, though useful, query support.
   dimension $N \times N$.
     
   \indourmoditem{get\_word\_vec(+Name,+Word,-Vec)}{get\_word\_vec/3}{xp\_fasttext}
-  Returns a the vecotr for {\tt Word} in the model {\tt Name} as a
-  Prolog list of floats.  In general, if a compuation on word vectors
+  Returns a the vector for {\tt Word} in the model {\tt Name} as a
+  Prolog list of floats.  In general, if a computation on word vectors
   can be done wholly on the Python side, it is much faster to do so,
   rather than manipulating vectors in XSB.  This is because the word
   vectors are actually kept as {\tt numpy} arrays and computations
