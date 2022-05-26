@@ -12,7 +12,7 @@ mk_setup(File,PythonIncludeDir) :-
 	create_activate_script().
 
 mk_setup(PythonIncludeDir) :-
-        writeln('from distutils.core import setup, Extension'),
+        writeln('from setuptools import setup, Extension'),
         xsb_configuration(packagesdir, PkgsDir),
         xsb_configuration(emudir, EmuDir),
         xsb_configuration(config_dir, ConfigDir),
@@ -31,9 +31,33 @@ setup (name = \'px\',
        version = \'0.1\',
        description = \'Embedding XSB in Python\',
        author = \'Theresa Swift\',
+       packages = [\'px\'],
        ext_modules = [module1])
 ').
 
+%mk_setup(PythonIncludeDir) :-
+%        writeln('from distutils.core import setup, Extension'),
+%        xsb_configuration(packagesdir, PkgsDir),
+%        xsb_configuration(emudir, EmuDir),
+%        xsb_configuration(config_dir, ConfigDir),
+%        xsb_configuration(config_bindir, ConfigBinDir),
+%        concat_atom([PkgsDir, '/xsbpy'], XSBPy_Dir),
+%        writeln('module1 = Extension(\'xsbext\','),
+%        write('                    include_dirs = [\''), write(PythonIncludeDir), writeln('\','),
+%        write('                                    \''), write(EmuDir), writeln('\','),
+%        write('                                    \''), write(XSBPy_Dir), writeln('\','),
+%        write('                                    \''), write(ConfigDir), writeln('\'],'),
+%        writeln('                    libraries = [\'xsb\'],'),
+%        write('                    library_dirs = [\''), write(ConfigBinDir), writeln('\'],'),
+%        writeln('                    sources = [\'xsbext.c\', \'xsbpy_common.c\'])'),
+%        writeln('
+%setup (name = \'px\',
+%       version = \'0.1\',
+%       description = \'Embedding XSB in Python\',
+%       author = \'Theresa Swift\',
+%       ext_modules = [module1])
+%').
+%
 create_activate_script():-
     open(px_activate,write,Str),
     xsb_configuration(packagesdir, PkgsDir),
