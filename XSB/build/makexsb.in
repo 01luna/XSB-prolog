@@ -88,5 +88,8 @@ else
    echo ""
 fi
 
+# Finalization: packages may need to run some scripts when XSB is fully compiled
+../packages/xsbpy/.make_px_pkg.sh
+
 rm -f  buildxsb.lock
 rm -f  Makefile

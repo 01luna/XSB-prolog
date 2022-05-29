@@ -34,8 +34,7 @@ init_xsbpy(Pyversion):-
     (str_sub('windows',Configuration)
     -> compile_xsbpym_for_windows
     ;  get_compiler_opts(Pyversion,CompilerOpts,Version),
-       compile([xsbpym],[cc_opts(CompilerOpts),if_needed]),
-       [px_mk_setup_query]
+       compile([xsbpym],[cc_opts(CompilerOpts),if_needed])
     ),
     xsb_configuration(packagesdir, PackDir),
     concat_atom([PackDir,'/xsbpy'],XSBpyDir),

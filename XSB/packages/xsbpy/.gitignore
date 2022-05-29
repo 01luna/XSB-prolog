@@ -20,4 +20,7 @@ test_xsbpy_out.txt
 /configvars.sh
 */.tmp_pxsetup.py
 /.tmp_pxsetup.py
-/px_mk_setup_query.P
+/.px_mk_setup_query.P
+/.make_px_pkg.sh
+/.px_activate
+/px_activate
