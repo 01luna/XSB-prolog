@@ -29,20 +29,19 @@ Sequence of building the py<->xsb connector by the XSB configurator:
            #define variables for Python lib dirs/names/includes
            plus #defines for XSB libdirs, emudir, etc.
            #included by xsbpym.c
-        - .px_mk_setup_query.P
-           o loads ./px_mk_setup.P then creates the setup file for
+        - make_px_pkg.sh from make_px_pkg.sh.in
+           o creates the setup file for
              the py->xsb connector (called px/.tmp_pxsetup.py)
            o ./px_mk_setup.P creates xsbpy/.px_activate
              shell file that sets PYTHONPATH, LD_LIBRARY_PATH
              WHO calls that???
              PROBABLY NOT NEEDED
            o this is loaded and invoked in step 4 below.
-        - xsbpy/.make_px_pkg.sh
+        - xsbpy/make_px_pkg.sh.in --> make_px_pkg.sh
            o  invoked by makexsb at the end.
-           o .make_px_pkg.sh does this:
-               - loads and runs .px_mk_setup_query.P
+           o make_px_pkg.sh does this:
                - uses px/.tmp_pxsetup.py to create the px package and
-                 install it in Python
+                 installs it in Python
         - xsbpy_info.in --> xsbpy_info.P
            tells XSB if the python interface is configured;
            called by packages/xsbpy.P
@@ -52,6 +51,6 @@ Sequence of building the py<->xsb connector by the XSB configurator:
       python .tmp_pxsetup.py   (created by ./configure in step 2).
       python -m pip -v install --no-index --find-links=dist px --user
 
-4. .px_mk_setup_query.P is loaded and invoked by xsbpy/.make_px_pkg.sh,
+4. xsbpy/make_px_pkg.sh,
    which in turn gets called at the end of makexsb.
       
