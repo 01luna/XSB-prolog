@@ -24,3 +24,4 @@ test_xsbpy_out.txt
 /.make_px_pkg.sh
 /.px_activate
 /px_activate
+/make_px_pkg.sh

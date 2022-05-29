@@ -133,24 +133,13 @@ setupfile_path="'px/$setupfile_name'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
 
-echo "#! /bin/sh" > .make_px_pkg.sh
-chmod 700 .make_px_pkg.sh
 if test -z "$PYTHON_INCLUDE_DIR" ; then
-    echo 'echo "+++ Python does not seem to be configured."' >> .make_px_pkg.sh
+    echo 'echo "+++ Python does not seem to be configured."' > make_px_pkg.sh
 else
-    echo 'echo "*** Installing py-xsb as a Python package"' >> .make_px_pkg.sh
-
-    echo "?- consult(px_mk_setup), mk_setup($setupfile_path,$py_includedir)." > .px_mk_setup_query.P
-
-    echo 'cd ../packages/xsbpy' >> .make_px_pkg.sh
-
-    echo ../../bin/xsb -e "\"consult('.px_mk_setup_query'). halt.\"" >> .make_px_pkg.sh
-
-    echo 'cd px' >> .make_px_pkg.sh
-    echo "$PYTHON_BIN $setupfile_name bdist_wheel" >> .make_px_pkg.sh
-    echo "$PYTHON_BIN  -m pip -v install --no-index --find-links=dist px --user" >> .make_px_pkg.sh
-    #echo "cd .." >> .make_px_pkg.sh
+    AC_OUTPUT([make_px_pkg.sh:make_px_pkg.sh.in])
 fi
 
 AC_SUBST(support)
 AC_OUTPUT([xsbpy_info.P:xsbpy_info.in])
+
+chmod 700 make_px_pkg.sh

@@ -1,4 +1,4 @@
-s#! /bin/sh
+#! /bin/sh
 
 # Do not touch xsb_patch_date! It should be updated by SVN (does not currently)
 xsb_patch_date='$Date$'
