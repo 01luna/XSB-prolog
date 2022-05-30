@@ -921,8 +921,9 @@ to Prolog without problems. However, it should be noted that {\tt
 copying a large structure from Python to XSB, a topic to which we now
 turn.
 
-\subsection{Space Management for XSB's Heap} \label{sec:xsbpy-memory}
+\subsection{Memory Management} \label{sec:xsbpy-memory}
 
+\subsubsection{Space Management for XSB's Heap}
 Because Python data structures are directly copied onto the XSB heap
 stack, the heap serves as a buffer for the return of information from
 Python.  XSB currently relies on the Python C API size routine {\tt
@@ -949,10 +950,18 @@ specified, the call performs two traversals of the data structure to
 be returned: one to determine its size and ensure heap space, and another
 to copy the data structure.
 
-\subsection{Allowing Python to Reclaim Space}
+\subsection{Python Space Management}
+
+WHen using Python's C interface, every Python object that is declared
+in C must be explicitly released, a requirement that supports Python's
+garbage collection.  {\tt xsbpy} memory usage has been checked using
+the {\tt guppy} package, which indicates that there are no memory
+leaks.
+
+%\subsection{Allowing Python to Reclaim Space}
 %
-TBD: Discuss space issues for Python how they are now addressed and
-how they will be addressed in the future.
+%TBD: Discuss space issues for Python how they are now addressed and
+%how they will be addressed in the future.
 
 \section{Interfaces to Python Libraries}
 
