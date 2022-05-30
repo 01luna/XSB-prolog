@@ -37,7 +37,7 @@ setup (name = \'px\',
 ').
 
 create_activate_script():-
-    open('.px_activate',write,Str),
+    open('px_activate',write,Str),
     xsb_configuration(packagesdir, PkgsDir),
     lazy_writeln(Str,['export PYTHONPATH="$PYTHONPATH:',PkgsDir,'/xsbpy/px"']),
     xsb_configuration(config_bindir,Cfbin),
