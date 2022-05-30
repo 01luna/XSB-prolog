@@ -12,8 +12,8 @@ mk_setup(File,PythonIncludeDir) :-
 	create_activate_script().
 
 mk_setup(PythonIncludeDir) :-
-        %%writeln('from setuptools import setup, Extension'),  %% for setuptools
-        writeln('from distutils.core import setup, Extension'),
+        writeln('from setuptools import setup, Extension'),  %% for setuptools
+        %%writeln('from distutils.core import setup, Extension'),
         xsb_configuration(packagesdir, PkgsDir),
         xsb_configuration(emudir, EmuDir),
         xsb_configuration(config_dir, ConfigDir),
