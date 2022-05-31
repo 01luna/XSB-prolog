@@ -794,6 +794,7 @@ with_iodbc
 with_smodels
 with_itkwish
 with_stdcall
+with_preferred_python
 enable_no_cygwin
 enable_general_tagging
 enable_debug
@@ -1536,6 +1537,7 @@ Optional Packages:
   --with-itkwish=DIR		DIR where the itkwish shell is located
   --with-stdcall		use the __stdcall call convention for DLLs in Windows
                                 Affects Win32 only. Ignored in Win64.
+  --with-preferred-python=X      indicate the preferred version of python to build with
   --with-pita       compile XSB with PITA
 
 Some influential environment variables:
@@ -2825,6 +2827,13 @@ fi
 
 
 
+# Check whether --with-preferred-python was given.
+if test "${with_preferred_python+set}" = set; then :
+  withval=$with_preferred_python;
+fi
+
+
+
 # Check whether --enable-no-cygwin was given.
 if test "${enable_no_cygwin+set}" = set; then :
   enableval=$enable_no_cygwin; enable_no_cygwin=yes
@@ -2978,6 +2987,7 @@ do
 		--with-optimization* | --with-config-tag* | \
                 --with-site-prefix* | --with-includes* | \
 		--with-static-libraries* | --with-dynamic-libraries* | \
+                --with-preferred-python* | \
                 --with-xpath* | \
 		--with-curl* | --with-pcre* | --with-mysql* | \
 		--with-dbdrivers | --with-no-dbdrivers | --with-oracle | --with-odbc* | \
@@ -6371,7 +6381,11 @@ fi
     cd "$topdir/packages/xsbpy"
     echo "***Configuring XSBPY (XSB to Python connector)"
     chmod 700 ./configure
-    ./configure || xsbpy_config_failed=1
+    if test -n "${with_preferred_python}" ; then
+        ./configure --with-preferred-python=${with_preferred_python} || xsbpy_config_failed=1
+    else
+        ./configure || xsbpy_config_failed=1
+    fi
     cd "$build_dir"
 fi
 

@@ -11,9 +11,8 @@ AC_INIT([xsbpy],[1.0])
 
 AC_CONFIG_MACRO_DIR([./m4])
 
-AC_ARG_WITH(with-preferred-python,
-[  --with-preferred-python=X      indicate the preferred version of python to build with],
-   preferred-python=python3.7)
+AC_ARG_WITH(preferred-python,
+[  --with-preferred-python=X      indicate the preferred version of python to build with])
 
 source ./configvars.sh
 
@@ -133,8 +132,10 @@ setupfile_path="'px/$setupfile_name'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
 
-if test -z "$PYTHON_INCLUDE_DIR" ; then
-    echo 'echo "+++ Python does not seem to be configured."' > make_px_pkg.sh
+if test -z "$PYTHON_INCLUDE_DIR" -o -z "$PYTHON_BIN" -o "$pip_not_installed" = "1" -o -z "$PYTHON_LIB" -o -z "$PYTHON_CONFLIB" ; then
+    echo 'echo "+++ Python does not seem to be configured properly."' > make_px_pkg.sh
+    echo 'echo "+++ XSB-Python bridge will not be supported in this installation."' >> make_px_pkg.sh
+    echo 'echo ""' >> make_px_pkg.sh
 else
     AC_OUTPUT([make_px_pkg.sh:make_px_pkg.sh.in])
 fi

@@ -168,6 +168,9 @@ AC_ARG_WITH(stdcall,
 [  --with-stdcall		use the __stdcall call convention for DLLs in Windows
                                 Affects Win32 only. Ignored in Win64.])
 
+AC_ARG_WITH(preferred-python,
+[  --with-preferred-python=X      indicate the preferred version of python to build with] )
+
 
 AC_ARG_ENABLE(no-cygwin,
 [  --enable-no-cygwin           Compile with the gss option -mno-cygwin (default: disabled)
@@ -270,6 +273,7 @@ do
 		--with-optimization* | --with-config-tag* | \
                 --with-site-prefix* | --with-includes* | \
 		--with-static-libraries* | --with-dynamic-libraries* | \
+                --with-preferred-python* | \
                 --with-xpath* | \
 		--with-curl* | --with-pcre* | --with-mysql* | \
 		--with-dbdrivers | --with-no-dbdrivers | --with-oracle | --with-odbc* | \
@@ -998,7 +1002,11 @@ if test -d "$topdir/packages/xsbpy"; then
     cd "$topdir/packages/xsbpy"
     echo "***Configuring XSBPY (XSB to Python connector)"
     chmod 700 ./configure
-    ./configure || xsbpy_config_failed=1
+    if test -n "${with_preferred_python}" ; then
+        ./configure --with-preferred-python=${with_preferred_python} || xsbpy_config_failed=1
+    else
+        ./configure || xsbpy_config_failed=1
+    fi
     cd "$build_dir"
 fi
 

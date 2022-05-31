@@ -688,7 +688,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
-with_with_preferred_python
+with_preferred_python
 '
       ac_precious_vars='build_alias
 host_alias
@@ -2000,9 +2000,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-# Check whether --with-with-preferred-python was given.
-if test "${with_with_preferred_python+set}" = set; then :
-  withval=$with_with_preferred_python; preferred-python=python3.7
+# Check whether --with-preferred-python was given.
+if test "${with_preferred_python+set}" = set; then :
+  withval=$with_preferred_python;
 fi
 
 
@@ -2071,8 +2071,8 @@ if test "x$ax_python_bin" != "x"; then
    $PYTHON_BIN -m pip > /dev/null 2>&1 || pip_not_installed=1
 
    ax_python_conflib=`$PYTHON_BIN -m find_libpython 2> /dev/null || ($PYTHON_BIN -m pip install find_libpython > /dev/null 2>&1; $PYTHON_BIN -m find_libpython)`
-   ax_python_lib=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('LIBDEST'))"`
-   ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
+   ax_python_lib=`$ax_python_bin -c "from sysconfig import *; print(get_config_var('LIBDEST'))"`
+   ax_python_header=`$ax_python_bin -c "from sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
    if test "x$ax_python_header" != "x" -a "x$ax_python_conflib" != "xno"; then
      break;
    fi
@@ -4586,8 +4586,10 @@ setupfile_path="'px/$setupfile_name'"
 py_includedir="'$PYTHON_INCLUDE_DIR'"
 
 
-if test -z "$PYTHON_INCLUDE_DIR" ; then
-    echo 'echo "+++ Python does not seem to be configured."' > make_px_pkg.sh
+if test -z "$PYTHON_INCLUDE_DIR" -o -z "$PYTHON_BIN" -o "$pip_not_installed" = "1" -o -z "$PYTHON_LIB" -o -z "$PYTHON_CONFLIB" ; then
+    echo 'echo "+++ Python does not seem to be configured properly."' > make_px_pkg.sh
+    echo 'echo "+++ XSB-Python bridge will not be supported in this installation."' >> make_px_pkg.sh
+    echo 'echo ""' >> make_px_pkg.sh
 else
     ac_config_files="$ac_config_files make_px_pkg.sh:make_px_pkg.sh.in"
 

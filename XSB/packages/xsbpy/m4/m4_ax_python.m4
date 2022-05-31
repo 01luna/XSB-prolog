@@ -71,8 +71,8 @@ if test "x$ax_python_bin" != "x"; then
    $PYTHON_BIN -m pip > /dev/null 2>&1 || pip_not_installed=1
 
    ax_python_conflib=`$PYTHON_BIN -m find_libpython 2> /dev/null || ($PYTHON_BIN -m pip install find_libpython > /dev/null 2>&1; $PYTHON_BIN -m find_libpython)`
-   ax_python_lib=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('LIBDEST'))"`
-   ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
+   ax_python_lib=`$ax_python_bin -c "from sysconfig import *; print(get_config_var('LIBDEST'))"`
+   ax_python_header=`$ax_python_bin -c "from sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
    if test "x$ax_python_header" != "x" -a "x$ax_python_conflib" != "xno"; then
      break;
    fi
