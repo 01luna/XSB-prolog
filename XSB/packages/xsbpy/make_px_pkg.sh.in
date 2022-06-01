@@ -11,8 +11,29 @@ halt.
 EOF
 
 cd px
-@PYTHON_BIN@ -m pip install --upgrade setuptools wheel
+@PYTHON_BIN@ -m pip install --upgrade setuptools wheel > ../px-install.log 2>&1
 
-@PYTHON_BIN@ .tmp_pxsetup.py bdist_wheel
-@PYTHON_BIN@  -m pip -v install --no-index --find-links=dist px
-#@PYTHON_BIN@  -m pip -v install --no-index --find-links=dist px --user
+@PYTHON_BIN@ .tmp_pxsetup.py bdist_wheel >> ../px-install.log 2>&1
+@PYTHON_BIN@  -m pip -v install --no-index --find-links=dist px >> ../px-install.log 2>&1
+#@PYTHON_BIN@  -m pip -v install --no-index --find-links=dist px --user >> ../px-install.log 2>&1 
+
+px_errors=`grep [eE]rror ../px-install.log`
+px_warn=`grep [wW]arning ../px-install.log`
+
+if test -n "$px_errors" ; then
+    echo ""
+    echo "Errors occurred while configuring the Python-to-XSB bridge:"
+    echo "$px_errors"
+    echo "  That bridge will not function in this XSB installation."
+    echo "  Check XSB/packages/xsbpy/px-install.log to see the log."
+fi
+if test -n "$px_warn" ; then
+    echo ""
+    echo "Warnings occurred while configuring the Python-to-XSB bridge:"
+    echo "$px_warn"
+    echo "  That bridge might not function correctly."
+    echo "  Check XSB/packages/xsbpy/px-install.log to see the log."
+fi
+echo ""
+
+
