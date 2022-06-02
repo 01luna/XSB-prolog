@@ -72,6 +72,7 @@ if test "x$ax_python_bin" != "x"; then
 
    ax_python_conflib=`$PYTHON_BIN -m find_libpython 2> /dev/null || ($PYTHON_BIN -m pip install find_libpython > /dev/null 2>&1; $PYTHON_BIN -m find_libpython)`
    ax_python_lib=`$ax_python_bin -c "from sysconfig import *; print(get_config_var('LIBDEST'))"`
+   ax_python_extra_lib=`$ax_python_bin -c "from sysconfig import *; print(get_config_var('BLDLIBRARY'))"`
    ax_python_header=`$ax_python_bin -c "from sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
    if test "x$ax_python_header" != "x" -a "x$ax_python_conflib" != "xno"; then
      break;
@@ -95,11 +96,15 @@ fi
 if test "x$ax_python_lib" = "x"; then
    ax_python_lib=no
 fi
+if test "x$ax_python_extra_lib" = "x"; then
+   ax_python_extra_lib=no
+fi
 
 AC_MSG_RESULT([  results of the Python check:])
 AC_MSG_RESULT([    Binary:          $ax_python_bin])
 AC_MSG_RESULT([    Config library:  $ax_python_conflib])
 AC_MSG_RESULT([    Library:         $ax_python_lib])
+AC_MSG_RESULT([    Extra library:   $ax_python_extra_lib])
 AC_MSG_RESULT([    Include Dir:     $ax_python_header])
 
 if test "x$ax_python_header" != xno; then
@@ -109,6 +114,10 @@ fi
 if test "x$ax_python_lib" != "xno"; then
   PYTHON_LIB=$ax_python_lib
   AC_SUBST(PYTHON_LIB)
+fi
+if test "x$ax_python_extra_lib" != "xno"; then
+  PYTHON_EXTRA_LIB=$ax_python_extra_lib
+  AC_SUBST(PYTHON_EXTRA_LIB)
 fi
 if test "x$ax_python_conflib" != "xno"; then
   PYTHON_CONFLIB=$ax_python_conflib

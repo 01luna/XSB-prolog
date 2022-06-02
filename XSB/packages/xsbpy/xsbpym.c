@@ -601,7 +601,7 @@ DllExport int init_python() {
 #endif
     } else {
 #ifdef WIN_NT
-      xsb_abort("++Error[xsbpy]: PYTHON_LIBRARY not found; Is environment variable set?\n");
+      xsb_abort("++Error[xsbpy]: Python library dll not found; Is the PYTHON_LIBRARY environment variable set?\n");
 #else
       dlopen(PYTHON_CONFLIB_2QUOTED, RTLD_LAZY | RTLD_GLOBAL );
 #endif
