@@ -23,7 +23,9 @@ files="./XSB/LICENSE
         ./XSB/InstallXSB.jar \
         ./XSB/examples "
 
-    cd ../..
+rm -rf  ../packages/xsbpy/__pycache__
+rm -rf  ../packages/xsbpy/px/__pycache__
+cd ../..
 
 #    (cd XSB/build; chmod u+rwx configure; autoconf)
     (cd XSB/build; chmod u+rwx configure)

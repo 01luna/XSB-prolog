@@ -105,12 +105,12 @@ def check_sys_path():
     hits = []
     for path in sys.path:
         print('path: '+path)
-        print('glob: '+str(glob.glob(path+'/px*')))
-        pxes = glob.glob(path+'/px*')
-        if pxes != []:
-            for px in pxes:
-                fullpath = path + '/' + px
-                hits.append(fullpath)
+        globlist = glob.glob(path+'/px*')
+        print('   glob: '+str(globlist))
+        if globlist != []:
+            for globfile in globlist:
+#                fullpath = path + '/' + globfile
+                hits.append(globfile)
     return hits
         
 #------------------------------------------------------
@@ -129,12 +129,15 @@ if __name__ == '__main__':
     clargs = parser.parse_args()
     print(clargs)
     conflicts = check_sys_path()
+#    print(conflicts)
     if conflicts != []:
         if clargs.force:
             print("removing")
         else:
-            raise PermissionError('Possibly conflicting px implementations, remove manually: '
-                                  +str(conflicts) )
+            for elt in conflicts:
+                print(elt,end=' ')
+            print(' ')
+            raise PermissionError('Possibly conflicting px implementations, remove manually:\n')
     get_basedir()
     print('basedir =' + basedir)
     invoke_dir = os.getcwd()
