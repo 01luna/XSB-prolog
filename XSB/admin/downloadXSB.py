@@ -2,9 +2,12 @@ import argparse
 import os
 import requests
 import shutil
-import subprocess
 import sys
+import glob
+from subprocess import *
 import sysconfig
+
+# python3.8 -m download
 
 if sys.platform == 'linux':
     USERDIR = os.environ['HOME'] + '/.local'
@@ -59,6 +62,8 @@ def get_input_args():
         preferred_python =  'python' + sysconfig.get_config_var('VERSION')
     else:
         preferred_python = 'python' + clargs.parse_args().preferred_python
+    parser.add_argument("--force", action="store_true",
+                        help="for debugging: force removal of existing packages px\*")
     return parser
 
 #------------------------------------------------------
@@ -96,9 +101,40 @@ def install_xsb():
 
 #------------------------------------------------------
 
+def check_sys_path():
+    hits = []
+    for path in sys.path:
+        print('path: '+path)
+        print('glob: '+str(glob.glob(path+'/px*')))
+        pxes = glob.glob(path+'/px*')
+        if pxes != []:
+            for px in pxes:
+                fullpath = path + '/' + px
+                hits.append(fullpath)
+    return hits
+        
+#------------------------------------------------------
+# There has to be a better way to do this than introducing such a trivial file.
+# Anyway, not yet ysed, but in case I ever want for 1 version of python to download for another.
+
+def get_sys_path(version):
+    callstring = 'python' + version + ' print_sys_path.py'
+    opencall = Popen([callstring], stdout=PIPE, stderr=PIPE,shell=True)
+    return opencall.communicate()
+
+#------------------------------------------------------
+
 if __name__ == '__main__':
     parser = get_input_args()
-    print(parser.parse_args())
+    clargs = parser.parse_args()
+    print(clargs)
+    conflicts = check_sys_path()
+    if conflicts != []:
+        if clargs.force:
+            print("removing")
+        else:
+            raise PermissionError('Possibly conflicting px implementations, remove manually: '
+                                  +str(conflicts) )
     get_basedir()
     print('basedir =' + basedir)
     invoke_dir = os.getcwd()
