@@ -30,6 +30,8 @@ to that included at the end of this file.
 :- import getenv/2 from machine.
 
 init_xsbpy(Pyversion):-
+%    findall(Dir,usermod:library_directory(Dir),Dirs),
+%    writeln(dirs(Dirs)),
     xsb_configuration(configuration,Configuration),
     (str_sub('windows',Configuration)
     -> compile_xsbpym_for_windows
@@ -120,8 +122,9 @@ get_compiler_opts(auto,CompilerOpts,auto(PYTHON_BIN_QUOTED)):-
     xsb_configuration(config_bindir,Dir),concat_atom([Dir,'/xsb'],XSB),
     concat_atom(['-I',XSB,'../../emu',' -I',PYTHON_INCLUDE_DIR_QUOTED,
 		' -L',PYTHON_LIBDIR_QUOTED,
-		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,',',LIBXSBSO,
-		' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,
+		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,',',LIBXSBSO,' ', 
+%		' -l',PYTHON_BIN_QUOTED,' -L',PYTHON_BIN_QUOTED,' ',
+		PYTHON_EXTRA_LIB_QUOTED,' -L',PYTHON_BIN_QUOTED,
 % for debugging ' -Wl,--verbose',
 		' -Wl,-rpath=',PYTHON_LIBDIR_QUOTED,' -g' ],CompilerOpts).
 
