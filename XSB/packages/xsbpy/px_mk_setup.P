@@ -38,10 +38,10 @@ setup (name = \'px\',
 
 create_activate_script():-
     open('px_activate',write,Str),
-    xsb_configuration(packagesdir, PkgsDir),
-    lazy_writeln(Str,['export PYTHONPATH="$PYTHONPATH:',PkgsDir,'/xsbpy/px"']),
+%    xsb_configuration(packagesdir, PkgsDir),
+%    lazy_writeln(Str,['export PYTHONPATH="$PYTHONPATH:',PkgsDir,'/xsbpy/px"']),
     xsb_configuration(config_bindir,Cfbin),
-    lazy_writeln(Str,['export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:',Cfbin,'"']),
+    lazy_writeln(Str,['export LD_LIBRARY_PATH="',Cfbin,':$LD_LIBRARY_PATH"']),
     (xsb_configuration(os_type,darwin) -> 
 	 lazy_writeln(Str,['export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:',Cfbin,'"'])
        ; true),
