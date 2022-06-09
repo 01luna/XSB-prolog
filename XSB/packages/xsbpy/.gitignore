@@ -25,3 +25,4 @@ test_xsbpy_out.txt
 /.px_activate
 /px_activate
 /make_px_pkg.sh
+/test_LDLIBRARY.py

@@ -22,17 +22,17 @@ px_warn=`grep [wW]arning ../px-install.log`
 
 if test -n "$px_errors" ; then
     echo ""
-    echo "Errors occurred while configuring the Python-to-XSB bridge:"
-    echo "$px_errors"
-    echo "  That bridge will not function in this XSB installation."
-    echo "  Check XSB/packages/xsbpy/px-install.log to see the log."
+    echo "+++++ Errors occurred while configuring the Python-to-XSB bridge:"
+    echo "***** $px_errors"
+    echo "+++++   The bridge will likely not function properly in this XSB installation."
+    echo "+++++   Check XSB/packages/xsbpy/px-install.log to see the log."
 fi
 if test -n "$px_warn" ; then
     echo ""
-    echo "Warnings occurred while configuring the Python-to-XSB bridge:"
-    echo "$px_warn"
-    echo "  That bridge might not function correctly."
-    echo "  Check XSB/packages/xsbpy/px-install.log to see the log."
+    echo "+++++ Warnings occurred while configuring the Python-to-XSB bridge:"
+    echo "***** $px_warn"
+    echo "+++++   The bridge might not function correctly."
+    echo "+++++   Check XSB/packages/xsbpy/px-install.log to see the log."
 fi
 echo ""
 

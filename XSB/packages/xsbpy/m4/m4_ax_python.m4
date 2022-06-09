@@ -102,7 +102,7 @@ fi
 
 AC_MSG_RESULT([  results of the Python check:])
 AC_MSG_RESULT([    Binary:          $ax_python_bin])
-AC_MSG_RESULT([    Config library:  $ax_python_conflib])
+AC_MSG_RESULT([    Devel library:   $ax_python_conflib])
 AC_MSG_RESULT([    Library:         $ax_python_lib])
 AC_MSG_RESULT([    Extra library:   $ax_python_extra_lib])
 AC_MSG_RESULT([    Include Dir:     $ax_python_header])

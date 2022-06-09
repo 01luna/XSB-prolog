@@ -56,7 +56,7 @@ elif test -z "$PYTHON_LIB" ; then
 elif test -z "$PYTHON_INCLUDE_DIR" ; then
    message1="  XSBPY:       Python include directory not found"
 elif test -z "$PYTHON_CONFLIB" ; then
-   message1="  XSBPY:       Python configuration directory not found"
+   message1="  XSBPY:       Python development libraries are likely missing (eg. the package python3.XX-dev not installed)"
 elif test "$pip_not_installed" = "1" ; then
    message1="  XSBPY:       pip is not installed"
 else
@@ -136,6 +136,7 @@ py_includedir="'$PYTHON_INCLUDE_DIR'"
 
 if test -z "$PYTHON_INCLUDE_DIR" -o -z "$PYTHON_BIN" -o "$pip_not_installed" = "1" -o -z "$PYTHON_LIB" -o -z "$PYTHON_CONFLIB" ; then
     echo 'echo "+++ Python does not seem to be configured properly."' > make_px_pkg.sh
+    echo 'echo "+++ Are the Python developer's libraries installed?"' >> make_px_pkg.sh
     echo 'echo "+++ XSB-Python bridge will not be supported in this installation."' >> make_px_pkg.sh
     echo 'echo ""' >> make_px_pkg.sh
 else
