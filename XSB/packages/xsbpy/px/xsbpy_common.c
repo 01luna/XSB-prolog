@@ -1,3 +1,6 @@
+#ifdef WIN64
+#define WINDOWS_IMP
+#endif
 
 #include <stdio.h>
 #include <Python.h>

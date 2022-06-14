@@ -1,5 +1,10 @@
 #define PY_SSIZE_T_CLEAN
 
+#ifdef WIN64
+//this allows varstring_xsb to compile
+#define WINDOWS_IMP
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <Python.h>
@@ -10,7 +15,7 @@
 #include <cell_xsb.h>
 #include <emuloop.h>
 #include <register.h>
-#include <emudef.h>
+//#include <emudef.h>
 #include <heap_xsb.h>
 #include <memory_xsb.h>
 #include <flags_xsb.h>
