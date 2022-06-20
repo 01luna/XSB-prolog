@@ -267,29 +267,30 @@ licensing terms) and can be downloaded from
 {\tt https://visualstudio.microsoft.com/downloads/}.
 
 In the examples below, we assume Python version 3.9 has been installed
-for the user "warren".  You must adjust the example paths to correctly
+and YOURUSERNAME should be replaced with your Windows user name.
+You must adjust the example paths to correctly
 reflect where Python is installed on your machine.
 
 With MSVC and Python (development version) installed, you must then
 define a new environment variable named {\tt PYTHON\_LIBRARY} with
 value
 
-{\tt C:/Users/warren/AppData/Local/Programs/Python/Python39/libs/python3.lib}.
+{\tt C:/Users/YOURUSERNAME/AppData/Local/Programs/Python/Python39/libs/python3.lib}.
 
 To install and use Python packages, you will need to have the {\tt
   PYTHONPATH} environment variable defined.  A definition that worked
 for me was (your mileage will vary):
 \begin{verbatim}
-PYTHONPATH=C:/Users/warren/AppData/Local/Packages/
+PYTHONPATH=C:/Users/YOURUSERNAME/AppData/Local/Packages/
        PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0/
        LocalCache/local-packages/Python39/site-packages
 \end{verbatim}
 
 The environment variable {\tt PATH} must include the python directories:\\
-{\tt C:/Users/warren/AppData/Local/Programs/Python/Python39/Scripts} and\\
-{\tt C:/Users/warren/AppData/Local/Programs/Python/Python39}.
+{\tt C:/Users/YOURUSERNAME/AppData/Local/Programs/Python/Python39/Scripts} and\\
+{\tt C:/Users/YOURUSERNAME/AppData/Local/Programs/Python/Python39}.
 
-To run see if the interface is installed corrected and functional, it
+To see if the interface is installed correctly and is functional, it
 is suggested (just below) that you run: {\tt bash} test.sh in
 directory {\tt <XSB>/packages/xsbpy/test/}.  While this can be made to
 work when cygwin is installed, under windows, it is easier to run {\tt
