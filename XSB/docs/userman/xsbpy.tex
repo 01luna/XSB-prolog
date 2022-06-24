@@ -331,7 +331,7 @@ Prolog modules of {\tt xsbpy} are loaded into XSB, and paths to {\tt
   xsbpy} and its subdirectories are added both to Prolog and to Python
 (the latter paths are added by modifying Python's {\tt
   sys.path}). Later, XSB calls Python, Python will search for modules
-and packages in the same manner as if it were stand-alone.
+and packages in the same manner as if they were stand-alone.
 
 \begin{example} \rm {\bf Calling a Python Function (I)} \label{ex:xsbpy-json}
   %
@@ -678,8 +678,8 @@ viewpoint of Python types as follows:
        \item {\em Binary Types:} are not yet supported.  There are no
          current plans to support this type.
      \item Any Python object {\tt Obj} that is a non-primitive type,
-       or of a type that is not translated to a specific Prolog term
-       as indicated above is translated to the Prolog term {\tt
+       or of a type that is not translated to a specific Prolog term,
+       as indicated above, is translated to the Prolog term {\tt
          pyObj(Obj)}.  This {\tt pyObj(Obj)} term can be passed back to
        Python and used for a method call or other purpose.
 \end{itemize}
@@ -699,7 +699,7 @@ all be redefined my modifying the file {\tt xsbpy\_defs.h} in the {\tt
 \indourmoditem{pyfunc(+Module,+Function,?Return)}{pyfunc/3}{xsbpy}
 %
  Ensures that the Python module {\tt Module} is loaded, and calls {\tt
-   Module.Function} unifying the return of {\tt Function} with {\tt tt
+   Module.Function} unifying the return of {\tt Function} with {\tt 
    Return}.  Lists of keyword arguments ({\tt Kwargs}) and Prolog
  options ({\tt Prolog\_Opts}) may or may not be included.  For example
  the goal
@@ -751,7 +751,8 @@ queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
 \ourrepeatmoditem{pydot(+Module,+ObjRef,+MethAttr,+Prolog\_Opts,?Ret)}{pydot/5}{xsbpy}
 \indourmoditem{pydot(+Module,+ObjRef,+MethAttr,?Ret)}{pydot/4}{xsbpy}
 %
-Applies a method to {\tt ObjRef}, or obtains an attribute from it.  As
+Applies a method to {\tt ObjRef}, or obtains an attribute value for
+\texttt{ObjRef}.  As
 with {\tt pyfunc/[3,4]}, {\tt Module} is a Python module or
 path. However, {\tt ObjRef} is a Python object reference in term form
 (i.e., a term of the form {\tt pyObj(Ref)} where {\tt Ref} is a Prolog
@@ -773,7 +774,8 @@ one of two ways:
     do this).}
 %
 \item If {\tt MethAttr} is a Prolog atom corresponding to the name of
-  an attribute of {\tt ObjRef}, the attribute is accessed and unified
+  an attribute of {\tt ObjRef}, the attribute value (for \texttt{ObjRef})
+  is accessed and unified
   with {\tt Ret}.
 \end{itemize}
 
@@ -935,7 +937,7 @@ routine has a constant-time overhead.\footnote{XSB estimates the size
 size.  Accordingly long lists of large structures, heavily nested
 dictionaries and other such structures may present a problem.  It
 should be noted that when {\tt xsbpy} is initialized, XSB's default
-heap margin is reset to to 1 megabyte so that any data structure whose
+heap margin is reset to 1 megabyte so that any data structure whose
 size is less than 1 megabyte will be copied safely, even if its size
 is under-estimated.\footnote{XSB's default heap margin is 64 kbytes.}
 
