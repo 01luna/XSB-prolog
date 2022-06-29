@@ -1907,11 +1907,11 @@ int call_conv write_canonical_term_rec(CTXTdeclc Cell prologterm, int letter_fla
       UInteger varval;
       XSB_StrAppendC(wcan_string,'_');
       if (prologterm >= (Cell)glstack.low && prologterm <= (Cell)top_of_heap) {
-	XSB_StrAppendC(wcan_string,'H');
+	XSB_StrAppendC(wcan_string,'h');
 	varval = ((prologterm-(Cell)glstack.low+1)/sizeof(CPtr));
-      } else { /* assuming env above topoflocalstk is <= 20 vars */
-	if (prologterm >= (Cell)top_of_localstk-20*sizeof(CPtr) && prologterm <= (Cell)glstack.high) {
-	  XSB_StrAppendC(wcan_string,'L');
+      } else {
+	if (prologterm >= (Cell)top_of_localstk && prologterm <= (Cell)glstack.high) {
+	  XSB_StrAppendC(wcan_string,'l');
 	  varval = (((Cell)glstack.high-prologterm+1)/sizeof(CPtr));
 	} else varval = prologterm;   /* Should never happen */
       }

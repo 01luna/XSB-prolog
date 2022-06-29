@@ -1937,6 +1937,8 @@ AC_OUTPUT([ '"${arch_config_prefix}/topMakefile"':topMakefile.in
         makexsb:makexsb.in
         '"${scriptdir}/chr_pp${config_tag}"':chr_pp.in
         '"${scriptdir}/xsb${config_tag}"':xsb.in
+        '"${scriptdir}/xsb.bat"':xsb.bat.in
+        '"${scriptdir}/xsb64.bat"':xsb64.bat.in
         '"${arch_config_prefix}/banner.msg"':banner.in
         windows/banner.msg:windows/banner.in
         windows64/banner.msg:windows64/banner.in

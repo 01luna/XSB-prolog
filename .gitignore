@@ -6,6 +6,7 @@ XSB/bin/chr_pp
 XSB/bin/chr_pp-*
 XSB/bin/xsb
 XSB/bin/xsb-*
+XSB/bin/xsb*.bat
 XSB/build/*.*#
 XSB/build/*.*~
 XSB/build/*.bak
