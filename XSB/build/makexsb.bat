@@ -10,7 +10,7 @@ IF NOT EXIST %XSBCONFIGdir%\lib mkdir %XSBCONFIGdir%\lib
 
 IF NOT EXIST ..\emu\private_builtin.c  copy private_builtin.in ..\emu\private_builtin.c
 
-@copy xsb.bat.in ..\bin
+@copy xsb.bat.in ..\bin\xsb.bat
 
 @copy odbc\* %XSBCONFIGdir%
 @copy windows\banner.msg %XSBCONFIGdir%
