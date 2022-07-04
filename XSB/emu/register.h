@@ -79,7 +79,7 @@ DllExport extern CPtr bfreg;
 DllExport extern CPtr hfreg;
 
 DllExport extern CPtr *trfreg;
-DllExport CPtr delayreg;
+DllExport extern CPtr delayreg;
 #endif
 
 
