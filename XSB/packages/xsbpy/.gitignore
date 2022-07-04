@@ -26,3 +26,4 @@ test_xsbpy_out.txt
 /px_activate
 /make_px_pkg.sh
 /test_LDLIBRARY.py
+/px_mk_setup_query.P
