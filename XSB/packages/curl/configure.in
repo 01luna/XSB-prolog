@@ -93,7 +93,7 @@ echo ""
 AC_MSG_WARN([ ****Your system is missing curl/curl.h, which is required
     for Curl to function.
 ****Curl support will be disabled. To use Curl, please install the packages
-    libcurl and libcurl-dev.])
+    libcurl and libcurl-dev (or similarly named, depending on your system).])
 echo ""
 
 support=no

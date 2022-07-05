@@ -3453,11 +3453,11 @@ echo ""
 { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:  ****Your system is missing curl/curl.h, which is required
     for Curl to function.
 ****Curl support will be disabled. To use Curl, please install the packages
-    libcurl and libcurl-dev." >&5
+    libcurl and libcurl-dev (or similarly named, depending on your system)." >&5
 $as_echo "$as_me: WARNING:  ****Your system is missing curl/curl.h, which is required
     for Curl to function.
 ****Curl support will be disabled. To use Curl, please install the packages
-    libcurl and libcurl-dev." >&2;}
+    libcurl and libcurl-dev (or similarly named, depending on your system)." >&2;}
 echo ""
 
 support=no
