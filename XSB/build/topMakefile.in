@@ -166,11 +166,12 @@ vfast: prepare emulator do_cleaning
 packages: start_packages finish_packages
 
 start_packages: xasp
-	@rm -f $(srcdir)/build/.*.tmp
+	# Do not uncomment below or *lib*/ errors won't be displayed
+	#@rm -f $(srcdir)/build/.*.tmp
 	@cd $(srcdir); $(MAKE) packages XSB=$(src_scriptdir)/xsb$(config_tag)
 	@echo "" | tee -a Installation_summary
 	@./pkg_config.sh $(src_scriptdir)/xsb$(config_tag ) | \
-										tee -a Installation_summary
+			tee -a Installation_summary
 
 finish_packages:
 	@echo "" | tee -a Installation_summary
