@@ -851,7 +851,7 @@ if test -n "$with_gcc" ; then
    fi
 else
     case $CC in
-        gcc)    emuloop_opt_level=-${with_optimization-"O3 -fno-strict-aliasing"}
+        gcc*)    emuloop_opt_level=-${with_optimization-"O3 -fno-strict-aliasing"}
                 trutils_opt_level=-${with_optimization-"O3 -fno-strict-aliasing"}
                 builtins_opt_level=-${with_optimization-"O3 -fno-strict-aliasing"}
                 loader_opt_level=-${with_optimization-"O3 -fno-strict-aliasing"}
