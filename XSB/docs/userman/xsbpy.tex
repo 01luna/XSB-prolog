@@ -259,56 +259,39 @@ execution paths as one way to find software.
 \subsection{Configuring {\tt xsbpy} under Windows}
 
 To run the {\tt xsbpy} interface under Windows 10, you must first
-download and install a development version of Python as described
-above.  You must also have the Microsoft {\tt MSVC} compiler
-installed.  The Visual Studio Community Edition is free (under some
-licensing terms) and can be downloaded from
+download and install Python as described above.
 
-{\tt https://visualstudio.microsoft.com/downloads/}.
+You must set a windows environment variable (local or global) named
+PYTHON\_LIBRARY to the name of the Python DLL, which is part of the
+Python system.  That DLL can be found by using the python script:
+{\tt find\_libpython} executed on a command line.  To run this
+script, you will probably have to install it, using the command
+{\tt pip install find-libpython}.
 
-In the examples below, we assume Python version 3.9 has been installed
-and YOURUSERNAME should be replaced with your Windows user name.
-You must adjust the example paths to correctly
-reflect where Python is installed on your machine.
-
-With MSVC and Python (development version) installed, you must then
-define a new environment variable named {\tt PYTHON\_LIBRARY} with
-value
-
-{\tt C:/Users/YOURUSERNAME/AppData/Local/Programs/Python/Python39/libs/python3.lib}.
-
-To install and use Python packages, you will need to have the {\tt
-  PYTHONPATH} environment variable defined.  A definition that worked
-for me was (your mileage will vary):
-\begin{verbatim}
-PYTHONPATH=C:/Users/YOURUSERNAME/AppData/Local/Packages/
-       PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0/
-       LocalCache/local-packages/Python39/site-packages
-\end{verbatim}
-
-The environment variable {\tt PATH} must include the python directories:\\
-{\tt C:/Users/YOURUSERNAME/AppData/Local/Programs/Python/Python39/Scripts} and\\
-{\tt C:/Users/YOURUSERNAME/AppData/Local/Programs/Python/Python39}.
+Running the {\tt find\_libpython} script will print out the name of
+the file containing the necessary DLL.  Simply define the environment
+variable PYTHON\_LIBRARY to be this .dll file.  (If you don't have
+administrative permission on your computer, you can define it using
+``Edit the environment variables for your account'' from that
+lower-left windows command lookup box.)
 
 To see if the interface is installed correctly and is functional, it
 is suggested (just below) that you run: {\tt bash} test.sh in
 directory {\tt <XSB>/packages/xsbpy/test/}.  While this can be made to
-work when cygwin is installed, under windows, it is easier to run {\tt
-  xsb} in that directory and do:
+work when cygwin is installed, under windows, it may be easier to run
+{\tt xsb} in that directory and do:
 \begin{verbatim}
 | ?- [testSuite], testSuite.
 \end{verbatim}
-This will compile and load the Python interface and run a few tests,
-printing out results.  If it succeeds without errors and without
-printing failed test notifications, the interface is available for
-use.
+This should load the Python interface and run a few tests, printing
+out results.  If it succeeds without errors and without printing
+failed test notifications, the interface is available for use.
 
-At this initial writing, the interface works when loaded by a unix
-shell running with cygwin.  However, when running in a native windows
-cmd shell, the system throws an error: {\tt Bad Image} claiming that
-the python library is not designed to run on Windows or contains an
-error.  Dispatching the pop-up error box allows the interface to run
-correctly.
+It is possible that XSB will try to recomplile the interface, if the
+file times are inconsistent.  In this case, be sure that the file time
+of {\tt xsbpym.xwam} is later than that of {\tt xsbpym.H} in {\tt
+  <XSB>/packages/xsbpy/} and try again.  (You may alternatively simply
+rename {\tt xsbpym.H} to another name.)
 
 \subsection{Testing whether the {\tt xsbpy} configuration was successful}
 
