@@ -264,11 +264,16 @@ download and install Python as described above.
 You must set a windows environment variable (local or global) named
 PYTHON\_LIBRARY to the name of the Python DLL, which is part of the
 Python system.  That DLL can be found by using the python script:
-{\tt find\_libpython} executed on a command line.  To run this
+{\tt find\_libpython} executed on a Python command line.  To run this
 script, you will probably have to install it, using the command
-{\tt pip install find-libpython}.
-
-Running the {\tt find\_libpython} script will print out the name of
+{\tt pip install find-libpython}, start Python, and then type:
+%% 
+\begin{verbatim}
+   from find_libpython import find_libpython
+   find_libpython()
+\end{verbatim}
+%% 
+This will print out the name of
 the file containing the necessary DLL.  Simply define the environment
 variable PYTHON\_LIBRARY to be this .dll file.  (If you don't have
 administrative permission on your computer, you can define it using
@@ -290,7 +295,15 @@ failed test notifications, the interface is available for use.
 It is possible that XSB will try to recomplile the interface, if the
 file times are inconsistent.  In this case, be sure that the file time
 of {\tt xsbpym.xwam} is later than that of {\tt xsbpym.H} in {\tt
-  <XSB>/packages/xsbpy/} and try again.  (You may alternatively simply
+  <XSB>/packages/xsbpy/} and try again.
+This cab be done in the Windows command window like this (assuming
+the current directory is the root of your XSB installation):
+%% 
+\begin{verbatim}
+  copy /b packages\xsbpy\xsbpym.xwam +,,
+\end{verbatim}
+%% 
+(You may alternatively simply
 rename {\tt xsbpym.H} to another name.)
 
 \subsection{Testing whether the {\tt xsbpy} configuration was successful}
