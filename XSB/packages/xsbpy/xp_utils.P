@@ -17,14 +17,34 @@ key(Dict,Key):-
     Dict = PYDICT_PROLOG(List),!,
 	member(PYTUP_PROLOG(Key,_Val),List).
 
-values(Dict,[Key],Val):- !,
+%:- import pp_py/1 from pp_py.
+
+values(Dict,List,Val):-
+     is_list(List),
+     List = [Key],!,
     values(Dict,Key,Val).
-values(Dict,[Key|Rest],Val):- !,
+values(Dict,List,Val):- 
+    is_list(List),
+    List = [Key|Rest],!,
     values(Dict,Key,Dict1),
     values(Dict1,Rest,Val).
 values(Dict,Key,Val):-
+%    writeln(checking(Key)),
     Dict = PYDICT_PROLOG(List),
-    memberchk(PYTUP_PROLOG(Key,Val),List).
+%    pp_py(List),
+    (nonvar(Key) -> 
+	    memberchk(PYTUP_PROLOG(Key,Val),List)
+	 ; member(PYTUP_PROLOG(Key,Val),List)).
+	 
+
+%values(Dict,[Key],Val):- nonvar(Key),!,
+%    values(Dict,Key,Val).
+%values(Dict,[Key|Rest],Val):- nonvar(Key),!,
+%    values(Dict,Key,Dict1),
+%    values(Dict1,Rest,Val).
+%values(Dict,Key,Val):-
+%    Dict = PYDICT_PROLOG(List),
+%    memberchk(PYTUP_PROLOG(Key,Val),List).
 
 % TES: should be able to call builtin function directly.
 obj_dict(Obj,Dict):-
